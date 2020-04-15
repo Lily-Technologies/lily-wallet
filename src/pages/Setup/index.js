@@ -6,9 +6,9 @@ import styled from 'styled-components';
 import { BACKEND_URL } from '../../config';
 import { createCaravanImportFile, createColdCardBlob, downloadFile } from './utils';
 import { Button, DeviceSelect } from '../../components';
-import { black, gray, blue, white, green, offWhite, darkOffWhite } from '../../utils/colors';
+import { black, gray, blue, white, green, offWhite, darkGray } from '../../utils/colors';
 
-const CreateFiles = () => {
+const Setup = () => {
   const [importedDevices, setImportedDevices] = useState([]);
   const [availableDevices, setAvailableDevices] = useState([]);
 
@@ -39,23 +39,27 @@ const CreateFiles = () => {
         <SelectDeviceContainer>
           <XPubHeaderWrapper>
             <BackToMainMenuLink to="..">{'<'} Main Menu</BackToMainMenuLink>
-            <SelectDeviceHeader>Create Setup Files</SelectDeviceHeader>
+            <SelectDeviceHeader>Create Wallet Files</SelectDeviceHeader>
           </XPubHeaderWrapper>
-          <CreateFilesHeaderContainer>
-            <CreateFilesHeader>Setup Multisig Wallet</CreateFilesHeader>
-            <CreateFilesSubheader>
+          <SetupHeaderContainer>
+            <SetupHeaderWrapper>
+              <SetupHeader>Connect Devices to Computer</SetupHeader>
+              <SetupSubheader>{importedDevices.length} of 3 devices configured</SetupSubheader>
+            </SetupHeaderWrapper>
+            <SetupExplainerText>
               Connect and unlock devices in order to create your multisig wallet for Coldcard and Caravan.
-              You may disconnect your device from your computer once it has been imported.
-              </CreateFilesSubheader>
-          </CreateFilesHeaderContainer>
+              You may disconnect your device from your computer after it has been configured.
+              </SetupExplainerText>
+          </SetupHeaderContainer>
 
           <DeviceSelect
             deviceAction={importDevice}
             configuredDevices={importedDevices}
             unconfiguredDevices={availableDevices}
             setUnconfiguredDevices={setAvailableDevices}
+            configuredThreshold={3}
           />
-          {importedDevices.length === 3 && <ScanDevicesButton background={green} color={white} onClick={exportSetupFiles}>{'Export Setup Files'}</ScanDevicesButton>}
+          {importedDevices.length === 3 && <ExportFilesButton background={green} color={white} onClick={exportSetupFiles}>{'Export Setup Files'}</ExportFilesButton>}
         </SelectDeviceContainer>
       </FormContainer>
     </Wrapper>
@@ -108,7 +112,7 @@ const XPubHeaderWrapper = styled.div`
   border-bottom: 1px solid ${gray};
 `;
 
-const CreateFilesHeaderContainer = styled.div`
+const SetupHeaderContainer = styled.div`
   padding: 12px;
 `;
 
@@ -116,8 +120,6 @@ const SelectDeviceHeader = styled.h1`
   font-size: 16px;
   font-weight: 500;
 `;
-
-
 
 const BackToMainMenuLink = styled(Link)`
   display: flex;
@@ -129,16 +131,29 @@ const BackToMainMenuLink = styled(Link)`
   }
 `;
 
-const CreateFilesHeader = styled.h5`
+const SetupHeaderWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+const SetupHeader = styled.span`
   font-size: 24px;
   margin: 4px 0;
 `;
 
-const CreateFilesSubheader = styled.span`
-  font-size: 12px;
+const SetupSubheader = styled.span`
+  font-size: 18px;
+  color: ${darkGray};
 `;
 
-const ScanDevicesButton = styled.button`
+const SetupExplainerText = styled.div`
+  color: ${darkGray};
+  font-size: 12px;
+  margin: 12px 0;
+`;
+
+const ExportFilesButton = styled.button`
   ${Button};
   padding: 16px;
   font-size: 16px;
@@ -148,4 +163,4 @@ const ScanDevicesButton = styled.button`
   border-top-right-radius: 0;
 `;
 
-export default CreateFiles;
+export default Setup;

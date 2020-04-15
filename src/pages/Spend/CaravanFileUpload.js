@@ -17,6 +17,7 @@ const CaravanFileUpload = ({
       <FileUploadContainer>
         <FileInput
           type="file"
+          accept="application/JSON"
           id="caravanFile"
           onChange={(e) => {
             const filereader = new FileReader();

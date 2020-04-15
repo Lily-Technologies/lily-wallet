@@ -13,21 +13,22 @@ const MainMenu = () => {
   return (
     <Wrapper>
       <img src="https://coldcardwallet.com/static/images/coldcard-logo-nav@2x.png" />
+      <KitchenText>Kitchen</KitchenText>
       <FormContainer>
         <SelectDeviceContainer>
           <DevicesWrapper>
             <Section>
               <StyledIcon as={Settings} size={96} style={{ alignSelf: 'center', margin: 24 }} />
-              Create a multisig file to import your multisig wallet into your Coldcard for signing transctions from your wallet.
+                Connect your devices to create setup files for Caravan and Coldcard.
               <ButtonContainer>
-                <ScanDevicesButton to="/create-files">Setup</ScanDevicesButton>
+                <ScanDevicesButton to="/setup">Create Wallet Files</ScanDevicesButton>
               </ButtonContainer>
             </Section>
             <Section>
               <StyledIcon as={Send} size={96} style={{ alignSelf: 'center', margin: 24 }} />
-              Send a transaction using some data from Caravan
+              Use data from Caravan to send a transaction from your device.
               <ButtonContainer>
-                <ScanDevicesButton to="/authorize">Authorize a Transaction</ScanDevicesButton>
+                <ScanDevicesButton to="/send">Send Transaction</ScanDevicesButton>
               </ButtonContainer>
             </Section>
           </DevicesWrapper>
@@ -49,6 +50,12 @@ const Wrapper = styled.div`
   justify-content: center;
   flex-direction: column;
   padding-top: 150px;
+`;
+
+const KitchenText = styled.div`
+  font-size: 36px;
+  font-weight: 700;
+  margin-top: -10px;
 `;
 
 const FormContainer = styled.div`
@@ -75,6 +82,7 @@ const Section = styled.div`
   flex: 1 0 250px;
   padding: 24px;
   justify-content: center;
+  text-align: center;
 `;
 
 const ButtonContainer = styled.div`

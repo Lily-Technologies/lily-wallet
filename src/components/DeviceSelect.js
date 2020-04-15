@@ -1,7 +1,7 @@
 import React, { useState, useEffect, Fragment } from 'react';
 import axios from 'axios';
 import { Link } from "react-router-dom";
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import moment from 'moment';
 import { ErrorOutline, CheckCircle } from '@styled-icons/material';
 
@@ -10,7 +10,7 @@ import { BACKEND_URL } from '../config';
 import { Button, StyledIcon } from '../components';
 import { black, gray, darkOffWhite, green, blue, white } from '../utils/colors';
 
-export const DeviceSelect = ({ configuredDevices, unconfiguredDevices, setUnconfiguredDevices, deviceAction }) => {
+export const DeviceSelect = ({ configuredDevices, unconfiguredDevices, setUnconfiguredDevices, configuredThreshold, deviceAction }) => {
   const [devicesLoading, setDevicesLoading] = useState(false);
   const [deviceActionLoading, setDeviceActionLoading] = useState(false);
 
@@ -64,7 +64,18 @@ export const DeviceSelect = ({ configuredDevices, unconfiguredDevices, setUnconf
             <DeviceName>{device.model}</DeviceName>
             <DeviceFingerprint>{device.fingerprint}</DeviceFingerprint>
             <ImportedWrapper>
-              {deviceActionLoading === index && (<span>Configuring...</span>)}
+              {deviceActionLoading === index ? (
+                <div>
+                  Configuring
+                  <ConfiguringAnimation>.</ConfiguringAnimation>
+                  <ConfiguringAnimation>.</ConfiguringAnimation>
+                  <ConfiguringAnimation>.</ConfiguringAnimation>
+                </div>
+              ) : (
+                  <div>
+                    Click to Configure
+                  </div>
+                )}
             </ImportedWrapper>
           </DeviceWrapper>
         ))}
@@ -80,7 +91,7 @@ export const DeviceSelect = ({ configuredDevices, unconfiguredDevices, setUnconf
         )}
       </DevicesWrapper>
 
-      {configuredDevices.length < 3 && <ScanDevicesButton background={blue} color={white} onClick={enumerate}>{devicesLoading ? 'Loading...' : 'Scan for new devices'}</ScanDevicesButton>}
+      {configuredDevices.length < configuredThreshold && <ScanDevicesButton background={blue} color={white} onClick={enumerate}>{devicesLoading ? 'Loading...' : 'Scan for new devices'}</ScanDevicesButton>}
     </Fragment >
   )
 }
@@ -162,4 +173,25 @@ const ScanDevicesButton = styled.button`
   font-weight: 700;
   border-top-left-radius: 0;
   border-top-right-radius: 0;
+`;
+
+const blinking = keyframes`
+  0% { opacity: .2; }
+  20% { opacity: 1; }
+  100% { opacity: .2; }
+`;
+
+const ConfiguringAnimation = styled.span`
+  animation-name: ${blinking};
+  animation-duration: 1.4s;
+  animation-iteration-count: infinite;
+  animation-fill-mode: both;
+
+  &:nth-child(2) {
+    animation-delay: .2s;
+  }
+
+  &:nth-child(3) {
+    animation-delay: .4s;
+  }
 `;

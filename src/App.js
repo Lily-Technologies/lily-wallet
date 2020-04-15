@@ -10,11 +10,9 @@ import {
 import { offWhite, black, gray } from './utils/colors';
 
 // Pages
-import SelectDevice from './pages/SelectDevice';
 import MainMenu from './pages/MainMenu';
-import CreateFiles from './pages/CreateFiles';
+import Setup from './pages/Setup';
 import Spend from './pages/Spend';
-import XPub from './pages/XPub';
 
 // Other display components
 // import Header from './components/Nav/Header';
@@ -40,8 +38,8 @@ function App() {
         <ScrollToTop />
         <Switch>
           {/* <Route path="/select-device" component={() => <SelectDevice device={device} setDevice={setDevice} />} /> */} */}
-          <Route path="/create-files" component={() => <CreateFiles />} />
-          <Route path="/authorize" component={() => <Spend />} />
+          <Route path="/setup" component={() => <Setup />} />
+          <Route path="/send" component={() => <Spend />} />
           <Route path="/" component={() => <MainMenu />} />
         </Switch>
       </PageWrapper>

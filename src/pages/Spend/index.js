@@ -27,10 +27,10 @@ const Spend = () => {
     <Wrapper>
       <FormContainer>
         <SelectDeviceContainer>
-          <XPubHeaderWrapper>
-            <SelectAnotherDeviceHeader to="..">{'<'} Select a different device</SelectAnotherDeviceHeader>
-            <SelectDeviceHeader>Authorize Transaction</SelectDeviceHeader>
-          </XPubHeaderWrapper>
+          <SpendHeaderWrapper>
+            <MainMenuHeader to="..">{'<'} Main Menu</MainMenuHeader>
+            <SelectDeviceHeader>Send Transaction</SelectDeviceHeader>
+          </SpendHeaderWrapper>
 
           {step === 0 && (
             <CaravanFileUpload
@@ -107,7 +107,7 @@ const SelectDeviceContainer = styled.div`
   margin: 18px;
 `;
 
-const XPubHeaderWrapper = styled.div`
+const SpendHeaderWrapper = styled.div`
   color: ${blue};
   background: ${offWhite};
   height: 48px;
@@ -132,7 +132,7 @@ const SelectDeviceFingerprintHeader = styled.span`
   font-size: 12px;
 `;
 
-const SelectAnotherDeviceHeader = styled(Link)`
+const MainMenuHeader = styled(Link)`
   display: flex;
   align-items: center;
   text-decoration: none;

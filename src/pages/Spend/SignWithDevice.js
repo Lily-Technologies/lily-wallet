@@ -32,12 +32,7 @@ const SignWithDevice = ({
   const [unsignedDevices, setUnsignedDevices] = useState([]);
   const [finalPsbt, setFinalPsbt] = useState(null);
   const [signedPsbts, setSignedPsbts] = useState([]);
-  const [devicesLoading, setDevicesLoading] = useState(false);
   const [broadcastedTxId, setBroadcastedTxId] = useState(null);
-
-  useEffect(() => {
-    enumerate();
-  }, []);
 
   useEffect(async () => {
     const psbt = await constructPsbt(
@@ -50,28 +45,7 @@ const SignWithDevice = ({
     setFinalPsbt(psbt);
   }, []);
 
-
-  const enumerate = async () => {
-    setDevicesLoading(true);
-    const { data } = await axios.get(`${BACKEND_URL}/enumerate`);
-    setDevicesLoading(false);
-
-    // filter out devices that are available but already imported
-    const filteredDevices = data.filter((device) => {
-      let deviceAlreadyImported = false;
-      for (let i = 0; i < signedDevices.length; i++) {
-        if (signedDevices[i].fingerprint === device.fingerprint) {
-          deviceAlreadyImported = true;
-        }
-      }
-      if (!deviceAlreadyImported) {
-        return device
-      }
-    });
-    setUnsignedDevices(filteredDevices);
-  }
-
-  const signWithDevice = async (device) => {
+  const signWithDevice = async (device, index) => {
     const { data } = await axios.post(`${BACKEND_URL}/sign`, {
       deviceType: device.type,
       devicePath: device.path,
@@ -80,6 +54,8 @@ const SignWithDevice = ({
     console.log('signWithDevice data: ', data);
     setSignedPsbts([...signedPsbts, data.psbt]);
     setSignedDevices([...signedDevices, device]);
+    unsignedDevices.splice(index, 1);
+    setUnsignedDevices([...unsignedDevices]);
   }
 
   const broadcastTransaction = async () => {
@@ -103,42 +79,23 @@ const SignWithDevice = ({
 
   return (
     <TransactionDetailsWrapper>
-      <div>
-        <AuthorizeHeader>Authorize from Device</AuthorizeHeader>
-        <AuthorizeSubheader>Click on a device to authorize the transaction. If you don't see your device, click "Scan for New Devices".</AuthorizeSubheader>
-      </div>
-
-
+      <SetupHeaderContainer>
+        <SetupHeaderWrapper>
+          <SetupHeader>Confirm on Devices</SetupHeader>
+          <SetupSubheader>{signedDevices.length} of 2 devices confirmed</SetupSubheader>
+        </SetupHeaderWrapper>
+        <SetupExplainerText>
+          Click on a device to confirm the transaction. If you don't see your device, click "Scan for New Devices".
+              </SetupExplainerText>
+      </SetupHeaderContainer>
       <DeviceSelect
         configuredDevices={signedDevices}
         unconfiguredDevices={unsignedDevices}
         deviceAction={signWithDevice}
         setUnconfiguredDevices={setUnsignedDevices}
+        configuredThreshold={2}
       />
 
-
-      <DevicesWrapper>
-        {signedDevices.map((device, index) => (
-          <DeviceWrapper key={index} imported={true}>
-            <DeviceImage src={"https://coldcardwallet.com/static/images/coldcard-front.png"} />
-            <DeviceName>{device.model}</DeviceName>
-            <DeviceFingerprint>{device.fingerprint}</DeviceFingerprint>
-            <ImportedWrapper>
-              <StyledIcon as={CheckCircle} size={24} />
-            </ImportedWrapper>
-          </DeviceWrapper>
-        ))}
-
-        {unsignedDevices.map((device, index) => (
-          <DeviceWrapper key={index} onClick={() => signWithDevice(device, index)}>
-            <DeviceImage src={"https://coldcardwallet.com/static/images/coldcard-front.png"} />
-            <DeviceName>{device.model}</DeviceName>
-            <DeviceFingerprint>{device.fingerprint}</DeviceFingerprint>
-          </DeviceWrapper>
-        ))}
-      </DevicesWrapper>
-
-      {signedPsbts.length < 2 && <GetXPubButton onClick={enumerate}>{devicesLoading ? 'Loading...' : 'Scan for New Devices'}</GetXPubButton>}
       {signedPsbts.length === 2 && <BroadcastTransactionButton background={green} color={white} onClick={broadcastTransaction}>Broadcast Transaction</BroadcastTransactionButton>}
       {broadcastedTxId && <ViewTransactionButton href={`https://blockstream.info/testnet/tx/${broadcastedTxId}`}>View Transaction</ViewTransactionButton>}
     </TransactionDetailsWrapper>
@@ -149,69 +106,34 @@ const TransactionDetailsWrapper = styled.div`
   display: flex;
   flex-direction: column;
   min-height: 400px;
-  padding: 24px;
   justify-content: space-between;
 `;
 
-const GetXPubButton = styled.button`
-  ${Button};
-  padding: 12px;
-  margin: 0 8px;
+const SetupHeaderContainer = styled.div`
+  padding: 24px 24px 0;
 `;
 
-const AuthorizeHeader = styled.h5`
+const SetupHeaderWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+const SetupHeader = styled.h3`
   font-size: 24px;
+  display: inline-block;
   margin: 4px 0;
 `;
 
-const AuthorizeSubheader = styled.p`
+const SetupSubheader = styled.span`
+  font-size: 18px;
+  color: ${darkGray};
+`;
+
+const SetupExplainerText = styled.div`
+  color: ${darkGray};
   font-size: 12px;
-`;
-
-const DevicesWrapper = styled.div`
-  display: flex;
-  justify-content: space-around;
-  min-height: 400px;
-`;
-
-
-const DeviceWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 12px;
-  margin: 24px;
-  flex: 0 1 250px;
-  border-radius: 4px;
-
-  &:hover {
-    cursor: pointer;
-    background: ${darkOffWhite};
-  }
-`;
-
-const DeviceImage = styled.img`
-  display: block;
-  width: auto;
-  height: auto;
-  max-height: 250px;
-  max-width: 148px;
-`;
-
-const DeviceName = styled.h4`
-  text-transform: capitalize;
-  margin-bottom: 2px;
-`;
-
-const DeviceFingerprint = styled.h5`
-  color: ${gray};
-  margin: 0;
-`;
-
-const ImportedWrapper = styled.div`
-  margin: 4px 0 0;
-  color: ${green};
+  margin: 12px 0;
 `;
 
 const BroadcastTransactionButton = styled.button`
