@@ -48,8 +48,8 @@ const Signup = ({ device, setDevice }) => {
           <ScanDevicesButton background={blue} color={white} onClick={enumerate}>{loading ? 'Loading...' : 'Scan for new devices'}</ScanDevicesButton>
         </SelectDeviceContainer>
       </FormContainer>
-      <ViewSourceCodeText to={'/login'}>View Source Code</ViewSourceCodeText>
-      <DontTrustVerify to={'/login'}>Don't Trust. Verify.</DontTrustVerify>
+      <ViewSourceCodeText href="https://github.com/KayBeSee/cc-kitchen-frontend" target="_blank">View Source Code</ViewSourceCodeText>
+      <DontTrustVerify>Don't Trust. Verify.</DontTrustVerify>
     </Wrapper>
   )
 }

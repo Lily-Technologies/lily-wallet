@@ -7,12 +7,13 @@ import {
   useLocation
 } from "react-router-dom";
 
-import { offWhite } from './utils/colors';
+import { offWhite, black, gray } from './utils/colors';
 
 // Pages
 import SelectDevice from './pages/SelectDevice';
-import Device from './pages/Device';
-import Sign from './pages/Sign';
+import MainMenu from './pages/MainMenu';
+import CreateFiles from './pages/CreateFiles';
+import Spend from './pages/Spend';
 import XPub from './pages/XPub';
 
 // Other display components
@@ -20,7 +21,6 @@ import XPub from './pages/XPub';
 // import Footer from './components/footer';
 
 function App() {
-  const [device, setDevice] = useState();
 
   const ScrollToTop = () => {
     const { pathname } = useLocation();
@@ -39,12 +39,16 @@ function App() {
       <PageWrapper id="page-wrapper">
         <ScrollToTop />
         <Switch>
-          <Route path="/device" component={() => <Device device={device} />} />
-          <Route path="/xpub" component={() => <XPub device={device} />} />
-          <Route path="/sign" component={() => <Sign device={device} />} />
-          <Route path="/" component={() => <SelectDevice device={device} setDevice={setDevice} />} />
+          {/* <Route path="/select-device" component={() => <SelectDevice device={device} setDevice={setDevice} />} /> */} */}
+          <Route path="/create-files" component={() => <CreateFiles />} />
+          <Route path="/authorize" component={() => <Spend />} />
+          <Route path="/" component={() => <MainMenu />} />
         </Switch>
       </PageWrapper>
+      <FooterWrapper>
+        <ViewSourceCodeText href="https://github.com/KayBeSee/cc-kitchen-frontend" target="_blank">View Source Code</ViewSourceCodeText>
+        <DontTrustVerify>Don't Trust. Verify.</DontTrustVerify>
+      </FooterWrapper>
       {/* <Footer /> */}
       {/* </WindowWrapper> */}
     </Router>
@@ -59,6 +63,26 @@ const PageWrapper = styled.div`
   font-family: 'Raleway', sans-serif;
   flex: 1;
   background: ${offWhite};
+`;
+
+const FooterWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: ${offWhite};
+  flex: 1 0 250px;
+`;
+
+const ViewSourceCodeText = styled.a`
+  color: ${ black};
+  text-decoration: none;
+  cursor: pointer;
+  letter-spacing: -0.03em;
+  font-family: 'Raleway', sans-serif;
+`;
+
+const DontTrustVerify = styled.span`
+color: ${ gray};
 `;
 
 export default App;

@@ -10,13 +10,17 @@
   },
   "dependencies": {
     "axios": "^0.19.2",
+    "bitcoinjs-lib": "^5.1.7",
     "cors": "^2.8.5",
+    "moment": "^2.24.0",
     "polished": "^3.5.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-router-dom": "^5.1.2",
     "react-scripts": "3.4.1",
-    "styled-components": "^5.1.0"
+    "styled-components": "^5.1.0",
+    "styled-icons": "^10.2.1",
+    "unchained-bitcoin": "0.0.9"
   },
   "browserslist": {
     "production": [

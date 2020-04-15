@@ -14,7 +14,6 @@ const XPub = ({ device }) => {
   const [xpubLoading, setXpubLoading] = useState(false);
 
   document.title = `Device Config: ${device.model} (${device.fingerprint})`;
-  console.log('device: ', device);
 
   const getXPub = async () => {
     setXpubLoading(true);
@@ -24,7 +23,6 @@ const XPub = ({ device }) => {
       path: path
     });
     setXpubLoading(false);
-    console.log('data: ', data);
     setXPub(data.xpub);
   }
 
@@ -75,9 +73,9 @@ const XPub = ({ device }) => {
           </XPubWrapper>
         </SelectDeviceContainer>
       </FormContainer>
-      <ViewSourceCodeText href="#">View Source Code</ViewSourceCodeText>
+      <ViewSourceCodeText href="https://github.com/KayBeSee/cc-kitchen-frontend" target="_blank">View Source Code</ViewSourceCodeText>
       <DontTrustVerify>Don't Trust. Verify.</DontTrustVerify>
-    </Wrapper>
+    </Wrapper >
   )
 }
 
