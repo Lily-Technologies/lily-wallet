@@ -1,8 +1,6 @@
 import moment from 'moment';
 
 export const createCaravanImportFile = (importedDevices) => {
-  const contentType = "application/json;charset=utf-8;";
-
   const caravanObject = {
     name: "Coldcard Kitchen",
     addressType: "P2WSH",
@@ -24,8 +22,7 @@ export const createCaravanImportFile = (importedDevices) => {
     }
   });
 
-  var blob = new Blob([decodeURIComponent(encodeURI(JSON.stringify(caravanObject)))], { type: contentType });
-  return blob;
+  return caravanObject;
 }
 
 export const createColdCardBlob = (importedDevices) => {

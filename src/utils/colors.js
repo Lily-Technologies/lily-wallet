@@ -7,6 +7,7 @@ export const darkOrange = darken(0.2, orange);
 export const lightOrange = lighten(0.2, orange);
 
 export const gray = '#bdc3c7';
+export const lightGray = lighten(0.2, gray);
 export const darkGray = darken(0.2, gray);
 
 export const white = '#ffffff';
@@ -17,8 +18,12 @@ export const black = 'rgba(66,66,66,.95)';
 
 export const blue = "#387eec";
 export const darkBlue = darken(0.05, blue);
-export const lightBlue = lighten(0.35, blue);
+export const lightBlue = lighten(0.40, blue);
 
 export const green = "#9BD187";
+export const darkGreen = darken(0.15, green);
+export const lightGreen = lighten(0.25, green);
+
+export const purple = "#A367FF";
 
 export const secondaryMenu = lighten(0.15, gray);

@@ -1,10 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Button } from '../../components';
-import { black, gray, blue, green, lightBlue, offWhite, darkGray, darkOffWhite } from '../../utils/colors';
+import { Button } from '.';
+import { black, gray, blue, green, lightBlue, offWhite, darkGray, darkOffWhite } from '../utils/colors';
 
-const CaravanFileUpload = ({
+export const CaravanFileUpload = ({
   caravanFile,
   setCaravanFile,
   step,
@@ -93,5 +93,3 @@ const CaravanFileUploadHeader = styled.h5`
 const CaravanFileUploadSubheader = styled.span`
   font-size: 12px;
 `;
-
-export default CaravanFileUpload;

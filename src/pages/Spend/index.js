@@ -3,7 +3,7 @@ import axios from 'axios';
 import { Link } from "react-router-dom";
 import styled from 'styled-components';
 
-import CaravanFileUpload from './CaravanFileUpload';
+// import CaravanFileUpload from './CaravanFileUpload';
 import InputDetails from './InputDetails';
 import SignWithDevice from './SignWithDevice';
 
@@ -32,14 +32,14 @@ const Spend = () => {
             <SelectDeviceHeader>Send Transaction</SelectDeviceHeader>
           </SpendHeaderWrapper>
 
-          {step === 0 && (
+          {/* {step === 0 && (
             <CaravanFileUpload
               caravanFile={caravanFile}
               setCaravanFile={setCaravanFile}
               step={step}
               setStep={setStep}
             />
-          )}
+          )} */}
 
           {step === 1 && (
             <InputDetails
@@ -121,15 +121,9 @@ const SpendHeaderWrapper = styled.div`
   border-bottom: 1px solid ${gray};
 `;
 
-
-
 const SelectDeviceHeader = styled.h1`
   font-size: 16px;
   font-weight: 500;
-`;
-
-const SelectDeviceFingerprintHeader = styled.span`
-  font-size: 12px;
 `;
 
 const MainMenuHeader = styled(Link)`

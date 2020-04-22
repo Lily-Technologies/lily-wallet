@@ -4,25 +4,47 @@ import {
   BrowserRouter as Router,
   Switch,
   Route,
-  useLocation
+  useLocation,
+  useHistory
 } from "react-router-dom";
+import axios from 'axios';
+import BigNumber from 'bignumber.js';
 
 import { offWhite, black, gray } from './utils/colors';
 
+import { Sidebar } from './components';
+
 // Pages
-import MainMenu from './pages/MainMenu';
+import Login from './pages/Login';
+import GDriveImport from './pages/GDriveImport';
 import Setup from './pages/Setup';
 import Spend from './pages/Spend';
+import Wallet from './pages/Wallet';
+import Vault from './pages/Vault';
+import Receive from './pages/Receive';
+import Send from './pages/Send';
+import ColdcardImportInstructions from './pages/ColdcardImportInstructions';
 
 // Other display components
 // import Header from './components/Nav/Header';
 // import Footer from './components/footer';
 
 function App() {
+  const [currentBitcoinPrice, setCurrentBitcoinPrice] = useState(BigNumber(0));
+  const [caravanFile, setCaravanFile] = useState(null);
+
+  const ConfigRequired = () => {
+    const { pathname } = useLocation();
+    const history = useHistory();
+    if (!caravanFile && (pathname !== '/login' && pathname !== '/gdrive-import' && pathname !== '/setup')) {
+      history.push('login');
+      window.location.reload();
+    }
+    return null;
+  }
 
   const ScrollToTop = () => {
     const { pathname } = useLocation();
-
     useEffect(() => {
       window.scrollTo(0, 0);
     }, [pathname]);
@@ -30,17 +52,37 @@ function App() {
     return null;
   }
 
+  useEffect(() => {
+    async function fetchCurrentBitcoinPrice() {
+      const currentBitcoinPrice = await (await axios.get('https://api.coindesk.com/v1/bpi/currentprice.json')).data.bpi.USD.rate;
+      setCurrentBitcoinPrice(new BigNumber(currentBitcoinPrice.replace(',', '')));
+    }
+    fetchCurrentBitcoinPrice();
+  }, []);
+
   return (
     <Router>
       {/* <WindowWrapper> */}
       {/* <Header /> */}
       <PageWrapper id="page-wrapper">
         <ScrollToTop />
+        <ConfigRequired />
+        {caravanFile && <Sidebar caravanFile={caravanFile} />}
         <Switch>
           {/* <Route path="/select-device" component={() => <SelectDevice device={device} setDevice={setDevice} />} /> */} */}
-          <Route path="/setup" component={() => <Setup />} />
-          <Route path="/send" component={() => <Spend />} />
-          <Route path="/" component={() => <MainMenu />} />
+          {/* <Route path="/send" component={() => <Spend />} /> */}
+          <Route path="/wallet/:name" component={() => <Wallet caravanFile={caravanFile} currentBitcoinPrice={currentBitcoinPrice} />} />
+          <Route path="/vault" component={() => <Vault caravanFile={caravanFile} currentBitcoinPrice={currentBitcoinPrice} />} />
+          <Route path="/receive" component={() => <Receive caravanFile={caravanFile} currentBitcoinPrice={currentBitcoinPrice} />} />
+          <Route path="/send" component={() => <Send caravanFile={caravanFile} currentBitcoinPrice={currentBitcoinPrice} />} />
+          <Route path="/setup" component={() => <Setup caravanFile={caravanFile} setCaravanFile={setCaravanFile} />} />
+          <Route path="/login" component={() => <Login />} />
+          <Route path="/gdrive-import" component={() => <GDriveImport setCaravanFile={setCaravanFile} />} />
+          <Route path="/coldcard-import-instructions" component={() => <ColdcardImportInstructions />} />
+          <Route path="/" component={() => (
+            <div>Not Found</div>
+          )}
+          />
         </Switch>
       </PageWrapper>
       <FooterWrapper>
@@ -56,8 +98,8 @@ function App() {
 const PageWrapper = styled.div`
   height: 100%;
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  // flex-direction: column;
+  // align-items: center;
   font-family: 'Raleway', sans-serif;
   flex: 1;
   background: ${offWhite};
@@ -68,7 +110,8 @@ const FooterWrapper = styled.div`
   flex-direction: column;
   align-items: center;
   background: ${offWhite};
-  flex: 1 0 250px;
+  flex: 1 0;
+  padding: 24px;
 `;
 
 const ViewSourceCodeText = styled.a`

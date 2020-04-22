@@ -3,6 +3,9 @@ import darken from 'polished/lib/color/darken';
 import { white, blue } from '../utils/colors';
 
 export const Button = css`
+  display: flex;
+  justify-content: center;
+  align-items: center;
   padding: 12px;
   border: none;
   border-radius: 4px;

@@ -1,36 +1,32 @@
-import React from 'react';
-import { Link } from "react-router-dom";
+import React, { useEffect } from 'react';
+import { Link, useHistory } from "react-router-dom";
 import styled from 'styled-components';
-import { Settings, Send } from '@styled-icons/material';
-import { StyledIcon } from '../components';
+import { RestaurantMenu } from '@styled-icons/material';
+import { StyledIcon, StyledIconSpinning } from '../components';
 
 import { Button } from '../components';
-import { black, gray } from '../utils/colors';
+import { black, darkGray } from '../utils/colors';
 
-const MainMenu = () => {
-  document.title = `Coldcard Kitchen - Main Menu`;
+const ColdcardImportInstructions = ({ setCaravanFile }) => {
+  document.title = `ColdcardImportInstructions - Coldcard Kitchen`;
+  const history = useHistory();
 
   return (
     <Wrapper>
-      <img src="https://coldcardwallet.com/static/images/coldcard-logo-nav@2x.png" />
-      <KitchenText>Kitchen</KitchenText>
       <FormContainer>
         <SelectDeviceContainer>
           <DevicesWrapper>
-            <Section>
-              <StyledIcon as={Settings} size={96} style={{ alignSelf: 'center', margin: 24 }} />
-                Connect your devices to create setup files for Caravan and Coldcard.
-              <ButtonContainer>
-                <ScanDevicesButton to="/setup">Create Wallet Files</ScanDevicesButton>
-              </ButtonContainer>
-            </Section>
-            <Section>
-              <StyledIcon as={Send} size={96} style={{ alignSelf: 'center', margin: 24 }} />
-              Use data from Caravan to send a transaction from your device.
-              <ButtonContainer>
-                <ScanDevicesButton to="/send">Send Transaction</ScanDevicesButton>
-              </ButtonContainer>
-            </Section>
+            <h1>Import File to Coldcard</h1>
+            <StyledIconSpinning as={RestaurantMenu} size={96} />
+
+            <Instructions>1) Drag and drop coldcard_import_file.txt into an SD Card</Instructions>
+            <Instructions>2) Put SD Card into Coldcard Wallet</Instructions>
+            <Instructions>3) Import Wallet: Settings > Multisig Wallets > Import from SD</Instructions>
+
+            <ScanDevicesButton
+              onClick={() => history.push('/vault')}>
+              I have completed these instructions
+              </ScanDevicesButton>
           </DevicesWrapper>
         </SelectDeviceContainer>
       </FormContainer>
@@ -52,10 +48,8 @@ const Wrapper = styled.div`
   padding-top: 150px;
 `;
 
-const KitchenText = styled.div`
-  font-size: 36px;
-  font-weight: 700;
-  margin-top: -10px;
+const Instructions = styled.div`
+  color: ${darkGray};
 `;
 
 const FormContainer = styled.div`
@@ -70,6 +64,8 @@ const SelectDeviceContainer = styled.div`
   display: flex;
   flex: 1;
   flex-direction: column;
+  justify-content: center;
+  align-items: center;
   padding: 0;
   border-radius: 4px;
   box-shadow: rgba(0, 0, 0, 0.15) 0px 5px 15px 0px;
@@ -95,14 +91,15 @@ const ScanDevicesButton = styled(Link)`
   font-size: 16px;
   margin-top: 12px;
   font-weight: 700;
-  flex: 1;
 `;
 
 const DevicesWrapper = styled.div`
   display: flex;
-  justify-content: space-around;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   min-height: 400px;
   flex-wrap: wrap;
 `;
 
-export default MainMenu;
+export default ColdcardImportInstructions;

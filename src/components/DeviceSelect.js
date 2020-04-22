@@ -105,7 +105,6 @@ const NoDevicesWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: ${darkOffWhite};
   padding: 24px;
 `;
 
