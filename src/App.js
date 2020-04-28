@@ -31,7 +31,8 @@ import ColdcardImportInstructions from './pages/ColdcardImportInstructions';
 
 function App() {
   const [currentBitcoinPrice, setCurrentBitcoinPrice] = useState(BigNumber(0));
-  const [caravanFile, setCaravanFile] = useState(null);
+  // const [caravanFile, setCaravanFile] = useState();
+  const [caravanFile, setCaravanFile] = useState({ "name": "Coldcard Kitchen", "addressType": "P2WSH", "network": "testnet", "client": { "type": "public" }, "quorum": { "requiredSigners": 2, "totalSigners": 3 }, "extendedPublicKeys": [{ "name": "34ecf56b", "bip32Path": "m/0", "xpub": "tpubDECB21DPAjBvUtqSCGWHJrbh6nSg9JojqmoMBuS5jGKTFvYJb784Pu5hwq8vSpH6vkk3dZmjA3yR7mGbrs3antkL6BHVHAyjPeeJyAiVARA", "method": "xpub" }, { "name": "9130c3d6", "bip32Path": "m/0", "xpub": "tpubDDv6Az73JkvvPQPFdytkRrizpdxWtHTE6gHywCRqPu3nz2YdHDG5AnbzkJWJhtYwEJDR3eENpQQZyUxtFFRRC2K1PEGdwGZJYuji8QcaX4Z", "method": "xpub" }, { "name": "4f60d1c9", "bip32Path": "m/0", "xpub": "tpubDFR1fvmcdWbMMDn6ttHPgHi2Jt92UkcBmzZ8MX6QuoupcDhY7qoKsjSG2MFvN66r2zQbZrdjfS6XtTv8BjED11hUMq3kW2rc3CLTjBZWWFb", "method": "xpub" }] });
 
   const ConfigRequired = () => {
     const { pathname } = useLocation();

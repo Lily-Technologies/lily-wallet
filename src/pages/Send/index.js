@@ -11,26 +11,81 @@ import {
   deriveChildPublicKey,
   blockExplorerAPIURL,
   satoshisToBitcoins,
+  bitcoinsToSatoshis,
+  multisigWitnessScript,
+  scriptToHex,
   TESTNET
 } from "unchained-bitcoin";
-import { payments, ECPair, networks } from 'bitcoinjs-lib';
+import { payments, ECPair, networks, Psbt, address } from 'bitcoinjs-lib';
 
 import { StyledIcon, Button } from '../../components';
 import RecentTransactions from '../../components/transactions/RecentTransactions';
 
-import { getTransactionsAndTotalValueFromXPub, getTransactionsFromMultisig } from '../../utils/transactions';
-import { black, gray, offWhite, blue, darkGray, white, darkOffWhite, green, lightGreen, darkGreen, lightGray, lightBlue } from '../../utils/colors';
+import SignWithDevice from '../Spend/SignWithDevice'
 
+import { getTransactionsAndTotalValueFromXPub, getTransactionsFromMultisig, createTransactionMapFromTransactionArray, coinSelection, getFeeForMultisig } from '../../utils/transactions';
+import { black, gray, offWhite, blue, darkGray, white, darkOffWhite, green, lightGreen, darkGreen, lightGray, lightBlue } from '../../utils/colors';
 
 const Send = ({ caravanFile, currentBitcoinPrice }) => {
   const [currentAccount, setCurrentAccount] = useState(caravanFile.extendedPublicKeys[0] || null);
   const [transactionsFromBlockstream, setTransactionsFromBlockstream] = useState([]);
   const [unusedAddresses, setUnusedAddresses] = useState([]); // will need to use these when creating change
-  const [loadingDataFromBlockstream, setLoadingDataFromBlockstream] = useState(true);
+  const [availableUtxos, setAvailableUtxos] = useState([]); // will need to use these when creating change
   const [totalValue, setTotalValue] = useState(BigNumber(0));
-
+  const [loadingDataFromBlockstream, setLoadingDataFromBlockstream] = useState(true);
+  const [sendAmount, setSendAmount] = useState('');
+  const [recipientAddress, setRecipientAddress] = useState('');
+  const [step, setStep] = useState(0);
+  const [finalPsbt, setFinalPsbt] = useState(null);
 
   document.title = `Send - Coldcard Kitchen`;
+
+  const createTransaction = async (amountInBitcoins, recipientAddress, availableUtxos, transactionsFromBlockstream) => {
+    const transactionMap = createTransactionMapFromTransactionArray(transactionsFromBlockstream);
+    console.log('transactionMap: ', transactionMap);
+
+    const feeEstimate = await getFeeForMultisig(caravanFile.addressType, 1, 2, caravanFile.quorum.requiredSigners, caravanFile.quorum.totalSigners);
+    console.log('feeEstimate: ', feeEstimate.toFixed(8));
+    const outputTotal = bitcoinsToSatoshis(amountInBitcoins).toNumber() + feeEstimate;
+    const [spendingUtxos, spendingUtxosTotal] = coinSelection(outputTotal, availableUtxos);
+    console.log('spendingUtxos: ', spendingUtxos, spendingUtxosTotal.toFixed(8));
+
+    const psbt = new Psbt({ network: networks.testnet });
+    psbt.setVersion(2); // These are defaults. This line is not needed.
+    psbt.setLocktime(0); // These are defaults. This line is not needed.
+
+    spendingUtxos.forEach((utxo, index) => {
+      psbt.addInput({
+        hash: utxo.txid,
+        index: utxo.vout,
+        sequence: 0xffffffff,
+        witnessUtxo: {
+          script: Buffer.from(transactionMap.get(utxo.txid).vout[utxo.vout].scriptpubkey, 'hex'),
+          value: utxo.value
+        },
+        witnessScript: Buffer.from(scriptToHex(multisigWitnessScript(utxo.address)), 'hex'),
+        bip32Derivation: utxo.address.bip32derivation
+      })
+    });
+
+    // KBC-TODO: need to calc change if necessary
+    psbt.addOutput({
+      // script: address.toOutputScript(recipientAddress, networks.testnet),
+      address: recipientAddress,
+      value: bitcoinsToSatoshis(amountInBitcoins).toNumber(),
+    });
+
+    if (spendingUtxosTotal > outputTotal) {
+      psbt.addOutput({
+        address: unusedAddresses[0].address,
+        value: spendingUtxosTotal.minus(outputTotal).toFixed(8)
+      })
+    }
+
+    setFinalPsbt(psbt);
+    setStep(1);
+  }
+
 
   useEffect(() => {
     async function fetchTransactionsFromBlockstream() {
@@ -45,6 +100,7 @@ const Send = ({ caravanFile, currentBitcoinPrice }) => {
       setUnusedAddresses(unusedAddresses);
       setTransactionsFromBlockstream(transactions);
       setTotalValue(totalValue);
+      setAvailableUtxos(availableUtxos);
       setLoadingDataFromBlockstream(false);
     }
     fetchTransactionsFromBlockstream();
@@ -66,7 +122,7 @@ const Send = ({ caravanFile, currentBitcoinPrice }) => {
         <SendWrapper>
           <AccountMenu>
             {caravanFile.extendedPublicKeys.map((xpub) => (
-              <AccountMenuItemWrapper active={currentAccount.name === xpub.name} onClick={() => {
+              <AccountMenuItemWrapper key={xpub.name} active={currentAccount.name === xpub.name} onClick={() => {
                 setCurrentAccount(xpub);
                 setTransactionsFromBlockstream([]);
                 setTotalValue(BigNumber(0));
@@ -86,37 +142,48 @@ const Send = ({ caravanFile, currentBitcoinPrice }) => {
           </AccountMenu>
 
           <AccountSendContent>
-
-            <AccountSendContentLeft>
-              <SendToAddressHeader>
-                Send bitcoin to
+            {step === 0 && (
+              <AccountSendContentLeft>
+                <SendToAddressHeader>
+                  Send bitcoin to
               </SendToAddressHeader>
 
-              <Input
-                placeholder="tb1qy8glxuvc7nqqlxmuucnpv93fekyv4lth6k3v3p"
-              />
-
-              <SendToAddressHeader>
-                Amount of bitcoin to send
-              </SendToAddressHeader>
-
-              <AddressDisplayWrapper>
                 <Input
-                  placeholder="0.0025"
-                  style={{ borderRight: 'none', paddingRight: 80, color: darkGray }}
+                  onChange={(e) => setRecipientAddress(e.target.value)}
+                  value={recipientAddress}
+                  placeholder="tb1qy8glxuvc7nqqlxmuucnpv93fekyv4lth6k3v3p"
                 />
-                <InputStaticText
-                  disabled
-                  text="BTC"
-                >BTC</InputStaticText>
-              </AddressDisplayWrapper>
 
-              <SendButtonContainer>
-                <CopyAddressButton>Send Payment</CopyAddressButton>
-                <CopyAddressButton background="transparent" color={darkGray}>Advanced Options</CopyAddressButton>
-              </SendButtonContainer>
+                <SendToAddressHeader>
+                  Amount of bitcoin to send
+              </SendToAddressHeader>
 
-            </AccountSendContentLeft>
+                <AddressDisplayWrapper>
+                  <Input
+                    value={sendAmount}
+                    onChange={(e) => setSendAmount(e.target.value)}
+                    placeholder="0.0025"
+                    style={{ borderRight: 'none', paddingRight: 80, color: darkGray }}
+                  />
+                  <InputStaticText
+                    disabled
+                    text="BTC"
+                  >BTC</InputStaticText>
+                </AddressDisplayWrapper>
+
+                <SendButtonContainer>
+                  <CopyAddressButton onClick={() => createTransaction(sendAmount, recipientAddress, availableUtxos, transactionsFromBlockstream)}>Send Payment</CopyAddressButton>
+                  <CopyAddressButton background="transparent" color={darkGray}>Advanced Options</CopyAddressButton>
+                </SendButtonContainer>
+              </AccountSendContentLeft>
+            )}
+
+            {step === 1 && (
+              <AccountSendContentLeft>
+                <SignWithDevice psbt={finalPsbt} />
+              </AccountSendContentLeft>
+            )}
+
 
             <AccountSendContentRight>
               <CurrentBalanceWrapper>

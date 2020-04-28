@@ -21,7 +21,7 @@ const TransactionRow = ({ transaction, flat }) => {
             <TxTypeTime>{moment.unix(transaction.status.block_time).format('h:mm A')}</TxTypeTime>
           </TxTypeTextWrapper>
         </TxTypeIcon>
-        <AddressWrapper flat={flat}>{transaction.address}</AddressWrapper>
+        <AddressWrapper flat={flat}>{transaction.address.address ? transaction.address.address : transaction.address}</AddressWrapper>
         <AmountWrapper flat={flat}>{satoshisToBitcoins(transaction.value).toNumber()} BTC</AmountWrapper>
       </TransactionRowContainer>
       {isOpen && <TransactionMoreInfo>

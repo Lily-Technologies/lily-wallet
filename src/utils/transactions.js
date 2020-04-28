@@ -4,140 +4,252 @@ import { payments, ECPair, networks } from 'bitcoinjs-lib';
 import {
   deriveChildPublicKey,
   blockExplorerAPIURL,
+  bitcoinsToSatoshis,
   generateMultisigFromPublicKeys,
+  estimateMultisigTransactionFee,
   TESTNET
 } from "unchained-bitcoin";
+import { satoshisToBitcoins } from 'unchained-bitcoin/lib/utils';
 
-const organizeTransactions = (transactionsFromBlockstream, addresses, changeAddresses) => {
-  console.log('transactionsFromBlockstream, addresses, changeAddresses: ', transactionsFromBlockstream, addresses, changeAddresses);
-  const changeAddressesArray = changeAddresses.map((changeAddress) => changeAddress.address);
-  const addressesArray = addresses.map((address) => address.address);
+export const createTransactionMapFromTransactionArray = (transactionsArray) => {
+  const transactionMap = new Map();
+  transactionsArray.forEach((tx) => {
+    transactionMap.set(tx.txid, tx)
+  });
+  return transactionMap
+}
+
+export const createAddressMapFromAddressArray = (addressArray) => {
+  const addressMap = new Map();
+  addressArray.forEach((addr) => {
+    addressMap.set(addr.address, addr)
+  });
+  return addressMap
+}
+
+export const coinSelection = (amountInSats, availableUtxos) => {
+  console.log('amountInSats: ', amountInSats);
+  console.log('amountInBTC: ', satoshisToBitcoins(amountInSats));
+  availableUtxos.sort((a, b) => b.value - a.value); // sort available utxos from largest size to smallest size to minimize inputs
+  let currentTotal = BigNumber(0);
+  const spendingUtxos = [];
+  let index = 0;
+  while (currentTotal.isLessThan(amountInSats) && index < availableUtxos.length) {
+    console.log('currentTotal.isLessThan(bitcoinsToSatoshis(amountInBTC).toNumber()): ', currentTotal.isLessThan(amountInSats), currentTotal.toFixed(8));
+    console.log('index < availableUtxos.length: ', index < availableUtxos.length);
+    currentTotal = currentTotal.plus(availableUtxos[index].value);
+    spendingUtxos.push(availableUtxos[index]);
+    index++;
+  }
+  return [spendingUtxos, currentTotal];
+}
+
+export const getFeeForMultisig = async (addressType, numInputs, numOutputs, requiredSigners, totalSigners) => {
+  const feeRate = await (await axios.get(blockExplorerAPIURL(`/fee-estimates`, TESTNET))).data;
+  return estimateMultisigTransactionFee({
+    addressType: addressType,
+    numInputs: numInputs,
+    numOutputs: numOutputs,
+    m: requiredSigners,
+    n: totalSigners,
+    feesPerByteInSatoshis: feeRate[1].toString()
+  })
+}
+
+
+const serializeTransactions = (transactionsFromBlockstream, addresses, changeAddresses) => {
+  const changeAddressesMap = createAddressMapFromAddressArray(changeAddresses);
+  const addressesMap = createAddressMapFromAddressArray(addresses);
 
   transactionsFromBlockstream.sort((a, b) => a.status.block_time - b.status.block_time);
 
   let currentAccountTotal = BigNumber(0);
-  const transactions = [];
+  const transactions = new Map();
   for (let i = 0; i < transactionsFromBlockstream.length; i++) {
     // examine outputs and filter out ouputs that are change addresses back to us
     let transactionPushed = false;
-    let possibleTransactions = [];
+    let possibleTransactions = new Map();
     for (let j = 0; j < transactionsFromBlockstream[i].vout.length; j++) {
-      // console.log('transactionsFromBlockstream[i].vout[j]: ', transactionsFromBlockstream[i].vout[j]);
-      if (addressesArray.includes(transactionsFromBlockstream[i].vout[j].scriptpubkey_address)) {
+      if (addressesMap.get(transactionsFromBlockstream[i].vout[j].scriptpubkey_address)) {
         // received payment
-        transactions.push({
+        transactions.set(transactionsFromBlockstream[i].txid, {
           ...transactionsFromBlockstream[i],
           value: transactionsFromBlockstream[i].vout[j].value,
-          address: transactionsFromBlockstream[i].vout[j].scriptpubkey_address,
+          address: addressesMap.get(transactionsFromBlockstream[i].vout[j].scriptpubkey_address),
           type: 'received',
           totalValue: currentAccountTotal.plus(transactionsFromBlockstream[i].vout[j].value)
         });
         transactionPushed = true;
         currentAccountTotal = currentAccountTotal.plus(transactionsFromBlockstream[i].vout[j].value)
-      } else if (changeAddressesArray.includes(transactionsFromBlockstream[i].vout[j].scriptpubkey_address)) {
-        continue;
+      } else if (changeAddressesMap.get(transactionsFromBlockstream[i].vout[j].scriptpubkey_address)) {
+
+
+
       } else {
         // either outgoing payment or sender change address
-        possibleTransactions.push({
-          ...transactionsFromBlockstream[i],
-          value: transactionsFromBlockstream[i].vout[j].value,
-          address: transactionsFromBlockstream[i].vout[j].scriptpubkey_address,
-          type: 'sent',
-          totalValue: currentAccountTotal.minus(transactionsFromBlockstream[i].vout[j].value + transactionsFromBlockstream[i].fee)
-        })
+        if (!transactions.get(transactionsFromBlockstream[i].txid)) {
+          possibleTransactions.set(transactionsFromBlockstream[i].txid, {
+            ...transactionsFromBlockstream[i],
+            value: transactionsFromBlockstream[i].vout[j].value,
+            address: transactionsFromBlockstream[i].vout[j].scriptpubkey_address,
+            type: 'sent',
+            totalValue: currentAccountTotal.minus(transactionsFromBlockstream[i].vout[j].value + transactionsFromBlockstream[i].fee)
+          })
+        }
       }
     }
 
     if (!transactionPushed) {
-      currentAccountTotal = currentAccountTotal.minus(possibleTransactions[0].vout.reduce((accum, vout) => {
-        if (!changeAddressesArray.includes(vout.scriptpubkey_address)) {
-          return accum.plus(vout.value);
-        }
-        return accum;
-      }, BigNumber(0))).minus(possibleTransactions[0].fee);
-      transactions.push(...possibleTransactions);
+      const possibleTransactionsIterator = possibleTransactions.entries();
+      for (let i = 0; i < possibleTransactions.size; i++) {
+        const possibleTx = possibleTransactionsIterator.next().value;
+        currentAccountTotal = currentAccountTotal.minus(possibleTx[1].vout.reduce((accum, vout) => {
+          if (!changeAddressesMap.get(vout.scriptpubkey_address)) {
+            return accum.plus(vout.value);
+          }
+          return accum;
+        }, BigNumber(0))).minus(possibleTx[1].fee);
+        transactions.set(...possibleTx);
+      }
     }
   }
 
-  transactions.sort((a, b) => b.status.block_time - a.status.block_time);
-  return [transactions, currentAccountTotal];
+  const transactionsIterator = transactions.values();
+  const transactionsArray = [];
+  for (let i = 0; i < transactions.size; i++) {
+    transactionsArray.push(transactionsIterator.next().value);
+  }
+
+  transactionsArray.sort((a, b) => b.status.block_time - a.status.block_time);
+  return [transactionsArray, currentAccountTotal];
+}
+
+export const getChildPubKeysFromXpubs = (xpubs) => {
+  const childPubKeys = [];
+  for (let i = 0; i < 30; i++) {
+    xpubs.forEach((xpub) => {
+      const childPubKeysBip32Path = `m/0/${i}`;
+      childPubKeys.push({
+        childPubKey: deriveChildPublicKey(xpub.xpub, childPubKeysBip32Path, TESTNET),
+        bip32derivation: {
+          masterFingerprint: Buffer.from(xpub.name, 'hex'),
+          pubkey: Buffer.from(deriveChildPublicKey(xpub.xpub, childPubKeysBip32Path, TESTNET), 'hex'),
+          path: `m/48'/1'/0'/2'/${childPubKeysBip32Path.replace('m/', '')}`,
+        }
+      });
+    })
+  }
+  return childPubKeys;
+}
+
+export const getChildChangePubKeysFromXpubs = (xpubs) => {
+  const childChangePubKeys = [];
+  for (let i = 0; i < 30; i++) {
+    xpubs.forEach((xpub) => {
+      const childChangeAddressPubKeysBip32Path = `m/1/${i}`;
+      childChangePubKeys.push({
+        childPubKey: deriveChildPublicKey(xpub.xpub, childChangeAddressPubKeysBip32Path, TESTNET),
+        bip32derivation: {
+          masterFingerprint: Buffer.from(xpub.name, 'hex'),
+          pubkey: Buffer.from(deriveChildPublicKey(xpub.xpub, childChangeAddressPubKeysBip32Path, TESTNET), 'hex'),
+          path: `m/48'/1'/0'/2'/${childChangeAddressPubKeysBip32Path.replace('m/', '')}`,
+        }
+      });
+    })
+  }
+  return childChangePubKeys;
+}
+
+const getMultisigAddressesFromPubKeys = (pubkeys, caravanFile) => {
+  const addresses = [];
+  for (let i = 0; i < pubkeys.length; i + 3) {
+    const publicKeysForMultisigAddress = pubkeys.splice(i, 3);
+    const rawPubkeys = publicKeysForMultisigAddress.map((publicKey) => publicKey.childPubKey);
+    rawPubkeys.sort();
+    addresses.push({
+      ...generateMultisigFromPublicKeys(caravanFile.network, caravanFile.addressType, caravanFile.quorum.requiredSigners, ...rawPubkeys),
+      ...{
+        bip32derivation: [
+          ...publicKeysForMultisigAddress.map((publicKey) => publicKey.bip32derivation)
+        ]
+      }
+    });
+  }
+  return addresses;
+}
+
+const getTransactionsFromAddresses = async (addresses) => {
+  const transactions = [];
+  for (let i = 0; i < addresses.length; i++) {
+    const txsFromBlockstream = await (await axios.get(blockExplorerAPIURL(`/address/${addresses[i].address}/txs`, TESTNET))).data;
+    transactions.push(...txsFromBlockstream);
+  }
+  return transactions;
+}
+
+const getUnusedAddresses = async (addresses) => {
+  const unusedAddresses = [];
+  for (let i = 0; i < addresses.length; i++) {
+    const txsFromBlockstream = await (await axios.get(blockExplorerAPIURL(`/address/${addresses[i].address}/txs`, TESTNET))).data;
+    if (txsFromBlockstream.length === 0) {
+      unusedAddresses.push(addresses[i]);
+    }
+  }
+  return unusedAddresses;
+}
+
+const getUtxosForAddresses = async (addresses) => {
+  const availableUtxos = [];
+  for (let i = 0; i < addresses.length; i++) {
+    const utxosFromBlockstream = await (await axios.get(blockExplorerAPIURL(`/address/${addresses[i].address}/utxo`, TESTNET))).data;
+    for (let i = 0; i < utxosFromBlockstream.length; i++) {
+      availableUtxos.push({
+        ...utxosFromBlockstream[i],
+        address: addresses[i]
+      })
+    }
+  }
+
+  return availableUtxos;
 }
 
 export const getTransactionsFromMultisig = async (caravanFile) => {
-  const childPublicKeys = [];
-  const childChangeAddressPublicKeys = [];
-  for (let i = 0; i < 30; i++) {
-    for (let j = 0; j < caravanFile.extendedPublicKeys.length; j++) {
-      childPublicKeys.push(deriveChildPublicKey(caravanFile.extendedPublicKeys[j].xpub, `0/${i}`, TESTNET));
-      childChangeAddressPublicKeys.push(deriveChildPublicKey(caravanFile.extendedPublicKeys[j].xpub, `1/${i}`, TESTNET));
-    }
-  }
+  const childPubKeys = getChildPubKeysFromXpubs(caravanFile.extendedPublicKeys);
+  const childChangePubKeys = getChildChangePubKeysFromXpubs(caravanFile.extendedPublicKeys);
 
-  const addresses = [];
-  const changeAddresses = [];
-  for (let i = 0; i < childPublicKeys.length; i + 3) {
-    const publicKeysForMultisigAddress = childPublicKeys.splice(i, 3);
-    const changeAddressPublicKeysForMultisigAddress = childChangeAddressPublicKeys.splice(i, 3);
-    publicKeysForMultisigAddress.sort();
-    changeAddressPublicKeysForMultisigAddress.sort();
-    addresses.push(generateMultisigFromPublicKeys(caravanFile.network, caravanFile.addressType, caravanFile.quorum.requiredSigners, ...publicKeysForMultisigAddress));
-    changeAddresses.push(generateMultisigFromPublicKeys(caravanFile.network, caravanFile.addressType, caravanFile.quorum.requiredSigners, ...changeAddressPublicKeysForMultisigAddress));
-  }
+  const addresses = getMultisigAddressesFromPubKeys(childPubKeys, caravanFile);
+  const changeAddresses = getMultisigAddressesFromPubKeys(childChangePubKeys, caravanFile);
 
-  const transactionsFromBlockstream = [];
-  const unusedAddresses = [];
-  const availableUtxos = [];
-  for (let i = 0; i < addresses.length; i++) {
-    const txsFromBlockstream = await (await axios.get(blockExplorerAPIURL(`/address/${addresses[i].address}/txs`, TESTNET))).data;
-    if (txsFromBlockstream.length > 0) {
-      transactionsFromBlockstream.push(...txsFromBlockstream);
-    } else {
-      unusedAddresses.push(addresses[i]);
-    }
+  const transactions = await getTransactionsFromAddresses(addresses);
+  const unusedAddresses = await (addresses);
+  const unusedChangeAddresses = await getUnusedAddresses(changeAddresses);
 
-    const utxosFromBlockstream = await (await axios.get(blockExplorerAPIURL(`/address/${addresses[i].address}/utxo`, TESTNET))).data;
-    if (utxosFromBlockstream.length > 0) {
-      availableUtxos.push(...utxosFromBlockstream);
-    }
+  const availableUtxos = await getUtxosForAddresses([...addresses, ...changeAddresses])
 
-  }
-  return [...organizeTransactions(transactionsFromBlockstream, addresses, changeAddresses), unusedAddresses, availableUtxos];
+  console.log('transactions: ', transactions);
+  return [...serializeTransactions(transactions, addresses, changeAddresses), unusedAddresses, availableUtxos];
 }
 
 export const getTransactionsAndTotalValueFromXPub = async (currentWallet) => {
-  const childPublicKeys = [];
-  const childChangePublicKeys = [];
-  for (let i = 0; i < 10; i++) {
-    childPublicKeys.push(deriveChildPublicKey(currentWallet.xpub, `0/${i}`, TESTNET));
-    childChangePublicKeys.push(deriveChildPublicKey(currentWallet.xpub, `1/${i}`, TESTNET));
-  }
 
-  const addresses = childPublicKeys.map((childPubKey, i) => {
-    return payments.p2wpkh({ pubkey: Buffer.from(childPubKey, 'hex'), network: networks.testnet })
+  const childPubKeys = getChildPubKeysFromXpubs([currentWallet]);
+  const childChangePubKeys = getChildChangePubKeysFromXpubs([currentWallet]);
+
+  const addresses = childPubKeys.map((childPubKey, i) => {
+    return payments.p2wpkh({ pubkey: Buffer.from(childPubKey.childPubKey, 'hex'), network: networks.testnet })
   });
 
-  const changeAddresses = childChangePublicKeys.map((childPubKey, i) => {
-    return payments.p2wpkh({ pubkey: Buffer.from(childPubKey, 'hex'), network: networks.testnet })
+  const changeAddresses = childChangePubKeys.map((childPubKey, i) => {
+    return payments.p2wpkh({ pubkey: Buffer.from(childPubKey.childPubKey, 'hex'), network: networks.testnet })
   });
 
-  const transactionsFromBlockstream = [];
-  const unusedAddresses = [];
-  const availableUtxos = [];
-  for (let i = 0; i < addresses.length; i++) {
-    const txsFromBlockstream = await (await axios.get(blockExplorerAPIURL(`/address/${addresses[i].address}/txs`, TESTNET))).data;
-    if (txsFromBlockstream.length > 0) {
-      transactionsFromBlockstream.push(...txsFromBlockstream);
-    } else {
-      unusedAddresses.push(addresses[i]);
-    }
+  const transactions = await getTransactionsFromAddresses(addresses);
+  const unusedAddresses = await (addresses);
+  const unusedChangeAddresses = await getUnusedAddresses(changeAddresses);
 
-    const utxosFromBlockstream = await (await axios.get(blockExplorerAPIURL(`/address/${addresses[i].address}/utxo`, TESTNET))).data;
-    if (utxosFromBlockstream.length > 0) {
-      availableUtxos.push(...utxosFromBlockstream);
-    }
+  const availableUtxos = await getUtxosForAddresses([...addresses, ...changeAddresses])
 
-  }
-  return [...organizeTransactions(transactionsFromBlockstream, addresses, changeAddresses), unusedAddresses, availableUtxos];
+  return [...serializeTransactions(transactions, addresses, changeAddresses), unusedAddresses, availableUtxos];
 }
 
 // export const getInputData = async (amount, payment, isSegwit, redeemType) => {

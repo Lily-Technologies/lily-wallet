@@ -40,7 +40,7 @@ const Receive = ({ caravanFile, currentBitcoinPrice }) => {
       } else {
         [transactions, totalValue, unusedAddresses] = await getTransactionsAndTotalValueFromXPub(currentAccount);
       }
-      console.log('transactions, totalValue, unusedAddresses: ', transactions, totalValue, unusedAddresses);
+
       setUnusedAddresses(unusedAddresses);
       setTransactionsFromBlockstream(transactions);
       setTotalValue(totalValue);

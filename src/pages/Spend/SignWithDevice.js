@@ -20,30 +20,13 @@ import { Button, StyledIcon, DeviceSelect } from '../../components';
 import { black, gray, blue, green, lightBlue, offWhite, darkGray, white, darkOffWhite } from '../../utils/colors';
 
 const SignWithDevice = ({
-  scriptPubKeyAddress,
-  witnessScript,
-  unsignedTransaction,
-  caravanFile,
-  bip32path,
-  step,
-  setStep
+  psbt
 }) => {
   const [signedDevices, setSignedDevices] = useState([]);
   const [unsignedDevices, setUnsignedDevices] = useState([]);
-  const [finalPsbt, setFinalPsbt] = useState(null);
+  const [finalPsbt, setFinalPsbt] = useState(psbt);
   const [signedPsbts, setSignedPsbts] = useState([]);
   const [broadcastedTxId, setBroadcastedTxId] = useState(null);
-
-  useEffect(async () => {
-    const psbt = await constructPsbt(
-      caravanFile,
-      scriptPubKeyAddress,
-      witnessScript,
-      unsignedTransaction,
-      bip32path
-    );
-    setFinalPsbt(psbt);
-  }, []);
 
   const signWithDevice = async (device, index) => {
     const { data } = await axios.post(`${BACKEND_URL}/sign`, {
