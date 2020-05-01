@@ -35,7 +35,6 @@ const Setup = ({ setCaravanFile }) => {
     const ccFile = createColdCardBlob(importedDevices);
     const caravanObject = createCaravanImportFile(importedDevices);
     const encryptedCaravanObject = AES.encrypt(JSON.stringify(caravanObject), password).toString();
-    console.log('encryptedCaravanObject: ', encryptedCaravanObject);
     var encryptedCaravanFile = new Blob([decodeURIComponent(encodeURI(encryptedCaravanObject))], { type: contentType });
 
     saveFileToGoogleDrive(encryptedCaravanObject);

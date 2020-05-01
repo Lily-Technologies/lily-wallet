@@ -5,7 +5,7 @@ import { VerticalAlignBottom, ArrowUpward, ShowChart, AddCircleOutline } from '@
 import { Transfer } from '@styled-icons/boxicons-regular/Transfer';
 
 import { StyledIcon, Button } from '.';
-import { black, gray, white, offWhite, darkGray, darkOffWhite, lightBlue, purple } from '../utils/colors';
+import { black, blue, white, offWhite, darkGray, darkOffWhite, lightBlue, purple } from '../utils/colors';
 
 export const Sidebar = ({ caravanFile, currentDevice, setCurrentDevice }) => {
   const { name } = useParams();
@@ -69,8 +69,12 @@ const SidebarWrapper = styled.div`
 
 const SidebarItemStyle = css`
   background: ${ p => p.active ? lightBlue : white};
-  color: ${darkGray};
-  padding: 18px 32px;
+  border: ${ p => p.active ? `solid 1px ${darkOffWhite}` : 'none'};
+  border-left: ${ p => p.active ? `solid 11px ${blue}` : 'none'};
+  margin-left: ${ p => p.active ? `solid 11px ${blue}` : 'none'};
+  border-right: none;
+  color: ${ p => p.active ? 'inherit' : darkGray};
+  padding: ${ p => p.active ? `18px 32px 18px 20px` : '18px 32px'};
   // margin: 12px 0;
   text-decoration: none;
 

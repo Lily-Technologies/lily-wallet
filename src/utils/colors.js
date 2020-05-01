@@ -22,7 +22,7 @@ export const lightBlue = lighten(0.40, blue);
 
 export const green = "#9BD187";
 export const darkGreen = darken(0.15, green);
-export const lightGreen = lighten(0.25, green);
+export const lightGreen = "#E6FFE0;";
 
 export const purple = "#A367FF";
 

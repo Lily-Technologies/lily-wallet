@@ -28,15 +28,11 @@ export const createAddressMapFromAddressArray = (addressArray) => {
 }
 
 export const coinSelection = (amountInSats, availableUtxos) => {
-  console.log('amountInSats: ', amountInSats);
-  console.log('amountInBTC: ', satoshisToBitcoins(amountInSats));
   availableUtxos.sort((a, b) => b.value - a.value); // sort available utxos from largest size to smallest size to minimize inputs
   let currentTotal = BigNumber(0);
   const spendingUtxos = [];
   let index = 0;
   while (currentTotal.isLessThan(amountInSats) && index < availableUtxos.length) {
-    console.log('currentTotal.isLessThan(bitcoinsToSatoshis(amountInBTC).toNumber()): ', currentTotal.isLessThan(amountInSats), currentTotal.toFixed(8));
-    console.log('index < availableUtxos.length: ', index < availableUtxos.length);
     currentTotal = currentTotal.plus(availableUtxos[index].value);
     spendingUtxos.push(availableUtxos[index]);
     index++;
@@ -121,7 +117,7 @@ const serializeTransactions = (transactionsFromBlockstream, addresses, changeAdd
   }
 
   transactionsArray.sort((a, b) => b.status.block_time - a.status.block_time);
-  return [transactionsArray, currentAccountTotal];
+  return transactionsArray;
 }
 
 export const getChildPubKeysFromXpubs = (xpubs) => {
@@ -191,7 +187,7 @@ const getUnusedAddresses = async (addresses) => {
   const unusedAddresses = [];
   for (let i = 0; i < addresses.length; i++) {
     const txsFromBlockstream = await (await axios.get(blockExplorerAPIURL(`/address/${addresses[i].address}/txs`, TESTNET))).data;
-    if (txsFromBlockstream.length === 0) {
+    if (!txsFromBlockstream.length > 0) {
       unusedAddresses.push(addresses[i]);
     }
   }
@@ -199,6 +195,7 @@ const getUnusedAddresses = async (addresses) => {
 }
 
 const getUtxosForAddresses = async (addresses) => {
+  console.log('getUtxosForAddresses: ', addresses);
   const availableUtxos = [];
   for (let i = 0; i < addresses.length; i++) {
     const utxosFromBlockstream = await (await axios.get(blockExplorerAPIURL(`/address/${addresses[i].address}/utxo`, TESTNET))).data;
@@ -221,13 +218,14 @@ export const getTransactionsFromMultisig = async (caravanFile) => {
   const changeAddresses = getMultisigAddressesFromPubKeys(childChangePubKeys, caravanFile);
 
   const transactions = await getTransactionsFromAddresses(addresses);
-  const unusedAddresses = await (addresses);
+  const unusedAddresses = await getUnusedAddresses(addresses);
   const unusedChangeAddresses = await getUnusedAddresses(changeAddresses);
 
-  const availableUtxos = await getUtxosForAddresses([...addresses, ...changeAddresses])
+  const availableUtxos = await getUtxosForAddresses([...addresses, ...changeAddresses]);
 
-  console.log('transactions: ', transactions);
-  return [...serializeTransactions(transactions, addresses, changeAddresses), unusedAddresses, availableUtxos];
+  const organizedTransactions = serializeTransactions(transactions, addresses, changeAddresses);
+
+  return [organizedTransactions, unusedAddresses, unusedChangeAddresses, availableUtxos];
 }
 
 export const getTransactionsAndTotalValueFromXPub = async (currentWallet) => {
@@ -244,12 +242,14 @@ export const getTransactionsAndTotalValueFromXPub = async (currentWallet) => {
   });
 
   const transactions = await getTransactionsFromAddresses(addresses);
-  const unusedAddresses = await (addresses);
+  const unusedAddresses = await getUnusedAddresses(addresses);
   const unusedChangeAddresses = await getUnusedAddresses(changeAddresses);
 
-  const availableUtxos = await getUtxosForAddresses([...addresses, ...changeAddresses])
+  const availableUtxos = await getUtxosForAddresses([...addresses, ...changeAddresses]);
 
-  return [...serializeTransactions(transactions, addresses, changeAddresses), unusedAddresses, availableUtxos];
+  const organizedTransactions = serializeTransactions(transactions, addresses, changeAddresses);
+
+  return [organizedTransactions, unusedAddresses, unusedChangeAddresses, availableUtxos];
 }
 
 // export const getInputData = async (amount, payment, isSegwit, redeemType) => {

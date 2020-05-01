@@ -24,7 +24,7 @@ const Wallet = ({ caravanFile, currentBitcoinPrice }) => {
   document.title = `Wallet - Coldcard Kitchen`;
   const [transactionsFromBlockstream, setTransactionsFromBlockstream] = useState([]);
   const [unusedAddresses, setUnusedAddresses] = useState([]);
-  const [totalValue, setTotalValue] = useState(BigNumber(0));
+  const [currentBalance, setCurrentBalance] = useState(BigNumber(0));
   const [unusedAddressIndex, setUnusedAddressIndex] = useState(0);
   const { name } = useParams();
   const [currentWallet, setCurrentWallet] = useState(caravanFile.extendedPublicKeys.filter((xpub) => xpub.name === name)[0]);
@@ -37,9 +37,12 @@ const Wallet = ({ caravanFile, currentBitcoinPrice }) => {
   useEffect(() => {
     async function fetchTransactionsFromBlockstream() {
       setLoadingDataFromBlockstream(true);
-      const [transactions, totalValue] = await getTransactionsAndTotalValueFromXPub(currentWallet);
-      setTransactionsFromBlockstream(transactions);
-      setTotalValue(totalValue);
+      const [organizedTransactions, unusedAddresses, unusedChangeAddresses, availableUtxos] = await getTransactionsAndTotalValueFromXPub(currentWallet);
+
+      const currentBalance = availableUtxos.reduce((accum, utxo) => accum.plus(utxo.value), BigNumber(0));
+
+      setTransactionsFromBlockstream(organizedTransactions);
+      setCurrentBalance(currentBalance);
       setLoadingDataFromBlockstream(false);
     }
     fetchTransactionsFromBlockstream();
@@ -60,8 +63,8 @@ const Wallet = ({ caravanFile, currentBitcoinPrice }) => {
         </WalletHeader>
 
         <ValueWrapper>
-          <TotalValueHeader>{satoshisToBitcoins(totalValue.toNumber()).toFixed(8)} BTC</TotalValueHeader>
-          <USDValueHeader>{currentBitcoinPrice && currentBitcoinPrice.multipliedBy(satoshisToBitcoins(totalValue)).toFixed(8)} USD</USDValueHeader>
+          <TotalValueHeader>{satoshisToBitcoins(currentBalance.toNumber()).toFixed(8)} BTC</TotalValueHeader>
+          <USDValueHeader>{currentBitcoinPrice && currentBitcoinPrice.multipliedBy(satoshisToBitcoins(currentBalance)).toFixed(8)} USD</USDValueHeader>
           <ResponsiveContainer width="100%" height={400}>
             <AreaChart width={400} height={400} data={transactionsFromBlockstream}>
               <XAxis dataKey="status.block_time" />

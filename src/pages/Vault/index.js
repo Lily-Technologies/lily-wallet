@@ -31,13 +31,16 @@ const Vault = ({ caravanFile, currentBitcoinPrice }) => {
   document.title = `Vault - Coldcard Kitchen`;
   const [loadingDataFromBlockstream, setLoadingDataFromBlockstream] = useState(true);
   const [transactionsFromBlockstream, setTransactionsFromBlockstream] = useState([]);
-  const [totalValue, setTotalValue] = useState(BigNumber(0));
+  const [currentBalance, setCurrentBalance] = useState(BigNumber(0));
 
   useEffect(() => {
     async function fetchTransactionsFromBlockstream() {
       setLoadingDataFromBlockstream(true);
-      const [transactions, totalValue] = await getTransactionsFromMultisig(caravanFile);
-      setTotalValue(totalValue)
+      const [transactions, unusedAddresses, unusedChangeAddresses, availableUtxos] = await getTransactionsFromMultisig(caravanFile);
+
+      const currentBalance = availableUtxos.reduce((accum, utxo) => accum.plus(utxo.value), BigNumber(0));
+
+      setCurrentBalance(currentBalance)
       setTransactionsFromBlockstream(transactions);
       setLoadingDataFromBlockstream(false);
     }
@@ -64,8 +67,8 @@ const Vault = ({ caravanFile, currentBitcoinPrice }) => {
         </VaultExplainerText>
 
         <ValueWrapper>
-          <TotalValueHeader>{satoshisToBitcoins(totalValue.toNumber()).toFixed(8)} BTC</TotalValueHeader>
-          <USDValueHeader>{currentBitcoinPrice.multipliedBy(satoshisToBitcoins(totalValue)).toFixed(8)} USD</USDValueHeader>
+          <TotalValueHeader>{satoshisToBitcoins(currentBalance.toNumber()).toFixed(8)} BTC</TotalValueHeader>
+          <USDValueHeader>{currentBitcoinPrice.multipliedBy(satoshisToBitcoins(currentBalance)).toFixed(8)} USD</USDValueHeader>
           <ChartContainer>
             <ResponsiveContainer width="100%" height={400}>
               <AreaChart width={400} height={400} data={[...transactionsFromBlockstream].sort((a, b) => a.status.block_time - b.status.block_time)}>
@@ -97,7 +100,7 @@ const Wrapper = styled.div`
   color: ${black};
   display: flex;
   flex: 1;
-  display: flex;
+  // display: flex;
   min-height: 400px;
 `;
 

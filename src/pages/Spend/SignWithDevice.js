@@ -93,7 +93,6 @@ const TransactionDetailsWrapper = styled.div`
 `;
 
 const SetupHeaderContainer = styled.div`
-  padding: 24px 24px 0;
 `;
 
 const SetupHeaderWrapper = styled.div`

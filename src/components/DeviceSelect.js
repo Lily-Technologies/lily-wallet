@@ -8,7 +8,7 @@ import { ErrorOutline, CheckCircle } from '@styled-icons/material';
 import { BACKEND_URL } from '../config';
 
 import { Button, StyledIcon } from '../components';
-import { black, gray, darkOffWhite, green, blue, white } from '../utils/colors';
+import { lightGreen, gray, darkOffWhite, green, blue, white } from '../utils/colors';
 
 export const DeviceSelect = ({ configuredDevices, unconfiguredDevices, setUnconfiguredDevices, configuredThreshold, deviceAction }) => {
   const [devicesLoading, setDevicesLoading] = useState(false);
@@ -60,13 +60,13 @@ export const DeviceSelect = ({ configuredDevices, unconfiguredDevices, setUnconf
 
         {unconfiguredDevices.map((device, index) => (
           <DeviceWrapper key={index} onClick={() => performDeviceAction(device, index)}>
-            <DeviceImage src={"https://coldcardwallet.com/static/images/coldcard-front.png"} />
+            <DeviceImage loading={deviceActionLoading === index} src={"https://coldcardwallet.com/static/images/coldcard-front.png"} />
             <DeviceName>{device.model}</DeviceName>
             <DeviceFingerprint>{device.fingerprint}</DeviceFingerprint>
             <ImportedWrapper>
               {deviceActionLoading === index ? (
                 <div>
-                  Configuring
+                  Confirm payment on device
                   <ConfiguringAnimation>.</ConfiguringAnimation>
                   <ConfiguringAnimation>.</ConfiguringAnimation>
                   <ConfiguringAnimation>.</ConfiguringAnimation>
@@ -91,7 +91,7 @@ export const DeviceSelect = ({ configuredDevices, unconfiguredDevices, setUnconf
         )}
       </DevicesWrapper>
 
-      {configuredDevices.length < configuredThreshold && <ScanDevicesButton background={blue} color={white} onClick={enumerate}>{devicesLoading ? 'Loading...' : 'Scan for new devices'}</ScanDevicesButton>}
+      {configuredDevices.length < configuredThreshold && <ScanDevicesButton background={blue} color={white} onClick={enumerate}>{devicesLoading ? 'Loading...' : 'Scan for another device'}</ScanDevicesButton>}
     </Fragment >
   )
 }
@@ -135,10 +135,13 @@ const DeviceWrapper = styled.div`
   flex: 0 1 250px;
   border-radius: 4px;
 
+  background: ${p => p.imported ? lightGreen : 'none'};
+  border: ${p => p.imported ? `1px solid ${green}` : 'none'};
+
   &:hover {
-    cursor: pointer;
-    background: ${darkOffWhite};
-  }
+  cursor: pointer;
+  background: ${p => p.imported ? '#C9FFB6' : darkOffWhite};
+}
 `;
 
 const DeviceImage = styled.img`
@@ -147,6 +150,11 @@ const DeviceImage = styled.img`
   height: auto;
   max-height: 250px;
   max-width: 148px;
+
+  animation-name: ${p => p.loading ? blinking : 'none'};
+  animation-duration: 1.4s;
+  animation-iteration-count: infinite;
+  animation-fill-mode: both;
 `;
 
 const DeviceName = styled.h4`
@@ -170,13 +178,14 @@ const ScanDevicesButton = styled.button`
   font-size: 16px;
   margin-top: 12px;
   font-weight: 700;
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
+  width: fit-content;
+  border-radius: 24px;
+  align-self: center;
 `;
 
 const blinking = keyframes`
   0% { opacity: .2; }
-  20% { opacity: 1; }
+  50% { opacity: 1; }
   100% { opacity: .2; }
 `;
 
@@ -186,11 +195,11 @@ const ConfiguringAnimation = styled.span`
   animation-iteration-count: infinite;
   animation-fill-mode: both;
 
-  &:nth-child(2) {
-    animation-delay: .2s;
-  }
+  // &:nth-child(2) {
+  //   animation-delay: .2s;
+  // }
 
-  &:nth-child(3) {
-    animation-delay: .4s;
-  }
+  // &:nth-child(3) {
+  //   animation-delay: .4s;
+  // }
 `;

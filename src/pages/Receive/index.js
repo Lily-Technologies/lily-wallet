@@ -27,24 +27,32 @@ const Receive = ({ caravanFile, currentBitcoinPrice }) => {
   const [unusedAddresses, setUnusedAddresses] = useState([]);
   const [unusedAddressIndex, setUnusedAddressIndex] = useState(0);
   const [loadingDataFromBlockstream, setLoadingDataFromBlockstream] = useState(true);
-  const [totalValue, setTotalValue] = useState(BigNumber(0));
+  const [currentBalance, setCurrentBalance] = useState(BigNumber(0));
 
   document.title = `Receive - Coldcard Kitchen`;
 
+  console.log('regular render');
+
   useEffect(() => {
+    console.log('useEffect begin');
+    setLoadingDataFromBlockstream(true);
     async function fetchTransactionsFromBlockstream() {
-      setLoadingDataFromBlockstream(true);
-      let transactions, totalValue, unusedAddresses;
+      console.log('fetchTransactionsFromBlockstream begin');
+      let transactions, unusedAddresses, unusedChangeAddresses, availableUtxos;
       if (currentAccount.name === caravanFile.name) {
-        [transactions, totalValue, unusedAddresses] = await getTransactionsFromMultisig(currentAccount);
+        [transactions, unusedAddresses, unusedChangeAddresses, availableUtxos] = await getTransactionsFromMultisig(currentAccount);
       } else {
-        [transactions, totalValue, unusedAddresses] = await getTransactionsAndTotalValueFromXPub(currentAccount);
+        [transactions, unusedAddresses, unusedChangeAddresses, availableUtxos] = await getTransactionsAndTotalValueFromXPub(currentAccount);
       }
+      console.log('fetchTransactionsFromBlockstream begin setstate');
+
+      const currentBalance = availableUtxos.reduce((accum, utxo) => accum.plus(utxo.value), BigNumber(0));
 
       setUnusedAddresses(unusedAddresses);
       setTransactionsFromBlockstream(transactions);
-      setTotalValue(totalValue);
+      setCurrentBalance(currentBalance);
       setLoadingDataFromBlockstream(false);
+      console.log('fetchTransactionsFromBlockstream end setstate');
     }
     fetchTransactionsFromBlockstream();
   }, [currentAccount]);
@@ -70,7 +78,7 @@ const Receive = ({ caravanFile, currentBitcoinPrice }) => {
                 setTransactionsFromBlockstream([]);
                 setUnusedAddresses([]);
                 setUnusedAddressIndex(0);
-                setTotalValue(BigNumber(0))
+                setCurrentBalance(BigNumber(0))
               }}>
                 <StyledIcon as={Wallet} size={48} />
                 <AccountMenuItemName>{xpub.name}</AccountMenuItemName>
@@ -81,7 +89,7 @@ const Receive = ({ caravanFile, currentBitcoinPrice }) => {
               setTransactionsFromBlockstream([]);
               setUnusedAddresses([]);
               setUnusedAddressIndex(0);
-              setTotalValue(BigNumber(0));
+              setCurrentBalance(BigNumber(0));
             }}>
               <StyledIcon as={Safe} size={48} />
               <AccountMenuItemName>{caravanFile.name}</AccountMenuItemName>
@@ -127,7 +135,7 @@ const Receive = ({ caravanFile, currentBitcoinPrice }) => {
                   Current Balance:
               </CurrentBalanceText>
                 <CurrentBalanceValue>
-                  {satoshisToBitcoins(totalValue.toFixed(8)).toNumber()} BTC
+                  {satoshisToBitcoins(currentBalance).toNumber()} BTC
                 </CurrentBalanceValue>
               </CurrentBalanceWrapper>
 
@@ -241,6 +249,7 @@ const AccountMenuItemWrapper = styled.div`
   flex: 1;
   cursor: ${p => p.active ? 'auto' : 'pointer'};
   border-bottom: ${p => p.active ? 'none' : `solid 1px ${darkOffWhite}`};
+  border-top: ${p => p.active ? `solid 11px ${blue}` : `none`};
 `;
 
 const AccountMenuItemName = styled.div``;
