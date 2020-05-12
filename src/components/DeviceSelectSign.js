@@ -10,7 +10,7 @@ import { BACKEND_URL } from '../config';
 import { Button, StyledIcon } from '../components';
 import { lightGreen, gray, darkOffWhite, green, blue, white } from '../utils/colors';
 
-export const DeviceSelect = ({ configuredDevices, unconfiguredDevices, setUnconfiguredDevices, configuredThreshold, deviceAction }) => {
+export const DeviceSelectSign = ({ configuredDevices, unconfiguredDevices, setUnconfiguredDevices, configuredThreshold, deviceAction }) => {
   const [devicesLoading, setDevicesLoading] = useState(false);
   const [deviceActionLoading, setDeviceActionLoading] = useState(false);
 
@@ -49,31 +49,32 @@ export const DeviceSelect = ({ configuredDevices, unconfiguredDevices, setUnconf
       <DevicesWrapper>
         {configuredDevices.map((device, index) => (
           <DeviceWrapper key={index} imported={true}>
+            <ImportedWrapper style={{ color: green, alignSelf: 'flex-end' }}>
+              <StyledIcon as={CheckCircle} size={24} />
+            </ImportedWrapper>
             <DeviceImage src={"https://coldcardwallet.com/static/images/coldcard-front.png"} />
             <DeviceName>{device.model}</DeviceName>
             <DeviceFingerprint>{device.fingerprint}</DeviceFingerprint>
-            <ImportedWrapper>
-              <StyledIcon as={CheckCircle} size={24} />
-            </ImportedWrapper>
+            <DeviceMoreDetails>More Details</DeviceMoreDetails>
           </DeviceWrapper>
         ))}
 
         {unconfiguredDevices.map((device, index) => (
-          <DeviceWrapper key={index} onClick={() => performDeviceAction(device, index)}>
+          <DeviceWrapper key={index} onClick={() => performDeviceAction(device, index)} loading={deviceActionLoading === index}>
             <DeviceImage loading={deviceActionLoading === index} src={"https://coldcardwallet.com/static/images/coldcard-front.png"} />
             <DeviceName>{device.model}</DeviceName>
             <DeviceFingerprint>{device.fingerprint}</DeviceFingerprint>
             <ImportedWrapper>
               {deviceActionLoading === index ? (
-                <div>
-                  Confirm payment on device
+                <div style={{ textAlign: 'center', color: gray }}>
+                  Waiting for device
                   <ConfiguringAnimation>.</ConfiguringAnimation>
                   <ConfiguringAnimation>.</ConfiguringAnimation>
                   <ConfiguringAnimation>.</ConfiguringAnimation>
                 </div>
               ) : (
-                  <div>
-                    Click to Configure
+                  <div style={{ textAlign: 'center' }}>
+                    Click to Approve Transaction
                   </div>
                 )}
             </ImportedWrapper>
@@ -91,7 +92,7 @@ export const DeviceSelect = ({ configuredDevices, unconfiguredDevices, setUnconf
         )}
       </DevicesWrapper>
 
-      {configuredDevices.length < configuredThreshold && <ScanDevicesButton background={blue} color={white} onClick={enumerate}>{devicesLoading ? 'Loading...' : 'Scan for another device'}</ScanDevicesButton>}
+      {configuredDevices.length < configuredThreshold && <ScanDevicesButton background={white} color={blue} onClick={enumerate}>{devicesLoading ? 'Loading...' : 'Scan for another device'}</ScanDevicesButton>}
     </Fragment >
   )
 }
@@ -105,7 +106,7 @@ const NoDevicesWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 24px;
+  padding: 1.5em;
 `;
 
 
@@ -115,7 +116,11 @@ const NoDevicesHeader = styled.h3`
 
 
 const NoDevicesSubheader = styled.h4`
+  text-align: center;
+`;
 
+const DeviceMoreDetails = styled.div`
+  display: none;
 `;
 
 const DevicesWrapper = styled.div`
@@ -130,7 +135,7 @@ const DeviceWrapper = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 12px;
+  padding: .75em;
   margin: 24px;
   flex: 0 1 250px;
   border-radius: 4px;
@@ -139,9 +144,13 @@ const DeviceWrapper = styled.div`
   border: ${p => p.imported ? `1px solid ${green}` : 'none'};
 
   &:hover {
-  cursor: pointer;
-  background: ${p => p.imported ? '#C9FFB6' : darkOffWhite};
-}
+    cursor: pointer;
+    background: ${p => p.imported ? '#C9FFB6' : p.loading ? 'none' : darkOffWhite};
+  }
+
+  &:hover ${DeviceMoreDetails} {
+    display: block;
+  }
 `;
 
 const DeviceImage = styled.img`
@@ -169,18 +178,17 @@ const DeviceFingerprint = styled.h5`
 
 const ImportedWrapper = styled.div`
   margin: 4px 0 0;
-  color: ${green};
 `;
 
 const ScanDevicesButton = styled.button`
   ${Button};
-  padding: 16px;
-  font-size: 16px;
+  padding: 1em;
+  font-size: 1em;
   margin-top: 12px;
-  font-weight: 700;
   width: fit-content;
   border-radius: 24px;
   align-self: center;
+  border: 1px solid ${blue};
 `;
 
 const blinking = keyframes`

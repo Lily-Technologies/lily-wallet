@@ -52,8 +52,8 @@ const RecentTransactions = ({ transactions, loading, flat = false, maxItems = In
 }
 
 const RecentTransactionsWrapper = styled.div`
-  padding: 24px;
-  margin-top: 24px;
+  padding: 1.5em;
+  margin-top: 1.5em;
   display: flex;
   flex-direction: column;
   flex: 1;
@@ -75,7 +75,7 @@ const DateWrapper = styled.div`
 `;
 
 const RecentTransactionsHeader = styled.div`
-  font-size: 24px;
+font-size: 1.5em;
 `;
 
 const LoadingAnimation = styled.div`
@@ -88,16 +88,16 @@ const LoadingAnimation = styled.div`
   margin: 18px 0;
   flex-direction: column;
   color: ${darkGray};
-  padding: 24px;
+  padding: 1.5em;
 `;
 
 const LoadingText = styled.div`
-    font-size: 24px;
-    margin: 4px 0;
+  font-size: 1.5em;
+  margin: 4px 0;
 `;
 
 const LoadingSubText = styled.div`
-    font-size: 12px;
+    font-size: .75em;
 `;
 
 const NoTransasctionsSection = styled.div`
@@ -107,7 +107,7 @@ const NoTransasctionsSection = styled.div`
   justify-content: center;
   align-items: center;
   font-weight: 100;
-  padding: 24px;
+  padding: 1.5em;
 `;
 
 const NoTransactionsHeader = styled.h3`

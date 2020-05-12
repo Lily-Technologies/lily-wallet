@@ -22,3 +22,16 @@ $ npm start
 
 Frontend runs on port 3000
 Server runs on port 4000
+
+### TODOs
+
+- Add ability to have multiple vaults
+
+- Vault Settings - Addresses (searchable?)
+- Vault Settings - XPubs
+
+- Settings - Mainnet/Testnet Toggle Support
+
+- Settings - Backups
+
+- Portfolio - Multiple vaults

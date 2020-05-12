@@ -24,6 +24,7 @@
     "react-qr-svg": "^2.2.2",
     "react-router-dom": "^5.1.2",
     "react-scripts": "3.4.1",
+    "react-spring": "^8.0.27",
     "recharts": "^1.8.5",
     "styled-components": "^5.1.0",
     "styled-icons": "^10.2.1",

@@ -1,5 +1,6 @@
 html, body {
   height: 100%;
+  font-size: 100%;
 }
 
 #root {
@@ -33,11 +34,11 @@ tr {
 }
 
 td {
-  padding: 12px;
+  padding: .75em;
   border-bottom: 1px solid rgba(66,66,66,.95);
 }
 
 th {
   border-bottom: 1px solid rgba(66,66,66,.95);
-  padding: 12px;
+  padding: .75em;
 }

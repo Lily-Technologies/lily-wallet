@@ -125,7 +125,7 @@ const SettingsButton = styled.div`
 `;
 
 const DeviceName = styled.div`
-  font-size: 48px;
+  font-size: 3em;
 `;
 
 const DeviceXPub = styled.div`
@@ -138,17 +138,16 @@ const ReceiveAddressWrapper = styled.div`
 
 const ValueWrapper = styled.div`
   background: ${white};
-  padding: 24px;
+  padding: 1.5em;
   box-shadow: rgba(0, 0, 0, 0.15) 0px 5px 15px 0px;
-  margin-top: 24px;
 `;
 
 const TotalValueHeader = styled.div`
-  font-size: 36px;
+  font-size: 2em;
 `;
 
 const USDValueHeader = styled.div`
-  font-size: 12px;
+  font-size: .75em;
   color: ${gray};
 `;
 

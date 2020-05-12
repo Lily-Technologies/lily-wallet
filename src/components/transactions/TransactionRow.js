@@ -42,7 +42,7 @@ const TransactionRowWrapper = styled.div`
 const TransactionRowContainer = styled.div`
   display: flex;
   align-items: center;
-  padding: ${p => p.flat ? '12px' : '24px'};
+  padding: ${p => p.flat ? '.75em' : '1.5em'};
 
   &:hover {
     background: ${p => !p.isOpen && offWhite};
@@ -53,21 +53,21 @@ const TransactionRowContainer = styled.div`
 
 const TransactionMoreInfo = styled.div`
   display: flex;
-  padding: 12px;
+  padding: .75em;
   overflow: scroll;
   background: ${lightBlue};
 `;
 
 const StyledIconModified = styled(StyledIcon)`
-  padding: 8px;
-  margin-right: 12px;
+  padding: .5em;
+  margin-right: .75em;
   background: ${p => p.receive ? green : gray};
   border-radius: 50%;
 `;
 
 const TxTypeIcon = styled.div`
   display: flex;
-  flex: ${p => p.flat ? '0 0' : '0 0 200px'};;
+  flex: ${p => p.flat ? '0 0' : '0 0 10em'};;
   align-items: center;
 `;
 
@@ -87,16 +87,16 @@ const TxTypeTime = styled.div``;
 
 const AmountWrapper = styled.div`
   display: flex;
-  flex: 1;
   text-align: right;
   justify-content: flex-end;
-  font-size: ${p => p.flat ? '12px' : '16px'};
+  font-size: ${ p => p.flat ? '.75em' : '1em'};
 `;
 const AddressWrapper = styled.div`
   display: flex;
   flex: 1;
   font-weight: 100;
-  font-size: ${ p => p.flat ? '12px' : '16px'};
+  font-size: ${ p => p.flat ? '.75em' : '1em'};
+  word-break: break-all;
 `;
 
 export default TransactionRow;

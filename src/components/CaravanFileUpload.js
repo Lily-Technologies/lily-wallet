@@ -41,7 +41,7 @@ const CaravanFileUploadWrapper = styled.div`
   display: flex;
   flex-direction: column;
   min-height: 400px;
-  padding: 24px;
+  padding: 1.5em;
   justify-content: center;
   align-items: center;
 `;
@@ -60,7 +60,7 @@ const CaravanFileUploadLabel = styled.label`
   border: 1px solid ${blue};
   color: ${blue};
   pointer: cursor;
-  margin-top: 24px;
+  margin-top: 1.5em;
 `;
 
 const FileInput = styled.input`
@@ -73,7 +73,7 @@ const FileInput = styled.input`
 `;
 
 const Input = styled.input`
-  padding: 12px;
+  padding: .75em;
   border-radius: 4px;
   border: 1px solid ${darkOffWhite};
   margin: 8px;
@@ -81,15 +81,15 @@ const Input = styled.input`
 
 const NextStepButton = styled.button`
   ${Button};
-  padding: 12px;
+  padding: .75em;
   margin: 0 8px;
 `;
 
 const CaravanFileUploadHeader = styled.h5`
-  font-size: 24px;
+  font-size: 1.5em;
   margin: 4px 0;
 `;
 
 const CaravanFileUploadSubheader = styled.span`
-  font-size: 12px;
+  font-size: .75em;
 `;

@@ -1,11 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled, { css } from 'styled-components';
-import { VerticalAlignBottom, ArrowUpward, Settings } from '@styled-icons/material';
+import { Settings } from '@styled-icons/material';
 import { Safe } from '@styled-icons/crypto';
-import { Wallet } from '@styled-icons/entypo';
-import { QRCode } from "react-qr-svg";
-import axios from 'axios';
-import { CopyToClipboard } from 'react-copy-to-clipboard';
 import BigNumber from 'bignumber.js';
 import {
   deriveChildPublicKey,
@@ -16,37 +12,36 @@ import {
   scriptToHex,
   TESTNET
 } from "unchained-bitcoin";
-import { payments, ECPair, networks, Psbt, address } from 'bitcoinjs-lib';
+import { networks, Psbt, address } from 'bitcoinjs-lib';
 
-import { StyledIcon, Button } from '../../components';
+import { StyledIcon, Button, PageWrapper, GridArea, PageTitle, Header, HeaderRight, HeaderLeft } from '../../components';
 import RecentTransactions from '../../components/transactions/RecentTransactions';
 
 import SignWithDevice from '../Spend/SignWithDevice'
 
+import TransactionDetails from './TransactionDetails';
+
 import { getTransactionsAndTotalValueFromXPub, getTransactionsFromMultisig, createTransactionMapFromTransactionArray, coinSelection, getFeeForMultisig } from '../../utils/transactions';
-import { black, gray, offWhite, blue, darkGray, white, darkOffWhite, green, lightGreen, darkGreen, lightGray, lightBlue } from '../../utils/colors';
-import { cloneBuffer } from '../../utils/other';
+import { red, gray, offWhite, blue, darkGray, white, darkOffWhite, green, lightGreen, darkGreen, lightGray, lightBlue } from '../../utils/colors';
 
 import transactionsFixture from '../../fixtures/transactions';
 import unusedAddressesFixture from '../../fixtures/unusedAddresses';
 import unusedChangeAddressesFixture from '../../fixtures/unusedChangeAddresses';
 import availableUtxosFixture from '../../fixtures/availableUtxos';
 
-const Send = ({ caravanFile, currentBitcoinPrice }) => {
-  const [currentAccount, setCurrentAccount] = useState(caravanFile || null);
-  const [transactionsFromBlockstream, setTransactionsFromBlockstream] = useState([]);
-  const [unusedAddresses, setUnusedAddresses] = useState([]); // will need to use these when creating change
-  const [unusedChangeAddresses, setUnusedChangeAddresses] = useState([]);
-  const [availableUtxos, setAvailableUtxos] = useState([]); // will need to use these when creating change
-  const [currentBalance, setCurrentBalance] = useState(BigNumber(0));
-  const [loadingDataFromBlockstream, setLoadingDataFromBlockstream] = useState(true);
-  const [sendAmount, setSendAmount] = useState('0.0002');
+const signedPsbt1 = "cHNidP8BAH4CAAAAAaL+89cOLWJTdZMEWoXbrN5ffsxPmbpjJ9Yc1NL9jZ3jAAAAAAD/////AiBOAAAAAAAAF6kU/9DbtEQC1fjxLZultISiwbtH2kKHAfIOAAAAAAAiACAbzdx36FFxcvXFh/V5ZEsGIQi6H50aqwcU7qWnnxS+5AAAAAAAAQErQEIPAAAAAAAiACCCFDYExwmHHpAtYcn30+iVZPuQJEAjvYHFtv4a0XXmViICAyIEErL0BQQffuTOA9kTjyEC+eybnl5zNuAf6pdxUq06RzBEAiAKchg0x7lj7cnHh8FrThyg8AdDwMxAaGBEz5LoEOOqDQIgWXUNdLIGlNhiTNmgN6VVKIIhiolpy5Wz4KuqgFTl904BAQMEAQAAAAEFaVIhAyIEErL0BQQffuTOA9kTjyEC+eybnl5zNuAf6pdxUq06IQPZs2BhKxwQyn6qpiv+VcRihe//FftBBqQk8H+YLmaO3CED5COMlBMA/fsBELla1MfIEB6gGi5qERqdqQsCA8I8FFdTriIGAyIEErL0BQQffuTOA9kTjyEC+eybnl5zNuAf6pdxUq06HE9g0ckwAACAAQAAgAAAAIACAACAAAAAAAAAAAAiBgPZs2BhKxwQyn6qpiv+VcRihe//FftBBqQk8H+YLmaO3ByRMMPWMAAAgAEAAIAAAACAAgAAgAAAAAAAAAAAIgYD5COMlBMA/fsBELla1MfIEB6gGi5qERqdqQsCA8I8FFccNOz1azAAAIABAACAAAAAgAIAAIAAAAAAAAAAAAAAAA==";
+const signedPsbt2 = "cHNidP8BAH4CAAAAAaL+89cOLWJTdZMEWoXbrN5ffsxPmbpjJ9Yc1NL9jZ3jAAAAAAD/////AiBOAAAAAAAAF6kU/9DbtEQC1fjxLZultISiwbtH2kKHAfIOAAAAAAAiACAbzdx36FFxcvXFh/V5ZEsGIQi6H50aqwcU7qWnnxS+5AAAAAAAAQErQEIPAAAAAAAiACCCFDYExwmHHpAtYcn30+iVZPuQJEAjvYHFtv4a0XXmViICA9mzYGErHBDKfqqmK/5VxGKF7/8V+0EGpCTwf5guZo7cRzBEAiAG10YX6lmrV5GtrRrCjsedcDHg4ksFF6G9LNDCAJYeUgIgELP/AlibkDYtoJm03+bDnk4rNGwzDvv7ypwEdU3/gx4BAQMEAQAAAAEFaVIhAyIEErL0BQQffuTOA9kTjyEC+eybnl5zNuAf6pdxUq06IQPZs2BhKxwQyn6qpiv+VcRihe//FftBBqQk8H+YLmaO3CED5COMlBMA/fsBELla1MfIEB6gGi5qERqdqQsCA8I8FFdTriIGAyIEErL0BQQffuTOA9kTjyEC+eybnl5zNuAf6pdxUq06HE9g0ckwAACAAQAAgAAAAIACAACAAAAAAAAAAAAiBgPZs2BhKxwQyn6qpiv+VcRihe//FftBBqQk8H+YLmaO3ByRMMPWMAAAgAEAAIAAAACAAgAAgAAAAAAAAAAAIgYD5COMlBMA/fsBELla1MfIEB6gGi5qERqdqQsCA8I8FFccNOz1azAAAIABAACAAAAAgAIAAIAAAAAAAAAAAAAAAA==";
+
+const Send = ({ caravanFile, transactions, availableUtxos, unusedChangeAddresses, loadingDataFromBlockstream, currentBalance }) => {
+  const [sendAmount, setSendAmount] = useState('0.02');
+  const [sendAmountError, setSendAmountError] = useState(false);
   const [recipientAddress, setRecipientAddress] = useState('2NGZrVvZG92qGYqzTLjCAewvPZ7JE8S8VxE');
+  const [recipientAddressError, setRecipientAddressError] = useState(false);
   const [step, setStep] = useState(0);
   const [finalPsbt, setFinalPsbt] = useState(null);
   const [feeEstimate, setFeeEstimate] = useState(BigNumber(0));
   const [outputTotal, setOutputTotal] = useState(BigNumber(0));
-  const [showMoreDetails, setShowMoreDetails] = useState(false);
+  const [signedPsbts, setSignedPsbts] = useState([signedPsbt1]);
 
   document.title = `Send - Coldcard Kitchen`;
 
@@ -54,12 +49,12 @@ const Send = ({ caravanFile, currentBitcoinPrice }) => {
     const transactionMap = createTransactionMapFromTransactionArray(transactionsFromBlockstream);
 
     let feeEstimate = await getFeeForMultisig(caravanFile.addressType, 1, 2, caravanFile.quorum.requiredSigners, caravanFile.quorum.totalSigners);
-    let outputTotal = BigNumber(bitcoinsToSatoshis(amountInBitcoins)).plus(feeEstimate);
+    let outputTotal = BigNumber(bitcoinsToSatoshis(amountInBitcoins)).plus(feeEstimate.integerValue(BigNumber.ROUND_CEIL).toNumber());
     let [spendingUtxos, spendingUtxosTotal] = coinSelection(outputTotal, availableUtxos);
 
     if (spendingUtxos.length > 1) {
       feeEstimate = await getFeeForMultisig(caravanFile.addressType, spendingUtxos.length, 2, caravanFile.quorum.requiredSigners, caravanFile.quorum.totalSigners);
-      outputTotal = BigNumber(bitcoinsToSatoshis(amountInBitcoins)).plus(feeEstimate);
+      outputTotal = BigNumber(bitcoinsToSatoshis(amountInBitcoins)).plus(feeEstimate.integerValue(BigNumber.ROUND_CEIL).toNumber());
       [spendingUtxos, spendingUtxosTotal] = coinSelection(outputTotal, availableUtxos);
     }
 
@@ -91,7 +86,11 @@ const Send = ({ caravanFile, currentBitcoinPrice }) => {
       value: bitcoinsToSatoshis(amountInBitcoins).toNumber(),
     });
 
-    if (spendingUtxosTotal > outputTotal) {
+    console.log('feeEstimate: ', feeEstimate.integerValue(BigNumber.ROUND_CEIL).toNumber());
+    console.log('spendingUtxosTotal: ', spendingUtxosTotal.toNumber());
+    console.log('outputTotal: ', outputTotal.toNumber());
+    console.log('spendingUtxosTotal.isLessThan(outputTotal): ', spendingUtxosTotal.isLessThan(outputTotal));
+    if (spendingUtxosTotal.isGreaterThan(outputTotal)) {
       psbt.addOutput({
         script: address.toOutputScript(unusedChangeAddresses[0].address, networks.testnet),
         // address: unusedChangeAddresses[0].address,
@@ -103,327 +102,148 @@ const Send = ({ caravanFile, currentBitcoinPrice }) => {
     setStep(1);
   }
 
-  useEffect(() => {
-    async function fetchTransactionsFromBlockstream() {
-      setLoadingDataFromBlockstream(true);
-      let transactions, unusedAddresses, unusedChangeAddresses, availableUtxos;
-      if (currentAccount.name === caravanFile.name) {
-        [transactions, unusedAddresses, unusedChangeAddresses, availableUtxos] = await getTransactionsFromMultisig(currentAccount);
-        console.log('transactions, unusedAddresses, unusedChangeAddresses, availableUtxos: ', transactions, unusedAddresses, unusedChangeAddresses, availableUtxos);
-      } else {
-        [transactions, unusedAddresses, unusedChangeAddresses, availableUtxos] = await getTransactionsAndTotalValueFromXPub(currentAccount);
-      }
+  const transactionsMap = createTransactionMapFromTransactionArray(transactions);
 
-      const currentBalance = availableUtxos.reduce((accum, utxo) => accum.plus(utxo.value), BigNumber(0));
-
-      setUnusedAddresses(unusedAddresses);
-      setTransactionsFromBlockstream(transactions);
-      setCurrentBalance(currentBalance);
-      setAvailableUtxos(availableUtxos);
-      setUnusedChangeAddresses(unusedChangeAddresses);
-      setLoadingDataFromBlockstream(false);
-    }
-    fetchTransactionsFromBlockstream();
-  }, [currentAccount]);
-
-  const transactionsMap = createTransactionMapFromTransactionArray(transactionsFromBlockstream);
+  console.log('signedPsbts: ', signedPsbts);
 
   return (
-    <Wrapper>
-      <SendContent>
-        <WalletHeader>
-          <WalletHeaderLeft>
-            <PageTitle>Send from</PageTitle>
-            {/* <DeviceXPub>{currentAccount.xpub}</DeviceXPub> */}
-          </WalletHeaderLeft>
-          <WalletHeaderRight>
-            <SettingsButton background='transparent' color={darkGray}><StyledIcon as={Settings} size={36} /></SettingsButton>
-          </WalletHeaderRight>
-        </WalletHeader>
+    <PageWrapper>
+      <Header>
+        <HeaderLeft>
+          <PageTitle>Send from</PageTitle>
+          {/* <DeviceXPub>{currentAccount.xpub}</DeviceXPub> */}
+        </HeaderLeft>
+        <HeaderRight>
+          <SettingsButton background='transparent' color={darkGray}><StyledIcon as={Settings} size={36} /></SettingsButton>
+        </HeaderRight>
+      </Header>
 
-        <SendWrapper>
-          <AccountMenu>
-            {caravanFile.extendedPublicKeys.map((xpub) => (
-              <AccountMenuItemWrapper key={xpub.name} active={currentAccount.name === xpub.name} onClick={() => {
-                setCurrentAccount(xpub);
-                setTransactionsFromBlockstream([]);
-                setCurrentBalance(BigNumber(0));
-              }}>
-                <StyledIcon as={Wallet} size={48} />
-                <AccountMenuItemName>{xpub.name}</AccountMenuItemName>
-              </AccountMenuItemWrapper>
-            ))}
-            <AccountMenuItemWrapper active={currentAccount.name === caravanFile.name} onClick={() => {
-              setCurrentAccount(caravanFile);
-              setTransactionsFromBlockstream([]);
-              setCurrentBalance(BigNumber(0));
-            }}>
-              <StyledIcon as={Safe} size={48} />
-              <AccountMenuItemName>{caravanFile.name}</AccountMenuItemName>
-            </AccountMenuItemWrapper>
-          </AccountMenu>
+      <SendWrapper>
+        <AccountMenu>
+          <AccountMenuItemWrapper active={true}>
+            <StyledIcon as={Safe} size={48} />
+            <AccountMenuItemName>{caravanFile.name}</AccountMenuItemName>
+          </AccountMenuItemWrapper>
+        </AccountMenu>
 
-          <AccountSendContent>
-            {step === 0 && (
-              <AccountSendContentLeft>
-                <SendToAddressHeader>
-                  Send bitcoin to
+        <GridArea>
+          {step === 0 && (
+            <AccountSendContentLeft>
+
+              <SendToAddressHeader>
+                Amount of bitcoin to send
               </SendToAddressHeader>
 
+              <AddressDisplayWrapper>
                 <Input
-                  onChange={(e) => setRecipientAddress(e.target.value)}
-                  value={recipientAddress}
-                  placeholder="tb1qy8glxuvc7nqqlxmuucnpv93fekyv4lth6k3v3p"
-                  style={{ marginBottom: 36 }}
+                  value={sendAmount}
+                  onChange={(e) => setSendAmount(e.target.value)}
+                  placeholder="0.0025"
+                  style={{ paddingRight: 80, color: darkGray, flex: 1 }}
+                  error={sendAmountError}
                 />
+                <InputStaticText
+                  disabled
+                  text="BTC"
+                >BTC</InputStaticText>
+              </AddressDisplayWrapper>
 
-                <SendToAddressHeader>
-                  Amount of bitcoin to send
+              <SendToAddressHeader>
+                Send bitcoin to
               </SendToAddressHeader>
 
-                <AddressDisplayWrapper>
-                  <Input
-                    value={sendAmount}
-                    onChange={(e) => setSendAmount(e.target.value)}
-                    placeholder="0.0025"
-                    style={{ borderRight: 'none', paddingRight: 80, color: darkGray }}
-                  />
-                  <InputStaticText
-                    disabled
-                    text="BTC"
-                  >BTC</InputStaticText>
-                </AddressDisplayWrapper>
+              <Input
+                onChange={(e) => setRecipientAddress(e.target.value)}
+                value={recipientAddress}
+                placeholder="tb1qy8glxuvc7nqqlxmuucnpv93fekyv4lth6k3v3p"
+                style={{ marginBottom: 36 }}
+                error={recipientAddressError}
+              />
 
-                <SendButtonContainer>
-                  <CopyAddressButton onClick={() => createTransaction(sendAmount, recipientAddress, availableUtxos, transactionsFromBlockstream)}>Confirm Payment</CopyAddressButton>
-                  <CopyAddressButton background="transparent" color={darkGray}>Advanced Options</CopyAddressButton>
-                </SendButtonContainer>
-              </AccountSendContentLeft>
-            )}
+              <SendButtonContainer>
+                <CopyAddressButton background="transparent" color={darkGray}>Advanced Options</CopyAddressButton>
+                <CopyAddressButton onClick={() => {
+                  if (!recipientAddress) {
+                    setRecipientAddressError(true);
+                  }
+                  if (!sendAmount) {
+                    setSendAmountError(true);
+                  }
 
-            {step === 1 && (
-              <AccountSendContentRight style={{ marginRight: 64, marginLeft: 0 }}>
-                {!showMoreDetails ? (
-                  <SendDetailsContainer>
-                    <TransactionDetailsHeader>Transaction Details</TransactionDetailsHeader>
-                    <div>
-                      <ToField>Sending <span>{sendAmount} BTC</span></ToField>
-                      <ToField>to <span>{recipientAddress}</span></ToField>
-                      <ToField>Fee: <span>{satoshisToBitcoins(feeEstimate).toNumber()} BTC</span></ToField>
-                      <ToField style={{ borderTop: `1px solid ${gray}` }}>Total: <span>{satoshisToBitcoins(outputTotal).toNumber()} BTC</span></ToField>
-                    </div>
+                  if (recipientAddress && sendAmount) {
+                    createTransaction(sendAmount, recipientAddress, availableUtxos, transactions)
+                  }
+                }
+                }>Preview Transaction</CopyAddressButton>
+              </SendButtonContainer>
+            </AccountSendContentLeft>
+          )}
 
-                    <SendButton>
-                      Confirm on Devices to Send
-                  </SendButton>
+          {step === 1 && (
+            <TransactionDetails
+              finalPsbt={finalPsbt}
+              feeEstimate={feeEstimate}
+              outputTotal={outputTotal}
+              recipientAddress={recipientAddress}
+              setStep={setStep}
+              sendAmount={sendAmount}
+              transactionsMap={transactionsMap}
+              signedPsbts={signedPsbts}
+            />
+          )}
 
-                    <MoreDetails>
-                      <span onClick={() => setShowMoreDetails(!showMoreDetails)}>{showMoreDetails ? 'Less' : 'More'} Details ></span>
-                      <span onClick={() => setStep(0)}>Edit Transaction</span>
-                    </MoreDetails>
-                  </SendDetailsContainer>
-                ) : (
-                    <SendDetailsContainer>
-                      <MoreDetailsSection>
-                        <MoreDetailsHeader>Inputs</MoreDetailsHeader>
-                        {finalPsbt.__CACHE.__TX.ins.map(input => {
-                          const inputBuffer = cloneBuffer(input.hash);
-                          const txInput = transactionsMap.get(inputBuffer.reverse().toString('hex'));
-                          return (
-                            <OutputItem>
-                              <OutputAddress>{txInput.vout[input.index].scriptpubkey_address}</OutputAddress>
-                              <OutputAmount>{satoshisToBitcoins(txInput.vout[input.index].value).toNumber()} BTC</OutputAmount>
-                            </OutputItem>
-                          )
-                        })}
-                      </MoreDetailsSection>
-                      <MoreDetailsSection>
-                        <MoreDetailsHeader>Outputs</MoreDetailsHeader>
-                        {finalPsbt.__CACHE.__TX.outs.map(output => (
-                          <OutputItem>
-                            {/* script: {output.script.toString('hex')}, */}
-                            <OutputAddress>{address.fromOutputScript(output.script, finalPsbt.opts.network)}</OutputAddress> <OutputAmount>{satoshisToBitcoins(output.value).toNumber()} BTC</OutputAmount>
-                          </OutputItem>
-                        ))}
-
-                      </MoreDetailsSection>
-                      <MoreDetailsSection>
-                        <MoreDetailsHeader>PSBT</MoreDetailsHeader>
-                        <div style={{ display: 'flex' }}>
-                          <TextArea rows={8} value={finalPsbt.toHex()} />
-                        </div>
-                      </MoreDetailsSection>
-                      <MoreDetails>
-                        <span onClick={() => setShowMoreDetails(!showMoreDetails)}>{showMoreDetails ? 'Less' : 'More'} Details ></span>
-                        <span onClick={() => setStep(0)}>Manual Transaction</span>
-                      </MoreDetails>
-                    </SendDetailsContainer>
-                  )}
-
-
-
-              </AccountSendContentRight>
-            )}
-
-            {step === 0 && (
-              <AccountSendContentRight>
-                <CurrentBalanceWrapper>
-                  <CurrentBalanceText>
-                    Current Balance:
+          {step === 0 && (
+            <AccountSendContentRight>
+              <CurrentBalanceWrapper>
+                <CurrentBalanceText>
+                  Current Balance:
                   </CurrentBalanceText>
-                  <CurrentBalanceValue>
-                    {satoshisToBitcoins(currentBalance).toNumber()} BTC
+                <CurrentBalanceValue>
+                  {satoshisToBitcoins(currentBalance).toNumber()} BTC
                 </CurrentBalanceValue>
-                </CurrentBalanceWrapper>
-                <RecentTransactions
-                  transactions={transactionsFromBlockstream}
-                  loading={loadingDataFromBlockstream}
-                  flat={true}
-                  maxItems={5} />
-              </AccountSendContentRight>
-            )}
+              </CurrentBalanceWrapper>
+              <RecentTransactions
+                transactions={transactions}
+                loading={loadingDataFromBlockstream}
+                flat={true}
+                maxItems={3} />
+            </AccountSendContentRight>
+          )}
 
-            {step === 1 && (
-              <AccountSendContentRight style={{ background: white, padding: 24 }}>
-                <SignWithDevice psbt={finalPsbt} />
-              </AccountSendContentRight>
-            )}
-          </AccountSendContent>
-        </SendWrapper>
-      </SendContent>
-    </Wrapper >
+          {step === 1 && (
+            <AccountSendContentRight style={{ background: white, padding: 24, border: `1px solid ${darkOffWhite}` }}>
+              <SignWithDevice
+                psbt={finalPsbt}
+                setSignedPsbts={setSignedPsbts}
+                signedPsbts={signedPsbts}
+              />
+            </AccountSendContentRight>
+          )}
+        </GridArea>
+      </SendWrapper>
+    </PageWrapper >
   )
 }
-
-const OutputItem = styled.div`
-  display: flex;
-  justify-content: space-between;
-  padding: 24px;
-  margin: 12px 0;
-  background: ${lightGray};
-  border: 1px solid ${darkOffWhite};
-  justify-content: center;
-  align-items: center;
-  border-radius: 4px;
-`;
-
-const OutputAddress = styled.span`
-  color: ${blue};
-  flex: 2;
-  word-break: break-word;
-`;
-
-const OutputAmount = styled.span`
-  flex: 1;
-  text-align: right;
-`;
-
-const MoreDetailsSection = styled.div`
-
-`;
-
-const MoreDetailsHeader = styled.div`
-  color: ${darkGray};
-  font-size: 24px;
-`;
-
-const TransactionDetailsHeader = styled.div`
-  font-size: 24px;
-  color: ${darkGray};
-  margin-bottom: 12px;
-`;
-
-
-const SendDetailsContainer = styled.div`
-  background: ${white};
-  // margin-top: 24px;
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  border: solid 1px ${darkOffWhite};
-`;
-
-const ToField = styled.div`
-  font-size: 24px;
-  padding: 16px;
-  display: flex;
-  justify-content: space-between;
-  // font-size: 16px;
-`;
-
-const MoreDetails = styled.div`
-  color: ${gray};
-  align-self: center;
-  align-items: flex-end;
-  display: flex;
-  flex: 1;
-  justify-content: space-around;
-  width: 100%;
-  padding: 12px;
-
-  span:hover {
-    text-decoration: underline;
-    cursor: pointer;
-  }
-`;
-
-const Wrapper = styled.div`
-  width: 100%;
-  text-align: left;
-  font-family: 'Montserrat', sans-serif;
-  color: ${black};
-  display: flex;
-  flex: 1;
-  display: flex;
-  min-height: 400px;
-  flex-direction: column;
-`;
-
-const SendContent = styled.div`
-  display: flex;
-  flex-direction: column;
-  padding: 64px;
-  overflow: scroll;
-  flex: 1;
-`;
 
 const SendButtonContainer = styled.div`
   margin: 24px;
   margin-bottom: 0;
+  display: flex;
+  justify-content: space-between;
 `;
 
 const CopyAddressButton = styled.div`
   ${Button};
 `;
 
-const SendButton = styled.div`
-  ${Button};
-
-  opacity: .6;
-`;
-
 const SendWrapper = styled.div`
   display: flex;
   flex-direction: column;
   box-shadow: rgba(0, 0, 0, 0.15) 0px 5px 15px 0px;
-  margin-top: 24px;
-`;
-
-const WalletHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-`;
-const WalletHeaderLeft = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
-const WalletHeaderRight = styled.div`
-  display: flex;
 `;
 
 const SendToAddressHeader = styled.div`
-  font-size: 16px;
+  font-size: 1em;
   color: ${gray};
   margin: 12px;
   margin-bottom: 0px;
@@ -441,18 +261,17 @@ const AddressDisplayWrapper = styled.div`
 `;
 
 const InputStyles = css`
-  border: 1px solid ${darkOffWhite};
+  border: ${p => p.error ? `1px solid ${red}` : `1px solid ${darkOffWhite}`};
   background: ${lightGray};
-  padding: 24px;
+  padding: 1.5em;
   color: ${darkGray};
   display: flex;
   justify-content: center;
   align-items: center;
   margin: 16px;
   border-radius: 4px;
-  font-size: 24px;
+  font-size: 1.5em;
   z-index: 1;
-  flex: 1;
 
   ::placeholder {
     color: ${gray};
@@ -470,13 +289,6 @@ const Input = styled.input`
   ${InputStyles}
 `;
 
-const TextArea = styled.textarea`
-  ${InputStyles};
-  font-size: 8px;
-  padding: 10px;
-  margin: 0;
-`;
-
 const InputStaticText = styled.label`
   position: relative;
   display: flex;
@@ -486,7 +298,7 @@ const InputStaticText = styled.label`
   margin-left: -87px;
   z-index: 1;
   margin-right: 40px;
-  font-size: 24px;
+  font-size: 1.5em;
   font-weight: 100;
   color: ${gray};
   
@@ -496,7 +308,7 @@ const InputStaticText = styled.label`
     top: 4px;
     left: 94px;
     font-family: arial, helvetica, sans-serif;
-    font-size: 12px;
+    font-size: .75em;
     display: block;
     color: rgba(0, 0, 0, 0.6);
     font-weight: bold;
@@ -506,10 +318,6 @@ const InputStaticText = styled.label`
 const SettingsButton = styled.div`
   ${Button}
   // margin: 12px;
-`;
-
-const PageTitle = styled.div`
-  font-size: 48px;
 `;
 
 const AccountMenuItemWrapper = styled.div`
@@ -535,14 +343,14 @@ const AccountMenu = styled.div`
 
 const AccountSendContent = styled.div`
   min-height: 400px;
-  padding: 24px;
+  padding: 1.5em;
   display: flex;
   background: ${lightBlue};
 `;
 
 const AccountSendContentLeft = styled.div`
   min-height: 400px;
-  padding: 24px;
+  padding: 1.5em;
   display: flex;
   flex-direction: column;
   flex: 1;
@@ -556,14 +364,13 @@ const AccountSendContentLeft = styled.div`
 const AccountSendContentRight = styled.div`
   min-height: 400px;
   padding: 0;
-  margin-left: 64px;
   display: flex;
   flex: 1;
   flex-direction: column;
 `;
 
 const CurrentBalanceWrapper = styled.div`
-  padding: 24px;
+  padding: 1.5em;
   display: flex;
   flex-direction: column;
   border: solid 1px ${darkOffWhite};
@@ -575,13 +382,13 @@ const CurrentBalanceWrapper = styled.div`
 
 
 const CurrentBalanceText = styled.div`
-  font-size: 24px;
+  font-size: 1.5em;
   color: ${darkGray};
 `;
 
 
 const CurrentBalanceValue = styled.div`
-  font-size: 36px;
+  font-size: 2em;
 `;
 
 

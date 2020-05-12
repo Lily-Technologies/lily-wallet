@@ -14,7 +14,12 @@ export const white = '#ffffff';
 export const offWhite = '#F5F7FA';
 export const darkOffWhite = darken(0.05, offWhite);
 
-export const black = 'rgba(66,66,66,.95)';
+export const lightBlack = '#565656';
+export const black = '#1F1F1F';
+// 424242
+
+export const red = '#D8000C';
+export const lightRed = '#FFBABA';
 
 export const blue = "#387eec";
 export const darkBlue = darken(0.05, blue);
@@ -22,7 +27,7 @@ export const lightBlue = lighten(0.40, blue);
 
 export const green = "#9BD187";
 export const darkGreen = darken(0.15, green);
-export const lightGreen = "#E6FFE0;";
+export const lightGreen = "#E6FFE0";
 
 export const purple = "#A367FF";
 

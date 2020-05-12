@@ -1,31 +1,39 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Link, useHistory } from "react-router-dom";
 import styled from 'styled-components';
 import { AES, enc } from 'crypto-js';
 import { RestaurantMenu } from '@styled-icons/material';
 import { StyledIcon, StyledIconSpinning } from '../components';
 
-import { Button } from '../components';
-import { black, gray, darkOffWhite, lightGray, darkGray, blue } from '../utils/colors';
+import { Button, VaultIcon, Sidebar } from '../components';
+import { black, gray, darkOffWhite, lightGray, darkGray, blue, lightBlue, white } from '../utils/colors';
 
 import { getConfigFileFromGoogleDrive, saveFileToGoogleDrive } from '../utils/google-drive';
 
 
 const GDriveImport = ({ setCaravanFile }) => {
   document.title = `GDriveImport - Coldcard Kitchen`;
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [loadingGDrive, setLoadingGDrive] = useState(false);
   const [password, setPassword] = useState('');
   const [encryptedCaravanFile, setEncryptedCaravanFile] = useState(null);
+  const [showCurtain, setShowCurtain] = useState(false);
+  const [startCurtain, setStartCurtain] = useState(false);
+  const [enterSidebar, setEnterSidebar] = useState(false);
 
   const history = useHistory();
 
+  console.log('enterSidebar...: ', enterSidebar);
+
+  console.log('loading...: ', loading);
 
   useEffect(() => {
     const onload = async () => {
+      setLoadingGDrive(true);
       // await saveFileToGoogleDrive({ "name": "Coldcard Kitchen", "addressType": "P2WSH", "network": "testnet", "client": { "type": "public" }, "quorum": { "requiredSigners": 2, "totalSigners": 3 }, "extendedPublicKeys": [{ "name": "34ecf56b", "bip32Path": "m/0", "xpub": "tpubDECB21DPAjBvUtqSCGWHJrbh6nSg9JojqmoMBuS5jGKTFvYJb784Pu5hwq8vSpH6vkk3dZmjA3yR7mGbrs3antkL6BHVHAyjPeeJyAiVARA", "method": "xpub" }, { "name": "9130c3d6", "bip32Path": "m/0", "xpub": "tpubDDv6Az73JkvvPQPFdytkRrizpdxWtHTE6gHywCRqPu3nz2YdHDG5AnbzkJWJhtYwEJDR3eENpQQZyUxtFFRRC2K1PEGdwGZJYuji8QcaX4Z", "method": "xpub" }, { "name": "4f60d1c9", "bip32Path": "m/0", "xpub": "tpubDFR1fvmcdWbMMDn6ttHPgHi2Jt92UkcBmzZ8MX6QuoupcDhY7qoKsjSG2MFvN66r2zQbZrdjfS6XtTv8BjED11hUMq3kW2rc3CLTjBZWWFb", "method": "xpub" }] });
       const encryptedCaravanFile = await getConfigFileFromGoogleDrive();
       if (encryptedCaravanFile) {
-        setLoading(false);
+        setLoadingGDrive(false);
         setEncryptedCaravanFile(encryptedCaravanFile)
       } else {
         history.replace('/setup');
@@ -36,35 +44,99 @@ const GDriveImport = ({ setCaravanFile }) => {
 
   const unlockFile = () => {
     // KBC-TODO: probably need error handling for wrong password
-    setLoading(true);
     var bytes = AES.decrypt(encryptedCaravanFile, password);
     var decryptedData = JSON.parse(bytes.toString(enc.Utf8));
     setCaravanFile(decryptedData);
     history.replace('/vault');
   }
 
-  return (
-    <Wrapper>
-      <MainText>
-        <CandyImage src={require('../assets/sugar.svg')} />
-        Candyman
-        </MainText>
-      <Subtext>Candyman is a self-custody Bitcoin wallet that allows you to easily store, manage, and spend Bitcoin</Subtext>
-      <FormContainer>
-        <SelectDeviceContainer>
-          <DevicesWrapper>
-            {loading && <h1>Loading Wallet</h1>}
-            {loading && <StyledIconSpinning as={RestaurantMenu} size={96} />}
-            {loading && <h3>Please wait...</h3>}
+  const Screen = () => {
+    return (
+      <Wrapper>
+        <MainText>
+          <LilyImage src={require('../assets/lily.svg')} />
+          Lily Wallet
+          </MainText>
+        <Subtext>Lily is a self-custody Bitcoin wallet that allows you to easily store, manage, and spend Bitcoin</Subtext>
+        <FormContainer>
+          <SelectDeviceContainer>
+            <DevicesWrapper>
+              <VaultIcon loading={loading} />
+              <TypeInPasswordText>Type in password to unlock wallet</TypeInPasswordText>
+              <PasswordInput disabled type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+              <UnlockButton>
+                Unlock Wallet
+                </UnlockButton>
+            </DevicesWrapper>
+          </SelectDeviceContainer>
+        </FormContainer>
+      </Wrapper>
+    )
+  }
 
-            {encryptedCaravanFile && <h2>Type in password to unlock wallet</h2>}
-            {encryptedCaravanFile && <PasswordInput type="password" value={password} onChange={(e) => setPassword(e.target.value)} />}
-            {encryptedCaravanFile && <UnlockButton onClick={() => unlockFile()}>Unlock Wallet</UnlockButton>}
-          </DevicesWrapper>
-        </SelectDeviceContainer>
-      </FormContainer>
-    </Wrapper>
-  )
+  if (!showCurtain) {
+    return (
+      <Wrapper>
+        <MainText>
+          <LilyImage src={require('../assets/lily.svg')} />
+          Lily Wallet
+          </MainText>
+        <Subtext>Lily is a self-custody Bitcoin wallet that allows you to easily store, manage, and spend Bitcoin</Subtext>
+        <FormContainer>
+          <SelectDeviceContainer>
+
+            <DevicesWrapper>
+              <VaultIcon loading={loading} />
+
+              <TypeInPasswordText>Type in password to unlock wallet</TypeInPasswordText>
+              <PasswordInput type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+              <UnlockButton
+                loading={loadingGDrive}
+                onClick={() => {
+                  setLoading(true);
+                  setTimeout(() => setShowCurtain(true), 500);
+                  setTimeout(() => setStartCurtain(true), 550);
+                  setTimeout(() => setEnterSidebar(true), 5000);
+                  setTimeout(unlockFile, 2000);
+                  // unlockFile();
+                }}>
+                Unlock Wallet
+                </UnlockButton>
+            </DevicesWrapper>
+          </SelectDeviceContainer>
+        </FormContainer>
+      </Wrapper>
+    )
+  } else {
+    return (
+      <CurtainContainer>
+        <CurtainLeft startCurtain={startCurtain}>
+          <CurtainLeftInner>
+            <Screen />
+          </CurtainLeftInner>
+
+        </CurtainLeft>
+        <CurtainBehind enterSidebar={enterSidebar}>
+          <SidebarWrapper enterSidebar={enterSidebar}>
+            <Sidebar caravanFile={{
+              name: 'Foobar',
+              extendedPublicKeys: [
+                { name: 'Device #1' }
+              ]
+            }} />
+          </SidebarWrapper>
+
+          <ChartPlaceholder />
+
+        </CurtainBehind>
+        <CurtainRight startCurtain={startCurtain}>
+          <CurtainRightInner>
+            <Screen />
+          </CurtainRightInner>
+        </CurtainRight>
+      </CurtainContainer>
+    )
+  }
 }
 
 const Wrapper = styled.div`
@@ -72,40 +144,45 @@ const Wrapper = styled.div`
   text-align: left;
   font-family: 'Montserrat', sans-serif;
   color: ${black};
-  // margin-top: -1px;
   align-items: center;
   display: flex;
   flex: 1;
   justify-content: center;
   flex-direction: column;
-  padding-top: 150px;
+  padding-top: 5em;
+  background: ${lightBlue};
 `;
 
 const MainText = styled.div`
   display: flex;
-  font-size: 48px;
+  font-size: 2em;
   justify-content: center;
   align-items: center;
   margin-bottom: 8px;
 `;
 
 const Subtext = styled.div`
-  font-size: 12px;
+  font-size: .25em;
   color: ${darkGray};
   margin-bottom: 12px;
 `;
 
-const CandyImage = styled.img`
+const LilyImage = styled.img`
   width: 36px;
   height: 36px;
   margin-right: 12px;
+`;
+
+const TypeInPasswordText = styled.h3`
+  font-size: 1.125em;
+  margin-bottom: 0;
 `;
 
 const PasswordInput = styled.input`
   position: relative;
   border: 1px solid ${darkOffWhite};
   background: ${lightGray};
-  padding: 12px;
+  padding: .75em;
   text-align: center;
   color: ${darkGray};
   display: flex;
@@ -113,7 +190,7 @@ const PasswordInput = styled.input`
   align-items: center;
   margin: 16px;
   border-radius: 4px;
-  font-size: 24px;
+  font-size: 1.5em;
   z-index: 1;
   font-family: 'Montserrat', sans-serif;
 
@@ -129,6 +206,9 @@ const PasswordInput = styled.input`
 
 const UnlockButton = styled.div`
   ${Button};
+  margin-bottom: 16px;
+  opacity: ${p => p.loading ? '0.5' : '1'};
+  pointer-events: ${p => p.loading ? '0.5' : '1'};
 `;
 
 const FormContainer = styled.div`
@@ -139,7 +219,6 @@ const FormContainer = styled.div`
 
 const SelectDeviceContainer = styled.div`
   max-width: 750px;
-  background: #fff;
   display: flex;
   flex: 1;
   flex-direction: column;
@@ -147,30 +226,7 @@ const SelectDeviceContainer = styled.div`
   align-items: center;
   padding: 0;
   border-radius: 4px;
-  box-shadow: rgba(0, 0, 0, 0.15) 0px 5px 15px 0px;
   margin: 18px;
-`;
-
-const Section = styled.div`
-  display: flex;
-  flex-direction: column;
-  flex: 1 0 250px;
-  padding: 24px;
-  justify-content: center;
-  text-align: center;
-`;
-
-const ButtonContainer = styled.div`
-  display: flex;
-`;
-
-const ScanDevicesButton = styled(Link)`
-  ${Button};
-  padding: 16px;
-  font-size: 16px;
-  margin-top: 12px;
-  font-weight: 700;
-  flex: 1;
 `;
 
 const DevicesWrapper = styled.div`
@@ -180,6 +236,77 @@ const DevicesWrapper = styled.div`
   align-items: center;
   min-height: 400px;
   flex-wrap: wrap;
+  background: ${white};
+  box-shadow: rgba(0, 0, 0, 0.15) 0px 5px 15px 0px;
+  border-radius: 4px;
+`;
+
+const CurtainContainer = styled.div`
+  display: flex;
+  background: ${lightBlue};
+  width: 100%;
+`;
+
+const CurtainLeft = styled.div`
+  position: relative;
+  display: flex;
+  justify-content: flex-end;
+  flex: 1 0 50%;
+  overflow: hidden;
+  height: 92vh;
+  
+  transform: ${p => p.startCurtain ? 'translateX(-100%)' : 'translateX(0)'};
+  transition: all 1s ease-out;
+  z-index: 1;
+`;
+
+const CurtainLeftInner = styled.div`
+  position: absolute;
+  width: 100%;
+  right: -25vw;
+`;
+
+const CurtainRightInner = styled.div`
+  position: absolute;
+  width: 100%;
+  left: -25vw;
+`;
+
+const CurtainRight = styled.div`
+  position: relative;
+  display: flex;
+  flex: 1 0 50%;
+  transform: translateX(0);
+  overflow: hidden;
+  height: 92vh;
+  transform: ${p => p.startCurtain ? 'translateX(100%)' : 'translateX(0)'};
+  transition: all 1s ease-out;
+  z-index: 1;
+`;
+
+const CurtainBehind = styled.div`
+  display: ${p => p.enterSidebar ? 'auto' : 'none'};
+  align-self: flex-start;
+  flex: 1;
+  position: absolute;
+  width: 100%;
+  display: flex;
+  z-index: 0;
+`;
+
+const SidebarWrapper = styled.div`
+  transform: ${p => p.enterSidebar ? 'translateX(100%)' : 'translateX(0)'};
+  transition: all 1s ease-out;
+`;
+
+const ChartPlaceholder = styled.div`
+  background: ${white};
+  padding: 1.5em;
+  box-shadow: rgba(0, 0, 0, 0.15) 0px 5px 15px 0px;
+  margin-top: .5em;
+  border-top: solid 11px ${blue};
+  margin: 64px;
+  flex: 1;
 `;
 
 export default GDriveImport;

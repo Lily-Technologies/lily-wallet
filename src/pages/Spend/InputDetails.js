@@ -69,7 +69,7 @@ const DetailsWrapper = styled.div`
 
 const DetailsContainer = styled.div`
   flex: 1 0 250px;
-  padding: 12px;
+  padding: .75em;
   background: ${lightBlue};
   border-radius: 4px;
   border: solid 1px ${darkOffWhite};
@@ -81,7 +81,7 @@ const InputDetailsWrapper = styled.div`
   display: flex;
   flex-direction: column;
   min-height: 400px;
-  padding: 24px;
+  padding: 1.5em;
   justify-content: space-between;
 `;
 
@@ -123,7 +123,7 @@ const FileInput = styled.input`
 `;
 
 const Input = styled.input`
-  padding: 12px;
+  padding: .75em;
   border-radius: 4px;
   border: 1px solid ${darkOffWhite};
   margin: 8px;
@@ -131,17 +131,17 @@ const Input = styled.input`
 
 const GetXPubButton = styled.button`
   ${Button};
-  padding: 12px;
+  padding: .75em;
   margin: 0 8px;
 `;
 
 const InputDetailsHeader = styled.h5`
-  font-size: 24px;
+  font-size: 1.5em;
   margin: 4px 0;
 `;
 
 const InputDetailsSubheader = styled.span`
-  font-size: 12px;
+  font-size: .75em;
 `;
 
 export default InputDetails;

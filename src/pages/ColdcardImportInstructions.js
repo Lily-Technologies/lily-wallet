@@ -50,6 +50,7 @@ const Wrapper = styled.div`
 
 const Instructions = styled.div`
   color: ${darkGray};
+  align-self: flex-start;
 `;
 
 const FormContainer = styled.div`
@@ -76,7 +77,7 @@ const Section = styled.div`
   display: flex;
   flex-direction: column;
   flex: 1 0 250px;
-  padding: 24px;
+  padding: 1.5em;
   justify-content: center;
   text-align: center;
 `;
@@ -87,8 +88,8 @@ const ButtonContainer = styled.div`
 
 const ScanDevicesButton = styled(Link)`
   ${Button};
-  padding: 16px;
-  font-size: 16px;
+  padding: 1em;
+  font-size: 1em;
   margin-top: 12px;
   font-weight: 700;
 `;

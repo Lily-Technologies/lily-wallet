@@ -7,7 +7,7 @@ import { AES } from 'crypto-js';
 import { BACKEND_URL } from '../../config';
 import { saveFileToGoogleDrive } from '../../utils/google-drive';
 import { createCaravanImportFile, createColdCardBlob, downloadFile } from './utils';
-import { Button, DeviceSelect } from '../../components';
+import { Button, DeviceSelectSetup } from '../../components';
 import { black, gray, blue, white, darkGreen, offWhite, darkGray, darkOffWhite, lightGray } from '../../utils/colors';
 
 const Setup = ({ setCaravanFile }) => {
@@ -62,7 +62,7 @@ const Setup = ({ setCaravanFile }) => {
 
           </SetupHeaderContainer>
 
-          <DeviceSelect
+          <DeviceSelectSetup
             deviceAction={importDevice}
             configuredDevices={importedDevices}
             unconfiguredDevices={availableDevices}
@@ -129,7 +129,7 @@ const XPubHeaderWrapper = styled.div`
   margin: 0;
   display: flex;
   justify-content: space-between;
-  padding: 12px;
+  padding: 24px 24px 12px;
   border-top: 12px solid ${blue};
   border-top-left-radius: 4px;
   border-top-right-radius: 4px;
@@ -137,11 +137,11 @@ const XPubHeaderWrapper = styled.div`
 `;
 
 const SetupHeaderContainer = styled.div`
-  padding: 12px;
+  padding: .75em;
 `;
 
 const SelectDeviceHeader = styled.h1`
-  font-size: 16px;
+  font-size: 1em;
   font-weight: 500;
 `;
 
@@ -165,23 +165,23 @@ const SetupHeaderWrapper = styled.div`
 `;
 
 const SetupHeader = styled.span`
-  font-size: 24px;
+  font-size: 1.5em;
   margin: 4px 0;
 `;
 
 const SetupSubheader = styled.span`
-  font-size: 18px;
+  font-size: 1.1em;
   color: ${darkGray};
 `;
 
 const SetupExplainerText = styled.div`
   color: ${darkGray};
-  font-size: 12px;
-  margin: 12px 0;
+  font-size: .8em;
+  margin: 8px 0;
 `;
 
 const PasswordWrapper = styled.div`
-  padding: 24px;
+  padding: 1.5em;
   display: flex;
   flex-direction: column;
 `;
@@ -192,7 +192,7 @@ const PasswordInput = styled.input`
   position: relative;
   border: 1px solid ${darkOffWhite};
   background: ${lightGray};
-  padding: 12px;
+  padding: .75em;
   text-align: center;
   color: ${darkGray};
   display: flex;
@@ -200,7 +200,7 @@ const PasswordInput = styled.input`
   align-items: center;
   margin: 16px;
   border-radius: 4px;
-  font-size: 24px;
+  font-size: 1.5em;
   z-index: 1;
   flex: 1;
   font-family: 'Montserrat', sans-serif;
@@ -220,7 +220,7 @@ const ExportFilesButton = styled.button`
   click-events: ${p => p.active ? 'auto' : 'none'};
   opacity: ${p => p.active ? '1' : '0.5'};
   padding: 16px;
-  font-size: 16px;
+  font-size: 1em;
   margin-top: 12px;
   font-weight: 700;
   border-top-left-radius: 0;

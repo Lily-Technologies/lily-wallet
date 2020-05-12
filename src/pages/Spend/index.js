@@ -114,7 +114,7 @@ const SpendHeaderWrapper = styled.div`
   margin: 0;
   display: flex;
   justify-content: space-between;
-  padding: 12px;
+  padding: .75em;
   border-top: 12px solid ${blue};
   border-top-left-radius: 4px;
   border-top-right-radius: 4px;
@@ -122,7 +122,7 @@ const SpendHeaderWrapper = styled.div`
 `;
 
 const SelectDeviceHeader = styled.h1`
-  font-size: 16px;
+  font-size: 1em;
   font-weight: 500;
 `;
 
