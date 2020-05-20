@@ -6,17 +6,20 @@ import { AES } from 'crypto-js';
 
 import { BACKEND_URL } from '../../config';
 import { saveFileToGoogleDrive } from '../../utils/google-drive';
-import { createCaravanImportFile, createColdCardBlob, downloadFile } from './utils';
+import { createConfigFile, createColdCardBlob, downloadFile } from './utils';
 import { Button, DeviceSelectSetup } from '../../components';
 import { black, gray, blue, white, darkGreen, offWhite, darkGray, darkOffWhite, lightGray } from '../../utils/colors';
 
-const Setup = ({ setCaravanFile }) => {
+import CreateWallet from './CreateWallet';
+
+const Setup = ({ config, setConfigFile }) => {
   const [importedDevices, setImportedDevices] = useState([]);
   const [availableDevices, setAvailableDevices] = useState([]);
   const [password, setPassword] = useState('');
+  const [createWallet, setCreateWallet] = useState(true);
   const history = useHistory();
 
-  document.title = `Create Files - Coldcard Kitchen`;
+  document.title = `Create Files - Lily Wallet`;
 
   const importDevice = async (device, index) => {
     const { data } = await axios.post(`${BACKEND_URL}/xpub`, {
@@ -33,12 +36,12 @@ const Setup = ({ setCaravanFile }) => {
     const contentType = "text/plain;charset=utf-8;";
 
     const ccFile = createColdCardBlob(importedDevices);
-    const caravanObject = createCaravanImportFile(importedDevices);
-    const encryptedCaravanObject = AES.encrypt(JSON.stringify(caravanObject), password).toString();
+    const configObject = createConfigFile(importedDevices);
+    const encryptedCaravanObject = AES.encrypt(JSON.stringify(configObject), password).toString();
     var encryptedCaravanFile = new Blob([decodeURIComponent(encodeURI(encryptedCaravanObject))], { type: contentType });
 
     saveFileToGoogleDrive(encryptedCaravanObject);
-    setCaravanFile(caravanObject);
+    setConfigFile(configObject);
     downloadFile(ccFile, "coldcard_import_file.txt");
     // downloadFile(caravanFile, "caravan_import_file.json");
     history.push('/coldcard-import-instructions')
@@ -56,19 +59,29 @@ const Setup = ({ setCaravanFile }) => {
                 You may disconnect your device from your computer after it has been configured.
               </SetupExplainerText>
             </SetupHeaderWrapper>
-            <SelectDeviceHeader><SetupSubheader>{importedDevices.length} of 3 devices configured</SetupSubheader></SelectDeviceHeader>
+            <SelectDeviceHeader>
+              <SetupSubheader>{importedDevices.length} of 3 devices configured</SetupSubheader>
+              <ConfigWallet onClick={() => setCreateWallet(!createWallet)}>Create Wallet</ConfigWallet>
+            </SelectDeviceHeader>
           </XPubHeaderWrapper>
           <SetupHeaderContainer>
 
           </SetupHeaderContainer>
 
-          <DeviceSelectSetup
-            deviceAction={importDevice}
-            configuredDevices={importedDevices}
-            unconfiguredDevices={availableDevices}
-            setUnconfiguredDevices={setAvailableDevices}
-            configuredThreshold={3}
-          />
+          {createWallet ? (
+            <CreateWallet
+              config={config}
+              setConfigFile={setConfigFile}
+            />
+          ) : (
+              <DeviceSelectSetup
+                deviceAction={importDevice}
+                configuredDevices={importedDevices}
+                unconfiguredDevices={availableDevices}
+                setUnconfiguredDevices={setAvailableDevices}
+                configuredThreshold={3}
+              />
+            )}
 
           {importedDevices.length === 3 && (
             <PasswordWrapper>
@@ -90,6 +103,10 @@ const Setup = ({ setCaravanFile }) => {
     </Wrapper>
   )
 }
+
+const ConfigWallet = styled.div`
+  ${Button}
+`;
 
 const Wrapper = styled.div`
   width: 100%;

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import {
   BrowserRouter as Router,
   Switch,
@@ -11,17 +11,18 @@ import axios from 'axios';
 import BigNumber from 'bignumber.js';
 
 import { offWhite, black, gray } from './utils/colors';
+import { mobile } from './utils/media';
 
 import { Sidebar } from './components';
 
-import { getTransactionsFromMultisig } from './utils/transactions';
+import { getDataFromMultisig, getDataFromXPub } from './utils/transactions';
+
+import configFixture from './fixtures/config';
 
 // Pages
 import Login from './pages/Login';
 import GDriveImport from './pages/GDriveImport';
 import Setup from './pages/Setup';
-import Spend from './pages/Spend';
-import Wallet from './pages/Wallet';
 import Settings from './pages/Settings';
 import Vault from './pages/Vault';
 import Transfer from './pages/Transfer';
@@ -35,9 +36,11 @@ import ColdcardImportInstructions from './pages/ColdcardImportInstructions';
 
 function App() {
   const [currentBitcoinPrice, setCurrentBitcoinPrice] = useState(BigNumber(0));
-  // const [caravanFile, setCaravanFile] = useState();
-  const [caravanFile, setCaravanFile] = useState({ "name": "Coldcard Kitchen", "addressType": "P2WSH", "network": "testnet", "client": { "type": "public" }, "quorum": { "requiredSigners": 2, "totalSigners": 3 }, "extendedPublicKeys": [{ "name": "34ecf56b", "bip32Path": "m/0", "xpub": "tpubDECB21DPAjBvUtqSCGWHJrbh6nSg9JojqmoMBuS5jGKTFvYJb784Pu5hwq8vSpH6vkk3dZmjA3yR7mGbrs3antkL6BHVHAyjPeeJyAiVARA", "method": "xpub" }, { "name": "9130c3d6", "bip32Path": "m/0", "xpub": "tpubDDv6Az73JkvvPQPFdytkRrizpdxWtHTE6gHywCRqPu3nz2YdHDG5AnbzkJWJhtYwEJDR3eENpQQZyUxtFFRRC2K1PEGdwGZJYuji8QcaX4Z", "method": "xpub" }, { "name": "4f60d1c9", "bip32Path": "m/0", "xpub": "tpubDFR1fvmcdWbMMDn6ttHPgHi2Jt92UkcBmzZ8MX6QuoupcDhY7qoKsjSG2MFvN66r2zQbZrdjfS6XtTv8BjED11hUMq3kW2rc3CLTjBZWWFb", "method": "xpub" }] });
-
+  // const [config, setConfigFile] = useState(configFixture);
+  // const [currentAccount, setCurrentAccount] = useState({ config: config.vaults[0] });
+  const [config, setConfigFile] = useState(null);
+  const [currentAccount, setCurrentAccount] = useState(null);
+  const [accountMap, setAccountMap] = useState(null);
 
   // WALLET DATA
   const [transactions, setTransactions] = useState([]);
@@ -47,11 +50,13 @@ function App() {
   const [availableUtxos, setAvailableUtxos] = useState([]);
   const [loadingDataFromBlockstream, setLoadingDataFromBlockstream] = useState(false);
 
+  console.log('currentAccount, config: ', currentAccount, config);
+
   const ConfigRequired = () => {
     const { pathname } = useLocation();
     const history = useHistory();
-    if (!caravanFile && (pathname !== '/login' && pathname !== '/gdrive-import' && pathname !== '/setup')) {
-      history.push('login');
+    if (!config && (pathname !== '/login' && pathname !== '/gdrive-import' && pathname !== '/setup')) {
+      history.push('/login');
       window.location.reload();
     }
     return null;
@@ -65,6 +70,11 @@ function App() {
     return null;
   }
 
+  const setCurrentAccountFromMap = (vault) => {
+    const newVault = accountMap.get(vault.id);
+    setCurrentAccount(newVault);
+  }
+
   useEffect(() => {
     async function fetchCurrentBitcoinPrice() {
       const currentBitcoinPrice = await (await axios.get('https://api.coindesk.com/v1/bpi/currentprice.json')).data.bpi.USD.rate;
@@ -74,23 +84,81 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (caravanFile) {
+    if (config) {
       setLoadingDataFromBlockstream(true);
       async function fetchTransactionsFromBlockstream() {
-        const [transactions, unusedAddresses, unusedChangeAddresses, availableUtxos] = await getTransactionsFromMultisig(caravanFile);
 
-        const currentBalance = availableUtxos.reduce((accum, utxo) => accum.plus(utxo.value), BigNumber(0));
+        const accountMap = new Map();
 
-        setAvailableUtxos(availableUtxos);
-        setUnusedAddresses(unusedAddresses);
-        setTransactions(transactions);
-        setCurrentBalance(currentBalance);
-        setUnusedChangeAddresses(unusedChangeAddresses);
+        for (let i = 0; i < config.vaults.length; i++) {
+          const [addresses, changeAddresses, transactions, unusedAddresses, unusedChangeAddresses, availableUtxos] = await getDataFromMultisig(config.vaults[i]);
+
+          const currentBalance = availableUtxos.reduce((accum, utxo) => accum.plus(utxo.value), BigNumber(0));
+
+          const vaultData = {
+            name: config.vaults[i].name,
+            config: config.vaults[i],
+            addresses,
+            changeAddresses,
+            availableUtxos,
+            transactions,
+            unusedAddresses,
+            currentBalance,
+            unusedChangeAddresses
+          };
+
+          accountMap.set(config.vaults[i].id, vaultData);
+        }
+
+        for (let i = 0; i < config.wallets.length; i++) {
+          const [addresses, changeAddresses, transactions, unusedAddresses, unusedChangeAddresses, availableUtxos] = await getDataFromXPub(config.wallets[i]);
+
+          const currentBalance = availableUtxos.reduce((accum, utxo) => accum.plus(utxo.value), BigNumber(0));
+
+          const vaultData = {
+            name: config.wallets[i].name,
+            config: config.wallets[i],
+            addresses,
+            changeAddresses,
+            availableUtxos,
+            transactions,
+            unusedAddresses,
+            currentBalance,
+            unusedChangeAddresses
+          };
+
+          accountMap.set(config.wallets[i].id, vaultData);
+        }
+
+        setLoadingDataFromBlockstream(false);
+        setAccountMap(accountMap);
+        setCurrentAccount(accountMap.get(config.vaults[0].id));
+      }
+      fetchTransactionsFromBlockstream();
+    }
+  }, [config]);
+
+  useEffect(() => {
+    if (currentAccount && accountMap) {
+      console.log('currentAccount: ', currentAccount);
+      setLoadingDataFromBlockstream(true);
+      async function fetchTransactionsFromBlockstream() {
+        console.log('accountMapx: ', accountMap);
+        const newVault = accountMap.get(currentAccount.config.id);
+        console.log('newVault xxx: ', newVault);
+
+        setAvailableUtxos(newVault.availableUtxos);
+        setUnusedAddresses(newVault.unusedAddresses);
+        setTransactions(newVault.transactions);
+        setCurrentBalance(newVault.currentBalance);
+        setUnusedChangeAddresses(newVault.unusedChangeAddresses);
         setLoadingDataFromBlockstream(false);
       }
       fetchTransactionsFromBlockstream();
     }
-  }, [caravanFile]);
+  }, [currentAccount, config]);
+
+  console.log('currentAccount: ', currentAccount);
 
   return (
     <Router>
@@ -99,16 +167,16 @@ function App() {
       <PageWrapper id="page-wrapper">
         <ScrollToTop />
         <ConfigRequired />
-        {caravanFile && <Sidebar caravanFile={caravanFile} />}
+        {config && <Sidebar config={config} setCurrentAccount={setCurrentAccountFromMap} loading={loadingDataFromBlockstream} />}
         <Switch>
-          <Route path="/vault" component={() => <Vault caravanFile={caravanFile} currentBitcoinPrice={currentBitcoinPrice} transactions={transactions} currentBalance={currentBalance} loadingDataFromBlockstream={loadingDataFromBlockstream} />} />
-          <Route path="/receive" component={() => <Receive caravanFile={caravanFile} currentBitcoinPrice={currentBitcoinPrice} transactions={transactions} currentBalance={currentBalance} loadingDataFromBlockstream={loadingDataFromBlockstream} unusedAddresses={unusedAddresses} />} />
-          <Route path="/send" component={() => <Send caravanFile={caravanFile} currentBitcoinPrice={currentBitcoinPrice} transactions={transactions} currentBalance={currentBalance} loadingDataFromBlockstream={loadingDataFromBlockstream} availableUtxos={availableUtxos} unusedChangeAddresses={unusedChangeAddresses} />} />
-          <Route path="/setup" component={() => <Setup caravanFile={caravanFile} setCaravanFile={setCaravanFile} />} />
-          <Route path="/login" component={() => <Login setCaravanFile={setCaravanFile} />} />
-          <Route path="/settings" component={() => <Settings caravanFile={caravanFile} />} />
-          <Route path="/transfer" component={() => <Transfer caravanFile={caravanFile} />} />
-          <Route path="/gdrive-import" component={() => <GDriveImport setCaravanFile={setCaravanFile} />} />
+          <Route path="/vault/:id" component={() => <Vault currentAccount={currentAccount} currentBitcoinPrice={currentBitcoinPrice} transactions={transactions} currentBalance={currentBalance} loadingDataFromBlockstream={loadingDataFromBlockstream} />} />
+          <Route path="/receive" component={() => <Receive config={config} currentAccount={currentAccount} setCurrentAccount={setCurrentAccountFromMap} currentBitcoinPrice={currentBitcoinPrice} transactions={transactions} currentBalance={currentBalance} loadingDataFromBlockstream={loadingDataFromBlockstream} unusedAddresses={unusedAddresses} />} />
+          <Route path="/send" component={() => <Send config={config} currentAccount={currentAccount} setCurrentAccount={setCurrentAccountFromMap} currentBitcoinPrice={currentBitcoinPrice} transactions={transactions} currentBalance={currentBalance} loadingDataFromBlockstream={loadingDataFromBlockstream} availableUtxos={availableUtxos} unusedChangeAddresses={unusedChangeAddresses} />} />
+          <Route path="/setup" component={() => <Setup config={config} setConfigFile={setConfigFile} />} />
+          <Route path="/login" component={() => <Login setConfigFile={setConfigFile} />} />
+          <Route path="/settings" component={() => <Settings config={config} />} />
+          <Route path="/transfer" component={() => <Transfer config={config} currentAccount={currentAccount} setCurrentAccount={setCurrentAccountFromMap} />} />
+          <Route path="/gdrive-import" component={() => <GDriveImport config={config} setConfigFile={setConfigFile} />} />
           <Route path="/coldcard-import-instructions" component={() => <ColdcardImportInstructions />} />
           <Route path="/" component={() => (
             <div>Not Found</div>
@@ -132,6 +200,10 @@ const PageWrapper = styled.div`
   font-family: 'Raleway', sans-serif;
   flex: 1;
   background: ${offWhite};
+
+  ${mobile(css`
+    flex-direction: column;
+  `)};
 `;
 
 const FooterWrapper = styled.div`

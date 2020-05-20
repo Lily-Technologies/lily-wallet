@@ -5,7 +5,7 @@ import { PageWrapper, PageTitle } from '../../components';
 
 import { black, lightGray, gray, blue, darkGray, white, offWhite } from '../../utils/colors';
 
-const Settings = ({ caravanFile }) => {
+const Settings = ({ config }) => {
 
   return (
     <PageWrapper>
@@ -26,11 +26,11 @@ const Settings = ({ caravanFile }) => {
           </SettingsSectionRight>
         </SettingsSection>
         <SettingsSection>
-          {caravanFile.extendedPublicKeys.map((device, index) => (
+          {config.keys.map((key, index) => (
             <DeviceWrapper key={index}>
               <DeviceImage src={"https://coldcardwallet.com/static/images/coldcard-front.png"} />
-              <DeviceName>{device.model}</DeviceName>
-              <DeviceFingerprint>{device.fingerprint}</DeviceFingerprint>
+              <DeviceName>{key.model}</DeviceName>
+              <DeviceFingerprint>{key.fingerprint}</DeviceFingerprint>
             </DeviceWrapper>
           ))}
         </SettingsSection>

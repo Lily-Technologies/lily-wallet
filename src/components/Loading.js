@@ -14,7 +14,7 @@ export const GrayAnimatedBackground = styled.div`
   animation: ${placeHolderShimmer} 1s linear infinite forwards;
   background: #f6f7f8;
   background: linear-gradient(to right, #eeeeee 8%, #dddddd 18%, #eeeeee 33%);
-  background-size: 800px 104px;
+  background-size: 50em 6.5em;
   position: relative;
   flex: 1;
 `;
@@ -25,7 +25,7 @@ export const GreenAnimatedBackground = styled.div`
   background: linear-gradient(to right, rgba(155,209,135, 0.5) 8%, ${lightGreen} 18%, rgba(155,209,135, 0.5) 33%);
   background-size: 800px 104px;
   position: relative;
-  flex: 0 0 400px;
+  flex: 0 0 90%;
   opacity: 0.95;
 `;
 

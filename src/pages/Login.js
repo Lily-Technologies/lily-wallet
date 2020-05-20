@@ -8,7 +8,7 @@ import { AES } from 'crypto-js';
 import { useSpring, animated } from 'react-spring';
 
 import { BACKEND_URL } from '../config';
-import { createCaravanImportFile, createColdCardBlob, downloadFile } from './Setup/utils';
+import { createConfigFile, createColdCardBlob, downloadFile } from './Setup/utils';
 import { StyledIcon } from '../components';
 import { saveFileToGoogleDrive } from '../utils/google-drive';
 
@@ -18,7 +18,7 @@ import { black, darkGray, lightBlue, white, darkOffWhite, blue, gray, lightGreen
 import { getGoogleAuthenticateUrl } from '../utils/google-drive';
 
 
-const Login = ({ setCaravanFile }) => {
+const Login = ({ setConfigFile }) => {
   const [loginOption, setLoginOption] = useState(0);
   const [importedDevices, setImportedDevices] = useState([]);
   const [availableDevices, setAvailableDevices] = useState([]);
@@ -27,7 +27,7 @@ const Login = ({ setCaravanFile }) => {
   const springProps = useSpring({ opacity: importedDevices.length < 3 ? 0 : 1 })
   console.log('springProps: ', springProps);
 
-  document.title = `Login - Coldcard Kitchen`;
+  document.title = `Login - Lily Wallet`;
 
   const getGoogleAuthenticateUrlAction = async () => {
     const url = await getGoogleAuthenticateUrl();
@@ -49,12 +49,12 @@ const Login = ({ setCaravanFile }) => {
     const contentType = "text/plain;charset=utf-8;";
 
     const ccFile = createColdCardBlob(importedDevices);
-    const caravanObject = createCaravanImportFile(importedDevices);
-    const encryptedCaravanObject = AES.encrypt(JSON.stringify(caravanObject), password).toString();
-    var encryptedCaravanFile = new Blob([decodeURIComponent(encodeURI(encryptedCaravanObject))], { type: contentType });
+    const configObject = createConfigFile(importedDevices);
+    const encryptedConfigObject = AES.encrypt(JSON.stringify(configObject), password).toString();
+    var encryptedConfigFile = new Blob([decodeURIComponent(encodeURI(encryptedConfigObject))], { type: contentType });
 
-    saveFileToGoogleDrive(encryptedCaravanObject);
-    setCaravanFile(caravanObject);
+    saveFileToGoogleDrive(encryptedConfigFile);
+    setConfigFile(configObject);
     downloadFile(ccFile, "coldcard_import_file.txt");
     // downloadFile(caravanFile, "caravan_import_file.json");
     history.push('/coldcard-import-instructions')

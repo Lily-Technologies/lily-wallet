@@ -20,28 +20,35 @@ import { StyledIcon, Button, SidewaysShake } from '../../components';
 
 import { gray, blue, darkGray, white, darkOffWhite, green, darkGreen, lightGray, red, lightRed } from '../../utils/colors';
 
-const TransactionDetails = ({ finalPsbt, feeEstimate, outputTotal, recipientAddress, sendAmount, setStep, transactionsMap, signedPsbts }) => {
+const TransactionDetails = ({ finalPsbt, feeEstimate, outputTotal, recipientAddress, sendAmount, setStep, transactionsMap, signedPsbts, signThreshold }) => {
   const [showMoreDetails, setShowMoreDetails] = useState(false);
   const [broadcastedTxId, setBroadcastedTxId] = useState('');
   const [txError, setTxError] = useState(null);
 
   const broadcastTransaction = async () => {
-    if (signedPsbts.length === 2) {
+    if (signedPsbts.length === signThreshold) {
       try {
-        const psbt = finalPsbt;
-        const psbt1 = Psbt.fromBase64(signedPsbts[0]);
-        const psbt2 = Psbt.fromBase64(signedPsbts[1]);
+        // TODO: support combining more than 2 PSBTs
+        if (signThreshold > 1) {
+          const psbt = finalPsbt;
+          const psbt1 = Psbt.fromBase64(signedPsbts[0]);
+          const psbt2 = Psbt.fromBase64(signedPsbts[1]);
 
-        console.log('psbt1, psbt2: ', psbt1, psbt2);
+          console.log('psbt1, psbt2: ', psbt1, psbt2);
 
-        psbt.combine(psbt1, psbt2);
+          psbt.combine(psbt1, psbt2);
 
-        psbt.finalizeAllInputs();
+          psbt.finalizeAllInputs();
 
-        console.log('psbt.extractTransaction(): ', psbt.extractTransaction());
-        console.log('psbt.extractTransaction().toHex(): ', psbt.extractTransaction().toHex());
-        const { data } = await axios.get(blockExplorerAPIURL(`/broadcast?tx=${psbt.extractTransaction().toHex()}`, TESTNET));
-        setBroadcastedTxId(data);
+          console.log('psbt.extractTransaction(): ', psbt.extractTransaction());
+          console.log('psbt.extractTransaction().toHex(): ', psbt.extractTransaction().toHex());
+          const { data } = await axios.get(blockExplorerAPIURL(`/broadcast?tx=${psbt.extractTransaction().toHex()}`, TESTNET));
+          setBroadcastedTxId(data);
+
+        } else {
+          const { data } = await axios.get(blockExplorerAPIURL(`/broadcast?tx=${signedPsbts[0].extractTransaction().toHex()}`, TESTNET));
+          setBroadcastedTxId(data);
+        }
       } catch (e) {
         console.log('e.message: ', e.message);
         setTxError(e.message);
@@ -65,9 +72,9 @@ const TransactionDetails = ({ finalPsbt, feeEstimate, outputTotal, recipientAddr
             <ToField style={{ borderTop: `1px solid ${gray}` }}>Total: <span>{satoshisToBitcoins(outputTotal).toNumber()} BTC</span></ToField>
             {txError && <ErrorBox>{txError}</ErrorBox>}
 
-            <SendButton background={green} color={white} loaded={signedPsbts.length} onClick={broadcastTransaction}>
-              {signedPsbts.length < 2 ? `Confirm on Devices (${signedPsbts.length}/2)` : 'Send Transaction'}
-              {signedPsbts.length < 2 ? null : (
+            <SendButton background={green} color={white} loaded={signedPsbts.length === signThreshold} onClick={broadcastTransaction}>
+              {signedPsbts.length < signThreshold ? `Confirm on Devices (${signedPsbts.length}/${signThreshold})` : 'Send Transaction'}
+              {signedPsbts.length < signThreshold ? null : (
                 <SendButtonCheckmark loaded={signedPsbts.length}>
                   <StyledIcon as={ArrowIosForwardOutline} size={16} />
                 </SendButtonCheckmark>
@@ -228,8 +235,8 @@ const MoreDetails = styled.div`
 
 const SendButton = styled.div`
   ${Button};
-  pointer-events: ${p => p.loaded === 2 ? 'auto' : 'none'};
-  box-shadow: ${p => p.loaded === 2 ? `inset 500px 0 0 0 ${darkGreen}` : `inset 0 0 0 0 ${darkGreen}`};
+  pointer-events: ${p => p.loaded ? 'auto' : 'none'};
+  box-shadow: ${p => p.loaded ? `inset 500px 0 0 0 ${darkGreen}` : `inset 0 0 0 0 ${darkGreen}`};
   transition: ease-out 0.4s;
   position: relative;
   font-size: 1.5em;

@@ -11,8 +11,8 @@ import { black, gray, darkOffWhite, lightGray, darkGray, blue, lightBlue, white 
 import { getConfigFileFromGoogleDrive, saveFileToGoogleDrive } from '../utils/google-drive';
 
 
-const GDriveImport = ({ setCaravanFile }) => {
-  document.title = `GDriveImport - Coldcard Kitchen`;
+const GDriveImport = ({ config, setConfigFile }) => {
+  document.title = `GDriveImport - Lily Wallet`;
   const [loading, setLoading] = useState(false);
   const [loadingGDrive, setLoadingGDrive] = useState(false);
   const [password, setPassword] = useState('');
@@ -46,8 +46,9 @@ const GDriveImport = ({ setCaravanFile }) => {
     // KBC-TODO: probably need error handling for wrong password
     var bytes = AES.decrypt(encryptedCaravanFile, password);
     var decryptedData = JSON.parse(bytes.toString(enc.Utf8));
-    setCaravanFile(decryptedData);
-    history.replace('/vault');
+    console.log('decryptedData: ', decryptedData);
+    setConfigFile(decryptedData);
+    history.replace(`/vaults`);
   }
 
   const Screen = () => {
@@ -118,9 +119,10 @@ const GDriveImport = ({ setCaravanFile }) => {
         </CurtainLeft>
         <CurtainBehind enterSidebar={enterSidebar}>
           <SidebarWrapper enterSidebar={enterSidebar}>
-            <Sidebar caravanFile={{
+            <Sidebar config={{
               name: 'Foobar',
-              extendedPublicKeys: [
+              wallets: [],
+              vaults: [
                 { name: 'Device #1' }
               ]
             }} />

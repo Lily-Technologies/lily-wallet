@@ -8,7 +8,7 @@ import { Button } from '../components';
 import { black, darkGray } from '../utils/colors';
 
 const ColdcardImportInstructions = ({ setCaravanFile }) => {
-  document.title = `ColdcardImportInstructions - Coldcard Kitchen`;
+  document.title = `ColdcardImportInstructions - Lily Wallet`;
   const history = useHistory();
 
   return (
@@ -71,19 +71,6 @@ const SelectDeviceContainer = styled.div`
   border-radius: 4px;
   box-shadow: rgba(0, 0, 0, 0.15) 0px 5px 15px 0px;
   margin: 18px;
-`;
-
-const Section = styled.div`
-  display: flex;
-  flex-direction: column;
-  flex: 1 0 250px;
-  padding: 1.5em;
-  justify-content: center;
-  text-align: center;
-`;
-
-const ButtonContainer = styled.div`
-  display: flex;
 `;
 
 const ScanDevicesButton = styled(Link)`

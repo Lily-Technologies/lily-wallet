@@ -3,14 +3,18 @@ import styled, { css } from 'styled-components';
 import { Link, useParams, useLocation } from "react-router-dom";
 import { VerticalAlignBottom, ArrowUpward, ShowChart, AddCircleOutline, Settings } from '@styled-icons/material';
 import { Safe } from '@styled-icons/crypto';
+import { Wallet } from '@styled-icons/entypo';
 import { Transfer } from '@styled-icons/boxicons-regular/Transfer';
 
 import { StyledIcon, Button } from '.';
 import { black, blue, white, offWhite, darkGray, darkOffWhite, lightBlue, lightBlack } from '../utils/colors';
+import { mobile } from '../utils/media';
 
-export const Sidebar = ({ caravanFile, currentDevice, setCurrentDevice }) => {
+export const Sidebar = ({ config, setCurrentAccount, loading }) => {
   const { name } = useParams();
   const { pathname } = useLocation();
+
+  console.log('config: ', config);
 
   if (pathname !== '/coldcard-import-instructions') {
     return (
@@ -19,10 +23,9 @@ export const Sidebar = ({ caravanFile, currentDevice, setCurrentDevice }) => {
           <LilyImage src={require('../assets/lily.svg')} />
           Lily Wallet
           </WalletTitle>
-        <WalletsHeader>Menu</WalletsHeader>
         <SidebarItem>
           <StyledIcon as={ShowChart} size={24} style={{ marginRight: 12 }} />
-          Portfolio
+          Overview
         </SidebarItem>
         <SidebarItemLink active={pathname === '/send'} to="/send">
           <StyledIcon as={ArrowUpward} size={24} style={{ marginRight: 12 }} />
@@ -41,19 +44,38 @@ export const Sidebar = ({ caravanFile, currentDevice, setCurrentDevice }) => {
             Settings
         </SidebarItemLink>
 
-        <WalletsHeader>Vaults</WalletsHeader>
-        <SidebarItemLink
-          active={pathname === '/vault'}
-          to={`/vault`}>
-          <StyledIcon as={Safe} size={24} style={{ marginRight: 12 }} />
-          {caravanFile.name}</SidebarItemLink>
+        <WalletsHeader>Accounts</WalletsHeader>
+        {config.wallets.map((wallet) => (
+          <SidebarItemLink
+            active={pathname === `/vault/${wallet.id}`}
+            onClick={() => {
+              console.log('wallet: ', wallet);
+              setCurrentAccount(wallet);
+            }}
+            to={`/vault/${wallet.id}`}>
+            <StyledIcon as={Wallet} size={24} style={{ marginRight: 12 }} />
+            {wallet.name}</SidebarItemLink>
+        ))}
+
+        {config.vaults.map((vault) => (
+          <SidebarItemLink
+            active={pathname === `/vault/${vault.id}`}
+            onClick={() => {
+              setCurrentAccount(vault);
+            }}
+            to={`/vault/${vault.id}`}>
+            <StyledIcon as={Safe} size={24} style={{ marginRight: 12 }} />
+            {vault.name}</SidebarItemLink>
+        ))}
 
         <SidebarItemLink
           active={pathname === '/setup'}
           to={`/setup`}>
           <StyledIcon as={AddCircleOutline} size={24} style={{ marginRight: 12 }} />
-          New Vault
+          New Account
           </SidebarItemLink>
+
+        {loading && 'loading...'}
 
         {/* <WalletsHeader>Devices</WalletsHeader>
         {caravanFile && caravanFile.extendedPublicKeys.map((extendedPublicKey, index) => (
@@ -76,7 +98,12 @@ const SidebarWrapper = styled.div`
   flex-direction: column;
   background: ${white};
   width: 12em;
-  min-height: 100vh;
+  // min-height: 100vh;
+
+  ${mobile(css`
+    flex-direction: row;
+  `)};
+
 `;
 
 const SidebarItemStyle = css`
@@ -89,6 +116,14 @@ const SidebarItemStyle = css`
   padding: ${ p => p.active ? `1em 1.2em 1.125em .5em` : '1em 1.2em'};
   text-decoration: none;
   font-size: 0.9em;
+  display: flex;
+
+  ${mobile(css`
+    border-left: none;
+    border-top: ${ p => p.active ? `solid 0.6875em ${blue}` : 'none'};
+    margin-top: ${ p => p.active ? `solid 0.6875em ${blue}` : 'none'};
+    align-items: center;
+  `)};
 
   &:hover {
     background: ${offWhite};

@@ -18,14 +18,12 @@ import { payments, ECPair, networks } from 'bitcoinjs-lib';
 import { StyledIcon, Button, GreenLoadingAnimation, PageWrapper, GridArea, PageTitle, Header, HeaderRight, HeaderLeft } from '../../components';
 import RecentTransactions from '../../components/transactions/RecentTransactions';
 
-import { getTransactionsAndTotalValueFromXPub, getTransactionsFromMultisig } from '../../utils/transactions';
 import { black, gray, offWhite, blue, darkGray, white, darkOffWhite, green, lightGreen, darkGreen, lightGray, lightBlue } from '../../utils/colors';
 
-const Receive = ({ caravanFile, transactions, unusedAddresses, currentBalance, loadingDataFromBlockstream }) => {
-  const [currentAccount, setCurrentAccount] = useState(caravanFile || null);
+const Receive = ({ config, currentAccount, setCurrentAccount, transactions, unusedAddresses, currentBalance, loadingDataFromBlockstream }) => {
   const [unusedAddressIndex, setUnusedAddressIndex] = useState(0);
 
-  document.title = `Receive - Coldcard Kitchen`;
+  document.title = `Receive - Lily Wallet`;
 
   return (
     <PageWrapper>
@@ -41,10 +39,18 @@ const Receive = ({ caravanFile, transactions, unusedAddresses, currentBalance, l
 
       <ReceiveWrapper>
         <AccountMenu>
-          <AccountMenuItemWrapper active={currentAccount.name === caravanFile.name}>
-            <StyledIcon as={Safe} size={48} />
-            <AccountMenuItemName>{caravanFile.name}</AccountMenuItemName>
-          </AccountMenuItemWrapper>
+          {config.vaults.map((vault) => (
+            <AccountMenuItemWrapper active={vault.name === currentAccount.name} onClick={() => setCurrentAccount(vault)}>
+              <StyledIcon as={Safe} size={48} />
+              <AccountMenuItemName>{vault.name}</AccountMenuItemName>
+            </AccountMenuItemWrapper>
+          ))}
+          {config.wallets.map((wallet) => (
+            <AccountMenuItemWrapper active={wallet.name === currentAccount.name} onClick={() => setCurrentAccount(wallet)}>
+              <StyledIcon as={Wallet} size={48} />
+              <AccountMenuItemName>{wallet.name}</AccountMenuItemName>
+            </AccountMenuItemWrapper>
+          ))}
         </AccountMenu>
 
         <GridArea>

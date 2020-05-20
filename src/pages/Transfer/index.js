@@ -5,7 +5,7 @@ import { PageWrapper, PageTitle } from '../../components';
 
 import { black, lightGray, gray, blue, darkGray, white, offWhite } from '../../utils/colors';
 
-const Transfer = ({ caravanFile }) => {
+const Transfer = ({ config }) => {
   return (
     <PageWrapper>
       <PageTitle>Transfer</PageTitle>

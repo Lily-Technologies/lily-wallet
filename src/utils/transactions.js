@@ -120,17 +120,18 @@ const serializeTransactions = (transactionsFromBlockstream, addresses, changeAdd
   return transactionsArray;
 }
 
-export const getChildPubKeysFromXpubs = (xpubs) => {
+export const getChildPubKeysFromXpubs = (xpubs, multisig = true) => {
   const childPubKeys = [];
   for (let i = 0; i < 30; i++) {
     xpubs.forEach((xpub) => {
       const childPubKeysBip32Path = `m/0/${i}`;
+      const bip32derivationPath = multisig ? `m/48'/1'/0'/2'/${childPubKeysBip32Path.replace('m/', '')}` : childPubKeysBip32Path;
       childPubKeys.push({
         childPubKey: deriveChildPublicKey(xpub.xpub, childPubKeysBip32Path, TESTNET),
         bip32derivation: {
-          masterFingerprint: Buffer.from(xpub.name, 'hex'),
+          masterFingerprint: Buffer.from(xpub.parentFingerprint, 'hex'),
           pubkey: Buffer.from(deriveChildPublicKey(xpub.xpub, childPubKeysBip32Path, TESTNET), 'hex'),
-          path: `m/48'/1'/0'/2'/${childPubKeysBip32Path.replace('m/', '')}`,
+          path: bip32derivationPath
         }
       });
     })
@@ -138,17 +139,18 @@ export const getChildPubKeysFromXpubs = (xpubs) => {
   return childPubKeys;
 }
 
-export const getChildChangePubKeysFromXpubs = (xpubs) => {
+export const getChildChangePubKeysFromXpubs = (xpubs, multisig = true) => {
   const childChangePubKeys = [];
   for (let i = 0; i < 30; i++) {
     xpubs.forEach((xpub) => {
       const childChangeAddressPubKeysBip32Path = `m/1/${i}`;
+      const bip32derivationPath = multisig ? `m/48'/1'/0'/2'/${childChangeAddressPubKeysBip32Path.replace('m/', '')}` : childChangeAddressPubKeysBip32Path;
       childChangePubKeys.push({
         childPubKey: deriveChildPublicKey(xpub.xpub, childChangeAddressPubKeysBip32Path, TESTNET),
         bip32derivation: {
-          masterFingerprint: Buffer.from(xpub.name, 'hex'),
+          masterFingerprint: Buffer.from(xpub.parentFingerprint, 'hex'),
           pubkey: Buffer.from(deriveChildPublicKey(xpub.xpub, childChangeAddressPubKeysBip32Path, TESTNET), 'hex'),
-          path: `m/48'/1'/0'/2'/${childChangeAddressPubKeysBip32Path.replace('m/', '')}`,
+          path: bip32derivationPath,
         }
       });
     })
@@ -199,9 +201,9 @@ const getUtxosForAddresses = async (addresses) => {
   const availableUtxos = [];
   for (let i = 0; i < addresses.length; i++) {
     const utxosFromBlockstream = await (await axios.get(blockExplorerAPIURL(`/address/${addresses[i].address}/utxo`, TESTNET))).data;
-    for (let i = 0; i < utxosFromBlockstream.length; i++) {
+    for (let j = 0; j < utxosFromBlockstream.length; j++) {
       availableUtxos.push({
-        ...utxosFromBlockstream[i],
+        ...utxosFromBlockstream[j],
         address: addresses[i]
       })
     }
@@ -210,14 +212,14 @@ const getUtxosForAddresses = async (addresses) => {
   return availableUtxos;
 }
 
-export const getTransactionsFromMultisig = async (caravanFile) => {
+export const getDataFromMultisig = async (caravanFile) => {
   const childPubKeys = getChildPubKeysFromXpubs(caravanFile.extendedPublicKeys);
   const childChangePubKeys = getChildChangePubKeysFromXpubs(caravanFile.extendedPublicKeys);
 
   const addresses = getMultisigAddressesFromPubKeys(childPubKeys, caravanFile);
   const changeAddresses = getMultisigAddressesFromPubKeys(childChangePubKeys, caravanFile);
 
-  const transactions = await getTransactionsFromAddresses(addresses);
+  const transactions = await getTransactionsFromAddresses([...addresses, ...changeAddresses]);
   const unusedAddresses = await getUnusedAddresses(addresses);
   const unusedChangeAddresses = await getUnusedAddresses(changeAddresses);
 
@@ -225,23 +227,29 @@ export const getTransactionsFromMultisig = async (caravanFile) => {
 
   const organizedTransactions = serializeTransactions(transactions, addresses, changeAddresses);
 
-  return [organizedTransactions, unusedAddresses, unusedChangeAddresses, availableUtxos];
+  return [addresses, changeAddresses, organizedTransactions, unusedAddresses, unusedChangeAddresses, availableUtxos];
 }
 
-export const getTransactionsAndTotalValueFromXPub = async (currentWallet) => {
-
-  const childPubKeys = getChildPubKeysFromXpubs([currentWallet]);
-  const childChangePubKeys = getChildChangePubKeysFromXpubs([currentWallet]);
+export const getDataFromXPub = async (currentWallet) => {
+  console.log('currentWallet: ', currentWallet);
+  const childPubKeys = getChildPubKeysFromXpubs([currentWallet], false);
+  const childChangePubKeys = getChildChangePubKeysFromXpubs([currentWallet], false);
 
   const addresses = childPubKeys.map((childPubKey, i) => {
-    return payments.p2wpkh({ pubkey: Buffer.from(childPubKey.childPubKey, 'hex'), network: networks.testnet })
+    return {
+      ...payments.p2wpkh({ pubkey: Buffer.from(childPubKey.childPubKey, 'hex'), network: networks.testnet }),
+      bip32derivation: [childPubKey.bip32derivation]
+    }
   });
 
   const changeAddresses = childChangePubKeys.map((childPubKey, i) => {
-    return payments.p2wpkh({ pubkey: Buffer.from(childPubKey.childPubKey, 'hex'), network: networks.testnet })
+    return {
+      ...payments.p2wpkh({ pubkey: Buffer.from(childPubKey.childPubKey, 'hex'), network: networks.testnet }),
+      bip32derivation: [childPubKey.bip32derivation]
+    }
   });
 
-  const transactions = await getTransactionsFromAddresses(addresses);
+  const transactions = await getTransactionsFromAddresses([...addresses, ...changeAddresses]);
   const unusedAddresses = await getUnusedAddresses(addresses);
   const unusedChangeAddresses = await getUnusedAddresses(changeAddresses);
 
@@ -249,7 +257,7 @@ export const getTransactionsAndTotalValueFromXPub = async (currentWallet) => {
 
   const organizedTransactions = serializeTransactions(transactions, addresses, changeAddresses);
 
-  return [organizedTransactions, unusedAddresses, unusedChangeAddresses, availableUtxos];
+  return [addresses, changeAddresses, organizedTransactions, unusedAddresses, unusedChangeAddresses, availableUtxos];
 }
 
 // export const getInputData = async (amount, payment, isSegwit, redeemType) => {

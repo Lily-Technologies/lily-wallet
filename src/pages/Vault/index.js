@@ -1,49 +1,52 @@
-import React, { useState, useEffect, Fragment, useRef } from 'react';
+import React, { useState, Fragment } from 'react';
 import moment from 'moment';
 import { Link } from "react-router-dom";
-import styled from 'styled-components';
-import { payments, ECPair, networks } from 'bitcoinjs-lib';
-import BigNumber from 'bignumber.js';
+import styled, { css } from 'styled-components';
 import { AreaChart, Area, ResponsiveContainer, XAxis, YAxis } from 'recharts';
 import { VerticalAlignBottom, ArrowUpward, Settings } from '@styled-icons/material';
+import { bip32, networks } from 'bitcoinjs-lib';
+import { QRCode } from "react-qr-svg";
 
 import { StyledIcon, Button, PageWrapper, PageTitle, Header, HeaderRight, HeaderLeft } from '../../components';
 
-import {
-  deriveChildPublicKey,
-  blockExplorerAPIURL,
-  deriveChildExtendedPublicKey,
-  getFingerprintFromPublicKey,
-  deriveExtendedPublicKey,
-  generateMultisigFromPublicKeys,
-  satoshisToBitcoins,
-  TESTNET
-} from "unchained-bitcoin";
+import AddressRow from './AddressRow';
+import UtxoRow from './UtxoRow';
+
+import { satoshisToBitcoins } from "unchained-bitcoin";
 
 import RecentTransactions from '../../components/transactions/RecentTransactions';
 
-import { getTransactionsFromMultisig } from '../../utils/transactions';
 import { black, gray, white, blue, darkGray, darkOffWhite, lightBlue } from '../../utils/colors';
+import { mobile } from '../../utils/media';
 
 
 
-const Vault = ({ caravanFile, currentBitcoinPrice, transactions, currentBalance, loadingDataFromBlockstream }) => {
-  document.title = `Vault - Coldcard Kitchen`;
+const Vault = ({ currentAccount, currentBitcoinPrice, transactions, currentBalance, loadingDataFromBlockstream }) => {
+  document.title = `Vault - Lily Wallet`;
 
   const [viewSettings, setViewSettings] = useState(false);
+  const [viewAddresses, setViewAddresses] = useState(false);
+  const [viewUtxos, setViewUtxos] = useState(false);
+
+  // console.log('currentAccount: ', currentAccount);
+
+  // const bip32interface = bip32.fromBase58(currentAccount.config.xpub, networks.testnet);
+  // console.log('bip32interface: ', bip32interface.toWIF());
+
+  // const qrValue = bip32interface.toWIF();
 
   return (
     <PageWrapper>
       <Header>
         <HeaderLeft>
-          <PageTitle>{caravanFile.name}</PageTitle>
+          <PageTitle>{currentAccount.name}</PageTitle>
           <VaultExplainerText>
             This is a vault account. Vaults require multiple devices to approve outgoing transactions and should be used to store Bitcoin savings.
         </VaultExplainerText>
         </HeaderLeft>
         <HeaderRight>
-          <SendButton to="send"><StyledIcon as={ArrowUpward} size={24} style={{ marginRight: 4 }} />Send</SendButton>
-          <ReceiveButton to="receive"><StyledIcon as={VerticalAlignBottom} size={24} style={{ marginRight: 4 }} />Receive</ReceiveButton>
+          <SendButton to="/send"><StyledIcon as={ArrowUpward} size={24} style={{ marginRight: 4 }} />Send</SendButton>
+          <ReceiveButton to="/receive"><StyledIcon as={VerticalAlignBottom} size={24} style={{ marginRight: 4 }} />Receive</ReceiveButton>
           <SettingsButton
             onClick={() => { setViewSettings(!viewSettings) }}
             active={viewSettings}
@@ -53,10 +56,32 @@ const Vault = ({ caravanFile, currentBitcoinPrice, transactions, currentBalance,
         </HeaderRight>
       </Header>
 
-      {viewSettings ? (
+      {(viewSettings && viewAddresses) ? (
+        <ValueWrapper>
+          <TotalValueHeader style={{ cursor: 'pointer' }} onClick={() => setViewAddresses(false)}>Settings - Addresses</TotalValueHeader>
+          <SettingsHeadingItem>Addresses</SettingsHeadingItem>
+          <SettingsSection style={{ flexDirection: 'column' }}>
+            {currentAccount.addresses.map((address) => (
+              <AddressRow flat={true} address={address} />
+            ))}
+            {currentAccount.changeAddresses.map((address) => (
+              <AddressRow flat={true} address={address} />
+            ))}
+          </SettingsSection>
+        </ValueWrapper>
+      ) : (viewSettings && viewUtxos) ? (
+        <ValueWrapper>
+          <TotalValueHeader style={{ cursor: 'pointer' }} onClick={() => setViewUtxos(false)}>Settings - Utxos</TotalValueHeader>
+          <SettingsHeadingItem>UTXOs</SettingsHeadingItem>
+          <SettingsSection style={{ flexDirection: 'column' }}>
+            {currentAccount.availableUtxos.map((utxo) => (
+              <UtxoRow flat={true} utxo={utxo} />
+            ))}
+          </SettingsSection>
+        </ValueWrapper>
+      ) : viewSettings ? (
         <ValueWrapper>
           <TotalValueHeader>Settings</TotalValueHeader>
-
           <SettingsHeadingItem>Vault Data</SettingsHeadingItem>
           <SettingsSection>
             <SettingsSectionLeft>
@@ -64,7 +89,7 @@ const Vault = ({ caravanFile, currentBitcoinPrice, transactions, currentBalance,
               <SettingsSubheader>View the addresses associated with this vault</SettingsSubheader>
             </SettingsSectionLeft>
             <SettingsSectionRight>
-              <ViewAddressesButton>View Addresses</ViewAddressesButton>
+              <ViewAddressesButton onClick={() => { setViewAddresses(true); console.log('currentAccount: ', currentAccount) }}>View Addresses</ViewAddressesButton>
             </SettingsSectionRight>
           </SettingsSection>
           <SettingsSection>
@@ -76,33 +101,50 @@ const Vault = ({ caravanFile, currentBitcoinPrice, transactions, currentBalance,
               <ViewAddressesButton>View XPubs</ViewAddressesButton>
             </SettingsSectionRight>
           </SettingsSection>
+          <SettingsSection>
+            <SettingsSectionLeft>
+              <SettingsHeader>UTXOs</SettingsHeader>
+              <SettingsSubheader>View the UTXOs associated with this vault</SettingsSubheader>
+            </SettingsSectionLeft>
+            <SettingsSectionRight>
+              <ViewAddressesButton onClick={() => { setViewUtxos(true); console.log('currentAccount: ', currentAccount) }}>View UTXOs</ViewAddressesButton>
+            </SettingsSectionRight>
+          </SettingsSection>
+          <SettingsSection>
+            {/* <QRCode
+              bgColor={white}
+              fgColor={black}
+              level="Q"
+              style={{ width: 256 }}
+              value={qrValue}
+            /> */}
+          </SettingsSection>
         </ValueWrapper>
-
       ) : (
-          <Fragment>
-            <ValueWrapper>
-              <TotalValueHeader>{satoshisToBitcoins(currentBalance.toNumber()).toFixed(8)} BTC</TotalValueHeader>
-              <USDValueHeader>{currentBitcoinPrice.multipliedBy(satoshisToBitcoins(currentBalance)).toFixed(8)} USD</USDValueHeader>
-              <ChartContainer>
-                <ResponsiveContainer width="100%" height={400}>
-                  <AreaChart width={400} height={400} data={[...transactions].sort((a, b) => a.status.block_time - b.status.block_time)}>
-                    <XAxis
-                      dataKey="status.block_time"
-                      tickFormatter={(blocktime) => {
-                        return moment.unix(blocktime).format('MMM D')
-                      }}
-                    />
-                    <YAxis
-                      width={100}
-                      axisLine={false} />
-                    <Area type="monotone" dataKey="totalValue" stroke="#8884d8" strokeWidth={2} fill={lightBlue} />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </ChartContainer>
-            </ValueWrapper>
-            <RecentTransactions transactions={transactions} loading={loadingDataFromBlockstream} />
-          </Fragment>
-        )}
+              <Fragment>
+                <ValueWrapper>
+                  <TotalValueHeader>{satoshisToBitcoins(currentBalance.toNumber()).toFixed(8)} BTC</TotalValueHeader>
+                  <USDValueHeader>{currentBitcoinPrice.multipliedBy(satoshisToBitcoins(currentBalance)).toFixed(8)} USD</USDValueHeader>
+                  <ChartContainer>
+                    <ResponsiveContainer width="100%" height={400}>
+                      <AreaChart width={400} height={400} data={[...transactions].sort((a, b) => a.status.block_time - b.status.block_time)}>
+                        <XAxis
+                          dataKey="status.block_time"
+                          tickFormatter={(blocktime) => {
+                            return moment.unix(blocktime).format('MMM D')
+                          }}
+                        />
+                        <YAxis
+                          width={100}
+                          axisLine={false} />
+                        <Area type="monotone" dataKey="totalValue" stroke="#8884d8" strokeWidth={2} fill={lightBlue} />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </ChartContainer>
+                </ValueWrapper>
+                <RecentTransactions transactions={transactions} loading={loadingDataFromBlockstream} />
+              </Fragment>
+            )}
     </PageWrapper>
   )
 }
@@ -111,6 +153,10 @@ const SettingsSection = styled.div`
   display: flex;
   margin: 18px 0;
   justify-content: space-between;
+
+  ${mobile(css`
+    flex-direction: column;
+  `)};
 `;
 
 const SettingsSectionLeft = styled.div``;
@@ -142,6 +188,8 @@ const ViewAddressesButton = styled.div`
   border: 1px solid ${blue};
   padding: 1.5em;
   border-radius: 4px;
+  text-align: center;
+  cursor: pointer;
 `;
 
 

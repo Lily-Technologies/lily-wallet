@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled, { css } from 'styled-components';
 import { Settings } from '@styled-icons/material';
 import { Safe } from '@styled-icons/crypto';
+import { Wallet } from '@styled-icons/entypo';
 import BigNumber from 'bignumber.js';
 import {
   deriveChildPublicKey,
@@ -12,16 +13,15 @@ import {
   scriptToHex,
   TESTNET
 } from "unchained-bitcoin";
-import { networks, Psbt, address } from 'bitcoinjs-lib';
+import { networks, Psbt, address, payments, ECPair, bip32 } from 'bitcoinjs-lib';
 
 import { StyledIcon, Button, PageWrapper, GridArea, PageTitle, Header, HeaderRight, HeaderLeft } from '../../components';
 import RecentTransactions from '../../components/transactions/RecentTransactions';
 
-import SignWithDevice from '../Spend/SignWithDevice'
-
+import SignWithDevice from './SignWithDevice'
 import TransactionDetails from './TransactionDetails';
 
-import { getTransactionsAndTotalValueFromXPub, getTransactionsFromMultisig, createTransactionMapFromTransactionArray, coinSelection, getFeeForMultisig } from '../../utils/transactions';
+import { createTransactionMapFromTransactionArray, coinSelection, getFeeForMultisig } from '../../utils/transactions';
 import { red, gray, offWhite, blue, darkGray, white, darkOffWhite, green, lightGreen, darkGreen, lightGray, lightBlue } from '../../utils/colors';
 
 import transactionsFixture from '../../fixtures/transactions';
@@ -32,28 +32,28 @@ import availableUtxosFixture from '../../fixtures/availableUtxos';
 const signedPsbt1 = "cHNidP8BAH4CAAAAAaL+89cOLWJTdZMEWoXbrN5ffsxPmbpjJ9Yc1NL9jZ3jAAAAAAD/////AiBOAAAAAAAAF6kU/9DbtEQC1fjxLZultISiwbtH2kKHAfIOAAAAAAAiACAbzdx36FFxcvXFh/V5ZEsGIQi6H50aqwcU7qWnnxS+5AAAAAAAAQErQEIPAAAAAAAiACCCFDYExwmHHpAtYcn30+iVZPuQJEAjvYHFtv4a0XXmViICAyIEErL0BQQffuTOA9kTjyEC+eybnl5zNuAf6pdxUq06RzBEAiAKchg0x7lj7cnHh8FrThyg8AdDwMxAaGBEz5LoEOOqDQIgWXUNdLIGlNhiTNmgN6VVKIIhiolpy5Wz4KuqgFTl904BAQMEAQAAAAEFaVIhAyIEErL0BQQffuTOA9kTjyEC+eybnl5zNuAf6pdxUq06IQPZs2BhKxwQyn6qpiv+VcRihe//FftBBqQk8H+YLmaO3CED5COMlBMA/fsBELla1MfIEB6gGi5qERqdqQsCA8I8FFdTriIGAyIEErL0BQQffuTOA9kTjyEC+eybnl5zNuAf6pdxUq06HE9g0ckwAACAAQAAgAAAAIACAACAAAAAAAAAAAAiBgPZs2BhKxwQyn6qpiv+VcRihe//FftBBqQk8H+YLmaO3ByRMMPWMAAAgAEAAIAAAACAAgAAgAAAAAAAAAAAIgYD5COMlBMA/fsBELla1MfIEB6gGi5qERqdqQsCA8I8FFccNOz1azAAAIABAACAAAAAgAIAAIAAAAAAAAAAAAAAAA==";
 const signedPsbt2 = "cHNidP8BAH4CAAAAAaL+89cOLWJTdZMEWoXbrN5ffsxPmbpjJ9Yc1NL9jZ3jAAAAAAD/////AiBOAAAAAAAAF6kU/9DbtEQC1fjxLZultISiwbtH2kKHAfIOAAAAAAAiACAbzdx36FFxcvXFh/V5ZEsGIQi6H50aqwcU7qWnnxS+5AAAAAAAAQErQEIPAAAAAAAiACCCFDYExwmHHpAtYcn30+iVZPuQJEAjvYHFtv4a0XXmViICA9mzYGErHBDKfqqmK/5VxGKF7/8V+0EGpCTwf5guZo7cRzBEAiAG10YX6lmrV5GtrRrCjsedcDHg4ksFF6G9LNDCAJYeUgIgELP/AlibkDYtoJm03+bDnk4rNGwzDvv7ypwEdU3/gx4BAQMEAQAAAAEFaVIhAyIEErL0BQQffuTOA9kTjyEC+eybnl5zNuAf6pdxUq06IQPZs2BhKxwQyn6qpiv+VcRihe//FftBBqQk8H+YLmaO3CED5COMlBMA/fsBELla1MfIEB6gGi5qERqdqQsCA8I8FFdTriIGAyIEErL0BQQffuTOA9kTjyEC+eybnl5zNuAf6pdxUq06HE9g0ckwAACAAQAAgAAAAIACAACAAAAAAAAAAAAiBgPZs2BhKxwQyn6qpiv+VcRihe//FftBBqQk8H+YLmaO3ByRMMPWMAAAgAEAAIAAAACAAgAAgAAAAAAAAAAAIgYD5COMlBMA/fsBELla1MfIEB6gGi5qERqdqQsCA8I8FFccNOz1azAAAIABAACAAAAAgAIAAIAAAAAAAAAAAAAAAA==";
 
-const Send = ({ caravanFile, transactions, availableUtxos, unusedChangeAddresses, loadingDataFromBlockstream, currentBalance }) => {
-  const [sendAmount, setSendAmount] = useState('0.02');
+const Send = ({ config, currentAccount, setCurrentAccount, transactions, availableUtxos, unusedChangeAddresses, loadingDataFromBlockstream, currentBalance }) => {
+  const [sendAmount, setSendAmount] = useState('');
   const [sendAmountError, setSendAmountError] = useState(false);
-  const [recipientAddress, setRecipientAddress] = useState('2NGZrVvZG92qGYqzTLjCAewvPZ7JE8S8VxE');
+  const [recipientAddress, setRecipientAddress] = useState('');
   const [recipientAddressError, setRecipientAddressError] = useState(false);
   const [step, setStep] = useState(0);
   const [finalPsbt, setFinalPsbt] = useState(null);
   const [feeEstimate, setFeeEstimate] = useState(BigNumber(0));
   const [outputTotal, setOutputTotal] = useState(BigNumber(0));
-  const [signedPsbts, setSignedPsbts] = useState([signedPsbt1]);
+  const [signedPsbts, setSignedPsbts] = useState([]);
 
-  document.title = `Send - Coldcard Kitchen`;
+  document.title = `Send - Lily Wallet`;
 
   const createTransaction = async (amountInBitcoins, recipientAddress, availableUtxos, transactionsFromBlockstream) => {
     const transactionMap = createTransactionMapFromTransactionArray(transactionsFromBlockstream);
 
-    let feeEstimate = await getFeeForMultisig(caravanFile.addressType, 1, 2, caravanFile.quorum.requiredSigners, caravanFile.quorum.totalSigners);
+    let feeEstimate = await getFeeForMultisig(currentAccount.config.addressType, 1, 2, currentAccount.config.quorum.requiredSigners, currentAccount.config.quorum.totalSigners);
     let outputTotal = BigNumber(bitcoinsToSatoshis(amountInBitcoins)).plus(feeEstimate.integerValue(BigNumber.ROUND_CEIL).toNumber());
     let [spendingUtxos, spendingUtxosTotal] = coinSelection(outputTotal, availableUtxos);
 
     if (spendingUtxos.length > 1) {
-      feeEstimate = await getFeeForMultisig(caravanFile.addressType, spendingUtxos.length, 2, caravanFile.quorum.requiredSigners, caravanFile.quorum.totalSigners);
+      feeEstimate = await getFeeForMultisig(currentAccount.config.addressType, spendingUtxos.length, 2, currentAccount.config.quorum.requiredSigners, currentAccount.config.quorum.totalSigners);
       outputTotal = BigNumber(bitcoinsToSatoshis(amountInBitcoins)).plus(feeEstimate.integerValue(BigNumber.ROUND_CEIL).toNumber());
       [spendingUtxos, spendingUtxosTotal] = coinSelection(outputTotal, availableUtxos);
     }
@@ -65,18 +65,35 @@ const Send = ({ caravanFile, transactions, availableUtxos, unusedChangeAddresses
     psbt.setVersion(2); // These are defaults. This line is not needed.
     psbt.setLocktime(0); // These are defaults. This line is not needed.
 
+
     spendingUtxos.forEach((utxo, index) => {
-      psbt.addInput({
-        hash: utxo.txid,
-        index: utxo.vout,
-        sequence: 0xffffffff,
-        witnessUtxo: {
-          script: Buffer.from(transactionMap.get(utxo.txid).vout[utxo.vout].scriptpubkey, 'hex'),
-          value: utxo.value
-        },
-        witnessScript: Buffer.from(scriptToHex(multisigWitnessScript(utxo.address)), 'hex'),
-        bip32Derivation: utxo.address.bip32derivation
-      })
+      console.log('config: ', config);
+      console.log('utxo, transactionMap: ', utxo, transactionMap);
+      if (currentAccount.config.quorum.requiredSigners > 1) {
+        psbt.addInput({
+          hash: utxo.txid,
+          index: utxo.vout,
+          sequence: 0xffffffff,
+          witnessUtxo: {
+            script: Buffer.from(transactionMap.get(utxo.txid).vout[utxo.vout].scriptpubkey, 'hex'),
+            value: utxo.value
+          },
+          witnessScript: Buffer.from(scriptToHex(multisigWitnessScript(utxo.address)), 'hex'),
+          bip32Derivation: utxo.address.bip32derivation
+        })
+      } else {
+        console.log('utxo: ', utxo, transactionMap.get(utxo.txid).vout[utxo.vout].scriptpubkey);
+        psbt.addInput({
+          hash: utxo.txid,
+          index: utxo.vout,
+          sequence: 0xffffffff,
+          witnessUtxo: {
+            script: Buffer.from(transactionMap.get(utxo.txid).vout[utxo.vout].scriptpubkey, 'hex'),
+            value: utxo.value
+          },
+          bip32Derivation: utxo.address.bip32derivation
+        })
+      }
     });
 
     // KBC-TODO: need to calc change if necessary
@@ -100,6 +117,25 @@ const Send = ({ caravanFile, transactions, availableUtxos, unusedChangeAddresses
 
     setFinalPsbt(psbt);
     setStep(1);
+    console.log('psbt: ', psbt.toBase64());
+
+    // if only single sign, then sign tx right away
+    if (currentAccount.config.quorum.requiredSigners === 1) {
+      const bip32hd = bip32.fromBase58(currentAccount.config.xprv, networks.testnet);
+      console.log('bip32hd: ', bip32hd);
+      const addressKeys = bip32hd.derivePath("m/48'/1'/0'/2'/0/0");
+      console.log('addressKeys: ', addressKeys);
+      console.log('addressKeys.publicKey: ', addressKeys.publicKey.toString('hex'))
+      const wif = bip32hd.toWIF();
+      const ecpair = ECPair.fromWIF(wif, networks.testnet);
+      console.log('ecpair: ', ecpair.publicKey.toString('hex'));
+
+      psbt.signInputHD(0, bip32hd);
+      psbt.validateSignaturesOfAllInputs();
+      psbt.finalizeAllInputs();
+
+      setSignedPsbts([psbt]);
+    }
   }
 
   const transactionsMap = createTransactionMapFromTransactionArray(transactions);
@@ -120,10 +156,18 @@ const Send = ({ caravanFile, transactions, availableUtxos, unusedChangeAddresses
 
       <SendWrapper>
         <AccountMenu>
-          <AccountMenuItemWrapper active={true}>
-            <StyledIcon as={Safe} size={48} />
-            <AccountMenuItemName>{caravanFile.name}</AccountMenuItemName>
-          </AccountMenuItemWrapper>
+          {config.vaults.map((vault) => (
+            <AccountMenuItemWrapper active={vault.name === currentAccount.name} onClick={() => setCurrentAccount(vault)}>
+              <StyledIcon as={Safe} size={48} />
+              <AccountMenuItemName>{vault.name}</AccountMenuItemName>
+            </AccountMenuItemWrapper>
+          ))}
+          {config.wallets.map((wallet) => (
+            <AccountMenuItemWrapper active={wallet.name === currentAccount.name} onClick={() => setCurrentAccount(wallet)}>
+              <StyledIcon as={Wallet} size={48} />
+              <AccountMenuItemName>{wallet.name}</AccountMenuItemName>
+            </AccountMenuItemWrapper>
+          ))}
         </AccountMenu>
 
         <GridArea>
@@ -189,6 +233,7 @@ const Send = ({ caravanFile, transactions, availableUtxos, unusedChangeAddresses
               sendAmount={sendAmount}
               transactionsMap={transactionsMap}
               signedPsbts={signedPsbts}
+              signThreshold={currentAccount.config.quorum.requiredSigners}
             />
           )}
 
@@ -210,7 +255,7 @@ const Send = ({ caravanFile, transactions, availableUtxos, unusedChangeAddresses
             </AccountSendContentRight>
           )}
 
-          {step === 1 && (
+          {step === 1 && currentAccount.config.quorum.requiredSigners > 1 && (
             <AccountSendContentRight style={{ background: white, padding: 24, border: `1px solid ${darkOffWhite}` }}>
               <SignWithDevice
                 psbt={finalPsbt}

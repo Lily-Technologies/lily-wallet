@@ -1,32 +1,50 @@
 import moment from 'moment';
+import { v4 as uuidv4 } from 'uuid';
 
-export const createCaravanImportFile = (importedDevices) => {
-  const caravanObject = {
-    name: "Coldcard Kitchen",
-    addressType: "P2WSH",
+export const createConfigFile = (importedDevices) => {
+  const configObject = {
+    name: "",
+    version: '0.0.1',
     network: "testnet",
-    client: {
-      type: "public"
+    backup_options: {
+      gdrive: true
     },
-    quorum: {
-      requiredSigners: 2,
-      totalSigners: 3
-    }
-  };
-  caravanObject.extendedPublicKeys = importedDevices.map((device) => {
+    wallets: [],
+    vaults: [
+      {
+        id: uuidv4(),
+        name: uuidv4(),
+        addressType: "P2WSH",
+        quorum: {
+          requiredSigners: 2,
+          totalSigners: 3
+        }
+      }
+    ]
+  }
+  configObject.keys = importedDevices.map((device) => {
     return {
-      name: device.fingerprint,
+      parentFingerprint: device.fingerprint,
       bip32Path: "m/0",
       xpub: device.xpub,
       method: "xpub"
     }
   });
 
-  return caravanObject;
+  configObject.vaults[0].extendedPublicKeys = importedDevices.map((device) => {
+    return {
+      parentFingerprint: device.fingerprint,
+      bip32Path: "m/0",
+      xpub: device.xpub,
+      method: "xpub"
+    }
+  });
+
+  return configObject;
 }
 
 export const createColdCardBlob = (importedDevices) => {
-  return new Blob([`# Coldcard Multisig setup file (created by Coldcard Kitchen on ${moment(Date.now()).format('MM/DD/YYYY')})
+  return new Blob([`# Coldcard Multisig setup file (created by Lily Wallet on ${moment(Date.now()).format('MM/DD/YYYY')})
 #
 Name: ColdcardKitchen
 Policy: 2 of 3

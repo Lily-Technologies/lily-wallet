@@ -11,6 +11,7 @@
   "dependencies": {
     "axios": "^0.19.2",
     "bignumber.js": "^9.0.0",
+    "bip39": "^3.0.2",
     "bitcoinjs-lib": "^5.1.7",
     "cors": "^2.8.5",
     "crypto-js": "^4.0.0",
@@ -28,7 +29,8 @@
     "recharts": "^1.8.5",
     "styled-components": "^5.1.0",
     "styled-icons": "^10.2.1",
-    "unchained-bitcoin": "0.0.9"
+    "unchained-bitcoin": "0.0.9",
+    "uuid": "^8.0.0"
   },
   "browserslist": {
     "production": [
