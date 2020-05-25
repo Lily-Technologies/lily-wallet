@@ -178,7 +178,7 @@ const SettingsSection = styled.div`
   align-items: center;
 
   ${mobile(css`
-  grid-gap: 2em;
+    grid-gap: 2em;
   `)};
 `;
 
