@@ -24,7 +24,6 @@ const UtxoRow = ({ utxo, flat }) => {
 }
 
 const UtxoRowWrapper = styled.div`
-  border-bottom: 1px solid ${offWhite};
   background: ${p => p.flat ? 'transparent' : white};
   box-shadow: ${p => p.flat ? 'none' : 'rgba(0, 0, 0, 0.15) 0px 5px 15px 0px'};;
   align-items: center;

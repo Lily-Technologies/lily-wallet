@@ -91,7 +91,7 @@ const VaultDoorHandle = styled.div`
 const VaultDoorInner = styled.div`
   position: relative;
   // margin: 52px;
-  width: 390px;
+  width: 389px;
   height: 390px;
   background: rgb(219,219,219);
   border-top-left-radius: 4px;

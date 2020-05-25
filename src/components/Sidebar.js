@@ -1,20 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import styled, { css } from 'styled-components';
-import { Link, useParams, useLocation } from "react-router-dom";
-import { VerticalAlignBottom, ArrowUpward, ShowChart, AddCircleOutline, Settings } from '@styled-icons/material';
-import { Safe } from '@styled-icons/crypto';
-import { Wallet } from '@styled-icons/entypo';
-import { Transfer } from '@styled-icons/boxicons-regular/Transfer';
+import { Link, useLocation } from "react-router-dom";
 
-import { StyledIcon, Button } from '.';
-import { black, blue, white, offWhite, darkGray, darkOffWhite, lightBlue, lightBlack } from '../utils/colors';
+import { NavLinks } from './NavLinks';
+
+import { black, blue, white, offWhite, darkGray, darkOffWhite, lightBlue, lightBlack, lightGray } from '../utils/colors';
 import { mobile } from '../utils/media';
 
 export const Sidebar = ({ config, setCurrentAccount, loading }) => {
-  const { name } = useParams();
   const { pathname } = useLocation();
-
-  console.log('config: ', config);
 
   if (pathname !== '/coldcard-import-instructions') {
     return (
@@ -23,58 +17,7 @@ export const Sidebar = ({ config, setCurrentAccount, loading }) => {
           <LilyImage src={require('../assets/lily.svg')} />
           Lily Wallet
           </WalletTitle>
-        <SidebarItem>
-          <StyledIcon as={ShowChart} size={24} style={{ marginRight: 12 }} />
-          Overview
-        </SidebarItem>
-        <SidebarItemLink active={pathname === '/send'} to="/send">
-          <StyledIcon as={ArrowUpward} size={24} style={{ marginRight: 12 }} />
-          Send
-        </SidebarItemLink>
-        <SidebarItemLink active={pathname === '/receive'} to="/receive">
-          <StyledIcon as={VerticalAlignBottom} size={24} style={{ marginRight: 12 }} />
-            Receive
-        </SidebarItemLink>
-        <SidebarItemLink active={pathname === '/transfer'} to="/transfer">
-          <StyledIcon as={Transfer} size={24} style={{ marginRight: 12 }} />
-            Transfer
-        </SidebarItemLink>
-        <SidebarItemLink active={pathname === '/settings'} to="/settings">
-          <StyledIcon as={Settings} size={24} style={{ marginRight: 12 }} />
-            Settings
-        </SidebarItemLink>
-
-        <WalletsHeader>Accounts</WalletsHeader>
-        {config.wallets.map((wallet) => (
-          <SidebarItemLink
-            active={pathname === `/vault/${wallet.id}`}
-            onClick={() => {
-              console.log('wallet: ', wallet);
-              setCurrentAccount(wallet);
-            }}
-            to={`/vault/${wallet.id}`}>
-            <StyledIcon as={Wallet} size={24} style={{ marginRight: 12 }} />
-            {wallet.name}</SidebarItemLink>
-        ))}
-
-        {config.vaults.map((vault) => (
-          <SidebarItemLink
-            active={pathname === `/vault/${vault.id}`}
-            onClick={() => {
-              setCurrentAccount(vault);
-            }}
-            to={`/vault/${vault.id}`}>
-            <StyledIcon as={Safe} size={24} style={{ marginRight: 12 }} />
-            {vault.name}</SidebarItemLink>
-        ))}
-
-        <SidebarItemLink
-          active={pathname === '/setup'}
-          to={`/setup`}>
-          <StyledIcon as={AddCircleOutline} size={24} style={{ marginRight: 12 }} />
-          New Account
-          </SidebarItemLink>
-
+        <NavLinks config={config} setCurrentAccount={setCurrentAccount} />
         {loading && 'loading...'}
 
         {/* <WalletsHeader>Devices</WalletsHeader>
@@ -99,9 +42,12 @@ const SidebarWrapper = styled.div`
   background: ${white};
   width: 12em;
   // min-height: 100vh;
+  border: solid 1px ${darkOffWhite};
+  border-left: none;
 
   ${mobile(css`
     flex-direction: row;
+    display: none;
   `)};
 
 `;
@@ -153,8 +99,6 @@ const WalletTitle = styled(WalletsHeader)`
   padding: 1.5em 1em;
   font-weight: 700;
   margin: 0;
-  border-bottom: 0.0625em solid ${darkGray};
-  margin-bottom: .75em;
 `;
 
 const LilyImage = styled.img`

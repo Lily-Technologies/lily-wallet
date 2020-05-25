@@ -1,16 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import styled from 'styled-components';
-import { CheckCircle } from '@styled-icons/material';
-import { Psbt, Transaction, bip32, networks } from 'bitcoinjs-lib';
-import {
-  deriveChildPublicKey,
-  blockExplorerAPIURL,
-  deriveChildExtendedPublicKey,
-  getFingerprintFromPublicKey,
-  deriveExtendedPublicKey,
-  TESTNET
-} from "unchained-bitcoin";
 
 import { BACKEND_URL } from '../../config';
 

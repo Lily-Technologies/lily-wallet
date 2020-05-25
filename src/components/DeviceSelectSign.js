@@ -92,7 +92,7 @@ export const DeviceSelectSign = ({ configuredDevices, unconfiguredDevices, setUn
         )}
       </DevicesWrapper>
 
-      {configuredDevices.length < configuredThreshold && <ScanDevicesButton background={white} color={blue} onClick={enumerate}>{devicesLoading ? 'Loading...' : 'Scan for another device'}</ScanDevicesButton>}
+      {configuredDevices.length < configuredThreshold && <ScanDevicesButton background={white} color={blue} onClick={enumerate}>{devicesLoading ? 'Loading...' : 'Scan for devices'}</ScanDevicesButton>}
     </Fragment >
   )
 }

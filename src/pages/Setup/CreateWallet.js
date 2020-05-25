@@ -10,9 +10,10 @@ import { useHistory } from "react-router-dom";
 import { Button } from '../../components';
 import { lightBlue, blue, white, black, darkOffWhite, lightGray, darkGray, gray } from '../../utils/colors';
 import { saveFileToGoogleDrive } from '../../utils/google-drive';
+import { getUnchainedNetworkFromBjslibNetwork } from '../../utils/transactions';
 
 
-const CreateWallet = ({ config, setConfigFile }) => {
+const CreateWallet = ({ config, setConfigFile, currentBitcoinNetwork }) => {
   const [password, setPassword] = useState('');
   const [mnemonicWords, setMnemonicWords] = useState('');
   const history = useHistory();
@@ -27,25 +28,24 @@ const CreateWallet = ({ config, setConfigFile }) => {
   const exportSetupFiles = async () => {
     const configCopy = { ...config };
 
-    const node = bip32.fromSeed(await mnemonicToSeed(mnemonicWords), networks.testnet);
+    const node = bip32.fromSeed(await mnemonicToSeed(mnemonicWords), currentBitcoinNetwork);
     const xprvString = node.toBase58();
     const xpubString = node.neutered().toBase58();
-
-    console.log('node: ', node);
-    console.log('node.fingerprint: ', node.fingerprint);
-    console.log('node.parentFingerprint: ', node.parentFingerprint);
+    console.log('xprvString: ', xprvString);
+    console.log('xpubString: ', xpubString);
 
     const id = uuidv4();
 
-    configCopy.wallets = [{
+    configCopy.wallets.push({
       id: id,
       name: id,
+      network: getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork),
       addressType: "P2WSH",
       quorum: { requiredSigners: 1, totalSigners: 1 },
       xpub: xpubString,
       xprv: xprvString,
       parentFingerprint: node.fingerprint
-    }];
+    });
 
     const encryptedConfigObject = AES.encrypt(JSON.stringify(configCopy), password).toString();
 
@@ -57,18 +57,26 @@ const CreateWallet = ({ config, setConfigFile }) => {
   return (
     <Wrapper>
       <WordContainer>
-        {mnemonicWordsArray.map((word) => (
-          <Word>{word}</Word>
-        ))}
-      </WordContainer>
-      <WordContainer>
-        <QRCode
-          bgColor={white}
-          fgColor={black}
-          level="Q"
-          style={{ width: 256 }}
-          value={mnemonicWords}
-        />
+        <WordSection>
+          {mnemonicWordsArray.slice(0, 6).map((word, index) => (
+            <Word>{index + 1}) {word}</Word>
+          ))}
+        </WordSection>
+        <WordSection>
+          {mnemonicWordsArray.slice(6, 12).map((word, index) => (
+            <Word>{index + 7}) {word}</Word>
+          ))}
+        </WordSection>
+        <WordSection>
+          {mnemonicWordsArray.slice(12, 18).map((word, index) => (
+            <Word>{index + 13}) {word}</Word>
+          ))}
+        </WordSection>
+        <WordSection>
+          {mnemonicWordsArray.slice(18, 24).map((word, index) => (
+            <Word>{index + 19}) {word}</Word>
+          ))}
+        </WordSection>
       </WordContainer>
       <PasswordWrapper>
         <PasswordText>Almost done, just set a password to encrypt your setup file:</PasswordText>
@@ -87,6 +95,7 @@ const CreateWallet = ({ config, setConfigFile }) => {
 
 const SaveWalletButton = styled.div`
   ${Button};
+  flex: 1;
 `;
 
 const PasswordWrapper = styled.div`
@@ -133,6 +142,11 @@ const WordContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
   padding: 1.25em;
+`;
+
+const WordSection = styled.div`
+  display: flex;
+  flex-direction: column;
 `;
 
 const Word = styled.div`

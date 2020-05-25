@@ -7,9 +7,27 @@ import {
   bitcoinsToSatoshis,
   generateMultisigFromPublicKeys,
   estimateMultisigTransactionFee,
-  TESTNET
+  NETWORKS
 } from "unchained-bitcoin";
 import { satoshisToBitcoins } from 'unchained-bitcoin/lib/utils';
+
+export const getMultisigDeriationPathForNetwork = (network) => {
+  if (network === networks.bitcoin) {
+    return "m/48'/0'/0'/2'"
+  } else if (network === networks.testnet) {
+    return "m/48'/1'/0'/2'"
+  } else { // return mainnet by default...this should never run though
+    return "m/48'/0'/0'/2'"
+  }
+}
+
+export const getUnchainedNetworkFromBjslibNetwork = (bitcoinJslibNetwork) => {
+  if (bitcoinJslibNetwork === networks.bitcoin) {
+    return 'mainnet';
+  } else {
+    return 'testnet';
+  }
+}
 
 export const createTransactionMapFromTransactionArray = (transactionsArray) => {
   const transactionMap = new Map();
@@ -40,8 +58,8 @@ export const coinSelection = (amountInSats, availableUtxos) => {
   return [spendingUtxos, currentTotal];
 }
 
-export const getFeeForMultisig = async (addressType, numInputs, numOutputs, requiredSigners, totalSigners) => {
-  const feeRate = await (await axios.get(blockExplorerAPIURL(`/fee-estimates`, TESTNET))).data;
+export const getFeeForMultisig = async (addressType, numInputs, numOutputs, requiredSigners, totalSigners, currentBitcoinNetwork) => {
+  const feeRate = await (await axios.get(blockExplorerAPIURL(`/fee-estimates`, currentBitcoinNetwork))).data;
   return estimateMultisigTransactionFee({
     addressType: addressType,
     numInputs: numInputs,
@@ -120,17 +138,18 @@ const serializeTransactions = (transactionsFromBlockstream, addresses, changeAdd
   return transactionsArray;
 }
 
-export const getChildPubKeysFromXpubs = (xpubs, multisig = true) => {
+export const getChildPubKeysFromXpubs = (xpubs, multisig = true, currentBitcoinNetwork) => {
+  console.log('currentBitcoinNetwork: ', currentBitcoinNetwork);
   const childPubKeys = [];
   for (let i = 0; i < 30; i++) {
     xpubs.forEach((xpub) => {
       const childPubKeysBip32Path = `m/0/${i}`;
-      const bip32derivationPath = multisig ? `m/48'/1'/0'/2'/${childPubKeysBip32Path.replace('m/', '')}` : childPubKeysBip32Path;
+      const bip32derivationPath = multisig ? `${getMultisigDeriationPathForNetwork(currentBitcoinNetwork)}/${childPubKeysBip32Path.replace('m/', '')}` : childPubKeysBip32Path;
       childPubKeys.push({
-        childPubKey: deriveChildPublicKey(xpub.xpub, childPubKeysBip32Path, TESTNET),
+        childPubKey: deriveChildPublicKey(xpub.xpub, childPubKeysBip32Path, getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)),
         bip32derivation: {
           masterFingerprint: Buffer.from(xpub.parentFingerprint, 'hex'),
-          pubkey: Buffer.from(deriveChildPublicKey(xpub.xpub, childPubKeysBip32Path, TESTNET), 'hex'),
+          pubkey: Buffer.from(deriveChildPublicKey(xpub.xpub, childPubKeysBip32Path, getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)), 'hex'),
           path: bip32derivationPath
         }
       });
@@ -139,17 +158,17 @@ export const getChildPubKeysFromXpubs = (xpubs, multisig = true) => {
   return childPubKeys;
 }
 
-export const getChildChangePubKeysFromXpubs = (xpubs, multisig = true) => {
+export const getChildChangePubKeysFromXpubs = (xpubs, multisig = true, currentBitcoinNetwork) => {
   const childChangePubKeys = [];
   for (let i = 0; i < 30; i++) {
     xpubs.forEach((xpub) => {
       const childChangeAddressPubKeysBip32Path = `m/1/${i}`;
-      const bip32derivationPath = multisig ? `m/48'/1'/0'/2'/${childChangeAddressPubKeysBip32Path.replace('m/', '')}` : childChangeAddressPubKeysBip32Path;
+      const bip32derivationPath = multisig ? `${getMultisigDeriationPathForNetwork(currentBitcoinNetwork)}/${childChangeAddressPubKeysBip32Path.replace('m/', '')}` : childChangeAddressPubKeysBip32Path;
       childChangePubKeys.push({
-        childPubKey: deriveChildPublicKey(xpub.xpub, childChangeAddressPubKeysBip32Path, TESTNET),
+        childPubKey: deriveChildPublicKey(xpub.xpub, childChangeAddressPubKeysBip32Path, getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)),
         bip32derivation: {
           masterFingerprint: Buffer.from(xpub.parentFingerprint, 'hex'),
-          pubkey: Buffer.from(deriveChildPublicKey(xpub.xpub, childChangeAddressPubKeysBip32Path, TESTNET), 'hex'),
+          pubkey: Buffer.from(deriveChildPublicKey(xpub.xpub, childChangeAddressPubKeysBip32Path, getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)), 'hex'),
           path: bip32derivationPath,
         }
       });
@@ -158,14 +177,14 @@ export const getChildChangePubKeysFromXpubs = (xpubs, multisig = true) => {
   return childChangePubKeys;
 }
 
-const getMultisigAddressesFromPubKeys = (pubkeys, caravanFile) => {
+const getMultisigAddressesFromPubKeys = (pubkeys, config, currentBitcoinNetwork) => {
   const addresses = [];
   for (let i = 0; i < pubkeys.length; i + 3) {
     const publicKeysForMultisigAddress = pubkeys.splice(i, 3);
     const rawPubkeys = publicKeysForMultisigAddress.map((publicKey) => publicKey.childPubKey);
     rawPubkeys.sort();
     addresses.push({
-      ...generateMultisigFromPublicKeys(caravanFile.network, caravanFile.addressType, caravanFile.quorum.requiredSigners, ...rawPubkeys),
+      ...generateMultisigFromPublicKeys(getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork), config.addressType, config.quorum.requiredSigners, ...rawPubkeys),
       ...{
         bip32derivation: [
           ...publicKeysForMultisigAddress.map((publicKey) => publicKey.bip32derivation)
@@ -176,19 +195,22 @@ const getMultisigAddressesFromPubKeys = (pubkeys, caravanFile) => {
   return addresses;
 }
 
-const getTransactionsFromAddresses = async (addresses) => {
+const getTransactionsFromAddresses = async (addresses, currentBitcoinNetwork) => {
+  console.log('getTransactionsFromAddresses currentBitcoinNetwork: ', currentBitcoinNetwork);
+  console.log('xx: ', getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork));
   const transactions = [];
   for (let i = 0; i < addresses.length; i++) {
-    const txsFromBlockstream = await (await axios.get(blockExplorerAPIURL(`/address/${addresses[i].address}/txs`, TESTNET))).data;
+    const txsFromBlockstream = await (await axios.get(blockExplorerAPIURL(`/address/${addresses[i].address}/txs`, getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)))).data;
     transactions.push(...txsFromBlockstream);
   }
   return transactions;
 }
 
-const getUnusedAddresses = async (addresses) => {
+const getUnusedAddresses = async (addresses, currentBitcoinNetwork) => {
+  console.log('getUnusedAddresses currentBitcoinNetwork: ', currentBitcoinNetwork)
   const unusedAddresses = [];
   for (let i = 0; i < addresses.length; i++) {
-    const txsFromBlockstream = await (await axios.get(blockExplorerAPIURL(`/address/${addresses[i].address}/txs`, TESTNET))).data;
+    const txsFromBlockstream = await (await axios.get(blockExplorerAPIURL(`/address/${addresses[i].address}/txs`, getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)))).data;
     if (!txsFromBlockstream.length > 0) {
       unusedAddresses.push(addresses[i]);
     }
@@ -196,11 +218,10 @@ const getUnusedAddresses = async (addresses) => {
   return unusedAddresses;
 }
 
-const getUtxosForAddresses = async (addresses) => {
-  console.log('getUtxosForAddresses: ', addresses);
+const getUtxosForAddresses = async (addresses, currentBitcoinNetwork) => {
   const availableUtxos = [];
   for (let i = 0; i < addresses.length; i++) {
-    const utxosFromBlockstream = await (await axios.get(blockExplorerAPIURL(`/address/${addresses[i].address}/utxo`, TESTNET))).data;
+    const utxosFromBlockstream = await (await axios.get(blockExplorerAPIURL(`/address/${addresses[i].address}/utxo`, getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)))).data;
     for (let j = 0; j < utxosFromBlockstream.length; j++) {
       availableUtxos.push({
         ...utxosFromBlockstream[j],
@@ -212,82 +233,50 @@ const getUtxosForAddresses = async (addresses) => {
   return availableUtxos;
 }
 
-export const getDataFromMultisig = async (caravanFile) => {
-  const childPubKeys = getChildPubKeysFromXpubs(caravanFile.extendedPublicKeys);
-  const childChangePubKeys = getChildChangePubKeysFromXpubs(caravanFile.extendedPublicKeys);
+export const getDataFromMultisig = async (config, currentBitcoinNetwork) => {
+  const childPubKeys = getChildPubKeysFromXpubs(config.extendedPublicKeys, true, currentBitcoinNetwork);
+  const childChangePubKeys = getChildChangePubKeysFromXpubs(config.extendedPublicKeys, true, currentBitcoinNetwork);
 
-  const addresses = getMultisigAddressesFromPubKeys(childPubKeys, caravanFile);
-  const changeAddresses = getMultisigAddressesFromPubKeys(childChangePubKeys, caravanFile);
+  const addresses = getMultisigAddressesFromPubKeys(childPubKeys, config, currentBitcoinNetwork);
+  const changeAddresses = getMultisigAddressesFromPubKeys(childChangePubKeys, config, currentBitcoinNetwork);
 
-  const transactions = await getTransactionsFromAddresses([...addresses, ...changeAddresses]);
-  const unusedAddresses = await getUnusedAddresses(addresses);
-  const unusedChangeAddresses = await getUnusedAddresses(changeAddresses);
+  const transactions = await getTransactionsFromAddresses([...addresses, ...changeAddresses], currentBitcoinNetwork);
+  const unusedAddresses = await getUnusedAddresses(addresses, currentBitcoinNetwork);
+  const unusedChangeAddresses = await getUnusedAddresses(changeAddresses, currentBitcoinNetwork);
 
-  const availableUtxos = await getUtxosForAddresses([...addresses, ...changeAddresses]);
+  const availableUtxos = await getUtxosForAddresses([...addresses, ...changeAddresses], currentBitcoinNetwork);
 
   const organizedTransactions = serializeTransactions(transactions, addresses, changeAddresses);
 
   return [addresses, changeAddresses, organizedTransactions, unusedAddresses, unusedChangeAddresses, availableUtxos];
 }
 
-export const getDataFromXPub = async (currentWallet) => {
+export const getDataFromXPub = async (currentWallet, currentBitcoinNetwork) => {
   console.log('currentWallet: ', currentWallet);
-  const childPubKeys = getChildPubKeysFromXpubs([currentWallet], false);
-  const childChangePubKeys = getChildChangePubKeysFromXpubs([currentWallet], false);
+  const childPubKeys = getChildPubKeysFromXpubs([currentWallet], false, currentBitcoinNetwork);
+  const childChangePubKeys = getChildChangePubKeysFromXpubs([currentWallet], false, currentBitcoinNetwork);
 
   const addresses = childPubKeys.map((childPubKey, i) => {
     return {
-      ...payments.p2wpkh({ pubkey: Buffer.from(childPubKey.childPubKey, 'hex'), network: networks.testnet }),
+      ...payments.p2wpkh({ pubkey: Buffer.from(childPubKey.childPubKey, 'hex'), network: currentBitcoinNetwork }),
       bip32derivation: [childPubKey.bip32derivation]
     }
   });
 
   const changeAddresses = childChangePubKeys.map((childPubKey, i) => {
     return {
-      ...payments.p2wpkh({ pubkey: Buffer.from(childPubKey.childPubKey, 'hex'), network: networks.testnet }),
+      ...payments.p2wpkh({ pubkey: Buffer.from(childPubKey.childPubKey, 'hex'), network: currentBitcoinNetwork }),
       bip32derivation: [childPubKey.bip32derivation]
     }
   });
 
-  const transactions = await getTransactionsFromAddresses([...addresses, ...changeAddresses]);
-  const unusedAddresses = await getUnusedAddresses(addresses);
-  const unusedChangeAddresses = await getUnusedAddresses(changeAddresses);
+  const transactions = await getTransactionsFromAddresses([...addresses, ...changeAddresses], currentBitcoinNetwork);
+  const unusedAddresses = await getUnusedAddresses(addresses, currentBitcoinNetwork);
+  const unusedChangeAddresses = await getUnusedAddresses(changeAddresses, currentBitcoinNetwork);
 
-  const availableUtxos = await getUtxosForAddresses([...addresses, ...changeAddresses]);
+  const availableUtxos = await getUtxosForAddresses([...addresses, ...changeAddresses], currentBitcoinNetwork);
 
   const organizedTransactions = serializeTransactions(transactions, addresses, changeAddresses);
 
   return [addresses, changeAddresses, organizedTransactions, unusedAddresses, unusedChangeAddresses, availableUtxos];
 }
-
-// export const getInputData = async (amount, payment, isSegwit, redeemType) => {
-//   // get all utxos for addresses and change addresses (?)
-//   // then figure out what inputs to spend...easiest is just to find an input > output
-//   // but if that doesn't exist, then start combining
-//   const unspent = await regtestUtils.faucetComplex(payment.output, amount);
-//   const utx = await regtestUtils.fetch(unspent.txId);
-//   // for non segwit inputs, you must pass the full transaction buffer
-//   const nonWitnessUtxo = Buffer.from(utx.txHex, 'hex');
-//   // for segwit inputs, you only need the output script and value as an object.
-//   const witnessUtxo = getWitnessUtxo(utx.outs[unspent.vout]);
-//   const mixin = isSegwit ? { witnessUtxo } : { nonWitnessUtxo };
-//   const mixin2: any = {};
-//   switch (redeemType) {
-//     case 'p2sh':
-//       mixin2.redeemScript = payment.redeem.output;
-//       break;
-//     case 'p2wsh':
-//       mixin2.witnessScript = payment.redeem.output;
-//       break;
-//     case 'p2sh-p2wsh':
-//       mixin2.witnessScript = payment.redeem.redeem.output;
-//       mixin2.redeemScript = payment.redeem.output;
-//       break;
-//   }
-//   return {
-//     hash: unspent.txId,
-//     index: unspent.vout,
-//     ...mixin,
-//     ...mixin2,
-//   };
-// }

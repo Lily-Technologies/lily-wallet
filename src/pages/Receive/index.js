@@ -1,24 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
-import { VerticalAlignBottom, ArrowUpward, Settings } from '@styled-icons/material';
+import styled, { css } from 'styled-components';
+import { Settings } from '@styled-icons/material';
 import { Safe } from '@styled-icons/crypto';
 import { Wallet } from '@styled-icons/entypo';
 import { QRCode } from "react-qr-svg";
-import axios from 'axios';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-import BigNumber from 'bignumber.js';
-import {
-  deriveChildPublicKey,
-  blockExplorerAPIURL,
-  satoshisToBitcoins,
-  TESTNET
-} from "unchained-bitcoin";
+import { satoshisToBitcoins } from "unchained-bitcoin";
 import { payments, ECPair, networks } from 'bitcoinjs-lib';
 
 import { StyledIcon, Button, GreenLoadingAnimation, PageWrapper, GridArea, PageTitle, Header, HeaderRight, HeaderLeft } from '../../components';
 import RecentTransactions from '../../components/transactions/RecentTransactions';
 
 import { black, gray, offWhite, blue, darkGray, white, darkOffWhite, green, lightGreen, darkGreen, lightGray, lightBlue } from '../../utils/colors';
+import { mobile } from '../../utils/media';
 
 const Receive = ({ config, currentAccount, setCurrentAccount, transactions, unusedAddresses, currentBalance, loadingDataFromBlockstream }) => {
   const [unusedAddressIndex, setUnusedAddressIndex] = useState(0);
@@ -33,20 +27,20 @@ const Receive = ({ config, currentAccount, setCurrentAccount, transactions, unus
           {/* <DeviceXPub>{currentAccount.xpub}</DeviceXPub> */}
         </HeaderLeft>
         <HeaderRight>
-          <SettingsButton background='transparent' color={darkGray}><StyledIcon as={Settings} size={36} /></SettingsButton>
+          <SettingsButton background='transparent' color={darkGray} style={{ padding: 0 }}><StyledIcon as={Settings} size={36} /></SettingsButton>
         </HeaderRight>
       </Header>
 
       <ReceiveWrapper>
         <AccountMenu>
-          {config.vaults.map((vault) => (
-            <AccountMenuItemWrapper active={vault.name === currentAccount.name} onClick={() => setCurrentAccount(vault)}>
+          {config.vaults.map((vault, index) => (
+            <AccountMenuItemWrapper active={vault.name === currentAccount.name} borderRight={true} onClick={() => setCurrentAccount(vault)}>
               <StyledIcon as={Safe} size={48} />
               <AccountMenuItemName>{vault.name}</AccountMenuItemName>
             </AccountMenuItemWrapper>
           ))}
           {config.wallets.map((wallet) => (
-            <AccountMenuItemWrapper active={wallet.name === currentAccount.name} onClick={() => setCurrentAccount(wallet)}>
+            <AccountMenuItemWrapper active={wallet.name === currentAccount.name} borderLeft={true} onClick={() => setCurrentAccount(wallet)}>
               <StyledIcon as={Wallet} size={48} />
               <AccountMenuItemName>{wallet.name}</AccountMenuItemName>
             </AccountMenuItemWrapper>
@@ -55,39 +49,50 @@ const Receive = ({ config, currentAccount, setCurrentAccount, transactions, unus
 
         <GridArea>
 
-          <AccountReceiveContentLeft>
-            <SendToAddressHeader>
-              Send bitcoin to
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <CurrentBalanceWrapper displayDesktop={false} displayMobile={true} style={{ marginBottom: '1em' }}>
+              <CurrentBalanceText>
+                Current Balance:
+              </CurrentBalanceText>
+              <CurrentBalanceValue>
+                {satoshisToBitcoins(currentBalance).toNumber()} BTC
+                </CurrentBalanceValue>
+            </CurrentBalanceWrapper>
+
+            <AccountReceiveContentLeft>
+              <SendToAddressHeader>
+                Send bitcoin to
               </SendToAddressHeader>
 
-            <AddressDisplayWrapper>
-              {unusedAddresses[unusedAddressIndex] && unusedAddresses[unusedAddressIndex].address}
-              {loadingDataFromBlockstream && (
-                <GreenLoadingAnimation>
-                  {/* tb1qy8glxuvc7nqqlxmuucnpv93fekyv4lth6k3v3p */}
-                </GreenLoadingAnimation>
-              )}
-            </AddressDisplayWrapper>
+              <AddressDisplayWrapper>
+                {unusedAddresses[unusedAddressIndex] && unusedAddresses[unusedAddressIndex].address}
+                {loadingDataFromBlockstream && (
+                  <GreenLoadingAnimation>
+                    {/* tb1qy8glxuvc7nqqlxmuucnpv93fekyv4lth6k3v3p */}
+                  </GreenLoadingAnimation>
+                )}
+              </AddressDisplayWrapper>
 
-            <QRCodeWrapper>
-              <QRCode
-                bgColor={white}
-                fgColor={black}
-                level="Q"
-                style={{ width: 256 }}
-                value={unusedAddresses[unusedAddressIndex] && unusedAddresses[unusedAddressIndex].address}
-              />
-            </QRCodeWrapper>
+              <QRCodeWrapper>
+                <QRCode
+                  bgColor={white}
+                  fgColor={black}
+                  level="Q"
+                  style={{ width: 256 }}
+                  value={unusedAddresses[unusedAddressIndex] && unusedAddresses[unusedAddressIndex].address}
+                />
+              </QRCodeWrapper>
 
-            <ReceiveButtonContainer>
-              <CopyToClipboard text={unusedAddresses[unusedAddressIndex] && unusedAddresses[unusedAddressIndex].address}><CopyAddressButton>Copy Address</CopyAddressButton></CopyToClipboard>
-              <CopyAddressButton background="transparent" color={darkGray} onClick={() => setUnusedAddressIndex(unusedAddressIndex + 1)}>Generate New Address</CopyAddressButton>
-            </ReceiveButtonContainer>
+              <ReceiveButtonContainer>
+                <CopyToClipboard text={unusedAddresses[unusedAddressIndex] && unusedAddresses[unusedAddressIndex].address}><CopyAddressButton>Copy Address</CopyAddressButton></CopyToClipboard>
+                <CopyAddressButton background="transparent" color={darkGray} onClick={() => setUnusedAddressIndex(unusedAddressIndex + 1)}>Generate New Address</CopyAddressButton>
+              </ReceiveButtonContainer>
 
-          </AccountReceiveContentLeft>
+            </AccountReceiveContentLeft>
+          </div>
 
           <AccountReceiveContentRight>
-            <CurrentBalanceWrapper>
+            <CurrentBalanceWrapper displayDesktop={true} displayMobile={false}>
               <CurrentBalanceText>
                 Current Balance:
               </CurrentBalanceText>
@@ -106,7 +111,7 @@ const Receive = ({ config, currentAccount, setCurrentAccount, transactions, unus
           </AccountReceiveContentRight>
         </GridArea>
       </ReceiveWrapper>
-    </PageWrapper>
+    </PageWrapper >
   )
 }
 
@@ -122,7 +127,7 @@ const ReceiveWrapper = styled.div`
   display: flex;
   flex-direction: column;
   box-shadow: rgba(0, 0, 0, 0.15) 0px 5px 15px 0px;
-  // border: 1px solid ${lightGray};
+  border: 1px solid ${gray};
 `;
 
 const SendToAddressHeader = styled.div`
@@ -166,8 +171,10 @@ const AccountMenuItemWrapper = styled.div`
   padding: .75em;
   flex: 1;
   cursor: ${p => p.active ? 'auto' : 'pointer'};
-  border-bottom: ${p => p.active ? 'none' : `solid 1px ${darkOffWhite}`};
   border-top: ${p => p.active ? `solid 11px ${blue}` : `none`};
+  border-bottom: ${p => p.active ? 'none' : `solid 1px ${gray}`};
+  border-left: ${p => !p.active && p.borderLeft && `solid 1px ${gray}`};
+  border-right: ${p => !p.active && p.borderRight && `solid 1px ${gray}`};
 `;
 
 const AccountMenuItemName = styled.div``;
@@ -192,7 +199,7 @@ const AccountReceiveContentLeft = styled.div`
   flex-direction: column;
   flex: 1;
   background: ${white};
-  border: solid 1px ${gray};
+  border: 1px solid ${darkGray};
   border-radius: 4px;
   // box-shadow: rgba(0, 0, 0, 0.15) 0px 5px 15px 0px;
   justify-content: center;
@@ -209,13 +216,18 @@ const AccountReceiveContentRight = styled.div`
 
 const CurrentBalanceWrapper = styled.div`
   padding: 1.5em;
-  display: flex;
+  display: ${p => p.displayDesktop ? 'flex' : 'none'};
   flex-direction: column;
   border: solid 1px ${darkOffWhite};
   border-radius: 4px;
   background: ${white};
   // box-shadow: rgba(0, 0, 0, 0.15) 0px 5px 15px 0px;
   text-align: right;
+
+  ${mobile(css`
+    display: ${p => p.displayMobile ? 'flex' : 'none'}
+  `)};
+
 `;
 
 

@@ -1,39 +1,29 @@
 import React, { useState, Fragment } from 'react';
-import moment from 'moment';
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import styled, { css } from 'styled-components';
 import { AreaChart, Area, ResponsiveContainer, XAxis, YAxis } from 'recharts';
 import { VerticalAlignBottom, ArrowUpward, Settings } from '@styled-icons/material';
-import { bip32, networks } from 'bitcoinjs-lib';
-import { QRCode } from "react-qr-svg";
+
 
 import { StyledIcon, Button, PageWrapper, PageTitle, Header, HeaderRight, HeaderLeft } from '../../components';
 
-import AddressRow from './AddressRow';
-import UtxoRow from './UtxoRow';
-
-import { satoshisToBitcoins } from "unchained-bitcoin";
-
-import RecentTransactions from '../../components/transactions/RecentTransactions';
+import VaultView from './VaultView';
+import AddressesView from './AddressesView';
+import UtxosView from './UtxosView';
+import VaultSettings from './VaultSettings';
 
 import { black, gray, white, blue, darkGray, darkOffWhite, lightBlue } from '../../utils/colors';
 import { mobile } from '../../utils/media';
+import { saveFileToGoogleDrive } from '../../utils/google-drive';
 
 
 
-const Vault = ({ currentAccount, currentBitcoinPrice, transactions, currentBalance, loadingDataFromBlockstream }) => {
+const Vault = ({ config, setConfigFile, currentAccount, currentBitcoinPrice, transactions, currentBalance, loadingDataFromBlockstream, currentBitcoinNetwork }) => {
   document.title = `Vault - Lily Wallet`;
-
   const [viewSettings, setViewSettings] = useState(false);
   const [viewAddresses, setViewAddresses] = useState(false);
   const [viewUtxos, setViewUtxos] = useState(false);
-
-  // console.log('currentAccount: ', currentAccount);
-
-  // const bip32interface = bip32.fromBase58(currentAccount.config.xpub, networks.testnet);
-  // console.log('bip32interface: ', bip32interface.toWIF());
-
-  // const qrValue = bip32interface.toWIF();
+  const history = useHistory();
 
   return (
     <PageWrapper>
@@ -50,100 +40,40 @@ const Vault = ({ currentAccount, currentBitcoinPrice, transactions, currentBalan
           <SettingsButton
             onClick={() => { setViewSettings(!viewSettings) }}
             active={viewSettings}
-            color={darkGray}>
+            color={darkGray}
+            style={{ padding: 0 }}
+          >
             <StyledIcon as={Settings} size={36} />
           </SettingsButton>
         </HeaderRight>
       </Header>
 
       {(viewSettings && viewAddresses) ? (
-        <ValueWrapper>
-          <TotalValueHeader style={{ cursor: 'pointer' }} onClick={() => setViewAddresses(false)}>Settings - Addresses</TotalValueHeader>
-          <SettingsHeadingItem>Addresses</SettingsHeadingItem>
-          <SettingsSection style={{ flexDirection: 'column' }}>
-            {currentAccount.addresses.map((address) => (
-              <AddressRow flat={true} address={address} />
-            ))}
-            {currentAccount.changeAddresses.map((address) => (
-              <AddressRow flat={true} address={address} />
-            ))}
-          </SettingsSection>
-        </ValueWrapper>
+        <AddressesView
+          setViewAddresses={setViewAddresses}
+          currentAccount={currentAccount}
+        />
       ) : (viewSettings && viewUtxos) ? (
-        <ValueWrapper>
-          <TotalValueHeader style={{ cursor: 'pointer' }} onClick={() => setViewUtxos(false)}>Settings - Utxos</TotalValueHeader>
-          <SettingsHeadingItem>UTXOs</SettingsHeadingItem>
-          <SettingsSection style={{ flexDirection: 'column' }}>
-            {currentAccount.availableUtxos.map((utxo) => (
-              <UtxoRow flat={true} utxo={utxo} />
-            ))}
-          </SettingsSection>
-        </ValueWrapper>
+        <UtxosView
+          setViewUtxos={setViewUtxos}
+          currentAccount={currentAccount}
+        />
       ) : viewSettings ? (
-        <ValueWrapper>
-          <TotalValueHeader>Settings</TotalValueHeader>
-          <SettingsHeadingItem>Vault Data</SettingsHeadingItem>
-          <SettingsSection>
-            <SettingsSectionLeft>
-              <SettingsHeader>Addresses</SettingsHeader>
-              <SettingsSubheader>View the addresses associated with this vault</SettingsSubheader>
-            </SettingsSectionLeft>
-            <SettingsSectionRight>
-              <ViewAddressesButton onClick={() => { setViewAddresses(true); console.log('currentAccount: ', currentAccount) }}>View Addresses</ViewAddressesButton>
-            </SettingsSectionRight>
-          </SettingsSection>
-          <SettingsSection>
-            <SettingsSectionLeft>
-              <SettingsHeader>XPubs</SettingsHeader>
-              <SettingsSubheader>View the xpubs associated with this vault</SettingsSubheader>
-            </SettingsSectionLeft>
-            <SettingsSectionRight>
-              <ViewAddressesButton>View XPubs</ViewAddressesButton>
-            </SettingsSectionRight>
-          </SettingsSection>
-          <SettingsSection>
-            <SettingsSectionLeft>
-              <SettingsHeader>UTXOs</SettingsHeader>
-              <SettingsSubheader>View the UTXOs associated with this vault</SettingsSubheader>
-            </SettingsSectionLeft>
-            <SettingsSectionRight>
-              <ViewAddressesButton onClick={() => { setViewUtxos(true); console.log('currentAccount: ', currentAccount) }}>View UTXOs</ViewAddressesButton>
-            </SettingsSectionRight>
-          </SettingsSection>
-          <SettingsSection>
-            {/* <QRCode
-              bgColor={white}
-              fgColor={black}
-              level="Q"
-              style={{ width: 256 }}
-              value={qrValue}
-            /> */}
-          </SettingsSection>
-        </ValueWrapper>
+        <VaultSettings
+          config={config}
+          setConfigFile={setConfigFile}
+          currentAccount={currentAccount}
+          setViewAddresses={setViewAddresses}
+          setViewUtxos={setViewUtxos}
+          currentBitcoinNetwork={currentBitcoinNetwork}
+        />
       ) : (
-              <Fragment>
-                <ValueWrapper>
-                  <TotalValueHeader>{satoshisToBitcoins(currentBalance.toNumber()).toFixed(8)} BTC</TotalValueHeader>
-                  <USDValueHeader>{currentBitcoinPrice.multipliedBy(satoshisToBitcoins(currentBalance)).toFixed(8)} USD</USDValueHeader>
-                  <ChartContainer>
-                    <ResponsiveContainer width="100%" height={400}>
-                      <AreaChart width={400} height={400} data={[...transactions].sort((a, b) => a.status.block_time - b.status.block_time)}>
-                        <XAxis
-                          dataKey="status.block_time"
-                          tickFormatter={(blocktime) => {
-                            return moment.unix(blocktime).format('MMM D')
-                          }}
-                        />
-                        <YAxis
-                          width={100}
-                          axisLine={false} />
-                        <Area type="monotone" dataKey="totalValue" stroke="#8884d8" strokeWidth={2} fill={lightBlue} />
-                      </AreaChart>
-                    </ResponsiveContainer>
-                  </ChartContainer>
-                </ValueWrapper>
-                <RecentTransactions transactions={transactions} loading={loadingDataFromBlockstream} />
-              </Fragment>
+              <VaultView
+                currentBalance={currentBalance}
+                currentBitcoinPrice={currentBitcoinPrice}
+                transactions={transactions}
+                loadingDataFromBlockstream={loadingDataFromBlockstream}
+              />
             )}
     </PageWrapper>
   )
@@ -219,15 +149,6 @@ const ValueWrapper = styled.div`
   padding: 1.5em;
   box-shadow: rgba(0, 0, 0, 0.15) 0px 5px 15px 0px;
   border-top: solid 11px ${blue};
-`;
-
-const TotalValueHeader = styled.div`
-  font-size: 36px;
-`;
-
-const USDValueHeader = styled.div`
-  font-size: 1em;
-  color: ${gray};
 `;
 
 const ChartContainer = styled.div`

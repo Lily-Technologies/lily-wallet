@@ -1,75 +1,90 @@
 const config = {
-  name: "",
-  network: "testnet",
-  backup_options: {
-    gdrive: true
+  "name": "",
+  "version": "0.0.1",
+  "backup_options": {
+    "gdrive": true
   },
-  wallets: [
+  "wallets": [
     {
-      id: "eeabc8a8-4079-4848-9b97-ef7404bb731c",
-      name: "eeabc8a8-4079-4848-9b97-ef7404bb731c",
-      addressType: "P2WSH",
-      quorum: {
-        requiredSigners: 1,
-        totalSigners: 1
+      "id": "f895033a-928a-4491-a7ac-c5876de0956e",
+      "name": "f895033a-928a-4491-a7ac-c5876de0956e",
+      "network": "mainnet",
+      "addressType": "P2WSH",
+      "quorum": {
+        "requiredSigners": 1,
+        "totalSigners": 1
       },
-      xpub: "tpubD6NzVbkrYhZ4XkBzRhfoEy3RQUtCwqeLxmNokBvSPYyBgkKk5UicwSUosVSK88igvDv77MSxj1xgtcXK2scd6wNnzxdXJznTajSXaw2iEmX",
-      xprv: "tprv8ZgxMBicQKsPeHACY41CqZPJqTNGnWTSPTn2Tft8yHAnrG4yT5u2kwrwhKjvTQZ9cZxAt8gt3K4mrFh3d6Jwn8BCSjWtuJS91WDh7bFZm5N",
-      parentFingerprint: "0x00"
+      "xpub": "xpub661MyMwAqRbcFky7X5TGn1h1iH8tomYDxMYruHmhYk9epJU92PQ4a4zC6YVx2qzh8Dd5V81eSpkEL1GFWKx5SU5FYiEJW7HnRZ9GATQn38Q",
+      "xprv": "xprv9s21ZrQH143K3GteR3vGQskHAFJQQJpNb8dG6uN5zQcfwW8zUr5p2GfiFFxLb7T9o8jmX6Z3HdhsdswUk56xbBq3M9aE6etzcsrrCHFx9z6",
+      "parentFingerprint": {
+        "type": "Buffer",
+        "data": [
+          210,
+          156,
+          134,
+          194
+        ]
+      }
     }
   ],
-  vaults: [
+  "vaults": [
     {
-      id: "bcabbe2d-779f-40d4-bcd8-a203a4bafac2",
-      name: "2b030782-21a7-442c-80ca-09833c0dc609",
-      addressType: "P2WSH",
-      quorum: {
-        requiredSigners: 2,
-        totalSigners: 3
+      "id": "09849cf6-b2e9-4986-8a6d-8de02be791b5",
+      "name": "09849cf6-b2e9-4986-8a6d-8de02be791b5",
+      "network": "mainnet",
+      "addressType": "P2WSH",
+      "quorum": {
+        "requiredSigners": 2,
+        "totalSigners": 3
       },
-      extendedPublicKeys: [
+      "extendedPublicKeys": [
         {
-          parentFingerprint: "9130c3d6",
-          bip32Path: "m/0",
-          xpub: "tpubDDv6Az73JkvvPQPFdytkRrizpdxWtHTE6gHywCRqPu3nz2YdHDG5AnbzkJWJhtYwEJDR3eENpQQZyUxtFFRRC2K1PEGdwGZJYuji8QcaX4Z",
-          method: "xpub"
+          "id": "e0fb7254-4c70-4289-9e71-0b3ebd1cc044",
+          "parentFingerprint": "9130c3d6",
+          "network": "mainnet",
+          "bip32Path": "m/0",
+          "xpub": "xpub6F1TMXpKfN5hRMdDUwSb9qD6LQmx2LTEbNtTj4nkFJte9GN14aFbqpup5AW7m9YhnYiTvEc1PqkrXkDY4gzJ95tNWKUATL6hD2AT641pSLE"
         },
         {
-          parentFingerprint: "34ecf56b",
-          bip32Path: "m/0",
-          xpub: "tpubDECB21DPAjBvUtqSCGWHJrbh6nSg9JojqmoMBuS5jGKTFvYJb784Pu5hwq8vSpH6vkk3dZmjA3yR7mGbrs3antkL6BHVHAyjPeeJyAiVARA",
-          method: "xpub"
+          "id": "ad226ef3-0aa7-4620-8d34-64e8110b9562",
+          "parentFingerprint": "4f60d1c9",
+          "network": "mainnet",
+          "bip32Path": "m/0",
+          "xpub": "xpub6F2wuvSo8gSRjE9JsMgSva9cDZGa2Hh9SEJ9yczCLd1q2SRFV6N4vRUKFoecbatfhgZcG5rNwTxygNLoPrKpjRt94czCzQQPnoVY1RauiL6"
         },
         {
-          parentFingerprint: "4f60d1c9",
-          bip32Path: "m/0",
-          xpub: "tpubDFR1fvmcdWbMMDn6ttHPgHi2Jt92UkcBmzZ8MX6QuoupcDhY7qoKsjSG2MFvN66r2zQbZrdjfS6XtTv8BjED11hUMq3kW2rc3CLTjBZWWFb",
-          method: "xpub"
+          "id": "e532eeae-b7a2-43a4-889f-6f3b7e4d7dc1",
+          "parentFingerprint": "34ecf56b",
+          "network": "mainnet",
+          "bip32Path": "m/0",
+          "xpub": "xpub6FCzsnvwxusaXu8rxxn1XVKXSKFKjYrynid9ntEJ1Qc18Vi6eqGSkP6MJdEtDXCGqNNCGdytUJdLSucPxnyHdJYJKK6YMcTgULAxvrQYm5J"
         }
       ]
     }
   ],
-  keys: [
+  "keys": [
     {
-      parentFingerprint: "9130c3d6",
-      bip32Path: "m/0",
-      xpub: "tpubDDv6Az73JkvvPQPFdytkRrizpdxWtHTE6gHywCRqPu3nz2YdHDG5AnbzkJWJhtYwEJDR3eENpQQZyUxtFFRRC2K1PEGdwGZJYuji8QcaX4Z",
-      method: "xpub"
+      "id": "e0fb7254-4c70-4289-9e71-0b3ebd1cc044",
+      "parentFingerprint": "9130c3d6",
+      "network": "mainnet",
+      "bip32Path": "m/0",
+      "xpub": "xpub6F1TMXpKfN5hRMdDUwSb9qD6LQmx2LTEbNtTj4nkFJte9GN14aFbqpup5AW7m9YhnYiTvEc1PqkrXkDY4gzJ95tNWKUATL6hD2AT641pSLE"
     },
     {
-      parentFingerprint: "34ecf56b",
-      bip32Path: "m/0",
-      xpub: "tpubDECB21DPAjBvUtqSCGWHJrbh6nSg9JojqmoMBuS5jGKTFvYJb784Pu5hwq8vSpH6vkk3dZmjA3yR7mGbrs3antkL6BHVHAyjPeeJyAiVARA",
-      method: "xpub"
+      "id": "ad226ef3-0aa7-4620-8d34-64e8110b9562",
+      "parentFingerprint": "4f60d1c9",
+      "network": "mainnet",
+      "bip32Path": "m/0",
+      "xpub": "xpub6F2wuvSo8gSRjE9JsMgSva9cDZGa2Hh9SEJ9yczCLd1q2SRFV6N4vRUKFoecbatfhgZcG5rNwTxygNLoPrKpjRt94czCzQQPnoVY1RauiL6"
     },
     {
-      parentFingerprint: "4f60d1c9",
-      bip32Path: "m/0",
-      xpub: "tpubDFR1fvmcdWbMMDn6ttHPgHi2Jt92UkcBmzZ8MX6QuoupcDhY7qoKsjSG2MFvN66r2zQbZrdjfS6XtTv8BjED11hUMq3kW2rc3CLTjBZWWFb",
-      method: "xpub"
+      "id": "e532eeae-b7a2-43a4-889f-6f3b7e4d7dc1",
+      "parentFingerprint": "34ecf56b",
+      "network": "mainnet",
+      "bip32Path": "m/0",
+      "xpub": "xpub6FCzsnvwxusaXu8rxxn1XVKXSKFKjYrynid9ntEJ1Qc18Vi6eqGSkP6MJdEtDXCGqNNCGdytUJdLSucPxnyHdJYJKK6YMcTgULAxvrQYm5J"
     }
   ]
 }
-
 
 export default config;

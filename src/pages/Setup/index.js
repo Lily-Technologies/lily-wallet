@@ -6,13 +6,14 @@ import { AES } from 'crypto-js';
 
 import { BACKEND_URL } from '../../config';
 import { saveFileToGoogleDrive } from '../../utils/google-drive';
-import { createConfigFile, createColdCardBlob, downloadFile } from './utils';
+import { createConfigFile, createColdCardBlob, downloadFile } from '../../utils/files';
 import { Button, DeviceSelectSetup } from '../../components';
-import { black, gray, blue, white, darkGreen, offWhite, darkGray, darkOffWhite, lightGray } from '../../utils/colors';
+import { black, gray, blue, white, darkGreen, offWhite, darkGray, darkOffWhite, lightGray, lightBlue } from '../../utils/colors';
 
 import CreateWallet from './CreateWallet';
 
-const Setup = ({ config, setConfigFile }) => {
+const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
+  const [setupOption, setSetupOption] = useState(0);
   const [importedDevices, setImportedDevices] = useState([]);
   const [availableDevices, setAvailableDevices] = useState([]);
   const [password, setPassword] = useState('');
@@ -25,10 +26,11 @@ const Setup = ({ config, setConfigFile }) => {
     const { data } = await axios.post(`${BACKEND_URL}/xpub`, {
       deviceType: device.type,
       devicePath: device.path,
-      path: `m/48'/1'/0'/2'` // we are assuming BIP48 P2WSH wallet
+      path: `m/48'/0'/0'/2'` // we are assuming BIP48 P2WSH wallet
     });
     setImportedDevices([...importedDevices, { ...device, ...data }]);
-    availableDevices.splice(index, 1)
+    availableDevices.splice(index, 1);
+    console.log('importedDevices: ', importedDevices);
     setAvailableDevices([...availableDevices]);
   }
 
@@ -36,7 +38,7 @@ const Setup = ({ config, setConfigFile }) => {
     const contentType = "text/plain;charset=utf-8;";
 
     const ccFile = createColdCardBlob(importedDevices);
-    const configObject = createConfigFile(importedDevices);
+    const configObject = createConfigFile(importedDevices, currentBitcoinNetwork);
     const encryptedCaravanObject = AES.encrypt(JSON.stringify(configObject), password).toString();
     var encryptedCaravanFile = new Blob([decodeURIComponent(encodeURI(encryptedCaravanObject))], { type: contentType });
 
@@ -51,6 +53,26 @@ const Setup = ({ config, setConfigFile }) => {
     <Wrapper>
       <FormContainer>
         <SelectDeviceContainer>
+          <LoginOptionMenu>
+            <LoginOptionItem
+              active={!!!createWallet}
+              onClick={() => setCreateWallet(false)}
+              borderRight={true}
+            >
+              <LoginOptionText>
+                New Vault
+            </LoginOptionText>
+            </LoginOptionItem>
+            <LoginOptionItem
+              active={!!createWallet}
+              onClick={() => setCreateWallet(true)}
+              borderLeft={true}
+            >
+              <LoginOptionText>
+                New Wallet
+            </LoginOptionText>
+            </LoginOptionItem>
+          </LoginOptionMenu>
           <XPubHeaderWrapper>
             <SetupHeaderWrapper>
               <SetupHeader>Connect Devices to Computer</SetupHeader>
@@ -59,10 +81,6 @@ const Setup = ({ config, setConfigFile }) => {
                 You may disconnect your device from your computer after it has been configured.
               </SetupExplainerText>
             </SetupHeaderWrapper>
-            <SelectDeviceHeader>
-              <SetupSubheader>{importedDevices.length} of 3 devices configured</SetupSubheader>
-              <ConfigWallet onClick={() => setCreateWallet(!createWallet)}>Create Wallet</ConfigWallet>
-            </SelectDeviceHeader>
           </XPubHeaderWrapper>
           <SetupHeaderContainer>
 
@@ -72,6 +90,7 @@ const Setup = ({ config, setConfigFile }) => {
             <CreateWallet
               config={config}
               setConfigFile={setConfigFile}
+              currentBitcoinNetwork={currentBitcoinNetwork}
             />
           ) : (
               <DeviceSelectSetup
@@ -128,6 +147,31 @@ const FormContainer = styled.div`
   justify-content: center;
 `;
 
+const LoginOptionMenu = styled.div`
+  display: flex;
+  justify-content: space-around;
+`;
+
+const LoginOptionItem = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: ${p => p.active ? lightBlue : white};
+  color: ${p => p.active ? black : gray};
+  padding: 1.5em;
+  flex: 1;
+  cursor: ${p => p.active ? 'auto' : 'pointer'};
+  border-bottom: ${p => p.active ? 'none' : `solid 1px ${gray}`};
+  border-left: ${p => p.active && p.borderLeft ? `solid 1px ${gray}` : 'none'};
+  border-right: ${p => p.active && p.borderRight ? `solid 1px ${gray}` : 'none'};
+  border-top: ${p => p.active ? `solid 11px ${blue}` : `none`};
+`;
+
+const LoginOptionText = styled.div`
+  font-size: 1.125em;
+`;
+
 const SelectDeviceContainer = styled.div`
   max-width: 750px;
   background: #fff;
@@ -138,6 +182,7 @@ const SelectDeviceContainer = styled.div`
   border-radius: 4px;
   box-shadow: rgba(0, 0, 0, 0.15) 0px 5px 15px 0px;
   margin: 18px;
+  border: 1px solid ${darkGray};
 `;
 
 const XPubHeaderWrapper = styled.div`
@@ -147,7 +192,7 @@ const XPubHeaderWrapper = styled.div`
   display: flex;
   justify-content: space-between;
   padding: 24px 24px 12px;
-  border-top: 12px solid ${blue};
+  // border-top: 12px solid ${blue};
   border-top-left-radius: 4px;
   border-top-right-radius: 4px;
   border-bottom: 1px solid ${gray};

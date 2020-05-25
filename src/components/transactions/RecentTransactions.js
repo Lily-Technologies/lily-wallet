@@ -6,7 +6,7 @@ import { StyledIcon, StyledIconSpinning } from '../../components';
 
 import TransactionRow from './TransactionRow'
 
-import { darkGray } from '../../utils/colors';
+import { darkGray, white, blue } from '../../utils/colors';
 
 const shouldDisplayDate = (transactions, index) => {
   if (index === 0) {
@@ -22,7 +22,7 @@ const shouldDisplayDate = (transactions, index) => {
 const RecentTransactions = ({ transactions, loading, flat = false, maxItems = Infinity }) => {
   return (
     <RecentTransactionsWrapper>
-      <RecentTransactionsHeader>Recent Activity</RecentTransactionsHeader>
+      {!loading && transactions.length > 0 && <RecentTransactionsHeader>Recent Activity</RecentTransactionsHeader>}
       {loading && <LoadingAnimation flat={flat}>
         <StyledIconSpinning as={RestaurantMenu} size={96} />
         <LoadingText>Loading Transactions</LoadingText>
@@ -40,7 +40,7 @@ const RecentTransactions = ({ transactions, loading, flat = false, maxItems = In
           }
         })}
         {!loading && transactions.length === 0 && (
-          <NoTransasctionsSection>
+          <NoTransasctionsSection flat={flat}>
             <NoTransactionsHeader>No Transactions</NoTransactionsHeader>
             <StyledIcon as={RestaurantMenu} size={96} style={{ color: darkGray }} />
             <NoTransactionsSubtext>No activity has been detected on this account yet.</NoTransactionsSubtext>
@@ -108,6 +108,10 @@ const NoTransasctionsSection = styled.div`
   align-items: center;
   font-weight: 100;
   padding: 1.5em;
+  background: ${p => p.flat ? 'transparent' : white};
+  box-shadow: ${p => p.flat ? 'none' : 'rgba(0, 0, 0, 0.15) 0px 5px 15px 0px'};
+  border: ${p => p.flat ? 'none' : `1px solid ${darkGray}`};
+  border-top: ${p => p.flat ? 'none' : `11px solid ${blue}`};
 `;
 
 const NoTransactionsHeader = styled.h3`

@@ -92,7 +92,7 @@ export const DeviceSelectSetup = ({ style, configuredDevices, unconfiguredDevice
         )}
       </DevicesWrapper>
 
-      {configuredDevices.length < configuredThreshold && <ScanDevicesButton background={white} color={blue} onClick={enumerate}>{devicesLoading ? 'Loading...' : 'Scan for another device'}</ScanDevicesButton>}
+      {configuredDevices.length < configuredThreshold && <ScanDevicesButton background={white} color={blue} onClick={enumerate}>{devicesLoading ? 'Loading...' : 'Scan for devices'}</ScanDevicesButton>}
     </animated.div>
   )
 }
@@ -126,7 +126,7 @@ const ConfiguringText = styled.div`
 const DevicesWrapper = styled.div`
   display: flex;
   justify-content: space-around;
-  min-height: 400px;
+  // min-height: 400px;
 `;
 
 
@@ -136,8 +136,9 @@ const DeviceWrapper = styled.div`
   justify-content: center;
   align-items: center;
   padding: .75em;
-  margin: 24px;
-  flex: 0 1 250px;
+  margin: 1.5em;
+  margin-bottom: 0px;
+  flex: 0 1 15.625em;
   border-radius: 4px;
 
   background: ${p => p.imported ? lightGreen : 'none'};
@@ -186,7 +187,7 @@ const ScanDevicesButton = styled.button`
   width: fit-content;
   align-self: center;
   border: 1px solid ${blue};
-  margin-bottom: 24px;
+  margin-bottom: 1.5em;
 `;
 
 const blinking = keyframes`

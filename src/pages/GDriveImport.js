@@ -11,12 +11,12 @@ import { black, gray, darkOffWhite, lightGray, darkGray, blue, lightBlue, white 
 import { getConfigFileFromGoogleDrive, saveFileToGoogleDrive } from '../utils/google-drive';
 
 
-const GDriveImport = ({ config, setConfigFile }) => {
+const GDriveImport = ({ encryptedConfig, setConfigFile }) => {
   document.title = `GDriveImport - Lily Wallet`;
   const [loading, setLoading] = useState(false);
   const [loadingGDrive, setLoadingGDrive] = useState(false);
   const [password, setPassword] = useState('');
-  const [encryptedCaravanFile, setEncryptedCaravanFile] = useState(null);
+  const [encryptedConfigFile, setEncryptedConfigFile] = useState(null);
   const [showCurtain, setShowCurtain] = useState(false);
   const [startCurtain, setStartCurtain] = useState(false);
   const [enterSidebar, setEnterSidebar] = useState(false);
@@ -29,14 +29,18 @@ const GDriveImport = ({ config, setConfigFile }) => {
 
   useEffect(() => {
     const onload = async () => {
-      setLoadingGDrive(true);
-      // await saveFileToGoogleDrive({ "name": "Coldcard Kitchen", "addressType": "P2WSH", "network": "testnet", "client": { "type": "public" }, "quorum": { "requiredSigners": 2, "totalSigners": 3 }, "extendedPublicKeys": [{ "name": "34ecf56b", "bip32Path": "m/0", "xpub": "tpubDECB21DPAjBvUtqSCGWHJrbh6nSg9JojqmoMBuS5jGKTFvYJb784Pu5hwq8vSpH6vkk3dZmjA3yR7mGbrs3antkL6BHVHAyjPeeJyAiVARA", "method": "xpub" }, { "name": "9130c3d6", "bip32Path": "m/0", "xpub": "tpubDDv6Az73JkvvPQPFdytkRrizpdxWtHTE6gHywCRqPu3nz2YdHDG5AnbzkJWJhtYwEJDR3eENpQQZyUxtFFRRC2K1PEGdwGZJYuji8QcaX4Z", "method": "xpub" }, { "name": "4f60d1c9", "bip32Path": "m/0", "xpub": "tpubDFR1fvmcdWbMMDn6ttHPgHi2Jt92UkcBmzZ8MX6QuoupcDhY7qoKsjSG2MFvN66r2zQbZrdjfS6XtTv8BjED11hUMq3kW2rc3CLTjBZWWFb", "method": "xpub" }] });
-      const encryptedCaravanFile = await getConfigFileFromGoogleDrive();
-      if (encryptedCaravanFile) {
-        setLoadingGDrive(false);
-        setEncryptedCaravanFile(encryptedCaravanFile)
+      if (!encryptedConfig) {
+        setLoadingGDrive(true);
+        // await saveFileToGoogleDrive({ "name": "Coldcard Kitchen", "addressType": "P2WSH", "network": "testnet", "client": { "type": "public" }, "quorum": { "requiredSigners": 2, "totalSigners": 3 }, "extendedPublicKeys": [{ "name": "34ecf56b", "bip32Path": "m/0", "xpub": "tpubDECB21DPAjBvUtqSCGWHJrbh6nSg9JojqmoMBuS5jGKTFvYJb784Pu5hwq8vSpH6vkk3dZmjA3yR7mGbrs3antkL6BHVHAyjPeeJyAiVARA", "method": "xpub" }, { "name": "9130c3d6", "bip32Path": "m/0", "xpub": "tpubDDv6Az73JkvvPQPFdytkRrizpdxWtHTE6gHywCRqPu3nz2YdHDG5AnbzkJWJhtYwEJDR3eENpQQZyUxtFFRRC2K1PEGdwGZJYuji8QcaX4Z", "method": "xpub" }, { "name": "4f60d1c9", "bip32Path": "m/0", "xpub": "tpubDFR1fvmcdWbMMDn6ttHPgHi2Jt92UkcBmzZ8MX6QuoupcDhY7qoKsjSG2MFvN66r2zQbZrdjfS6XtTv8BjED11hUMq3kW2rc3CLTjBZWWFb", "method": "xpub" }] });
+        const encryptedConfigFile = await getConfigFileFromGoogleDrive();
+        if (encryptedConfigFile) {
+          setLoadingGDrive(false);
+          setEncryptedConfigFile(encryptedConfigFile)
+        } else {
+          history.replace('/setup');
+        }
       } else {
-        history.replace('/setup');
+        setEncryptedConfigFile(encryptedConfig);
       }
     }
     onload();
@@ -44,11 +48,11 @@ const GDriveImport = ({ config, setConfigFile }) => {
 
   const unlockFile = () => {
     // KBC-TODO: probably need error handling for wrong password
-    var bytes = AES.decrypt(encryptedCaravanFile, password);
+    var bytes = AES.decrypt(encryptedConfigFile, password);
     var decryptedData = JSON.parse(bytes.toString(enc.Utf8));
     console.log('decryptedData: ', decryptedData);
     setConfigFile(decryptedData);
-    history.replace(`/vaults`);
+    history.replace(`/`);
   }
 
   const Screen = () => {
@@ -241,6 +245,7 @@ const DevicesWrapper = styled.div`
   background: ${white};
   box-shadow: rgba(0, 0, 0, 0.15) 0px 5px 15px 0px;
   border-radius: 4px;
+  border: 1px solid ${darkGray};
 `;
 
 const CurtainContainer = styled.div`

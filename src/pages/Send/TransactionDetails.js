@@ -10,7 +10,7 @@ import {
   bitcoinsToSatoshis,
   multisigWitnessScript,
   scriptToHex,
-  TESTNET
+  MAINNET
 } from "unchained-bitcoin";
 
 import { payments, ECPair, networks, Psbt, address } from 'bitcoinjs-lib';
@@ -20,7 +20,7 @@ import { StyledIcon, Button, SidewaysShake } from '../../components';
 
 import { gray, blue, darkGray, white, darkOffWhite, green, darkGreen, lightGray, red, lightRed } from '../../utils/colors';
 
-const TransactionDetails = ({ finalPsbt, feeEstimate, outputTotal, recipientAddress, sendAmount, setStep, transactionsMap, signedPsbts, signThreshold }) => {
+const TransactionDetails = ({ finalPsbt, feeEstimate, outputTotal, recipientAddress, sendAmount, setStep, transactionsMap, signedPsbts, signThreshold, currentBitcoinNetwork }) => {
   const [showMoreDetails, setShowMoreDetails] = useState(false);
   const [broadcastedTxId, setBroadcastedTxId] = useState('');
   const [txError, setTxError] = useState(null);
@@ -42,11 +42,11 @@ const TransactionDetails = ({ finalPsbt, feeEstimate, outputTotal, recipientAddr
 
           console.log('psbt.extractTransaction(): ', psbt.extractTransaction());
           console.log('psbt.extractTransaction().toHex(): ', psbt.extractTransaction().toHex());
-          const { data } = await axios.get(blockExplorerAPIURL(`/broadcast?tx=${psbt.extractTransaction().toHex()}`, TESTNET));
+          const { data } = await axios.get(blockExplorerAPIURL(`/broadcast?tx=${psbt.extractTransaction().toHex()}`, currentBitcoinNetwork));
           setBroadcastedTxId(data);
 
         } else {
-          const { data } = await axios.get(blockExplorerAPIURL(`/broadcast?tx=${signedPsbts[0].extractTransaction().toHex()}`, TESTNET));
+          const { data } = await axios.get(blockExplorerAPIURL(`/broadcast?tx=${signedPsbts[0].extractTransaction().toHex()}`, currentBitcoinNetwork));
           setBroadcastedTxId(data);
         }
       } catch (e) {
@@ -159,6 +159,7 @@ const AccountSendContentRight = styled.div`
   display: flex;
   flex: 1;
   flex-direction: column;
+  max-width: 500px;
 `;
 
 const OutputItem = styled.div`
@@ -207,7 +208,7 @@ const SendDetailsContainer = styled.div`
   display: flex;
   flex-direction: column;
   flex: 1;
-  border: solid 1px ${darkOffWhite};
+  border: solid 1px ${darkGray};
   justify-content: space-between;
 `;
 

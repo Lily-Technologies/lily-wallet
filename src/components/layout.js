@@ -1,7 +1,8 @@
 import React from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
-import { black } from '../utils/colors';
+import { mobile } from '../utils/media';
+import { black, darkGray } from '../utils/colors';
 
 export const PageWrapper = ({ children }) => {
   return (
@@ -14,7 +15,6 @@ export const PageWrapper = ({ children }) => {
 }
 
 const Wrapper = styled.div`
-  width: 100%;
   text-align: left;
   font-family: 'Montserrat', sans-serif;
   color: ${black};
@@ -24,8 +24,12 @@ const Wrapper = styled.div`
   min-height: 400px;
   flex-direction: column;
   align-items: center;
-  padding: 1em;
+  padding: 0em 3em;
   overflow: hidden;
+
+  ${mobile(css`
+    padding: 0em 1em;
+  `)};
 `;
 
 const Content = styled.div`
@@ -42,8 +46,9 @@ export const GridArea = styled.div`
   display: grid;
   background: #f2f7fe;
   grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-  grid-gap: 24px;
+  grid-gap: 1.5em;
   padding: 1.5em;
+  justify-items: center;
 `;
 
 export const PageTitle = styled.div`
@@ -54,7 +59,8 @@ export const Header = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1em;
+  margin-bottom: 2em;
+  flex-wrap: wrap;
 `;
 export const HeaderLeft = styled.div`
   display: flex;

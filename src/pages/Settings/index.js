@@ -1,19 +1,63 @@
-import React from 'react';
-import styled from 'styled-components';
+import React, { useState } from 'react';
+import styled, { css } from 'styled-components';
+import { AES } from 'crypto-js';
+import moment from 'moment';
+import Modal from 'react-modal';
 
-import { PageWrapper, PageTitle } from '../../components';
+import { PageWrapper, PageTitle, Header, HeaderLeft, Button } from '../../components';
 
-import { black, lightGray, gray, blue, darkGray, white, offWhite } from '../../utils/colors';
+import { blue, darkGray, white, lightBlue, darkOffWhite, lightGray, gray } from '../../utils/colors';
+import { downloadFile } from '../../utils/files';
+import { mobile } from '../../utils/media';
+import { getUnchainedNetworkFromBjslibNetwork } from '../../utils/transactions';
 
-const Settings = ({ config }) => {
+const modalStyles = {
+  overlay: {
+    backgroundColor: 'rgba(0, 0, 0, 0.75)',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  content: {
+    top: 'auto',
+    left: 'auto',
+    right: 'auto',
+    bottom: 'auto',
+    display: 'flex',
+    flexDirection: 'column',
+    maxWidth: '500px',
+    width: '100%',
+    minHeight: '500px'
+  }
+}
+
+const Settings = ({ config, changeCurrentBitcoinNetwork, currentBitcoinNetwork }) => {
+  const [networkModalIsOpen, setNetworkModalIsOpen] = useState(false);
+  const [downloadConfigModalIsOpen, setDownloadConfigModalIsOpen] = useState(false);
+  const [password, setPassword] = useState(null);
+
+
+  const downloadCurrentConfig = (password) => {
+    const contentType = "text/plain;charset=utf-8;";
+
+    const encryptedConfigObject = AES.encrypt(JSON.stringify(config), password).toString(); //KBC-TODO: add password modal to input password
+    // const encryptedConfigObject = JSON.stringify(config) //KBC-TODO: add password modal to input password
+    var encryptedConfigFile = new Blob([decodeURIComponent(encodeURI(encryptedConfigObject))], { type: contentType });
+
+    downloadFile(encryptedConfigFile, `lily_wallet_config-${moment().format()}.txt`);
+  }
 
   return (
     <PageWrapper>
-      <PageTitle>Settings</PageTitle>
+      <Header>
+        <HeaderLeft>
+          <PageTitle>Settings</PageTitle>
+        </HeaderLeft>
+      </Header>
       <ValueWrapper>
 
-        <SettingsHeadingItem>Devices and Keys</SettingsHeadingItem>
-        <SettingsSection>
+        <SettingsHeadingItem style={{ marginTop: '0.5em' }}>Data and Backups</SettingsHeadingItem>
+        {/* <SettingsSection>
           <SettingsSectionLeft>
             <SettingsHeader>Connected Keys: </SettingsHeader>
             <SettingsSubheader>
@@ -21,19 +65,26 @@ const Settings = ({ config }) => {
                 Keys are the building blocks for wallets and vaults. <br />
                 Use them individually to receive and send payments or combine them to create vaults.</SettingsSubheader>
           </SettingsSectionLeft>
-          <SettingsSectionRight>
-            <ViewAddressesButton>Add Another Key</ViewAddressesButton>
+          <SettingsSectionRight style={{ flexDirection: 'column' }}>
+            {config.keys.map((key, index) => (
+              <KeysRow>
+                <KeysRowUpper>
+                  <KeyNameContainer>
+                    Test Name {index}
+                  </KeyNameContainer>
+                </KeysRowUpper>
+                <KeyRowLower>
+                  <XPubContainer>
+                    {key.xpub}
+                  </XPubContainer>
+                  <Bip32PathContainer>
+                    {key.bip32Path}
+                  </Bip32PathContainer>
+                </KeyRowLower>
+              </KeysRow>
+            ))}
           </SettingsSectionRight>
-        </SettingsSection>
-        <SettingsSection>
-          {config.keys.map((key, index) => (
-            <DeviceWrapper key={index}>
-              <DeviceImage src={"https://coldcardwallet.com/static/images/coldcard-front.png"} />
-              <DeviceName>{key.model}</DeviceName>
-              <DeviceFingerprint>{key.fingerprint}</DeviceFingerprint>
-            </DeviceWrapper>
-          ))}
-        </SettingsSection>
+        </SettingsSection> */}
 
         <SettingsSection>
           <SettingsSectionLeft>
@@ -41,8 +92,26 @@ const Settings = ({ config }) => {
             <SettingsSubheader>These are the current encrypted backup files in your Google Drive. You can connect other backup providers here.</SettingsSubheader>
           </SettingsSectionLeft>
           <SettingsSectionRight>
-            <ViewAddressesButton>Backup Config</ViewAddressesButton>
+            <ViewAddressesButton
+              onClick={() => setDownloadConfigModalIsOpen(true)}>
+              Download Current Config
+              </ViewAddressesButton>
           </SettingsSectionRight>
+          <Modal
+            isOpen={downloadConfigModalIsOpen}
+            onRequestClose={() => setDownloadConfigModalIsOpen(false)}
+            style={modalStyles}>
+
+            <PasswordWrapper>
+              <PasswordText>Almost done, just set a password to encrypt your setup file:</PasswordText>
+              <PasswordInput placeholder="password" value={password} onChange={(e) => setPassword(e.target.value)} type="password" />
+            </PasswordWrapper>
+            <WordContainer>
+              <SaveWalletButton onClick={() => downloadCurrentConfig(password)}>
+                Download Encrypted Configuration File
+              </SaveWalletButton>
+            </WordContainer>
+          </Modal>
         </SettingsSection>
 
         <SettingsHeadingItem>Developers</SettingsHeadingItem>
@@ -52,41 +121,60 @@ const Settings = ({ config }) => {
             <SettingsSubheader>Switch between using the mainnet or testnet network. Testnet coins aren't worth any real money and should only be used by developers</SettingsSubheader>
           </SettingsSectionLeft>
           <SettingsSectionRight>
-            <ViewAddressesButton>Change Network</ViewAddressesButton>
+            <ViewAddressesButton onClick={() => setNetworkModalIsOpen(true)}>Change Network</ViewAddressesButton>
           </SettingsSectionRight>
+
+          <Modal
+            isOpen={networkModalIsOpen}
+            onRequestClose={() => setNetworkModalIsOpen(false)}
+            style={modalStyles}>
+
+            <SettingsHeader>Network Configuration</SettingsHeader>
+
+            Current Network: {getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)}
+
+            <ViewAddressesButton onClick={() => changeCurrentBitcoinNetwork()}>Change Network</ViewAddressesButton>
+          </Modal>
         </SettingsSection>
 
       </ValueWrapper>
-    </PageWrapper>
+    </PageWrapper >
   )
 };
 
 
 const ValueWrapper = styled.div`
-  background: ${white};
+  background: ${lightBlue};
   padding: 1.5em;
   box-shadow: rgba(0, 0, 0, 0.15) 0px 5px 15px 0px;
-  border-top: solid 11px ${blue};
-`;
-
-const ReceiveWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  box-shadow: rgba(0, 0, 0, 0.15) 0px 5px 15px 0px;
-  border: 1px solid ${lightGray};
+  border-top: solid 11px ${blue} !important;
+  border: 1px solid ${darkGray};
 `;
 
 const SettingsSection = styled.div`
-  display: flex;
-  margin: 18px 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15em, 1fr));
+  grid-gap: 5em;
+  margin: 3.125em 0;
   justify-content: space-between;
+  padding: 1.5em;
+  background: ${white};
+  border: 1px solid ${darkGray};
+  align-items: center;
+
+  ${mobile(css`
+  grid-gap: 2em;
+  `)};
 `;
 
 const SettingsSectionLeft = styled.div`
 
 `;
 
-const SettingsSectionRight = styled.div``;
+const SettingsSectionRight = styled.div`
+  display: flex;
+  justify-content: flex-end;
+`;
 
 
 const SettingsHeader = styled.div`
@@ -96,7 +184,7 @@ const SettingsHeader = styled.div`
 
 const SettingsHeadingItem = styled.h3`
   font-size: 1.5em;
-  margin: 64px 0 0;
+  margin: 4em 0 0;
   font-weight: 400;
   color: ${darkGray};
 `;
@@ -113,45 +201,89 @@ const ViewAddressesButton = styled.div`
   border: 1px solid ${blue};
   padding: 1.5em;
   border-radius: 4px;
-`;
-
-const DeviceWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: .75em;
-  margin: 24px;
-  flex: 0 1 250px;
-  border-radius: 4px;
-
-  background: none;
-  border: none;
-
+  text-align: center;
+  
   &:hover {
     cursor: pointer;
-    background: ${offWhite};
-    border: 1px solid ${darkGray};
-    padding: 11px;
+  }
 `;
 
-const DeviceImage = styled.img`
-  display: block;
-  width: auto;
-  height: auto;
-  max-height: 250px;
-  max-width: 148px;
+const KeysRow = styled.div`
+  display: flex;
+  flex-direction: column;
+  padding: 1em;
 `;
 
-const DeviceName = styled.h4`
-  text-transform: capitalize;
-  margin-bottom: 2px;
-  color: ${black};
+const KeysRowUpper = styled.div`
+  display: flex;
+  flex-wrap: wrap;
 `;
 
-const DeviceFingerprint = styled.h5`
-  color: ${gray};
-  margin: 0;
+const KeyNameContainer = styled.div`
 `;
+
+const KeyRowLower = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+`;
+
+const XPubContainer = styled.div`
+  font-size: .5em;
+  color: ${darkGray};
+  word-break: break-all;
+`;
+
+const Bip32PathContainer = styled.div`
+  font-size: .5em;
+  color: ${darkGray};
+`;
+
+const PasswordWrapper = styled.div`
+  padding: 1.5em;
+  display: flex;
+  flex-direction: column;
+`;
+
+const PasswordText = styled.h3``;
+
+const PasswordInput = styled.input`
+  position: relative;
+  border: 1px solid ${darkOffWhite};
+  background: ${lightGray};
+  padding: .75em;
+  text-align: center;
+  color: ${darkGray};
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 16px;
+  border-radius: 4px;
+  font-size: 1.5em;
+  z-index: 1;
+  flex: 1;
+  font-family: 'Montserrat', sans-serif;
+
+  ::placeholder {
+    color: ${gray};
+  }
+
+  :active, :focused {
+    outline: 0;
+    border: none;
+  }
+`;
+
+const SaveWalletButton = styled.div`
+  ${Button};
+  flex: 1;
+`;
+
+const WordContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  padding: 1.25em;
+`;
+
 
 export default Settings

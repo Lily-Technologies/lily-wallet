@@ -5,13 +5,10 @@ import { Safe } from '@styled-icons/crypto';
 import { Wallet } from '@styled-icons/entypo';
 import BigNumber from 'bignumber.js';
 import {
-  deriveChildPublicKey,
-  blockExplorerAPIURL,
   satoshisToBitcoins,
   bitcoinsToSatoshis,
   multisigWitnessScript,
   scriptToHex,
-  TESTNET
 } from "unchained-bitcoin";
 import { networks, Psbt, address, payments, ECPair, bip32 } from 'bitcoinjs-lib';
 
@@ -23,16 +20,12 @@ import TransactionDetails from './TransactionDetails';
 
 import { createTransactionMapFromTransactionArray, coinSelection, getFeeForMultisig } from '../../utils/transactions';
 import { red, gray, offWhite, blue, darkGray, white, darkOffWhite, green, lightGreen, darkGreen, lightGray, lightBlue } from '../../utils/colors';
-
-import transactionsFixture from '../../fixtures/transactions';
-import unusedAddressesFixture from '../../fixtures/unusedAddresses';
-import unusedChangeAddressesFixture from '../../fixtures/unusedChangeAddresses';
-import availableUtxosFixture from '../../fixtures/availableUtxos';
+import { mobile } from '../../utils/media';
 
 const signedPsbt1 = "cHNidP8BAH4CAAAAAaL+89cOLWJTdZMEWoXbrN5ffsxPmbpjJ9Yc1NL9jZ3jAAAAAAD/////AiBOAAAAAAAAF6kU/9DbtEQC1fjxLZultISiwbtH2kKHAfIOAAAAAAAiACAbzdx36FFxcvXFh/V5ZEsGIQi6H50aqwcU7qWnnxS+5AAAAAAAAQErQEIPAAAAAAAiACCCFDYExwmHHpAtYcn30+iVZPuQJEAjvYHFtv4a0XXmViICAyIEErL0BQQffuTOA9kTjyEC+eybnl5zNuAf6pdxUq06RzBEAiAKchg0x7lj7cnHh8FrThyg8AdDwMxAaGBEz5LoEOOqDQIgWXUNdLIGlNhiTNmgN6VVKIIhiolpy5Wz4KuqgFTl904BAQMEAQAAAAEFaVIhAyIEErL0BQQffuTOA9kTjyEC+eybnl5zNuAf6pdxUq06IQPZs2BhKxwQyn6qpiv+VcRihe//FftBBqQk8H+YLmaO3CED5COMlBMA/fsBELla1MfIEB6gGi5qERqdqQsCA8I8FFdTriIGAyIEErL0BQQffuTOA9kTjyEC+eybnl5zNuAf6pdxUq06HE9g0ckwAACAAQAAgAAAAIACAACAAAAAAAAAAAAiBgPZs2BhKxwQyn6qpiv+VcRihe//FftBBqQk8H+YLmaO3ByRMMPWMAAAgAEAAIAAAACAAgAAgAAAAAAAAAAAIgYD5COMlBMA/fsBELla1MfIEB6gGi5qERqdqQsCA8I8FFccNOz1azAAAIABAACAAAAAgAIAAIAAAAAAAAAAAAAAAA==";
 const signedPsbt2 = "cHNidP8BAH4CAAAAAaL+89cOLWJTdZMEWoXbrN5ffsxPmbpjJ9Yc1NL9jZ3jAAAAAAD/////AiBOAAAAAAAAF6kU/9DbtEQC1fjxLZultISiwbtH2kKHAfIOAAAAAAAiACAbzdx36FFxcvXFh/V5ZEsGIQi6H50aqwcU7qWnnxS+5AAAAAAAAQErQEIPAAAAAAAiACCCFDYExwmHHpAtYcn30+iVZPuQJEAjvYHFtv4a0XXmViICA9mzYGErHBDKfqqmK/5VxGKF7/8V+0EGpCTwf5guZo7cRzBEAiAG10YX6lmrV5GtrRrCjsedcDHg4ksFF6G9LNDCAJYeUgIgELP/AlibkDYtoJm03+bDnk4rNGwzDvv7ypwEdU3/gx4BAQMEAQAAAAEFaVIhAyIEErL0BQQffuTOA9kTjyEC+eybnl5zNuAf6pdxUq06IQPZs2BhKxwQyn6qpiv+VcRihe//FftBBqQk8H+YLmaO3CED5COMlBMA/fsBELla1MfIEB6gGi5qERqdqQsCA8I8FFdTriIGAyIEErL0BQQffuTOA9kTjyEC+eybnl5zNuAf6pdxUq06HE9g0ckwAACAAQAAgAAAAIACAACAAAAAAAAAAAAiBgPZs2BhKxwQyn6qpiv+VcRihe//FftBBqQk8H+YLmaO3ByRMMPWMAAAgAEAAIAAAACAAgAAgAAAAAAAAAAAIgYD5COMlBMA/fsBELla1MfIEB6gGi5qERqdqQsCA8I8FFccNOz1azAAAIABAACAAAAAgAIAAIAAAAAAAAAAAAAAAA==";
 
-const Send = ({ config, currentAccount, setCurrentAccount, transactions, availableUtxos, unusedChangeAddresses, loadingDataFromBlockstream, currentBalance }) => {
+const Send = ({ config, currentAccount, setCurrentAccount, transactions, availableUtxos, unusedChangeAddresses, loadingDataFromBlockstream, currentBalance, currentBitcoinNetwork }) => {
   const [sendAmount, setSendAmount] = useState('');
   const [sendAmountError, setSendAmountError] = useState(false);
   const [recipientAddress, setRecipientAddress] = useState('');
@@ -48,7 +41,7 @@ const Send = ({ config, currentAccount, setCurrentAccount, transactions, availab
   const createTransaction = async (amountInBitcoins, recipientAddress, availableUtxos, transactionsFromBlockstream) => {
     const transactionMap = createTransactionMapFromTransactionArray(transactionsFromBlockstream);
 
-    let feeEstimate = await getFeeForMultisig(currentAccount.config.addressType, 1, 2, currentAccount.config.quorum.requiredSigners, currentAccount.config.quorum.totalSigners);
+    let feeEstimate = await getFeeForMultisig(currentAccount.config.addressType, 1, 2, currentAccount.config.quorum.requiredSigners, currentAccount.config.quorum.totalSigners, currentBitcoinNetwork);
     let outputTotal = BigNumber(bitcoinsToSatoshis(amountInBitcoins)).plus(feeEstimate.integerValue(BigNumber.ROUND_CEIL).toNumber());
     let [spendingUtxos, spendingUtxosTotal] = coinSelection(outputTotal, availableUtxos);
 
@@ -61,7 +54,7 @@ const Send = ({ config, currentAccount, setCurrentAccount, transactions, availab
     setFeeEstimate(feeEstimate);
     setOutputTotal(outputTotal);
 
-    const psbt = new Psbt({ network: networks.testnet });
+    const psbt = new Psbt({ network: currentBitcoinNetwork });
     psbt.setVersion(2); // These are defaults. This line is not needed.
     psbt.setLocktime(0); // These are defaults. This line is not needed.
 
@@ -98,7 +91,7 @@ const Send = ({ config, currentAccount, setCurrentAccount, transactions, availab
 
     // KBC-TODO: need to calc change if necessary
     psbt.addOutput({
-      script: address.toOutputScript(recipientAddress, networks.testnet),
+      script: address.toOutputScript(recipientAddress, currentBitcoinNetwork),
       // address: recipientAddress,
       value: bitcoinsToSatoshis(amountInBitcoins).toNumber(),
     });
@@ -109,7 +102,7 @@ const Send = ({ config, currentAccount, setCurrentAccount, transactions, availab
     console.log('spendingUtxosTotal.isLessThan(outputTotal): ', spendingUtxosTotal.isLessThan(outputTotal));
     if (spendingUtxosTotal.isGreaterThan(outputTotal)) {
       psbt.addOutput({
-        script: address.toOutputScript(unusedChangeAddresses[0].address, networks.testnet),
+        script: address.toOutputScript(unusedChangeAddresses[0].address, currentBitcoinNetwork),
         // address: unusedChangeAddresses[0].address,
         value: spendingUtxosTotal.minus(outputTotal).toNumber()
       })
@@ -121,14 +114,7 @@ const Send = ({ config, currentAccount, setCurrentAccount, transactions, availab
 
     // if only single sign, then sign tx right away
     if (currentAccount.config.quorum.requiredSigners === 1) {
-      const bip32hd = bip32.fromBase58(currentAccount.config.xprv, networks.testnet);
-      console.log('bip32hd: ', bip32hd);
-      const addressKeys = bip32hd.derivePath("m/48'/1'/0'/2'/0/0");
-      console.log('addressKeys: ', addressKeys);
-      console.log('addressKeys.publicKey: ', addressKeys.publicKey.toString('hex'))
-      const wif = bip32hd.toWIF();
-      const ecpair = ECPair.fromWIF(wif, networks.testnet);
-      console.log('ecpair: ', ecpair.publicKey.toString('hex'));
+      const bip32hd = bip32.fromBase58(currentAccount.config.xprv, currentBitcoinNetwork);
 
       psbt.signInputHD(0, bip32hd);
       psbt.validateSignaturesOfAllInputs();
@@ -150,20 +136,20 @@ const Send = ({ config, currentAccount, setCurrentAccount, transactions, availab
           {/* <DeviceXPub>{currentAccount.xpub}</DeviceXPub> */}
         </HeaderLeft>
         <HeaderRight>
-          <SettingsButton background='transparent' color={darkGray}><StyledIcon as={Settings} size={36} /></SettingsButton>
+          <SettingsButton background='transparent' color={darkGray} style={{ padding: 0 }}><StyledIcon as={Settings} size={36} /></SettingsButton>
         </HeaderRight>
       </Header>
 
       <SendWrapper>
         <AccountMenu>
           {config.vaults.map((vault) => (
-            <AccountMenuItemWrapper active={vault.name === currentAccount.name} onClick={() => setCurrentAccount(vault)}>
+            <AccountMenuItemWrapper active={vault.name === currentAccount.name} borderRight={true} onClick={() => setCurrentAccount(vault)}>
               <StyledIcon as={Safe} size={48} />
               <AccountMenuItemName>{vault.name}</AccountMenuItemName>
             </AccountMenuItemWrapper>
           ))}
           {config.wallets.map((wallet) => (
-            <AccountMenuItemWrapper active={wallet.name === currentAccount.name} onClick={() => setCurrentAccount(wallet)}>
+            <AccountMenuItemWrapper active={wallet.name === currentAccount.name} borderLeft={true} onClick={() => setCurrentAccount(wallet)}>
               <StyledIcon as={Wallet} size={48} />
               <AccountMenuItemName>{wallet.name}</AccountMenuItemName>
             </AccountMenuItemWrapper>
@@ -172,55 +158,66 @@ const Send = ({ config, currentAccount, setCurrentAccount, transactions, availab
 
         <GridArea>
           {step === 0 && (
-            <AccountSendContentLeft>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <CurrentBalanceWrapper displayDesktop={false} displayMobile={true} style={{ marginBottom: '1em' }}>
+                <CurrentBalanceText>
+                  Current Balance:
+              </CurrentBalanceText>
+                <CurrentBalanceValue>
+                  {satoshisToBitcoins(currentBalance).toNumber()} BTC
+                </CurrentBalanceValue>
+              </CurrentBalanceWrapper>
 
-              <SendToAddressHeader>
-                Amount of bitcoin to send
+              <AccountSendContentLeft>
+
+                <SendToAddressHeader>
+                  Amount of bitcoin to send
               </SendToAddressHeader>
 
-              <AddressDisplayWrapper>
+                <AddressDisplayWrapper>
+                  <Input
+                    value={sendAmount}
+                    onChange={(e) => setSendAmount(e.target.value)}
+                    placeholder="0.0025"
+                    style={{ paddingRight: 80, color: darkGray, flex: 1 }}
+                    error={sendAmountError}
+                  />
+                  <InputStaticText
+                    disabled
+                    text="BTC"
+                  >BTC</InputStaticText>
+                </AddressDisplayWrapper>
+
+                <SendToAddressHeader>
+                  Send bitcoin to
+              </SendToAddressHeader>
+
                 <Input
-                  value={sendAmount}
-                  onChange={(e) => setSendAmount(e.target.value)}
-                  placeholder="0.0025"
-                  style={{ paddingRight: 80, color: darkGray, flex: 1 }}
-                  error={sendAmountError}
+                  onChange={(e) => setRecipientAddress(e.target.value)}
+                  value={recipientAddress}
+                  placeholder="tb1qy8glxuvc7nqqlxmuucnpv93fekyv4lth6k3v3p"
+                  style={{ marginBottom: 36 }}
+                  error={recipientAddressError}
                 />
-                <InputStaticText
-                  disabled
-                  text="BTC"
-                >BTC</InputStaticText>
-              </AddressDisplayWrapper>
 
-              <SendToAddressHeader>
-                Send bitcoin to
-              </SendToAddressHeader>
+                <SendButtonContainer>
+                  {/* <CopyAddressButton background="transparent" color={darkGray}>Advanced Options</CopyAddressButton> */}
+                  <CopyAddressButton onClick={() => {
+                    if (!recipientAddress) {
+                      setRecipientAddressError(true);
+                    }
+                    if (!sendAmount) {
+                      setSendAmountError(true);
+                    }
 
-              <Input
-                onChange={(e) => setRecipientAddress(e.target.value)}
-                value={recipientAddress}
-                placeholder="tb1qy8glxuvc7nqqlxmuucnpv93fekyv4lth6k3v3p"
-                style={{ marginBottom: 36 }}
-                error={recipientAddressError}
-              />
-
-              <SendButtonContainer>
-                <CopyAddressButton background="transparent" color={darkGray}>Advanced Options</CopyAddressButton>
-                <CopyAddressButton onClick={() => {
-                  if (!recipientAddress) {
-                    setRecipientAddressError(true);
+                    if (recipientAddress && sendAmount) {
+                      createTransaction(sendAmount, recipientAddress, availableUtxos, transactions)
+                    }
                   }
-                  if (!sendAmount) {
-                    setSendAmountError(true);
-                  }
-
-                  if (recipientAddress && sendAmount) {
-                    createTransaction(sendAmount, recipientAddress, availableUtxos, transactions)
-                  }
-                }
-                }>Preview Transaction</CopyAddressButton>
-              </SendButtonContainer>
-            </AccountSendContentLeft>
+                  }>Preview Transaction</CopyAddressButton>
+                </SendButtonContainer>
+              </AccountSendContentLeft>
+            </div>
           )}
 
           {step === 1 && (
@@ -234,12 +231,13 @@ const Send = ({ config, currentAccount, setCurrentAccount, transactions, availab
               transactionsMap={transactionsMap}
               signedPsbts={signedPsbts}
               signThreshold={currentAccount.config.quorum.requiredSigners}
+              currentBitcoinNetwork={currentBitcoinNetwork}
             />
           )}
 
           {step === 0 && (
             <AccountSendContentRight>
-              <CurrentBalanceWrapper>
+              <CurrentBalanceWrapper displayDesktop={true} displayMobile={false}>
                 <CurrentBalanceText>
                   Current Balance:
                   </CurrentBalanceText>
@@ -271,7 +269,6 @@ const Send = ({ config, currentAccount, setCurrentAccount, transactions, availab
 }
 
 const SendButtonContainer = styled.div`
-  margin: 24px;
   margin-bottom: 0;
   display: flex;
   justify-content: space-between;
@@ -279,12 +276,14 @@ const SendButtonContainer = styled.div`
 
 const CopyAddressButton = styled.div`
   ${Button};
+  flex: 1;
 `;
 
 const SendWrapper = styled.div`
   display: flex;
   flex-direction: column;
   box-shadow: rgba(0, 0, 0, 0.15) 0px 5px 15px 0px;
+  border: 1px solid ${gray};
 `;
 
 const SendToAddressHeader = styled.div`
@@ -375,8 +374,10 @@ const AccountMenuItemWrapper = styled.div`
   padding: 12px;
   flex: 1;
   cursor: ${p => p.active ? 'auto' : 'pointer'};
-  border-bottom: ${p => p.active ? 'none' : `solid 1px ${darkOffWhite}`};
   border-top: ${p => p.active ? `solid 11px ${blue}` : `none`};
+  border-bottom: ${p => p.active ? 'none' : `solid 1px ${gray}`};
+  border-left: ${p => !p.active && p.borderLeft && `solid 1px ${gray}`};
+  border-right: ${p => !p.active && p.borderRight && `solid 1px ${gray}`};
 `;
 
 const AccountMenuItemName = styled.div``;
@@ -400,7 +401,7 @@ const AccountSendContentLeft = styled.div`
   flex-direction: column;
   flex: 1;
   background: ${white};
-  border: solid 1px ${darkOffWhite};
+  border: 1px solid ${darkGray};
   border-radius: 4px;
   // box-shadow: rgba(0, 0, 0, 0.15) 0px 5px 15px 0px;
   justify-content: center;
@@ -416,13 +417,18 @@ const AccountSendContentRight = styled.div`
 
 const CurrentBalanceWrapper = styled.div`
   padding: 1.5em;
-  display: flex;
+  display: ${p => p.displayDesktop ? 'flex' : 'none'};
   flex-direction: column;
   border: solid 1px ${darkOffWhite};
   border-radius: 4px;
+  background: ${white};
   // box-shadow: rgba(0, 0, 0, 0.15) 0px 5px 15px 0px;
   text-align: right;
-  background: ${white};
+
+  ${mobile(css`
+    display: ${p => p.displayMobile ? 'flex' : 'none'}
+  `)};
+
 `;
 
 
