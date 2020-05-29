@@ -32,19 +32,34 @@ import Transfer from './pages/Transfer';
 import Receive from './pages/Receive';
 import Send from './pages/Send';
 import ColdcardImportInstructions from './pages/ColdcardImportInstructions';
-import Overview from './pages/Overview';
+import Home from './pages/Home';
 
-// Other display components
-// import Header from './components/Nav/Header';
-// import Footer from './components/footer';
+const emptyConfig = {
+  name: "",
+  version: "0.0.1",
+  isEmpty: true,
+  backup_options: {
+    gDrive: false
+  },
+  wallets: [],
+  vaults: [],
+  keys: []
+}
 
 function App() {
   const [currentBitcoinPrice, setCurrentBitcoinPrice] = useState(BigNumber(0));
   const [historicalBitcoinPrice, setHistoricalBitcoinPrice] = useState({});
+  const [bitcoinQuote, setBitcoinQuote] = useState({
+    body: 'I do not think it is an exaggeration to say that history is largely a history of inflation, usually inflations engineered by governments for the gain of governments.',
+    author: {
+      name: 'F.A. Hayek',
+      twitter: 'https://nakamotoinstitute.org/static/docs/denationalisation.pdf'
+    }
+  });
   // const [config, setConfigFile] = useState(configFixture);
   // const [currentAccount, setCurrentAccount] = useState({ config: config.vaults[0] });
-  const [config, setConfigFile] = useState(null);
-  const [currentAccount, setCurrentAccount] = useState(null);
+  const [config, setConfigFile] = useState(emptyConfig);
+  const [currentAccount, setCurrentAccount] = useState({ name: 'Loading...' });
   const [accountMap, setAccountMap] = useState(new Map());
   const [currentBitcoinNetwork, setCurrentBitcoinNetwork] = useState(networks.bitcoin)
 
@@ -56,12 +71,10 @@ function App() {
   const [availableUtxos, setAvailableUtxos] = useState([]);
   const [loadingDataFromBlockstream, setLoadingDataFromBlockstream] = useState(false);
 
-  console.log('currentAccount, config: ', currentAccount, config);
-
   const ConfigRequired = () => {
     const { pathname } = useLocation();
     const history = useHistory();
-    if (!config && (pathname !== '/login' && pathname !== '/gdrive-import' && pathname !== '/setup')) {
+    if (config.isEmpty && (pathname !== '/login' && pathname !== '/gdrive-import' && pathname !== '/setup')) {
       history.push('/login');
       window.location.reload();
     }
@@ -92,6 +105,7 @@ function App() {
   useEffect(() => {
     async function fetchCurrentBitcoinPrice() {
       const currentBitcoinPrice = await (await axios.get('https://api.coindesk.com/v1/bpi/currentprice.json')).data.bpi.USD.rate;
+      console.log('currentBitcoinPrice: ', currentBitcoinPrice);
       setCurrentBitcoinPrice(new BigNumber(currentBitcoinPrice.replace(',', '')));
     }
     fetchCurrentBitcoinPrice();
@@ -104,6 +118,16 @@ function App() {
     }
     fetchHistoricalBitcoinPrice();
   }, []);
+
+  // useEffect(() => {
+  //   async function fetchBitcoinQuote() {
+  //     console.log('start fetchBitcoinQuote');
+  //     const bitcoinQuote = await (await axios.get('https://www.bitcoin-quotes.com/quotes/random.json')).data;
+  //     console.log('bitcoinQuote: ', bitcoinQuote);
+  //     setBitcoinQuote(bitcoinQuote);
+  //   }
+  //   fetchBitcoinQuote();
+  // }, []);
 
   useEffect(() => {
     if (config) {
@@ -156,7 +180,7 @@ function App() {
 
         setLoadingDataFromBlockstream(false);
         setAccountMap(accountMap);
-        setCurrentAccount(accountMap.get(config.vaults[0].id));
+        setCurrentAccount(accountMap.values().next().value);
       }
       fetchTransactionsFromBlockstream();
     }
@@ -189,19 +213,19 @@ function App() {
       <PageWrapper id="page-wrapper">
         <ScrollToTop />
         <ConfigRequired />
-        {config && <Sidebar config={config} setCurrentAccount={setCurrentAccountFromMap} loading={loadingDataFromBlockstream} />}
-        {config && <MobileNavbar config={config} setCurrentAccount={setCurrentAccountFromMap} loading={loadingDataFromBlockstream} />}
+        {!config.isEmpty && <Sidebar config={config} setCurrentAccount={setCurrentAccountFromMap} loading={loadingDataFromBlockstream} />}
+        {!config.isEmpty && <MobileNavbar config={config} setCurrentAccount={setCurrentAccountFromMap} loading={loadingDataFromBlockstream} />}
         <Switch>
           <Route path="/vault/:id" component={() => <Vault config={config} setConfigFile={setConfigFile} currentAccount={currentAccount} currentBitcoinNetwork={currentBitcoinNetwork} currentBitcoinPrice={currentBitcoinPrice} transactions={transactions} currentBalance={currentBalance} loadingDataFromBlockstream={loadingDataFromBlockstream} />} />
           <Route path="/receive" component={() => <Receive config={config} currentAccount={currentAccount} setCurrentAccount={setCurrentAccountFromMap} currentBitcoinPrice={currentBitcoinPrice} transactions={transactions} currentBalance={currentBalance} loadingDataFromBlockstream={loadingDataFromBlockstream} unusedAddresses={unusedAddresses} />} />
           <Route path="/send" component={() => <Send config={config} currentAccount={currentAccount} setCurrentAccount={setCurrentAccountFromMap} currentBitcoinPrice={currentBitcoinPrice} transactions={transactions} currentBalance={currentBalance} loadingDataFromBlockstream={loadingDataFromBlockstream} availableUtxos={availableUtxos} unusedChangeAddresses={unusedChangeAddresses} currentBitcoinNetwork={currentBitcoinNetwork} />} />
           <Route path="/setup" component={() => <Setup config={config} setConfigFile={setConfigFile} currentBitcoinNetwork={currentBitcoinNetwork} />} />
-          <Route path="/login" component={() => <Login setConfigFile={setConfigFile} />} />
+          <Route path="/login" component={() => <Login setConfigFile={setConfigFile} bitcoinQuote={bitcoinQuote} />} />
           <Route path="/settings" component={() => <Settings config={config} currentBitcoinNetwork={currentBitcoinNetwork} changeCurrentBitcoinNetwork={changeCurrentBitcoinNetwork} />} />
           <Route path="/transfer" component={() => <Transfer config={config} currentAccount={currentAccount} setCurrentAccount={setCurrentAccountFromMap} />} />
-          <Route path="/gdrive-import" component={() => <GDriveImport setConfigFile={setConfigFile} />} />
+          <Route path="/gdrive-import" component={() => <GDriveImport setConfigFile={setConfigFile} bitcoinQuote={bitcoinQuote} />} />
           <Route path="/coldcard-import-instructions" component={() => <ColdcardImportInstructions />} />
-          <Route path="/" component={() => <Overview accountMap={accountMap} historicalBitcoinPrice={historicalBitcoinPrice} currentBitcoinPrice={currentBitcoinPrice} loading={loadingDataFromBlockstream} />} />
+          <Route path="/" component={() => <Home accountMap={accountMap} historicalBitcoinPrice={historicalBitcoinPrice} currentBitcoinPrice={currentBitcoinPrice} loading={loadingDataFromBlockstream} />} />
           <Route path="/" component={() => (
             <div>Not Found</div>
           )}

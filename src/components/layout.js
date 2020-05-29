@@ -59,7 +59,7 @@ export const Header = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2em;
+  margin-bottom: 1em;
   flex-wrap: wrap;
 `;
 export const HeaderLeft = styled.div`

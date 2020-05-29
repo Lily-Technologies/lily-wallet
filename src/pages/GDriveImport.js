@@ -11,7 +11,7 @@ import { black, gray, darkOffWhite, lightGray, darkGray, blue, lightBlue, white 
 import { getConfigFileFromGoogleDrive, saveFileToGoogleDrive } from '../utils/google-drive';
 
 
-const GDriveImport = ({ encryptedConfig, setConfigFile }) => {
+const GDriveImport = ({ encryptedConfig, setConfigFile, bitcoinQuote }) => {
   document.title = `GDriveImport - Lily Wallet`;
   const [loading, setLoading] = useState(false);
   const [loadingGDrive, setLoadingGDrive] = useState(false);
@@ -22,6 +22,8 @@ const GDriveImport = ({ encryptedConfig, setConfigFile }) => {
   const [enterSidebar, setEnterSidebar] = useState(false);
 
   const history = useHistory();
+
+  console.log('bitcoinQuote: ', bitcoinQuote);
 
   console.log('enterSidebar...: ', enterSidebar);
 
@@ -101,7 +103,7 @@ const GDriveImport = ({ encryptedConfig, setConfigFile }) => {
                   setLoading(true);
                   setTimeout(() => setShowCurtain(true), 500);
                   setTimeout(() => setStartCurtain(true), 550);
-                  setTimeout(() => setEnterSidebar(true), 5000);
+                  // setTimeout(() => setEnterSidebar(true), 5000);
                   setTimeout(unlockFile, 2000);
                   // unlockFile();
                 }}>
@@ -122,18 +124,11 @@ const GDriveImport = ({ encryptedConfig, setConfigFile }) => {
 
         </CurtainLeft>
         <CurtainBehind enterSidebar={enterSidebar}>
-          <SidebarWrapper enterSidebar={enterSidebar}>
-            <Sidebar config={{
-              name: 'Foobar',
-              wallets: [],
-              vaults: [
-                { name: 'Device #1' }
-              ]
-            }} />
-          </SidebarWrapper>
+          <ChartPlaceholder>
+            {bitcoinQuote.body}
 
-          <ChartPlaceholder />
-
+            {bitcoinQuote.author.name}
+          </ChartPlaceholder>
         </CurtainBehind>
         <CurtainRight startCurtain={startCurtain}>
           <CurtainRightInner>
@@ -168,7 +163,7 @@ const MainText = styled.div`
 `;
 
 const Subtext = styled.div`
-  font-size: .25em;
+  font-size: .5em;
   color: ${darkGray};
   margin-bottom: 12px;
 `;
@@ -182,6 +177,7 @@ const LilyImage = styled.img`
 const TypeInPasswordText = styled.h3`
   font-size: 1.125em;
   margin-bottom: 0;
+  font-weight: 100;
 `;
 
 const PasswordInput = styled.input`
@@ -314,6 +310,7 @@ const ChartPlaceholder = styled.div`
   border-top: solid 11px ${blue};
   margin: 64px;
   flex: 1;
+  max-width: 46.875em;
 `;
 
 export default GDriveImport;

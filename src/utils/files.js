@@ -12,29 +12,12 @@ export const downloadFile = (file, filename) => {
   document.body.removeChild(element);
 }
 
-export const createConfigFile = (importedDevices, currentBitcoinNetwork) => {
+export const createConfigFile = (importedDevices, config, currentBitcoinNetwork) => {
+  const configCopy = { ...config };
+  configCopy.isEmpty = false;
   const vaultid = uuidv4();
-  const configObject = {
-    name: "",
-    version: '0.0.1',
-    backup_options: {
-      gdrive: true
-    },
-    wallets: [],
-    vaults: [
-      {
-        id: vaultid,
-        name: vaultid,
-        network: getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork),
-        addressType: "P2WSH",
-        quorum: {
-          requiredSigners: 2,
-          totalSigners: 3
-        }
-      }
-    ]
-  }
-  configObject.keys = importedDevices.map((device) => {
+
+  const newKeys = importedDevices.map((device) => {
     return {
       id: uuidv4(),
       parentFingerprint: device.fingerprint,
@@ -44,8 +27,21 @@ export const createConfigFile = (importedDevices, currentBitcoinNetwork) => {
     }
   });
 
-  configObject.vaults[0].extendedPublicKeys = configObject.keys;
-  return configObject;
+  configCopy.vaults.push({
+    id: vaultid,
+    name: vaultid,
+    network: getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork),
+    addressType: "P2WSH",
+    quorum: {
+      requiredSigners: 2,
+      totalSigners: 3
+    },
+    extendedPublicKeys: newKeys
+  })
+
+  configCopy.keys.push(...newKeys);
+
+  return configCopy;
 }
 
 export const createColdCardBlob = (importedDevices) => {

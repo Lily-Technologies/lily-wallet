@@ -245,7 +245,9 @@ const PasswordWrapper = styled.div`
   flex-direction: column;
 `;
 
-const PasswordText = styled.h3``;
+const PasswordText = styled.h3`
+  font-weight: 100;
+`;
 
 const PasswordInput = styled.input`
   position: relative;

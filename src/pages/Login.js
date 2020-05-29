@@ -17,7 +17,7 @@ import { black, darkGray, lightBlue, white, darkOffWhite, blue, gray, offWhite, 
 import { getGoogleAuthenticateUrl } from '../utils/google-drive';
 
 
-const Login = ({ setConfigFile }) => {
+const Login = ({ setConfigFile, bitcoinQuote }) => {
   const [encryptedConfigFile, setEncryptedConfigFile] = useState(null);
   const history = useHistory();
 
@@ -25,7 +25,7 @@ const Login = ({ setConfigFile }) => {
 
   if (encryptedConfigFile) {
     return (
-      <GDriveImport encryptedConfig={encryptedConfigFile} setConfigFile={setConfigFile} />
+      <GDriveImport encryptedConfig={encryptedConfigFile} setConfigFile={setConfigFile} bitcoinQuote={bitcoinQuote} />
     )
   }
 
@@ -55,15 +55,15 @@ const Login = ({ setConfigFile }) => {
       <SignupOptionMenu>
         <LabelOverlay htmlFor="localConfigFile">
           <SignupOptionItem style={{ borderTop: `8px solid ${blue}` }}>
-            <StyledIcon as={Upload} size={36} style={{ marginBottom: '0.5em' }} />
-            <SignupOptionMainText>Load Wallet</SignupOptionMainText>
-            <SignupOptionSubtext>Load an existing wallet configuration from your local machine</SignupOptionSubtext>
+            <StyledIcon as={Upload} size={48} style={{ marginBottom: '0.5em' }} />
+            <SignupOptionMainText>Load Configuration</SignupOptionMainText>
+            <SignupOptionSubtext>Load an existing wallet configuration from a file on your local machine</SignupOptionSubtext>
           </SignupOptionItem>
         </LabelOverlay>
 
         <SignupOptionItem onClick={() => history.push('setup')}>
-          <StyledIcon as={AddCircleOutline} size={36} style={{ marginBottom: '0.5em' }} />
-          <SignupOptionMainText>New Wallet</SignupOptionMainText>
+          <StyledIcon as={AddCircleOutline} size={48} style={{ marginBottom: '0.5em' }} />
+          <SignupOptionMainText>New Account</SignupOptionMainText>
           <SignupOptionSubtext>Create a new vault or wallet to send and receive Bitcoin</SignupOptionSubtext>
         </SignupOptionItem>
       </SignupOptionMenu>
@@ -121,7 +121,7 @@ const LabelOverlay = styled.label`
 
 const SignupOptionMenu = styled(GridArea)`
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  max-width: 650px;
+  max-width: 46.875em;
   width: 100%;
   padding-top: 3.75em;
 `;

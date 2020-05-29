@@ -9,7 +9,7 @@ import { animated } from 'react-spring'
 import { BACKEND_URL } from '../config';
 
 import { Button, StyledIcon } from '../components';
-import { lightGreen, gray, darkOffWhite, green, blue, white, darkGray, offWhite } from '../utils/colors';
+import { lightGreen, gray, lightBlue, green, blue, white, darkGray, offWhite } from '../utils/colors';
 
 export const DeviceSelectSetup = ({ style, configuredDevices, unconfiguredDevices, setUnconfiguredDevices, configuredThreshold, deviceAction }) => {
   const [devicesLoading, setDevicesLoading] = useState(false);
@@ -46,7 +46,7 @@ export const DeviceSelectSetup = ({ style, configuredDevices, unconfiguredDevice
   }
 
   return (
-    <animated.div style={{ ...style, display: 'flex', flexDirection: 'column' }}>
+    <Wrapper>
       <DevicesWrapper>
         {configuredDevices.map((device, index) => (
           <DeviceWrapper key={index} imported={true}>
@@ -93,9 +93,18 @@ export const DeviceSelectSetup = ({ style, configuredDevices, unconfiguredDevice
       </DevicesWrapper>
 
       {configuredDevices.length < configuredThreshold && <ScanDevicesButton background={white} color={blue} onClick={enumerate}>{devicesLoading ? 'Loading...' : 'Scan for devices'}</ScanDevicesButton>}
-    </animated.div>
+    </Wrapper>
   )
 }
+
+const Wrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  background: ${lightBlue};
+  border-left: 1px solid ${gray};
+  border-right: 1px solid ${gray};
+  border-bottom: 1px solid ${gray};
+`;
 
 const NoDevicesContainer = styled.div`
   display: flex;

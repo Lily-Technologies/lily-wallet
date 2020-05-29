@@ -60,7 +60,7 @@ const CustomTick = ({ x, y, stroke, payload }) => {
   )
 }
 
-const Overview = ({ config, accountMap, historicalBitcoinPrice, currentBitcoinPrice, loading }) => {
+const Home = ({ config, accountMap, historicalBitcoinPrice, currentBitcoinPrice, loading }) => {
   const [currentDomain, setCurrentDomain] = useState(['dataMin', 'dataMax']);
 
   console.log('accountMap.values(): ', accountMap.values());
@@ -122,7 +122,7 @@ const Overview = ({ config, accountMap, historicalBitcoinPrice, currentBitcoinPr
         </ResponsiveContainer>
       </ChartContainer>
 
-      <OverviewHeadingItem style={{ marginTop: '2.5em', marginBottom: '1em' }}>Your Accounts</OverviewHeadingItem>
+      <HomeHeadingItem style={{ marginTop: '2.5em', marginBottom: '1em' }}>Your Accounts</HomeHeadingItem>
 
       <AccountsWrapper>
         {loading && <LoadingAnimation flat={true}>
@@ -207,7 +207,7 @@ const CurrentBitcoinPriceContainer = styled.div`
   flex-direction: column;
 `;
 
-const OverviewHeadingItem = styled.h3`
+const HomeHeadingItem = styled.h3`
   font-size: 1.5em;
   margin: 4em 0 0;
   font-weight: 400;
@@ -269,4 +269,4 @@ const LoadingSubText = styled.div`
 `;
 
 
-export default Overview
+export default Home

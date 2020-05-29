@@ -5,6 +5,7 @@ import { VerticalAlignBottom, ArrowUpward, ShowChart, AddCircleOutline, Settings
 import { Safe } from '@styled-icons/crypto';
 import { Wallet } from '@styled-icons/entypo';
 import { Transfer } from '@styled-icons/boxicons-regular/Transfer';
+import { Home } from '@styled-icons/fa-solid'
 
 import { StyledIcon, Button } from '.';
 
@@ -18,8 +19,8 @@ export const NavLinks = ({ config, setCurrentAccount }) => {
   return (
     <Fragment>
       <SidebarItem active={pathname === '/'} to="/">
-        <StyledIcon as={ShowChart} size={24} style={{ marginRight: 12 }} />
-          Overview
+        <StyledIcon as={Home} size={24} style={{ marginRight: 12 }} />
+          Home
         </SidebarItem>
       <SidebarItemLink active={pathname === '/send'} to="/send">
         <StyledIcon as={ArrowUpward} size={24} style={{ marginRight: 12 }} />
@@ -87,6 +88,7 @@ const SidebarItemStyle = css`
   text-decoration: none;
   font-size: 0.9em;
   display: flex;
+  align-items: center;
 
   ${mobile(css`
     border-left: none;
@@ -113,7 +115,7 @@ const SidebarItemLink = styled(Link)`
 
 const WalletsHeader = styled.h3`
   color: ${lightBlack};
-  margin: 1.125em;
-  font-size: 1.125em;
+  margin: 2.125em 1.125em .25em;
+  font-size: 1em;
   font-weight: 100;
 `;
