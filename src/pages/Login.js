@@ -32,7 +32,7 @@ const Login = ({ setConfigFile, bitcoinQuote }) => {
   return (
     <Wrapper>
       <MainText>
-        <LilyImage src={require('../assets/lily.svg')} />
+        <LilyImage src={require('../assets/flower.svg')} />
         Lily Wallet
         </MainText>
       <Subtext>Lily is a self-custody Bitcoin wallet that allows you to easily store, manage, and spend Bitcoin</Subtext>

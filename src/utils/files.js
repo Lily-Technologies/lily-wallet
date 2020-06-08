@@ -4,18 +4,23 @@ import { v4 as uuidv4 } from 'uuid';
 import { getUnchainedNetworkFromBjslibNetwork } from './transactions';
 
 export const downloadFile = (file, filename) => {
-  const element = document.createElement("a");
-  element.href = URL.createObjectURL(file);
-  element.download = filename;
-  document.body.appendChild(element); // Required for this to work in FireFox
-  element.click();
-  document.body.removeChild(element);
+  const fileUrl = URL.createObjectURL(file);
+  console.log('fileUrl: ', fileUrl);
+
+  window.ipcRenderer.send('download-item', { url: fileUrl, filename: filename })
+
+
+  // const element = document.createElement("a");
+  // element.href = URL.createObjectURL(file);
+  // element.download = filename;
+  // document.body.appendChild(element); // Required for this to work in FireFox
+  // element.click();
+  // document.body.removeChild(element);
 }
 
-export const createConfigFile = (importedDevices, config, currentBitcoinNetwork) => {
+export const createConfigFile = (importedDevices, accountName, config, currentBitcoinNetwork) => {
   const configCopy = { ...config };
   configCopy.isEmpty = false;
-  const vaultid = uuidv4();
 
   const newKeys = importedDevices.map((device) => {
     return {
@@ -27,9 +32,11 @@ export const createConfigFile = (importedDevices, config, currentBitcoinNetwork)
     }
   });
 
+  console.log('configCopy: ', configCopy);
+
   configCopy.vaults.push({
-    id: vaultid,
-    name: vaultid,
+    id: uuidv4(),
+    name: accountName,
     network: getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork),
     addressType: "P2WSH",
     quorum: {

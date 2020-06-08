@@ -95,7 +95,10 @@ const TransactionDetails = ({ finalPsbt, feeEstimate, outputTotal, recipientAddr
             <MoreDetailsSection>
               <MoreDetailsHeader>Inputs</MoreDetailsHeader>
               {finalPsbt.__CACHE.__TX.ins.map(input => {
+                console.log('input: ', input);
+                console.log('transactionsMap: ', transactionsMap);
                 const inputBuffer = cloneBuffer(input.hash);
+                console.log('inputBuffer: ', inputBuffer);
                 const txInput = transactionsMap.get(inputBuffer.reverse().toString('hex'));
                 return (
                   <OutputItem>

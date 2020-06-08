@@ -120,6 +120,7 @@ const Send = ({ config, currentAccount, setCurrentAccount, transactions, availab
       psbt.validateSignaturesOfAllInputs();
       psbt.finalizeAllInputs();
 
+      console.log('final psbt: ', psbt);
       setSignedPsbts([psbt]);
     }
   }
@@ -288,7 +289,7 @@ const SendWrapper = styled.div`
 
 const SendToAddressHeader = styled.div`
   font-size: 1em;
-  color: ${gray};
+  color: ${darkGray};
   margin: 12px;
   margin-bottom: 0px;
 `;

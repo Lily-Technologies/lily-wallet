@@ -132,7 +132,7 @@ const ReceiveWrapper = styled.div`
 
 const SendToAddressHeader = styled.div`
   font-size: 1em;
-  color: ${gray};
+  color: ${darkGray};
   margin: 12px;
 `;
 

@@ -60,13 +60,9 @@ const CustomTick = ({ x, y, stroke, payload }) => {
   )
 }
 
+
 const Home = ({ config, accountMap, historicalBitcoinPrice, currentBitcoinPrice, loading }) => {
   const [currentDomain, setCurrentDomain] = useState(['dataMin', 'dataMax']);
-
-  console.log('accountMap.values(): ', accountMap.values());
-  console.log('historicalBitcoinPrice:', historicalBitcoinPrice);
-
-  console.log('currentDomain: ', currentDomain);
 
   const priceForChart = Object.keys(historicalBitcoinPrice).map((date) => {
     return {
@@ -107,6 +103,7 @@ const Home = ({ config, accountMap, historicalBitcoinPrice, currentBitcoinPrice,
               dataKey="price"
               stroke={blue}
               strokeWidth={2}
+              isAnimationActive={!!!accountMap}
               fill={lightBlue} />
             {/* <CartesianGrid strokeDasharray="3 3" /> */}
             <Tooltip

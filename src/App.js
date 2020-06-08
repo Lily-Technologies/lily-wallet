@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled, { css } from 'styled-components';
 import {
-  BrowserRouter as Router,
+  HashRouter as Router,
   Switch,
   Route,
   useLocation,
@@ -14,7 +14,7 @@ import moment from 'moment';
 import { offWhite, black, gray } from './utils/colors';
 import { mobile } from './utils/media';
 
-import { Sidebar, MobileNavbar } from './components';
+import { Sidebar, MobileNavbar, ErrorBoundary } from './components';
 
 import { getDataFromMultisig, getDataFromXPub, getUnchainedNetworkFromBjslibNetwork } from './utils/transactions';
 
@@ -50,7 +50,7 @@ function App() {
   const [currentBitcoinPrice, setCurrentBitcoinPrice] = useState(BigNumber(0));
   const [historicalBitcoinPrice, setHistoricalBitcoinPrice] = useState({});
   const [bitcoinQuote, setBitcoinQuote] = useState({
-    body: 'I do not think it is an exaggeration to say that history is largely a history of inflation, usually inflations engineered by governments for the gain of governments.',
+    body: 'There is no answer in the available literature to the question why a government monopoly of the provision of money is universally regarded as indispensable. ... It has the defects of all monopolies.',
     author: {
       name: 'F.A. Hayek',
       twitter: 'https://nakamotoinstitute.org/static/docs/denationalisation.pdf'
@@ -80,6 +80,8 @@ function App() {
     }
     return null;
   }
+
+  console.log('config: ', config);
 
   const ScrollToTop = () => {
     const { pathname } = useLocation();
@@ -119,15 +121,15 @@ function App() {
     fetchHistoricalBitcoinPrice();
   }, []);
 
-  // useEffect(() => {
-  //   async function fetchBitcoinQuote() {
-  //     console.log('start fetchBitcoinQuote');
-  //     const bitcoinQuote = await (await axios.get('https://www.bitcoin-quotes.com/quotes/random.json')).data;
-  //     console.log('bitcoinQuote: ', bitcoinQuote);
-  //     setBitcoinQuote(bitcoinQuote);
-  //   }
-  //   fetchBitcoinQuote();
-  // }, []);
+  useEffect(() => {
+    async function fetchBitcoinQuote() {
+      console.log('start fetchBitcoinQuote');
+      const bitcoinQuote = await (await axios.get('https://www.bitcoin-quotes.com/quotes/random.json')).data;
+      console.log('bitcoinQuote: ', bitcoinQuote);
+      setBitcoinQuote(bitcoinQuote);
+    }
+    fetchBitcoinQuote();
+  }, []);
 
   useEffect(() => {
     if (config) {
@@ -207,38 +209,40 @@ function App() {
   }, [currentAccount, config, currentBitcoinNetwork]);
 
   return (
-    <Router>
-      {/* <WindowWrapper> */}
-      {/* <Header /> */}
-      <PageWrapper id="page-wrapper">
-        <ScrollToTop />
-        <ConfigRequired />
-        {!config.isEmpty && <Sidebar config={config} setCurrentAccount={setCurrentAccountFromMap} loading={loadingDataFromBlockstream} />}
-        {!config.isEmpty && <MobileNavbar config={config} setCurrentAccount={setCurrentAccountFromMap} loading={loadingDataFromBlockstream} />}
-        <Switch>
-          <Route path="/vault/:id" component={() => <Vault config={config} setConfigFile={setConfigFile} currentAccount={currentAccount} currentBitcoinNetwork={currentBitcoinNetwork} currentBitcoinPrice={currentBitcoinPrice} transactions={transactions} currentBalance={currentBalance} loadingDataFromBlockstream={loadingDataFromBlockstream} />} />
-          <Route path="/receive" component={() => <Receive config={config} currentAccount={currentAccount} setCurrentAccount={setCurrentAccountFromMap} currentBitcoinPrice={currentBitcoinPrice} transactions={transactions} currentBalance={currentBalance} loadingDataFromBlockstream={loadingDataFromBlockstream} unusedAddresses={unusedAddresses} />} />
-          <Route path="/send" component={() => <Send config={config} currentAccount={currentAccount} setCurrentAccount={setCurrentAccountFromMap} currentBitcoinPrice={currentBitcoinPrice} transactions={transactions} currentBalance={currentBalance} loadingDataFromBlockstream={loadingDataFromBlockstream} availableUtxos={availableUtxos} unusedChangeAddresses={unusedChangeAddresses} currentBitcoinNetwork={currentBitcoinNetwork} />} />
-          <Route path="/setup" component={() => <Setup config={config} setConfigFile={setConfigFile} currentBitcoinNetwork={currentBitcoinNetwork} />} />
-          <Route path="/login" component={() => <Login setConfigFile={setConfigFile} bitcoinQuote={bitcoinQuote} />} />
-          <Route path="/settings" component={() => <Settings config={config} currentBitcoinNetwork={currentBitcoinNetwork} changeCurrentBitcoinNetwork={changeCurrentBitcoinNetwork} />} />
-          <Route path="/transfer" component={() => <Transfer config={config} currentAccount={currentAccount} setCurrentAccount={setCurrentAccountFromMap} />} />
-          <Route path="/gdrive-import" component={() => <GDriveImport setConfigFile={setConfigFile} bitcoinQuote={bitcoinQuote} />} />
-          <Route path="/coldcard-import-instructions" component={() => <ColdcardImportInstructions />} />
-          <Route path="/" component={() => <Home accountMap={accountMap} historicalBitcoinPrice={historicalBitcoinPrice} currentBitcoinPrice={currentBitcoinPrice} loading={loadingDataFromBlockstream} />} />
-          <Route path="/" component={() => (
-            <div>Not Found</div>
-          )}
-          />
-        </Switch>
-      </PageWrapper>
-      <FooterWrapper>
-        <ViewSourceCodeText href="https://github.com/KayBeSee/cc-kitchen-frontend" target="_blank">View Source Code</ViewSourceCodeText>
-        <DontTrustVerify>Don't Trust. Verify.</DontTrustVerify>
-      </FooterWrapper>
-      {/* <Footer /> */}
-      {/* </WindowWrapper> */}
-    </Router>
+    <ErrorBoundary>
+      <Router>
+        {/* <WindowWrapper> */}
+        {/* <Header /> */}
+        <PageWrapper id="page-wrapper">
+          <ScrollToTop />
+          <ConfigRequired />
+          {!config.isEmpty && <Sidebar config={config} setCurrentAccount={setCurrentAccountFromMap} loading={loadingDataFromBlockstream} />}
+          {!config.isEmpty && <MobileNavbar config={config} setCurrentAccount={setCurrentAccountFromMap} loading={loadingDataFromBlockstream} />}
+          <Switch>
+            <Route path="/vault/:id" component={() => <Vault config={config} setConfigFile={setConfigFile} currentAccount={currentAccount} currentBitcoinNetwork={currentBitcoinNetwork} currentBitcoinPrice={currentBitcoinPrice} transactions={transactions} currentBalance={currentBalance} loadingDataFromBlockstream={loadingDataFromBlockstream} />} />
+            <Route path="/receive" component={() => <Receive config={config} currentAccount={currentAccount} setCurrentAccount={setCurrentAccountFromMap} currentBitcoinPrice={currentBitcoinPrice} transactions={transactions} currentBalance={currentBalance} loadingDataFromBlockstream={loadingDataFromBlockstream} unusedAddresses={unusedAddresses} />} />
+            <Route path="/send" component={() => <Send config={config} currentAccount={currentAccount} setCurrentAccount={setCurrentAccountFromMap} currentBitcoinPrice={currentBitcoinPrice} transactions={transactions} currentBalance={currentBalance} loadingDataFromBlockstream={loadingDataFromBlockstream} availableUtxos={availableUtxos} unusedChangeAddresses={unusedChangeAddresses} currentBitcoinNetwork={currentBitcoinNetwork} />} />
+            <Route path="/setup" component={() => <Setup config={config} setConfigFile={setConfigFile} currentBitcoinNetwork={currentBitcoinNetwork} />} />
+            <Route path="/login" component={() => <Login setConfigFile={setConfigFile} bitcoinQuote={bitcoinQuote} />} />
+            <Route path="/settings" component={() => <Settings config={config} currentBitcoinNetwork={currentBitcoinNetwork} changeCurrentBitcoinNetwork={changeCurrentBitcoinNetwork} />} />
+            <Route path="/transfer" component={() => <Transfer config={config} currentAccount={currentAccount} setCurrentAccount={setCurrentAccountFromMap} />} />
+            <Route path="/gdrive-import" component={() => <GDriveImport setConfigFile={setConfigFile} bitcoinQuote={bitcoinQuote} />} />
+            <Route path="/coldcard-import-instructions" component={() => <ColdcardImportInstructions />} />
+            <Route path="/" component={() => <Home accountMap={accountMap} historicalBitcoinPrice={historicalBitcoinPrice} currentBitcoinPrice={currentBitcoinPrice} loading={loadingDataFromBlockstream} />} />
+            <Route path="/" component={() => (
+              <div>Not Found</div>
+            )}
+            />
+          </Switch>
+        </PageWrapper>
+        <FooterWrapper>
+          <ViewSourceCodeText href="https://github.com/KayBeSee/cc-kitchen-frontend" target="_blank">View Source Code</ViewSourceCodeText>
+          <DontTrustVerify>Don't Trust. Verify.</DontTrustVerify>
+        </FooterWrapper>
+        {/* <Footer /> */}
+        {/* </WindowWrapper> */}
+      </Router>
+    </ErrorBoundary>
   );
 }
 

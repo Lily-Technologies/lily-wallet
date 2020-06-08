@@ -44,18 +44,49 @@ const VaultSettings = ({ config, setConfigFile, currentAccount, setViewAddresses
 
   const getQrCode = () => {
     const node = bip32.fromBase58(currentAccount.config.xprv, currentBitcoinNetwork);
-    const wif = node.toWIF();
+    const wif = node.derivePath("m/84'/0'/0'");
     console.log('wif: ', wif);
 
+    const otherWif = bip32.fromSeed(Buffer.from(currentAccount.config.seed, 'hex'), currentBitcoinNetwork).toWIF();
+
+    const abip32 = bip32.fromSeed(Buffer.from(currentAccount.config.seed, 'hex'), currentBitcoinNetwork);
+
+    const path = "m/84'/0'/0'";
+    const child = abip32.derivePath(path);
+    const anotherWif = child.toWIF();
 
     return (
-      <QRCode
-        bgColor={white}
-        fgColor={black}
-        level="Q"
-        style={{ width: 256 }}
-        value={currentAccount.config.xprv}
-      />
+      <div>
+        <QRCode
+          bgColor={white}
+          fgColor={black}
+          level="Q"
+          style={{ width: 256 }}
+          value={wif}
+        />
+        <QRCode
+          bgColor={white}
+          fgColor={black}
+          level="Q"
+          style={{ width: 256 }}
+          value={otherWif}
+        />
+        <QRCode
+          bgColor={white}
+          fgColor={black}
+          level="Q"
+          style={{ width: 256 }}
+          value={anotherWif}
+        />
+        <QRCode
+          bgColor={white}
+          fgColor={black}
+          level="Q"
+          style={{ width: 256 }}
+          value={currentAccount.config.zpub}
+        />
+
+      </div>
     )
   }
 

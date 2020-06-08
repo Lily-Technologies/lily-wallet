@@ -1,20 +1,38 @@
 {
-  "name": "cc-frontend",
+  "name": "LilyWallet",
+  "author": "Kevin Mulcrone",
+  "description": "a self-custody Bitcoin wallet that allows you to easily store, manage, and spend Bitcoin",
   "version": "0.1.0",
   "private": true,
+  "main": "./src/main.js",
+  "homepage": ".",
+  "build": {
+    "appId": "your.id",
+    "mac": {
+      "category": "your.app.category.type"
+    }
+  },
   "scripts": {
-    "start": "react-scripts start",
+    "electron": "electron .",
+    "start": "PORT=3001 react-app-rewired start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder",
+    "postinstall": "electron-builder install-app-deps"
   },
   "dependencies": {
     "axios": "^0.19.2",
     "bignumber.js": "^9.0.0",
     "bip39": "^3.0.2",
     "bitcoinjs-lib": "^5.1.7",
+    "bs58check": "^2.1.2",
+    "concurrently": "^5.2.0",
     "cors": "^2.8.5",
     "crypto-js": "^4.0.0",
+    "electron-dl": "^3.0.0",
+    "electron-prebuilt-compile": "^8.2.0",
     "googleapis": "^39.2.0",
     "moment": "^2.24.0",
     "polished": "^3.5.1",
@@ -44,5 +62,12 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "electron": "^9.0.0",
+    "electron-builder": "^22.7.0",
+    "electron-packager": "^14.2.1",
+    "electron-prebuilt-compile": "^8.2.0",
+    "react-app-rewired": "^2.1.6"
   }
 }

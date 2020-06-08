@@ -20,11 +20,11 @@ export const DeviceSelectSign = ({ configuredDevices, unconfiguredDevices, setUn
 
   const enumerate = async () => {
     setDevicesLoading(true);
-    const { data } = await axios.get(`${BACKEND_URL}/enumerate`);
+    const response = await window.ipcRenderer.invoke('/enumerate');
     setDevicesLoading(false);
 
     // filter out devices that are available but already imported
-    const filteredDevices = data.filter((device) => {
+    const filteredDevices = response.filter((device) => {
       let deviceAlreadyConfigured = false;
       for (let i = 0; i < configuredDevices.length; i++) {
         if (configuredDevices[i].fingerprint === device.fingerprint) {
@@ -145,7 +145,7 @@ const DeviceWrapper = styled.div`
 
   &:hover {
     cursor: pointer;
-    background: ${p => p.imported ? '#C9FFB6' : p.loading ? 'none' : darkOffWhite};
+    // background: ${p => p.imported ? '#C9FFB6' : p.loading ? 'none' : darkOffWhite};
   }
 
   &:hover ${DeviceMoreDetails} {
@@ -169,11 +169,13 @@ const DeviceImage = styled.img`
 const DeviceName = styled.h4`
   text-transform: capitalize;
   margin-bottom: 2px;
+  font-weight: 500;
 `;
 
 const DeviceFingerprint = styled.h5`
   color: ${gray};
   margin: 0;
+  font-weight: 100;
 `;
 
 const ImportedWrapper = styled.div`

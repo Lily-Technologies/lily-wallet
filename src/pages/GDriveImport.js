@@ -5,7 +5,7 @@ import { AES, enc } from 'crypto-js';
 import { RestaurantMenu } from '@styled-icons/material';
 import { StyledIcon, StyledIconSpinning } from '../components';
 
-import { Button, VaultIcon, Sidebar } from '../components';
+import { Button, VaultIcon } from '../components';
 import { black, gray, darkOffWhite, lightGray, darkGray, blue, lightBlue, white } from '../utils/colors';
 
 import { getConfigFileFromGoogleDrive, saveFileToGoogleDrive } from '../utils/google-drive';
@@ -61,7 +61,7 @@ const GDriveImport = ({ encryptedConfig, setConfigFile, bitcoinQuote }) => {
     return (
       <Wrapper>
         <MainText>
-          <LilyImage src={require('../assets/lily.svg')} />
+          <LilyImage src={require('../assets/flower.svg')} />
           Lily Wallet
           </MainText>
         <Subtext>Lily is a self-custody Bitcoin wallet that allows you to easily store, manage, and spend Bitcoin</Subtext>
@@ -85,7 +85,7 @@ const GDriveImport = ({ encryptedConfig, setConfigFile, bitcoinQuote }) => {
     return (
       <Wrapper>
         <MainText>
-          <LilyImage src={require('../assets/lily.svg')} />
+          <LilyImage src={require('../assets/flower.svg')} />
           Lily Wallet
           </MainText>
         <Subtext>Lily is a self-custody Bitcoin wallet that allows you to easily store, manage, and spend Bitcoin</Subtext>
@@ -125,10 +125,12 @@ const GDriveImport = ({ encryptedConfig, setConfigFile, bitcoinQuote }) => {
         </CurtainLeft>
         <CurtainBehind enterSidebar={enterSidebar}>
           <ChartPlaceholder>
-            {bitcoinQuote.body}
+            <QuoteText>{bitcoinQuote.body}</QuoteText>
 
-            {bitcoinQuote.author.name}
+            <AuthorName>{bitcoinQuote.author.name}</AuthorName>
           </ChartPlaceholder>
+
+          <div>Decrypting Wallet Config...</div>
         </CurtainBehind>
         <CurtainRight startCurtain={startCurtain}>
           <CurtainRightInner>
@@ -295,6 +297,21 @@ const CurtainBehind = styled.div`
   width: 100%;
   display: flex;
   z-index: 0;
+  justify-content: center;
+  align-self: center;
+  flex-direction: column;
+  align-items: center;
+`;
+
+const QuoteText = styled.div`
+  font-size: 1.25em;
+`;
+
+
+const AuthorName = styled.div`
+  font-size: 1.25em;
+  font-weight: 600;
+  margin-top: 1em;
 `;
 
 const SidebarWrapper = styled.div`

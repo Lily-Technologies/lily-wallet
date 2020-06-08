@@ -1,7 +1,7 @@
 export function cloneBuffer(buffer) {
   const clone = Buffer.alloc(buffer.length);
   buffer.copy(clone);
-  return buffer;
+  return clone;
 }
 
 export function formatMoney(amount, decimalCount = 2, decimal = ".", thousands = ",") {

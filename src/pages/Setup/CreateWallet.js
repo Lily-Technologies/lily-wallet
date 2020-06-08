@@ -6,6 +6,8 @@ import { QRCode } from "react-qr-svg";
 import { generateMnemonic, mnemonicToSeed } from 'bip39';
 import { v4 as uuidv4 } from 'uuid';
 import { useHistory } from "react-router-dom";
+import moment from 'moment';
+import b58 from 'bs58check';
 
 import { Button } from '../../components';
 import { lightBlue, blue, white, black, darkOffWhite, lightGray, darkGray, gray } from '../../utils/colors';
@@ -14,7 +16,7 @@ import { getUnchainedNetworkFromBjslibNetwork } from '../../utils/transactions';
 import { downloadFile } from '../../utils/files';
 
 
-const CreateWallet = ({ config, setConfigFile, currentBitcoinNetwork }) => {
+const CreateWallet = ({ config, accountName, setConfigFile, currentBitcoinNetwork }) => {
   const [createWalletStep, setCreateWalletStep] = useState(0);
   const [password, setPassword] = useState('');
   const [mnemonicWords, setMnemonicWords] = useState('');
@@ -32,29 +34,40 @@ const CreateWallet = ({ config, setConfigFile, currentBitcoinNetwork }) => {
     const configCopy = { ...config };
     configCopy.isEmpty = false;
 
-    const node = bip32.fromSeed(await mnemonicToSeed(mnemonicWords), currentBitcoinNetwork);
-    const xprvString = node.toBase58();
-    const xpubString = node.neutered().toBase58();
+    // taken from BlueWallet so you can import and use on mobile
+    const seed = await mnemonicToSeed(mnemonicWords);
+    const root = bip32.fromSeed(seed, currentBitcoinNetwork);
+    const path = "m/84'/0'/0'";
+    const child = root.derivePath(path).neutered();
+    const xpubString = child.toBase58();
+
+    // bitcoinjs does not support zpub yet, so we just convert it from xpub
+    let data = b58.decode(xpubString);
+    data = data.slice(4);
+    data = Buffer.concat([Buffer.from('04b24746', 'hex'), data]);
+
+    const xprvString = root.derivePath(path).toBase58();
+    const zpubString = b58.encode(data);
     console.log('xprvString: ', xprvString);
     console.log('xpubString: ', xpubString);
 
-    const id = uuidv4();
-
     configCopy.wallets.push({
-      id: id,
-      name: id,
+      id: uuidv4(),
+      name: accountName,
       network: getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork),
       addressType: "P2WSH",
       quorum: { requiredSigners: 1, totalSigners: 1 },
       xpub: xpubString,
+      zpub: zpubString,
       xprv: xprvString,
-      parentFingerprint: node.fingerprint
+      seed: seed.toString('hex'),
+      parentFingerprint: root.fingerprint
     });
 
     const encryptedConfigObject = AES.encrypt(JSON.stringify(configCopy), password).toString();
 
     const encryptedConfigFile = new Blob([decodeURIComponent(encodeURI(encryptedConfigObject))], { type: contentType });
-    downloadFile(encryptedConfigFile);
+    downloadFile(encryptedConfigFile, `lily_wallet_config-${moment().format()}.txt`);
     setConfigFile(configCopy);
     history.push('/');
   }
@@ -172,8 +185,6 @@ const SaveWalletButtonContainer = styled.div`
 const SaveWalletButton = styled.div`
   ${Button};
   flex: 1;
-  border-top-left-radius: 0px;
-  border-top-right-radius: 0px;
 `;
 
 const PasswordWrapper = styled.div`

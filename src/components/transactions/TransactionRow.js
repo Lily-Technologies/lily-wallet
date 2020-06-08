@@ -18,7 +18,7 @@ const TransactionRow = ({ transaction, flat }) => {
           {transaction.type === 'sent' && <StyledIconModified as={ArrowUpward} size={flat ? 12 : 24} />}
           <TxTypeTextWrapper flat={flat}>
             <TxTypeText>{transaction.type}</TxTypeText>
-            <TxTypeTime>{moment.unix(transaction.status.block_time).format('h:mm A')}</TxTypeTime>
+            <TxTypeTime>{transaction.status.confirmed ? moment.unix(transaction.status.block_time).format('h:mm A') : 'Unconfirmed'}</TxTypeTime>
           </TxTypeTextWrapper>
         </TxTypeIcon>
         <AddressWrapper flat={flat}>{transaction.address.address ? transaction.address.address : transaction.address}</AddressWrapper>

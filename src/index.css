@@ -49,3 +49,8 @@ th {
   width: 100%;
   height: 100%;
 }
+
+.titlebar {
+  -webkit-user-select: none;
+  -webkit-app-region: drag;
+}

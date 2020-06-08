@@ -11,7 +11,7 @@ import { BACKEND_URL } from '../../config';
 import { saveFileToGoogleDrive } from '../../utils/google-drive';
 import { createConfigFile, createColdCardBlob, downloadFile } from '../../utils/files';
 import { Button, DeviceSelectSetup, StyledIcon } from '../../components';
-import { GridArea, Header, HeaderLeft, PageTitle } from '../../components/layout';
+import { GridArea, Header, HeaderLeft, HeaderRight, PageTitle } from '../../components/layout';
 import { black, gray, blue, white, darkGreen, offWhite, darkGray, darkOffWhite, lightGray, lightBlue } from '../../utils/colors';
 
 import CreateWallet from './CreateWallet';
@@ -29,12 +29,13 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
   document.title = `Create Files - Lily Wallet`;
 
   const importDevice = async (device, index) => {
-    const { data } = await axios.post(`${BACKEND_URL}/xpub`, {
+    const response = await window.ipcRenderer.invoke('/xpub', {
       deviceType: device.type,
       devicePath: device.path,
       path: `m/48'/0'/0'/2'` // we are assuming BIP48 P2WSH wallet
     });
-    setImportedDevices([...importedDevices, { ...device, ...data }]);
+
+    setImportedDevices([...importedDevices, { ...device, ...response }]);
     availableDevices.splice(index, 1);
     console.log('importedDevices: ', importedDevices);
     setAvailableDevices([...availableDevices]);
@@ -44,13 +45,17 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
     const contentType = "text/plain;charset=utf-8;";
 
     const ccFile = createColdCardBlob(importedDevices);
-    const configObject = createConfigFile(importedDevices, config, currentBitcoinNetwork);
+    const configObject = createConfigFile(importedDevices, accountName, config, currentBitcoinNetwork);
     const encryptedConfigObject = AES.encrypt(JSON.stringify(configObject), password).toString();
     const encryptedConfigFile = new Blob([decodeURIComponent(encodeURI(encryptedConfigObject))], { type: contentType });
 
     setConfigFile(configObject);
     downloadFile(ccFile, "coldcard_import_file.txt");
-    downloadFile(encryptedConfigFile, `lily_wallet_backup_${moment().format('MMDDYY-hhmmss')}.json`);
+    // KBC-TODO: electron-dl bug requires us to wait for the first file to finish downloading before downloading the second
+    // this should be fixed somehow
+    setTimeout(() => {
+      downloadFile(encryptedConfigFile, `lily_wallet_backup_${moment().format('MMDDYY-hhmmss')}.json`)
+    }, 500);
     history.push('/coldcard-import-instructions')
   }
 
@@ -65,6 +70,9 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
                 <PageTitleSubtext>New Account</PageTitleSubtext>
                 <PageTitle>Select account type</PageTitle>
               </HeaderLeft>
+              <HeaderRight>
+                {config.isEmpty && <CancelButton onClick={() => { history.push('login') }}>Return to Main Menu</CancelButton>}
+              </HeaderRight>
             </HeaderModified>
           </HeaderWrapper>
           <SignupOptionMenu>
@@ -81,14 +89,18 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
             </SignupOptionItem>
           </SignupOptionMenu>
         </InnerWrapper>
-      ) : step === 1 ? ( // input password
+      ) : step === 1 ? ( // input name
         <InnerWrapper>
           <HeaderWrapper>
             <Header>
               <HeaderLeft>
                 <PageTitleSubtext>New Account</PageTitleSubtext>
-                <PageTitle>Create new {setupOption == 2 ? 'vault' : 'wallet'}</PageTitle>
+                <PageTitle>Create new {setupOption === 2 ? 'wallet' : 'vault'}</PageTitle>
               </HeaderLeft>
+              <HeaderRight>
+                {config.isEmpty && <CancelButton onClick={() => { history.push('login') }}>Return to Main Menu</CancelButton>}
+                {!config.isEmpty && <CancelButton onClick={() => { setStep(0) }}>Cancel</CancelButton>}
+              </HeaderRight>
             </Header>
           </HeaderWrapper>
           <BoxedWrapper>
@@ -112,10 +124,10 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
                 if (accountName.length > 6) {
                   setStep(2);
                 }
-              }}>{`Configure ${setupOption == 2 ? 'Wallet' : 'Vault'}`}</ExportFilesButton>
+              }}>{`Configure ${setupOption === 2 ? 'Wallet' : 'Vault'}`}</ExportFilesButton>
           </BoxedWrapper>
         </InnerWrapper>
-      ) : setupOption == 2 && step === 2 ? ( // new wallet
+      ) : setupOption === 2 && step === 2 ? ( // new wallet
         <InnerWrapper>
           <HeaderWrapper>
             <Header>
@@ -123,11 +135,16 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
                 <PageTitleSubtext>New Account</PageTitleSubtext>
                 <PageTitle>Create new wallet</PageTitle>
               </HeaderLeft>
+              <HeaderRight>
+                {config.isEmpty && <CancelButton onClick={() => { history.push('login') }}>Return to Main Menu</CancelButton>}
+                {!config.isEmpty && <CancelButton onClick={() => { setStep(0) }}>Cancel</CancelButton>}
+              </HeaderRight>
             </Header>
           </HeaderWrapper>
           <CreateWallet
             config={config}
             setConfigFile={setConfigFile}
+            accountName={accountName}
             currentBitcoinNetwork={currentBitcoinNetwork}
           />
         </InnerWrapper>
@@ -139,32 +156,49 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
                       <PageTitleSubtext>New Account</PageTitleSubtext>
                       <PageTitle>Create new vault</PageTitle>
                     </HeaderLeft>
+                    <HeaderRight>
+                      {config.isEmpty && <CancelButton onClick={() => { history.push('login') }}>Return to Main Menu</CancelButton>}
+                      {!config.isEmpty && <CancelButton onClick={() => { setStep(0) }}>Cancel</CancelButton>}
+                    </HeaderRight>
                   </Header>
                 </HeaderWrapper>
                 <BoxedWrapper>
-                  <XPubHeaderWrapper>
-                    <SetupHeaderWrapper>
-                      <SetupHeader>Connect Devices to Computer</SetupHeader>
-                      <SetupExplainerText>
-                        Connect and unlock devices in order to create your multisignature vault.
-                        You may disconnect your device from your computer after it has been configured.
-                      </SetupExplainerText>
-                    </SetupHeaderWrapper>
-                  </XPubHeaderWrapper>
                   {importedDevices.length < 3 && (
-                    <DeviceSelectSetup
-                      deviceAction={importDevice}
-                      configuredDevices={importedDevices}
-                      unconfiguredDevices={availableDevices}
-                      setUnconfiguredDevices={setAvailableDevices}
-                      configuredThreshold={3}
-                    />
+                    <Fragment>
+                      <XPubHeaderWrapper>
+                        <SetupHeaderWrapper>
+                          <SetupHeader>Connect Devices to Computer</SetupHeader>
+                          <SetupExplainerText>
+                            Connect and unlock devices in order to create your multisignature vault.
+                            You may disconnect your device from your computer after it has been configured.
+                          </SetupExplainerText>
+                        </SetupHeaderWrapper>
+                      </XPubHeaderWrapper>
+                      <DeviceSelectSetup
+                        deviceAction={importDevice}
+                        configuredDevices={importedDevices}
+                        unconfiguredDevices={availableDevices}
+                        setUnconfiguredDevices={setAvailableDevices}
+                        configuredThreshold={3}
+                      />
+                    </Fragment>
                   )}
                   {importedDevices.length === 3 && (
-                    <PasswordWrapper>
-                      <PasswordText>Almost done, just set a password to encrypt your setup file:</PasswordText>
-                      <PasswordInput placeholder="password" value={password} onChange={(e) => setPassword(e.target.value)} type="password" />
-                    </PasswordWrapper>
+                    <Fragment>
+                      <XPubHeaderWrapper>
+                        <SetupHeaderWrapper>
+                          <SetupHeader>Set a password</SetupHeader>
+                          <SetupExplainerText>
+                            Lily Wallet encrypts your configuration file so that other people can't steal your funds.
+                            Please enter a password to be used to unlock your wallet in the future.
+                          </SetupExplainerText>
+                        </SetupHeaderWrapper>
+                      </XPubHeaderWrapper>
+                      <PasswordWrapper>
+                        {/* <PasswordText>Almost done, just set a password to encrypt your setup file:</PasswordText> */}
+                        <PasswordInput placeholder="password" value={password} onChange={(e) => setPassword(e.target.value)} type="password" />
+                      </PasswordWrapper>
+                    </Fragment>
                   )}
                   {
                     importedDevices.length === 3 && <ExportFilesButton
@@ -183,6 +217,12 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
     </Wrapper >
   )
 }
+
+const CancelButton = styled.div`
+  color: ${gray};
+  padding: 1em;
+  cursor: pointer;
+`;
 
 const HeaderModified = styled(Header)`
   margin-bottom: 0;
@@ -208,10 +248,10 @@ const SignupOptionMainText = styled.div`
 `;
 
 const SignupOptionSubtext = styled.div`
-  font-size: .25em;
+  font-size: .5em;
   margin-top: 0.5em;
   color: ${darkGray};
-  padding: 0 7em;
+  padding: 0 3em;
 `;
 
 const SignupOptionItem = styled.div`
@@ -272,82 +312,19 @@ const InnerWrapper = styled.div`
   width: 100%;
 `;
 
-const FormContainer = styled.div`
-  display: flex;
-  width: 100%;
-  justify-content: center;
-`;
-
-const LoginOptionMenu = styled.div`
-  display: flex;
-  justify-content: space-around;
-`;
-
-const LoginOptionItem = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  background: ${p => p.active ? lightBlue : white};
-  color: ${p => p.active ? black : gray};
-  padding: 1.5em;
-  flex: 1;
-  cursor: ${p => p.active ? 'auto' : 'pointer'};
-  border-bottom: ${p => p.active ? 'none' : `solid 1px ${gray}`};
-  border-left: ${p => p.active && p.borderLeft ? `solid 1px ${gray}` : 'none'};
-  border-right: ${p => p.active && p.borderRight ? `solid 1px ${gray}` : 'none'};
-  border-top: ${p => p.active ? `solid 11px ${blue}` : `none`};
-`;
-
-const LoginOptionText = styled.div`
-  font-size: 1.125em;
-`;
-
-const SelectDeviceContainer = styled.div`
-  max-width: 750px;
-  background: #fff;
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  padding: 0;
-  border-radius: 4px;
-  box-shadow: rgba(0, 0, 0, 0.15) 0px 5px 15px 0px;
-  margin: 18px;
-  border: 1px solid ${darkGray};
-`;
-
 const XPubHeaderWrapper = styled.div`
-  color: ${blue};
+  color: ${darkGray};
   background: ${white};
   margin: 0;
   display: flex;
   justify-content: space-between;
-  padding: 24px 24px 12px;
+  padding: 1.5em 1.5em 0;
   border-top-left-radius: 4px;
   border-top-right-radius: 4px;
-  border-bottom: 1px solid ${gray};
+  // border-bottom: 1px solid ${gray};
   border-right: 1px solid ${gray};
   border-left: 1px solid ${gray};
-  border-top: 1px solid ${gray};
-`;
-
-const SetupHeaderContainer = styled.div`
-  padding: .75em;
-`;
-
-const SelectDeviceHeader = styled.h1`
-  font-size: 1em;
-  font-weight: 500;
-`;
-
-const BackToMainMenuLink = styled(Link)`
-  display: flex;
-  align-items: center;
-  text-decoration: none;
-
-  &:visited {
-                color: ${blue};
-  }
+  border-top: 11px solid ${blue};
 `;
 
 const SetupHeaderWrapper = styled.div`
@@ -362,6 +339,7 @@ const SetupHeaderWrapper = styled.div`
 const SetupHeader = styled.span`
   font-size: 1.5em;
   margin: 4px 0;
+  color: ${black};
 `;
 
 const SetupSubheader = styled.span`
@@ -376,11 +354,12 @@ const SetupExplainerText = styled.div`
 `;
 
 const PasswordWrapper = styled.div`
-  padding: 1.5em;
+  padding: 0.5em;
   display: flex;
   flex-direction: column;
   border-right: 1px solid ${gray};
   border-left: 1px solid ${gray};
+  background: ${white};
 `;
 
 const PasswordText = styled.h3`
@@ -390,10 +369,10 @@ const PasswordText = styled.h3`
 const PasswordInput = styled.input`
   position: relative;
   border: 1px solid ${darkOffWhite};
-  background: ${lightGray};
+  background: ${lightBlue};
   padding: .75em;
   text-align: center;
-  color: ${darkGray};
+  color: ${black};
   display: flex;
   justify-content: center;
   align-items: center;

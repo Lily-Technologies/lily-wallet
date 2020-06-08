@@ -33,7 +33,7 @@ const RecentTransactions = ({ transactions, loading, flat = false, maxItems = In
           if (index < maxItems) {
             return (
               <TransactionRowWrapper key={index}>
-                {shouldDisplayDate(transactions, index) && <DateWrapper>{moment.unix(transaction.status.block_time).format('MMMM DD, YYYY')}</DateWrapper>}
+                {shouldDisplayDate(transactions, index) && <DateWrapper>{transaction.status.confirmed ? moment.unix(transaction.status.block_time).format('MMMM DD, YYYY') : 'Waiting for confirmation...'}</DateWrapper>}
                 <TransactionRow transaction={transaction} flat={flat} />
               </TransactionRowWrapper>
             )

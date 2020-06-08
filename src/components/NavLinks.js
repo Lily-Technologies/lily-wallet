@@ -6,6 +6,7 @@ import { Safe } from '@styled-icons/crypto';
 import { Wallet } from '@styled-icons/entypo';
 import { Transfer } from '@styled-icons/boxicons-regular/Transfer';
 import { Home } from '@styled-icons/fa-solid'
+import { SendPlane } from '@styled-icons/remix-fill';
 
 import { StyledIcon, Button } from '.';
 
@@ -23,7 +24,7 @@ export const NavLinks = ({ config, setCurrentAccount }) => {
           Home
         </SidebarItem>
       <SidebarItemLink active={pathname === '/send'} to="/send">
-        <StyledIcon as={ArrowUpward} size={24} style={{ marginRight: 12 }} />
+        <StyledIcon as={SendPlane} size={24} style={{ marginRight: 12 }} />
           Send
         </SidebarItemLink>
       <SidebarItemLink active={pathname === '/receive'} to="/receive">

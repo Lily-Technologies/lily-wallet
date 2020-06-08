@@ -17,9 +17,8 @@ const ColdcardImportInstructions = ({ setCaravanFile }) => {
         <SelectDeviceContainer>
           <DevicesWrapper>
             <h1>Import File to Coldcard</h1>
-            <StyledIconSpinning as={RestaurantMenu} size={96} />
 
-            <Instructions>1) Drag and drop coldcard_import_file.txt into an SD Card</Instructions>
+            <Instructions style={{ marginTop: '1em' }}>1) Drag and drop coldcard_import_file.txt into an SD Card</Instructions>
             <Instructions>2) Put SD Card into Coldcard Wallet</Instructions>
             <Instructions>3) Import Wallet: Settings > Multisig Wallets > Import from SD</Instructions>
 
@@ -51,6 +50,7 @@ const Wrapper = styled.div`
 const Instructions = styled.div`
   color: ${darkGray};
   align-self: flex-start;
+  padding: 0.35em;
 `;
 
 const FormContainer = styled.div`
@@ -77,7 +77,7 @@ const ScanDevicesButton = styled(Link)`
   ${Button};
   padding: 1em;
   font-size: 1em;
-  margin-top: 12px;
+  margin-top: 2.5em;
   font-weight: 700;
 `;
 

@@ -14,7 +14,7 @@ export const Sidebar = ({ config, setCurrentAccount, loading }) => {
     return (
       <SidebarWrapper>
         <WalletTitle>
-          <LilyImage src={require('../assets/lily.svg')} />
+          <LilyImage src={require('../assets/flower.svg')} />
           Lily Wallet
           </WalletTitle>
         <NavLinks config={config} setCurrentAccount={setCurrentAccount} />
@@ -96,7 +96,7 @@ const WalletsHeader = styled.h3`
 const WalletTitle = styled(WalletsHeader)`
   display: flex;
   align-items: center;
-  padding: 1.5em 1em;
+  padding: 2.5em 1em 1.5em;
   font-weight: 700;
   margin: 0;
 `;

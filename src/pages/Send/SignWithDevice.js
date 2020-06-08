@@ -20,13 +20,13 @@ const SignWithDevice = ({
   const [broadcastedTxId, setBroadcastedTxId] = useState(null);
 
   const signWithDevice = async (device, index) => {
-    const { data } = await axios.post(`${BACKEND_URL}/sign`, {
+    const response = await window.ipcRenderer.invoke('/sign', {
       deviceType: device.type,
       devicePath: device.path,
       psbt: finalPsbt.toBase64()
     });
-    console.log('signWithDevice data: ', data);
-    setSignedPsbts([...signedPsbts, data.psbt]);
+
+    setSignedPsbts([...signedPsbts, response.psbt]);
     setSignedDevices([...signedDevices, device]);
     unsignedDevices.splice(index, 1);
     setUnsignedDevices([...unsignedDevices]);

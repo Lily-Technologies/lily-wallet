@@ -9,7 +9,7 @@ import { black, blue, white, offWhite, darkGray, darkOffWhite, lightBlue, lightB
 import rem from '../utils/rem';
 import { mobile } from '../utils/media';
 
-const HEADER_HEIGHT = 75;
+const HEADER_HEIGHT = 125;
 
 const Wrapper = styled.div`
   display: none;
@@ -47,7 +47,7 @@ const SecondaryMenu = styled.div`
   overflow-y: hidden;
   color: #868686;
   background: ${white};
-  border-bottom: 1px solid ${darkGray};
+  // border-bottom: 1px solid ${darkGray};
 `;
 
 const ArrowWrapper = styled.div`
@@ -86,7 +86,7 @@ const WalletTitle = styled(WalletsHeader)`
   padding: 1.5em 1em;
   font-weight: 700;
   margin: 0;
-  border-bottom: 0.0625em solid ${lightGray};
+  // border-bottom: 0.0625em solid ${lightGray};
 `;
 
 export const MobileNavbar = ({ config, setCurrentAccount }) => {
@@ -101,7 +101,7 @@ export const MobileNavbar = ({ config, setCurrentAccount }) => {
       )} */}
 
       <WalletTitle>
-        <LilyImage src={require('../assets/lily.svg')} />
+        <LilyImage src={require('../assets/flower.svg')} />
           Lily Wallet
           </WalletTitle>
       <div>

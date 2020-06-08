@@ -1,19 +1,14 @@
-import React, { useState, useEffect, Fragment } from 'react';
-import axios from 'axios';
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
-import moment from 'moment';
 import { ErrorOutline, CheckCircle } from '@styled-icons/material';
-import { animated } from 'react-spring'
-
-import { BACKEND_URL } from '../config';
 
 import { Button, StyledIcon } from '../components';
 import { lightGreen, gray, lightBlue, green, blue, white, darkGray, offWhite } from '../utils/colors';
 
 export const DeviceSelectSetup = ({ style, configuredDevices, unconfiguredDevices, setUnconfiguredDevices, configuredThreshold, deviceAction }) => {
   const [devicesLoading, setDevicesLoading] = useState(false);
-  const [deviceActionLoading, setDeviceActionLoading] = useState(false);
+  const [deviceActionLoading, setDeviceActionLoading] = useState(null);
+
 
   useEffect(() => {
     enumerate();
@@ -21,11 +16,12 @@ export const DeviceSelectSetup = ({ style, configuredDevices, unconfiguredDevice
 
   const enumerate = async () => {
     setDevicesLoading(true);
-    const { data } = await axios.get(`${BACKEND_URL}/enumerate`);
+    const response = await window.ipcRenderer.invoke('/enumerate');
+
     setDevicesLoading(false);
 
     // filter out devices that are available but already imported
-    const filteredDevices = data.filter((device) => {
+    const filteredDevices = response.filter((device) => {
       let deviceAlreadyConfigured = false;
       for (let i = 0; i < configuredDevices.length; i++) {
         if (configuredDevices[i].fingerprint === device.fingerprint) {
@@ -60,7 +56,11 @@ export const DeviceSelectSetup = ({ style, configuredDevices, unconfiguredDevice
         ))}
 
         {unconfiguredDevices.map((device, index) => (
-          <DeviceWrapper key={index} onClick={() => performDeviceAction(device, index)} loading={deviceActionLoading === index}>
+          <DeviceWrapper key={index} onClick={() => {
+            if (deviceActionLoading === null) {
+              performDeviceAction(device, index)
+            }
+          }} loading={deviceActionLoading === index}>
             <DeviceImage loading={deviceActionLoading === index} src={"https://coldcardwallet.com/static/images/coldcard-front.png"} />
             <DeviceName>{device.model}</DeviceName>
             <DeviceFingerprint>{device.fingerprint}</DeviceFingerprint>
@@ -100,7 +100,7 @@ export const DeviceSelectSetup = ({ style, configuredDevices, unconfiguredDevice
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
-  background: ${lightBlue};
+  background: ${white};
   border-left: 1px solid ${gray};
   border-right: 1px solid ${gray};
   border-bottom: 1px solid ${gray};
@@ -155,9 +155,9 @@ const DeviceWrapper = styled.div`
 
   &:hover {
     cursor: pointer;
-    background: ${p => p.imported ? lightGreen : p.loading ? 'none' : offWhite};
-    border: 1px solid ${p => p.imported ? 'none' : p.loading ? 'none' : darkGray};
-    padding: ${p => p.imported ? 'none' : p.loading ? 'none' : '11px'};
+    // background: ${p => p.imported ? lightGreen : p.loading ? 'none' : offWhite};
+    // border: 1px solid ${p => p.imported ? 'none' : p.loading ? 'none' : darkGray};
+    // padding: ${p => p.imported ? 'none' : p.loading ? 'none' : '11px'};
 `;
 
 const DeviceImage = styled.img`
@@ -176,11 +176,13 @@ const DeviceImage = styled.img`
 const DeviceName = styled.h4`
   text-transform: capitalize;
   margin-bottom: 2px;
+  font-weight: 500;
 `;
 
 const DeviceFingerprint = styled.h5`
   color: ${p => p.imported ? darkGray : gray};
   margin: 0;
+  font-weight: 100;
 `;
 
 const ImportedWrapper = styled.div`
@@ -192,11 +194,11 @@ const ScanDevicesButton = styled.button`
   ${Button};
   padding: 1em;
   font-size: 1em;
-  margin-top: 12px;
+  margin-top: 1.5em;
   width: fit-content;
   align-self: center;
   border: 1px solid ${blue};
-  margin-bottom: 1.5em;
+  margin-bottom: 1em;
 `;
 
 const blinking = keyframes`
