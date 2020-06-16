@@ -1,8 +1,11 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
-
+const log = require('electron-log');
 const { download } = require('electron-dl');
 
 const { enumerate, getXPub, signtx } = require('./server/commands');
+console.log('enumerate, getXPub, signtx: ', enumerate, getXPub, signtx);
+
+const path = require('path');
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -17,7 +20,7 @@ function createWindow() {
     titleBarStyle: 'hiddenInset',
     webPreferences: {
       nodeIntegration: false,
-      preload: __dirname + '/preload.js'
+      preload: path.resolve(__dirname, 'preload.js')
     }
   });
 
@@ -25,11 +28,11 @@ function createWindow() {
 
   // and load the index.html of the app.
   // mainWindow.loadURL('http://localhost:3001');
-  mainWindow.loadURL(`file://${__dirname}/build/index.html`);
-  console.log('xxx: ', __dirname + '/build/index.html');
+  // mainWindow.loadURL(`file://${__dirname}/build/index.html`);
+  mainWindow.loadURL(`http://localhost:3001/`);
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  // mainWindow.webContents.openDevTools();
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {
@@ -72,8 +75,9 @@ app.on('activate', function () {
 // code. You can also put them in separate files and require them here.
 
 ipcMain.handle('/enumerate', async (event, args) => {
-  console.log('hits main enumerate: ', event, args);
+  log.info('hits main enumerate: ', event, args);
   const devices = await enumerate();
+  log.info('xxdevices: ', devices)
   return JSON.parse(devices);
 });
 

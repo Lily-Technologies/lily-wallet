@@ -42,7 +42,7 @@ const VaultView = ({ currentBalance, currentBitcoinPrice, transactions, loadingD
 
 const ValueWrapper = styled.div`
   background: ${white};
-  box-shadow: rgba(0, 0, 0, 0.15) 0px 5px 15px 0px;
+  // box-shadow: rgba(0, 0, 0, 0.15) 0px 5px 15px 0px;
   border: 1px solid ${gray};
 `;
 

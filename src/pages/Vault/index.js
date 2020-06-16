@@ -31,8 +31,9 @@ const Vault = ({ config, setConfigFile, currentAccount, currentBitcoinPrice, tra
         <HeaderLeft>
           <PageTitle>{currentAccount.name}</PageTitle>
           <VaultExplainerText>
-            This is a vault account. Vaults require multiple devices to approve outgoing transactions and should be used to store Bitcoin savings.
-        </VaultExplainerText>
+            {currentAccount.config.quorum.requiredSigners > 1 && 'This is a vault account. Vaults require multiple devices to approve outgoing transactions and should be used to store Bitcoin savings.'}
+            {currentAccount.config.quorum.requiredSigners === 1 && 'This is a wallet account. Wallets are used for everyday transactions and should be used to store small amounts of discretionary money.'}
+          </VaultExplainerText>
         </HeaderLeft>
         <HeaderRight>
           <SendButton to="/send"><StyledIcon as={ArrowUpward} size={24} style={{ marginRight: 4 }} />Send</SendButton>

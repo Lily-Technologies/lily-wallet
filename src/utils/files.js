@@ -5,7 +5,6 @@ import { getUnchainedNetworkFromBjslibNetwork } from './transactions';
 
 export const downloadFile = (file, filename) => {
   const fileUrl = URL.createObjectURL(file);
-  console.log('fileUrl: ', fileUrl);
 
   window.ipcRenderer.send('download-item', { url: fileUrl, filename: filename })
 
@@ -31,8 +30,6 @@ export const createConfigFile = (importedDevices, accountName, config, currentBi
       xpub: device.xpub
     }
   });
-
-  console.log('configCopy: ', configCopy);
 
   configCopy.vaults.push({
     id: uuidv4(),

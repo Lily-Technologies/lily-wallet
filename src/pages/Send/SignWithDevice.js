@@ -4,8 +4,6 @@ import styled from 'styled-components';
 
 import { BACKEND_URL } from '../../config';
 
-import { constructPsbt } from './constructPsbt';
-
 import { Button, StyledIcon, DeviceSelectSign } from '../../components';
 import { black, gray, blue, green, lightBlue, offWhite, darkGray, white, darkOffWhite } from '../../utils/colors';
 

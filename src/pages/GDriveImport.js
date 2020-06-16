@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Link, useHistory } from "react-router-dom";
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import { AES, enc } from 'crypto-js';
 import { RestaurantMenu } from '@styled-icons/material';
 import { StyledIcon, StyledIconSpinning } from '../components';
@@ -23,12 +23,6 @@ const GDriveImport = ({ encryptedConfig, setConfigFile, bitcoinQuote }) => {
 
   const history = useHistory();
 
-  console.log('bitcoinQuote: ', bitcoinQuote);
-
-  console.log('enterSidebar...: ', enterSidebar);
-
-  console.log('loading...: ', loading);
-
   useEffect(() => {
     const onload = async () => {
       if (!encryptedConfig) {
@@ -50,11 +44,22 @@ const GDriveImport = ({ encryptedConfig, setConfigFile, bitcoinQuote }) => {
 
   const unlockFile = () => {
     // KBC-TODO: probably need error handling for wrong password
-    var bytes = AES.decrypt(encryptedConfigFile, password);
-    var decryptedData = JSON.parse(bytes.toString(enc.Utf8));
-    console.log('decryptedData: ', decryptedData);
-    setConfigFile(decryptedData);
-    history.replace(`/`);
+    setLoading(true);
+    setTimeout(() => setShowCurtain(true), 500);
+    setTimeout(() => setStartCurtain(true), 550);
+    // setTimeout(() => setEnterSidebar(true), 5000);
+    setTimeout(() => {
+      var bytes = AES.decrypt(encryptedConfigFile, password);
+      var decryptedData = JSON.parse(bytes.toString(enc.Utf8));
+      setConfigFile(decryptedData);
+      history.replace(`/`);
+    }, 2000);
+  }
+
+  const onInputEnter = (e) => {
+    if (e.key === 'Enter') {
+      unlockFile();
+    }
   }
 
   const Screen = () => {
@@ -70,7 +75,7 @@ const GDriveImport = ({ encryptedConfig, setConfigFile, bitcoinQuote }) => {
             <DevicesWrapper>
               <VaultIcon loading={loading} />
               <TypeInPasswordText>Type in password to unlock wallet</TypeInPasswordText>
-              <PasswordInput disabled type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+              <PasswordInput disabled type="password" value={password} />
               <UnlockButton>
                 Unlock Wallet
                 </UnlockButton>
@@ -96,17 +101,10 @@ const GDriveImport = ({ encryptedConfig, setConfigFile, bitcoinQuote }) => {
               <VaultIcon loading={loading} />
 
               <TypeInPasswordText>Type in password to unlock wallet</TypeInPasswordText>
-              <PasswordInput type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+              <PasswordInput autoFocus type="password" value={password} onChange={(e) => setPassword(e.target.value)} onKeyDown={(e) => onInputEnter(e)} />
               <UnlockButton
                 loading={loadingGDrive}
-                onClick={() => {
-                  setLoading(true);
-                  setTimeout(() => setShowCurtain(true), 500);
-                  setTimeout(() => setStartCurtain(true), 550);
-                  // setTimeout(() => setEnterSidebar(true), 5000);
-                  setTimeout(unlockFile, 2000);
-                  // unlockFile();
-                }}>
+                onClick={() => unlockFile()}>
                 Unlock Wallet
                 </UnlockButton>
             </DevicesWrapper>
@@ -127,10 +125,10 @@ const GDriveImport = ({ encryptedConfig, setConfigFile, bitcoinQuote }) => {
           <ChartPlaceholder>
             <QuoteText>{bitcoinQuote.body}</QuoteText>
 
-            <AuthorName>{bitcoinQuote.author.name}</AuthorName>
+            <AuthorName>{bitcoinQuote.author.name} </AuthorName>
           </ChartPlaceholder>
 
-          <div>Decrypting Wallet Config...</div>
+          <DecryptingText>Decrypting Wallet Config...</DecryptingText>
         </CurtainBehind>
         <CurtainRight startCurtain={startCurtain}>
           <CurtainRightInner>
@@ -141,6 +139,19 @@ const GDriveImport = ({ encryptedConfig, setConfigFile, bitcoinQuote }) => {
     )
   }
 }
+
+const blinking = keyframes`
+  0% { opacity: .2; }
+  50% { opacity: 1; }
+  100% { opacity: .2; }
+`;
+
+const DecryptingText = styled.div`
+  animation-name: ${blinking};
+  animation-duration: 1.4s;
+  animation-iteration-count: infinite;
+  animation-fill-mode: both;
+`;
 
 const Wrapper = styled.div`
   width: 100%;

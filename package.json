@@ -1,7 +1,7 @@
 {
   "name": "LilyWallet",
   "author": "Kevin Mulcrone",
-  "description": "a self-custody Bitcoin wallet that allows you to easily store, manage, and spend Bitcoin",
+  "description": "A self-custody Bitcoin wallet that allows you to easily store, manage, and spend Bitcoin with multisig capability",
   "version": "0.1.0",
   "private": true,
   "main": "./src/main.js",
@@ -14,7 +14,7 @@
   },
   "scripts": {
     "electron": "electron .",
-    "start": "PORT=3001 react-app-rewired start",
+    "start": "PORT=3001 react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
@@ -32,6 +32,7 @@
     "cors": "^2.8.5",
     "crypto-js": "^4.0.0",
     "electron-dl": "^3.0.0",
+    "electron-log": "^4.2.1",
     "electron-prebuilt-compile": "^8.2.0",
     "googleapis": "^39.2.0",
     "moment": "^2.24.0",

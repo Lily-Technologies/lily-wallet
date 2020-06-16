@@ -55,37 +55,7 @@ const Settings = ({ config, changeCurrentBitcoinNetwork, currentBitcoinNetwork }
         </HeaderLeft>
       </Header>
       <ValueWrapper>
-
         <SettingsHeadingItem style={{ marginTop: '0.5em' }}>Data and Backups</SettingsHeadingItem>
-        {/* <SettingsSection>
-          <SettingsSectionLeft>
-            <SettingsHeader>Connected Keys: </SettingsHeader>
-            <SettingsSubheader>
-              Here are the keys associated with this account. <br />
-                Keys are the building blocks for wallets and vaults. <br />
-                Use them individually to receive and send payments or combine them to create vaults.</SettingsSubheader>
-          </SettingsSectionLeft>
-          <SettingsSectionRight style={{ flexDirection: 'column' }}>
-            {config.keys.map((key, index) => (
-              <KeysRow>
-                <KeysRowUpper>
-                  <KeyNameContainer>
-                    Test Name {index}
-                  </KeyNameContainer>
-                </KeysRowUpper>
-                <KeyRowLower>
-                  <XPubContainer>
-                    {key.xpub}
-                  </XPubContainer>
-                  <Bip32PathContainer>
-                    {key.bip32Path}
-                  </Bip32PathContainer>
-                </KeyRowLower>
-              </KeysRow>
-            ))}
-          </SettingsSectionRight>
-        </SettingsSection> */}
-
         <SettingsSection>
           <SettingsSectionLeft>
             <SettingsHeader>Encrypted Backups</SettingsHeader>
@@ -113,30 +83,6 @@ const Settings = ({ config, changeCurrentBitcoinNetwork, currentBitcoinNetwork }
             </WordContainer>
           </Modal>
         </SettingsSection>
-
-        <SettingsHeadingItem>Developers</SettingsHeadingItem>
-        <SettingsSection>
-          <SettingsSectionLeft>
-            <SettingsHeader>Network: </SettingsHeader>
-            <SettingsSubheader>Switch between using the mainnet or testnet network. Testnet coins aren't worth any real money and should only be used by developers</SettingsSubheader>
-          </SettingsSectionLeft>
-          <SettingsSectionRight>
-            <ViewAddressesButton onClick={() => setNetworkModalIsOpen(true)}>Change Network</ViewAddressesButton>
-          </SettingsSectionRight>
-
-          <Modal
-            isOpen={networkModalIsOpen}
-            onRequestClose={() => setNetworkModalIsOpen(false)}
-            style={modalStyles}>
-
-            <SettingsHeader>Network Configuration</SettingsHeader>
-
-            Current Network: {getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)}
-
-            <ViewAddressesButton onClick={() => changeCurrentBitcoinNetwork()}>Change Network</ViewAddressesButton>
-          </Modal>
-        </SettingsSection>
-
       </ValueWrapper>
     </PageWrapper >
   )

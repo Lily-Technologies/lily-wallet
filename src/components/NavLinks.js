@@ -14,20 +14,20 @@ import { black, blue, white, offWhite, darkGray, darkOffWhite, lightBlue, lightB
 import { mobile } from '../utils/media';
 
 
-export const NavLinks = ({ config, setCurrentAccount }) => {
+export const NavLinks = ({ config, setCurrentAccount, loading }) => {
   const { pathname } = useLocation();
 
   return (
     <Fragment>
-      <SidebarItem active={pathname === '/'} to="/">
+      <SidebarItem active={pathname === '/'} to="/" loading={false}>
         <StyledIcon as={Home} size={24} style={{ marginRight: 12 }} />
           Home
         </SidebarItem>
-      <SidebarItemLink active={pathname === '/send'} to="/send">
+      <SidebarItemLink active={pathname === '/send'} to="/send" loading={loading}>
         <StyledIcon as={SendPlane} size={24} style={{ marginRight: 12 }} />
           Send
         </SidebarItemLink>
-      <SidebarItemLink active={pathname === '/receive'} to="/receive">
+      <SidebarItemLink active={pathname === '/receive'} to="/receive" loading={loading}>
         <StyledIcon as={VerticalAlignBottom} size={24} style={{ marginRight: 12 }} />
             Receive
         </SidebarItemLink>
@@ -35,7 +35,7 @@ export const NavLinks = ({ config, setCurrentAccount }) => {
           <StyledIcon as={Transfer} size={24} style={{ marginRight: 12 }} />
             Transfer
         </SidebarItemLink> */}
-      <SidebarItemLink active={pathname === '/settings'} to="/settings">
+      <SidebarItemLink active={pathname === '/settings'} to="/settings" loading={loading}>
         <StyledIcon as={Settings} size={24} style={{ marginRight: 12 }} />
             Settings
         </SidebarItemLink>
@@ -46,10 +46,11 @@ export const NavLinks = ({ config, setCurrentAccount }) => {
           <SidebarItemLink
             active={pathname === `/vault/${wallet.id}`}
             onClick={() => {
-              console.log('wallet: ', wallet);
               setCurrentAccount(wallet);
             }}
-            to={`/vault/${wallet.id}`}>
+            to={`/vault/${wallet.id}`}
+            loading={loading}
+          >
             <StyledIcon as={Wallet} size={24} style={{ marginRight: 12 }} />
             {wallet.name}</SidebarItemLink>
         ))
@@ -62,7 +63,9 @@ export const NavLinks = ({ config, setCurrentAccount }) => {
             onClick={() => {
               setCurrentAccount(vault);
             }}
-            to={`/vault/${vault.id}`}>
+            to={`/vault/${vault.id}`}
+            loading={loading}
+          >
             <StyledIcon as={Safe} size={24} style={{ marginRight: 12 }} />
             {vault.name}</SidebarItemLink>
         ))
@@ -70,7 +73,8 @@ export const NavLinks = ({ config, setCurrentAccount }) => {
 
       <SidebarItemLink
         active={pathname === '/setup'}
-        to={`/setup`}>
+        to={`/setup`}
+        loading={false}>
         <StyledIcon as={AddCircleOutline} size={24} style={{ marginRight: 12 }} />
           New Account
           </SidebarItemLink>
@@ -90,6 +94,7 @@ const SidebarItemStyle = css`
   font-size: 0.9em;
   display: flex;
   align-items: center;
+  pointer-events: ${p => p.loading ? 'none' : 'auto'};
 
   ${mobile(css`
     border-left: none;
@@ -100,7 +105,7 @@ const SidebarItemStyle = css`
 
   &:hover {
     background: ${offWhite};
-    cursor: pointer;
+    cursor: ${p => p.loading ? 'wait' : 'pointer'};
   }
 `;
 
@@ -112,6 +117,7 @@ const SidebarItem = styled(Link)`
 const SidebarItemLink = styled(Link)`
   ${SidebarItemStyle};
   text-decoration: none;
+  cursor: 
 `;
 
 const WalletsHeader = styled.h3`

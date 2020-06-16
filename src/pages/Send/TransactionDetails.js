@@ -34,14 +34,10 @@ const TransactionDetails = ({ finalPsbt, feeEstimate, outputTotal, recipientAddr
           const psbt1 = Psbt.fromBase64(signedPsbts[0]);
           const psbt2 = Psbt.fromBase64(signedPsbts[1]);
 
-          console.log('psbt1, psbt2: ', psbt1, psbt2);
-
           psbt.combine(psbt1, psbt2);
 
           psbt.finalizeAllInputs();
 
-          console.log('psbt.extractTransaction(): ', psbt.extractTransaction());
-          console.log('psbt.extractTransaction().toHex(): ', psbt.extractTransaction().toHex());
           const { data } = await axios.get(blockExplorerAPIURL(`/broadcast?tx=${psbt.extractTransaction().toHex()}`, currentBitcoinNetwork));
           setBroadcastedTxId(data);
 
@@ -95,10 +91,7 @@ const TransactionDetails = ({ finalPsbt, feeEstimate, outputTotal, recipientAddr
             <MoreDetailsSection>
               <MoreDetailsHeader>Inputs</MoreDetailsHeader>
               {finalPsbt.__CACHE.__TX.ins.map(input => {
-                console.log('input: ', input);
-                console.log('transactionsMap: ', transactionsMap);
                 const inputBuffer = cloneBuffer(input.hash);
-                console.log('inputBuffer: ', inputBuffer);
                 const txInput = transactionsMap.get(inputBuffer.reverse().toString('hex'));
                 return (
                   <OutputItem>

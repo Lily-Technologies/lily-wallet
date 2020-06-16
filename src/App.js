@@ -18,7 +18,8 @@ import { Sidebar, MobileNavbar, ErrorBoundary } from './components';
 
 import { getDataFromMultisig, getDataFromXPub, getUnchainedNetworkFromBjslibNetwork } from './utils/transactions';
 
-import { networks } from 'bitcoinjs-lib';
+import { networks, bip32 } from 'bitcoinjs-lib';
+import { generateMnemonic, mnemonicToSeed } from 'bip39';
 
 import configFixture from './fixtures/config';
 
@@ -81,8 +82,6 @@ function App() {
     return null;
   }
 
-  console.log('config: ', config);
-
   const ScrollToTop = () => {
     const { pathname } = useLocation();
     useEffect(() => {
@@ -107,7 +106,6 @@ function App() {
   useEffect(() => {
     async function fetchCurrentBitcoinPrice() {
       const currentBitcoinPrice = await (await axios.get('https://api.coindesk.com/v1/bpi/currentprice.json')).data.bpi.USD.rate;
-      console.log('currentBitcoinPrice: ', currentBitcoinPrice);
       setCurrentBitcoinPrice(new BigNumber(currentBitcoinPrice.replace(',', '')));
     }
     fetchCurrentBitcoinPrice();
@@ -123,9 +121,7 @@ function App() {
 
   useEffect(() => {
     async function fetchBitcoinQuote() {
-      console.log('start fetchBitcoinQuote');
       const bitcoinQuote = await (await axios.get('https://www.bitcoin-quotes.com/quotes/random.json')).data;
-      console.log('bitcoinQuote: ', bitcoinQuote);
       setBitcoinQuote(bitcoinQuote);
     }
     fetchBitcoinQuote();
@@ -190,12 +186,9 @@ function App() {
 
   useEffect(() => {
     if (currentAccount && accountMap.size) {
-      console.log('currentAccount: ', currentAccount);
       setLoadingDataFromBlockstream(true);
       async function fetchTransactionsFromBlockstream() {
-        console.log('accountMapx: ', accountMap);
         const newVault = accountMap.get(currentAccount.config.id);
-        console.log('newVault xxx: ', newVault);
 
         setAvailableUtxos(newVault.availableUtxos);
         setUnusedAddresses(newVault.unusedAddresses);
@@ -207,6 +200,22 @@ function App() {
       fetchTransactionsFromBlockstream();
     }
   }, [currentAccount, config, currentBitcoinNetwork]);
+
+  useEffect(() => {
+    if (config.wallets.length) {
+      console.log('config: ', config);
+      async function getDatChildFP() {
+        const seed = await mnemonicToSeed(config.wallets[0].mnemonic);
+        const root = bip32.fromSeed(seed, currentBitcoinNetwork);
+        const path = "m/84'/0'/0'";
+        const child = root.derivePath(path).neutered();
+        const childFingerprint = child.fingerprint;
+
+        console.log('childFingerprint: ', childFingerprint);
+      }
+      getDatChildFP();
+    }
+  }, [config]);
 
   return (
     <ErrorBoundary>
@@ -235,10 +244,10 @@ function App() {
             />
           </Switch>
         </PageWrapper>
-        <FooterWrapper>
+        {/* <FooterWrapper>
           <ViewSourceCodeText href="https://github.com/KayBeSee/cc-kitchen-frontend" target="_blank">View Source Code</ViewSourceCodeText>
           <DontTrustVerify>Don't Trust. Verify.</DontTrustVerify>
-        </FooterWrapper>
+        </FooterWrapper> */}
         {/* <Footer /> */}
         {/* </WindowWrapper> */}
       </Router>
@@ -258,29 +267,29 @@ const PageWrapper = styled.div`
   `)};
 `;
 
-const FooterWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background: ${offWhite};
-  padding: 3.5em;
+// const FooterWrapper = styled.div`
+//   display: flex;
+//   flex-direction: column;
+//   align-items: center;
+//   background: ${offWhite};
+//   padding: 3.5em;
 
-  ${mobile(css`
-    padding: 1.5em;
-    font-size: 0.75em;
-  `)};
-`;
+//   ${mobile(css`
+//     padding: 1.5em;
+//     font-size: 0.75em;
+//   `)};
+// `;
 
-const ViewSourceCodeText = styled.a`
-  color: ${ black};
-  text-decoration: none;
-  cursor: pointer;
-  letter-spacing: -0.03em;
-  font-family: 'Raleway', sans-serif;
-`;
+// const ViewSourceCodeText = styled.a`
+//   color: ${ black};
+//   text-decoration: none;
+//   cursor: pointer;
+//   letter-spacing: -0.03em;
+//   font-family: 'Raleway', sans-serif;
+// `;
 
-const DontTrustVerify = styled.span`
-color: ${ gray};
-`;
+// const DontTrustVerify = styled.span`
+// color: ${ gray};
+// `;
 
 export default App;

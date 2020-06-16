@@ -37,7 +37,6 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
 
     setImportedDevices([...importedDevices, { ...device, ...response }]);
     availableDevices.splice(index, 1);
-    console.log('importedDevices: ', importedDevices);
     setAvailableDevices([...availableDevices]);
   }
 
@@ -54,7 +53,7 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
     // KBC-TODO: electron-dl bug requires us to wait for the first file to finish downloading before downloading the second
     // this should be fixed somehow
     setTimeout(() => {
-      downloadFile(encryptedConfigFile, `lily_wallet_backup_${moment().format('MMDDYY-hhmmss')}.json`)
+      downloadFile(encryptedConfigFile, `lily_wallet_backup_${moment().format('MMDDYY-hhmmss')}.txt`)
     }, 500);
     history.push('/coldcard-import-instructions')
   }

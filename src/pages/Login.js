@@ -131,10 +131,10 @@ const SignupOptionMainText = styled.div`
 `;
 
 const SignupOptionSubtext = styled.div`
-  font-size: .25em;
+  font-size: .5em;
   margin-top: 0.5em;
   color: ${darkGray};
-  padding: 0 10em;
+  padding: 0 5em;
 `;
 
 const SignupOptionItem = styled.div`

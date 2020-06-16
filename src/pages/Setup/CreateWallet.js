@@ -35,21 +35,15 @@ const CreateWallet = ({ config, accountName, setConfigFile, currentBitcoinNetwor
     configCopy.isEmpty = false;
 
     // taken from BlueWallet so you can import and use on mobile
+    console.log('mnemonicWords: ', mnemonicWords);
     const seed = await mnemonicToSeed(mnemonicWords);
     const root = bip32.fromSeed(seed, currentBitcoinNetwork);
     const path = "m/84'/0'/0'";
     const child = root.derivePath(path).neutered();
     const xpubString = child.toBase58();
-
-    // bitcoinjs does not support zpub yet, so we just convert it from xpub
-    let data = b58.decode(xpubString);
-    data = data.slice(4);
-    data = Buffer.concat([Buffer.from('04b24746', 'hex'), data]);
-
     const xprvString = root.derivePath(path).toBase58();
-    const zpubString = b58.encode(data);
-    console.log('xprvString: ', xprvString);
-    console.log('xpubString: ', xpubString);
+
+    const masterXprvString = root.toBase58();
 
     configCopy.wallets.push({
       id: uuidv4(),
@@ -58,9 +52,9 @@ const CreateWallet = ({ config, accountName, setConfigFile, currentBitcoinNetwor
       addressType: "P2WSH",
       quorum: { requiredSigners: 1, totalSigners: 1 },
       xpub: xpubString,
-      zpub: zpubString,
       xprv: xprvString,
-      seed: seed.toString('hex'),
+      masterXprv: masterXprvString,
+      mnemonic: mnemonicWords,
       parentFingerprint: root.fingerprint
     });
 

@@ -4,6 +4,7 @@ import { Settings } from '@styled-icons/material';
 import { Safe } from '@styled-icons/crypto';
 import { Wallet } from '@styled-icons/entypo';
 import BigNumber from 'bignumber.js';
+import { generateMnemonic, mnemonicToSeed } from 'bip39';
 import {
   satoshisToBitcoins,
   bitcoinsToSatoshis,
@@ -60,8 +61,8 @@ const Send = ({ config, currentAccount, setCurrentAccount, transactions, availab
 
 
     spendingUtxos.forEach((utxo, index) => {
-      console.log('config: ', config);
-      console.log('utxo, transactionMap: ', utxo, transactionMap);
+      console.log('xx:', utxo.address.bip32derivation[0].masterFingerprint);
+      console.log('utxo.address.bip32derivation: ', Buffer.from(utxo.address.bip32derivation[0].masterFingerprint).toString('hex'));
       if (currentAccount.config.quorum.requiredSigners > 1) {
         psbt.addInput({
           hash: utxo.txid,
@@ -75,7 +76,6 @@ const Send = ({ config, currentAccount, setCurrentAccount, transactions, availab
           bip32Derivation: utxo.address.bip32derivation
         })
       } else {
-        console.log('utxo: ', utxo, transactionMap.get(utxo.txid).vout[utxo.vout].scriptpubkey);
         psbt.addInput({
           hash: utxo.txid,
           index: utxo.vout,
@@ -89,45 +89,39 @@ const Send = ({ config, currentAccount, setCurrentAccount, transactions, availab
       }
     });
 
-    // KBC-TODO: need to calc change if necessary
     psbt.addOutput({
       script: address.toOutputScript(recipientAddress, currentBitcoinNetwork),
       // address: recipientAddress,
       value: bitcoinsToSatoshis(amountInBitcoins).toNumber(),
     });
 
-    console.log('feeEstimate: ', feeEstimate.integerValue(BigNumber.ROUND_CEIL).toNumber());
-    console.log('spendingUtxosTotal: ', spendingUtxosTotal.toNumber());
-    console.log('outputTotal: ', outputTotal.toNumber());
-    console.log('spendingUtxosTotal.isLessThan(outputTotal): ', spendingUtxosTotal.isLessThan(outputTotal));
     if (spendingUtxosTotal.isGreaterThan(outputTotal)) {
       psbt.addOutput({
         script: address.toOutputScript(unusedChangeAddresses[0].address, currentBitcoinNetwork),
-        // address: unusedChangeAddresses[0].address,
         value: spendingUtxosTotal.minus(outputTotal).toNumber()
       })
     }
 
     setFinalPsbt(psbt);
     setStep(1);
-    console.log('psbt: ', psbt.toBase64());
 
     // if only single sign, then sign tx right away
     if (currentAccount.config.quorum.requiredSigners === 1) {
       const bip32hd = bip32.fromBase58(currentAccount.config.xprv, currentBitcoinNetwork);
+      console.log('bip32hd: ', bip32hd);
 
-      psbt.signInputHD(0, bip32hd);
+      const seed = await mnemonicToSeed(currentAccount.config.mnemonic);
+      const root = bip32.fromSeed(seed, currentBitcoinNetwork);
+
+      psbt.signInputHD(0, root);
       psbt.validateSignaturesOfAllInputs();
       psbt.finalizeAllInputs();
 
-      console.log('final psbt: ', psbt);
       setSignedPsbts([psbt]);
     }
   }
 
   const transactionsMap = createTransactionMapFromTransactionArray(transactions);
-
-  console.log('signedPsbts: ', signedPsbts);
 
   return (
     <PageWrapper>

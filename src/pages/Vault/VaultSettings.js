@@ -33,6 +33,7 @@ const modalStyles = {
 
 const VaultSettings = ({ config, setConfigFile, currentAccount, setViewAddresses, setViewUtxos, currentBitcoinNetwork }) => {
   const [viewExportQRCode, setViewExportQRCode] = useState(false);
+  const [viewMnemonic, setViewMnemonic] = useState(false);
   const history = useHistory();
 
   console.log('currentBitcoinNetwork: ', currentBitcoinNetwork);
@@ -43,18 +44,6 @@ const VaultSettings = ({ config, setConfigFile, currentAccount, setViewAddresses
   }
 
   const getQrCode = () => {
-    const node = bip32.fromBase58(currentAccount.config.xprv, currentBitcoinNetwork);
-    const wif = node.derivePath("m/84'/0'/0'");
-    console.log('wif: ', wif);
-
-    const otherWif = bip32.fromSeed(Buffer.from(currentAccount.config.seed, 'hex'), currentBitcoinNetwork).toWIF();
-
-    const abip32 = bip32.fromSeed(Buffer.from(currentAccount.config.seed, 'hex'), currentBitcoinNetwork);
-
-    const path = "m/84'/0'/0'";
-    const child = abip32.derivePath(path);
-    const anotherWif = child.toWIF();
-
     return (
       <div>
         <QRCode
@@ -62,30 +51,16 @@ const VaultSettings = ({ config, setConfigFile, currentAccount, setViewAddresses
           fgColor={black}
           level="Q"
           style={{ width: 256 }}
-          value={wif}
+          value={currentAccount.config.mnemonic}
         />
-        <QRCode
-          bgColor={white}
-          fgColor={black}
-          level="Q"
-          style={{ width: 256 }}
-          value={otherWif}
-        />
-        <QRCode
-          bgColor={white}
-          fgColor={black}
-          level="Q"
-          style={{ width: 256 }}
-          value={anotherWif}
-        />
-        <QRCode
-          bgColor={white}
-          fgColor={black}
-          level="Q"
-          style={{ width: 256 }}
-          value={currentAccount.config.zpub}
-        />
+      </div>
+    )
+  }
 
+  const getMnemonic = () => {
+    return (
+      <div>
+        {/* KBC-TODO: add mnemonic component */}
       </div>
     )
   }
@@ -140,6 +115,27 @@ const VaultSettings = ({ config, setConfigFile, currentAccount, setViewAddresses
             style={modalStyles}>
 
             {getQrCode()}
+          </Modal>
+
+
+        </SettingsSection>
+      )}
+      {currentAccount.config.quorum.totalSigners === 1 && (
+        <SettingsSection>
+          <SettingsSectionLeft>
+            <SettingsHeader>View Mnemonic Seed</SettingsHeader>
+            <SettingsSubheader>View the mnemonic phrase for this wallet. This can be used to import this wallet data into another application.</SettingsSubheader>
+          </SettingsSectionLeft>
+          <SettingsSectionRight>
+            <ViewAddressesButton onClick={() => { setViewMnemonic(true); }}>View Wallet Mnemonic</ViewAddressesButton>
+          </SettingsSectionRight>
+
+          <Modal
+            isOpen={viewMnemonic}
+            onRequestClose={() => setViewMnemonic(false)}
+            style={modalStyles}>
+
+            {getMnemonic()}
           </Modal>
 
 

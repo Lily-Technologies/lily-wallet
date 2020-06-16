@@ -139,7 +139,7 @@ const serializeTransactions = (transactionsFromBlockstream, addresses, changeAdd
 }
 
 export const getChildPubKeysFromXpubs = (xpubs, multisig = true, currentBitcoinNetwork) => {
-  console.log('currentBitcoinNetwork: ', currentBitcoinNetwork);
+  console.log('xpubs: ', xpubs);
   const childPubKeys = [];
   for (let i = 0; i < 30; i++) {
     xpubs.forEach((xpub) => {
@@ -196,8 +196,6 @@ const getMultisigAddressesFromPubKeys = (pubkeys, config, currentBitcoinNetwork)
 }
 
 const getTransactionsFromAddresses = async (addresses, currentBitcoinNetwork) => {
-  console.log('getTransactionsFromAddresses currentBitcoinNetwork: ', currentBitcoinNetwork);
-  console.log('xx: ', getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork));
   const transactions = [];
   for (let i = 0; i < addresses.length; i++) {
     const txsFromBlockstream = await (await axios.get(blockExplorerAPIURL(`/address/${addresses[i].address}/txs`, getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)))).data;
@@ -207,7 +205,6 @@ const getTransactionsFromAddresses = async (addresses, currentBitcoinNetwork) =>
 }
 
 const getUnusedAddresses = async (addresses, currentBitcoinNetwork) => {
-  console.log('getUnusedAddresses currentBitcoinNetwork: ', currentBitcoinNetwork)
   const unusedAddresses = [];
   for (let i = 0; i < addresses.length; i++) {
     const txsFromBlockstream = await (await axios.get(blockExplorerAPIURL(`/address/${addresses[i].address}/txs`, getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)))).data;
@@ -252,7 +249,7 @@ export const getDataFromMultisig = async (config, currentBitcoinNetwork) => {
 }
 
 export const getDataFromXPub = async (currentWallet, currentBitcoinNetwork) => {
-  console.log('currentWallet: ', currentWallet);
+  console.log('getDataFromXPub currentWallet: ', currentWallet);
   const childPubKeys = getChildPubKeysFromXpubs([currentWallet], false, currentBitcoinNetwork);
   const childChangePubKeys = getChildChangePubKeysFromXpubs([currentWallet], false, currentBitcoinNetwork);
 
