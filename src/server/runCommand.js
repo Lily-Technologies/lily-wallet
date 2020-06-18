@@ -10,8 +10,6 @@ const runCommand = async (command) => {
       log.info('ls stdout: ', stdout);
     });
 
-    console.log('what is path? ', path);
-    console.log('command path: ', path.resolve(__dirname, 'hwi'));
     const pathToHwi = path.resolve(__dirname, 'hwi');
     exec(`${pathToHwi} ${command}`, (error, stdout, stderr) => {
       if (error) {

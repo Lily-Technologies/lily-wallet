@@ -1,15 +1,12 @@
 import axios from 'axios';
 import BigNumber from 'bignumber.js';
-import { payments, ECPair, networks } from 'bitcoinjs-lib';
+import { payments, networks } from 'bitcoinjs-lib';
 import {
   deriveChildPublicKey,
   blockExplorerAPIURL,
-  bitcoinsToSatoshis,
   generateMultisigFromPublicKeys,
   estimateMultisigTransactionFee,
-  NETWORKS
 } from "unchained-bitcoin";
-import { satoshisToBitcoins } from 'unchained-bitcoin/lib/utils';
 
 export const getMultisigDeriationPathForNetwork = (network) => {
   if (network === networks.bitcoin) {
@@ -139,12 +136,11 @@ const serializeTransactions = (transactionsFromBlockstream, addresses, changeAdd
 }
 
 export const getChildPubKeysFromXpubs = (xpubs, multisig = true, currentBitcoinNetwork) => {
-  console.log('xpubs: ', xpubs);
   const childPubKeys = [];
   for (let i = 0; i < 30; i++) {
     xpubs.forEach((xpub) => {
       const childPubKeysBip32Path = `m/0/${i}`;
-      const bip32derivationPath = multisig ? `${getMultisigDeriationPathForNetwork(currentBitcoinNetwork)}/${childPubKeysBip32Path.replace('m/', '')}` : childPubKeysBip32Path;
+      const bip32derivationPath = multisig ? `${getMultisigDeriationPathForNetwork(currentBitcoinNetwork)}/${childPubKeysBip32Path.replace('m/', '')}` : `m/84'/0'/0'/${childPubKeysBip32Path.replace('m/', '')}`;
       childPubKeys.push({
         childPubKey: deriveChildPublicKey(xpub.xpub, childPubKeysBip32Path, getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)),
         bip32derivation: {
@@ -163,7 +159,7 @@ export const getChildChangePubKeysFromXpubs = (xpubs, multisig = true, currentBi
   for (let i = 0; i < 30; i++) {
     xpubs.forEach((xpub) => {
       const childChangeAddressPubKeysBip32Path = `m/1/${i}`;
-      const bip32derivationPath = multisig ? `${getMultisigDeriationPathForNetwork(currentBitcoinNetwork)}/${childChangeAddressPubKeysBip32Path.replace('m/', '')}` : childChangeAddressPubKeysBip32Path;
+      const bip32derivationPath = multisig ? `${getMultisigDeriationPathForNetwork(currentBitcoinNetwork)}/${childChangeAddressPubKeysBip32Path.replace('m/', '')}` : `m/84'/0'/0'/${childChangeAddressPubKeysBip32Path.replace('m/', '')}`;
       childChangePubKeys.push({
         childPubKey: deriveChildPublicKey(xpub.xpub, childChangeAddressPubKeysBip32Path, getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)),
         bip32derivation: {
@@ -249,7 +245,6 @@ export const getDataFromMultisig = async (config, currentBitcoinNetwork) => {
 }
 
 export const getDataFromXPub = async (currentWallet, currentBitcoinNetwork) => {
-  console.log('getDataFromXPub currentWallet: ', currentWallet);
   const childPubKeys = getChildPubKeysFromXpubs([currentWallet], false, currentBitcoinNetwork);
   const childChangePubKeys = getChildChangePubKeysFromXpubs([currentWallet], false, currentBitcoinNetwork);
 

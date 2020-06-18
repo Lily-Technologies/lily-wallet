@@ -1,21 +1,16 @@
 import React, { useState } from 'react';
-import { Link, useHistory } from "react-router-dom";
-import styled, { css } from 'styled-components';
+import { useHistory } from "react-router-dom";
+import styled from 'styled-components';
 import { AddCircleOutline } from '@styled-icons/material';
 import { Upload } from '@styled-icons/boxicons-regular';
-import { AES } from 'crypto-js';
 
 import GDriveImport from './GDriveImport';
 
-import { BACKEND_URL } from '../config';
-import { Button, DeviceSelectSetup, PageWrapper, StyledIcon } from '../components';
+import { StyledIcon } from '../components';
 
 import { GridArea } from '../components/layout';
 
-import { mobile } from '../utils/media';
-import { black, darkGray, lightBlue, white, darkOffWhite, blue, gray, offWhite, lightGray, darkGreen } from '../utils/colors';
-import { getGoogleAuthenticateUrl } from '../utils/google-drive';
-
+import { black, darkGray, white, blue, gray, offWhite } from '../utils/colors';
 
 const Login = ({ setConfigFile, bitcoinQuote }) => {
   const [encryptedConfigFile, setEncryptedConfigFile] = useState(null);

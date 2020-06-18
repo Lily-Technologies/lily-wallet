@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import styled, { css } from 'styled-components';
 import { Settings } from '@styled-icons/material';
 import { Safe } from '@styled-icons/crypto';
@@ -6,12 +6,11 @@ import { Wallet } from '@styled-icons/entypo';
 import { QRCode } from "react-qr-svg";
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { satoshisToBitcoins } from "unchained-bitcoin";
-import { payments, ECPair, networks } from 'bitcoinjs-lib';
 
 import { StyledIcon, Button, GreenLoadingAnimation, PageWrapper, GridArea, PageTitle, Header, HeaderRight, HeaderLeft } from '../../components';
 import RecentTransactions from '../../components/transactions/RecentTransactions';
 
-import { black, gray, offWhite, blue, darkGray, white, darkOffWhite, green, lightGreen, darkGreen, lightGray, lightBlue } from '../../utils/colors';
+import { black, gray, blue, darkGray, white, darkOffWhite, darkGreen, lightGray, lightBlue } from '../../utils/colors';
 import { mobile } from '../../utils/media';
 
 const Receive = ({ config, currentAccount, setCurrentAccount, transactions, unusedAddresses, currentBalance, loadingDataFromBlockstream }) => {
@@ -34,13 +33,13 @@ const Receive = ({ config, currentAccount, setCurrentAccount, transactions, unus
       <ReceiveWrapper>
         <AccountMenu>
           {config.vaults.map((vault, index) => (
-            <AccountMenuItemWrapper active={vault.name === currentAccount.name} borderRight={true} onClick={() => setCurrentAccount(vault)}>
+            <AccountMenuItemWrapper active={vault.name === currentAccount.name} borderRight={(index < config.vaults.length - 1) || config.wallets.length} onClick={() => setCurrentAccount(vault)}>
               <StyledIcon as={Safe} size={48} />
               <AccountMenuItemName>{vault.name}</AccountMenuItemName>
             </AccountMenuItemWrapper>
           ))}
-          {config.wallets.map((wallet) => (
-            <AccountMenuItemWrapper active={wallet.name === currentAccount.name} borderLeft={true} onClick={() => setCurrentAccount(wallet)}>
+          {config.wallets.map((wallet, index) => (
+            <AccountMenuItemWrapper active={wallet.name === currentAccount.name} borderRight={(index < config.wallets.length - 1)} onClick={() => setCurrentAccount(wallet)}>
               <StyledIcon as={Wallet} size={48} />
               <AccountMenuItemName>{wallet.name}</AccountMenuItemName>
             </AccountMenuItemWrapper>
@@ -173,8 +172,7 @@ const AccountMenuItemWrapper = styled.div`
   cursor: ${p => p.active ? 'auto' : 'pointer'};
   border-top: ${p => p.active ? `solid 11px ${blue}` : `none`};
   border-bottom: ${p => p.active ? 'none' : `solid 1px ${gray}`};
-  border-left: ${p => !p.active && p.borderLeft && `solid 1px ${gray}`};
-  border-right: ${p => !p.active && p.borderRight && `solid 1px ${gray}`};
+  border-right: ${p => p.borderRight && `solid 1px ${gray}`};
 `;
 
 const AccountMenuItemName = styled.div``;
@@ -182,14 +180,6 @@ const AccountMenuItemName = styled.div``;
 const AccountMenu = styled.div`
   display: flex;
   justify-content: space-around;
-`;
-
-const AccountReceiveContent = styled.div`
-  min-height: 400px;
-  padding: 1.5em;
-  display: flex;
-  background: ${lightBlue};
-  flex-wrap: wrap;
 `;
 
 const AccountReceiveContentLeft = styled.div`

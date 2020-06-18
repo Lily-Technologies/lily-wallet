@@ -1,14 +1,12 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { Link, useHistory } from "react-router-dom";
+import React, { useEffect, useState } from 'react';
+import { useHistory } from "react-router-dom";
 import styled, { keyframes } from 'styled-components';
 import { AES, enc } from 'crypto-js';
-import { RestaurantMenu } from '@styled-icons/material';
-import { StyledIcon, StyledIconSpinning } from '../components';
 
 import { Button, VaultIcon } from '../components';
 import { black, gray, darkOffWhite, lightGray, darkGray, blue, lightBlue, white } from '../utils/colors';
 
-import { getConfigFileFromGoogleDrive, saveFileToGoogleDrive } from '../utils/google-drive';
+import { getConfigFileFromGoogleDrive } from '../utils/google-drive';
 
 
 const GDriveImport = ({ encryptedConfig, setConfigFile, bitcoinQuote }) => {
@@ -19,7 +17,6 @@ const GDriveImport = ({ encryptedConfig, setConfigFile, bitcoinQuote }) => {
   const [encryptedConfigFile, setEncryptedConfigFile] = useState(null);
   const [showCurtain, setShowCurtain] = useState(false);
   const [startCurtain, setStartCurtain] = useState(false);
-  const [enterSidebar, setEnterSidebar] = useState(false);
 
   const history = useHistory();
 
@@ -27,7 +24,6 @@ const GDriveImport = ({ encryptedConfig, setConfigFile, bitcoinQuote }) => {
     const onload = async () => {
       if (!encryptedConfig) {
         setLoadingGDrive(true);
-        // await saveFileToGoogleDrive({ "name": "Coldcard Kitchen", "addressType": "P2WSH", "network": "testnet", "client": { "type": "public" }, "quorum": { "requiredSigners": 2, "totalSigners": 3 }, "extendedPublicKeys": [{ "name": "34ecf56b", "bip32Path": "m/0", "xpub": "tpubDECB21DPAjBvUtqSCGWHJrbh6nSg9JojqmoMBuS5jGKTFvYJb784Pu5hwq8vSpH6vkk3dZmjA3yR7mGbrs3antkL6BHVHAyjPeeJyAiVARA", "method": "xpub" }, { "name": "9130c3d6", "bip32Path": "m/0", "xpub": "tpubDDv6Az73JkvvPQPFdytkRrizpdxWtHTE6gHywCRqPu3nz2YdHDG5AnbzkJWJhtYwEJDR3eENpQQZyUxtFFRRC2K1PEGdwGZJYuji8QcaX4Z", "method": "xpub" }, { "name": "4f60d1c9", "bip32Path": "m/0", "xpub": "tpubDFR1fvmcdWbMMDn6ttHPgHi2Jt92UkcBmzZ8MX6QuoupcDhY7qoKsjSG2MFvN66r2zQbZrdjfS6XtTv8BjED11hUMq3kW2rc3CLTjBZWWFb", "method": "xpub" }] });
         const encryptedConfigFile = await getConfigFileFromGoogleDrive();
         if (encryptedConfigFile) {
           setLoadingGDrive(false);
@@ -40,14 +36,13 @@ const GDriveImport = ({ encryptedConfig, setConfigFile, bitcoinQuote }) => {
       }
     }
     onload();
-  }, []);
+  }, []); // eslint-disable-line
 
   const unlockFile = () => {
     // KBC-TODO: probably need error handling for wrong password
     setLoading(true);
     setTimeout(() => setShowCurtain(true), 500);
     setTimeout(() => setStartCurtain(true), 550);
-    // setTimeout(() => setEnterSidebar(true), 5000);
     setTimeout(() => {
       var bytes = AES.decrypt(encryptedConfigFile, password);
       var decryptedData = JSON.parse(bytes.toString(enc.Utf8));
@@ -121,7 +116,7 @@ const GDriveImport = ({ encryptedConfig, setConfigFile, bitcoinQuote }) => {
           </CurtainLeftInner>
 
         </CurtainLeft>
-        <CurtainBehind enterSidebar={enterSidebar}>
+        <CurtainBehind>
           <ChartPlaceholder>
             <QuoteText>{bitcoinQuote.body}</QuoteText>
 
@@ -301,7 +296,6 @@ const CurtainRight = styled.div`
 `;
 
 const CurtainBehind = styled.div`
-  display: ${p => p.enterSidebar ? 'auto' : 'none'};
   align-self: flex-start;
   flex: 1;
   position: absolute;
@@ -323,11 +317,6 @@ const AuthorName = styled.div`
   font-size: 1.25em;
   font-weight: 600;
   margin-top: 1em;
-`;
-
-const SidebarWrapper = styled.div`
-  transform: ${p => p.enterSidebar ? 'translateX(100%)' : 'translateX(0)'};
-  transition: all 1s ease-out;
 `;
 
 const ChartPlaceholder = styled.div`

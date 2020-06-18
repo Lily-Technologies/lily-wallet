@@ -1,17 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import styled, { css } from 'styled-components';
 import { Settings } from '@styled-icons/material';
 import { Safe } from '@styled-icons/crypto';
 import { Wallet } from '@styled-icons/entypo';
 import BigNumber from 'bignumber.js';
-import { generateMnemonic, mnemonicToSeed } from 'bip39';
+import { mnemonicToSeed } from 'bip39';
 import {
   satoshisToBitcoins,
   bitcoinsToSatoshis,
   multisigWitnessScript,
   scriptToHex,
 } from "unchained-bitcoin";
-import { networks, Psbt, address, payments, ECPair, bip32 } from 'bitcoinjs-lib';
+import { Psbt, address, bip32 } from 'bitcoinjs-lib';
 
 import { StyledIcon, Button, PageWrapper, GridArea, PageTitle, Header, HeaderRight, HeaderLeft } from '../../components';
 import RecentTransactions from '../../components/transactions/RecentTransactions';
@@ -20,11 +20,8 @@ import SignWithDevice from './SignWithDevice'
 import TransactionDetails from './TransactionDetails';
 
 import { createTransactionMapFromTransactionArray, coinSelection, getFeeForMultisig } from '../../utils/transactions';
-import { red, gray, offWhite, blue, darkGray, white, darkOffWhite, green, lightGreen, darkGreen, lightGray, lightBlue } from '../../utils/colors';
+import { red, gray, blue, darkGray, white, darkOffWhite, lightGray, lightBlue } from '../../utils/colors';
 import { mobile } from '../../utils/media';
-
-const signedPsbt1 = "cHNidP8BAH4CAAAAAaL+89cOLWJTdZMEWoXbrN5ffsxPmbpjJ9Yc1NL9jZ3jAAAAAAD/////AiBOAAAAAAAAF6kU/9DbtEQC1fjxLZultISiwbtH2kKHAfIOAAAAAAAiACAbzdx36FFxcvXFh/V5ZEsGIQi6H50aqwcU7qWnnxS+5AAAAAAAAQErQEIPAAAAAAAiACCCFDYExwmHHpAtYcn30+iVZPuQJEAjvYHFtv4a0XXmViICAyIEErL0BQQffuTOA9kTjyEC+eybnl5zNuAf6pdxUq06RzBEAiAKchg0x7lj7cnHh8FrThyg8AdDwMxAaGBEz5LoEOOqDQIgWXUNdLIGlNhiTNmgN6VVKIIhiolpy5Wz4KuqgFTl904BAQMEAQAAAAEFaVIhAyIEErL0BQQffuTOA9kTjyEC+eybnl5zNuAf6pdxUq06IQPZs2BhKxwQyn6qpiv+VcRihe//FftBBqQk8H+YLmaO3CED5COMlBMA/fsBELla1MfIEB6gGi5qERqdqQsCA8I8FFdTriIGAyIEErL0BQQffuTOA9kTjyEC+eybnl5zNuAf6pdxUq06HE9g0ckwAACAAQAAgAAAAIACAACAAAAAAAAAAAAiBgPZs2BhKxwQyn6qpiv+VcRihe//FftBBqQk8H+YLmaO3ByRMMPWMAAAgAEAAIAAAACAAgAAgAAAAAAAAAAAIgYD5COMlBMA/fsBELla1MfIEB6gGi5qERqdqQsCA8I8FFccNOz1azAAAIABAACAAAAAgAIAAIAAAAAAAAAAAAAAAA==";
-const signedPsbt2 = "cHNidP8BAH4CAAAAAaL+89cOLWJTdZMEWoXbrN5ffsxPmbpjJ9Yc1NL9jZ3jAAAAAAD/////AiBOAAAAAAAAF6kU/9DbtEQC1fjxLZultISiwbtH2kKHAfIOAAAAAAAiACAbzdx36FFxcvXFh/V5ZEsGIQi6H50aqwcU7qWnnxS+5AAAAAAAAQErQEIPAAAAAAAiACCCFDYExwmHHpAtYcn30+iVZPuQJEAjvYHFtv4a0XXmViICA9mzYGErHBDKfqqmK/5VxGKF7/8V+0EGpCTwf5guZo7cRzBEAiAG10YX6lmrV5GtrRrCjsedcDHg4ksFF6G9LNDCAJYeUgIgELP/AlibkDYtoJm03+bDnk4rNGwzDvv7ypwEdU3/gx4BAQMEAQAAAAEFaVIhAyIEErL0BQQffuTOA9kTjyEC+eybnl5zNuAf6pdxUq06IQPZs2BhKxwQyn6qpiv+VcRihe//FftBBqQk8H+YLmaO3CED5COMlBMA/fsBELla1MfIEB6gGi5qERqdqQsCA8I8FFdTriIGAyIEErL0BQQffuTOA9kTjyEC+eybnl5zNuAf6pdxUq06HE9g0ckwAACAAQAAgAAAAIACAACAAAAAAAAAAAAiBgPZs2BhKxwQyn6qpiv+VcRihe//FftBBqQk8H+YLmaO3ByRMMPWMAAAgAEAAIAAAACAAgAAgAAAAAAAAAAAIgYD5COMlBMA/fsBELla1MfIEB6gGi5qERqdqQsCA8I8FFccNOz1azAAAIABAACAAAAAgAIAAIAAAAAAAAAAAAAAAA==";
 
 const Send = ({ config, currentAccount, setCurrentAccount, transactions, availableUtxos, unusedChangeAddresses, loadingDataFromBlockstream, currentBalance, currentBitcoinNetwork }) => {
   const [sendAmount, setSendAmount] = useState('');
@@ -61,8 +58,6 @@ const Send = ({ config, currentAccount, setCurrentAccount, transactions, availab
 
 
     spendingUtxos.forEach((utxo, index) => {
-      console.log('xx:', utxo.address.bip32derivation[0].masterFingerprint);
-      console.log('utxo.address.bip32derivation: ', Buffer.from(utxo.address.bip32derivation[0].masterFingerprint).toString('hex'));
       if (currentAccount.config.quorum.requiredSigners > 1) {
         psbt.addInput({
           hash: utxo.txid,
@@ -107,9 +102,6 @@ const Send = ({ config, currentAccount, setCurrentAccount, transactions, availab
 
     // if only single sign, then sign tx right away
     if (currentAccount.config.quorum.requiredSigners === 1) {
-      const bip32hd = bip32.fromBase58(currentAccount.config.xprv, currentBitcoinNetwork);
-      console.log('bip32hd: ', bip32hd);
-
       const seed = await mnemonicToSeed(currentAccount.config.mnemonic);
       const root = bip32.fromSeed(seed, currentBitcoinNetwork);
 
@@ -137,14 +129,14 @@ const Send = ({ config, currentAccount, setCurrentAccount, transactions, availab
 
       <SendWrapper>
         <AccountMenu>
-          {config.vaults.map((vault) => (
-            <AccountMenuItemWrapper active={vault.name === currentAccount.name} borderRight={true} onClick={() => setCurrentAccount(vault)}>
+          {config.vaults.map((vault, index) => (
+            <AccountMenuItemWrapper active={vault.name === currentAccount.name} borderRight={(index < config.vaults.length - 1) || config.wallets.length} onClick={() => setCurrentAccount(vault)}>
               <StyledIcon as={Safe} size={48} />
               <AccountMenuItemName>{vault.name}</AccountMenuItemName>
             </AccountMenuItemWrapper>
           ))}
-          {config.wallets.map((wallet) => (
-            <AccountMenuItemWrapper active={wallet.name === currentAccount.name} borderLeft={true} onClick={() => setCurrentAccount(wallet)}>
+          {config.wallets.map((wallet, index) => (
+            <AccountMenuItemWrapper active={wallet.name === currentAccount.name} borderRight={(index < config.wallets.length - 1)} onClick={() => setCurrentAccount(wallet)}>
               <StyledIcon as={Wallet} size={48} />
               <AccountMenuItemName>{wallet.name}</AccountMenuItemName>
             </AccountMenuItemWrapper>
@@ -288,13 +280,6 @@ const SendToAddressHeader = styled.div`
   margin-bottom: 0px;
 `;
 
-const QRCodeWrapper = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 24px;
-`;
-
 const AddressDisplayWrapper = styled.div`
   display: flex;
 `;
@@ -380,13 +365,6 @@ const AccountMenuItemName = styled.div``;
 const AccountMenu = styled.div`
   display: flex;
   justify-content: space-around;
-`;
-
-const AccountSendContent = styled.div`
-  min-height: 400px;
-  padding: 1.5em;
-  display: flex;
-  background: ${lightBlue};
 `;
 
 const AccountSendContentLeft = styled.div`

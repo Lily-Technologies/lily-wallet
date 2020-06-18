@@ -1,11 +1,8 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import moment from 'moment';
-import { VerticalAlignBottom, ArrowUpward } from '@styled-icons/material';
-import { StyledIcon } from '../../components';
 import { satoshisToBitcoins } from "unchained-bitcoin";
 
-import { white, offWhite, green, gray, lightBlue } from '../../utils/colors';
+import { white, offWhite, lightBlue } from '../../utils/colors';
 
 const UtxoRow = ({ utxo, flat }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -48,33 +45,6 @@ const TransactionMoreInfo = styled.div`
   overflow: scroll;
   background: ${lightBlue};
 `;
-
-const StyledIconModified = styled(StyledIcon)`
-  padding: .5em;
-  margin-right: .75em;
-  background: ${p => p.receive ? green : gray};
-  border-radius: 50%;
-`;
-
-const TxTypeIcon = styled.div`
-  display: flex;
-  flex: ${p => p.flat ? '0 0' : '0 0 10em'};;
-  align-items: center;
-`;
-
-const TxTypeTextWrapper = styled.div`
-  display: ${p => p.flat ? 'none' : 'flex'};
-  flex-direction: column;
-`;
-
-const TxTypeText = styled.div`
-  text-transform: capitalize;
-`;
-
-
-const TxTypeTime = styled.div``;
-
-
 
 const AmountWrapper = styled.div`
   display: flex;

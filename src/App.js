@@ -10,18 +10,13 @@ import {
 import axios from 'axios';
 import BigNumber from 'bignumber.js';
 import moment from 'moment';
+import { networks } from 'bitcoinjs-lib';
 
-import { offWhite, black, gray } from './utils/colors';
+import { offWhite } from './utils/colors';
 import { mobile } from './utils/media';
-
-import { Sidebar, MobileNavbar, ErrorBoundary } from './components';
-
 import { getDataFromMultisig, getDataFromXPub, getUnchainedNetworkFromBjslibNetwork } from './utils/transactions';
 
-import { networks, bip32 } from 'bitcoinjs-lib';
-import { generateMnemonic, mnemonicToSeed } from 'bip39';
-
-import configFixture from './fixtures/config';
+import { Sidebar, MobileNavbar, ErrorBoundary } from './components';
 
 // Pages
 import Login from './pages/Login';
@@ -29,7 +24,6 @@ import GDriveImport from './pages/GDriveImport';
 import Setup from './pages/Setup';
 import Settings from './pages/Settings';
 import Vault from './pages/Vault';
-import Transfer from './pages/Transfer';
 import Receive from './pages/Receive';
 import Send from './pages/Send';
 import ColdcardImportInstructions from './pages/ColdcardImportInstructions';
@@ -199,23 +193,7 @@ function App() {
       }
       fetchTransactionsFromBlockstream();
     }
-  }, [currentAccount, config, currentBitcoinNetwork]);
-
-  useEffect(() => {
-    if (config.wallets.length) {
-      console.log('config: ', config);
-      async function getDatChildFP() {
-        const seed = await mnemonicToSeed(config.wallets[0].mnemonic);
-        const root = bip32.fromSeed(seed, currentBitcoinNetwork);
-        const path = "m/84'/0'/0'";
-        const child = root.derivePath(path).neutered();
-        const childFingerprint = child.fingerprint;
-
-        console.log('childFingerprint: ', childFingerprint);
-      }
-      getDatChildFP();
-    }
-  }, [config]);
+  }, [currentAccount, config, currentBitcoinNetwork, accountMap]);
 
   return (
     <ErrorBoundary>
@@ -234,7 +212,6 @@ function App() {
             <Route path="/setup" component={() => <Setup config={config} setConfigFile={setConfigFile} currentBitcoinNetwork={currentBitcoinNetwork} />} />
             <Route path="/login" component={() => <Login setConfigFile={setConfigFile} bitcoinQuote={bitcoinQuote} />} />
             <Route path="/settings" component={() => <Settings config={config} currentBitcoinNetwork={currentBitcoinNetwork} changeCurrentBitcoinNetwork={changeCurrentBitcoinNetwork} />} />
-            <Route path="/transfer" component={() => <Transfer config={config} currentAccount={currentAccount} setCurrentAccount={setCurrentAccountFromMap} />} />
             <Route path="/gdrive-import" component={() => <GDriveImport setConfigFile={setConfigFile} bitcoinQuote={bitcoinQuote} />} />
             <Route path="/coldcard-import-instructions" component={() => <ColdcardImportInstructions />} />
             <Route path="/" component={() => <Home accountMap={accountMap} historicalBitcoinPrice={historicalBitcoinPrice} currentBitcoinPrice={currentBitcoinPrice} loading={loadingDataFromBlockstream} />} />

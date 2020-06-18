@@ -1,16 +1,15 @@
 import React, { Fragment } from 'react';
 import styled, { css } from 'styled-components';
 import { Link, useLocation } from "react-router-dom";
-import { VerticalAlignBottom, ArrowUpward, ShowChart, AddCircleOutline, Settings } from '@styled-icons/material';
+import { VerticalAlignBottom, AddCircleOutline, Settings } from '@styled-icons/material';
 import { Safe } from '@styled-icons/crypto';
 import { Wallet } from '@styled-icons/entypo';
-import { Transfer } from '@styled-icons/boxicons-regular/Transfer';
 import { Home } from '@styled-icons/fa-solid'
 import { SendPlane } from '@styled-icons/remix-fill';
 
-import { StyledIcon, Button } from '.';
+import { StyledIcon } from '.';
 
-import { black, blue, white, offWhite, darkGray, darkOffWhite, lightBlue, lightBlack, lightGray } from '../utils/colors';
+import { blue, white, offWhite, darkGray, darkOffWhite, lightBlue, lightBlack } from '../utils/colors';
 import { mobile } from '../utils/media';
 
 
@@ -94,7 +93,6 @@ const SidebarItemStyle = css`
   font-size: 0.9em;
   display: flex;
   align-items: center;
-  pointer-events: ${p => p.loading ? 'none' : 'auto'};
 
   ${mobile(css`
     border-left: none;
@@ -105,7 +103,6 @@ const SidebarItemStyle = css`
 
   &:hover {
     background: ${offWhite};
-    cursor: ${p => p.loading ? 'wait' : 'pointer'};
   }
 `;
 
@@ -117,7 +114,8 @@ const SidebarItem = styled(Link)`
 const SidebarItemLink = styled(Link)`
   ${SidebarItemStyle};
   text-decoration: none;
-  cursor: 
+  cursor: ${p => p.loading ? 'wait' : 'pointer'};
+  pointer-events: ${p => p.loading ? 'none' : 'auto'};
 `;
 
 const WalletsHeader = styled.h3`

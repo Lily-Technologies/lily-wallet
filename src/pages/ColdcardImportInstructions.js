@@ -1,13 +1,11 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Link, useHistory } from "react-router-dom";
 import styled from 'styled-components';
-import { RestaurantMenu } from '@styled-icons/material';
-import { StyledIcon, StyledIconSpinning } from '../components';
 
 import { Button } from '../components';
 import { black, darkGray } from '../utils/colors';
 
-const ColdcardImportInstructions = ({ setCaravanFile }) => {
+const ColdcardImportInstructions = () => {
   document.title = `ColdcardImportInstructions - Lily Wallet`;
   const history = useHistory();
 
@@ -38,7 +36,6 @@ const Wrapper = styled.div`
   text-align: left;
   font-family: 'Montserrat', sans-serif;
   color: ${black};
-  // margin-top: -1px;
   align-items: center;
   display: flex;
   flex: 1;

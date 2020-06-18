@@ -1,4 +1,5 @@
 import React from 'react';
+import styled from 'styled-components';
 
 export class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -19,9 +20,28 @@ export class ErrorBoundary extends React.Component {
   render() {
     if (this.state.hasError) {
       // You can render any custom fallback UI
-      return <h1>Something went wrong.</h1>;
+      return (
+        <ErrorBoundaryContainer>
+          <LilyImage src={require('../assets/flower.svg')} />
+          <h1>Oops, something went wrong.</h1>
+
+          <h3>Please <a href="mailto:kaybesee@gmail.com" target="_blank" rel="noopener noreferrer">contact us</a> to report the error.</h3>
+        </ErrorBoundaryContainer>
+      )
     }
 
     return this.props.children;
   }
 }
+
+const ErrorBoundaryContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+`;
+
+const LilyImage = styled.img`
+  width: 9em;
+  height: 9em;
+`;

@@ -1,18 +1,15 @@
 import React, { useState, Fragment } from 'react';
-import axios from 'axios';
-import { Link, useHistory } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import styled from 'styled-components';
 import { AES } from 'crypto-js';
 import { Safe } from '@styled-icons/crypto';
 import { Wallet } from '@styled-icons/entypo';
 import moment from 'moment';
 
-import { BACKEND_URL } from '../../config';
-import { saveFileToGoogleDrive } from '../../utils/google-drive';
 import { createConfigFile, createColdCardBlob, downloadFile } from '../../utils/files';
 import { Button, DeviceSelectSetup, StyledIcon } from '../../components';
 import { GridArea, Header, HeaderLeft, HeaderRight, PageTitle } from '../../components/layout';
-import { black, gray, blue, white, darkGreen, offWhite, darkGray, darkOffWhite, lightGray, lightBlue } from '../../utils/colors';
+import { black, gray, blue, white, darkGreen, offWhite, darkGray, darkOffWhite, lightBlue } from '../../utils/colors';
 
 import CreateWallet from './CreateWallet';
 
@@ -23,7 +20,6 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
   const [importedDevices, setImportedDevices] = useState([]);
   const [availableDevices, setAvailableDevices] = useState([]);
   const [password, setPassword] = useState('');
-  const [createWallet, setCreateWallet] = useState(true);
   const history = useHistory();
 
   document.title = `Create Files - Lily Wallet`;
@@ -53,7 +49,7 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
     // KBC-TODO: electron-dl bug requires us to wait for the first file to finish downloading before downloading the second
     // this should be fixed somehow
     setTimeout(() => {
-      downloadFile(encryptedConfigFile, `lily_wallet_backup_${moment().format('MMDDYY-hhmmss')}.txt`)
+      downloadFile(encryptedConfigFile, `lily_wallet_config-${moment().format('MMDDYY-hhmmss')}.txt`)
     }, 500);
     history.push('/coldcard-import-instructions')
   }
@@ -78,13 +74,13 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
             <SignupOptionItem style={{ borderTop: `8px solid ${blue}` }} onClick={() => { setSetupOption(1); setStep(1); }}>
               <StyledIcon as={Safe} size={48} style={{ marginBottom: '0.5em' }} />
               <SignupOptionMainText>Vault</SignupOptionMainText>
-              <SignupOptionSubtext>Use Coldcards to create a 2-of-3 multisignature vault for securing Bitcoin savings.</SignupOptionSubtext>
+              <SignupOptionSubtext>Use multiple hardware wallets to create a vault for storing large amounts of Bitcoin</SignupOptionSubtext>
             </SignupOptionItem>
 
             <SignupOptionItem onClick={() => { setSetupOption(2); setStep(1); }}>
               <StyledIcon as={Wallet} size={48} style={{ marginBottom: '0.5em' }} />
               <SignupOptionMainText>Wallet</SignupOptionMainText>
-              <SignupOptionSubtext>Create a new hot wallet for discretionary spending</SignupOptionSubtext>
+              <SignupOptionSubtext>Create a new Bitcoin wallet</SignupOptionSubtext>
             </SignupOptionItem>
           </SignupOptionMenu>
         </InnerWrapper>
@@ -105,14 +101,13 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
           <BoxedWrapper>
             <XPubHeaderWrapper>
               <SetupHeaderWrapper>
-                <SetupHeader>Give this account a name</SetupHeader>
                 <SetupExplainerText>
-                  Give this account a name to reference later
+                  Give your {setupOption === 2 ? 'wallet' : 'vault'} a name (i.e. "My First {setupOption === 2 ? 'Wallet' : 'Vault'}") to identify it while using Lily.
                 </SetupExplainerText>
               </SetupHeaderWrapper>
             </XPubHeaderWrapper>
             <PasswordWrapper>
-              <PasswordInput placeholder="my savings account" value={accountName} onChange={(e) => setAccountName(e.target.value)} />
+              <PasswordInput placeholder={`${setupOption === 2 ? 'Wallet' : 'Vault'} Name`} value={accountName} onChange={(e) => setAccountName(e.target.value)} />
             </PasswordWrapper>
 
             <ExportFilesButton
@@ -123,7 +118,7 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
                 if (accountName.length > 6) {
                   setStep(2);
                 }
-              }}>{`Configure ${setupOption === 2 ? 'Wallet' : 'Vault'}`}</ExportFilesButton>
+              }}>{`Continue`}</ExportFilesButton>
           </BoxedWrapper>
         </InnerWrapper>
       ) : setupOption === 2 && step === 2 ? ( // new wallet
@@ -274,22 +269,10 @@ const SignupOptionItem = styled.div`
   }
 `;
 
-const ConfigWallet = styled.div`
-  ${Button}
-`;
-
 const BoxedWrapper = styled.div`
   background: ${white};
   border-bottom-left-radius: 4px;
   border-bottom-right-radius: 4px;
-`;
-
-const RecoveryWordsTitle = styled.div``;
-
-const RecoveryWordsText = styled.div`
-  font-size: .75em;
-  margin-top: 0.5em;
-  color: #869198;
 `;
 
 const Wrapper = styled.div`
@@ -341,11 +324,6 @@ const SetupHeader = styled.span`
   color: ${black};
 `;
 
-const SetupSubheader = styled.span`
-  font-size: 1.1em;
-  color: ${darkGray};
-`;
-
 const SetupExplainerText = styled.div`
   color: ${darkGray};
   font-size: .8em;
@@ -359,10 +337,6 @@ const PasswordWrapper = styled.div`
   border-right: 1px solid ${gray};
   border-left: 1px solid ${gray};
   background: ${white};
-`;
-
-const PasswordText = styled.h3`
-  font-weight: 100;
 `;
 
 const PasswordInput = styled.input`

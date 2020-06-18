@@ -1,11 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 
-import { BACKEND_URL } from '../../config';
-
-import { Button, StyledIcon, DeviceSelectSign } from '../../components';
-import { black, gray, blue, green, lightBlue, offWhite, darkGray, white, darkOffWhite } from '../../utils/colors';
+import { DeviceSelectSign } from '../../components';
+import { darkGray } from '../../utils/colors';
 
 const SignWithDevice = ({
   psbt,
@@ -14,14 +11,12 @@ const SignWithDevice = ({
 }) => {
   const [signedDevices, setSignedDevices] = useState([]);
   const [unsignedDevices, setUnsignedDevices] = useState([]);
-  const [finalPsbt, setFinalPsbt] = useState(psbt);
-  const [broadcastedTxId, setBroadcastedTxId] = useState(null);
 
   const signWithDevice = async (device, index) => {
     const response = await window.ipcRenderer.invoke('/sign', {
       deviceType: device.type,
       devicePath: device.path,
-      psbt: finalPsbt.toBase64()
+      psbt: psbt.toBase64()
     });
 
     setSignedPsbts([...signedPsbts, response.psbt]);
@@ -48,9 +43,6 @@ const SignWithDevice = ({
         setUnconfiguredDevices={setUnsignedDevices}
         configuredThreshold={2}
       />
-
-      {/* {signedPsbts.length === 2 && <BroadcastTransactionButton background={green} color={white} onClick={broadcastTransaction}>Broadcast Transaction</BroadcastTransactionButton>} */}
-      {/* {broadcastedTxId && <ViewTransactionButton href={`https://blockstream.info/testnet/tx/${broadcastedTxId}`}>View Transaction</ViewTransactionButton>} */}
     </TransactionDetailsWrapper>
   )
 }
@@ -87,14 +79,6 @@ const SetupExplainerText = styled.div`
   color: ${darkGray};
   font-size: .75em;
   margin: 12px 0;
-`;
-
-const BroadcastTransactionButton = styled.button`
-  ${Button}
-`;
-
-const ViewTransactionButton = styled.a`
-  ${Button}
 `;
 
 export default SignWithDevice;

@@ -11,13 +11,14 @@ export const sendGoogleAuthCodeToServer = async (code) => {
   const { data } = await axios.post(`${BACKEND_URL}/authorize`, {
     code
   });
+  return data;
 }
 
 export const saveFileToGoogleDrive = async (file) => {
   const { data } = await axios.post(`${BACKEND_URL}/files`, {
     file: file
   });
-
+  return data;
 }
 
 export const getConfigFileFromGoogleDrive = async () => {

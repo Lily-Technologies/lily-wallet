@@ -7,14 +7,6 @@ export const downloadFile = (file, filename) => {
   const fileUrl = URL.createObjectURL(file);
 
   window.ipcRenderer.send('download-item', { url: fileUrl, filename: filename })
-
-
-  // const element = document.createElement("a");
-  // element.href = URL.createObjectURL(file);
-  // element.download = filename;
-  // document.body.appendChild(element); // Required for this to work in FireFox
-  // element.click();
-  // document.body.removeChild(element);
 }
 
 export const createConfigFile = (importedDevices, accountName, config, currentBitcoinNetwork) => {

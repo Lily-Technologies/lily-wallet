@@ -1,38 +1,15 @@
-import React, { useState } from 'react';
-import styled, { css } from 'styled-components';
+import React, { useState, useEffect } from 'react';
+import styled from 'styled-components';
 import moment from 'moment';
 import { satoshisToBitcoins } from "unchained-bitcoin";
 import { Bitcoin } from '@styled-icons/boxicons-logos';
 import { RestaurantMenu } from '@styled-icons/material';
-import { AreaChart, Area, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
+import { AreaChart, Area, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts';
 import { Link } from "react-router-dom";
 
-import { PageWrapper, PageTitle, Header, HeaderLeft, Button, StyledIcon, StyledIconSpinning } from '../components';
+import { PageWrapper, StyledIcon, StyledIconSpinning } from '../components';
 
-import { blue, darkGray, white, lightBlue, offWhite, darkOffWhite, gray, black } from '../utils/colors';
-import { downloadFile } from '../utils/files';
-import { mobile } from '../utils/media';
-import { getUnchainedNetworkFromBjslibNetwork } from '../utils/transactions';
-
-const modalStyles = {
-  overlay: {
-    backgroundColor: 'rgba(0, 0, 0, 0.75)',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  content: {
-    top: 'auto',
-    left: 'auto',
-    right: 'auto',
-    bottom: 'auto',
-    display: 'flex',
-    flexDirection: 'column',
-    maxWidth: '500px',
-    width: '100%',
-    minHeight: '500px'
-  }
-}
+import { blue, darkGray, white, lightBlue, offWhite, gray } from '../utils/colors';
 
 var formatter = new Intl.NumberFormat('en-US', {
   style: 'currency',
@@ -52,24 +29,39 @@ const CustomTooltip = ({ active, payload, label }) => {
   return null;
 };
 
-const CustomTick = ({ x, y, stroke, payload }) => {
-  return (
-    <g transform={`translate(${x},${y})`} stroke={black}>
-      <text x={0} y={0} dy={0} textAnchor="end" fill="#666">{moment(payload.value).format('MMM YYYY')}</text>
-    </g>
-  )
-}
-
-
 const Home = ({ config, accountMap, historicalBitcoinPrice, currentBitcoinPrice, loading }) => {
-  const [currentDomain, setCurrentDomain] = useState(['dataMin', 'dataMax']);
+  const [currentDomain, setCurrentDomain] = useState(0);
+  const [btcPriceFormattedForChart, setBtcPriceFormattedForChart] = useState([]);
 
-  const priceForChart = Object.keys(historicalBitcoinPrice).map((date) => {
-    return {
-      price: historicalBitcoinPrice[date],
-      date: date
+  useEffect(() => {
+    let priceForChart = [];
+    for (let i = 0; i < Object.keys(historicalBitcoinPrice).length; i++) {
+      if (i > currentDomain) {
+        priceForChart.push({
+          price: Object.values(historicalBitcoinPrice)[i],
+          date: Object.keys(historicalBitcoinPrice)[i]
+        })
+      }
     }
-  });
+    setBtcPriceFormattedForChart(priceForChart);
+  }, []) // eslint-disable-line
+
+  const oneMonthDomain = Object.keys(historicalBitcoinPrice).length - 31;
+  const sixMonthDomain = Object.keys(historicalBitcoinPrice).length - (30 * 6);
+  const oneYearDomain = Object.keys(historicalBitcoinPrice).length - 365;
+  const allDomain = 0;
+
+  const getChartInterval = () => {
+    if (currentDomain === allDomain) {
+      return 465
+    } else if (currentDomain === oneMonthDomain) {
+      return 3
+    } else if (currentDomain === sixMonthDomain) {
+      return 21
+    } else if (currentDomain === oneYearDomain) {
+      return 35
+    }
+  }
 
   return (
     <PageWrapper>
@@ -80,30 +72,37 @@ const Home = ({ config, accountMap, historicalBitcoinPrice, currentBitcoinPrice,
             1BTC = {formatter.format(currentBitcoinPrice.toNumber())}
           </CurrentBitcoinPriceContainer>
           <ChartControlsContainer>
-            <ChartControlItem onClick={() => setCurrentDomain()}>1W</ChartControlItem>
-            <ChartControlItem onClick={() => setCurrentDomain()}>1M</ChartControlItem>
-            <ChartControlItem onClick={() => setCurrentDomain()}>1Y</ChartControlItem>
-            <ChartControlItem active={true} onClick={() => setCurrentDomain()}>ALL</ChartControlItem>
+            <ChartControlItem active={currentDomain === oneMonthDomain} onClick={() => setCurrentDomain(oneMonthDomain)}>1M</ChartControlItem>
+            <ChartControlItem active={currentDomain === sixMonthDomain} onClick={() => setCurrentDomain(sixMonthDomain)}>6M</ChartControlItem>
+            <ChartControlItem active={currentDomain === oneYearDomain} onClick={() => setCurrentDomain(oneYearDomain)}>1Y</ChartControlItem>
+            <ChartControlItem active={currentDomain === 0} onClick={() => setCurrentDomain(0)}>ALL</ChartControlItem>
           </ChartControlsContainer>
-        </ChartInfo>
+        </ChartInfo >
         <ResponsiveContainer width="100%" height={400}>
-          <AreaChart width={400} height={400} data={[...priceForChart]}>
+          <AreaChart width={400} height={400} data={btcPriceFormattedForChart.slice(currentDomain)}>
+            <YAxis hide={true} domain={['dataMin - 500', 'dataMax + 500']} />
             <XAxis
               dataKey="date"
               tickCount={6}
-              interval={425} // TODO: adjust to accept 1yr, 1month, 1 week, need to use domain prop
+              interval={getChartInterval()} // TODO: adjust to accept 1yr, 1month, 1 week, need to use domain prop
               tickLine={false}
               tickFormatter={(date) => {
-                return moment(date).format('MMM YYYY')
+                if (currentDomain === oneMonthDomain) {
+                  return moment(date).format('MMM D')
+                } else if (currentDomain === sixMonthDomain) {
+                  return moment(date).format('MMM D')
+                } else {
+                  return moment(date).format('MMM YYYY')
+                }
               }}
-              domain={['2020-01-01', 'auto']}
             />
             <Area
               type="monotone"
               dataKey="price"
               stroke={blue}
               strokeWidth={2}
-              isAnimationActive={!!!accountMap}
+              // type="number"
+              // isAnimationActive={!!!accountMap}
               fill={lightBlue} />
             {/* <CartesianGrid strokeDasharray="3 3" /> */}
             <Tooltip
@@ -117,7 +116,7 @@ const Home = ({ config, accountMap, historicalBitcoinPrice, currentBitcoinPrice,
               content={<CustomTooltip />} />
           </AreaChart>
         </ResponsiveContainer>
-      </ChartContainer>
+      </ChartContainer >
 
       <HomeHeadingItem style={{ marginTop: '2.5em', marginBottom: '1em' }}>Your Accounts</HomeHeadingItem>
 
@@ -128,7 +127,7 @@ const Home = ({ config, accountMap, historicalBitcoinPrice, currentBitcoinPrice,
           <LoadingSubText>Please wait...</LoadingSubText>
         </LoadingAnimation>}
         {[...accountMap.values()].map((account) => (
-          <AccountItem to={`/vault/${account.config.id}`}>
+          <AccountItem to={`/vault/${account.config.id}`} key={account.config.id}>
             <StyledIcon as={Bitcoin} size={36} />
             <AccountInfoContainer>
               <AccountName>{account.name}</AccountName>

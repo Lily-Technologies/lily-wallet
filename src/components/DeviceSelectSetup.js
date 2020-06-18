@@ -3,7 +3,7 @@ import styled, { keyframes } from 'styled-components';
 import { ErrorOutline, CheckCircle } from '@styled-icons/material';
 
 import { Button, StyledIcon } from '../components';
-import { lightGreen, gray, lightBlue, green, blue, white, darkGray, offWhite } from '../utils/colors';
+import { lightGreen, gray, green, blue, white, darkGray, offWhite } from '../utils/colors';
 
 export const DeviceSelectSetup = ({ style, configuredDevices, unconfiguredDevices, setUnconfiguredDevices, configuredThreshold, deviceAction }) => {
   const [devicesLoading, setDevicesLoading] = useState(false);
@@ -12,7 +12,7 @@ export const DeviceSelectSetup = ({ style, configuredDevices, unconfiguredDevice
 
   useEffect(() => {
     enumerate();
-  }, []);
+  }, []); // eslint-disable-line
 
   const enumerate = async () => {
     setDevicesLoading(true);
@@ -21,7 +21,7 @@ export const DeviceSelectSetup = ({ style, configuredDevices, unconfiguredDevice
     setDevicesLoading(false);
 
     // filter out devices that are available but already imported
-    const filteredDevices = response.filter((device) => {
+    const filteredDevices = response.filter((device) => { // eslint-disable-line
       let deviceAlreadyConfigured = false;
       for (let i = 0; i < configuredDevices.length; i++) {
         if (configuredDevices[i].fingerprint === device.fingerprint) {
@@ -45,24 +45,32 @@ export const DeviceSelectSetup = ({ style, configuredDevices, unconfiguredDevice
     <Wrapper>
       <DevicesWrapper>
         {configuredDevices.map((device, index) => (
-          <DeviceWrapper key={index} imported={true}>
+          <DeviceWrapper
+            key={index}
+            imported={true}
+            displayLoadingCursor={deviceActionLoading !== null}>
             <ImportedWrapper style={{ color: green, alignSelf: 'flex-end' }}>
               <StyledIcon as={CheckCircle} size={24} />
             </ImportedWrapper>
-            <DeviceImage src={"https://coldcardwallet.com/static/images/coldcard-front.png"} />
-            <DeviceName>{device.model}</DeviceName>
+            <DeviceImage src={device.type === 'coldcard' ? require('../assets/coldcard.png') : require('../assets/trezor.png')} />
+            <DeviceName>{device.type}</DeviceName>
             <DeviceFingerprint imported={true}>{device.fingerprint}</DeviceFingerprint>
           </DeviceWrapper>
         ))}
 
         {unconfiguredDevices.map((device, index) => (
-          <DeviceWrapper key={index} onClick={() => {
-            if (deviceActionLoading === null) {
-              performDeviceAction(device, index)
-            }
-          }} loading={deviceActionLoading === index}>
-            <DeviceImage loading={deviceActionLoading === index} src={"https://coldcardwallet.com/static/images/coldcard-front.png"} />
-            <DeviceName>{device.model}</DeviceName>
+          <DeviceWrapper
+            key={index}
+            onClick={() => {
+              if (deviceActionLoading === null) {
+                performDeviceAction(device, index)
+              }
+            }}
+            loading={deviceActionLoading === index}
+            displayLoadingCursor={deviceActionLoading !== null}
+          >
+            <DeviceImage loading={deviceActionLoading === index} src={device.type === 'coldcard' ? require('../assets/coldcard.png') : require('../assets/trezor.png')} />
+            <DeviceName>{device.type}</DeviceName>
             <DeviceFingerprint>{device.fingerprint}</DeviceFingerprint>
             <ImportedWrapper>
               {deviceActionLoading === index ? (
@@ -154,7 +162,7 @@ const DeviceWrapper = styled.div`
   border: ${p => p.imported ? `1px solid ${green}` : p.loading ? darkGray : 'none'};
 
   &:hover {
-    cursor: pointer;
+    cursor: ${p => p.displayLoadingCursor ? 'wait' : 'pointer'};
     // background: ${p => p.imported ? lightGreen : p.loading ? 'none' : offWhite};
     // border: 1px solid ${p => p.imported ? 'none' : p.loading ? 'none' : darkGray};
     // padding: ${p => p.imported ? 'none' : p.loading ? 'none' : '11px'};

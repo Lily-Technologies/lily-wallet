@@ -2,7 +2,7 @@ import React from 'react';
 import styled, { css } from 'styled-components';
 
 import { mobile } from '../utils/media';
-import { black, darkGray } from '../utils/colors';
+import { black } from '../utils/colors';
 
 export const PageWrapper = ({ children }) => {
   return (

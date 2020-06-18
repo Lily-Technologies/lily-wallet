@@ -29,7 +29,7 @@ const RecentTransactions = ({ transactions, loading, flat = false, maxItems = In
         <LoadingSubText>Please wait...</LoadingSubText>
       </LoadingAnimation>}
       <TransactionsWrapper>
-        {transactions.map((transaction, index) => {
+        {transactions.map((transaction, index) => { // eslint-disable-line
           if (index < maxItems) {
             return (
               <TransactionRowWrapper key={index}>

@@ -1,17 +1,14 @@
 import React, { useState, useEffect, Fragment } from 'react';
 import styled from 'styled-components';
 import { AES } from 'crypto-js';
-import { bip32, networks } from 'bitcoinjs-lib';
-import { QRCode } from "react-qr-svg";
+import { bip32 } from 'bitcoinjs-lib';
 import { generateMnemonic, mnemonicToSeed } from 'bip39';
 import { v4 as uuidv4 } from 'uuid';
 import { useHistory } from "react-router-dom";
 import moment from 'moment';
-import b58 from 'bs58check';
 
-import { Button } from '../../components';
-import { lightBlue, blue, white, black, darkOffWhite, lightGray, darkGray, gray } from '../../utils/colors';
-import { saveFileToGoogleDrive } from '../../utils/google-drive';
+import { Button, MnemonicWordsDisplayer } from '../../components';
+import { lightBlue, blue, white, darkOffWhite, lightGray, darkGray, gray } from '../../utils/colors';
 import { getUnchainedNetworkFromBjslibNetwork } from '../../utils/transactions';
 import { downloadFile } from '../../utils/files';
 
@@ -27,23 +24,18 @@ const CreateWallet = ({ config, accountName, setConfigFile, currentBitcoinNetwor
     setMnemonicWords(generateMnemonic(256));
   }, []);
 
-  const mnemonicWordsArray = mnemonicWords.split(" ");
-
   const exportSetupFiles = async () => {
     const contentType = "text/plain;charset=utf-8;";
     const configCopy = { ...config };
     configCopy.isEmpty = false;
 
     // taken from BlueWallet so you can import and use on mobile
-    console.log('mnemonicWords: ', mnemonicWords);
     const seed = await mnemonicToSeed(mnemonicWords);
     const root = bip32.fromSeed(seed, currentBitcoinNetwork);
     const path = "m/84'/0'/0'";
     const child = root.derivePath(path).neutered();
     const xpubString = child.toBase58();
     const xprvString = root.derivePath(path).toBase58();
-
-    const masterXprvString = root.toBase58();
 
     configCopy.wallets.push({
       id: uuidv4(),
@@ -53,7 +45,6 @@ const CreateWallet = ({ config, accountName, setConfigFile, currentBitcoinNetwor
       quorum: { requiredSigners: 1, totalSigners: 1 },
       xpub: xpubString,
       xprv: xprvString,
-      masterXprv: masterXprvString,
       mnemonic: mnemonicWords,
       parentFingerprint: root.fingerprint
     });
@@ -78,43 +69,12 @@ const CreateWallet = ({ config, accountName, setConfigFile, currentBitcoinNetwor
                 These 24 words are the keys to your wallet.
                 Write them down and keep them in a safe place.
                 Do not share them with anyone else.
-                These can be used to recover your wallet and send funds.
+                These can be used to recover your wallet if you lose your configuration file.
               </SetupExplainerText>
             </SetupHeaderWrapper>
           </XPubHeaderWrapper>
           <WordContainer>
-            <WordSection>
-              {mnemonicWordsArray.slice(0, 6).map((word, index) => (
-                <Word>
-                  <WordIndex>({index + 1})</WordIndex>
-                  {word}
-                </Word>
-              ))}
-            </WordSection>
-            <WordSection>
-              {mnemonicWordsArray.slice(6, 12).map((word, index) => (
-                <Word>
-                  <WordIndex>({index + 7}) </WordIndex>
-                  {word}
-                </Word>
-              ))}
-            </WordSection>
-            <WordSection>
-              {mnemonicWordsArray.slice(12, 18).map((word, index) => (
-                <Word>
-                  <WordIndex>({index + 13})</WordIndex>
-                  {word}
-                </Word>
-              ))}
-            </WordSection>
-            <WordSection>
-              {mnemonicWordsArray.slice(18, 24).map((word, index) => (
-                <Word>
-                  <WordIndex>({index + 19})</WordIndex>
-                  {word}
-                </Word>
-              ))}
-            </WordSection>
+            <MnemonicWordsDisplayer mnemonicWords={mnemonicWords} />
           </WordContainer>
           <SaveWalletButton onClick={() => setCreateWalletStep(1)}>
             I have written these words down
@@ -172,13 +132,11 @@ const SetupHeaderWrapper = styled.div`
   padding: 0 48px 0 0;
 `;
 
-const SaveWalletButtonContainer = styled.div`
-  padding: 1.5em;
-`;
-
 const SaveWalletButton = styled.div`
   ${Button};
   flex: 1;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
 `;
 
 const PasswordWrapper = styled.div`
@@ -191,6 +149,17 @@ const PasswordWrapper = styled.div`
 
 const PasswordText = styled.h3`
   font-weight: 100;
+`;
+
+const WordContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  padding: 1.25em;
+  background: ${lightBlue};
+  justify-content: center;
+  border-bottom: 1px solid ${darkOffWhite};
+  border-left: 1px solid ${gray};
+  border-right: 1px solid ${gray};
 `;
 
 const PasswordInput = styled.input`
@@ -226,17 +195,6 @@ const Wrapper = styled.div`
   background: ${white};
 `;
 
-const WordContainer = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  padding: 1.25em;
-  background: ${lightBlue};
-  justify-content: center;
-  border-bottom: 1px solid ${darkOffWhite};
-  border-left: 1px solid ${gray};
-  border-right: 1px solid ${gray};
-`;
-
 const SaveWalletContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
@@ -245,29 +203,6 @@ const SaveWalletContainer = styled.div`
   justify-content: center;
   border-top: 1px solid ${darkOffWhite} !important;
   border: 1px solid ${gray};
-`;
-
-const WordSection = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
-
-const Word = styled.div`
-  padding: 1.25em;
-  margin: .25em;
-  background: ${white};
-  border: 1px solid ${blue};
-  border-radius: 4px;
-  position: relative;
-  text-align: center;
-`;
-
-const WordIndex = styled.span`
-  position: absolute;
-  top: 5px;
-  left: 5px;
-  font-size: .5em;
-  color: #869198;
 `;
 
 export default CreateWallet;

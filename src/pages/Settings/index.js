@@ -9,7 +9,6 @@ import { PageWrapper, PageTitle, Header, HeaderLeft, Button } from '../../compon
 import { blue, darkGray, white, lightBlue, darkOffWhite, lightGray, gray } from '../../utils/colors';
 import { downloadFile } from '../../utils/files';
 import { mobile } from '../../utils/media';
-import { getUnchainedNetworkFromBjslibNetwork } from '../../utils/transactions';
 
 const modalStyles = {
   overlay: {
@@ -31,19 +30,15 @@ const modalStyles = {
   }
 }
 
-const Settings = ({ config, changeCurrentBitcoinNetwork, currentBitcoinNetwork }) => {
-  const [networkModalIsOpen, setNetworkModalIsOpen] = useState(false);
+const Settings = ({ config }) => {
   const [downloadConfigModalIsOpen, setDownloadConfigModalIsOpen] = useState(false);
   const [password, setPassword] = useState(null);
 
 
   const downloadCurrentConfig = (password) => {
     const contentType = "text/plain;charset=utf-8;";
-
-    const encryptedConfigObject = AES.encrypt(JSON.stringify(config), password).toString(); //KBC-TODO: add password modal to input password
-    // const encryptedConfigObject = JSON.stringify(config) //KBC-TODO: add password modal to input password
+    const encryptedConfigObject = AES.encrypt(JSON.stringify(config), password).toString();
     var encryptedConfigFile = new Blob([decodeURIComponent(encodeURI(encryptedConfigObject))], { type: contentType });
-
     downloadFile(encryptedConfigFile, `lily_wallet_config-${moment().format()}.txt`);
   }
 
@@ -58,8 +53,8 @@ const Settings = ({ config, changeCurrentBitcoinNetwork, currentBitcoinNetwork }
         <SettingsHeadingItem style={{ marginTop: '0.5em' }}>Data and Backups</SettingsHeadingItem>
         <SettingsSection>
           <SettingsSectionLeft>
-            <SettingsHeader>Encrypted Backups</SettingsHeader>
-            <SettingsSubheader>These are the current encrypted backup files in your Google Drive. You can connect other backup providers here.</SettingsSubheader>
+            <SettingsHeader>Export Current Configuration</SettingsHeader>
+            <SettingsSubheader>Download your current vault configuration. This allows you to import your current configuration on a different machine running Lily.</SettingsSubheader>
           </SettingsSectionLeft>
           <SettingsSectionRight>
             <ViewAddressesButton
@@ -154,37 +149,6 @@ const ViewAddressesButton = styled.div`
   }
 `;
 
-const KeysRow = styled.div`
-  display: flex;
-  flex-direction: column;
-  padding: 1em;
-`;
-
-const KeysRowUpper = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-`;
-
-const KeyNameContainer = styled.div`
-`;
-
-const KeyRowLower = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-`;
-
-const XPubContainer = styled.div`
-  font-size: .5em;
-  color: ${darkGray};
-  word-break: break-all;
-`;
-
-const Bip32PathContainer = styled.div`
-  font-size: .5em;
-  color: ${darkGray};
-`;
-
 const PasswordWrapper = styled.div`
   padding: 1.5em;
   display: flex;
@@ -192,7 +156,7 @@ const PasswordWrapper = styled.div`
 `;
 
 const PasswordText = styled.h3`
-  font-weight: 100;
+  font-weight: 400;
 `;
 
 const PasswordInput = styled.input`

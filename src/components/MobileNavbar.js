@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import styled, { css } from 'styled-components';
 import { KeyboardArrowDown } from '@styled-icons/material';
-import { Link } from "react-router-dom";
 
 import { NavLinks } from './NavLinks';
 
-import { black, blue, white, offWhite, darkGray, darkOffWhite, lightBlue, lightBlack, lightGray } from '../utils/colors';
+import { white, darkGray, lightBlack, lightGray } from '../utils/colors';
 import rem from '../utils/rem';
 import { mobile } from '../utils/media';
 

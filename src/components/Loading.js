@@ -1,5 +1,5 @@
 import styled, { keyframes } from 'styled-components';
-import { green, lightGreen } from '../utils/colors';
+import { lightGreen } from '../utils/colors';
 // Loading State
 
 export const placeHolderShimmer = keyframes`

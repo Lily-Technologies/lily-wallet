@@ -4,16 +4,11 @@ import axios from 'axios';
 import { ArrowIosForwardOutline } from '@styled-icons/evaicons-outline'
 
 import {
-  deriveChildPublicKey,
   blockExplorerAPIURL,
   satoshisToBitcoins,
-  bitcoinsToSatoshis,
-  multisigWitnessScript,
-  scriptToHex,
-  MAINNET
 } from "unchained-bitcoin";
 
-import { payments, ECPair, networks, Psbt, address } from 'bitcoinjs-lib';
+import { Psbt, address } from 'bitcoinjs-lib';
 
 import { cloneBuffer } from '../../utils/other';
 import { StyledIcon, Button, SidewaysShake } from '../../components';
@@ -77,7 +72,7 @@ const TransactionDetails = ({ finalPsbt, feeEstimate, outputTotal, recipientAddr
               )}
             </SendButton>
 
-            {broadcastedTxId && <ViewTransactionButton href={`https://blockstream.info/testnet/tx/${broadcastedTxId}`}>View Transaction</ViewTransactionButton>}
+            {broadcastedTxId && <ViewTransactionButton href={`https://blockstream.info/testnet/tx/${broadcastedTxId}`} target="_blank">View Transaction</ViewTransactionButton>}
             <MoreDetails>
               <span onClick={() => setShowMoreDetails(!showMoreDetails)}>{showMoreDetails ? 'Less' : 'More'} Details ></span>
               <span onClick={() => setStep(0)}>Edit Transaction</span>
@@ -135,12 +130,6 @@ const MainTxData = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-`;
-
-const SendAmountRow = styled.div`
-  font-size: 1.5em;
-  align-self: center;
-  padding: 1.5em;
 `;
 
 const RecipientAddressRow = styled.div`
@@ -254,51 +243,6 @@ const ErrorBox = styled.div`
   border: 1px solid ${red};
   margin: 1.5em 0;
 `;
-
-// /* Radial Out */
-// .hvr - radial - out {
-//   display: inline - block;
-//   vertical - align: middle;
-//   -webkit - transform: translateZ(0);
-//   transform: translateZ(0);
-//   box - shadow: 0 0 1px rgba(0, 0, 0, 0);
-//   -webkit - backface - visibility: hidden;
-//   backface - visibility: hidden;
-//   -moz - osx - font - smoothing: grayscale;
-//   position: relative;
-//   overflow: hidden;
-//   background: #e1e1e1;
-//   -webkit - transition - property: color;
-//   transition - property: color;
-//   -webkit - transition - duration: 0.3s;
-//   transition - duration: 0.3s;
-// }
-// &: before {
-//   content: "";
-//   position: absolute;
-//   z - index: -1;
-//   top: 0;
-//   left: 0;
-//   right: 0;
-//   bottom: 0;
-//   background: #2098d1;
-//   border - radius: 100 %;
-//   -webkit - transform: scale(0);
-//   transform: scale(0);
-//   -webkit - transition - property: transform;
-//   transition - property: transform;
-//   -webkit - transition - duration: 0.3s;
-//   transition - duration: 0.3s;
-//   -webkit - transition - timing - function: ease- out;
-//   transition - timing - function: ease- out;
-// }
-// .hvr - radial - out: hover, .hvr - radial - out: focus, .hvr - radial - out: active {
-//   color: white;
-// }
-// .hvr - radial - out: hover: before, .hvr - radial - out: focus: before, .hvr - radial - out: active: before {
-//   -webkit - transform: scale(2);
-//   transform: scale(2);
-// }
 
 const InputStyles = css`
   border: 1px solid ${darkOffWhite};

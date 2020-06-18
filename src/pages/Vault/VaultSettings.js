@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import styled, { css } from 'styled-components';
 import { AES } from 'crypto-js';
-import { Link, useHistory } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import Modal from 'react-modal';
 import { QRCode } from "react-qr-svg";
-import { bip32 } from 'bitcoinjs-lib';
+import moment from 'moment';
 
-import { black, gray, white, blue, darkGray, darkOffWhite, lightBlue, red } from '../../utils/colors';
-import { saveFileToGoogleDrive } from '../../utils/google-drive';
+import { MnemonicWordsDisplayer } from '../../components';
+
+import { black, gray, white, blue, darkGray, darkOffWhite, lightBlue, red, lightGray, darkGreen } from '../../utils/colors';
 import { mobile } from '../../utils/media';
 import { createColdCardBlob, downloadFile } from '../../utils/files';
 
@@ -27,23 +28,26 @@ const modalStyles = {
     flexDirection: 'column',
     maxWidth: '500px',
     width: '100%',
-    minHeight: '500px'
+    minHeight: '500px',
+    justifyContent: 'center',
+    alignItems: 'center'
   }
 }
 
 const VaultSettings = ({ config, setConfigFile, currentAccount, setViewAddresses, setViewUtxos, currentBitcoinNetwork }) => {
+  const [viewXpub, setViewXpub] = useState(false);
   const [viewExportQRCode, setViewExportQRCode] = useState(false);
   const [viewMnemonic, setViewMnemonic] = useState(false);
+  const [viewDeleteAccount, setViewDeleteAccount] = useState(false);
+  const [configEncryptionPassword, setConfigEncryptionPassword] = useState('');
   const history = useHistory();
-
-  console.log('currentBitcoinNetwork: ', currentBitcoinNetwork);
 
   const downloadColdcardMultisigFile = () => {
     const ccFile = createColdCardBlob(currentAccount.config.extendedPublicKeys);
     downloadFile(ccFile, "coldcard_import_file.txt");
   }
 
-  const getQrCode = () => {
+  const getMnemonicQrCode = () => {
     return (
       <div>
         <QRCode
@@ -57,12 +61,49 @@ const VaultSettings = ({ config, setConfigFile, currentAccount, setViewAddresses
     )
   }
 
-  const getMnemonic = () => {
+  const getXpubQrCode = () => {
     return (
       <div>
-        {/* KBC-TODO: add mnemonic component */}
+        <QRCode
+          bgColor={white}
+          fgColor={black}
+          level="Q"
+          style={{ width: 256 }}
+          value={currentAccount.config.xpub}
+        />
       </div>
     )
+  }
+
+  const getMnemonic = () => {
+    return (
+      <WordsContainer>
+        <MnemonicWordsDisplayer mnemonicWords={currentAccount.config.mnemonic} />
+      </WordsContainer>
+    )
+  }
+
+  const onInputEnter = (e) => {
+    if (e.key === 'Enter') {
+      removeAccountAndDownloadConfig();
+    }
+  }
+
+  const removeAccountAndDownloadConfig = () => {
+    const contentType = "text/plain;charset=utf-8;";
+    const configCopy = { ...config };
+    if (currentAccount.config.quorum.requiredSigners === 1) {
+      configCopy.wallets = configCopy.wallets.filter((wallet) => wallet.id !== currentAccount.config.id)
+    } else {
+      configCopy.vaults = configCopy.vaults.filter((vault) => vault.id !== currentAccount.config.id)
+    }
+
+    const encryptedConfigObject = AES.encrypt(JSON.stringify(configCopy), configEncryptionPassword).toString();
+    const encryptedConfigFile = new Blob([decodeURIComponent(encodeURI(encryptedConfigObject))], { type: contentType });
+
+    downloadFile(encryptedConfigFile, `lily_wallet_config-${moment().format('MMDDYY-hhmmss')}.txt`);
+    setConfigFile(configCopy);
+    history.push('/');
   }
 
   return (
@@ -70,15 +111,6 @@ const VaultSettings = ({ config, setConfigFile, currentAccount, setViewAddresses
     <Wrapper>
       <TotalValueHeader>Settings</TotalValueHeader>
       <SettingsHeadingItem>Vault Data</SettingsHeadingItem>
-      <SettingsSection>
-        <SettingsSectionLeft>
-          <SettingsHeader>XPubs</SettingsHeader>
-          <SettingsSubheader>View the xpubs associated with this vault</SettingsSubheader>
-        </SettingsSectionLeft>
-        <SettingsSectionRight>
-          <ViewAddressesButton>View XPubs</ViewAddressesButton>
-        </SettingsSectionRight>
-      </SettingsSection>
       <SettingsSection>
         <SettingsSectionLeft>
           <SettingsHeader>Addresses</SettingsHeader>
@@ -97,6 +129,26 @@ const VaultSettings = ({ config, setConfigFile, currentAccount, setViewAddresses
           <ViewAddressesButton onClick={() => { setViewUtxos(true); }}>View UTXOs</ViewAddressesButton>
         </SettingsSectionRight>
       </SettingsSection>
+      {/* KBC-TODO: design a good way to display xpubs and fingerprint data here */}
+      {currentAccount.config.quorum.totalSigners === 1 && (
+        <SettingsSection>
+          <SettingsSectionLeft>
+            <SettingsHeader>View XPub</SettingsHeader>
+            <SettingsSubheader>View the xpub associated with this vault. This can be given to other services to deposit money into your account or create a read-only wallet.</SettingsSubheader>
+          </SettingsSectionLeft>
+          <SettingsSectionRight>
+            <ViewAddressesButton onClick={() => { setViewXpub(true); }}>View XPub</ViewAddressesButton>
+          </SettingsSectionRight>
+
+          <Modal
+            isOpen={viewXpub}
+            onRequestClose={() => setViewXpub(false)}
+            style={modalStyles}>
+            {getXpubQrCode()}
+            <XpubWellWrapper>{currentAccount.config.xpub}</XpubWellWrapper>
+          </Modal>
+        </SettingsSection>
+      )}
 
       <SettingsHeadingItem>Export Wallet</SettingsHeadingItem>
       {currentAccount.config.quorum.totalSigners === 1 && (
@@ -113,11 +165,9 @@ const VaultSettings = ({ config, setConfigFile, currentAccount, setViewAddresses
             isOpen={viewExportQRCode}
             onRequestClose={() => setViewExportQRCode(false)}
             style={modalStyles}>
-
-            {getQrCode()}
+            {getMnemonicQrCode()}
+            <ScanInstructions>Scan this QR code to import this wallet into BlueWallet</ScanInstructions>
           </Modal>
-
-
         </SettingsSection>
       )}
       {currentAccount.config.quorum.totalSigners === 1 && (
@@ -166,31 +216,83 @@ const VaultSettings = ({ config, setConfigFile, currentAccount, setViewAddresses
           <ViewAddressesButton
             style={{ color: red, border: `1px solid ${red}` }}
             onClick={() => {
-              const configCopy = { ...config };
-              if (currentAccount.config.quorum.requiredSigners === 1) {
-                configCopy.wallets = configCopy.wallets.filter((wallet) => wallet.id !== currentAccount.config.id)
-              } else {
-                configCopy.vaults = configCopy.vaults.filter((vault) => vault.id !== currentAccount.config.id)
-              }
-
-              const encryptedConfigObject = AES.encrypt(JSON.stringify(configCopy), 'testtest').toString();
-
-              saveFileToGoogleDrive(encryptedConfigObject);
-              setConfigFile(configCopy);
-              history.push('/settings');
-
+              setViewDeleteAccount(true)
             }}>Delete Account</ViewAddressesButton>
         </SettingsSectionRight>
+
+        <Modal
+          isOpen={viewDeleteAccount}
+          onRequestClose={() => setViewDeleteAccount(false)}
+          style={{ ...modalStyles, content: { ...modalStyles.content, border: `5px solid ${red}` } }}>
+
+          <DangerText>Danger!</DangerText>
+
+          <DangerSubtext>
+            You are about to delete an account from this configuration.
+             <br />
+             If there are any funds remaining in this account, they will be lost forever.
+             </DangerSubtext>
+          <EnterPasswordSubtext>If you would like to continue, enter a password to encrypt your updated configuration file.</EnterPasswordSubtext>
+
+          <PasswordInput placeholder="password" autoFocus type="password" value={configEncryptionPassword} onChange={(e) => setConfigEncryptionPassword(e.target.value)} onKeyDown={(e) => onInputEnter(e)} />
+
+          <ViewAddressesButton
+            style={{ color: red, border: `1px solid ${red}` }}
+            onClick={() => { removeAccountAndDownloadConfig() }}>Delete Account</ViewAddressesButton>
+        </Modal>
+
       </SettingsSection>
     </Wrapper>
   )
 }
+
+const DangerText = styled.div`
+  font-size: 1.5em;
+  text-align: center;
+  font-weight: 800;
+  color: ${red};
+`;
+
+const DangerSubtext = styled.div`
+  padding-bottom: 2em;
+  text-align: center;
+`;
+
+const EnterPasswordSubtext = styled.div`
+  color: ${gray};
+`;
 
 const Wrapper = styled.div`
   background: ${lightBlue};
   padding: 1.5em;
   box-shadow: rgba(0, 0, 0, 0.15) 0px 5px 15px 0px;
   border-top: solid 11px ${blue};
+`;
+
+const PasswordInput = styled.input`
+  position: relative;
+  border: 1px solid ${darkOffWhite};
+  background: ${lightGray};
+  padding: .75em;
+  text-align: center;
+  color: ${darkGray};
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 16px;
+  border-radius: 4px;
+  font-size: 1.5em;
+  z-index: 1;
+  font-family: 'Montserrat', sans-serif;
+
+  ::placeholder {
+    color: ${gray};
+  }
+
+  :active, :focused {
+    outline: 0;
+    border: none;
+  }
 `;
 
 const SettingsSection = styled.div`
@@ -216,6 +318,18 @@ const SettingsSectionLeft = styled.div`
     grid-column: span 1;
   `)};
 `;
+
+const WordsContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  padding: 1.25em;
+  justify-content: center;
+`;
+
+const ScanInstructions = styled.div`
+  font-size: 0.5em;
+  padding: 1.5em 0;
+`
 
 const SettingsSectionRight = styled.div``;
 
@@ -248,6 +362,19 @@ const ViewAddressesButton = styled.div`
 
 const TotalValueHeader = styled.div`
   font-size: 36px;
+`;
+
+const XpubWellWrapper = styled.div`
+  border: 1px solid ${darkOffWhite};
+  background: ${lightGray};
+  padding: 1.5em;
+  color: ${darkGreen};
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 16px;
+  border-radius: 4px;
+  word-break: break-all;
 `;
 
 export default VaultSettings;

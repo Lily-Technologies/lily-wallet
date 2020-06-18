@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import styled, { css } from 'styled-components';
-import { Link, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 import { NavLinks } from './NavLinks';
 
-import { black, blue, white, gray, offWhite, darkGray, darkOffWhite, lightBlue, lightBlack, lightGray } from '../utils/colors';
+import { black, white, gray, offWhite, darkOffWhite, lightBlack } from '../utils/colors';
 import { mobile } from '../utils/media';
 
 export const Sidebar = ({ config, setCurrentAccount, loading }) => {
@@ -18,15 +18,6 @@ export const Sidebar = ({ config, setCurrentAccount, loading }) => {
           Lily Wallet
           </WalletTitle>
         <NavLinks config={config} setCurrentAccount={setCurrentAccount} loading={loading} />
-        {/* <WalletsHeader>Devices</WalletsHeader>
-        {caravanFile && caravanFile.extendedPublicKeys.map((extendedPublicKey, index) => (
-          <SidebarItem
-            key={index}
-            active={extendedPublicKey.name === pathname.split('/')[2]}
-            to={`/wallet/${extendedPublicKey.name}`}>
-            {extendedPublicKey.name}
-          </SidebarItem>
-        ))} */}
         <FooterPositionWrapper>
           <FooterWrapper>
             <ViewSourceCodeText href="https://github.com/KayBeSee/cc-kitchen-frontend" target="_blank">View Source Code</ViewSourceCodeText>
@@ -56,41 +47,6 @@ const SidebarWrapper = styled.div`
     display: none;
     height: auto;
   `)};
-
-`;
-
-const SidebarItemStyle = css`
-  background: ${ p => p.active ? lightBlue : white};
-  border: ${ p => p.active ? `solid 0.0625em ${darkOffWhite}` : 'none'};
-  border-left: ${ p => p.active ? `solid 0.6875em ${blue}` : 'none'};
-  margin-left: ${ p => p.active ? `solid 0.6875em ${blue}` : 'none'};
-  border-right: none;
-  color: ${ p => p.active ? 'inherit' : darkGray};
-  padding: ${ p => p.active ? `1em 1.2em 1.125em .5em` : '1em 1.2em'};
-  text-decoration: none;
-  font-size: 0.9em;
-  display: flex;
-
-  ${mobile(css`
-    border-left: none;
-    border-top: ${ p => p.active ? `solid 0.6875em ${blue}` : 'none'};
-    margin-top: ${ p => p.active ? `solid 0.6875em ${blue}` : 'none'};
-    align-items: center;
-  `)};
-
-  &:hover {
-    background: ${offWhite};
-    cursor: pointer;
-  }
-`;
-
-const SidebarItem = styled(Link)`
-  ${SidebarItemStyle};
-`;
-
-const SidebarItemLink = styled(Link)`
-  ${SidebarItemStyle};
-  text-decoration: none;
 `;
 
 const WalletsHeader = styled.h3`

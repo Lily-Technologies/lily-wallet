@@ -1,9 +1,8 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
-const log = require('electron-log');
+// const log = require('electron-log');
 const { download } = require('electron-dl');
 
 const { enumerate, getXPub, signtx } = require('./server/commands');
-console.log('enumerate, getXPub, signtx: ', enumerate, getXPub, signtx);
 
 const path = require('path');
 
@@ -16,7 +15,7 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
-    icon: __dirname + '/assets/icon.png',
+    // icon: path.join(__dirname, '/assets/AppIcon.icns'),
     titleBarStyle: 'hiddenInset',
     webPreferences: {
       nodeIntegration: false,
@@ -27,9 +26,8 @@ function createWindow() {
   mainWindow.maximize();
 
   // and load the index.html of the app.
-  // mainWindow.loadURL('http://localhost:3001');
-  // mainWindow.loadURL(`file://${__dirname}/build/index.html`);
-  mainWindow.loadURL(`http://localhost:3001/`);
+  mainWindow.loadURL(`file://${__dirname}/build/index.html`);
+  // mainWindow.loadURL(`http://localhost:3001/`);
 
   // Open the DevTools.
   // mainWindow.webContents.openDevTools();
@@ -46,7 +44,7 @@ function createWindow() {
 
 ipcMain.on('download-item', async (event, { url, filename }) => {
   const win = BrowserWindow.getFocusedWindow();
-  console.log(await download(win, url, { filename }), filename);
+  await download(win, url, { filename });
 });
 
 // This method will be called when Electron has finished
@@ -75,9 +73,7 @@ app.on('activate', function () {
 // code. You can also put them in separate files and require them here.
 
 ipcMain.handle('/enumerate', async (event, args) => {
-  log.info('hits main enumerate: ', event, args);
   const devices = await enumerate();
-  log.info('xxdevices: ', devices)
   return JSON.parse(devices);
 });
 

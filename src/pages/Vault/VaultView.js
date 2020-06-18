@@ -6,9 +6,31 @@ import moment from 'moment';
 
 import RecentTransactions from '../../components/transactions/RecentTransactions';
 
-import { black, gray, white, blue, darkGray, darkOffWhite, lightBlue } from '../../utils/colors';
+import { gray, white, darkGray, lightBlue } from '../../utils/colors';
 
 const VaultView = ({ currentBalance, currentBitcoinPrice, transactions, loadingDataFromBlockstream }) => {
+  const sortedTransactions = transactions.sort((a, b) => a.status.block_time - b.status.block_time);
+
+  let dataForChart;
+
+  if (transactions.length) {
+    dataForChart = [{
+      block_time: sortedTransactions[0].status.block_time - 1,
+      totalValue: 0
+    }];
+
+    for (let i = 0; i < sortedTransactions.length; i++) {
+      dataForChart.push({
+        block_time: sortedTransactions[i].status.block_time,
+        totalValue: sortedTransactions[i].totalValue.toNumber()
+      })
+    }
+
+    dataForChart.push({
+      block_time: Date.now(),
+      totalValue: sortedTransactions[sortedTransactions.length - 1].totalValue.toNumber()
+    });
+  }
 
   return (
     <Fragment>
@@ -17,14 +39,15 @@ const VaultView = ({ currentBalance, currentBitcoinPrice, transactions, loadingD
           <CurrentBalanceContainer>
             <CurrentBalanceText>Current Balance:</CurrentBalanceText>
             {satoshisToBitcoins(currentBalance.toNumber()).toFixed(8)} BTC
-            {/* 1BTC = {formatter.format(currentBitcoinPrice.toNumber())} */}
           </CurrentBalanceContainer>
           <ChartContainer>
             <ResponsiveContainer width="100%" height={400}>
-              <AreaChart width={400} height={400} data={[...transactions].sort((a, b) => a.status.block_time - b.status.block_time)}>
+              <AreaChart width={400} height={400} data={dataForChart}>
+                <YAxis dataKey="totalValue" hide={true} domain={['dataMin', 'dataMax + 10000']} />
                 <XAxis
-                  dataKey="status.block_time"
+                  dataKey="block_time"
                   height={50}
+                  interval={1}
                   tickFormatter={(blocktime) => {
                     return moment.unix(blocktime).format('MMM D')
                   }}

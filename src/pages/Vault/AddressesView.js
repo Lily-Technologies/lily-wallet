@@ -1,8 +1,7 @@
 import React from 'react';
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 
 import AddressRow from './AddressRow';
-import { mobile } from '../../utils/media';
 
 import { white, blue, darkGray, lightBlue } from '../../utils/colors';
 
