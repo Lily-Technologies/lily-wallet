@@ -34,5 +34,5 @@ export const GrayLoadingAnimation = styled(GrayAnimatedBackground)`
 `;
 
 export const GreenLoadingAnimation = styled(GreenAnimatedBackground)`
-  height: 16px;
+  height: 1em;
 `;

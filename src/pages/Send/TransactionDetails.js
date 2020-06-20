@@ -252,7 +252,7 @@ const InputStyles = css`
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 16px;
+  margin: 1em;
   border-radius: 4px;
   font-size: 1.5em;
   z-index: 1;

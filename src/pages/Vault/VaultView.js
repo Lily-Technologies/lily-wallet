@@ -1,12 +1,26 @@
 import React, { Fragment } from 'react';
 import styled from 'styled-components';
-import { AreaChart, Area, ResponsiveContainer, XAxis, YAxis } from 'recharts';
+import { AreaChart, Area, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts';
 import { satoshisToBitcoins } from "unchained-bitcoin";
 import moment from 'moment';
 
 import RecentTransactions from '../../components/transactions/RecentTransactions';
 
 import { gray, white, darkGray, lightBlue } from '../../utils/colors';
+
+const CustomTooltip = ({ active, payload, label }) => {
+  if (active) {
+    console.log('payload[0].value: ', payload[0].value);
+    return (
+      <TooltipContainer>
+        <PriceTooltip>{`${payload[0].value ? satoshisToBitcoins(payload[0].value) : 0} BTC`}</PriceTooltip>
+        <DateTooltip>{moment(label).format('MMMM DD, YYYY')}</DateTooltip>
+      </TooltipContainer>
+    );
+  }
+
+  return null;
+};
 
 const VaultView = ({ currentBalance, currentBitcoinPrice, transactions, loadingDataFromBlockstream }) => {
   const sortedTransactions = transactions.sort((a, b) => a.status.block_time - b.status.block_time);
@@ -53,12 +67,21 @@ const VaultView = ({ currentBalance, currentBitcoinPrice, transactions, loadingD
                   }}
                 />
                 <Area type="monotone" dataKey="totalValue" stroke="#8884d8" strokeWidth={2} fill={lightBlue} />
+                <Tooltip
+                  // position={{ y: -100 }}
+                  offset={-100}
+                  cursor={false}
+                  allowEscapeViewBox={{ x: true, y: true }}
+                  wrapperStyle={{
+                    marginLeft: -10
+                  }}
+                  content={<CustomTooltip />} />
               </AreaChart>
             </ResponsiveContainer>
           </ChartContainer>
         </ValueWrapper>
       )}
-      <RecentTransactions transactions={transactions} loading={loadingDataFromBlockstream} />
+      <RecentTransactions transactions={transactions.sort((a, b) => b.status.block_time - a.status.block_time)} loading={loadingDataFromBlockstream} />
     </Fragment>
   )
 }
@@ -81,6 +104,22 @@ const CurrentBalanceContainer = styled.div`
 const CurrentBalanceText = styled.div`
   color: ${darkGray};
   font-size: 0.5em;
+`;
+
+const TooltipContainer = styled.div`
+  background: rgba(31, 31, 31, 0.75); // black
+  padding: 1em;
+  border-radius: 4px;
+  text-align: center;
+`;
+
+const PriceTooltip = styled.div`
+  color: ${white};
+`;
+
+const DateTooltip = styled.div`
+  color: ${gray};
+  font-size: 0.75em;
 `;
 
 export default VaultView;

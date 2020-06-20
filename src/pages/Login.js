@@ -51,8 +51,8 @@ const Login = ({ setConfigFile, bitcoinQuote }) => {
         <LabelOverlay htmlFor="localConfigFile">
           <SignupOptionItem style={{ borderTop: `8px solid ${blue}` }}>
             <StyledIcon as={Upload} size={48} style={{ marginBottom: '0.5em' }} />
-            <SignupOptionMainText>Load Configuration</SignupOptionMainText>
-            <SignupOptionSubtext>Load an existing wallet configuration from a file on your local machine</SignupOptionSubtext>
+            <SignupOptionMainText>Load Wallet</SignupOptionMainText>
+            <SignupOptionSubtext>Load an existing wallet configuration from a file on your local machine or cloud</SignupOptionSubtext>
           </SignupOptionItem>
         </LabelOverlay>
 

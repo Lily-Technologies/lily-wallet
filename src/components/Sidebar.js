@@ -20,7 +20,7 @@ export const Sidebar = ({ config, setCurrentAccount, loading }) => {
         <NavLinks config={config} setCurrentAccount={setCurrentAccount} loading={loading} />
         <FooterPositionWrapper>
           <FooterWrapper>
-            <ViewSourceCodeText href="https://github.com/KayBeSee/cc-kitchen-frontend" target="_blank">View Source Code</ViewSourceCodeText>
+            <ViewSourceCodeText href="https://github.com/KayBeSee/lily-wallet" target="_blank">View Source Code</ViewSourceCodeText>
             <DontTrustVerify>Don't Trust. Verify.</DontTrustVerify>
           </FooterWrapper>
         </FooterPositionWrapper>

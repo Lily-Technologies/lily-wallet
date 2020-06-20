@@ -25,8 +25,9 @@ function createWindow() {
 
   mainWindow.maximize();
 
-  // and load the index.html of the app.
+  // load production url
   mainWindow.loadURL(`file://${__dirname}/build/index.html`);
+  // load dev url
   // mainWindow.loadURL(`http://localhost:3001/`);
 
   // Open the DevTools.

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import styled, { css } from 'styled-components';
-import { Settings } from '@styled-icons/material';
 import { Safe } from '@styled-icons/crypto';
 import { Wallet } from '@styled-icons/entypo';
 import BigNumber from 'bignumber.js';
@@ -22,6 +21,16 @@ import TransactionDetails from './TransactionDetails';
 import { createTransactionMapFromTransactionArray, coinSelection, getFeeForMultisig } from '../../utils/transactions';
 import { red, gray, blue, darkGray, white, darkOffWhite, lightGray, lightBlue } from '../../utils/colors';
 import { mobile } from '../../utils/media';
+
+const validateAddress = (recipientAddress) => {
+  try {
+    address.toOutputScript(recipientAddress)
+    return true
+  } catch (e) {
+    console.log('e: ', e);
+    return false
+  }
+}
 
 const Send = ({ config, currentAccount, setCurrentAccount, transactions, availableUtxos, unusedChangeAddresses, loadingDataFromBlockstream, currentBalance, currentBitcoinNetwork }) => {
   const [sendAmount, setSendAmount] = useState('');
@@ -115,15 +124,20 @@ const Send = ({ config, currentAccount, setCurrentAccount, transactions, availab
 
   const transactionsMap = createTransactionMapFromTransactionArray(transactions);
 
+  console.log('currentBalance: ', currentBalance.toNumber());
+  console.log('sendAmount: ', sendAmount);
+  console.log('feeEstimate: ', feeEstimate.toNumber());
+
+  console.log('(currentBalance.plus(feeEstimate)).isLessThan(sendAmount): ', (satoshisToBitcoins(currentBalance.plus(feeEstimate))).isLessThan(sendAmount));
+  console.log('(currentBalance.plus(feeEstimate)).isLessThan(sendAmount): ', (satoshisToBitcoins(currentBalance.plus(feeEstimate))).toNumber());
+
   return (
     <PageWrapper>
       <Header>
         <HeaderLeft>
           <PageTitle>Send from</PageTitle>
-          {/* <DeviceXPub>{currentAccount.xpub}</DeviceXPub> */}
         </HeaderLeft>
         <HeaderRight>
-          <SettingsButton background='transparent' color={darkGray} style={{ padding: 0 }}><StyledIcon as={Settings} size={36} /></SettingsButton>
         </HeaderRight>
       </Header>
 
@@ -190,14 +204,19 @@ const Send = ({ config, currentAccount, setCurrentAccount, transactions, availab
                 <SendButtonContainer>
                   {/* <CopyAddressButton background="transparent" color={darkGray}>Advanced Options</CopyAddressButton> */}
                   <CopyAddressButton onClick={() => {
-                    if (!recipientAddress) {
+                    if (!validateAddress(recipientAddress)) {
                       setRecipientAddressError(true);
-                    }
-                    if (!sendAmount) {
-                      setSendAmountError(true);
+                    } else if (recipientAddressError) {
+                      setRecipientAddressError(false);
                     }
 
-                    if (recipientAddress && sendAmount) {
+                    if (!sendAmount || (satoshisToBitcoins(currentBalance.plus(feeEstimate))).isLessThan(sendAmount)) {
+                      setSendAmountError(true);
+                    } else if (sendAmountError) {
+                      setSendAmountError(false);
+                    }
+
+                    if (validateAddress(recipientAddress) && sendAmount && (satoshisToBitcoins(currentBalance.plus(feeEstimate))).isLessThan(sendAmount)) {
                       createTransaction(sendAmount, recipientAddress, availableUtxos, transactions)
                     }
                   }
@@ -292,7 +311,7 @@ const InputStyles = css`
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 16px;
+  margin: 1em;
   border-radius: 4px;
   font-size: 1.5em;
   z-index: 1;
@@ -337,11 +356,6 @@ const InputStaticText = styled.label`
     color: rgba(0, 0, 0, 0.6);
     font-weight: bold;
   }
-`;
-
-const SettingsButton = styled.div`
-  ${Button}
-  // margin: 12px;
 `;
 
 const AccountMenuItemWrapper = styled.div`

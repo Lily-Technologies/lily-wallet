@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import styled, { css } from 'styled-components';
-import { Settings } from '@styled-icons/material';
 import { Safe } from '@styled-icons/crypto';
 import { Wallet } from '@styled-icons/entypo';
 import { QRCode } from "react-qr-svg";
@@ -23,10 +22,8 @@ const Receive = ({ config, currentAccount, setCurrentAccount, transactions, unus
       <Header>
         <HeaderLeft>
           <PageTitle>Receive to</PageTitle>
-          {/* <DeviceXPub>{currentAccount.xpub}</DeviceXPub> */}
         </HeaderLeft>
         <HeaderRight>
-          <SettingsButton background='transparent' color={darkGray} style={{ padding: 0 }}><StyledIcon as={Settings} size={36} /></SettingsButton>
         </HeaderRight>
       </Header>
 
@@ -150,14 +147,9 @@ const AddressDisplayWrapper = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 16px;
+  margin: 1em;
   border-radius: 4px;
   word-break: break-all;
-`;
-
-const SettingsButton = styled.div`
-  ${Button}
-  // margin: 12px;
 `;
 
 const AccountMenuItemWrapper = styled.div`

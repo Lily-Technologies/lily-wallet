@@ -74,7 +74,7 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
             <SignupOptionItem style={{ borderTop: `8px solid ${blue}` }} onClick={() => { setSetupOption(1); setStep(1); }}>
               <StyledIcon as={Safe} size={48} style={{ marginBottom: '0.5em' }} />
               <SignupOptionMainText>Vault</SignupOptionMainText>
-              <SignupOptionSubtext>Use multiple hardware wallets to create a vault for storing large amounts of Bitcoin</SignupOptionSubtext>
+              <SignupOptionSubtext>Use multiple hardware wallets to create a vault for securing large amounts of Bitcoin</SignupOptionSubtext>
             </SignupOptionItem>
 
             <SignupOptionItem onClick={() => { setSetupOption(2); setStep(1); }}>
@@ -349,7 +349,7 @@ const PasswordInput = styled.input`
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 16px;
+  margin: 1em;
   border-radius: 4px;
   font-size: 1.5em;
   z-index: 1;
@@ -370,7 +370,7 @@ const ExportFilesButton = styled.button`
   ${Button};
   click-events: ${p => p.active ? 'auto' : 'none'};
   opacity: ${p => p.active ? '1' : '0.5'};
-  padding: 16px;
+  padding: 1em;
   font-size: 1em;
   font-weight: 700;
   border-top-left-radius: 0;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import moment from 'moment';
 import { satoshisToBitcoins } from "unchained-bitcoin";
@@ -29,26 +29,12 @@ const CustomTooltip = ({ active, payload, label }) => {
   return null;
 };
 
-const Home = ({ config, accountMap, historicalBitcoinPrice, currentBitcoinPrice, loading }) => {
+const Home = ({ config, accountMap, priceForChart, currentBitcoinPrice, loading }) => {
   const [currentDomain, setCurrentDomain] = useState(0);
-  const [btcPriceFormattedForChart, setBtcPriceFormattedForChart] = useState([]);
 
-  useEffect(() => {
-    let priceForChart = [];
-    for (let i = 0; i < Object.keys(historicalBitcoinPrice).length; i++) {
-      if (i > currentDomain) {
-        priceForChart.push({
-          price: Object.values(historicalBitcoinPrice)[i],
-          date: Object.keys(historicalBitcoinPrice)[i]
-        })
-      }
-    }
-    setBtcPriceFormattedForChart(priceForChart);
-  }, []) // eslint-disable-line
-
-  const oneMonthDomain = Object.keys(historicalBitcoinPrice).length - 31;
-  const sixMonthDomain = Object.keys(historicalBitcoinPrice).length - (30 * 6);
-  const oneYearDomain = Object.keys(historicalBitcoinPrice).length - 365;
+  const oneMonthDomain = Object.keys(priceForChart).length - 31;
+  const sixMonthDomain = Object.keys(priceForChart).length - (30 * 6);
+  const oneYearDomain = Object.keys(priceForChart).length - 365;
   const allDomain = 0;
 
   const getChartInterval = () => {
@@ -79,7 +65,7 @@ const Home = ({ config, accountMap, historicalBitcoinPrice, currentBitcoinPrice,
           </ChartControlsContainer>
         </ChartInfo >
         <ResponsiveContainer width="100%" height={400}>
-          <AreaChart width={400} height={400} data={btcPriceFormattedForChart.slice(currentDomain)}>
+          <AreaChart width={400} height={400} data={priceForChart.slice(currentDomain, priceForChart.length)}>
             <YAxis hide={true} domain={['dataMin - 500', 'dataMax + 500']} />
             <XAxis
               dataKey="date"

@@ -47,6 +47,19 @@ const VaultSettings = ({ config, setConfigFile, currentAccount, setViewAddresses
     downloadFile(ccFile, "coldcard_import_file.txt");
   }
 
+  const downloadCaravanFile = () => {
+    // need to add some properties to our config to use with Caravan
+    const configCopy = { ...currentAccount.config };
+    configCopy.client = { type: 'public' };
+    // need to have a name for each pubkey, so just use parentFingerprint...should use a loop in the future but lazy
+    for (let i = 0; i < configCopy.extendedPublicKeys.length; i++) {
+      configCopy.extendedPublicKeys[i].name = configCopy.extendedPublicKeys[i].parentFingerprint;
+      configCopy.extendedPublicKeys[i].method = 'xpub';
+    }
+    const caravanFile = new Blob([JSON.stringify(configCopy)], { type: 'application/json' })
+    downloadFile(caravanFile, "lily_wallet_caravan_export.json");
+  }
+
   const getMnemonicQrCode = () => {
     return (
       <div>
@@ -205,7 +218,19 @@ const VaultSettings = ({ config, setConfigFile, currentAccount, setViewAddresses
           </SettingsSectionRight>
         </SettingsSection>
       )}
-
+      {currentAccount.config.quorum.totalSigners > 1 && (
+        <SettingsSection>
+          <SettingsSectionLeft>
+            <SettingsHeader>Download Caravan File</SettingsHeader>
+            <SettingsSubheader>
+              <span>Download this vault's configuration file to use in <UCLink href="https://unchained-capital.com/" target="_blank" rel="noopener noreferrer">Unchained Capital's</UCLink> <UCLink href="https://unchained-capital.github.io/caravan/#/" target="_blank" rel="noopener noreferrer">Caravan</UCLink> multisig coordination software.</span>
+            </SettingsSubheader>
+          </SettingsSectionLeft>
+          <SettingsSectionRight>
+            <ViewAddressesButton onClick={() => { downloadCaravanFile(); }}>Download Caravan File</ViewAddressesButton>
+          </SettingsSectionRight>
+        </SettingsSection>
+      )}
       <SettingsHeadingItem>Danger Zone</SettingsHeadingItem>
       <SettingsSection>
         <SettingsSectionLeft>
@@ -279,7 +304,7 @@ const PasswordInput = styled.input`
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 16px;
+  margin: 1em;
   border-radius: 4px;
   font-size: 1.5em;
   z-index: 1;
@@ -292,6 +317,16 @@ const PasswordInput = styled.input`
   :active, :focused {
     outline: 0;
     border: none;
+  }
+`;
+
+const UCLink = styled.a`
+  color: ${darkGray};
+  font-weight: 400;
+  text-decoration: none;
+
+  &:visited {
+    color: ${darkGray};
   }
 `;
 
@@ -372,7 +407,7 @@ const XpubWellWrapper = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 16px;
+  margin: 1em;
   border-radius: 4px;
   word-break: break-all;
 `;

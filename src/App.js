@@ -56,7 +56,8 @@ function App() {
   const [config, setConfigFile] = useState(emptyConfig);
   const [currentAccount, setCurrentAccount] = useState({ name: 'Loading...' });
   const [accountMap, setAccountMap] = useState(new Map());
-  const [currentBitcoinNetwork, setCurrentBitcoinNetwork] = useState(networks.bitcoin)
+  const [currentBitcoinNetwork, setCurrentBitcoinNetwork] = useState(networks.bitcoin);
+  const [formattedPricesForChart, setFormattedPricesForChart] = useState([]);
 
   // WALLET DATA
   const [transactions, setTransactions] = useState([]);
@@ -195,12 +196,21 @@ function App() {
     }
   }, [currentAccount, config, currentBitcoinNetwork, accountMap]);
 
+  useEffect(() => {
+    let priceForChart = [];
+    for (let i = 0; i < Object.keys(historicalBitcoinPrice).length; i++) {
+      priceForChart.push({
+        price: Object.values(historicalBitcoinPrice)[i],
+        date: Object.keys(historicalBitcoinPrice)[i]
+      })
+    }
+    setFormattedPricesForChart(priceForChart);
+  }, [historicalBitcoinPrice]) // eslint-disable-line
+
   return (
     <ErrorBoundary>
       <Router>
-        {/* <WindowWrapper> */}
-        {/* <Header /> */}
-        <PageWrapper id="page-wrapper">
+        <PageWrapper id="page-wrapper" loading={loadingDataFromBlockstream}>
           <ScrollToTop />
           <ConfigRequired />
           {!config.isEmpty && <Sidebar config={config} setCurrentAccount={setCurrentAccountFromMap} loading={loadingDataFromBlockstream} />}
@@ -214,19 +224,13 @@ function App() {
             <Route path="/settings" component={() => <Settings config={config} currentBitcoinNetwork={currentBitcoinNetwork} changeCurrentBitcoinNetwork={changeCurrentBitcoinNetwork} />} />
             <Route path="/gdrive-import" component={() => <GDriveImport setConfigFile={setConfigFile} bitcoinQuote={bitcoinQuote} />} />
             <Route path="/coldcard-import-instructions" component={() => <ColdcardImportInstructions />} />
-            <Route path="/" component={() => <Home accountMap={accountMap} historicalBitcoinPrice={historicalBitcoinPrice} currentBitcoinPrice={currentBitcoinPrice} loading={loadingDataFromBlockstream} />} />
+            <Route path="/" component={() => <Home accountMap={accountMap} priceForChart={formattedPricesForChart} currentBitcoinPrice={currentBitcoinPrice} loading={loadingDataFromBlockstream} />} />
             <Route path="/" component={() => (
               <div>Not Found</div>
             )}
             />
           </Switch>
         </PageWrapper>
-        {/* <FooterWrapper>
-          <ViewSourceCodeText href="https://github.com/KayBeSee/cc-kitchen-frontend" target="_blank">View Source Code</ViewSourceCodeText>
-          <DontTrustVerify>Don't Trust. Verify.</DontTrustVerify>
-        </FooterWrapper> */}
-        {/* <Footer /> */}
-        {/* </WindowWrapper> */}
       </Router>
     </ErrorBoundary>
   );
@@ -238,35 +242,12 @@ const PageWrapper = styled.div`
   font-family: 'Raleway', sans-serif;
   flex: 1;
   background: ${offWhite};
+  cursor: ${p => p.loading ? 'wait' : 'auto'};
+  pointer-events: ${p => p.loading ? 'none' : 'auto'};
 
   ${mobile(css`
     flex-direction: column;
   `)};
 `;
-
-// const FooterWrapper = styled.div`
-//   display: flex;
-//   flex-direction: column;
-//   align-items: center;
-//   background: ${offWhite};
-//   padding: 3.5em;
-
-//   ${mobile(css`
-//     padding: 1.5em;
-//     font-size: 0.75em;
-//   `)};
-// `;
-
-// const ViewSourceCodeText = styled.a`
-//   color: ${ black};
-//   text-decoration: none;
-//   cursor: pointer;
-//   letter-spacing: -0.03em;
-//   font-family: 'Raleway', sans-serif;
-// `;
-
-// const DontTrustVerify = styled.span`
-// color: ${ gray};
-// `;
 
 export default App;

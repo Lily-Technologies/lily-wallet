@@ -4,7 +4,7 @@ import styled, { keyframes } from 'styled-components';
 import { AES, enc } from 'crypto-js';
 
 import { Button, VaultIcon } from '../components';
-import { black, gray, darkOffWhite, lightGray, darkGray, blue, lightBlue, white } from '../utils/colors';
+import { black, gray, darkOffWhite, lightGray, darkGray, blue, lightBlue, white, red } from '../utils/colors';
 
 import { getConfigFileFromGoogleDrive } from '../utils/google-drive';
 
@@ -17,6 +17,7 @@ const GDriveImport = ({ encryptedConfig, setConfigFile, bitcoinQuote }) => {
   const [encryptedConfigFile, setEncryptedConfigFile] = useState(null);
   const [showCurtain, setShowCurtain] = useState(false);
   const [startCurtain, setStartCurtain] = useState(false);
+  const [passwordError, setPasswordError] = useState(false);
 
   const history = useHistory();
 
@@ -40,15 +41,19 @@ const GDriveImport = ({ encryptedConfig, setConfigFile, bitcoinQuote }) => {
 
   const unlockFile = () => {
     // KBC-TODO: probably need error handling for wrong password
-    setLoading(true);
-    setTimeout(() => setShowCurtain(true), 500);
-    setTimeout(() => setStartCurtain(true), 550);
-    setTimeout(() => {
-      var bytes = AES.decrypt(encryptedConfigFile, password);
-      var decryptedData = JSON.parse(bytes.toString(enc.Utf8));
-      setConfigFile(decryptedData);
-      history.replace(`/`);
-    }, 2000);
+    try {
+      const bytes = AES.decrypt(encryptedConfigFile, password);
+      const decryptedData = JSON.parse(bytes.toString(enc.Utf8));
+      setLoading(true);
+      setTimeout(() => setShowCurtain(true), 500);
+      setTimeout(() => setStartCurtain(true), 550);
+      setTimeout(() => {
+        setConfigFile(decryptedData);
+        history.replace(`/`);
+      }, 2000);
+    } catch (e) {
+      setPasswordError(true);
+    }
   }
 
   const onInputEnter = (e) => {
@@ -96,7 +101,14 @@ const GDriveImport = ({ encryptedConfig, setConfigFile, bitcoinQuote }) => {
               <VaultIcon loading={loading} />
 
               <TypeInPasswordText>Type in password to unlock wallet</TypeInPasswordText>
-              <PasswordInput autoFocus type="password" value={password} onChange={(e) => setPassword(e.target.value)} onKeyDown={(e) => onInputEnter(e)} />
+              <PasswordInput
+                autoFocus
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onKeyDown={(e) => onInputEnter(e)}
+                error={passwordError} />
+              {passwordError && <PasswordError>Incorrect Password</PasswordError>}
               <UnlockButton
                 loading={loadingGDrive}
                 onClick={() => unlockFile()}>
@@ -120,7 +132,10 @@ const GDriveImport = ({ encryptedConfig, setConfigFile, bitcoinQuote }) => {
           <ChartPlaceholder>
             <QuoteText>{bitcoinQuote.body}</QuoteText>
 
-            <AuthorName>{bitcoinQuote.author.name} </AuthorName>
+            <AuthorName>
+              {bitcoinQuote.author.name}
+              {/* <a href={bitcoinQuote.author.twitter} target="_blank"> > </a> */}
+            </AuthorName>
           </ChartPlaceholder>
 
           <DecryptingText>Decrypting Wallet Config...</DecryptingText>
@@ -146,6 +161,10 @@ const DecryptingText = styled.div`
   animation-duration: 1.4s;
   animation-iteration-count: infinite;
   animation-fill-mode: both;
+`;
+
+const PasswordError = styled.div`
+  color: ${red};
 `;
 
 const Wrapper = styled.div`
@@ -190,7 +209,7 @@ const TypeInPasswordText = styled.h3`
 
 const PasswordInput = styled.input`
   position: relative;
-  border: 1px solid ${darkOffWhite};
+  border: ${p => p.error ? `1px solid ${red}` : `1px solid ${darkOffWhite}`};
   background: ${lightGray};
   padding: .75em;
   text-align: center;
@@ -198,7 +217,7 @@ const PasswordInput = styled.input`
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 16px;
+  margin: 1em;
   border-radius: 4px;
   font-size: 1.5em;
   z-index: 1;
@@ -216,7 +235,7 @@ const PasswordInput = styled.input`
 
 const UnlockButton = styled.div`
   ${Button};
-  margin-bottom: 16px;
+  margin-bottom: 1em;
   opacity: ${p => p.loading ? '0.5' : '1'};
   pointer-events: ${p => p.loading ? '0.5' : '1'};
 `;
