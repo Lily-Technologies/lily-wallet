@@ -22,7 +22,7 @@ const UtxosView = ({ setViewUtxos, currentAccount }) => {
 
 const ValueWrapper = styled.div`
   background: ${lightBlue};
-  padding: 0.5em;
+  padding: 1.5em;
   box-shadow: rgba(0, 0, 0, 0.15) 0px 5px 15px 0px;
   border-top: solid 11px ${blue};
 `;
@@ -32,7 +32,7 @@ const SettingsSection = styled.div`
   flex-direction: column;
   margin: 1em 0;
   justify-content: space-between;
-  padding: 1.5em;
+  padding: 0.5em;
   background: ${white};
   border: 1px solid ${darkGray};
 `;

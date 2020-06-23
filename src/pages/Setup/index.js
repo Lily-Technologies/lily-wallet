@@ -71,16 +71,16 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
             </HeaderModified>
           </HeaderWrapper>
           <SignupOptionMenu>
-            <SignupOptionItem style={{ borderTop: `8px solid ${blue}` }} onClick={() => { setSetupOption(1); setStep(1); }}>
-              <StyledIcon as={Safe} size={48} style={{ marginBottom: '0.5em' }} />
-              <SignupOptionMainText>Vault</SignupOptionMainText>
-              <SignupOptionSubtext>Use multiple hardware wallets to create a vault for securing large amounts of Bitcoin</SignupOptionSubtext>
-            </SignupOptionItem>
-
             <SignupOptionItem onClick={() => { setSetupOption(2); setStep(1); }}>
               <StyledIcon as={Wallet} size={48} style={{ marginBottom: '0.5em' }} />
               <SignupOptionMainText>Wallet</SignupOptionMainText>
               <SignupOptionSubtext>Create a new Bitcoin wallet</SignupOptionSubtext>
+            </SignupOptionItem>
+
+            <SignupOptionItem style={{ borderTop: `8px solid ${blue}` }} onClick={() => { setSetupOption(1); setStep(1); }}>
+              <StyledIcon as={Safe} size={48} style={{ marginBottom: '0.5em' }} />
+              <SignupOptionMainText>Vault</SignupOptionMainText>
+              <SignupOptionSubtext>Use multiple hardware wallets to create a vault for securing large amounts of Bitcoin</SignupOptionSubtext>
             </SignupOptionItem>
           </SignupOptionMenu>
         </InnerWrapper>

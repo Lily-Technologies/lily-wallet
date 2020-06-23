@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from "react-router-dom";
 import styled from 'styled-components';
-import { VerticalAlignBottom, ArrowUpward, Settings } from '@styled-icons/material';
+import { VerticalAlignBottom, ArrowUpward, Settings, Refresh } from '@styled-icons/material';
 
 
 import { StyledIcon, Button, PageWrapper, PageTitle, Header, HeaderRight, HeaderLeft } from '../../components';
@@ -13,7 +13,7 @@ import VaultSettings from './VaultSettings';
 
 import { darkGray, lightBlue } from '../../utils/colors';
 
-const Vault = ({ config, setConfigFile, currentAccount, currentBitcoinPrice, transactions, currentBalance, loadingDataFromBlockstream, currentBitcoinNetwork }) => {
+const Vault = ({ config, setConfigFile, toggleRefresh, currentAccount, currentBitcoinPrice, transactions, currentBalance, loadingDataFromBlockstream, currentBitcoinNetwork }) => {
   document.title = `Vault - Lily Wallet`;
   const [viewSettings, setViewSettings] = useState(false);
   const [viewAddresses, setViewAddresses] = useState(false);
@@ -39,9 +39,17 @@ const Vault = ({ config, setConfigFile, currentAccount, currentBitcoinPrice, tra
           <SendButton to="/send"><StyledIcon as={ArrowUpward} size={24} style={{ marginRight: 4 }} />Send</SendButton>
           <ReceiveButton to="/receive"><StyledIcon as={VerticalAlignBottom} size={24} style={{ marginRight: 4 }} />Receive</ReceiveButton>
           <SettingsButton
+            onClick={() => toggleRefresh()}
+            color={darkGray}
+            style={{ padding: '1em 1em 1em 0' }}
+            background={'transparent'}>
+            <StyledIcon as={Refresh} size={36} />
+          </SettingsButton>
+          <SettingsButton
             onClick={() => toggleViewSettings()}
             active={viewSettings}
             color={darkGray}
+            background={'transparent'}
             style={{ padding: 0 }}
           >
             <StyledIcon as={Settings} size={36} />

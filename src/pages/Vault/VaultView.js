@@ -6,15 +6,14 @@ import moment from 'moment';
 
 import RecentTransactions from '../../components/transactions/RecentTransactions';
 
-import { gray, white, darkGray, lightBlue } from '../../utils/colors';
+import { gray, white, darkGray, lightBlue, blue } from '../../utils/colors';
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (active) {
-    console.log('payload[0].value: ', payload[0].value);
     return (
       <TooltipContainer>
         <PriceTooltip>{`${payload[0].value ? satoshisToBitcoins(payload[0].value) : 0} BTC`}</PriceTooltip>
-        <DateTooltip>{moment(label).format('MMMM DD, YYYY')}</DateTooltip>
+        <DateTooltip>{moment.unix(label).format('MMMM DD, YYYY')}</DateTooltip>
       </TooltipContainer>
     );
   }
@@ -41,7 +40,7 @@ const VaultView = ({ currentBalance, currentBitcoinPrice, transactions, loadingD
     }
 
     dataForChart.push({
-      block_time: Date.now(),
+      block_time: Math.floor(Date.now() / 1000),
       totalValue: sortedTransactions[sortedTransactions.length - 1].totalValue.toNumber()
     });
   }
@@ -66,9 +65,13 @@ const VaultView = ({ currentBalance, currentBitcoinPrice, transactions, loadingD
                     return moment.unix(blocktime).format('MMM D')
                   }}
                 />
-                <Area type="monotone" dataKey="totalValue" stroke="#8884d8" strokeWidth={2} fill={lightBlue} />
+                <Area
+                  type="monotone"
+                  dataKey="totalValue"
+                  stroke={blue}
+                  strokeWidth={2}
+                  fill={lightBlue} />
                 <Tooltip
-                  // position={{ y: -100 }}
                   offset={-100}
                   cursor={false}
                   allowEscapeViewBox={{ x: true, y: true }}
@@ -81,7 +84,7 @@ const VaultView = ({ currentBalance, currentBitcoinPrice, transactions, loadingD
           </ChartContainer>
         </ValueWrapper>
       )}
-      <RecentTransactions transactions={transactions.sort((a, b) => b.status.block_time - a.status.block_time)} loading={loadingDataFromBlockstream} />
+      <RecentTransactions transactions={sortedTransactions.sort((a, b) => b.status.block_time - a.status.block_time)} loading={loadingDataFromBlockstream} />
     </Fragment>
   )
 }

@@ -12,7 +12,7 @@ const TransactionRow = ({ transaction, flat }) => {
 
   return (
     <TransactionRowWrapper flat={flat}>
-      <TransactionRowContainer flat={flat} isOpen={isOpen} onClick={() => setIsOpen(!isOpen)}>
+      <TransactionRowContainer flat={flat} isOpen={isOpen} onClick={() => { !flat && setIsOpen(!isOpen) }}>
         <TxTypeIcon flat={flat}>
           {transaction.type === 'received' && <StyledIconModified as={VerticalAlignBottom} size={flat ? 12 : 24} receive={true} />}
           {transaction.type === 'sent' && <StyledIconModified as={ArrowUpward} size={flat ? 12 : 24} />}
@@ -34,7 +34,7 @@ const TransactionRow = ({ transaction, flat }) => {
 const TransactionRowWrapper = styled.div`
   border-bottom: 1px solid ${offWhite};
   background: ${p => p.flat ? 'transparent' : white};
-  box-shadow: ${p => p.flat ? 'none' : 'rgba(0, 0, 0, 0.15) 0px 5px 15px 0px'};;
+  box-shadow: ${p => p.flat ? 'none' : 'rgba(0, 0, 0, 0.15) 0px 5px 15px 0px'};
   align-items: center;
   flex-direction: column;
 `;
@@ -45,8 +45,8 @@ const TransactionRowContainer = styled.div`
   padding: ${p => p.flat ? '.75em' : '1.5em'};
 
   &:hover {
-    background: ${p => !p.isOpen && offWhite};
-    cursor: pointer;
+    background: ${p => !p.isOpen && !p.flat && offWhite};
+    cursor: ${ p => !p.flat && 'pointer'};
   }
 `;
 
@@ -55,24 +55,24 @@ const TransactionMoreInfo = styled.div`
   display: flex;
   padding: .75em;
   overflow: scroll;
-  background: ${lightBlue};
+  background: ${ lightBlue};
 `;
 
 const StyledIconModified = styled(StyledIcon)`
   padding: .5em;
   margin-right: .75em;
-  background: ${p => p.receive ? green : gray};
+  background: ${ p => p.receive ? green : gray};
   border-radius: 50%;
 `;
 
 const TxTypeIcon = styled.div`
   display: flex;
-  flex: ${p => p.flat ? '0 0' : '0 0 10em'};;
+  flex: ${ p => p.flat ? '0 0' : '0 0 10em'};;
   align-items: center;
 `;
 
 const TxTypeTextWrapper = styled.div`
-  display: ${p => p.flat ? 'none' : 'flex'};
+  display: ${ p => p.flat ? 'none' : 'flex'};
   flex-direction: column;
 `;
 
@@ -81,7 +81,9 @@ const TxTypeText = styled.div`
 `;
 
 
-const TxTypeTime = styled.div``;
+const TxTypeTime = styled.div`
+  font-size: 0.75em;
+`;
 
 
 
@@ -97,6 +99,7 @@ const AddressWrapper = styled.div`
   font-weight: 100;
   font-size: ${ p => p.flat ? '.75em' : '1em'};
   word-break: break-all;
+  padding: 0 1em;
 `;
 
 export default TransactionRow;

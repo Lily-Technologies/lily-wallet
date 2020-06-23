@@ -30,10 +30,6 @@ export const NavLinks = ({ config, setCurrentAccount, loading }) => {
         <StyledIcon as={VerticalAlignBottom} size={24} style={{ marginRight: 12 }} />
             Receive
         </SidebarItemLink>
-      {/* <SidebarItemLink active={pathname === '/transfer'} to="/transfer">
-          <StyledIcon as={Transfer} size={24} style={{ marginRight: 12 }} />
-            Transfer
-        </SidebarItemLink> */}
       <SidebarItemLink active={pathname === '/settings'} to="/settings" loading={loading}>
         <StyledIcon as={Settings} size={24} style={{ marginRight: 12 }} />
             Settings

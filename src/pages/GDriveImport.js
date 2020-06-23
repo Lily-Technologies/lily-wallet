@@ -69,7 +69,7 @@ const GDriveImport = ({ encryptedConfig, setConfigFile, bitcoinQuote }) => {
           <LilyImage src={require('../assets/flower.svg')} />
           Lily Wallet
           </MainText>
-        <Subtext>Lily is a self-custody Bitcoin wallet that allows you to easily store, manage, and spend Bitcoin</Subtext>
+        <Subtext>Lily is the easiest way to securely store and manage your Bitcoin</Subtext>
         <FormContainer>
           <SelectDeviceContainer>
             <DevicesWrapper>
@@ -93,7 +93,7 @@ const GDriveImport = ({ encryptedConfig, setConfigFile, bitcoinQuote }) => {
           <LilyImage src={require('../assets/flower.svg')} />
           Lily Wallet
           </MainText>
-        <Subtext>Lily is a self-custody Bitcoin wallet that allows you to easily store, manage, and spend Bitcoin</Subtext>
+        <Subtext>Lily is the easiest way to securely store and manage your Bitcoin</Subtext>
         <FormContainer>
           <SelectDeviceContainer>
 
@@ -138,7 +138,7 @@ const GDriveImport = ({ encryptedConfig, setConfigFile, bitcoinQuote }) => {
             </AuthorName>
           </ChartPlaceholder>
 
-          <DecryptingText>Decrypting Wallet Config...</DecryptingText>
+          <DecryptingText>Decrypting Wallet...</DecryptingText>
         </CurtainBehind>
         <CurtainRight startCurtain={startCurtain}>
           <CurtainRightInner>
@@ -347,6 +347,7 @@ const ChartPlaceholder = styled.div`
   margin: 64px;
   flex: 1;
   max-width: 46.875em;
+  width: 100%;
 `;
 
 export default GDriveImport;

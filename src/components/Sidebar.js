@@ -7,7 +7,7 @@ import { NavLinks } from './NavLinks';
 import { black, white, gray, offWhite, darkOffWhite, lightBlack } from '../utils/colors';
 import { mobile } from '../utils/media';
 
-export const Sidebar = ({ config, setCurrentAccount, loading }) => {
+export const Sidebar = ({ config, setCurrentAccount, loading, toggleRefresh }) => {
   const { pathname } = useLocation();
 
   if (pathname !== '/coldcard-import-instructions') {
@@ -17,7 +17,7 @@ export const Sidebar = ({ config, setCurrentAccount, loading }) => {
           <LilyImage src={require('../assets/flower.svg')} />
           Lily Wallet
           </WalletTitle>
-        <NavLinks config={config} setCurrentAccount={setCurrentAccount} loading={loading} />
+        <NavLinks config={config} setCurrentAccount={setCurrentAccount} loading={loading} toggleRefresh={toggleRefresh} />
         <FooterPositionWrapper>
           <FooterWrapper>
             <ViewSourceCodeText href="https://github.com/KayBeSee/lily-wallet" target="_blank">View Source Code</ViewSourceCodeText>

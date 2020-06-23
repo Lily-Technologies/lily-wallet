@@ -30,7 +30,7 @@ const Login = ({ setConfigFile, bitcoinQuote }) => {
         <LilyImage src={require('../assets/flower.svg')} />
         Lily Wallet
         </MainText>
-      <Subtext>Lily is a self-custody Bitcoin wallet that allows you to easily store, manage, and spend Bitcoin</Subtext>
+      <Subtext>Lily is the easiest way to securely store and manage your Bitcoin</Subtext>
 
       <FileInput
         type="file"
@@ -52,7 +52,7 @@ const Login = ({ setConfigFile, bitcoinQuote }) => {
           <SignupOptionItem style={{ borderTop: `8px solid ${blue}` }}>
             <StyledIcon as={Upload} size={48} style={{ marginBottom: '0.5em' }} />
             <SignupOptionMainText>Load Wallet</SignupOptionMainText>
-            <SignupOptionSubtext>Load an existing wallet configuration from a file on your local machine or cloud</SignupOptionSubtext>
+            <SignupOptionSubtext>Load an existing wallet configuration from a file on your local machine</SignupOptionSubtext>
           </SignupOptionItem>
         </LabelOverlay>
 

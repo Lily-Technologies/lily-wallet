@@ -32,7 +32,7 @@ const validateAddress = (recipientAddress) => {
   }
 }
 
-const Send = ({ config, currentAccount, setCurrentAccount, transactions, availableUtxos, unusedChangeAddresses, loadingDataFromBlockstream, currentBalance, currentBitcoinNetwork }) => {
+const Send = ({ config, currentAccount, setCurrentAccount, transactions, availableUtxos, unusedChangeAddresses, loadingDataFromBlockstream, currentBalance, currentBitcoinNetwork, currentBitcoinPrice }) => {
   const [sendAmount, setSendAmount] = useState('');
   const [sendAmountError, setSendAmountError] = useState(false);
   const [recipientAddress, setRecipientAddress] = useState('');
@@ -124,12 +124,27 @@ const Send = ({ config, currentAccount, setCurrentAccount, transactions, availab
 
   const transactionsMap = createTransactionMapFromTransactionArray(transactions);
 
-  console.log('currentBalance: ', currentBalance.toNumber());
-  console.log('sendAmount: ', sendAmount);
-  console.log('feeEstimate: ', feeEstimate.toNumber());
+  const validateAndCreateTransaction = () => {
+    if (!validateAddress(recipientAddress)) {
+      setRecipientAddressError(true);
+    }
 
-  console.log('(currentBalance.plus(feeEstimate)).isLessThan(sendAmount): ', (satoshisToBitcoins(currentBalance.plus(feeEstimate))).isLessThan(sendAmount));
-  console.log('(currentBalance.plus(feeEstimate)).isLessThan(sendAmount): ', (satoshisToBitcoins(currentBalance.plus(feeEstimate))).toNumber());
+    if (validateAddress(recipientAddress) && recipientAddressError) {
+      setRecipientAddressError(false);
+    }
+
+    if (!satoshisToBitcoins(currentBalance.plus(feeEstimate)).isGreaterThan(sendAmount)) {
+      setSendAmountError(true)
+    }
+
+    if (satoshisToBitcoins(currentBalance.plus(feeEstimate)).isGreaterThan(sendAmount) && sendAmountError) {
+      setSendAmountError(false)
+    }
+
+    if (validateAddress(recipientAddress) && sendAmount && satoshisToBitcoins(currentBalance.plus(feeEstimate)).isGreaterThan(sendAmount)) {
+      createTransaction(sendAmount, recipientAddress, availableUtxos, transactions)
+    }
+  }
 
   return (
     <PageWrapper>
@@ -188,6 +203,7 @@ const Send = ({ config, currentAccount, setCurrentAccount, transactions, availab
                     text="BTC"
                   >BTC</InputStaticText>
                 </AddressDisplayWrapper>
+                {sendAmountError && <SendAmountError>Not enough funds</SendAmountError>}
 
                 <SendToAddressHeader>
                   Send bitcoin to
@@ -203,24 +219,7 @@ const Send = ({ config, currentAccount, setCurrentAccount, transactions, availab
 
                 <SendButtonContainer>
                   {/* <CopyAddressButton background="transparent" color={darkGray}>Advanced Options</CopyAddressButton> */}
-                  <CopyAddressButton onClick={() => {
-                    if (!validateAddress(recipientAddress)) {
-                      setRecipientAddressError(true);
-                    } else if (recipientAddressError) {
-                      setRecipientAddressError(false);
-                    }
-
-                    if (!sendAmount || (satoshisToBitcoins(currentBalance.plus(feeEstimate))).isLessThan(sendAmount)) {
-                      setSendAmountError(true);
-                    } else if (sendAmountError) {
-                      setSendAmountError(false);
-                    }
-
-                    if (validateAddress(recipientAddress) && sendAmount && (satoshisToBitcoins(currentBalance.plus(feeEstimate))).isLessThan(sendAmount)) {
-                      createTransaction(sendAmount, recipientAddress, availableUtxos, transactions)
-                    }
-                  }
-                  }>Preview Transaction</CopyAddressButton>
+                  <CopyAddressButton onClick={() => validateAndCreateTransaction()}>Preview Transaction</CopyAddressButton>
                 </SendButtonContainer>
               </AccountSendContentLeft>
             </div>
@@ -238,6 +237,7 @@ const Send = ({ config, currentAccount, setCurrentAccount, transactions, availab
               signedPsbts={signedPsbts}
               signThreshold={currentAccount.config.quorum.requiredSigners}
               currentBitcoinNetwork={currentBitcoinNetwork}
+              currentBitcoinPrice={currentBitcoinPrice}
             />
           )}
 
@@ -301,6 +301,12 @@ const SendToAddressHeader = styled.div`
 
 const AddressDisplayWrapper = styled.div`
   display: flex;
+`;
+
+const SendAmountError = styled.div`
+  font-size: 0.5em;
+  color: ${red};
+  text-align: right;
 `;
 
 const InputStyles = css`

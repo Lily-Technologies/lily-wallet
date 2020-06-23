@@ -15,7 +15,7 @@ import { StyledIcon, Button, SidewaysShake } from '../../components';
 
 import { gray, blue, darkGray, white, darkOffWhite, green, darkGreen, lightGray, red, lightRed } from '../../utils/colors';
 
-const TransactionDetails = ({ finalPsbt, feeEstimate, outputTotal, recipientAddress, sendAmount, setStep, transactionsMap, signedPsbts, signThreshold, currentBitcoinNetwork }) => {
+const TransactionDetails = ({ finalPsbt, feeEstimate, outputTotal, recipientAddress, sendAmount, setStep, transactionsMap, signedPsbts, signThreshold, currentBitcoinNetwork, currentBitcoinPrice }) => {
   const [showMoreDetails, setShowMoreDetails] = useState(false);
   const [broadcastedTxId, setBroadcastedTxId] = useState('');
   const [txError, setTxError] = useState(null);
@@ -59,20 +59,19 @@ const TransactionDetails = ({ finalPsbt, feeEstimate, outputTotal, recipientAddr
             <RecipientAddressRow style={{ paddingTop: 0, textAlign: 'right' }}>{recipientAddress}</RecipientAddressRow>
           </MainTxData>
           <div>
-            <ToField>Fee: <span>{satoshisToBitcoins(feeEstimate).toNumber()} BTC</span></ToField>
-            <ToField style={{ borderTop: `1px solid ${gray}` }}>Total: <span>{satoshisToBitcoins(outputTotal).toNumber()} BTC</span></ToField>
+            <TransactionFeeField>Transaction Fee: <span>{satoshisToBitcoins(feeEstimate).toNumber()} BTC (${satoshisToBitcoins(feeEstimate.multipliedBy(currentBitcoinPrice)).toFixed(2)})</span></TransactionFeeField>
             {txError && <ErrorBox>{txError}</ErrorBox>}
 
-            <SendButton background={green} color={white} loaded={signedPsbts.length === signThreshold} onClick={broadcastTransaction}>
+            {!broadcastedTxId && <SendButton background={green} color={white} loaded={signedPsbts.length === signThreshold} onClick={broadcastTransaction}>
               {signedPsbts.length < signThreshold ? `Confirm on Devices (${signedPsbts.length}/${signThreshold})` : 'Send Transaction'}
               {signedPsbts.length < signThreshold ? null : (
                 <SendButtonCheckmark loaded={signedPsbts.length}>
                   <StyledIcon as={ArrowIosForwardOutline} size={16} />
                 </SendButtonCheckmark>
               )}
-            </SendButton>
+            </SendButton>}
 
-            {broadcastedTxId && <ViewTransactionButton href={`https://blockstream.info/testnet/tx/${broadcastedTxId}`} target="_blank">View Transaction</ViewTransactionButton>}
+            {broadcastedTxId && <ViewTransactionButton href={`https://blockstream.info/tx/${broadcastedTxId}`} target="_blank">View Transaction</ViewTransactionButton>}
             <MoreDetails>
               <span onClick={() => setShowMoreDetails(!showMoreDetails)}>{showMoreDetails ? 'Less' : 'More'} Details ></span>
               <span onClick={() => setStep(0)}>Edit Transaction</span>
@@ -130,6 +129,7 @@ const MainTxData = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  margin: 4em 0 3em;
 `;
 
 const RecipientAddressRow = styled.div`
@@ -204,6 +204,14 @@ const ToField = styled.div`
   justify-content: space-between;
 `;
 
+const TransactionFeeField = styled.div`
+  font-size: 0.75em;
+  padding: 1em 0;
+  display: flex;
+  justify-content: space-between;
+  color: ${gray};
+`;
+
 const MoreDetails = styled.div`
   color: ${gray};
   align-self: center;
@@ -226,6 +234,7 @@ const SendButton = styled.div`
   transition: ease-out 0.4s;
   position: relative;
   font-size: 1.5em;
+  margin-top: 2em;
 
   &:hover {
     box-shadow: inset 500px 0 0 0 ${darkGreen};
@@ -277,6 +286,7 @@ const TextArea = styled.textarea`
 
 const ViewTransactionButton = styled.a`
   ${Button}
+  margin-top: 1em;
 `;
 
 export default TransactionDetails;

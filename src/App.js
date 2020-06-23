@@ -58,6 +58,7 @@ function App() {
   const [accountMap, setAccountMap] = useState(new Map());
   const [currentBitcoinNetwork, setCurrentBitcoinNetwork] = useState(networks.bitcoin);
   const [formattedPricesForChart, setFormattedPricesForChart] = useState([]);
+  const [refresh, setRefresh] = useState(false);
 
   // WALLET DATA
   const [transactions, setTransactions] = useState([]);
@@ -75,6 +76,10 @@ function App() {
       window.location.reload();
     }
     return null;
+  }
+
+  const toggleRefresh = () => {
+    setRefresh(!refresh)
   }
 
   const ScrollToTop = () => {
@@ -175,9 +180,13 @@ function App() {
         setAccountMap(accountMap);
         setCurrentAccount(accountMap.values().next().value);
       }
-      fetchTransactionsFromBlockstream();
+      try {
+        fetchTransactionsFromBlockstream();
+      } catch (e) {
+        setLoadingDataFromBlockstream(false);
+      }
     }
-  }, [config, currentBitcoinNetwork]);
+  }, [config, currentBitcoinNetwork, refresh]);
 
   useEffect(() => {
     if (currentAccount && accountMap.size) {
@@ -216,7 +225,7 @@ function App() {
           {!config.isEmpty && <Sidebar config={config} setCurrentAccount={setCurrentAccountFromMap} loading={loadingDataFromBlockstream} />}
           {!config.isEmpty && <MobileNavbar config={config} setCurrentAccount={setCurrentAccountFromMap} loading={loadingDataFromBlockstream} />}
           <Switch>
-            <Route path="/vault/:id" component={() => <Vault config={config} setConfigFile={setConfigFile} currentAccount={currentAccount} currentBitcoinNetwork={currentBitcoinNetwork} currentBitcoinPrice={currentBitcoinPrice} transactions={transactions} currentBalance={currentBalance} loadingDataFromBlockstream={loadingDataFromBlockstream} />} />
+            <Route path="/vault/:id" component={() => <Vault config={config} setConfigFile={setConfigFile} toggleRefresh={toggleRefresh} currentAccount={currentAccount} currentBitcoinNetwork={currentBitcoinNetwork} currentBitcoinPrice={currentBitcoinPrice} transactions={transactions} currentBalance={currentBalance} loadingDataFromBlockstream={loadingDataFromBlockstream} />} />
             <Route path="/receive" component={() => <Receive config={config} currentAccount={currentAccount} setCurrentAccount={setCurrentAccountFromMap} currentBitcoinPrice={currentBitcoinPrice} transactions={transactions} currentBalance={currentBalance} loadingDataFromBlockstream={loadingDataFromBlockstream} unusedAddresses={unusedAddresses} />} />
             <Route path="/send" component={() => <Send config={config} currentAccount={currentAccount} setCurrentAccount={setCurrentAccountFromMap} currentBitcoinPrice={currentBitcoinPrice} transactions={transactions} currentBalance={currentBalance} loadingDataFromBlockstream={loadingDataFromBlockstream} availableUtxos={availableUtxos} unusedChangeAddresses={unusedChangeAddresses} currentBitcoinNetwork={currentBitcoinNetwork} />} />
             <Route path="/setup" component={() => <Setup config={config} setConfigFile={setConfigFile} currentBitcoinNetwork={currentBitcoinNetwork} />} />

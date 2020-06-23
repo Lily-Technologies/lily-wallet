@@ -29,6 +29,16 @@ const CustomTooltip = ({ active, payload, label }) => {
   return null;
 };
 
+const getLastTransactionTime = (transactions) => {
+  if (transactions.length === 0) { // if no transactions yet
+    return `No activity on this account yet`
+  } else if (!transactions[0].status.confirmed) { // if last transaction isn't confirmed yet
+    return `Last transaction was moments ago`
+  } else { // if transaction is confirmed, give moments ago
+    return `Last transaction was ${moment.unix(transactions[0].status.block_time).fromNow()}`
+  }
+}
+
 const Home = ({ config, accountMap, priceForChart, currentBitcoinPrice, loading }) => {
   const [currentDomain, setCurrentDomain] = useState(0);
 
@@ -87,12 +97,8 @@ const Home = ({ config, accountMap, priceForChart, currentBitcoinPrice, loading 
               dataKey="price"
               stroke={blue}
               strokeWidth={2}
-              // type="number"
-              // isAnimationActive={!!!accountMap}
               fill={lightBlue} />
-            {/* <CartesianGrid strokeDasharray="3 3" /> */}
             <Tooltip
-              // position={{ y: -100 }}
               offset={-100}
               cursor={false}
               allowEscapeViewBox={{ x: true, y: true }}
@@ -118,6 +124,7 @@ const Home = ({ config, accountMap, priceForChart, currentBitcoinPrice, loading 
             <AccountInfoContainer>
               <AccountName>{account.name}</AccountName>
               <CurrentBalance>Current Balance: {satoshisToBitcoins(account.currentBalance.toNumber()).toFixed(8)} BTC</CurrentBalance>
+              <CurrentBalance>{getLastTransactionTime(account.transactions)}</CurrentBalance>
             </AccountInfoContainer>
           </AccountItem>
         ))}
