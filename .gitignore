@@ -2,3 +2,4 @@ node_modules
 build
 LilyWallet-darwin-x64
 .DS_Store
+release-builds
