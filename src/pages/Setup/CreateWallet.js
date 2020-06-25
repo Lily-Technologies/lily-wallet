@@ -1,24 +1,37 @@
-import React, { useState, useEffect, Fragment } from 'react';
-import styled from 'styled-components';
-import { AES } from 'crypto-js';
-import { bip32 } from 'bitcoinjs-lib';
-import { generateMnemonic, mnemonicToSeed } from 'bip39';
-import { v4 as uuidv4 } from 'uuid';
+import React, { useState, useEffect, Fragment } from "react";
+import styled from "styled-components";
+import { AES } from "crypto-js";
+import { bip32 } from "bitcoinjs-lib";
+import { generateMnemonic, mnemonicToSeed } from "bip39";
+import { v4 as uuidv4 } from "uuid";
 import { useHistory } from "react-router-dom";
-import moment from 'moment';
+import moment from "moment";
 
-import { Button, MnemonicWordsDisplayer } from '../../components';
-import { lightBlue, blue, white, darkOffWhite, lightGray, darkGray, gray } from '../../utils/colors';
-import { getUnchainedNetworkFromBjslibNetwork } from '../../utils/transactions';
-import { downloadFile } from '../../utils/files';
+import { Button, MnemonicWordsDisplayer } from "../../components";
+import {
+  lightBlue,
+  blue,
+  white,
+  darkOffWhite,
+  lightGray,
+  darkGray,
+  gray,
+} from "../../utils/colors";
+import { getUnchainedNetworkFromBjslibNetwork } from "../../utils/transactions";
+import { downloadFile } from "../../utils/files";
 
-
-const CreateWallet = ({ config, accountName, setConfigFile, currentBitcoinNetwork }) => {
+const CreateWallet = ({
+  config,
+  accountName,
+  setConfigFile,
+  currentBitcoinNetwork,
+}) => {
   const [createWalletStep, setCreateWalletStep] = useState(0);
-  const [password, setPassword] = useState('');
-  const [mnemonicWords, setMnemonicWords] = useState('');
+  const [password, setPassword] = useState("");
+  const [mnemonicWords, setMnemonicWords] = useState("");
   const history = useHistory();
 
+  const [newConfig, setnewConfig] = useState(null);
 
   useEffect(() => {
     setMnemonicWords(generateMnemonic(256));
@@ -46,56 +59,116 @@ const CreateWallet = ({ config, accountName, setConfigFile, currentBitcoinNetwor
       xpub: xpubString,
       xprv: xprvString,
       mnemonic: mnemonicWords,
-      parentFingerprint: root.fingerprint
+      parentFingerprint: root.fingerprint,
     });
 
-    const encryptedConfigObject = AES.encrypt(JSON.stringify(configCopy), password).toString();
+    const encryptedConfigObject = AES.encrypt(
+      JSON.stringify(configCopy),
+      password
+    ).toString();
 
-    const encryptedConfigFile = new Blob([decodeURIComponent(encodeURI(encryptedConfigObject))], { type: contentType });
-    downloadFile(encryptedConfigFile, `lily_wallet_config-${moment().format()}.txt`);
-    setConfigFile(configCopy);
-    history.push('/');
+    const encryptedConfigFile = new Blob(
+      [decodeURIComponent(encodeURI(encryptedConfigObject))],
+      { type: contentType }
+    );
+    downloadFile(
+      encryptedConfigFile,
+      `lily_wallet_config-${moment().format()}.txt`
+    );
+    setnewConfig(configCopy);
+    // setConfigFile(configCopy);
+    // history.push('/');
+    setCreateWalletStep(2);
+  };
+
+  const finishWalletCreation = () => {
+    setConfigFile(newConfig);
+    history.push("/");
+  };
+
+  const firstStep = () => (
+    <Fragment>
+      <XPubHeaderWrapper>
+        <SetupHeaderWrapper>
+          <SetupHeader>Write down these recovery words</SetupHeader>
+          <SetupExplainerText>
+            These 24 words are the keys to your wallet. Write them down and keep
+            them in a safe place. Do not share them with anyone else. These can
+            be used to recover your wallet if you lose your configuration file.
+          </SetupExplainerText>
+        </SetupHeaderWrapper>
+      </XPubHeaderWrapper>
+      <WordContainer>
+        <MnemonicWordsDisplayer mnemonicWords={mnemonicWords} />
+      </WordContainer>
+      <SaveWalletButton onClick={() => setCreateWalletStep(1)}>
+        I have written these words down
+      </SaveWalletButton>
+    </Fragment>
+  );
+
+  const secondStep = () => (
+    <Fragment>
+      <PasswordWrapper>
+        <PasswordText>
+          Almost done, just set a password to encrypt your setup file:
+        </PasswordText>
+        <PasswordInput
+          placeholder="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          type="password"
+        />
+      </PasswordWrapper>
+      <SaveWalletContainer>
+        <SaveWalletButton onClick={() => exportSetupFiles()}>
+          Save Wallet
+        </SaveWalletButton>
+      </SaveWalletContainer>
+    </Fragment>
+  );
+
+  const thirdStep = () => (
+    <Fragment>
+      <FileSavedWrapper>
+        <FileSavedText>
+          The configuration file was saved in your default download folder.
+          <br />
+          This file is required to restore your wallet next time you start Lilly
+          Wallet.
+        </FileSavedText>
+      </FileSavedWrapper>
+
+      <SaveWalletContainer>
+        <SaveWalletButton onClick={() => finishWalletCreation()}>
+          Continue
+        </SaveWalletButton>
+      </SaveWalletContainer>
+    </Fragment>
+  );
+
+  /*return (
+    <Wrapper>{createWalletStep === 0 ? firstStep() : secondStep()}</Wrapper>
+  );*/
+
+  let screen = null;
+
+  switch (createWalletStep) {
+    case 0:
+      screen = firstStep();
+      break;
+    case 1:
+      screen = secondStep();
+      break;
+    case 2:
+      screen = thirdStep();
+      break;
+    default:
+      screen = <div>Unexpected error</div>;
   }
 
-  return (
-    <Wrapper>
-      {createWalletStep === 0 ? (
-        <Fragment>
-          {/* <BoxedWrapper> */}
-          <XPubHeaderWrapper>
-            <SetupHeaderWrapper>
-              <SetupHeader>Write down these recovery words</SetupHeader>
-              <SetupExplainerText>
-                These 24 words are the keys to your wallet.
-                Write them down and keep them in a safe place.
-                Do not share them with anyone else.
-                These can be used to recover your wallet if you lose your configuration file.
-              </SetupExplainerText>
-            </SetupHeaderWrapper>
-          </XPubHeaderWrapper>
-          <WordContainer>
-            <MnemonicWordsDisplayer mnemonicWords={mnemonicWords} />
-          </WordContainer>
-          <SaveWalletButton onClick={() => setCreateWalletStep(1)}>
-            I have written these words down
-        </SaveWalletButton>
-        </Fragment>
-      ) : (
-          <Fragment>
-            <PasswordWrapper>
-              <PasswordText>Almost done, just set a password to encrypt your setup file:</PasswordText>
-              <PasswordInput placeholder="password" value={password} onChange={(e) => setPassword(e.target.value)} type="password" />
-            </PasswordWrapper>
-            <SaveWalletContainer>
-              <SaveWalletButton onClick={() => exportSetupFiles()}>
-                Save Wallet
-              </SaveWalletButton>
-            </SaveWalletContainer>
-          </Fragment>
-        )}
-    </Wrapper>
-  );
-}
+  return <Wrapper>{screen}</Wrapper>;
+};
 
 const XPubHeaderWrapper = styled.div`
   color: ${blue};
@@ -119,7 +192,7 @@ const SetupHeader = styled.span`
 
 const SetupExplainerText = styled.div`
   color: ${darkGray};
-  font-size: .8em;
+  font-size: 0.8em;
   margin: 8px 0;
 `;
 
@@ -151,6 +224,18 @@ const PasswordText = styled.h3`
   font-weight: 100;
 `;
 
+const FileSavedWrapper = styled.div`
+  padding: 1.5em;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid ${gray};
+  border-bottom: none;
+`;
+
+const FileSavedText = styled.h3`
+  font-weight: 100;
+`;
+
 const WordContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
@@ -166,7 +251,7 @@ const PasswordInput = styled.input`
   position: relative;
   border: 1px solid ${darkOffWhite};
   background: ${lightGray};
-  padding: .75em;
+  padding: 0.75em;
   text-align: center;
   color: ${darkGray};
   display: flex;
@@ -177,13 +262,14 @@ const PasswordInput = styled.input`
   font-size: 1.5em;
   z-index: 1;
   flex: 1;
-  font-family: 'Montserrat', sans-serif;
+  font-family: "Montserrat", sans-serif;
 
   ::placeholder {
     color: ${gray};
   }
 
-  :active, :focused {
+  :active,
+  :focused {
     outline: 0;
     border: none;
   }
