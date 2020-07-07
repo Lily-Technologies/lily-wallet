@@ -3,9 +3,9 @@ import styled, { keyframes } from 'styled-components';
 import { ErrorOutline, CheckCircle } from '@styled-icons/material';
 
 import { Button, StyledIcon } from '../components';
-import { lightGreen, gray, green, blue, white, darkGray, offWhite } from '../utils/colors';
+import { lightGreen, gray, green, blue, white, darkGray, lightBlack, red, lightRed, yellow, lightYellow } from '../utils/colors';
 
-export const DeviceSelectSetup = ({ style, configuredDevices, unconfiguredDevices, setUnconfiguredDevices, configuredThreshold, deviceAction }) => {
+export const DeviceSelectSetup = ({ style, configuredDevices, unconfiguredDevices, errorDevices, setUnconfiguredDevices, configuredThreshold, deviceAction }) => {
   const [devicesLoading, setDevicesLoading] = useState(false);
   const [deviceActionLoading, setDeviceActionLoading] = useState(null);
 
@@ -49,47 +49,82 @@ export const DeviceSelectSetup = ({ style, configuredDevices, unconfiguredDevice
             key={index}
             imported={true}
             displayLoadingCursor={deviceActionLoading !== null}>
-            <ImportedWrapper style={{ color: green, alignSelf: 'flex-end' }}>
+            <IconWrapper style={{ color: green }}>
               <StyledIcon as={CheckCircle} size={24} />
-            </ImportedWrapper>
-            <DeviceImage src={device.type === 'coldcard' ? require('../assets/coldcard.png') : require('../assets/trezor.png')} />
-            <DeviceName>{device.type}</DeviceName>
-            <DeviceFingerprint imported={true}>{device.fingerprint}</DeviceFingerprint>
+            </IconWrapper>
+            <DeviceImage
+              src={
+                device.type === 'coldcard' ? require('../assets/coldcard.png')
+                  : device.type === 'ledger' ? require('../assets/ledger.png')
+                    : require('../assets/trezor.png')
+              } />
+            <DeviceInfoWrapper>
+              <DeviceName>{device.type}</DeviceName>
+              <DeviceFingerprint imported={true}>{device.fingerprint}</DeviceFingerprint>
+            </DeviceInfoWrapper>
           </DeviceWrapper>
         ))}
 
-        {unconfiguredDevices.map((device, index) => (
-          <DeviceWrapper
-            key={index}
-            onClick={() => {
-              if (deviceActionLoading === null) {
-                performDeviceAction(device, index)
-              }
-            }}
-            loading={deviceActionLoading === index}
-            displayLoadingCursor={deviceActionLoading !== null}
-          >
-            <DeviceImage loading={deviceActionLoading === index} src={device.type === 'coldcard' ? require('../assets/coldcard.png') : require('../assets/trezor.png')} />
-            <DeviceName>{device.type}</DeviceName>
-            <DeviceFingerprint>{device.fingerprint}</DeviceFingerprint>
-            <ImportedWrapper>
-              {deviceActionLoading === index ? (
-                <ConfiguringText style={{ textAlign: 'center' }}>
-                  Extracting XPub
-                  <ConfiguringAnimation>.</ConfiguringAnimation>
-                  <ConfiguringAnimation>.</ConfiguringAnimation>
-                  <ConfiguringAnimation>.</ConfiguringAnimation>
-                </ConfiguringText>
-              ) : (
-                  <ConfiguringText>
-                    Click to Configure
-                  </ConfiguringText>
-                )}
-            </ImportedWrapper>
-          </DeviceWrapper>
-        ))}
+        {unconfiguredDevices.map((device, index) => {
+          const deviceError = errorDevices.includes(device.path);
+          const deviceWarning = !device.fingerprint; // if ledger isn't in the BTC app, it wont give fingerprint, so show warning
+          return (
+            <DeviceWrapper
+              key={index}
+              onClick={async () => {
+                if (deviceActionLoading === null) {
+                  if (deviceWarning) {
+                    await enumerate();
+                  } else {
+                    performDeviceAction(device, index)
+                  }
+                }
+              }}
+              loading={deviceActionLoading === index}
+              warning={deviceWarning}
+              error={deviceError}
+              displayLoadingCursor={deviceActionLoading !== null}
+            >
+              {deviceError || deviceWarning && (
+                <IconWrapper style={{ color: red }}>
+                  <StyledIcon as={ErrorOutline} size={24} />
+                </IconWrapper>
+              )}
+              <DeviceImage
+                loading={deviceActionLoading === index}
+                src={
+                  device.type === 'coldcard' ? require('../assets/coldcard.png')
+                    : device.type === 'ledger' ? require('../assets/ledger.png')
+                      : require('../assets/trezor.png')
+                } />
+              <DeviceInfoWrapper>
+                <DeviceName>{device.type}</DeviceName>
+                <DeviceFingerprint>{device.fingerprint}</DeviceFingerprint>
+                <ImportedWrapper>
+                  {deviceActionLoading === index ? (
+                    <ConfiguringText error={deviceError} style={{ textAlign: 'center' }}>
+                      Extracting XPub
+                      <ConfiguringAnimation>.</ConfiguringAnimation>
+                      <ConfiguringAnimation>.</ConfiguringAnimation>
+                      <ConfiguringAnimation>.</ConfiguringAnimation>
+                    </ConfiguringText>
+                  ) : deviceError || deviceWarning ? (
+                    <ConfiguringText error={true} warning={deviceWarning}>
+                      {deviceError ? 'Click to Retry' : 'Open Bitcoin App on Device'}
+                    </ConfiguringText>
+                  ) : (
+                        <ConfiguringText>
+                          Click to Configure
+                        </ConfiguringText>
+                      )}
+                </ImportedWrapper>
+              </DeviceInfoWrapper>
+            </DeviceWrapper>
+          )
+        }
+        )}
 
-        {unconfiguredDevices.length === 0 && configuredDevices.length === 0 && (
+        {unconfiguredDevices.length === 0 && configuredDevices.length === 0 && !devicesLoading && (
           <NoDevicesContainer>
             <NoDevicesWrapper>
               <NoDevicesHeader>No devices detected</NoDevicesHeader>
@@ -100,7 +135,15 @@ export const DeviceSelectSetup = ({ style, configuredDevices, unconfiguredDevice
         )}
       </DevicesWrapper>
 
-      {configuredDevices.length < configuredThreshold && <ScanDevicesButton background={white} color={blue} onClick={enumerate}>{devicesLoading ? 'Loading...' : 'Scan for devices'}</ScanDevicesButton>}
+      {unconfiguredDevices.length === 0 && configuredDevices.length === 0 && devicesLoading && (
+        <NoDevicesContainer>
+          <NoDevicesWrapper>
+            <img src={require('../assets/flower-loading.svg')} style={{ maxWidth: '6.25em' }} />
+          </NoDevicesWrapper>
+        </NoDevicesContainer>
+      )}
+
+      {configuredDevices.length < configuredThreshold && <ScanDevicesButton background={white} color={blue} onClick={enumerate}>{devicesLoading ? 'Scanning for Devices...' : 'Scan for devices'}</ScanDevicesButton>}
     </Wrapper>
   )
 }
@@ -109,14 +152,14 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   background: ${white};
-  border-left: 1px solid ${gray};
-  border-right: 1px solid ${gray};
   border-bottom: 1px solid ${gray};
 `;
 
 const NoDevicesContainer = styled.div`
   display: flex;
   align-items: center;
+  justify-content: center;
+  margin-bottom: 1.25em;
 `;
 
 const NoDevicesWrapper = styled.div`
@@ -124,6 +167,7 @@ const NoDevicesWrapper = styled.div`
   flex-direction: column;
   align-items: center;
   padding: 1.5em;
+  justify-content: center;
 `;
 
 
@@ -137,35 +181,47 @@ const NoDevicesSubheader = styled.h4`
 `;
 
 const ConfiguringText = styled.div`
-  color: ${darkGray};
+  color: ${p => p.error ? lightBlack : darkGray};
+  font-size: ${p => p.warning ? '0.75em' : '1em'};
+  text-align: center;
 `;
 
 const DevicesWrapper = styled.div`
   display: flex;
-  justify-content: space-around;
-  // min-height: 400px;
+  justify-content: center;
+  margin-bottom: 1.25em;
 `;
 
+const DeviceInfoWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
+`;
+
+const IconWrapper = styled.div`
+  position: absolute;
+  align-self: flex-end;
+  top: 0.65em;
+`;
 
 const DeviceWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-end;
   align-items: center;
   padding: .75em;
   margin: 1.5em;
   margin-bottom: 0px;
   flex: 0 1 15.625em;
   border-radius: 4px;
+  position: relative;
 
-  background: ${p => p.imported ? lightGreen : 'none'};
-  border: ${p => p.imported ? `1px solid ${green}` : p.loading ? darkGray : 'none'};
+  background: ${p => p.imported ? lightGreen : p.error ? lightRed : p.warning ? lightYellow : 'none'};
+  border: ${p => p.imported ? `1px solid ${green}` : p.error ? `1px solid ${red}` : p.warning ? `1px solid ${yellow}` : '1px solid transparent'};
 
   &:hover {
     cursor: ${p => p.displayLoadingCursor ? 'wait' : 'pointer'};
-    // background: ${p => p.imported ? lightGreen : p.loading ? 'none' : offWhite};
-    // border: 1px solid ${p => p.imported ? 'none' : p.loading ? 'none' : darkGray};
-    // padding: ${p => p.imported ? 'none' : p.loading ? 'none' : '11px'};
 `;
 
 const DeviceImage = styled.img`
@@ -173,7 +229,7 @@ const DeviceImage = styled.img`
   width: auto;
   height: auto;
   max-height: 250px;
-  max-width: 148px;
+  max-width: 6.25em;
 
   animation-name: ${p => p.loading ? blinking : 'none'};
   animation-duration: 1.4s;
@@ -193,16 +249,12 @@ const DeviceFingerprint = styled.h5`
   font-weight: 100;
 `;
 
-const ImportedWrapper = styled.div`
-  margin: 4px 0 0;
-  // color: ${green};
-`;
+const ImportedWrapper = styled.div``;
 
 const ScanDevicesButton = styled.button`
   ${Button};
   padding: 1em;
   font-size: 1em;
-  margin-top: 1.5em;
   width: fit-content;
   align-self: center;
   border: 1px solid ${blue};

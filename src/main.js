@@ -26,9 +26,9 @@ function createWindow() {
   mainWindow.maximize();
 
   // load production url
-  mainWindow.loadURL(`file://${__dirname}/build/index.html`);
+  // mainWindow.loadURL(`file://${__dirname}/build/index.html`);
   // load dev url
-  // mainWindow.loadURL(`http://localhost:3001/`);
+  mainWindow.loadURL(`http://localhost:3001/`);
 
   // Open the DevTools.
   // mainWindow.webContents.openDevTools();
@@ -74,14 +74,25 @@ app.on('activate', function () {
 // code. You can also put them in separate files and require them here.
 
 ipcMain.handle('/enumerate', async (event, args) => {
-  const devices = await enumerate();
-  return JSON.parse(devices);
+  const resp = JSON.parse(await enumerate());
+  if (resp.error) {
+    return Promise.reject(new Error('Error enumerating hardware wallets'))
+  }
+  console.log('resp:', resp);
+  const filteredDevices = resp.filter((device) => {
+    return device.type === 'coldcard' || device.type === 'ledger' || device.type === 'trezor';
+  })
+  return Promise.resolve(filteredDevices);
 });
 
 ipcMain.handle('/xpub', async (event, args) => {
   const { deviceType, devicePath, path } = args;
-  const xpub = await getXPub(deviceType, devicePath, path)
-  return JSON.parse(xpub);
+  const resp = JSON.parse(await getXPub(deviceType, devicePath, path)); // responses come back as strings, need to be parsed
+  console.log('resp: ', resp);
+  if (resp.error) {
+    return Promise.reject(new Error('Error extracting xpub'));
+  }
+  return Promise.resolve(resp);
 });
 
 ipcMain.handle('/sign', async (event, args) => {

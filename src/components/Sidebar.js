@@ -13,17 +13,19 @@ export const Sidebar = ({ config, setCurrentAccount, loading, toggleRefresh }) =
   if (pathname !== '/coldcard-import-instructions') {
     return (
       <SidebarWrapper>
-        <WalletTitle>
-          <LilyImage src={require('../assets/flower.svg')} />
+        <SidebarContainer>
+          <WalletTitle>
+            <LilyImage src={require('../assets/flower.svg')} />
           Lily Wallet
           </WalletTitle>
-        <NavLinks config={config} setCurrentAccount={setCurrentAccount} loading={loading} toggleRefresh={toggleRefresh} />
-        <FooterPositionWrapper>
-          <FooterWrapper>
-            <ViewSourceCodeText href="https://github.com/KayBeSee/lily-wallet" target="_blank">View Source Code</ViewSourceCodeText>
-            <DontTrustVerify>Don't Trust. Verify.</DontTrustVerify>
-          </FooterWrapper>
-        </FooterPositionWrapper>
+          <NavLinks config={config} setCurrentAccount={setCurrentAccount} loading={loading} toggleRefresh={toggleRefresh} />
+          <FooterPositionWrapper>
+            <FooterWrapper>
+              <ViewSourceCodeText href="https://github.com/KayBeSee/lily-wallet" target="_blank">View Source Code</ViewSourceCodeText>
+              <DontTrustVerify>Don't Trust. Verify.</DontTrustVerify>
+            </FooterWrapper>
+          </FooterPositionWrapper>
+        </SidebarContainer>
       </SidebarWrapper>
     );
   } else {
@@ -34,7 +36,6 @@ export const Sidebar = ({ config, setCurrentAccount, loading, toggleRefresh }) =
 const SidebarWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  background: ${white};
   width: 12em;
   // min-height: 100vh;
   border: solid 1px ${darkOffWhite};
@@ -47,6 +48,13 @@ const SidebarWrapper = styled.div`
     display: none;
     height: auto;
   `)};
+`;
+
+const SidebarContainer = styled.div`
+  position: fixed;
+  height: 100%;
+  width: 12em;
+  background: ${white};
 `;
 
 const WalletsHeader = styled.h3`
