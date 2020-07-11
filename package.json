@@ -26,7 +26,7 @@
     "axios": "^0.19.2",
     "bignumber.js": "^9.0.0",
     "bip39": "^3.0.2",
-    "bitcoinjs-lib": "^5.1.7",
+    "bitcoinjs-lib": "^5.1.10",
     "bs58check": "^2.1.2",
     "cors": "^2.8.5",
     "crypto-js": "^4.0.0",

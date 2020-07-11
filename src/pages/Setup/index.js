@@ -7,7 +7,7 @@ import { Wallet } from '@styled-icons/entypo';
 import moment from 'moment';
 
 import { createConfigFile, createColdCardBlob, downloadFile } from '../../utils/files';
-import { Button, DeviceSelectSetup, StyledIcon } from '../../components';
+import { Button, DeviceSelect, StyledIcon } from '../../components';
 import { GridArea, Header, HeaderLeft, HeaderRight, PageTitle } from '../../components/layout';
 import { black, gray, blue, white, darkGreen, offWhite, darkGray, darkOffWhite, lightBlue } from '../../utils/colors';
 
@@ -35,15 +35,15 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
 
       setImportedDevices([...importedDevices, { ...device, ...response }]);
       availableDevices.splice(index, 1);
-      if (errorDevices.includes(device.path)) {
+      if (errorDevices.includes(device.fingerprint)) {
         const errorDevicesCopy = [...errorDevices];
-        errorDevicesCopy.splice(errorDevices.indexOf(device.path), 1);
+        errorDevicesCopy.splice(errorDevices.indexOf(device.fingerprint), 1);
         setErrorDevices(errorDevicesCopy);
       }
       setAvailableDevices([...availableDevices]);
     } catch (e) {
       const errorDevicesCopy = [...errorDevices];
-      errorDevicesCopy.push(device.path);
+      errorDevicesCopy.push(device.fingerprint);
       setErrorDevices([...errorDevicesCopy])
     }
   }
@@ -183,8 +183,10 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
                           </SetupExplainerText>
                           </SetupHeaderWrapper>
                         </XPubHeaderWrapper>
-                        <DeviceSelectSetup
+                        <DeviceSelect
                           deviceAction={importDevice}
+                          deviceActionText={'Click to Configure'}
+                          deviceActionLoadingText={'Extracting XPub'}
                           configuredDevices={importedDevices}
                           unconfiguredDevices={availableDevices}
                           errorDevices={errorDevices}
@@ -299,6 +301,7 @@ const BoxedWrapper = styled.div`
   justify-content: space-between;
   border-left: 1px solid ${gray};
   border-right: 1px solid ${gray};
+  border-bottom: 1px solid ${gray};
   border-top-left-radius: 4px;
   border-top-right-radius: 4px;
   border-top: 11px solid ${blue};

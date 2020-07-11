@@ -18,7 +18,7 @@ import RecentTransactions from '../../components/transactions/RecentTransactions
 import SignWithDevice from './SignWithDevice'
 import TransactionDetails from './TransactionDetails';
 
-import { createTransactionMapFromTransactionArray, coinSelection, getFeeForMultisig } from '../../utils/transactions';
+import { createTransactionMapFromTransactionArray, coinSelection, getFeeForMultisig, getTxHex } from '../../utils/transactions';
 import { red, gray, blue, darkGray, white, darkOffWhite, lightGray, lightBlue } from '../../utils/colors';
 import { mobile } from '../../utils/media';
 
@@ -27,7 +27,6 @@ const validateAddress = (recipientAddress) => {
     address.toOutputScript(recipientAddress)
     return true
   } catch (e) {
-    console.log('e: ', e);
     return false
   }
 }
@@ -48,34 +47,43 @@ const Send = ({ config, currentAccount, setCurrentAccount, transactions, availab
   const createTransaction = async (amountInBitcoins, recipientAddress, availableUtxos, transactionsFromBlockstream) => {
     const transactionMap = createTransactionMapFromTransactionArray(transactionsFromBlockstream);
 
-    let feeEstimate = await getFeeForMultisig(currentAccount.config.addressType, 1, 2, currentAccount.config.quorum.requiredSigners, currentAccount.config.quorum.totalSigners, currentBitcoinNetwork);
-    let outputTotal = BigNumber(bitcoinsToSatoshis(amountInBitcoins)).plus(feeEstimate.integerValue(BigNumber.ROUND_CEIL).toNumber());
+    let currentFeeEstimate = await (await getFeeForMultisig(currentAccount.config.addressType, 1, 2, currentAccount.config.quorum.requiredSigners, currentAccount.config.quorum.totalSigners, currentBitcoinNetwork)).integerValue(BigNumber.ROUND_CEIL);
+    let outputTotal = BigNumber(bitcoinsToSatoshis(amountInBitcoins)).plus(currentFeeEstimate.toNumber());
     let [spendingUtxos, spendingUtxosTotal] = coinSelection(outputTotal, availableUtxos);
 
     if (spendingUtxos.length > 1) {
-      feeEstimate = await getFeeForMultisig(currentAccount.config.addressType, spendingUtxos.length, 2, currentAccount.config.quorum.requiredSigners, currentAccount.config.quorum.totalSigners);
-      outputTotal = BigNumber(bitcoinsToSatoshis(amountInBitcoins)).plus(feeEstimate.integerValue(BigNumber.ROUND_CEIL).toNumber());
+      currentFeeEstimate = await (await getFeeForMultisig(currentAccount.config.addressType, spendingUtxos.length, 2, currentAccount.config.quorum.requiredSigners, currentAccount.config.quorum.totalSigners)).integerValue(BigNumber.ROUND_CEIL);
+      outputTotal = BigNumber(bitcoinsToSatoshis(amountInBitcoins)).plus(feeEstimate.toNumber());
       [spendingUtxos, spendingUtxosTotal] = coinSelection(outputTotal, availableUtxos);
     }
 
-    setFeeEstimate(feeEstimate);
+    setFeeEstimate(currentFeeEstimate);
     setOutputTotal(outputTotal);
 
     const psbt = new Psbt({ network: currentBitcoinNetwork });
     psbt.setVersion(2); // These are defaults. This line is not needed.
     psbt.setLocktime(0); // These are defaults. This line is not needed.
 
+    for (let i = 0; i < spendingUtxos.length; i++) {
+      const utxo = spendingUtxos[i];
 
-    spendingUtxos.forEach((utxo, index) => {
       if (currentAccount.config.quorum.requiredSigners > 1) {
+
+        // need to construct prevTx b/c of segwit fee vulnerability requires on trezor
+        // const prevTxHex = await axios(`getblockstreamtx/tx/${utxo.txid}/hex`);
+        const prevTxHex = await getTxHex(utxo.txid, currentBitcoinNetwork);
+
+        // KBC-TODO: eventually break this up into different functions depending on if Trezor or not, leave for now...I guess
         psbt.addInput({
           hash: utxo.txid,
           index: utxo.vout,
           sequence: 0xffffffff,
-          witnessUtxo: {
-            script: Buffer.from(transactionMap.get(utxo.txid).vout[utxo.vout].scriptpubkey, 'hex'),
-            value: utxo.value
-          },
+          // witnessUtxo: {
+          //   script: Buffer.from(transactionMap.get(utxo.txid).vout[utxo.vout].scriptpubkey, 'hex'),
+          //   value: utxo.value
+          // },
+          nonWitnessUtxo: Buffer.from(prevTxHex, 'hex'),
+          // redeemScript: utxo.address.redeem.output,
           witnessScript: Buffer.from(scriptToHex(multisigWitnessScript(utxo.address)), 'hex'),
           bip32Derivation: utxo.address.bip32derivation
         })
@@ -91,7 +99,7 @@ const Send = ({ config, currentAccount, setCurrentAccount, transactions, availab
           bip32Derivation: utxo.address.bip32derivation
         })
       }
-    });
+    }
 
     psbt.addOutput({
       script: address.toOutputScript(recipientAddress, currentBitcoinNetwork),

@@ -3,9 +3,9 @@ import styled, { keyframes } from 'styled-components';
 import { ErrorOutline, CheckCircle } from '@styled-icons/material';
 
 import { Button, StyledIcon } from '../components';
-import { lightGreen, gray, green, blue, white, darkGray, lightBlack, red, lightRed, yellow, lightYellow } from '../utils/colors';
+import { lightGreen, gray, green, blue, white, darkGray, lightBlack, red, lightRed, yellow, lightYellow, black } from '../utils/colors';
 
-export const DeviceSelectSetup = ({ style, configuredDevices, unconfiguredDevices, errorDevices, setUnconfiguredDevices, configuredThreshold, deviceAction }) => {
+export const DeviceSelect = ({ configuredDevices, unconfiguredDevices, errorDevices, setUnconfiguredDevices, configuredThreshold, deviceAction, deviceActionText, deviceActionLoadingText }) => {
   const [devicesLoading, setDevicesLoading] = useState(false);
   const [deviceActionLoading, setDeviceActionLoading] = useState(null);
 
@@ -66,7 +66,7 @@ export const DeviceSelectSetup = ({ style, configuredDevices, unconfiguredDevice
         ))}
 
         {unconfiguredDevices.map((device, index) => {
-          const deviceError = errorDevices.includes(device.path);
+          const deviceError = errorDevices.includes(device.fingerprint);
           const deviceWarning = !device.fingerprint; // if ledger isn't in the BTC app, it wont give fingerprint, so show warning
           return (
             <DeviceWrapper
@@ -103,7 +103,7 @@ export const DeviceSelectSetup = ({ style, configuredDevices, unconfiguredDevice
                 <ImportedWrapper>
                   {deviceActionLoading === index ? (
                     <ConfiguringText error={deviceError} style={{ textAlign: 'center' }}>
-                      Extracting XPub
+                      {deviceActionLoadingText}
                       <ConfiguringAnimation>.</ConfiguringAnimation>
                       <ConfiguringAnimation>.</ConfiguringAnimation>
                       <ConfiguringAnimation>.</ConfiguringAnimation>
@@ -114,7 +114,7 @@ export const DeviceSelectSetup = ({ style, configuredDevices, unconfiguredDevice
                     </ConfiguringText>
                   ) : (
                         <ConfiguringText>
-                          Click to Configure
+                          {deviceActionText}
                         </ConfiguringText>
                       )}
                 </ImportedWrapper>
@@ -137,9 +137,11 @@ export const DeviceSelectSetup = ({ style, configuredDevices, unconfiguredDevice
 
       {unconfiguredDevices.length === 0 && configuredDevices.length === 0 && devicesLoading && (
         <NoDevicesContainer>
-          <NoDevicesWrapper>
+          <LoadingDevicesWrapper>
             <img src={require('../assets/flower-loading.svg')} style={{ maxWidth: '6.25em' }} />
-          </NoDevicesWrapper>
+            <LoadingText>Loading Devices</LoadingText>
+            <LoadingSubText>Please wait...</LoadingSubText>
+          </LoadingDevicesWrapper>
         </NoDevicesContainer>
       )}
 
@@ -152,7 +154,6 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   background: ${white};
-  border-bottom: 1px solid ${gray};
 `;
 
 const NoDevicesContainer = styled.div`
@@ -168,6 +169,18 @@ const NoDevicesWrapper = styled.div`
   align-items: center;
   padding: 1.5em;
   justify-content: center;
+  color: ${black};
+  text-align: center;
+`;
+
+const LoadingDevicesWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.5em;
+  justify-content: center;
+  color: ${gray};
+  text-align: center;
 `;
 
 
@@ -247,6 +260,15 @@ const DeviceFingerprint = styled.h5`
   color: ${p => p.imported ? darkGray : gray};
   margin: 0;
   font-weight: 100;
+`;
+
+const LoadingText = styled.div`
+  font-size: 1.5em;
+  margin: 4px 0;
+`;
+
+const LoadingSubText = styled.div`
+    font-size: .75em;
 `;
 
 const ImportedWrapper = styled.div``;

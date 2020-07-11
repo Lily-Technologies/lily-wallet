@@ -41,7 +41,6 @@ const TransactionDetails = ({ finalPsbt, feeEstimate, outputTotal, recipientAddr
           setBroadcastedTxId(data);
         }
       } catch (e) {
-        console.log('e.message: ', e.message);
         setTxError(e.message);
       }
     }

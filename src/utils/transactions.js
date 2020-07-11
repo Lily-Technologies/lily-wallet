@@ -67,6 +67,11 @@ export const getFeeForMultisig = async (addressType, numInputs, numOutputs, requ
   })
 }
 
+export const getTxHex = async (txid, currentBitcoinNetwork) => {
+  const txHex = await (await axios.get(blockExplorerAPIURL(`/tx/${txid}/hex`, getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)))).data;
+  return txHex;
+}
+
 
 const serializeTransactions = (transactionsFromBlockstream, addresses, changeAddresses) => {
   const changeAddressesMap = createAddressMapFromAddressArray(changeAddresses);

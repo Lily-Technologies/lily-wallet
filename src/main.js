@@ -78,7 +78,6 @@ ipcMain.handle('/enumerate', async (event, args) => {
   if (resp.error) {
     return Promise.reject(new Error('Error enumerating hardware wallets'))
   }
-  console.log('resp:', resp);
   const filteredDevices = resp.filter((device) => {
     return device.type === 'coldcard' || device.type === 'ledger' || device.type === 'trezor';
   })
@@ -88,7 +87,6 @@ ipcMain.handle('/enumerate', async (event, args) => {
 ipcMain.handle('/xpub', async (event, args) => {
   const { deviceType, devicePath, path } = args;
   const resp = JSON.parse(await getXPub(deviceType, devicePath, path)); // responses come back as strings, need to be parsed
-  console.log('resp: ', resp);
   if (resp.error) {
     return Promise.reject(new Error('Error extracting xpub'));
   }
@@ -97,6 +95,10 @@ ipcMain.handle('/xpub', async (event, args) => {
 
 ipcMain.handle('/sign', async (event, args) => {
   const { deviceType, devicePath, psbt } = args;
-  const signedPsbt = await signtx(deviceType, devicePath, psbt);
-  return JSON.parse(signedPsbt);
+  const resp = JSON.parse(await signtx(deviceType, devicePath, psbt));
+  if (resp.error) {
+    return Promise.reject(new Error('Error signing transaction'));
+  }
+
+  return Promise.resolve(resp);
 });
