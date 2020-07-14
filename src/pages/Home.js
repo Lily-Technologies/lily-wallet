@@ -4,6 +4,7 @@ import moment from 'moment';
 import { satoshisToBitcoins } from "unchained-bitcoin";
 import { Bitcoin } from '@styled-icons/boxicons-logos';
 import { RestaurantMenu } from '@styled-icons/material';
+import BigNumber from 'bignumber.js';
 import { AreaChart, Area, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts';
 import { Link } from "react-router-dom";
 
@@ -39,12 +40,12 @@ const getLastTransactionTime = (transactions) => {
   }
 }
 
-const Home = ({ config, accountMap, priceForChart, currentBitcoinPrice, loading }) => {
+const Home = ({ config, accountMap, historicalBitcoinPrice, currentBitcoinPrice, loading }) => {
   const [currentDomain, setCurrentDomain] = useState(0);
 
-  const oneMonthDomain = Object.keys(priceForChart).length - 31;
-  const sixMonthDomain = Object.keys(priceForChart).length - (30 * 6);
-  const oneYearDomain = Object.keys(priceForChart).length - 365;
+  const oneMonthDomain = Object.keys(historicalBitcoinPrice).length - 31;
+  const sixMonthDomain = Object.keys(historicalBitcoinPrice).length - (30 * 6);
+  const oneYearDomain = Object.keys(historicalBitcoinPrice).length - 365;
   const allDomain = 0;
 
   const getChartInterval = () => {
@@ -75,7 +76,7 @@ const Home = ({ config, accountMap, priceForChart, currentBitcoinPrice, loading 
           </ChartControlsContainer>
         </ChartInfo >
         <ResponsiveContainer width="100%" height={400}>
-          <AreaChart width={400} height={400} data={priceForChart.slice(currentDomain, priceForChart.length)}>
+          <AreaChart width={400} height={400} data={historicalBitcoinPrice.slice(currentDomain, historicalBitcoinPrice.length)}>
             <YAxis hide={true} domain={['dataMin - 500', 'dataMax + 500']} />
             <XAxis
               dataKey="date"
@@ -120,10 +121,10 @@ const Home = ({ config, accountMap, priceForChart, currentBitcoinPrice, loading 
         </LoadingAnimation>}
         {[...accountMap.values()].map((account) => (
           <AccountItem to={`/vault/${account.config.id}`} key={account.config.id}>
-            <StyledIcon as={Bitcoin} size={36} />
+            <StyledIcon as={Bitcoin} size={48} />
             <AccountInfoContainer>
               <AccountName>{account.name}</AccountName>
-              <CurrentBalance>Current Balance: {satoshisToBitcoins(account.currentBalance.toNumber()).toFixed(8)} BTC</CurrentBalance>
+              <CurrentBalance>Current Balance: {satoshisToBitcoins(account.currentBalance).toFixed(8)} BTC</CurrentBalance>
               <CurrentBalance>{getLastTransactionTime(account.transactions)}</CurrentBalance>
             </AccountInfoContainer>
           </AccountItem>
@@ -204,12 +205,12 @@ const HomeHeadingItem = styled.h3`
 `;
 
 const AccountName = styled.div`
-  font-size: 1em;
+  font-size: 1.25em;
   color: ${darkGray};
 `;
 
 const CurrentBalance = styled.div`
-  font-size: 0.5em;
+  font-size: 0.65em;
 `;
 
 const ChartContainer = styled.div`

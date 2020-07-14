@@ -31,7 +31,8 @@ const validateAddress = (recipientAddress) => {
   }
 }
 
-const Send = ({ config, currentAccount, setCurrentAccount, transactions, availableUtxos, unusedChangeAddresses, loadingDataFromBlockstream, currentBalance, currentBitcoinNetwork, currentBitcoinPrice }) => {
+const Send = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlockstream, currentBitcoinNetwork, currentBitcoinPrice }) => {
+  document.title = `Send - Lily Wallet`;
   const [sendAmount, setSendAmount] = useState('');
   const [sendAmountError, setSendAmountError] = useState(false);
   const [recipientAddress, setRecipientAddress] = useState('');
@@ -42,7 +43,9 @@ const Send = ({ config, currentAccount, setCurrentAccount, transactions, availab
   const [outputTotal, setOutputTotal] = useState(BigNumber(0));
   const [signedPsbts, setSignedPsbts] = useState([]);
 
-  document.title = `Send - Lily Wallet`;
+  // Get account data
+  const { transactions, availableUtxos, unusedChangeAddresses, currentBalance } = currentAccount;
+
 
   const createTransaction = async (amountInBitcoins, recipientAddress, availableUtxos, transactionsFromBlockstream) => {
     const transactionMap = createTransactionMapFromTransactionArray(transactionsFromBlockstream);
@@ -67,11 +70,19 @@ const Send = ({ config, currentAccount, setCurrentAccount, transactions, availab
     for (let i = 0; i < spendingUtxos.length; i++) {
       const utxo = spendingUtxos[i];
 
+      console.log('createTransaction currentAccount: ', currentAccount);
       if (currentAccount.config.quorum.requiredSigners > 1) {
 
         // need to construct prevTx b/c of segwit fee vulnerability requires on trezor
         // const prevTxHex = await axios(`getblockstreamtx/tx/${utxo.txid}/hex`);
+        console.log('currentBitcoinNetwork: ', currentBitcoinNetwork);
+        console.log('utxo: ', utxo);
         const prevTxHex = await getTxHex(utxo.txid, currentBitcoinNetwork);
+
+        console.log('prevTxHex: ', prevTxHex);
+        console.log('multisigWitnessScript(utxo.address): ', multisigWitnessScript(utxo.address));
+        console.log('scriptToHex(multisigWitnessScript(utxo.address)): ', scriptToHex(multisigWitnessScript(utxo.address)));
+        console.log('scriptToHex(multisigWitnessScript(utxo.address)): ', typeof scriptToHex(multisigWitnessScript(utxo.address)));
 
         // KBC-TODO: eventually break this up into different functions depending on if Trezor or not, leave for now...I guess
         psbt.addInput({
@@ -88,6 +99,7 @@ const Send = ({ config, currentAccount, setCurrentAccount, transactions, availab
           bip32Derivation: utxo.address.bip32derivation
         })
       } else {
+        console.log('utxo.address.bip32derivation: ', utxo.address.bip32derivation);
         psbt.addInput({
           hash: utxo.txid,
           index: utxo.vout,
@@ -141,15 +153,15 @@ const Send = ({ config, currentAccount, setCurrentAccount, transactions, availab
       setRecipientAddressError(false);
     }
 
-    if (!satoshisToBitcoins(currentBalance.plus(feeEstimate)).isGreaterThan(sendAmount)) {
+    if (!satoshisToBitcoins(feeEstimate.plus(currentBalance)).isGreaterThan(sendAmount)) {
       setSendAmountError(true)
     }
 
-    if (satoshisToBitcoins(currentBalance.plus(feeEstimate)).isGreaterThan(sendAmount) && sendAmountError) {
+    if (satoshisToBitcoins(feeEstimate.plus(currentBalance)).isGreaterThan(sendAmount) && sendAmountError) {
       setSendAmountError(false)
     }
 
-    if (validateAddress(recipientAddress) && sendAmount && satoshisToBitcoins(currentBalance.plus(feeEstimate)).isGreaterThan(sendAmount)) {
+    if (validateAddress(recipientAddress) && sendAmount && satoshisToBitcoins(feeEstimate.plus(currentBalance)).isGreaterThan(sendAmount)) {
       createTransaction(sendAmount, recipientAddress, availableUtxos, transactions)
     }
   }

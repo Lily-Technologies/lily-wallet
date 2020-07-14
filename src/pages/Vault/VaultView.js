@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { AreaChart, Area, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts';
 import { satoshisToBitcoins } from "unchained-bitcoin";
 import moment from 'moment';
+import BigNumber from 'bignumber.js';
 
 import RecentTransactions from '../../components/transactions/RecentTransactions';
 
@@ -35,13 +36,13 @@ const VaultView = ({ currentBalance, currentBitcoinPrice, transactions, loadingD
     for (let i = 0; i < sortedTransactions.length; i++) {
       dataForChart.push({
         block_time: sortedTransactions[i].status.block_time,
-        totalValue: sortedTransactions[i].totalValue.toNumber()
+        totalValue: new BigNumber(sortedTransactions[i].totalValue).toNumber()
       })
     }
 
     dataForChart.push({
       block_time: Math.floor(Date.now() / 1000),
-      totalValue: sortedTransactions[sortedTransactions.length - 1].totalValue.toNumber()
+      totalValue: new BigNumber(sortedTransactions[sortedTransactions.length - 1].totalValue).toNumber()
     });
   }
 
@@ -51,7 +52,7 @@ const VaultView = ({ currentBalance, currentBitcoinPrice, transactions, loadingD
         <ValueWrapper>
           <CurrentBalanceContainer>
             <CurrentBalanceText>Current Balance:</CurrentBalanceText>
-            {satoshisToBitcoins(currentBalance.toNumber()).toFixed(8)} BTC
+            {satoshisToBitcoins(currentBalance).toFixed(8)} BTC
           </CurrentBalanceContainer>
           <ChartContainer>
             <ResponsiveContainer width="100%" height={400}>

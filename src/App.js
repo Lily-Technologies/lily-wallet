@@ -112,14 +112,6 @@ function App() {
   }, []);
 
   useEffect(() => {
-    async function fetchHistoricalBitcoinPrice() {
-      const historicalBitcoinPrice = await (await axios.get(`https://api.coindesk.com/v1/bpi/historical/close.json?start=2014-01-01&end=${moment().format('YYYY-MM-DD')}`)).data;
-      setHistoricalBitcoinPrice(historicalBitcoinPrice.bpi);
-    }
-    fetchHistoricalBitcoinPrice();
-  }, []);
-
-  useEffect(() => {
     async function fetchBitcoinQuote() {
       const bitcoinQuote = await (await axios.get('https://www.bitcoin-quotes.com/quotes/random.json')).data;
       setBitcoinQuote(bitcoinQuote);
@@ -128,93 +120,47 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (config) {
-      setLoadingDataFromBlockstream(true);
-      async function fetchTransactionsFromBlockstream() {
+    async function fetchHistoricalBTCPrice() {
+      const response = await window.ipcRenderer.invoke('/historical-btc-price');
+      console.log('fetchHistoricalBTCPrice response: ', response);
+      setHistoricalBitcoinPrice(response);
+    }
+    fetchHistoricalBTCPrice();
+  }, []);
 
-        const accountMap = new Map();
-
-        for (let i = 0; i < config.vaults.length; i++) {
-          if (config.vaults[i].network === getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)) {
-            const [addresses, changeAddresses, transactions, unusedAddresses, unusedChangeAddresses, availableUtxos] = await getDataFromMultisig(config.vaults[i], currentBitcoinNetwork);
-
-            const currentBalance = availableUtxos.reduce((accum, utxo) => accum.plus(utxo.value), BigNumber(0));
-
-            const vaultData = {
-              name: config.vaults[i].name,
-              config: config.vaults[i],
-              addresses,
-              changeAddresses,
-              availableUtxos,
-              transactions,
-              unusedAddresses,
-              currentBalance,
-              unusedChangeAddresses
-            };
-
-            accountMap.set(config.vaults[i].id, vaultData);
-          }
-        }
-
-        for (let i = 0; i < config.wallets.length; i++) {
-          const [addresses, changeAddresses, transactions, unusedAddresses, unusedChangeAddresses, availableUtxos] = await getDataFromXPub(config.wallets[i], currentBitcoinNetwork);
-
-          const currentBalance = availableUtxos.reduce((accum, utxo) => accum.plus(utxo.value), BigNumber(0));
-
-          const vaultData = {
-            name: config.wallets[i].name,
-            config: config.wallets[i],
-            addresses,
-            changeAddresses,
-            availableUtxos,
-            transactions,
-            unusedAddresses,
-            currentBalance,
-            unusedChangeAddresses
-          };
-
-          accountMap.set(config.wallets[i].id, vaultData);
-        }
-
+  // fetch/build account data from config file
+  useEffect(() => {
+    if (config.wallets.length || config.vaults.length) {
+      async function fetchAndBuildAccountMap() {
+        setLoadingDataFromBlockstream(true);
+        const response = await window.ipcRenderer.invoke('/account-data', { config });
+        setAccountMap(response);
+        setCurrentAccount(response.values().next().value)
         setLoadingDataFromBlockstream(false);
-        setAccountMap(accountMap);
-        setCurrentAccount(accountMap.values().next().value);
       }
       try {
-        fetchTransactionsFromBlockstream();
+        fetchAndBuildAccountMap()
       } catch (e) {
+        console.log('e: ', e);
         setLoadingDataFromBlockstream(false);
       }
     }
   }, [config, currentBitcoinNetwork, refresh]);
 
   useEffect(() => {
-    if (currentAccount && accountMap.size) {
+    if (currentAccount.config && accountMap.size) {
       setLoadingDataFromBlockstream(true);
-      async function fetchTransactionsFromBlockstream() {
-        const newVault = accountMap.get(currentAccount.config.id);
+      console.log('currentAccount: ', currentAccount);
+      const newVault = accountMap.get(currentAccount.config.id);
 
-        setAvailableUtxos(newVault.availableUtxos);
-        setUnusedAddresses(newVault.unusedAddresses);
-        setTransactions(newVault.transactions);
-        setCurrentBalance(newVault.currentBalance);
-        setUnusedChangeAddresses(newVault.unusedChangeAddresses);
-        setLoadingDataFromBlockstream(false);
-      }
-      fetchTransactionsFromBlockstream();
+      setAvailableUtxos(newVault.availableUtxos);
+      setUnusedAddresses(newVault.unusedAddresses);
+      setTransactions(newVault.transactions);
+      setCurrentBalance(newVault.currentBalance);
+      setUnusedChangeAddresses(newVault.unusedChangeAddresses);
+      setLoadingDataFromBlockstream(false);
     }
   }, [currentAccount, config, currentBitcoinNetwork, accountMap]);
-
-  useEffect(() => {
-    let priceForChart = [];
-    for (let i = 0; i < Object.keys(historicalBitcoinPrice).length; i++) {
-      priceForChart.push({
-        price: Object.values(historicalBitcoinPrice)[i],
-        date: Object.keys(historicalBitcoinPrice)[i]
-      })
-    }
-    setFormattedPricesForChart(priceForChart);
-  }, [historicalBitcoinPrice]) // eslint-disable-line
 
   return (
     <ErrorBoundary>
@@ -225,15 +171,15 @@ function App() {
           {!config.isEmpty && <Sidebar config={config} setCurrentAccount={setCurrentAccountFromMap} loading={loadingDataFromBlockstream} />}
           {!config.isEmpty && <MobileNavbar config={config} setCurrentAccount={setCurrentAccountFromMap} loading={loadingDataFromBlockstream} />}
           <Switch>
-            <Route path="/vault/:id" component={() => <Vault config={config} setConfigFile={setConfigFile} toggleRefresh={toggleRefresh} currentAccount={currentAccount} currentBitcoinNetwork={currentBitcoinNetwork} currentBitcoinPrice={currentBitcoinPrice} transactions={transactions} currentBalance={currentBalance} loadingDataFromBlockstream={loadingDataFromBlockstream} />} />
-            <Route path="/receive" component={() => <Receive config={config} currentAccount={currentAccount} setCurrentAccount={setCurrentAccountFromMap} currentBitcoinPrice={currentBitcoinPrice} transactions={transactions} currentBalance={currentBalance} loadingDataFromBlockstream={loadingDataFromBlockstream} unusedAddresses={unusedAddresses} />} />
-            <Route path="/send" component={() => <Send config={config} currentAccount={currentAccount} setCurrentAccount={setCurrentAccountFromMap} currentBitcoinPrice={currentBitcoinPrice} transactions={transactions} currentBalance={currentBalance} loadingDataFromBlockstream={loadingDataFromBlockstream} availableUtxos={availableUtxos} unusedChangeAddresses={unusedChangeAddresses} currentBitcoinNetwork={currentBitcoinNetwork} />} />
+            <Route path="/vault/:id" component={() => <Vault config={config} setConfigFile={setConfigFile} toggleRefresh={toggleRefresh} currentAccount={currentAccount} currentBitcoinNetwork={currentBitcoinNetwork} currentBitcoinPrice={currentBitcoinPrice} loadingDataFromBlockstream={loadingDataFromBlockstream} />} />
+            <Route path="/receive" component={() => <Receive config={config} currentAccount={currentAccount} setCurrentAccount={setCurrentAccountFromMap} currentBitcoinPrice={currentBitcoinPrice} loadingDataFromBlockstream={loadingDataFromBlockstream} />} />
+            <Route path="/send" component={() => <Send config={config} currentAccount={currentAccount} setCurrentAccount={setCurrentAccountFromMap} currentBitcoinPrice={currentBitcoinPrice} loadingDataFromBlockstream={loadingDataFromBlockstream} currentBitcoinNetwork={currentBitcoinNetwork} />} />
             <Route path="/setup" component={() => <Setup config={config} setConfigFile={setConfigFile} currentBitcoinNetwork={currentBitcoinNetwork} />} />
             <Route path="/login" component={() => <Login setConfigFile={setConfigFile} bitcoinQuote={bitcoinQuote} />} />
             <Route path="/settings" component={() => <Settings config={config} currentBitcoinNetwork={currentBitcoinNetwork} changeCurrentBitcoinNetwork={changeCurrentBitcoinNetwork} />} />
             <Route path="/gdrive-import" component={() => <GDriveImport setConfigFile={setConfigFile} bitcoinQuote={bitcoinQuote} />} />
             <Route path="/coldcard-import-instructions" component={() => <ColdcardImportInstructions />} />
-            <Route path="/" component={() => <Home accountMap={accountMap} priceForChart={formattedPricesForChart} currentBitcoinPrice={currentBitcoinPrice} loading={loadingDataFromBlockstream} />} />
+            <Route path="/" component={() => <Home accountMap={accountMap} historicalBitcoinPrice={historicalBitcoinPrice} currentBitcoinPrice={currentBitcoinPrice} loading={loadingDataFromBlockstream} />} />
             <Route path="/" component={() => (
               <div>Not Found</div>
             )}

@@ -12,10 +12,11 @@ import RecentTransactions from '../../components/transactions/RecentTransactions
 import { black, gray, blue, darkGray, white, darkOffWhite, darkGreen, lightGray, lightBlue } from '../../utils/colors';
 import { mobile } from '../../utils/media';
 
-const Receive = ({ config, currentAccount, setCurrentAccount, transactions, unusedAddresses, currentBalance, loadingDataFromBlockstream }) => {
+const Receive = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlockstream }) => {
+  document.title = `Receive - Lily Wallet`;
   const [unusedAddressIndex, setUnusedAddressIndex] = useState(0);
 
-  document.title = `Receive - Lily Wallet`;
+  const { transactions, unusedAddresses, currentBalance } = currentAccount;
 
   return (
     <PageWrapper>

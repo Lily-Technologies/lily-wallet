@@ -1,8 +1,13 @@
+import axios from 'axios';
+import moment from 'moment';
 const { app, BrowserWindow, ipcMain } = require('electron');
+const { networks } = require('bitcoinjs-lib');
+const BigNumber = require('bignumber.js');
 // const log = require('electron-log');
 const { download } = require('electron-dl');
 
 const { enumerate, getXPub, signtx } = require('./server/commands');
+const { getDataFromMultisig, getDataFromXPub } = require('./utils/transactions');
 
 const path = require('path');
 
@@ -72,6 +77,69 @@ app.on('activate', function () {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
+
+ipcMain.handle('/account-data', async (event, args) => {
+  const { config } = args;
+  const accountMap = new Map();
+  const currentBitcoinNetwork = networks.bitcoin;
+
+  for (let i = 0; i < config.vaults.length; i++) {
+    const [addresses, changeAddresses, transactions, unusedAddresses, unusedChangeAddresses, availableUtxos] = await getDataFromMultisig(config.vaults[i], currentBitcoinNetwork);
+
+    const currentBalance = availableUtxos.reduce((accum, utxo) => accum.plus(utxo.value), BigNumber(0));
+
+    const vaultData = {
+      name: config.vaults[i].name,
+      config: config.vaults[i],
+      addresses,
+      changeAddresses,
+      availableUtxos,
+      transactions,
+      unusedAddresses,
+      currentBalance: currentBalance.toNumber(),
+      unusedChangeAddresses
+    };
+
+    accountMap.set(config.vaults[i].id, vaultData);
+    console.log('accountMap.set: ', config.vaults[i].id)
+  }
+
+  for (let i = 0; i < config.wallets.length; i++) {
+    const [addresses, changeAddresses, transactions, unusedAddresses, unusedChangeAddresses, availableUtxos] = await getDataFromXPub(config.wallets[i], currentBitcoinNetwork);
+
+    const currentBalance = availableUtxos.reduce((accum, utxo) => accum.plus(utxo.value), BigNumber(0));
+
+    const vaultData = {
+      name: config.wallets[i].name,
+      config: config.wallets[i],
+      addresses,
+      changeAddresses,
+      availableUtxos,
+      transactions,
+      unusedAddresses,
+      currentBalance: currentBalance.toNumber(),
+      unusedChangeAddresses
+    };
+
+    accountMap.set(config.wallets[i].id, vaultData);
+    console.log('accountMap.set: ', config.wallets[i].id)
+  }
+
+  return Promise.resolve(accountMap)
+});
+
+ipcMain.handle('/historical-btc-price', async (event, args) => {
+  let historicalBitcoinPrice = await (await axios.get(`https://api.coindesk.com/v1/bpi/historical/close.json?start=2014-01-01&end=${moment().format('YYYY-MM-DD')}`)).data;
+  historicalBitcoinPrice = historicalBitcoinPrice.bpi;
+  let priceForChart = [];
+  for (let i = 0; i < Object.keys(historicalBitcoinPrice).length; i++) {
+    priceForChart.push({
+      price: Object.values(historicalBitcoinPrice)[i],
+      date: Object.keys(historicalBitcoinPrice)[i]
+    })
+  }
+  return Promise.resolve(priceForChart);
+});
 
 ipcMain.handle('/enumerate', async (event, args) => {
   const resp = JSON.parse(await enumerate());
