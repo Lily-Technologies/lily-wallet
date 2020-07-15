@@ -11,7 +11,7 @@ const runCommand = async (command) => {
     if (os.platform() === "darwin") hwiFile = "HWI_MAC";
 
     const pathToHwi = path.resolve(__dirname, hwiFile);
-    execFile(pathToHwi, [command], (error, stdout, stderr) => {
+    execFile(pathToHwi, command, (error, stdout, stderr) => {
       if (error) {
         log.info("error: ", error);
         reject(error);
