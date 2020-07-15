@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import styled, { css } from 'styled-components';
 import { Safe } from '@styled-icons/crypto';
 import { Wallet } from '@styled-icons/entypo';
@@ -8,9 +9,11 @@ import {
   satoshisToBitcoins,
   bitcoinsToSatoshis,
   multisigWitnessScript,
-  scriptToHex,
+  blockExplorerAPIURL,
+  estimateMultisigTransactionFee
 } from "unchained-bitcoin";
-import { Psbt, address, bip32 } from 'bitcoinjs-lib';
+
+import { Psbt, address, bip32, networks } from 'bitcoinjs-lib';
 
 import { StyledIcon, Button, PageWrapper, GridArea, PageTitle, Header, HeaderRight, HeaderLeft, Loading } from '../../components';
 import RecentTransactions from '../../components/transactions/RecentTransactions';
@@ -18,7 +21,6 @@ import RecentTransactions from '../../components/transactions/RecentTransactions
 import SignWithDevice from './SignWithDevice'
 import TransactionDetails from './TransactionDetails';
 
-import { createTransactionMapFromTransactionArray, coinSelection, getFeeForMultisig, getTxHex } from '../../utils/transactions';
 import { red, gray, blue, darkGray, white, darkOffWhite, lightGray, lightBlue } from '../../utils/colors';
 import { mobile } from '../../utils/media';
 
@@ -29,6 +31,52 @@ const validateAddress = (recipientAddress) => {
   } catch (e) {
     return false
   }
+}
+
+const getUnchainedNetworkFromBjslibNetwork = (bitcoinJslibNetwork) => {
+  if (bitcoinJslibNetwork === networks.bitcoin) {
+    return 'mainnet';
+  } else {
+    return 'testnet';
+  }
+}
+
+const getTxHex = async (txid, currentBitcoinNetwork) => {
+  const txHex = await (await axios.get(blockExplorerAPIURL(`/tx/${txid}/hex`, getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)))).data;
+  return txHex;
+}
+
+const getFeeForMultisig = async (addressType, numInputs, numOutputs, requiredSigners, totalSigners, currentBitcoinNetwork) => {
+  const feeRate = await (await axios.get(blockExplorerAPIURL(`/fee-estimates`, currentBitcoinNetwork))).data;
+  return estimateMultisigTransactionFee({
+    addressType: addressType,
+    numInputs: numInputs,
+    numOutputs: numOutputs,
+    m: requiredSigners,
+    n: totalSigners,
+    feesPerByteInSatoshis: feeRate[1].toString()
+  })
+}
+
+const createTransactionMapFromTransactionArray = (transactionsArray) => {
+  const transactionMap = new Map();
+  transactionsArray.forEach((tx) => {
+    transactionMap.set(tx.txid, tx)
+  });
+  return transactionMap
+}
+
+const coinSelection = (amountInSats, availableUtxos) => {
+  availableUtxos.sort((a, b) => b.value - a.value); // sort available utxos from largest size to smallest size to minimize inputs
+  let currentTotal = BigNumber(0);
+  const spendingUtxos = [];
+  let index = 0;
+  while (currentTotal.isLessThan(amountInSats) && index < availableUtxos.length) {
+    currentTotal = currentTotal.plus(availableUtxos[index].value);
+    spendingUtxos.push(availableUtxos[index]);
+    index++;
+  }
+  return [spendingUtxos, currentTotal];
 }
 
 const Send = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlockstream, currentBitcoinNetwork, currentBitcoinPrice }) => {

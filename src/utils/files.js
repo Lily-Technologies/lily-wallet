@@ -1,7 +1,14 @@
 import moment from 'moment';
 import { v4 as uuidv4 } from 'uuid';
+const { networks } = require('bitcoinjs-lib');
 
-import { getUnchainedNetworkFromBjslibNetwork } from './transactions';
+const getUnchainedNetworkFromBjslibNetwork = (bitcoinJslibNetwork) => {
+  if (bitcoinJslibNetwork === networks.bitcoin) {
+    return 'mainnet';
+  } else {
+    return 'testnet';
+  }
+}
 
 export const downloadFile = (file, filename) => {
   const fileUrl = URL.createObjectURL(file);

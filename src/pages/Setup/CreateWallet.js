@@ -1,7 +1,7 @@
 import React, { useState, useEffect, Fragment } from "react";
 import styled from "styled-components";
 import { AES } from "crypto-js";
-import { bip32 } from "bitcoinjs-lib";
+import { bip32, networks } from "bitcoinjs-lib";
 import { generateMnemonic, mnemonicToSeed } from "bip39";
 import { v4 as uuidv4 } from "uuid";
 import { useHistory } from "react-router-dom";
@@ -17,8 +17,15 @@ import {
   darkGray,
   gray,
 } from "../../utils/colors";
-import { getUnchainedNetworkFromBjslibNetwork } from "../../utils/transactions";
 import { downloadFile } from "../../utils/files";
+
+const getUnchainedNetworkFromBjslibNetwork = (bitcoinJslibNetwork) => {
+  if (bitcoinJslibNetwork === networks.bitcoin) {
+    return 'mainnet';
+  } else {
+    return 'testnet';
+  }
+}
 
 const CreateWallet = ({
   config,

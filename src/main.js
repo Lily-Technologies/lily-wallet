@@ -1,5 +1,5 @@
-import axios from 'axios';
-import moment from 'moment';
+const axios = require('axios');
+const moment = require('moment');
 const { app, BrowserWindow, ipcMain } = require('electron');
 const { networks } = require('bitcoinjs-lib');
 const BigNumber = require('bignumber.js');
@@ -33,7 +33,7 @@ function createWindow() {
   // load production url
   mainWindow.loadURL(`file://${__dirname}/../build/index.html`);
   // load dev url
-  mainWindow.loadURL(`http://localhost:3001/`);
+  // mainWindow.loadURL(`http://localhost:3001/`);
 
   // Open the DevTools.
   // mainWindow.webContents.openDevTools();

@@ -145,7 +145,7 @@ export const DeviceSelect = ({ configuredDevices, unconfiguredDevices, errorDevi
         </NoDevicesContainer>
       )}
 
-      {configuredDevices.length < configuredThreshold && <ScanDevicesButton background={white} color={blue} onClick={enumerate}>{devicesLoading ? 'Scanning for Devices...' : 'Scan for devices'}</ScanDevicesButton>}
+      {configuredDevices.length < configuredThreshold && <ScanDevicesButton background={white} color={blue} onClick={enumerate}>{devicesLoading ? 'Updating Device List...' : 'Scan for devices'}</ScanDevicesButton>}
     </Wrapper>
   )
 }

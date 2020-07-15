@@ -7,9 +7,31 @@
   "main": "./src/main.js",
   "homepage": ".",
   "build": {
+    "productName": "Lily",
     "appId": "your.id",
+    "files": [
+      "release-builds/",
+      "!node_modules/"
+    ],
     "mac": {
-      "category": "your.app.category.type"
+      "category": "public.app-category.finance",
+      "icon": "/src/assets/AppIcon.icns",
+      "hardenedRuntime": true,
+      "target": [
+        "dmg",
+        "zip"
+      ]
+    },
+    "linux": {
+      "category": "Finance",
+      "packageCategory": "wallet",
+      "icon": "resources/linux",
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": "x64"
+        }
+      ]
     }
   },
   "scripts": {
@@ -18,10 +40,11 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "package-mac": "electron-packager . LilyWallet --platform=darwin --arch=x64 --icon=./src/assets/AppIcon.icns --prune=true --ignore='(./src\/server\/HWI_LINUX|./src\/server\/hwi.exe)' --out=release-builds --overwrite",
+    "dist": "electron-builder",
+    "package-mac": "electron-packager . LilyWallet --platform=darwin --arch=x64 --icon=./src/assets/AppIcon.icns --prune=true --ignore='(./src/server/HWI_LINUX|./src/server/hwi.exe)' --out=release-builds --overwrite",
     "dist-mac": "electron-installer-dmg ./release-builds/LilyWallet-darwin-x64/LilyWallet.app LilyWallet-mac-v0.0.01-beta --overwrite",
-    "package-windows": "electron-packager . LilyWallet --platform=win32 --arch=x64 --asar=true --icon=./src/assets/icon_512@2x.png --prune=true --ignore='(./src\/server\/HWI_MAC|./src\/server\/HWI_LINUX)' --out=release-builds --overwrite",
-    "package-linux": "electron-packager . LilyWallet --platform=linux --arch=x64 --icon=./src/assets/AppIcon.icns --prune=true --ignore='(./src\/server\/HWI_MAC|./src\/server\/hwi.exe)' --out=release-builds --overwrite"
+    "package-windows": "electron-packager . LilyWallet --platform=win32 --arch=x64 --asar=true --icon=./src/assets/icon_512@2x.png --prune=true --ignore='(./src/server/HWI_MAC|./src/server/HWI_LINUX)' --out=release-builds --overwrite",
+    "package-linux": "electron-packager . LilyWallet --platform=linux --arch=x64 --icon=./src/assets/AppIcon.icns --prune=true --ignore='(./src/server/HWI_MAC|./src/server/hwi.exe)' --out=release-builds --overwrite"
   },
   "dependencies": {
     "axios": "^0.19.2",

@@ -1,14 +1,13 @@
-import axios from 'axios';
-import BigNumber from 'bignumber.js';
-import { payments, networks } from 'bitcoinjs-lib';
-import {
+const axios = require('axios');
+const BigNumber = require('bignumber.js');
+const { payments, networks } = require('bitcoinjs-lib');
+const {
   deriveChildPublicKey,
   blockExplorerAPIURL,
   generateMultisigFromPublicKeys,
-  estimateMultisigTransactionFee,
-} from "unchained-bitcoin";
+} = require("unchained-bitcoin");
 
-export const getMultisigDeriationPathForNetwork = (network) => {
+const getMultisigDeriationPathForNetwork = (network) => {
   if (network === networks.bitcoin) {
     return "m/48'/0'/0'/2'"
   } else if (network === networks.testnet) {
@@ -18,7 +17,7 @@ export const getMultisigDeriationPathForNetwork = (network) => {
   }
 }
 
-export const getUnchainedNetworkFromBjslibNetwork = (bitcoinJslibNetwork) => {
+const getUnchainedNetworkFromBjslibNetwork = (bitcoinJslibNetwork) => {
   if (bitcoinJslibNetwork === networks.bitcoin) {
     return 'mainnet';
   } else {
@@ -26,52 +25,13 @@ export const getUnchainedNetworkFromBjslibNetwork = (bitcoinJslibNetwork) => {
   }
 }
 
-export const createTransactionMapFromTransactionArray = (transactionsArray) => {
-  const transactionMap = new Map();
-  transactionsArray.forEach((tx) => {
-    transactionMap.set(tx.txid, tx)
-  });
-  return transactionMap
-}
-
-export const createAddressMapFromAddressArray = (addressArray) => {
+const createAddressMapFromAddressArray = (addressArray) => {
   const addressMap = new Map();
   addressArray.forEach((addr) => {
     addressMap.set(addr.address, addr)
   });
   return addressMap
 }
-
-export const coinSelection = (amountInSats, availableUtxos) => {
-  availableUtxos.sort((a, b) => b.value - a.value); // sort available utxos from largest size to smallest size to minimize inputs
-  let currentTotal = BigNumber(0);
-  const spendingUtxos = [];
-  let index = 0;
-  while (currentTotal.isLessThan(amountInSats) && index < availableUtxos.length) {
-    currentTotal = currentTotal.plus(availableUtxos[index].value);
-    spendingUtxos.push(availableUtxos[index]);
-    index++;
-  }
-  return [spendingUtxos, currentTotal];
-}
-
-export const getFeeForMultisig = async (addressType, numInputs, numOutputs, requiredSigners, totalSigners, currentBitcoinNetwork) => {
-  const feeRate = await (await axios.get(blockExplorerAPIURL(`/fee-estimates`, currentBitcoinNetwork))).data;
-  return estimateMultisigTransactionFee({
-    addressType: addressType,
-    numInputs: numInputs,
-    numOutputs: numOutputs,
-    m: requiredSigners,
-    n: totalSigners,
-    feesPerByteInSatoshis: feeRate[1].toString()
-  })
-}
-
-export const getTxHex = async (txid, currentBitcoinNetwork) => {
-  const txHex = await (await axios.get(blockExplorerAPIURL(`/tx/${txid}/hex`, getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)))).data;
-  return txHex;
-}
-
 
 const serializeTransactions = (transactionsFromBlockstream, addresses, changeAddresses) => {
   const changeAddressesMap = createAddressMapFromAddressArray(changeAddresses);
@@ -138,7 +98,7 @@ const serializeTransactions = (transactionsFromBlockstream, addresses, changeAdd
   return transactionsArray;
 }
 
-export const getChildPubKeysFromXpubs = (xpubs, multisig = true, currentBitcoinNetwork) => {
+const getChildPubKeysFromXpubs = (xpubs, multisig = true, currentBitcoinNetwork) => {
   const childPubKeys = [];
   for (let i = 0; i < 30; i++) {
     xpubs.forEach((xpub) => {
@@ -157,7 +117,7 @@ export const getChildPubKeysFromXpubs = (xpubs, multisig = true, currentBitcoinN
   return childPubKeys;
 }
 
-export const getChildChangePubKeysFromXpubs = (xpubs, multisig = true, currentBitcoinNetwork) => {
+const getChildChangePubKeysFromXpubs = (xpubs, multisig = true, currentBitcoinNetwork) => {
   const childChangePubKeys = [];
   for (let i = 0; i < 30; i++) {
     xpubs.forEach((xpub) => {
@@ -225,7 +185,7 @@ const getUtxosForAddresses = async (addresses, currentBitcoinNetwork) => {
   return availableUtxos;
 }
 
-export const getDataFromMultisig = async (config, currentBitcoinNetwork) => {
+const getDataFromMultisig = async (config, currentBitcoinNetwork) => {
   const childPubKeys = getChildPubKeysFromXpubs(config.extendedPublicKeys, true, currentBitcoinNetwork);
   const childChangePubKeys = getChildChangePubKeysFromXpubs(config.extendedPublicKeys, true, currentBitcoinNetwork);
 
@@ -243,7 +203,7 @@ export const getDataFromMultisig = async (config, currentBitcoinNetwork) => {
   return [addresses, changeAddresses, organizedTransactions, unusedAddresses, unusedChangeAddresses, availableUtxos];
 }
 
-export const getDataFromXPub = async (currentWallet, currentBitcoinNetwork) => {
+const getDataFromXPub = async (currentWallet, currentBitcoinNetwork) => {
   const childPubKeys = getChildPubKeysFromXpubs([currentWallet], false, currentBitcoinNetwork);
   const childChangePubKeys = getChildChangePubKeysFromXpubs([currentWallet], false, currentBitcoinNetwork);
 
@@ -259,13 +219,22 @@ export const getDataFromXPub = async (currentWallet, currentBitcoinNetwork) => {
     return address;
   });
 
-  const transactions = await getTransactionsFromAddresses([...addresses, ...changeAddresses], currentBitcoinNetwork);
+  const transactions = await getTransactionsFromAddresses(addresses.concat(changeAddresses), currentBitcoinNetwork);
   const unusedAddresses = await getUnusedAddresses(addresses, currentBitcoinNetwork);
   const unusedChangeAddresses = await getUnusedAddresses(changeAddresses, currentBitcoinNetwork);
 
-  const availableUtxos = await getUtxosForAddresses([...addresses, ...changeAddresses], currentBitcoinNetwork);
+  const availableUtxos = await getUtxosForAddresses(addresses.concat(changeAddresses), currentBitcoinNetwork);
 
   const organizedTransactions = serializeTransactions(transactions, addresses, changeAddresses);
 
   return [addresses, changeAddresses, organizedTransactions, unusedAddresses, unusedChangeAddresses, availableUtxos];
+}
+
+module.exports = {
+  getMultisigDeriationPathForNetwork: getMultisigDeriationPathForNetwork,
+  createAddressMapFromAddressArray: createAddressMapFromAddressArray,
+  getChildPubKeysFromXpubs: getChildPubKeysFromXpubs,
+  getChildChangePubKeysFromXpubs: getChildChangePubKeysFromXpubs,
+  getDataFromMultisig: getDataFromMultisig,
+  getDataFromXPub: getDataFromXPub
 }

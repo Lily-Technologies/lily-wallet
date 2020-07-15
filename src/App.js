@@ -14,7 +14,6 @@ import { networks } from 'bitcoinjs-lib';
 
 import { offWhite } from './utils/colors';
 import { mobile } from './utils/media';
-import { getDataFromMultisig, getDataFromXPub, getUnchainedNetworkFromBjslibNetwork } from './utils/transactions';
 
 import { Sidebar, MobileNavbar, ErrorBoundary } from './components';
 
@@ -151,15 +150,22 @@ function App() {
     }
   }, [config, currentBitcoinNetwork, refresh]);
 
-
-  window.ipcRenderer.on('/account-data', (event, ...args) => {
-    const accountInfo = args[0];
-    accountMap.set(accountInfo.config.id, {
-      ...accountInfo,
-      loading: false
+  useEffect(() => {
+    window.ipcRenderer.on('/account-data', (event, ...args) => {
+      console.log('hits listener accountMap', accountMap);
+      const accountInfo = args[0];
+      accountMap.set(accountInfo.config.id, {
+        ...accountInfo,
+        loading: false
+      });
+      if (currentAccount.loading) { // set the first account that comes in as current account
+        setCurrentAccount(accountMap.get(accountInfo.config.id));
+      }
+      setAccountMap(accountMap);
     });
-    setAccountMap(accountMap);
-  });
+  }, []);
+
+  console.log('accountMap: ', accountMap);
 
   return (
     <ErrorBoundary>

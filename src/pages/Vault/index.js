@@ -19,6 +19,9 @@ const Vault = ({ config, setConfigFile, toggleRefresh, currentAccount, currentBi
   const [viewAddresses, setViewAddresses] = useState(false);
   const [viewUtxos, setViewUtxos] = useState(false);
 
+  // use url path to determine account, not currentAccount
+  // pass in accountMap and if that changes, pull off account using useEffect
+
   const transactions = currentAccount.transactions;
   const currentBalance = currentAccount.currentBalance;
 
