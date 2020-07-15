@@ -114,7 +114,7 @@ const Home = ({ config, accountMap, priceForChart, currentBitcoinPrice, loading 
 
       <AccountsWrapper>
         {loading && <LoadingAnimation flat={true}>
-          <StyledIconSpinning as={RestaurantMenu} size={96} />
+          <img src={require('../assets/flower-loading.svg')} style={{ maxWidth: '6.25em' }} />
           <LoadingText>Loading Accounts</LoadingText>
           <LoadingSubText>Please wait...</LoadingSubText>
         </LoadingAnimation>}

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
-import { DeviceSelectSign } from '../../components';
+import { DeviceSelect } from '../../components';
 import { darkGray } from '../../utils/colors';
 
 const SignWithDevice = ({
@@ -11,18 +11,30 @@ const SignWithDevice = ({
 }) => {
   const [signedDevices, setSignedDevices] = useState([]);
   const [unsignedDevices, setUnsignedDevices] = useState([]);
+  const [errorDevices, setErrorDevices] = useState([]);
 
   const signWithDevice = async (device, index) => {
-    const response = await window.ipcRenderer.invoke('/sign', {
-      deviceType: device.type,
-      devicePath: device.path,
-      psbt: psbt.toBase64()
-    });
+    try {
+      const response = await window.ipcRenderer.invoke('/sign', {
+        deviceType: device.type,
+        devicePath: device.path,
+        psbt: psbt.toBase64()
+      });
 
-    setSignedPsbts([...signedPsbts, response.psbt]);
-    setSignedDevices([...signedDevices, device]);
-    unsignedDevices.splice(index, 1);
-    setUnsignedDevices([...unsignedDevices]);
+      setSignedPsbts([...signedPsbts, response.psbt]);
+      setSignedDevices([...signedDevices, device]);
+      if (errorDevices.includes(device.fingerprint)) {
+        const errorDevicesCopy = [...errorDevices];
+        errorDevicesCopy.splice(errorDevices.indexOf(device.fingerprint), 1);
+        setErrorDevices(errorDevicesCopy);
+      }
+      unsignedDevices.splice(index, 1);
+      setUnsignedDevices([...unsignedDevices]);
+    } catch (e) {
+      const errorDevicesCopy = [...errorDevices];
+      errorDevicesCopy.push(device.fingerprint);
+      setErrorDevices([...errorDevicesCopy])
+    }
   }
 
   return (
@@ -36,11 +48,14 @@ const SignWithDevice = ({
           Click on a device to confirm the transaction. If you don't see your device, click "Scan for New Devices".
               </SetupExplainerText>
       </SetupHeaderContainer>
-      <DeviceSelectSign
+      <DeviceSelect
         configuredDevices={signedDevices}
         unconfiguredDevices={unsignedDevices}
         deviceAction={signWithDevice}
+        deviceActionText={'Click to Approve'}
+        deviceActionLoadingText={'Approve on device'}
         setUnconfiguredDevices={setUnsignedDevices}
+        errorDevices={errorDevices}
         configuredThreshold={2}
       />
     </TransactionDetailsWrapper>

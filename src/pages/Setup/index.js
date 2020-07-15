@@ -7,7 +7,7 @@ import { Wallet } from '@styled-icons/entypo';
 import moment from 'moment';
 
 import { createConfigFile, createColdCardBlob, downloadFile } from '../../utils/files';
-import { Button, DeviceSelectSetup, StyledIcon } from '../../components';
+import { Button, DeviceSelect, StyledIcon } from '../../components';
 import { GridArea, Header, HeaderLeft, HeaderRight, PageTitle } from '../../components/layout';
 import { black, gray, blue, white, darkGreen, offWhite, darkGray, darkOffWhite, lightBlue } from '../../utils/colors';
 
@@ -19,21 +19,33 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
   const [accountName, setAccountName] = useState('');
   const [importedDevices, setImportedDevices] = useState([]);
   const [availableDevices, setAvailableDevices] = useState([]);
+  const [errorDevices, setErrorDevices] = useState([]);
   const [password, setPassword] = useState('');
   const history = useHistory();
 
   document.title = `Create Files - Lily Wallet`;
 
   const importDevice = async (device, index) => {
-    const response = await window.ipcRenderer.invoke('/xpub', {
-      deviceType: device.type,
-      devicePath: device.path,
-      path: `m/48'/0'/0'/2'` // we are assuming BIP48 P2WSH wallet
-    });
+    try {
+      const response = await window.ipcRenderer.invoke('/xpub', {
+        deviceType: device.type,
+        devicePath: device.path,
+        path: `m/48'/0'/0'/2'` // we are assuming BIP48 P2WSH wallet
+      });
 
-    setImportedDevices([...importedDevices, { ...device, ...response }]);
-    availableDevices.splice(index, 1);
-    setAvailableDevices([...availableDevices]);
+      setImportedDevices([...importedDevices, { ...device, ...response }]);
+      availableDevices.splice(index, 1);
+      if (errorDevices.includes(device.fingerprint)) {
+        const errorDevicesCopy = [...errorDevices];
+        errorDevicesCopy.splice(errorDevices.indexOf(device.fingerprint), 1);
+        setErrorDevices(errorDevicesCopy);
+      }
+      setAvailableDevices([...availableDevices]);
+    } catch (e) {
+      const errorDevicesCopy = [...errorDevices];
+      errorDevicesCopy.push(device.fingerprint);
+      setErrorDevices([...errorDevicesCopy])
+    }
   }
 
   const exportSetupFiles = () => {
@@ -98,28 +110,30 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
               </HeaderRight>
             </Header>
           </HeaderWrapper>
-          <BoxedWrapper>
-            <XPubHeaderWrapper>
-              <SetupHeaderWrapper>
-                <SetupExplainerText>
-                  Give your {setupOption === 2 ? 'wallet' : 'vault'} a name (i.e. "My First {setupOption === 2 ? 'Wallet' : 'Vault'}") to identify it while using Lily.
+          <FormContainer>
+            <BoxedWrapper>
+              <XPubHeaderWrapper>
+                <SetupHeaderWrapper>
+                  <SetupExplainerText>
+                    Give your {setupOption === 2 ? 'wallet' : 'vault'} a name (i.e. "My First {setupOption === 2 ? 'Wallet' : 'Vault'}") to identify it while using Lily.
                 </SetupExplainerText>
-              </SetupHeaderWrapper>
-            </XPubHeaderWrapper>
-            <PasswordWrapper>
-              <PasswordInput placeholder={`${setupOption === 2 ? 'Wallet' : 'Vault'} Name`} value={accountName} onChange={(e) => setAccountName(e.target.value)} />
-            </PasswordWrapper>
+                </SetupHeaderWrapper>
+              </XPubHeaderWrapper>
+              <PasswordWrapper>
+                <PasswordInput placeholder={`${setupOption === 2 ? 'Wallet' : 'Vault'} Name`} value={accountName} onChange={(e) => setAccountName(e.target.value)} />
+              </PasswordWrapper>
 
-            <ExportFilesButton
-              background={blue}
-              color={white}
-              active={accountName.length > 6}
-              onClick={() => {
-                if (accountName.length > 6) {
-                  setStep(2);
-                }
-              }}>{`Continue`}</ExportFilesButton>
-          </BoxedWrapper>
+              <ExportFilesButton
+                background={blue}
+                color={white}
+                active={accountName.length > 3}
+                onClick={() => {
+                  if (accountName.length > 3) {
+                    setStep(2);
+                  }
+                }}>{`Continue`}</ExportFilesButton>
+            </BoxedWrapper>
+          </FormContainer>
         </InnerWrapper>
       ) : setupOption === 2 && step === 2 ? ( // new wallet
         <InnerWrapper>
@@ -156,56 +170,61 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
                     </HeaderRight>
                   </Header>
                 </HeaderWrapper>
-                <BoxedWrapper>
-                  {importedDevices.length < 3 && (
-                    <Fragment>
-                      <XPubHeaderWrapper>
-                        <SetupHeaderWrapper>
-                          <SetupHeader>Connect Devices to Computer</SetupHeader>
-                          <SetupExplainerText>
-                            Connect and unlock devices in order to create your multisignature vault.
-                            You may disconnect your device from your computer after it has been configured.
+                <FormContainer>
+                  <BoxedWrapper>
+                    {importedDevices.length < 3 && (
+                      <Fragment>
+                        <XPubHeaderWrapper>
+                          <SetupHeaderWrapper>
+                            <SetupHeader>Connect Devices to Computer</SetupHeader>
+                            <SetupExplainerText>
+                              Connect and unlock devices in order to create your multisignature vault.
+                              You may disconnect your device from your computer after it has been configured.
                           </SetupExplainerText>
-                        </SetupHeaderWrapper>
-                      </XPubHeaderWrapper>
-                      <DeviceSelectSetup
-                        deviceAction={importDevice}
-                        configuredDevices={importedDevices}
-                        unconfiguredDevices={availableDevices}
-                        setUnconfiguredDevices={setAvailableDevices}
-                        configuredThreshold={3}
-                      />
-                    </Fragment>
-                  )}
-                  {importedDevices.length === 3 && (
-                    <Fragment>
-                      <XPubHeaderWrapper>
-                        <SetupHeaderWrapper>
-                          <SetupHeader>Set a password</SetupHeader>
-                          <SetupExplainerText>
-                            Lily Wallet encrypts your configuration file so that other people can't steal your funds.
-                            Please enter a password to be used to unlock your wallet in the future.
+                          </SetupHeaderWrapper>
+                        </XPubHeaderWrapper>
+                        <DeviceSelect
+                          deviceAction={importDevice}
+                          deviceActionText={'Click to Configure'}
+                          deviceActionLoadingText={'Extracting XPub'}
+                          configuredDevices={importedDevices}
+                          unconfiguredDevices={availableDevices}
+                          errorDevices={errorDevices}
+                          setUnconfiguredDevices={setAvailableDevices}
+                          configuredThreshold={3}
+                        />
+                      </Fragment>
+                    )}
+                    {importedDevices.length === 3 && (
+                      <Fragment>
+                        <XPubHeaderWrapper>
+                          <SetupHeaderWrapper>
+                            <SetupHeader>Set a password</SetupHeader>
+                            <SetupExplainerText>
+                              Lily Wallet encrypts your configuration file so that other people can't steal your funds.
+                              Please enter a password to be used to unlock your wallet in the future.
                           </SetupExplainerText>
-                        </SetupHeaderWrapper>
-                      </XPubHeaderWrapper>
-                      <PasswordWrapper>
-                        {/* <PasswordText>Almost done, just set a password to encrypt your setup file:</PasswordText> */}
-                        <PasswordInput placeholder="password" value={password} onChange={(e) => setPassword(e.target.value)} type="password" />
-                      </PasswordWrapper>
-                    </Fragment>
-                  )}
-                  {
-                    importedDevices.length === 3 && <ExportFilesButton
-                      background={darkGreen}
-                      color={white}
-                      active={password.length > 7}
-                      onClick={() => {
-                        if (password.length > 7) {
-                          exportSetupFiles();
-                        }
-                      }}>{'Save Vault'}</ExportFilesButton>
-                  }
-                </BoxedWrapper>
+                          </SetupHeaderWrapper>
+                        </XPubHeaderWrapper>
+                        <PasswordWrapper>
+                          {/* <PasswordText>Almost done, just set a password to encrypt your setup file:</PasswordText> */}
+                          <PasswordInput placeholder="password" value={password} onChange={(e) => setPassword(e.target.value)} type="password" />
+                        </PasswordWrapper>
+                      </Fragment>
+                    )}
+                    {
+                      importedDevices.length === 3 && <ExportFilesButton
+                        background={darkGreen}
+                        color={white}
+                        active={password.length > 3}
+                        onClick={() => {
+                          if (password.length > 3) {
+                            exportSetupFiles();
+                          }
+                        }}>{'Save Vault'}</ExportFilesButton>
+                    }
+                  </BoxedWrapper>
+                </FormContainer>
               </InnerWrapper>
             )}
     </Wrapper >
@@ -269,10 +288,23 @@ const SignupOptionItem = styled.div`
   }
 `;
 
+const FormContainer = styled.div`
+  min-height: 33em;
+`;
+
 const BoxedWrapper = styled.div`
   background: ${white};
   border-bottom-left-radius: 4px;
   border-bottom-right-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-left: 1px solid ${gray};
+  border-right: 1px solid ${gray};
+  border-bottom: 1px solid ${gray};
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+  border-top: 11px solid ${blue};
 `;
 
 const Wrapper = styled.div`
@@ -301,12 +333,6 @@ const XPubHeaderWrapper = styled.div`
   display: flex;
   justify-content: space-between;
   padding: 1.5em 1.5em 0;
-  border-top-left-radius: 4px;
-  border-top-right-radius: 4px;
-  // border-bottom: 1px solid ${gray};
-  border-right: 1px solid ${gray};
-  border-left: 1px solid ${gray};
-  border-top: 11px solid ${blue};
 `;
 
 const SetupHeaderWrapper = styled.div`
@@ -334,8 +360,6 @@ const PasswordWrapper = styled.div`
   padding: 0.5em;
   display: flex;
   flex-direction: column;
-  border-right: 1px solid ${gray};
-  border-left: 1px solid ${gray};
   background: ${white};
 `;
 

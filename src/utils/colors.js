@@ -31,4 +31,7 @@ export const lightGreen = "#E6FFE0";
 
 export const purple = "#A367FF";
 
+export const yellow = "#F3D55B";
+export const lightYellow = lighten(0.25, yellow);
+
 export const secondaryMenu = lighten(0.15, gray);
