@@ -149,6 +149,7 @@ const AccountItem = styled(Link)`
   flex-wrap: wrap;
   align-items: center;
   justify-content: flex-start;
+  box-shadow: rgba(43, 48, 64, 0.2) 0px 0.1rem 0.5rem 0px;
 
   &:hover {
     background: ${offWhite};

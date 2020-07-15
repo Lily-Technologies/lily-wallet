@@ -69,20 +69,10 @@ const Send = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlocks
 
     for (let i = 0; i < spendingUtxos.length; i++) {
       const utxo = spendingUtxos[i];
-
-      console.log('createTransaction currentAccount: ', currentAccount);
       if (currentAccount.config.quorum.requiredSigners > 1) {
 
         // need to construct prevTx b/c of segwit fee vulnerability requires on trezor
-        // const prevTxHex = await axios(`getblockstreamtx/tx/${utxo.txid}/hex`);
-        console.log('currentBitcoinNetwork: ', currentBitcoinNetwork);
-        console.log('utxo: ', utxo);
         const prevTxHex = await getTxHex(utxo.txid, currentBitcoinNetwork);
-
-        console.log('prevTxHex: ', prevTxHex);
-        console.log('multisigWitnessScript(utxo.address): ', multisigWitnessScript(utxo.address));
-        console.log('scriptToHex(multisigWitnessScript(utxo.address)): ', scriptToHex(multisigWitnessScript(utxo.address)));
-        console.log('scriptToHex(multisigWitnessScript(utxo.address)): ', typeof scriptToHex(multisigWitnessScript(utxo.address)));
 
         // KBC-TODO: eventually break this up into different functions depending on if Trezor or not, leave for now...I guess
         psbt.addInput({
@@ -103,9 +93,6 @@ const Send = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlocks
           }))
         })
       } else {
-        console.log('utxo.address.bip32derivation: ', utxo.address.bip32derivation);
-        console.log('utxo.address.bip32derivation: ', utxo.address.bip32derivation[0].pubkey);
-        console.log('typeof utxo.address.bip32derivation: ', typeof utxo.address.bip32derivation[0].pubkey);
         psbt.addInput({
           hash: utxo.txid,
           index: utxo.vout,
@@ -135,11 +122,6 @@ const Send = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlocks
         value: spendingUtxosTotal.minus(outputTotal).toNumber()
       })
     }
-
-
-    console.log('psbt: ', psbt);
-    console.log('psbt.toHex(): ', psbt.toHex());
-    console.log('psbt.toBase64(): ', psbt.toBase64());
 
     setFinalPsbt(psbt);
     setStep(1);
