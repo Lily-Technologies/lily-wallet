@@ -5,6 +5,8 @@ import { satoshisToBitcoins } from "unchained-bitcoin";
 import moment from 'moment';
 import BigNumber from 'bignumber.js';
 
+import { Loading } from '../../components';
+
 import RecentTransactions from '../../components/transactions/RecentTransactions';
 
 import { gray, white, darkGray, lightBlue, blue } from '../../utils/colors';
@@ -22,7 +24,8 @@ const CustomTooltip = ({ active, payload, label }) => {
   return null;
 };
 
-const VaultView = ({ currentBalance, currentBitcoinPrice, transactions, loadingDataFromBlockstream }) => {
+const VaultView = ({ currentAccount }) => {
+  const { currentBalance, transactions } = currentAccount;
   const sortedTransactions = transactions.sort((a, b) => a.status.block_time - b.status.block_time);
 
   let dataForChart;
@@ -48,6 +51,11 @@ const VaultView = ({ currentBalance, currentBitcoinPrice, transactions, loadingD
 
   return (
     <Fragment>
+      {currentAccount.loading && (
+        <ValueWrapper>
+          <Loading style={{ margin: '10em 0' }} itemText={'Chart Data'} />
+        </ValueWrapper>
+      )}
       {transactions.length > 0 && (
         <ValueWrapper>
           <CurrentBalanceContainer>
@@ -71,6 +79,7 @@ const VaultView = ({ currentBalance, currentBitcoinPrice, transactions, loadingD
                   dataKey="totalValue"
                   stroke={blue}
                   strokeWidth={2}
+                  isAnimationActive={false}
                   fill={lightBlue} />
                 <Tooltip
                   offset={-100}
@@ -85,7 +94,7 @@ const VaultView = ({ currentBalance, currentBitcoinPrice, transactions, loadingD
           </ChartContainer>
         </ValueWrapper>
       )}
-      <RecentTransactions transactions={sortedTransactions.sort((a, b) => b.status.block_time - a.status.block_time)} loading={loadingDataFromBlockstream} />
+      <RecentTransactions transactions={sortedTransactions.sort((a, b) => b.status.block_time - a.status.block_time)} loading={currentAccount.loading} />
     </Fragment>
   )
 }

@@ -5,15 +5,19 @@ import { VerticalAlignBottom, ArrowUpward } from '@styled-icons/material';
 import { StyledIcon } from '../../components';
 import { satoshisToBitcoins } from "unchained-bitcoin";
 
+import { GrayLoadingAnimation } from '../../components';
+
 import { white, offWhite, green, gray, lightBlue } from '../../utils/colors';
 
 const TransactionRow = ({ transaction, flat }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <TransactionRowWrapper flat={flat}>
-      <TransactionRowContainer flat={flat} isOpen={isOpen} onClick={() => { !flat && setIsOpen(!isOpen) }}>
-        <TxTypeIcon flat={flat}>
+    <TransactionsWrapper>
+      <TransactionRowWrapper flat={flat}>
+        <TransactionRowContainer flat={flat}>
+          <GrayLoadingAnimation />
+          {/* <TxTypeIcon flat={flat}>
           {transaction.type === 'received' && <StyledIconModified as={VerticalAlignBottom} size={flat ? 12 : 24} receive={true} />}
           {transaction.type === 'sent' && <StyledIconModified as={ArrowUpward} size={flat ? 12 : 24} />}
           <TxTypeTextWrapper flat={flat}>
@@ -22,16 +26,39 @@ const TransactionRow = ({ transaction, flat }) => {
           </TxTypeTextWrapper>
         </TxTypeIcon>
         <AddressWrapper flat={flat}>{transaction.address.address ? transaction.address.address : transaction.address}</AddressWrapper>
-        <AmountWrapper flat={flat}>{satoshisToBitcoins(transaction.value).toNumber()} BTC</AmountWrapper>
-      </TransactionRowContainer>
-      {isOpen && (
-        <TransactionMoreInfo>
-          <pre>{JSON.stringify(transaction, null, 2)}</pre>
-        </TransactionMoreInfo>
-      )}
-    </TransactionRowWrapper>
+        <AmountWrapper flat={flat}>{satoshisToBitcoins(transaction.value).toNumber()} BTC</AmountWrapper> */}
+        </TransactionRowContainer>
+      </TransactionRowWrapper>
+      <TransactionRowWrapper flat={flat}>
+        <TransactionRowContainer flat={flat}>
+          <GrayLoadingAnimation />
+        </TransactionRowContainer>
+      </TransactionRowWrapper>
+      <TransactionRowWrapper flat={flat}>
+        <TransactionRowContainer flat={flat}>
+          <GrayLoadingAnimation />
+        </TransactionRowContainer>
+      </TransactionRowWrapper>
+      <TransactionRowWrapper flat={flat}>
+        <TransactionRowContainer flat={flat}>
+          <GrayLoadingAnimation />
+        </TransactionRowContainer>
+      </TransactionRowWrapper>
+      <TransactionRowWrapper flat={flat}>
+        <TransactionRowContainer flat={flat}>
+          <GrayLoadingAnimation />
+        </TransactionRowContainer>
+      </TransactionRowWrapper>
+    </TransactionsWrapper>
   )
 }
+
+const TransactionsWrapper = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin-top: 1em;
+`;
 
 const TransactionRowWrapper = styled.div`
   border-bottom: 1px solid ${offWhite};
@@ -39,12 +66,13 @@ const TransactionRowWrapper = styled.div`
   box-shadow: ${p => p.flat ? 'none' : 'rgba(0, 0, 0, 0.15) 0px 5px 15px 0px'};
   align-items: center;
   flex-direction: column;
+  margin-top: 1em;
 `;
 
 const TransactionRowContainer = styled.div`
   display: flex;
   align-items: center;
-  padding: ${p => p.flat ? '.75em' : '1.5em'};
+  // padding: ${p => p.flat ? '.75em' : '1.5em'};
 
   &:hover {
     background: ${p => !p.isOpen && !p.flat && offWhite};

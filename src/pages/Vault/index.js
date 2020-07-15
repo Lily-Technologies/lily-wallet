@@ -81,10 +81,7 @@ const Vault = ({ config, setConfigFile, toggleRefresh, currentAccount, currentBi
         />
       ) : (
               <VaultView
-                currentBalance={currentBalance}
-                currentBitcoinPrice={currentBitcoinPrice}
-                transactions={transactions}
-                loadingDataFromBlockstream={loadingDataFromBlockstream}
+                currentAccount={currentAccount}
               />
             )}
     </PageWrapper>

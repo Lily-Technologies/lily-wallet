@@ -75,10 +75,41 @@ app.on('activate', function () {
   }
 });
 
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and require them here.
+ipcMain.on('/account-data-test', async (event, args) => {
+  console.log('hits /account-data-test', args);
+  const { config } = args;
+  const currentBitcoinNetwork = networks.bitcoin;
+
+  let addresses, changeAddresses, transactions, unusedAddresses, unusedChangeAddresses, availableUtxos;
+
+  if (config.quorum.totalSigners > 1) {
+    [addresses, changeAddresses, transactions, unusedAddresses, unusedChangeAddresses, availableUtxos] = await getDataFromMultisig(config, currentBitcoinNetwork);
+  } else {
+    [addresses, changeAddresses, transactions, unusedAddresses, unusedChangeAddresses, availableUtxos] = await getDataFromXPub(config, currentBitcoinNetwork);
+  }
+
+  const currentBalance = availableUtxos.reduce((accum, utxo) => accum.plus(utxo.value), BigNumber(0));
+
+  const accountData = {
+    name: config.name,
+    config: config,
+    addresses,
+    changeAddresses,
+    availableUtxos,
+    transactions,
+    unusedAddresses,
+    currentBalance: currentBalance.toNumber(),
+    unusedChangeAddresses
+  };
+
+  console.log('accountData: ', accountData);
+  // event.returnValue = accountData;
+  console.log('sendingback data')
+  event.reply('/account-data-test', accountData);
+});
 
 ipcMain.handle('/account-data', async (event, args) => {
+  console.log('hits /account-data');
   const { config } = args;
   const accountMap = new Map();
   const currentBitcoinNetwork = networks.bitcoin;

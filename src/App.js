@@ -57,15 +57,9 @@ function App() {
   const [currentAccount, setCurrentAccount] = useState({ name: 'Loading...' });
   const [accountMap, setAccountMap] = useState(new Map());
   const [currentBitcoinNetwork, setCurrentBitcoinNetwork] = useState(networks.bitcoin);
-  const [formattedPricesForChart, setFormattedPricesForChart] = useState([]);
   const [refresh, setRefresh] = useState(false);
 
   // WALLET DATA
-  const [transactions, setTransactions] = useState([]);
-  const [unusedAddresses, setUnusedAddresses] = useState([]);
-  const [unusedChangeAddresses, setUnusedChangeAddresses] = useState([]);
-  const [currentBalance, setCurrentBalance] = useState(BigNumber(0));
-  const [availableUtxos, setAvailableUtxos] = useState([]);
   const [loadingDataFromBlockstream, setLoadingDataFromBlockstream] = useState(false);
 
   const ConfigRequired = () => {
@@ -131,36 +125,47 @@ function App() {
   // fetch/build account data from config file
   useEffect(() => {
     if (config.wallets.length || config.vaults.length) {
-      async function fetchAndBuildAccountMap() {
-        setLoadingDataFromBlockstream(true);
-        const response = await window.ipcRenderer.invoke('/account-data', { config });
-        setAccountMap(response);
-        setCurrentAccount(response.values().next().value)
-        setLoadingDataFromBlockstream(false);
+      const initialAccountMap = new Map();
+
+      for (let i = 0; i < config.wallets.length; i++) {
+        initialAccountMap.set(config.wallets[i].id, {
+          name: config.wallets[i].name,
+          config: config.wallets[i],
+          transactions: [],
+          loading: true
+        })
+        window.ipcRenderer.send('/account-data-test', { config: config.wallets[i] })
       }
-      try {
-        fetchAndBuildAccountMap()
-      } catch (e) {
-        console.log('e: ', e);
-        setLoadingDataFromBlockstream(false);
+
+      for (let i = 0; i < config.vaults.length; i++) {
+        initialAccountMap.set(config.vaults[i].id, {
+          name: config.vaults[i].name,
+          config: config.vaults[i],
+          transactions: [],
+          loading: true
+        })
+        window.ipcRenderer.send('/account-data-test', { config: config.vaults[i] })
       }
+
+      setCurrentAccount(initialAccountMap.values().next().value)
+      setAccountMap(initialAccountMap);
     }
   }, [config, currentBitcoinNetwork, refresh]);
 
-  useEffect(() => {
-    if (currentAccount.config && accountMap.size) {
-      setLoadingDataFromBlockstream(true);
-      console.log('currentAccount: ', currentAccount);
-      const newVault = accountMap.get(currentAccount.config.id);
 
-      setAvailableUtxos(newVault.availableUtxos);
-      setUnusedAddresses(newVault.unusedAddresses);
-      setTransactions(newVault.transactions);
-      setCurrentBalance(newVault.currentBalance);
-      setUnusedChangeAddresses(newVault.unusedChangeAddresses);
-      setLoadingDataFromBlockstream(false);
-    }
-  }, [currentAccount, config, currentBitcoinNetwork, accountMap]);
+  window.ipcRenderer.on('/account-data-test', (event, ...args) => {
+    const accountInfo = args[0];
+    console.log('accountInfo.config.id, accountInfo: ', accountInfo.config.id, accountInfo);
+    accountMap.set(accountInfo.config.id, {
+      ...accountInfo,
+      loading: false
+    });
+    console.log('accountMap: ', accountMap);
+    setAccountMap(accountMap);
+  });
+
+  console.log('accountMap: ', accountMap);
+
 
   return (
     <ErrorBoundary>
