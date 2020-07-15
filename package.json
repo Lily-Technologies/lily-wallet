@@ -20,7 +20,8 @@
     "eject": "react-scripts eject",
     "package-mac": "electron-packager . LilyWallet --platform=darwin --arch=x64 --icon=./src/assets/AppIcon.icns --prune=true --out=release-builds --overwrite",
     "dist-mac": "electron-installer-dmg ./release-builds/LilyWallet-darwin-x64/LilyWallet.app LilyWallet-mac-v0.0.01-beta --overwrite",
-    "package-windows": "electron-packager . LilyWallet --platform=win32 --arch=x64 --asar=true --icon=./src/assets/icon_512@2x.png --prune=true --out=release-builds --overwrite"
+    "package-windows": "electron-packager . LilyWallet --platform=win32 --arch=x64 --asar=true --icon=./src/assets/icon_512@2x.png --prune=true --out=release-builds --overwrite",
+    "package-linux": "electron-packager . LilyWallet --platform=linux --arch=x64 --icon=./src/assets/AppIcon.icns --prune=true --out=release-builds --overwrite"
   },
   "dependencies": {
     "axios": "^0.19.2",

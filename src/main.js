@@ -26,7 +26,7 @@ function createWindow() {
   mainWindow.maximize();
 
   // load production url
-  mainWindow.loadURL(`file://${__dirname}/build/index.html`);
+  mainWindow.loadURL(`file://${__dirname}/../build/index.html`);
   // load dev url
   // mainWindow.loadURL(`http://localhost:3001/`);
 
