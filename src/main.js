@@ -75,11 +75,9 @@ app.on('activate', function () {
   }
 });
 
-ipcMain.on('/account-data-test', async (event, args) => {
-  console.log('hits /account-data-test', args);
+ipcMain.on('/account-data', async (event, args) => {
   const { config } = args;
   const currentBitcoinNetwork = networks.bitcoin;
-
   let addresses, changeAddresses, transactions, unusedAddresses, unusedChangeAddresses, availableUtxos;
 
   if (config.quorum.totalSigners > 1) {
@@ -102,61 +100,7 @@ ipcMain.on('/account-data-test', async (event, args) => {
     unusedChangeAddresses
   };
 
-  console.log('accountData: ', accountData);
-  // event.returnValue = accountData;
-  console.log('sendingback data')
-  event.reply('/account-data-test', accountData);
-});
-
-ipcMain.handle('/account-data', async (event, args) => {
-  console.log('hits /account-data');
-  const { config } = args;
-  const accountMap = new Map();
-  const currentBitcoinNetwork = networks.bitcoin;
-
-  for (let i = 0; i < config.vaults.length; i++) {
-    const [addresses, changeAddresses, transactions, unusedAddresses, unusedChangeAddresses, availableUtxos] = await getDataFromMultisig(config.vaults[i], currentBitcoinNetwork);
-
-    const currentBalance = availableUtxos.reduce((accum, utxo) => accum.plus(utxo.value), BigNumber(0));
-
-    const vaultData = {
-      name: config.vaults[i].name,
-      config: config.vaults[i],
-      addresses,
-      changeAddresses,
-      availableUtxos,
-      transactions,
-      unusedAddresses,
-      currentBalance: currentBalance.toNumber(),
-      unusedChangeAddresses
-    };
-
-    accountMap.set(config.vaults[i].id, vaultData);
-    console.log('accountMap.set: ', config.vaults[i].id)
-  }
-
-  for (let i = 0; i < config.wallets.length; i++) {
-    const [addresses, changeAddresses, transactions, unusedAddresses, unusedChangeAddresses, availableUtxos] = await getDataFromXPub(config.wallets[i], currentBitcoinNetwork);
-
-    const currentBalance = availableUtxos.reduce((accum, utxo) => accum.plus(utxo.value), BigNumber(0));
-
-    const vaultData = {
-      name: config.wallets[i].name,
-      config: config.wallets[i],
-      addresses,
-      changeAddresses,
-      availableUtxos,
-      transactions,
-      unusedAddresses,
-      currentBalance: currentBalance.toNumber(),
-      unusedChangeAddresses
-    };
-
-    accountMap.set(config.wallets[i].id, vaultData);
-    console.log('accountMap.set: ', config.wallets[i].id)
-  }
-
-  return Promise.resolve(accountMap)
+  event.reply('/account-data', accountData);
 });
 
 ipcMain.handle('/historical-btc-price', async (event, args) => {

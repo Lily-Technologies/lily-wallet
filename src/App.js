@@ -116,7 +116,6 @@ function App() {
   useEffect(() => {
     async function fetchHistoricalBTCPrice() {
       const response = await window.ipcRenderer.invoke('/historical-btc-price');
-      console.log('fetchHistoricalBTCPrice response: ', response);
       setHistoricalBitcoinPrice(response);
     }
     fetchHistoricalBTCPrice();
@@ -134,7 +133,7 @@ function App() {
           transactions: [],
           loading: true
         })
-        window.ipcRenderer.send('/account-data-test', { config: config.wallets[i] })
+        window.ipcRenderer.send('/account-data', { config: config.wallets[i] })
       }
 
       for (let i = 0; i < config.vaults.length; i++) {
@@ -144,7 +143,7 @@ function App() {
           transactions: [],
           loading: true
         })
-        window.ipcRenderer.send('/account-data-test', { config: config.vaults[i] })
+        window.ipcRenderer.send('/account-data', { config: config.vaults[i] })
       }
 
       setCurrentAccount(initialAccountMap.values().next().value)
@@ -153,19 +152,14 @@ function App() {
   }, [config, currentBitcoinNetwork, refresh]);
 
 
-  window.ipcRenderer.on('/account-data-test', (event, ...args) => {
+  window.ipcRenderer.on('/account-data', (event, ...args) => {
     const accountInfo = args[0];
-    console.log('accountInfo.config.id, accountInfo: ', accountInfo.config.id, accountInfo);
     accountMap.set(accountInfo.config.id, {
       ...accountInfo,
       loading: false
     });
-    console.log('accountMap: ', accountMap);
     setAccountMap(accountMap);
   });
-
-  console.log('accountMap: ', accountMap);
-
 
   return (
     <ErrorBoundary>
