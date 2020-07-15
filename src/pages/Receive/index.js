@@ -6,16 +6,17 @@ import { QRCode } from "react-qr-svg";
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { satoshisToBitcoins } from "unchained-bitcoin";
 
-import { StyledIcon, Button, GreenLoadingAnimation, PageWrapper, GridArea, PageTitle, Header, HeaderRight, HeaderLeft } from '../../components';
+import { StyledIcon, Button, GreenLoadingAnimation, PageWrapper, GridArea, PageTitle, Header, HeaderRight, HeaderLeft, Loading } from '../../components';
 import RecentTransactions from '../../components/transactions/RecentTransactions';
 
 import { black, gray, blue, darkGray, white, darkOffWhite, darkGreen, lightGray, lightBlue } from '../../utils/colors';
 import { mobile } from '../../utils/media';
 
-const Receive = ({ config, currentAccount, setCurrentAccount, transactions, unusedAddresses, currentBalance, loadingDataFromBlockstream }) => {
+const Receive = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlockstream }) => {
+  document.title = `Receive - Lily Wallet`;
   const [unusedAddressIndex, setUnusedAddressIndex] = useState(0);
 
-  document.title = `Receive - Lily Wallet`;
+  const { transactions, unusedAddresses, currentBalance } = currentAccount;
 
   return (
     <PageWrapper>
@@ -43,69 +44,72 @@ const Receive = ({ config, currentAccount, setCurrentAccount, transactions, unus
           ))}
         </AccountMenu>
 
-        <GridArea>
 
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <CurrentBalanceWrapper displayDesktop={false} displayMobile={true} style={{ marginBottom: '1em' }}>
-              <CurrentBalanceText>
-                Current Balance:
+        {currentAccount.loading && <Loading itemText={'Receive Information'} />}
+        {!currentAccount.loading && (
+          <GridArea>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <CurrentBalanceWrapper displayDesktop={false} displayMobile={true} style={{ marginBottom: '1em' }}>
+                <CurrentBalanceText>
+                  Current Balance:
               </CurrentBalanceText>
-              <CurrentBalanceValue>
-                {satoshisToBitcoins(currentBalance).toNumber()} BTC
+                <CurrentBalanceValue>
+                  {satoshisToBitcoins(currentBalance).toNumber()} BTC
                 </CurrentBalanceValue>
-            </CurrentBalanceWrapper>
+              </CurrentBalanceWrapper>
 
-            <AccountReceiveContentLeft>
-              <SendToAddressHeader>
-                Send bitcoin to
+              <AccountReceiveContentLeft>
+                <SendToAddressHeader>
+                  Send bitcoin to
               </SendToAddressHeader>
 
-              <AddressDisplayWrapper>
-                {unusedAddresses[unusedAddressIndex] && unusedAddresses[unusedAddressIndex].address}
-                {loadingDataFromBlockstream && (
-                  <GreenLoadingAnimation>
-                    {/* tb1qy8glxuvc7nqqlxmuucnpv93fekyv4lth6k3v3p */}
-                  </GreenLoadingAnimation>
-                )}
-              </AddressDisplayWrapper>
+                <AddressDisplayWrapper>
+                  {unusedAddresses[unusedAddressIndex] && unusedAddresses[unusedAddressIndex].address}
+                  {loadingDataFromBlockstream && (
+                    <GreenLoadingAnimation>
+                      {/* tb1qy8glxuvc7nqqlxmuucnpv93fekyv4lth6k3v3p */}
+                    </GreenLoadingAnimation>
+                  )}
+                </AddressDisplayWrapper>
 
-              <QRCodeWrapper>
-                <QRCode
-                  bgColor={white}
-                  fgColor={black}
-                  level="Q"
-                  style={{ width: 256 }}
-                  value={unusedAddresses[unusedAddressIndex] && unusedAddresses[unusedAddressIndex].address}
-                />
-              </QRCodeWrapper>
+                <QRCodeWrapper>
+                  <QRCode
+                    bgColor={white}
+                    fgColor={black}
+                    level="Q"
+                    style={{ width: 256 }}
+                    value={unusedAddresses[unusedAddressIndex] && unusedAddresses[unusedAddressIndex].address}
+                  />
+                </QRCodeWrapper>
 
-              <ReceiveButtonContainer>
-                <CopyToClipboard text={unusedAddresses[unusedAddressIndex] && unusedAddresses[unusedAddressIndex].address}><CopyAddressButton>Copy Address</CopyAddressButton></CopyToClipboard>
-                <CopyAddressButton background="transparent" color={darkGray} onClick={() => setUnusedAddressIndex(unusedAddressIndex + 1)}>Generate New Address</CopyAddressButton>
-              </ReceiveButtonContainer>
+                <ReceiveButtonContainer>
+                  <CopyToClipboard text={unusedAddresses[unusedAddressIndex] && unusedAddresses[unusedAddressIndex].address}><CopyAddressButton>Copy Address</CopyAddressButton></CopyToClipboard>
+                  <CopyAddressButton background="transparent" color={darkGray} onClick={() => setUnusedAddressIndex(unusedAddressIndex + 1)}>Generate New Address</CopyAddressButton>
+                </ReceiveButtonContainer>
 
-            </AccountReceiveContentLeft>
-          </div>
+              </AccountReceiveContentLeft>
+            </div>
 
-          <AccountReceiveContentRight>
-            <CurrentBalanceWrapper displayDesktop={true} displayMobile={false}>
-              <CurrentBalanceText>
-                Current Balance:
+            <AccountReceiveContentRight>
+              <CurrentBalanceWrapper displayDesktop={true} displayMobile={false}>
+                <CurrentBalanceText>
+                  Current Balance:
               </CurrentBalanceText>
-              <CurrentBalanceValue>
-                {satoshisToBitcoins(currentBalance).toNumber()} BTC
+                <CurrentBalanceValue>
+                  {satoshisToBitcoins(currentBalance).toNumber()} BTC
                 </CurrentBalanceValue>
-            </CurrentBalanceWrapper>
+              </CurrentBalanceWrapper>
 
-            <RecentTransactions
-              transactions={transactions}
-              flat={true}
-              loading={loadingDataFromBlockstream}
-              maxItems={3} />
+              <RecentTransactions
+                transactions={transactions}
+                flat={true}
+                loading={loadingDataFromBlockstream}
+                maxItems={3} />
 
 
-          </AccountReceiveContentRight>
-        </GridArea>
+            </AccountReceiveContentRight>
+          </GridArea>
+        )}
       </ReceiveWrapper>
     </PageWrapper >
   )

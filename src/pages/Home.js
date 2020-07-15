@@ -4,6 +4,7 @@ import moment from 'moment';
 import { satoshisToBitcoins } from "unchained-bitcoin";
 import { Bitcoin } from '@styled-icons/boxicons-logos';
 import { RestaurantMenu } from '@styled-icons/material';
+import BigNumber from 'bignumber.js';
 import { AreaChart, Area, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts';
 import { Link } from "react-router-dom";
 
@@ -39,13 +40,19 @@ const getLastTransactionTime = (transactions) => {
   }
 }
 
-const Home = ({ config, accountMap, priceForChart, currentBitcoinPrice, loading }) => {
+const Home = ({ config, accountMap, historicalBitcoinPrice, currentBitcoinPrice, loading }) => {
   const [currentDomain, setCurrentDomain] = useState(0);
+  const [animateChart, setAnimateChart] = useState(false);
 
-  const oneMonthDomain = Object.keys(priceForChart).length - 31;
-  const sixMonthDomain = Object.keys(priceForChart).length - (30 * 6);
-  const oneYearDomain = Object.keys(priceForChart).length - 365;
+  const oneMonthDomain = Object.keys(historicalBitcoinPrice).length - 31;
+  const sixMonthDomain = Object.keys(historicalBitcoinPrice).length - (30 * 6);
+  const oneYearDomain = Object.keys(historicalBitcoinPrice).length - 365;
   const allDomain = 0;
+
+  const changeDomain = (domain) => {
+    setAnimateChart(true);
+    setCurrentDomain(domain);
+  }
 
   const getChartInterval = () => {
     if (currentDomain === allDomain) {
@@ -68,14 +75,14 @@ const Home = ({ config, accountMap, priceForChart, currentBitcoinPrice, loading 
             1BTC = {formatter.format(currentBitcoinPrice.toNumber())}
           </CurrentBitcoinPriceContainer>
           <ChartControlsContainer>
-            <ChartControlItem active={currentDomain === oneMonthDomain} onClick={() => setCurrentDomain(oneMonthDomain)}>1M</ChartControlItem>
-            <ChartControlItem active={currentDomain === sixMonthDomain} onClick={() => setCurrentDomain(sixMonthDomain)}>6M</ChartControlItem>
-            <ChartControlItem active={currentDomain === oneYearDomain} onClick={() => setCurrentDomain(oneYearDomain)}>1Y</ChartControlItem>
-            <ChartControlItem active={currentDomain === 0} onClick={() => setCurrentDomain(0)}>ALL</ChartControlItem>
+            <ChartControlItem active={currentDomain === oneMonthDomain} onClick={() => changeDomain(oneMonthDomain)}>1M</ChartControlItem>
+            <ChartControlItem active={currentDomain === sixMonthDomain} onClick={() => changeDomain(sixMonthDomain)}>6M</ChartControlItem>
+            <ChartControlItem active={currentDomain === oneYearDomain} onClick={() => changeDomain(oneYearDomain)}>1Y</ChartControlItem>
+            <ChartControlItem active={currentDomain === 0} onClick={() => changeDomain(0)}>ALL</ChartControlItem>
           </ChartControlsContainer>
         </ChartInfo >
         <ResponsiveContainer width="100%" height={400}>
-          <AreaChart width={400} height={400} data={priceForChart.slice(currentDomain, priceForChart.length)}>
+          <AreaChart width={400} height={400} data={historicalBitcoinPrice.slice(currentDomain, historicalBitcoinPrice.length)}>
             <YAxis hide={true} domain={['dataMin - 500', 'dataMax + 500']} />
             <XAxis
               dataKey="date"
@@ -97,6 +104,7 @@ const Home = ({ config, accountMap, priceForChart, currentBitcoinPrice, loading 
               dataKey="price"
               stroke={blue}
               strokeWidth={2}
+              isAnimationActive={animateChart}
               fill={lightBlue} />
             <Tooltip
               offset={-100}
@@ -113,18 +121,14 @@ const Home = ({ config, accountMap, priceForChart, currentBitcoinPrice, loading 
       <HomeHeadingItem style={{ marginTop: '2.5em', marginBottom: '1em' }}>Your Accounts</HomeHeadingItem>
 
       <AccountsWrapper>
-        {loading && <LoadingAnimation flat={true}>
-          <img src={require('../assets/flower-loading.svg')} style={{ maxWidth: '6.25em' }} />
-          <LoadingText>Loading Accounts</LoadingText>
-          <LoadingSubText>Please wait...</LoadingSubText>
-        </LoadingAnimation>}
         {[...accountMap.values()].map((account) => (
           <AccountItem to={`/vault/${account.config.id}`} key={account.config.id}>
-            <StyledIcon as={Bitcoin} size={36} />
+            <StyledIcon as={Bitcoin} size={48} />
             <AccountInfoContainer>
               <AccountName>{account.name}</AccountName>
-              <CurrentBalance>Current Balance: {satoshisToBitcoins(account.currentBalance.toNumber()).toFixed(8)} BTC</CurrentBalance>
-              <CurrentBalance>{getLastTransactionTime(account.transactions)}</CurrentBalance>
+              {account.loading && 'Loading...'}
+              {!account.loading && <CurrentBalance>Current Balance: {satoshisToBitcoins(account.currentBalance).toFixed(8)} BTC</CurrentBalance>}
+              {!account.loading && <CurrentBalance>{getLastTransactionTime(account.transactions)}</CurrentBalance>}
             </AccountInfoContainer>
           </AccountItem>
         ))}
@@ -145,6 +149,7 @@ const AccountItem = styled(Link)`
   flex-wrap: wrap;
   align-items: center;
   justify-content: flex-start;
+  box-shadow: rgba(43, 48, 64, 0.2) 0px 0.1rem 0.5rem 0px;
 
   &:hover {
     background: ${offWhite};
@@ -204,19 +209,18 @@ const HomeHeadingItem = styled.h3`
 `;
 
 const AccountName = styled.div`
-  font-size: 1em;
+  font-size: 1.25em;
   color: ${darkGray};
 `;
 
 const CurrentBalance = styled.div`
-  font-size: 0.5em;
+  font-size: 0.65em;
 `;
 
 const ChartContainer = styled.div`
   padding: 0;
   border: 1px solid ${gray};
   background: ${white};
-  box-shadow: rgba(0, 0, 0, 0.15) 0px 5px 15px 0px;
 `;
 
 const TooltipContainer = styled.div`
@@ -234,28 +238,5 @@ const DateTooltip = styled.div`
   color: ${gray};
   font-size: 0.75em;
 `;
-
-const LoadingAnimation = styled.div`
-  display: flex;
-  flex: 1;
-  justify-content: center;
-  align-items: center;
-  border-radius: 4px;
-  box-shadow: background: ${p => p.flat ? 'transparent' : 'rgba(0, 0, 0, 0.15) 0px 5px 15px 0px'};
-  margin: 18px 0;
-  flex-direction: column;
-  color: ${darkGray};
-  padding: 1.5em;
-`;
-
-const LoadingText = styled.div`
-  font-size: 1.5em;
-  margin: 4px 0;
-`;
-
-const LoadingSubText = styled.div`
-    font-size: .75em;
-`;
-
 
 export default Home

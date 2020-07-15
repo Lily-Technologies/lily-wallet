@@ -88,13 +88,12 @@ const serializeTransactions = (transactionsFromBlockstream, addresses, changeAdd
     for (let j = 0; j < transactionsFromBlockstream[i].vout.length; j++) {
       if (addressesMap.get(transactionsFromBlockstream[i].vout[j].scriptpubkey_address)) {
         // received payment
-        transactions.set(transactionsFromBlockstream[i].txid, {
-          ...transactionsFromBlockstream[i],
-          value: transactionsFromBlockstream[i].vout[j].value,
-          address: addressesMap.get(transactionsFromBlockstream[i].vout[j].scriptpubkey_address),
-          type: 'received',
-          totalValue: currentAccountTotal.plus(transactionsFromBlockstream[i].vout[j].value)
-        });
+        const transactionWithValues = transactionsFromBlockstream[i];
+        transactionWithValues.value = transactionsFromBlockstream[i].vout[j].value;
+        transactionWithValues.address = addressesMap.get(transactionsFromBlockstream[i].vout[j].scriptpubkey_address);
+        transactionWithValues.type = 'received';
+        transactionWithValues.totalValue = currentAccountTotal.plus(transactionsFromBlockstream[i].vout[j].value).toNumber();
+        transactions.set(transactionsFromBlockstream[i].txid, transactionWithValues);
         transactionPushed = true;
         currentAccountTotal = currentAccountTotal.plus(transactionsFromBlockstream[i].vout[j].value)
       } else if (changeAddressesMap.get(transactionsFromBlockstream[i].vout[j].scriptpubkey_address)) {
@@ -104,13 +103,12 @@ const serializeTransactions = (transactionsFromBlockstream, addresses, changeAdd
       } else {
         // either outgoing payment or sender change address
         if (!transactions.get(transactionsFromBlockstream[i].txid)) {
-          possibleTransactions.set(transactionsFromBlockstream[i].txid, {
-            ...transactionsFromBlockstream[i],
-            value: transactionsFromBlockstream[i].vout[j].value,
-            address: transactionsFromBlockstream[i].vout[j].scriptpubkey_address,
-            type: 'sent',
-            totalValue: currentAccountTotal.minus(transactionsFromBlockstream[i].vout[j].value + transactionsFromBlockstream[i].fee)
-          })
+          const transactionWithValues = transactionsFromBlockstream[i];
+          transactionWithValues.value = transactionsFromBlockstream[i].vout[j].value;
+          transactionWithValues.address = transactionsFromBlockstream[i].vout[j].scriptpubkey_address;
+          transactionWithValues.type = 'sent';
+          transactionWithValues.totalValue = currentAccountTotal.minus(transactionsFromBlockstream[i].vout[j].value + transactionsFromBlockstream[i].fee).toNumber();
+          possibleTransactions.set(transactionsFromBlockstream[i].txid, transactionWithValues)
         }
       }
     }
@@ -125,7 +123,7 @@ const serializeTransactions = (transactionsFromBlockstream, addresses, changeAdd
           }
           return accum;
         }, BigNumber(0))).minus(possibleTx[1].fee);
-        transactions.set(...possibleTx);
+        transactions.set(possibleTx[0], possibleTx[1]);
       }
     }
   }
@@ -184,14 +182,9 @@ const getMultisigAddressesFromPubKeys = (pubkeys, config, currentBitcoinNetwork)
     const publicKeysForMultisigAddress = pubkeys.splice(i, 3);
     const rawPubkeys = publicKeysForMultisigAddress.map((publicKey) => publicKey.childPubKey);
     rawPubkeys.sort();
-    addresses.push({
-      ...generateMultisigFromPublicKeys(getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork), config.addressType, config.quorum.requiredSigners, ...rawPubkeys),
-      ...{
-        bip32derivation: [
-          ...publicKeysForMultisigAddress.map((publicKey) => publicKey.bip32derivation)
-        ]
-      }
-    });
+    const address = generateMultisigFromPublicKeys(getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork), config.addressType, config.quorum.requiredSigners, rawPubkeys[0], rawPubkeys[1], rawPubkeys[2]);
+    address.bip32derivation = publicKeysForMultisigAddress.map((publicKey) => publicKey.bip32derivation)
+    addresses.push(address);
   }
   return addresses;
 }
@@ -200,7 +193,9 @@ const getTransactionsFromAddresses = async (addresses, currentBitcoinNetwork) =>
   const transactions = [];
   for (let i = 0; i < addresses.length; i++) {
     const txsFromBlockstream = await (await axios.get(blockExplorerAPIURL(`/address/${addresses[i].address}/txs`, getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)))).data;
-    transactions.push(...txsFromBlockstream);
+    txsFromBlockstream.forEach((tx) => {
+      transactions.push(tx);
+    })
   }
   return transactions;
 }
@@ -221,10 +216,9 @@ const getUtxosForAddresses = async (addresses, currentBitcoinNetwork) => {
   for (let i = 0; i < addresses.length; i++) {
     const utxosFromBlockstream = await (await axios.get(blockExplorerAPIURL(`/address/${addresses[i].address}/utxo`, getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)))).data;
     for (let j = 0; j < utxosFromBlockstream.length; j++) {
-      availableUtxos.push({
-        ...utxosFromBlockstream[j],
-        address: addresses[i]
-      })
+      const utxo = utxosFromBlockstream[j];
+      utxo.address = addresses[i];
+      availableUtxos.push(utxo)
     }
   }
 
@@ -238,11 +232,11 @@ export const getDataFromMultisig = async (config, currentBitcoinNetwork) => {
   const addresses = getMultisigAddressesFromPubKeys(childPubKeys, config, currentBitcoinNetwork);
   const changeAddresses = getMultisigAddressesFromPubKeys(childChangePubKeys, config, currentBitcoinNetwork);
 
-  const transactions = await getTransactionsFromAddresses([...addresses, ...changeAddresses], currentBitcoinNetwork);
+  const transactions = await getTransactionsFromAddresses(addresses.concat(changeAddresses), currentBitcoinNetwork);
   const unusedAddresses = await getUnusedAddresses(addresses, currentBitcoinNetwork);
   const unusedChangeAddresses = await getUnusedAddresses(changeAddresses, currentBitcoinNetwork);
 
-  const availableUtxos = await getUtxosForAddresses([...addresses, ...changeAddresses], currentBitcoinNetwork);
+  const availableUtxos = await getUtxosForAddresses(addresses.concat(changeAddresses), currentBitcoinNetwork);
 
   const organizedTransactions = serializeTransactions(transactions, addresses, changeAddresses);
 
@@ -254,17 +248,15 @@ export const getDataFromXPub = async (currentWallet, currentBitcoinNetwork) => {
   const childChangePubKeys = getChildChangePubKeysFromXpubs([currentWallet], false, currentBitcoinNetwork);
 
   const addresses = childPubKeys.map((childPubKey, i) => {
-    return {
-      ...payments.p2wpkh({ pubkey: Buffer.from(childPubKey.childPubKey, 'hex'), network: currentBitcoinNetwork }),
-      bip32derivation: [childPubKey.bip32derivation]
-    }
+    const address = payments.p2wpkh({ pubkey: Buffer.from(childPubKey.childPubKey, 'hex'), network: currentBitcoinNetwork });
+    address.bip32derivation = [childPubKey.bip32derivation];
+    return address;
   });
 
   const changeAddresses = childChangePubKeys.map((childPubKey, i) => {
-    return {
-      ...payments.p2wpkh({ pubkey: Buffer.from(childPubKey.childPubKey, 'hex'), network: currentBitcoinNetwork }),
-      bip32derivation: [childPubKey.bip32derivation]
-    }
+    const address = payments.p2wpkh({ pubkey: Buffer.from(childPubKey.childPubKey, 'hex'), network: currentBitcoinNetwork });
+    address.bip32derivation = [childPubKey.bip32derivation];
+    return address;
   });
 
   const transactions = await getTransactionsFromAddresses([...addresses, ...changeAddresses], currentBitcoinNetwork);

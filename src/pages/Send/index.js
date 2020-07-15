@@ -12,7 +12,7 @@ import {
 } from "unchained-bitcoin";
 import { Psbt, address, bip32 } from 'bitcoinjs-lib';
 
-import { StyledIcon, Button, PageWrapper, GridArea, PageTitle, Header, HeaderRight, HeaderLeft } from '../../components';
+import { StyledIcon, Button, PageWrapper, GridArea, PageTitle, Header, HeaderRight, HeaderLeft, Loading } from '../../components';
 import RecentTransactions from '../../components/transactions/RecentTransactions';
 
 import SignWithDevice from './SignWithDevice'
@@ -31,7 +31,8 @@ const validateAddress = (recipientAddress) => {
   }
 }
 
-const Send = ({ config, currentAccount, setCurrentAccount, transactions, availableUtxos, unusedChangeAddresses, loadingDataFromBlockstream, currentBalance, currentBitcoinNetwork, currentBitcoinPrice }) => {
+const Send = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlockstream, currentBitcoinNetwork, currentBitcoinPrice }) => {
+  document.title = `Send - Lily Wallet`;
   const [sendAmount, setSendAmount] = useState('');
   const [sendAmountError, setSendAmountError] = useState(false);
   const [recipientAddress, setRecipientAddress] = useState('');
@@ -42,7 +43,9 @@ const Send = ({ config, currentAccount, setCurrentAccount, transactions, availab
   const [outputTotal, setOutputTotal] = useState(BigNumber(0));
   const [signedPsbts, setSignedPsbts] = useState([]);
 
-  document.title = `Send - Lily Wallet`;
+  // Get account data
+  const { transactions, availableUtxos, unusedChangeAddresses, currentBalance } = currentAccount;
+
 
   const createTransaction = async (amountInBitcoins, recipientAddress, availableUtxos, transactionsFromBlockstream) => {
     const transactionMap = createTransactionMapFromTransactionArray(transactionsFromBlockstream);
@@ -66,11 +69,9 @@ const Send = ({ config, currentAccount, setCurrentAccount, transactions, availab
 
     for (let i = 0; i < spendingUtxos.length; i++) {
       const utxo = spendingUtxos[i];
-
       if (currentAccount.config.quorum.requiredSigners > 1) {
 
         // need to construct prevTx b/c of segwit fee vulnerability requires on trezor
-        // const prevTxHex = await axios(`getblockstreamtx/tx/${utxo.txid}/hex`);
         const prevTxHex = await getTxHex(utxo.txid, currentBitcoinNetwork);
 
         // KBC-TODO: eventually break this up into different functions depending on if Trezor or not, leave for now...I guess
@@ -78,14 +79,18 @@ const Send = ({ config, currentAccount, setCurrentAccount, transactions, availab
           hash: utxo.txid,
           index: utxo.vout,
           sequence: 0xffffffff,
-          // witnessUtxo: {
-          //   script: Buffer.from(transactionMap.get(utxo.txid).vout[utxo.vout].scriptpubkey, 'hex'),
-          //   value: utxo.value
-          // },
+          witnessUtxo: {
+            script: Buffer.from(transactionMap.get(utxo.txid).vout[utxo.vout].scriptpubkey, 'hex'),
+            value: utxo.value
+          },
           nonWitnessUtxo: Buffer.from(prevTxHex, 'hex'),
           // redeemScript: utxo.address.redeem.output,
-          witnessScript: Buffer.from(scriptToHex(multisigWitnessScript(utxo.address)), 'hex'),
-          bip32Derivation: utxo.address.bip32derivation
+          witnessScript: Buffer.from(multisigWitnessScript(utxo.address).output),
+          bip32Derivation: utxo.address.bip32derivation.map((derivation) => ({
+            masterFingerprint: Buffer.from(derivation.masterFingerprint.buffer, derivation.masterFingerprint.byteOffset, derivation.masterFingerprint.byteLength),
+            pubkey: Buffer.from(derivation.pubkey.buffer, derivation.pubkey.byteOffset, derivation.pubkey.byteLength),
+            path: derivation.path
+          }))
         })
       } else {
         psbt.addInput({
@@ -96,7 +101,11 @@ const Send = ({ config, currentAccount, setCurrentAccount, transactions, availab
             script: Buffer.from(transactionMap.get(utxo.txid).vout[utxo.vout].scriptpubkey, 'hex'),
             value: utxo.value
           },
-          bip32Derivation: utxo.address.bip32derivation
+          bip32Derivation: [{
+            masterFingerprint: Buffer.from(utxo.address.bip32derivation[0].masterFingerprint.buffer, utxo.address.bip32derivation[0].masterFingerprint.byteOffset, utxo.address.bip32derivation[0].masterFingerprint.byteLength),
+            pubkey: Buffer.from(utxo.address.bip32derivation[0].pubkey.buffer, utxo.address.bip32derivation[0].pubkey.byteOffset, utxo.address.bip32derivation[0].pubkey.byteLength),
+            path: utxo.address.bip32derivation[0].path
+          }]
         })
       }
     }
@@ -141,15 +150,15 @@ const Send = ({ config, currentAccount, setCurrentAccount, transactions, availab
       setRecipientAddressError(false);
     }
 
-    if (!satoshisToBitcoins(currentBalance.plus(feeEstimate)).isGreaterThan(sendAmount)) {
+    if (!satoshisToBitcoins(feeEstimate.plus(currentBalance)).isGreaterThan(sendAmount)) {
       setSendAmountError(true)
     }
 
-    if (satoshisToBitcoins(currentBalance.plus(feeEstimate)).isGreaterThan(sendAmount) && sendAmountError) {
+    if (satoshisToBitcoins(feeEstimate.plus(currentBalance)).isGreaterThan(sendAmount) && sendAmountError) {
       setSendAmountError(false)
     }
 
-    if (validateAddress(recipientAddress) && sendAmount && satoshisToBitcoins(currentBalance.plus(feeEstimate)).isGreaterThan(sendAmount)) {
+    if (validateAddress(recipientAddress) && sendAmount && satoshisToBitcoins(feeEstimate.plus(currentBalance)).isGreaterThan(sendAmount)) {
       createTransaction(sendAmount, recipientAddress, availableUtxos, transactions)
     }
   }
@@ -180,103 +189,106 @@ const Send = ({ config, currentAccount, setCurrentAccount, transactions, availab
           ))}
         </AccountMenu>
 
-        <GridArea>
-          {step === 0 && (
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <CurrentBalanceWrapper displayDesktop={false} displayMobile={true} style={{ marginBottom: '1em' }}>
-                <CurrentBalanceText>
-                  Current Balance:
+        {currentAccount.loading && <Loading itemText={'Send Information'} />}
+        {!currentAccount.loading && (
+          <GridArea>
+            {step === 0 && (
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <CurrentBalanceWrapper displayDesktop={false} displayMobile={true} style={{ marginBottom: '1em' }}>
+                  <CurrentBalanceText>
+                    Current Balance:
               </CurrentBalanceText>
-                <CurrentBalanceValue>
-                  {satoshisToBitcoins(currentBalance).toNumber()} BTC
+                  <CurrentBalanceValue>
+                    {satoshisToBitcoins(currentBalance).toNumber()} BTC
                 </CurrentBalanceValue>
-              </CurrentBalanceWrapper>
+                </CurrentBalanceWrapper>
 
-              <AccountSendContentLeft>
+                <AccountSendContentLeft>
 
-                <SendToAddressHeader>
-                  Amount of bitcoin to send
+                  <SendToAddressHeader>
+                    Amount of bitcoin to send
               </SendToAddressHeader>
 
-                <AddressDisplayWrapper>
+                  <AddressDisplayWrapper>
+                    <Input
+                      value={sendAmount}
+                      onChange={(e) => setSendAmount(e.target.value)}
+                      placeholder="0.0025"
+                      style={{ paddingRight: 80, color: darkGray, flex: 1 }}
+                      error={sendAmountError}
+                    />
+                    <InputStaticText
+                      disabled
+                      text="BTC"
+                    >BTC</InputStaticText>
+                  </AddressDisplayWrapper>
+                  {sendAmountError && <SendAmountError>Not enough funds</SendAmountError>}
+
+                  <SendToAddressHeader>
+                    Send bitcoin to
+              </SendToAddressHeader>
+
                   <Input
-                    value={sendAmount}
-                    onChange={(e) => setSendAmount(e.target.value)}
-                    placeholder="0.0025"
-                    style={{ paddingRight: 80, color: darkGray, flex: 1 }}
-                    error={sendAmountError}
+                    onChange={(e) => setRecipientAddress(e.target.value)}
+                    value={recipientAddress}
+                    placeholder="tb1qy8glxuvc7nqqlxmuucnpv93fekyv4lth6k3v3p"
+                    style={{ marginBottom: 36 }}
+                    error={recipientAddressError}
                   />
-                  <InputStaticText
-                    disabled
-                    text="BTC"
-                  >BTC</InputStaticText>
-                </AddressDisplayWrapper>
-                {sendAmountError && <SendAmountError>Not enough funds</SendAmountError>}
 
-                <SendToAddressHeader>
-                  Send bitcoin to
-              </SendToAddressHeader>
+                  <SendButtonContainer>
+                    {/* <CopyAddressButton background="transparent" color={darkGray}>Advanced Options</CopyAddressButton> */}
+                    <CopyAddressButton onClick={() => validateAndCreateTransaction()}>Preview Transaction</CopyAddressButton>
+                  </SendButtonContainer>
+                </AccountSendContentLeft>
+              </div>
+            )}
 
-                <Input
-                  onChange={(e) => setRecipientAddress(e.target.value)}
-                  value={recipientAddress}
-                  placeholder="tb1qy8glxuvc7nqqlxmuucnpv93fekyv4lth6k3v3p"
-                  style={{ marginBottom: 36 }}
-                  error={recipientAddressError}
-                />
-
-                <SendButtonContainer>
-                  {/* <CopyAddressButton background="transparent" color={darkGray}>Advanced Options</CopyAddressButton> */}
-                  <CopyAddressButton onClick={() => validateAndCreateTransaction()}>Preview Transaction</CopyAddressButton>
-                </SendButtonContainer>
-              </AccountSendContentLeft>
-            </div>
-          )}
-
-          {step === 1 && (
-            <TransactionDetails
-              finalPsbt={finalPsbt}
-              feeEstimate={feeEstimate}
-              outputTotal={outputTotal}
-              recipientAddress={recipientAddress}
-              setStep={setStep}
-              sendAmount={sendAmount}
-              transactionsMap={transactionsMap}
-              signedPsbts={signedPsbts}
-              signThreshold={currentAccount.config.quorum.requiredSigners}
-              currentBitcoinNetwork={currentBitcoinNetwork}
-              currentBitcoinPrice={currentBitcoinPrice}
-            />
-          )}
-
-          {step === 0 && (
-            <AccountSendContentRight>
-              <CurrentBalanceWrapper displayDesktop={true} displayMobile={false}>
-                <CurrentBalanceText>
-                  Current Balance:
-                  </CurrentBalanceText>
-                <CurrentBalanceValue>
-                  {satoshisToBitcoins(currentBalance).toNumber()} BTC
-                </CurrentBalanceValue>
-              </CurrentBalanceWrapper>
-              <RecentTransactions
-                transactions={transactions}
-                loading={loadingDataFromBlockstream}
-                flat={true}
-                maxItems={3} />
-            </AccountSendContentRight>
-          )}
-
-          {step === 1 && currentAccount.config.quorum.requiredSigners > 1 && (
-            <AccountSendContentRight style={{ background: white, padding: 24, border: `1px solid ${darkOffWhite}` }}>
-              <SignWithDevice
-                psbt={finalPsbt}
-                setSignedPsbts={setSignedPsbts}
+            {step === 1 && (
+              <TransactionDetails
+                finalPsbt={finalPsbt}
+                feeEstimate={feeEstimate}
+                outputTotal={outputTotal}
+                recipientAddress={recipientAddress}
+                setStep={setStep}
+                sendAmount={sendAmount}
+                transactionsMap={transactionsMap}
                 signedPsbts={signedPsbts}
+                signThreshold={currentAccount.config.quorum.requiredSigners}
+                currentBitcoinNetwork={currentBitcoinNetwork}
+                currentBitcoinPrice={currentBitcoinPrice}
               />
-            </AccountSendContentRight>
-          )}
-        </GridArea>
+            )}
+
+            {step === 0 && (
+              <AccountSendContentRight>
+                <CurrentBalanceWrapper displayDesktop={true} displayMobile={false}>
+                  <CurrentBalanceText>
+                    Current Balance:
+                  </CurrentBalanceText>
+                  <CurrentBalanceValue>
+                    {satoshisToBitcoins(currentBalance).toNumber()} BTC
+                </CurrentBalanceValue>
+                </CurrentBalanceWrapper>
+                <RecentTransactions
+                  transactions={transactions}
+                  loading={loadingDataFromBlockstream}
+                  flat={true}
+                  maxItems={3} />
+              </AccountSendContentRight>
+            )}
+
+            {step === 1 && currentAccount.config.quorum.requiredSigners > 1 && (
+              <AccountSendContentRight style={{ background: white, padding: 24, border: `1px solid ${darkOffWhite}` }}>
+                <SignWithDevice
+                  psbt={finalPsbt}
+                  setSignedPsbts={setSignedPsbts}
+                  signedPsbts={signedPsbts}
+                />
+              </AccountSendContentRight>
+            )}
+          </GridArea>
+        )}
       </SendWrapper>
     </PageWrapper >
   )

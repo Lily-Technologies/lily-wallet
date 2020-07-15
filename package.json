@@ -25,6 +25,8 @@
   },
   "dependencies": {
     "axios": "^0.19.2",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-register": "^6.26.0",
     "bignumber.js": "^9.0.0",
     "bip39": "^3.0.2",
     "bitcoinjs-lib": "^5.1.10",
@@ -34,6 +36,7 @@
     "electron-dl": "^3.0.0",
     "electron-log": "^4.2.1",
     "electron-prebuilt-compile": "^8.2.0",
+    "esm": "^3.2.25",
     "moment": "^2.24.0",
     "polished": "^3.5.1",
     "react": "^16.13.1",

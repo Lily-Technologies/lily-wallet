@@ -3,6 +3,9 @@ import styled from 'styled-components';
 import { AreaChart, Area, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts';
 import { satoshisToBitcoins } from "unchained-bitcoin";
 import moment from 'moment';
+import BigNumber from 'bignumber.js';
+
+import { Loading } from '../../components';
 
 import RecentTransactions from '../../components/transactions/RecentTransactions';
 
@@ -21,7 +24,8 @@ const CustomTooltip = ({ active, payload, label }) => {
   return null;
 };
 
-const VaultView = ({ currentBalance, currentBitcoinPrice, transactions, loadingDataFromBlockstream }) => {
+const VaultView = ({ currentAccount }) => {
+  const { currentBalance, transactions } = currentAccount;
   const sortedTransactions = transactions.sort((a, b) => a.status.block_time - b.status.block_time);
 
   let dataForChart;
@@ -35,23 +39,28 @@ const VaultView = ({ currentBalance, currentBitcoinPrice, transactions, loadingD
     for (let i = 0; i < sortedTransactions.length; i++) {
       dataForChart.push({
         block_time: sortedTransactions[i].status.block_time,
-        totalValue: sortedTransactions[i].totalValue.toNumber()
+        totalValue: new BigNumber(sortedTransactions[i].totalValue).toNumber()
       })
     }
 
     dataForChart.push({
       block_time: Math.floor(Date.now() / 1000),
-      totalValue: sortedTransactions[sortedTransactions.length - 1].totalValue.toNumber()
+      totalValue: new BigNumber(sortedTransactions[sortedTransactions.length - 1].totalValue).toNumber()
     });
   }
 
   return (
     <Fragment>
+      {currentAccount.loading && (
+        <ValueWrapper>
+          <Loading style={{ margin: '10em 0' }} itemText={'Chart Data'} />
+        </ValueWrapper>
+      )}
       {transactions.length > 0 && (
         <ValueWrapper>
           <CurrentBalanceContainer>
             <CurrentBalanceText>Current Balance:</CurrentBalanceText>
-            {satoshisToBitcoins(currentBalance.toNumber()).toFixed(8)} BTC
+            {satoshisToBitcoins(currentBalance).toFixed(8)} BTC
           </CurrentBalanceContainer>
           <ChartContainer>
             <ResponsiveContainer width="100%" height={400}>
@@ -70,6 +79,7 @@ const VaultView = ({ currentBalance, currentBitcoinPrice, transactions, loadingD
                   dataKey="totalValue"
                   stroke={blue}
                   strokeWidth={2}
+                  isAnimationActive={false}
                   fill={lightBlue} />
                 <Tooltip
                   offset={-100}
@@ -84,7 +94,7 @@ const VaultView = ({ currentBalance, currentBitcoinPrice, transactions, loadingD
           </ChartContainer>
         </ValueWrapper>
       )}
-      <RecentTransactions transactions={sortedTransactions.sort((a, b) => b.status.block_time - a.status.block_time)} loading={loadingDataFromBlockstream} />
+      <RecentTransactions transactions={sortedTransactions.sort((a, b) => b.status.block_time - a.status.block_time)} loading={currentAccount.loading} />
     </Fragment>
   )
 }

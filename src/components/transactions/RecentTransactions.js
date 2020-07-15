@@ -2,9 +2,10 @@ import React from 'react';
 import styled from 'styled-components';
 import moment from 'moment';
 import { RestaurantMenu } from '@styled-icons/material';
-import { StyledIcon, StyledIconSpinning } from '../../components';
+import { StyledIcon, Loading } from '../../components';
 
 import TransactionRow from './TransactionRow'
+import TransactionRowLoading from './TransactionRowLoading'
 
 import { darkGray, white, blue } from '../../utils/colors';
 
@@ -22,12 +23,8 @@ const shouldDisplayDate = (transactions, index) => {
 const RecentTransactions = ({ transactions, loading, flat = false, maxItems = Infinity }) => {
   return (
     <RecentTransactionsWrapper>
-      {!loading && transactions.length > 0 && <RecentTransactionsHeader>Recent Activity</RecentTransactionsHeader>}
-      {loading && <LoadingAnimation flat={flat}>
-        <StyledIconSpinning as={RestaurantMenu} size={96} />
-        <LoadingText>Loading Transactions</LoadingText>
-        <LoadingSubText>Please wait...</LoadingSubText>
-      </LoadingAnimation>}
+      {(loading || transactions.length > 0) && <RecentTransactionsHeader>Recent Activity</RecentTransactionsHeader>}
+      {loading && (<TransactionRowLoading flat={flat} />)}
       <TransactionsWrapper>
         {transactions.map((transaction, index) => { // eslint-disable-line
           if (index < maxItems) {
@@ -76,28 +73,6 @@ const DateWrapper = styled.div`
 
 const RecentTransactionsHeader = styled.div`
 font-size: 1.5em;
-`;
-
-const LoadingAnimation = styled.div`
-  display: flex;
-  flex: 1;
-  justify-content: center;
-  align-items: center;
-  border-radius: 4px;
-  box-shadow: background: ${p => p.flat ? 'transparent' : 'rgba(0, 0, 0, 0.15) 0px 5px 15px 0px'};
-  margin: 18px 0;
-  flex-direction: column;
-  color: ${darkGray};
-  padding: 1.5em;
-`;
-
-const LoadingText = styled.div`
-  font-size: 1.5em;
-  margin: 4px 0;
-`;
-
-const LoadingSubText = styled.div`
-    font-size: .75em;
 `;
 
 const NoTransasctionsSection = styled.div`

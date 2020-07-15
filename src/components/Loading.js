@@ -1,6 +1,37 @@
+import React from 'react';
+
 import styled, { keyframes } from 'styled-components';
-import { lightGreen } from '../utils/colors';
+import { lightGreen, darkGray } from '../utils/colors';
 // Loading State
+
+export const Loading = ({ itemText, style = {} }) => (
+  <LoadingWrapper style={style}>
+    <img src={require('../assets/flower-loading.svg')} style={{ maxWidth: '6.25em' }} />
+    <LoadingText>Loading {itemText}</LoadingText>
+    <LoadingSubText>Please wait...</LoadingSubText>
+  </LoadingWrapper>
+);
+
+const LoadingWrapper = styled.div`
+  display: flex;
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+  border-radius: 4px;
+  margin: 18px 0;
+  flex-direction: column;
+  color: ${darkGray};
+  padding: 1.5em;
+`;
+
+const LoadingText = styled.div`
+  font-size: 1.5em;
+  margin: 4px 0;
+`;
+
+const LoadingSubText = styled.div`
+    font-size: .75em;
+`;
 
 export const placeHolderShimmer = keyframes`
   0%{
@@ -30,7 +61,7 @@ export const GreenAnimatedBackground = styled.div`
 `;
 
 export const GrayLoadingAnimation = styled(GrayAnimatedBackground)`
-  height: 24px;
+  height: 3em;
 `;
 
 export const GreenLoadingAnimation = styled(GreenAnimatedBackground)`
