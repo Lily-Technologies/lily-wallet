@@ -5,15 +5,24 @@ import { ArrowIosForwardOutline } from '@styled-icons/evaicons-outline'
 
 import {
   blockExplorerAPIURL,
+  blockExplorerURL,
   satoshisToBitcoins,
 } from "unchained-bitcoin";
 
-import { Psbt, address } from 'bitcoinjs-lib';
+import { Psbt, address, networks } from 'bitcoinjs-lib';
 
 import { cloneBuffer } from '../../utils/other';
 import { StyledIcon, Button, SidewaysShake } from '../../components';
 
 import { gray, blue, darkGray, white, darkOffWhite, green, darkGreen, lightGray, red, lightRed } from '../../utils/colors';
+
+const getUnchainedNetworkFromBjslibNetwork = (bitcoinJslibNetwork) => {
+  if (bitcoinJslibNetwork === networks.bitcoin) {
+    return 'mainnet';
+  } else {
+    return 'testnet';
+  }
+}
 
 const TransactionDetails = ({ finalPsbt, feeEstimate, outputTotal, recipientAddress, sendAmount, setStep, transactionsMap, signedPsbts, signThreshold, currentBitcoinNetwork, currentBitcoinPrice }) => {
   const [showMoreDetails, setShowMoreDetails] = useState(false);
@@ -33,11 +42,11 @@ const TransactionDetails = ({ finalPsbt, feeEstimate, outputTotal, recipientAddr
 
           psbt.finalizeAllInputs();
 
-          const { data } = await axios.get(blockExplorerAPIURL(`/broadcast?tx=${psbt.extractTransaction().toHex()}`, currentBitcoinNetwork));
+          const { data } = await axios.get(blockExplorerAPIURL(`/broadcast?tx=${psbt.extractTransaction().toHex()}`, getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)));
           setBroadcastedTxId(data);
 
         } else {
-          const { data } = await axios.get(blockExplorerAPIURL(`/broadcast?tx=${signedPsbts[0].extractTransaction().toHex()}`, currentBitcoinNetwork));
+          const { data } = await axios.get(blockExplorerAPIURL(`/broadcast?tx=${signedPsbts[0].extractTransaction().toHex()}`, getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)));
           setBroadcastedTxId(data);
         }
       } catch (e) {
@@ -70,7 +79,7 @@ const TransactionDetails = ({ finalPsbt, feeEstimate, outputTotal, recipientAddr
               )}
             </SendButton>}
 
-            {broadcastedTxId && <ViewTransactionButton href={`https://blockstream.info/tx/${broadcastedTxId}`} target="_blank">View Transaction</ViewTransactionButton>}
+            {broadcastedTxId && <ViewTransactionButton href={blockExplorerURL(`/tx/${broadcastedTxId}`, getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork))} target="_blank">View Transaction</ViewTransactionButton>}
             <MoreDetails>
               <span onClick={() => setShowMoreDetails(!showMoreDetails)}>{showMoreDetails ? 'Less' : 'More'} Details ></span>
               <span onClick={() => setStep(0)}>Edit Transaction</span>

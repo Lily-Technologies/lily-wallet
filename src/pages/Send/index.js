@@ -24,9 +24,9 @@ import TransactionDetails from './TransactionDetails';
 import { red, gray, blue, darkGray, white, darkOffWhite, lightGray, lightBlue } from '../../utils/colors';
 import { mobile } from '../../utils/media';
 
-const validateAddress = (recipientAddress) => {
+const validateAddress = (recipientAddress, network) => {
   try {
-    address.toOutputScript(recipientAddress)
+    address.toOutputScript(recipientAddress, network)
     return true
   } catch (e) {
     return false
@@ -179,7 +179,7 @@ const Send = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlocks
       const seed = await mnemonicToSeed(currentAccount.config.mnemonic);
       const root = bip32.fromSeed(seed, currentBitcoinNetwork);
 
-      psbt.signInputHD(0, root);
+      psbt.signAllInputsHD(root);
       psbt.validateSignaturesOfAllInputs();
       psbt.finalizeAllInputs();
 
@@ -190,11 +190,11 @@ const Send = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlocks
   const transactionsMap = createTransactionMapFromTransactionArray(transactions);
 
   const validateAndCreateTransaction = () => {
-    if (!validateAddress(recipientAddress)) {
+    if (!validateAddress(recipientAddress, currentBitcoinNetwork)) {
       setRecipientAddressError(true);
     }
 
-    if (validateAddress(recipientAddress) && recipientAddressError) {
+    if (validateAddress(recipientAddress, currentBitcoinNetwork) && recipientAddressError) {
       setRecipientAddressError(false);
     }
 
@@ -206,7 +206,7 @@ const Send = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlocks
       setSendAmountError(false)
     }
 
-    if (validateAddress(recipientAddress) && sendAmount && satoshisToBitcoins(feeEstimate.plus(currentBalance)).isGreaterThan(sendAmount)) {
+    if (validateAddress(recipientAddress, currentBitcoinNetwork) && sendAmount && satoshisToBitcoins(feeEstimate.plus(currentBalance)).isGreaterThan(sendAmount)) {
       createTransaction(sendAmount, recipientAddress, availableUtxos, transactions)
     }
   }
