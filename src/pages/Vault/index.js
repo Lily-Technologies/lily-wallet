@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from 'react';
+import { Link, useParams } from "react-router-dom";
 import styled from 'styled-components';
 import { VerticalAlignBottom, ArrowUpward, Settings, Refresh } from '@styled-icons/material';
 
@@ -13,11 +13,16 @@ import VaultSettings from './VaultSettings';
 
 import { darkGray, lightBlue } from '../../utils/colors';
 
-const Vault = ({ config, setConfigFile, toggleRefresh, currentAccount, currentBitcoinPrice, loadingDataFromBlockstream, currentBitcoinNetwork }) => {
+const Vault = ({ config, setConfigFile, toggleRefresh, currentAccount, setCurrentAccount, currentBitcoinNetwork }) => {
   document.title = `Vault - Lily Wallet`;
   const [viewSettings, setViewSettings] = useState(false);
   const [viewAddresses, setViewAddresses] = useState(false);
   const [viewUtxos, setViewUtxos] = useState(false);
+  const { id } = useParams();
+
+  useEffect(() => {
+    setCurrentAccount(id)
+  }, [id, currentAccount])
 
   // use url path to determine account, not currentAccount
   // pass in accountMap and if that changes, pull off account using useEffect

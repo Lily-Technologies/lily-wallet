@@ -40,7 +40,7 @@ const getLastTransactionTime = (transactions) => {
   }
 }
 
-const Home = ({ config, accountMap, historicalBitcoinPrice, currentBitcoinPrice, loading }) => {
+const Home = ({ config, setCurrentAccount, accountMap, historicalBitcoinPrice, currentBitcoinPrice, loading }) => {
   const [currentDomain, setCurrentDomain] = useState(0);
   const [animateChart, setAnimateChart] = useState(false);
 
@@ -122,7 +122,7 @@ const Home = ({ config, accountMap, historicalBitcoinPrice, currentBitcoinPrice,
 
       <AccountsWrapper>
         {[...accountMap.values()].map((account) => (
-          <AccountItem to={`/vault/${account.config.id}`} key={account.config.id}>
+          <AccountItem to={`/vault/${account.config.id}`} onClick={() => { setCurrentAccount(account.config.id) }} key={account.config.id}>
             <StyledIcon as={Bitcoin} size={48} />
             <AccountInfoContainer>
               <AccountName>{account.name}</AccountName>

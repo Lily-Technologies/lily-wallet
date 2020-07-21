@@ -41,7 +41,7 @@ export const NavLinks = ({ config, setCurrentAccount, loading }) => {
           <SidebarItemLink
             active={pathname === `/vault/${wallet.id}`}
             onClick={() => {
-              setCurrentAccount(wallet);
+              setCurrentAccount(wallet.id);
             }}
             to={`/vault/${wallet.id}`}
             loading={loading}
@@ -56,7 +56,7 @@ export const NavLinks = ({ config, setCurrentAccount, loading }) => {
           <SidebarItemLink
             active={pathname === `/vault/${vault.id}`}
             onClick={() => {
-              setCurrentAccount(vault);
+              setCurrentAccount(vault.id);
             }}
             to={`/vault/${vault.id}`}
             loading={loading}

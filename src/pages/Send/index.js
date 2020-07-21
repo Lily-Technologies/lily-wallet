@@ -122,6 +122,9 @@ const Send = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlocks
         // need to construct prevTx b/c of segwit fee vulnerability requires on trezor
         const prevTxHex = await getTxHex(utxo.txid, currentBitcoinNetwork);
 
+        console.log('utxo: ', utxo);
+        console.log('prevTxHex: ', prevTxHex);
+
         // KBC-TODO: eventually break this up into different functions depending on if Trezor or not, leave for now...I guess
         psbt.addInput({
           hash: utxo.txid,
@@ -131,7 +134,7 @@ const Send = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlocks
             script: Buffer.from(transactionMap.get(utxo.txid).vout[utxo.vout].scriptpubkey, 'hex'),
             value: utxo.value
           },
-          nonWitnessUtxo: Buffer.from(prevTxHex, 'hex'),
+          // nonWitnessUtxo: Buffer.from(prevTxHex, 'hex'),
           // redeemScript: utxo.address.redeem.output,
           witnessScript: Buffer.from(multisigWitnessScript(utxo.address).output),
           bip32Derivation: utxo.address.bip32derivation.map((derivation) => ({
@@ -170,6 +173,10 @@ const Send = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlocks
         value: spendingUtxosTotal.minus(outputTotal).toNumber()
       })
     }
+
+    console.log('psbt: ', psbt);
+    console.log('JSON.stringify(psbt: ', JSON.stringify(psbt));
+    console.log('psbt.toBase64: ', psbt.toBase64());
 
     setFinalPsbt(psbt);
     setStep(1);
@@ -224,13 +231,13 @@ const Send = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlocks
       <SendWrapper>
         <AccountMenu>
           {config.vaults.map((vault, index) => (
-            <AccountMenuItemWrapper active={vault.name === currentAccount.name} borderRight={(index < config.vaults.length - 1) || config.wallets.length} onClick={() => setCurrentAccount(vault)}>
+            <AccountMenuItemWrapper active={vault.name === currentAccount.name} borderRight={(index < config.vaults.length - 1) || config.wallets.length} onClick={() => setCurrentAccount(vault.id)}>
               <StyledIcon as={Safe} size={48} />
               <AccountMenuItemName>{vault.name}</AccountMenuItemName>
             </AccountMenuItemWrapper>
           ))}
           {config.wallets.map((wallet, index) => (
-            <AccountMenuItemWrapper active={wallet.name === currentAccount.name} borderRight={(index < config.wallets.length - 1)} onClick={() => setCurrentAccount(wallet)}>
+            <AccountMenuItemWrapper active={wallet.name === currentAccount.name} borderRight={(index < config.wallets.length - 1)} onClick={() => setCurrentAccount(wallet.id)}>
               <StyledIcon as={Wallet} size={48} />
               <AccountMenuItemName>{wallet.name}</AccountMenuItemName>
             </AccountMenuItemWrapper>

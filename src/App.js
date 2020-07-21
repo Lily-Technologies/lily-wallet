@@ -43,17 +43,10 @@ const emptyConfig = {
 function App() {
   const [currentBitcoinPrice, setCurrentBitcoinPrice] = useState(BigNumber(0));
   const [historicalBitcoinPrice, setHistoricalBitcoinPrice] = useState({});
-  const [bitcoinQuote, setBitcoinQuote] = useState({
-    body: 'There is no answer in the available literature to the question why a government monopoly of the provision of money is universally regarded as indispensable. ... It has the defects of all monopolies.',
-    author: {
-      name: 'F.A. Hayek',
-      twitter: 'https://nakamotoinstitute.org/static/docs/denationalisation.pdf'
-    }
-  });
   // const [config, setConfigFile] = useState(configFixture);
   // const [currentAccount, setCurrentAccount] = useState({ config: config.vaults[0] });
   const [config, setConfigFile] = useState(emptyConfig);
-  const [currentAccount, setCurrentAccount] = useState({ name: 'Loading...' });
+  const [currentAccount, setCurrentAccount] = useState({ name: 'Loading...', loading: true });
   const [accountMap, setAccountMap] = useState(new Map());
   const [currentBitcoinNetwork, setCurrentBitcoinNetwork] = useState(networks.bitcoin);
   const [refresh, setRefresh] = useState(false);
@@ -83,9 +76,11 @@ function App() {
     return null;
   }
 
-  const setCurrentAccountFromMap = (vault) => {
-    const newVault = accountMap.get(vault.id);
-    setCurrentAccount(newVault);
+  const setCurrentAccountFromMap = (accountId) => {
+    const newAccount = accountMap.get(accountId);
+    if (newAccount) {
+      setCurrentAccount(newAccount);
+    }
   }
 
   const changeCurrentBitcoinNetwork = () => {
@@ -102,14 +97,6 @@ function App() {
       setCurrentBitcoinPrice(new BigNumber(currentBitcoinPrice.replace(',', '')));
     }
     fetchCurrentBitcoinPrice();
-  }, []);
-
-  useEffect(() => {
-    async function fetchBitcoinQuote() {
-      const bitcoinQuote = await (await axios.get('https://www.bitcoin-quotes.com/quotes/random.json')).data;
-      setBitcoinQuote(bitcoinQuote);
-    }
-    fetchBitcoinQuote();
   }, []);
 
   useEffect(() => {
@@ -152,7 +139,6 @@ function App() {
 
   useEffect(() => {
     window.ipcRenderer.on('/account-data', (event, ...args) => {
-      console.log('hits listener accountMap', accountMap);
       const accountInfo = args[0];
       accountMap.set(accountInfo.config.id, {
         ...accountInfo,
@@ -165,8 +151,6 @@ function App() {
     });
   }, []);
 
-  console.log('accountMap: ', accountMap);
-
   return (
     <ErrorBoundary>
       <Router>
@@ -176,15 +160,15 @@ function App() {
           {!config.isEmpty && <Sidebar config={config} setCurrentAccount={setCurrentAccountFromMap} loading={loadingDataFromBlockstream} />}
           {!config.isEmpty && <MobileNavbar config={config} setCurrentAccount={setCurrentAccountFromMap} loading={loadingDataFromBlockstream} />}
           <Switch>
-            <Route path="/vault/:id" component={() => <Vault config={config} setConfigFile={setConfigFile} toggleRefresh={toggleRefresh} currentAccount={currentAccount} currentBitcoinNetwork={currentBitcoinNetwork} currentBitcoinPrice={currentBitcoinPrice} loadingDataFromBlockstream={loadingDataFromBlockstream} />} />
+            <Route path="/vault/:id" component={() => <Vault config={config} setConfigFile={setConfigFile} toggleRefresh={toggleRefresh} currentAccount={currentAccount} setCurrentAccount={setCurrentAccountFromMap} currentBitcoinNetwork={currentBitcoinNetwork} currentBitcoinPrice={currentBitcoinPrice} loadingDataFromBlockstream={loadingDataFromBlockstream} />} />
             <Route path="/receive" component={() => <Receive config={config} currentAccount={currentAccount} setCurrentAccount={setCurrentAccountFromMap} currentBitcoinPrice={currentBitcoinPrice} loadingDataFromBlockstream={loadingDataFromBlockstream} />} />
             <Route path="/send" component={() => <Send config={config} currentAccount={currentAccount} setCurrentAccount={setCurrentAccountFromMap} currentBitcoinPrice={currentBitcoinPrice} loadingDataFromBlockstream={loadingDataFromBlockstream} currentBitcoinNetwork={currentBitcoinNetwork} />} />
             <Route path="/setup" component={() => <Setup config={config} setConfigFile={setConfigFile} currentBitcoinNetwork={currentBitcoinNetwork} />} />
-            <Route path="/login" component={() => <Login setConfigFile={setConfigFile} bitcoinQuote={bitcoinQuote} />} />
+            <Route path="/login" component={() => <Login setConfigFile={setConfigFile} />} />
             <Route path="/settings" component={() => <Settings config={config} currentBitcoinNetwork={currentBitcoinNetwork} changeCurrentBitcoinNetwork={changeCurrentBitcoinNetwork} />} />
-            <Route path="/gdrive-import" component={() => <GDriveImport setConfigFile={setConfigFile} bitcoinQuote={bitcoinQuote} />} />
+            <Route path="/gdrive-import" component={() => <GDriveImport setConfigFile={setConfigFile} />} />
             <Route path="/coldcard-import-instructions" component={() => <ColdcardImportInstructions />} />
-            <Route path="/" component={() => <Home accountMap={accountMap} historicalBitcoinPrice={historicalBitcoinPrice} currentBitcoinPrice={currentBitcoinPrice} loading={loadingDataFromBlockstream} />} />
+            <Route path="/" component={() => <Home accountMap={accountMap} setCurrentAccount={setCurrentAccountFromMap} historicalBitcoinPrice={historicalBitcoinPrice} currentBitcoinPrice={currentBitcoinPrice} loading={loadingDataFromBlockstream} />} />
             <Route path="/" component={() => (
               <div>Not Found</div>
             )}

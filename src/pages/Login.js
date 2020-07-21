@@ -12,7 +12,7 @@ import { GridArea } from '../components/layout';
 
 import { black, darkGray, white, blue, gray, offWhite } from '../utils/colors';
 
-const Login = ({ setConfigFile, bitcoinQuote }) => {
+const Login = ({ setConfigFile }) => {
   const [encryptedConfigFile, setEncryptedConfigFile] = useState(null);
   const history = useHistory();
 
@@ -20,7 +20,7 @@ const Login = ({ setConfigFile, bitcoinQuote }) => {
 
   if (encryptedConfigFile) {
     return (
-      <GDriveImport encryptedConfig={encryptedConfigFile} setConfigFile={setConfigFile} bitcoinQuote={bitcoinQuote} />
+      <GDriveImport encryptedConfig={encryptedConfigFile} setConfigFile={setConfigFile} />
     )
   }
 

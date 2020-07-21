@@ -5,32 +5,53 @@
   "version": "0.0.1-beta",
   "private": true,
   "main": "./src/main.js",
-  "homepage": ".",
+  "homepage": "./",
   "build": {
-    "productName": "Lily",
-    "appId": "your.id",
-    "files": [
-      "release-builds/",
-      "!node_modules/"
-    ],
+    "productName": "Lily Wallet",
+    "appId": "com.kevinmulcrone.lily",
+    "extends": null,
     "mac": {
       "category": "public.app-category.finance",
-      "icon": "/src/assets/AppIcon.icns",
-      "hardenedRuntime": true,
+      "icon": "./src/assets/AppIcon.icns",
       "target": [
-        "dmg",
-        "zip"
+        "dmg"
+      ],
+      "files": [
+        "./build/**/*",
+        "./src/main.js",
+        "./src/preload.js",
+        "./src/server/**/*",
+        "./src/utils/**/*",
+        "./HWIs/HWI_MAC"
       ]
     },
     "linux": {
       "category": "Finance",
       "packageCategory": "wallet",
-      "icon": "resources/linux",
+      "icon": "./src/assets/icon.png",
       "target": [
         {
           "target": "AppImage",
           "arch": "x64"
         }
+      ],
+      "files": [
+        "./build/**/*",
+        "./src/main.js",
+        "./src/preload.js",
+        "./src/server/**/*",
+        "./src/utils/**/*",
+        "./HWIs/HWI_LINUX"
+      ]
+    },
+    "win": {
+      "files": [
+        "./build/**/*",
+        "./src/main.js",
+        "./src/preload.js",
+        "./src/server/**/*",
+        "./src/utils/**/*",
+        "./HWIs/hwi.exe"
       ]
     }
   },
@@ -40,7 +61,9 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "dist": "electron-builder",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder -mwl",
+    "postinstall": "electron-builder install-app-deps",
     "package-mac": "electron-packager . LilyWallet --platform=darwin --arch=x64 --icon=./src/assets/AppIcon.icns --prune=true --ignore='(./src/server/HWI_LINUX|./src/server/hwi.exe)' --out=release-builds --overwrite",
     "dist-mac": "electron-installer-dmg ./release-builds/LilyWallet-darwin-x64/LilyWallet.app LilyWallet-mac-v0.0.01-beta --overwrite",
     "package-windows": "electron-packager . LilyWallet --platform=win32 --arch=x64 --asar=true --icon=./src/assets/icon_512@2x.png --prune=true --ignore='(./src/server/HWI_MAC|./src/server/HWI_LINUX)' --out=release-builds --overwrite",
@@ -59,6 +82,7 @@
     "electron-dl": "^3.0.0",
     "electron-log": "^4.2.1",
     "electron-prebuilt-compile": "^8.2.0",
+    "electron-root-path": "^1.0.16",
     "esm": "^3.2.25",
     "moment": "^2.24.0",
     "polished": "^3.5.1",

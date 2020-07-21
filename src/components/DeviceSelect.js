@@ -16,23 +16,28 @@ export const DeviceSelect = ({ configuredDevices, unconfiguredDevices, errorDevi
 
   const enumerate = async () => {
     setDevicesLoading(true);
-    const response = await window.ipcRenderer.invoke('/enumerate');
+    // what?
+    try {
+      const response = await window.ipcRenderer.invoke('/enumerate');
+      setDevicesLoading(false);
 
-    setDevicesLoading(false);
-
-    // filter out devices that are available but already imported
-    const filteredDevices = response.filter((device) => { // eslint-disable-line
-      let deviceAlreadyConfigured = false;
-      for (let i = 0; i < configuredDevices.length; i++) {
-        if (configuredDevices[i].fingerprint === device.fingerprint) {
-          deviceAlreadyConfigured = true;
+      // filter out devices that are available but already imported
+      const filteredDevices = response.filter((device) => { // eslint-disable-line
+        let deviceAlreadyConfigured = false;
+        for (let i = 0; i < configuredDevices.length; i++) {
+          if (configuredDevices[i].fingerprint === device.fingerprint) {
+            deviceAlreadyConfigured = true;
+          }
         }
-      }
-      if (!deviceAlreadyConfigured) {
-        return device
-      }
-    });
-    setUnconfiguredDevices(filteredDevices);
+        if (!deviceAlreadyConfigured) {
+          return device
+        }
+      });
+      setUnconfiguredDevices(filteredDevices);
+    } catch (e) {
+      console.log('e: ', e);
+      setDevicesLoading(false);
+    }
   }
 
   const performDeviceAction = async (device, index) => {

@@ -31,13 +31,13 @@ const Receive = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlo
       <ReceiveWrapper>
         <AccountMenu>
           {config.vaults.map((vault, index) => (
-            <AccountMenuItemWrapper active={vault.name === currentAccount.name} borderRight={(index < config.vaults.length - 1) || config.wallets.length} onClick={() => setCurrentAccount(vault)}>
+            <AccountMenuItemWrapper active={vault.name === currentAccount.name} borderRight={(index < config.vaults.length - 1) || config.wallets.length} onClick={() => setCurrentAccount(vault.id)}>
               <StyledIcon as={Safe} size={48} />
               <AccountMenuItemName>{vault.name}</AccountMenuItemName>
             </AccountMenuItemWrapper>
           ))}
           {config.wallets.map((wallet, index) => (
-            <AccountMenuItemWrapper active={wallet.name === currentAccount.name} borderRight={(index < config.wallets.length - 1)} onClick={() => setCurrentAccount(wallet)}>
+            <AccountMenuItemWrapper active={wallet.name === currentAccount.name} borderRight={(index < config.wallets.length - 1)} onClick={() => setCurrentAccount(wallet.id)}>
               <StyledIcon as={Wallet} size={48} />
               <AccountMenuItemName>{wallet.name}</AccountMenuItemName>
             </AccountMenuItemWrapper>

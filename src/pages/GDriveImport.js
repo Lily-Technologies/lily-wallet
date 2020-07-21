@@ -9,7 +9,7 @@ import { black, gray, darkOffWhite, lightGray, darkGray, blue, lightBlue, white,
 import { getConfigFileFromGoogleDrive } from '../utils/google-drive';
 
 
-const GDriveImport = ({ encryptedConfig, setConfigFile, bitcoinQuote }) => {
+const GDriveImport = ({ encryptedConfig, setConfigFile }) => {
   document.title = `GDriveImport - Lily Wallet`;
   const [loading, setLoading] = useState(false);
   const [loadingGDrive, setLoadingGDrive] = useState(false);
@@ -129,15 +129,6 @@ const GDriveImport = ({ encryptedConfig, setConfigFile, bitcoinQuote }) => {
 
         </CurtainLeft>
         <CurtainBehind>
-          <ChartPlaceholder>
-            <QuoteText>{bitcoinQuote.body}</QuoteText>
-
-            <AuthorName>
-              {bitcoinQuote.author.name}
-              {/* <a href={bitcoinQuote.author.twitter} target="_blank"> > </a> */}
-            </AuthorName>
-          </ChartPlaceholder>
-
           <DecryptingText>Decrypting Wallet...</DecryptingText>
         </CurtainBehind>
         <CurtainRight startCurtain={startCurtain}>
@@ -325,29 +316,6 @@ const CurtainBehind = styled.div`
   align-self: center;
   flex-direction: column;
   align-items: center;
-`;
-
-const QuoteText = styled.div`
-  font-size: 1.25em;
-`;
-
-
-const AuthorName = styled.div`
-  font-size: 1.25em;
-  font-weight: 600;
-  margin-top: 1em;
-`;
-
-const ChartPlaceholder = styled.div`
-  background: ${white};
-  padding: 1.5em;
-  box-shadow: rgba(0, 0, 0, 0.15) 0px 5px 15px 0px;
-  margin-top: .5em;
-  border-top: solid 11px ${blue};
-  margin: 64px;
-  flex: 1;
-  max-width: 46.875em;
-  width: 100%;
 `;
 
 export default GDriveImport;

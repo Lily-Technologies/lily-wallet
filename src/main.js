@@ -3,7 +3,7 @@ const moment = require('moment');
 const { app, BrowserWindow, ipcMain } = require('electron');
 const { networks } = require('bitcoinjs-lib');
 const BigNumber = require('bignumber.js');
-// const log = require('electron-log');
+const log = require('electron-log');
 const { download } = require('electron-dl');
 
 const { enumerate, getXPub, signtx } = require('./server/commands');
@@ -31,9 +31,9 @@ function createWindow() {
   mainWindow.maximize();
 
   // load production url
-  mainWindow.loadURL(`file://${__dirname}/../build/index.html`);
+  // mainWindow.loadURL(`file://${__dirname}/../build/index.html`);
   // load dev url
-  // mainWindow.loadURL(`http://localhost:3001/`);
+  mainWindow.loadURL(`http://localhost:3001/`);
 
   // Open the DevTools.
   // mainWindow.webContents.openDevTools();
