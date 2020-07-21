@@ -186,7 +186,7 @@ const Send = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlocks
       const seed = await mnemonicToSeed(currentAccount.config.mnemonic);
       const root = bip32.fromSeed(seed, currentBitcoinNetwork);
 
-      psbt.signInputHD(0, root);
+      psbt.signAllInputsHD(root);
       psbt.validateSignaturesOfAllInputs();
       psbt.finalizeAllInputs();
 
