@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import moment from 'moment';
 import { satoshisToBitcoins } from "unchained-bitcoin";
 import { Bitcoin } from '@styled-icons/boxicons-logos';
 import { AreaChart, Area, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts';
 import { Link } from "react-router-dom";
+import { useSpring, animated } from 'react-spring';
 
 import { PageWrapper, StyledIcon } from '../components';
 
@@ -38,9 +39,16 @@ const getLastTransactionTime = (transactions) => {
   }
 }
 
-const Home = ({ config, setCurrentAccount, accountMap, historicalBitcoinPrice, currentBitcoinPrice, loading }) => {
+const Home = ({ config, setCurrentAccount, accountMap, historicalBitcoinPrice, currentBitcoinPrice, flyInAnimation }) => {
   const [currentDomain, setCurrentDomain] = useState(0);
   const [animateChart, setAnimateChart] = useState(false);
+  const [localFlyInAnimation, setLocalFlyInAnimation] = useState(true);
+
+  useEffect(() => {
+    if (!flyInAnimation && localFlyInAnimation) { // if these values are different, change local
+      setLocalFlyInAnimation(false)
+    }
+  })
 
   const oneMonthDomain = Object.keys(historicalBitcoinPrice).length - 31;
   const sixMonthDomain = Object.keys(historicalBitcoinPrice).length - (30 * 6);
@@ -64,73 +72,80 @@ const Home = ({ config, setCurrentAccount, accountMap, historicalBitcoinPrice, c
     }
   }
 
+  const chartProps = useSpring({ transform: localFlyInAnimation ? 'translateY(-120%)' : 'translateY(0%)' });
+  const accountsProps = useSpring({ transform: localFlyInAnimation ? 'translateY(120%)' : 'translateY(0%)' });
+
   return (
     <PageWrapper>
-      <ChartContainer>
-        <ChartInfo>
-          <CurrentBitcoinPriceContainer>
-            <CurrentPriceText>Current Price:</CurrentPriceText>
+      <animated.div style={{ ...chartProps }}>
+        <ChartContainer>
+          <ChartInfo>
+            <CurrentBitcoinPriceContainer>
+              <CurrentPriceText>Current Price:</CurrentPriceText>
             1BTC = {formatter.format(currentBitcoinPrice.toNumber())}
-          </CurrentBitcoinPriceContainer>
-          <ChartControlsContainer>
-            <ChartControlItem active={currentDomain === oneMonthDomain} onClick={() => changeDomain(oneMonthDomain)}>1M</ChartControlItem>
-            <ChartControlItem active={currentDomain === sixMonthDomain} onClick={() => changeDomain(sixMonthDomain)}>6M</ChartControlItem>
-            <ChartControlItem active={currentDomain === oneYearDomain} onClick={() => changeDomain(oneYearDomain)}>1Y</ChartControlItem>
-            <ChartControlItem active={currentDomain === 0} onClick={() => changeDomain(0)}>ALL</ChartControlItem>
-          </ChartControlsContainer>
-        </ChartInfo >
-        <ResponsiveContainer width="100%" height={400}>
-          <AreaChart width={400} height={400} data={historicalBitcoinPrice.slice(currentDomain, historicalBitcoinPrice.length)}>
-            <YAxis hide={true} domain={['dataMin - 500', 'dataMax + 500']} />
-            <XAxis
-              dataKey="date"
-              tickCount={6}
-              interval={getChartInterval()} // TODO: adjust to accept 1yr, 1month, 1 week, need to use domain prop
-              tickLine={false}
-              tickFormatter={(date) => {
-                if (currentDomain === oneMonthDomain) {
-                  return moment(date).format('MMM D')
-                } else if (currentDomain === sixMonthDomain) {
-                  return moment(date).format('MMM D')
-                } else {
-                  return moment(date).format('MMM YYYY')
-                }
-              }}
-            />
-            <Area
-              type="monotone"
-              dataKey="price"
-              stroke={blue}
-              strokeWidth={2}
-              isAnimationActive={animateChart}
-              fill={lightBlue} />
-            <Tooltip
-              offset={-100}
-              cursor={false}
-              allowEscapeViewBox={{ x: true, y: true }}
-              wrapperStyle={{
-                marginLeft: -10
-              }}
-              content={<CustomTooltip />} />
-          </AreaChart>
-        </ResponsiveContainer>
-      </ChartContainer >
+            </CurrentBitcoinPriceContainer>
+            <ChartControlsContainer>
+              <ChartControlItem active={currentDomain === oneMonthDomain} onClick={() => changeDomain(oneMonthDomain)}>1M</ChartControlItem>
+              <ChartControlItem active={currentDomain === sixMonthDomain} onClick={() => changeDomain(sixMonthDomain)}>6M</ChartControlItem>
+              <ChartControlItem active={currentDomain === oneYearDomain} onClick={() => changeDomain(oneYearDomain)}>1Y</ChartControlItem>
+              <ChartControlItem active={currentDomain === 0} onClick={() => changeDomain(0)}>ALL</ChartControlItem>
+            </ChartControlsContainer>
+          </ChartInfo >
+          <ResponsiveContainer width="100%" height={400}>
+            <AreaChart width={400} height={400} data={historicalBitcoinPrice.slice(currentDomain, historicalBitcoinPrice.length)}>
+              <YAxis hide={true} domain={['dataMin - 500', 'dataMax + 500']} />
+              <XAxis
+                dataKey="date"
+                tickCount={6}
+                interval={getChartInterval()} // TODO: adjust to accept 1yr, 1month, 1 week, need to use domain prop
+                tickLine={false}
+                tickFormatter={(date) => {
+                  if (currentDomain === oneMonthDomain) {
+                    return moment(date).format('MMM D')
+                  } else if (currentDomain === sixMonthDomain) {
+                    return moment(date).format('MMM D')
+                  } else {
+                    return moment(date).format('MMM YYYY')
+                  }
+                }}
+              />
+              <Area
+                type="monotone"
+                dataKey="price"
+                stroke={blue}
+                strokeWidth={2}
+                isAnimationActive={animateChart}
+                fill={lightBlue} />
+              <Tooltip
+                offset={-100}
+                cursor={false}
+                allowEscapeViewBox={{ x: true, y: true }}
+                wrapperStyle={{
+                  marginLeft: -10
+                }}
+                content={<CustomTooltip />} />
+            </AreaChart>
+          </ResponsiveContainer>
+        </ChartContainer >
+      </animated.div>
 
-      <HomeHeadingItem style={{ marginTop: '2.5em', marginBottom: '1em' }}>Your Accounts</HomeHeadingItem>
+      <animated.div style={{ ...accountsProps }}>
+        <HomeHeadingItem style={{ marginTop: '2.5em', marginBottom: '1em' }}>Your Accounts</HomeHeadingItem>
 
-      <AccountsWrapper>
-        {[...accountMap.values()].map((account) => (
-          <AccountItem to={`/vault/${account.config.id}`} onClick={() => { setCurrentAccount(account.config.id) }} key={account.config.id}>
-            <StyledIcon as={Bitcoin} size={48} />
-            <AccountInfoContainer>
-              <AccountName>{account.name}</AccountName>
-              {account.loading && 'Loading...'}
-              {!account.loading && <CurrentBalance>Current Balance: {satoshisToBitcoins(account.currentBalance).toFixed(8)} BTC</CurrentBalance>}
-              {!account.loading && <CurrentBalance>{getLastTransactionTime(account.transactions)}</CurrentBalance>}
-            </AccountInfoContainer>
-          </AccountItem>
-        ))}
-      </AccountsWrapper>
+        <AccountsWrapper>
+          {[...accountMap.values()].map((account) => (
+            <AccountItem to={`/vault/${account.config.id}`} onClick={() => { setCurrentAccount(account.config.id) }} key={account.config.id}>
+              <StyledIcon as={Bitcoin} size={48} />
+              <AccountInfoContainer>
+                <AccountName>{account.name}</AccountName>
+                {account.loading && 'Loading...'}
+                {!account.loading && <CurrentBalance>Current Balance: {satoshisToBitcoins(account.currentBalance).toFixed(8)} BTC</CurrentBalance>}
+                {!account.loading && <CurrentBalance>{getLastTransactionTime(account.transactions)}</CurrentBalance>}
+              </AccountInfoContainer>
+            </AccountItem>
+          ))}
+        </AccountsWrapper>
+      </animated.div>
     </PageWrapper >
   )
 };

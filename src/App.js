@@ -49,6 +49,7 @@ function App() {
   const [accountMap, setAccountMap] = useState(new Map());
   const [currentBitcoinNetwork, setCurrentBitcoinNetwork] = useState(networks.bitcoin);
   const [refresh, setRefresh] = useState(false);
+  const [flyInAnimation, setInitialFlyInAnimation] = useState(true);
 
   // WALLET DATA
   const [loadingDataFromBlockstream, setLoadingDataFromBlockstream] = useState(false);
@@ -89,6 +90,14 @@ function App() {
       setCurrentBitcoinNetwork(networks.bitcoin)
     }
   }
+
+  useEffect(() => {
+    if (!config.isEmpty) {
+      setTimeout(() => {
+        setInitialFlyInAnimation(false);
+      }, 100);
+    }
+  }, [config]);
 
   useEffect(() => {
     async function fetchCurrentBitcoinPrice() {
@@ -156,7 +165,7 @@ function App() {
         <PageWrapper id="page-wrapper">
           <ScrollToTop />
           <ConfigRequired />
-          {!config.isEmpty && <Sidebar config={config} setCurrentAccount={setCurrentAccountFromMap} />}
+          {!config.isEmpty && <Sidebar config={config} setCurrentAccount={setCurrentAccountFromMap} flyInAnimation={flyInAnimation} />}
           {!config.isEmpty && <MobileNavbar config={config} setCurrentAccount={setCurrentAccountFromMap} />}
           <Switch>
             <Route path="/vault/:id" component={() => <Vault config={config} setConfigFile={setConfigFile} toggleRefresh={toggleRefresh} currentAccount={currentAccount} setCurrentAccount={setCurrentAccountFromMap} currentBitcoinNetwork={currentBitcoinNetwork} currentBitcoinPrice={currentBitcoinPrice} />} />
@@ -167,7 +176,7 @@ function App() {
             <Route path="/settings" component={() => <Settings config={config} currentBitcoinNetwork={currentBitcoinNetwork} changeCurrentBitcoinNetwork={changeCurrentBitcoinNetwork} />} />
             <Route path="/gdrive-import" component={() => <GDriveImport setConfigFile={setConfigFile} />} />
             <Route path="/coldcard-import-instructions" component={() => <ColdcardImportInstructions />} />
-            <Route path="/" component={() => <Home accountMap={accountMap} setCurrentAccount={setCurrentAccountFromMap} historicalBitcoinPrice={historicalBitcoinPrice} currentBitcoinPrice={currentBitcoinPrice} />} />
+            <Route path="/" component={() => <Home flyInAnimation={flyInAnimation} accountMap={accountMap} setCurrentAccount={setCurrentAccountFromMap} historicalBitcoinPrice={historicalBitcoinPrice} currentBitcoinPrice={currentBitcoinPrice} />} />
             <Route path="/" component={() => (
               <div>Not Found</div>
             )}

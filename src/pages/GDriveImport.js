@@ -50,7 +50,7 @@ const GDriveImport = ({ encryptedConfig, setConfigFile }) => {
       setTimeout(() => {
         setConfigFile(decryptedData);
         history.replace(`/`);
-      }, 2000);
+      }, 1700);
     } catch (e) {
       setPasswordError(true);
     }
@@ -129,7 +129,7 @@ const GDriveImport = ({ encryptedConfig, setConfigFile }) => {
 
         </CurtainLeft>
         <CurtainBehind>
-          <DecryptingText>Decrypting Wallet...</DecryptingText>
+          {/* <DecryptingText>Decrypting Wallet...</DecryptingText> */}
         </CurtainBehind>
         <CurtainRight startCurtain={startCurtain}>
           <CurtainRightInner>

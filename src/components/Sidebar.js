@@ -1,24 +1,27 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled, { css } from 'styled-components';
 import { useLocation } from "react-router-dom";
+import { useSpring, animated } from 'react-spring'
 
 import { NavLinks } from './NavLinks';
 
 import { black, white, gray, offWhite, darkOffWhite, lightBlack } from '../utils/colors';
 import { mobile } from '../utils/media';
 
-export const Sidebar = ({ config, setCurrentAccount, loading, toggleRefresh }) => {
+export const Sidebar = ({ config, setCurrentAccount, loading, flyInAnimation }) => {
   const { pathname } = useLocation();
+
+  const sidebarAnimationProps = useSpring({ transform: flyInAnimation ? 'translateX(-120%)' : 'translateX(0%)' });
 
   if (pathname !== '/coldcard-import-instructions') {
     return (
-      <SidebarWrapper>
+      <SidebarWrapperAnimated style={{ ...sidebarAnimationProps }}>
         <SidebarContainer>
           <WalletTitle>
             <LilyImage src={require('../assets/flower.svg')} />
           Lily Wallet
           </WalletTitle>
-          <NavLinks config={config} setCurrentAccount={setCurrentAccount} loading={loading} toggleRefresh={toggleRefresh} />
+          <NavLinks config={config} setCurrentAccount={setCurrentAccount} loading={loading} />
           <FooterPositionWrapper>
             <FooterWrapper>
               <ViewSourceCodeText href="https://github.com/KayBeSee/lily-wallet" target="_blank">View Source Code</ViewSourceCodeText>
@@ -26,7 +29,7 @@ export const Sidebar = ({ config, setCurrentAccount, loading, toggleRefresh }) =
             </FooterWrapper>
           </FooterPositionWrapper>
         </SidebarContainer>
-      </SidebarWrapper>
+      </SidebarWrapperAnimated>
     );
   } else {
     return null;
@@ -49,6 +52,8 @@ const SidebarWrapper = styled.div`
     height: auto;
   `)};
 `;
+
+const SidebarWrapperAnimated = animated(SidebarWrapper);
 
 const SidebarContainer = styled.div`
   position: fixed;
