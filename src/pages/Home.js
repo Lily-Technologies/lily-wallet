@@ -3,12 +3,10 @@ import styled from 'styled-components';
 import moment from 'moment';
 import { satoshisToBitcoins } from "unchained-bitcoin";
 import { Bitcoin } from '@styled-icons/boxicons-logos';
-import { RestaurantMenu } from '@styled-icons/material';
-import BigNumber from 'bignumber.js';
 import { AreaChart, Area, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts';
 import { Link } from "react-router-dom";
 
-import { PageWrapper, StyledIcon, StyledIconSpinning } from '../components';
+import { PageWrapper, StyledIcon } from '../components';
 
 import { blue, darkGray, white, lightBlue, offWhite, gray } from '../utils/colors';
 

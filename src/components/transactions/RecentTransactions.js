@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import moment from 'moment';
 import { RestaurantMenu } from '@styled-icons/material';
-import { StyledIcon, Loading } from '../../components';
+import { StyledIcon } from '../../components';
 
 import TransactionRow from './TransactionRow'
 import TransactionRowLoading from './TransactionRowLoading'

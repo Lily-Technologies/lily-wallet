@@ -22,13 +22,7 @@ const Vault = ({ config, setConfigFile, toggleRefresh, currentAccount, setCurren
 
   useEffect(() => {
     setCurrentAccount(id)
-  }, [id, currentAccount])
-
-  // use url path to determine account, not currentAccount
-  // pass in accountMap and if that changes, pull off account using useEffect
-
-  const transactions = currentAccount.transactions;
-  const currentBalance = currentAccount.currentBalance;
+  }, [id, currentAccount, setCurrentAccount])
 
   const toggleViewSettings = () => {
     setViewSettings(!viewSettings);

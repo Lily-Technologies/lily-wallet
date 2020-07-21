@@ -3,7 +3,6 @@ const moment = require('moment');
 const { app, BrowserWindow, ipcMain } = require('electron');
 const { networks } = require('bitcoinjs-lib');
 const BigNumber = require('bignumber.js');
-const log = require('electron-log');
 const { download } = require('electron-dl');
 
 const { enumerate, getXPub, signtx } = require('./server/commands');

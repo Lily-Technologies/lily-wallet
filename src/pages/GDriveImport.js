@@ -4,7 +4,7 @@ import styled, { keyframes } from 'styled-components';
 import { AES, enc } from 'crypto-js';
 
 import { Button, VaultIcon } from '../components';
-import { black, gray, darkOffWhite, lightGray, darkGray, blue, lightBlue, white, red } from '../utils/colors';
+import { black, gray, darkOffWhite, lightGray, darkGray, lightBlue, white, red } from '../utils/colors';
 
 import { getConfigFileFromGoogleDrive } from '../utils/google-drive';
 

@@ -12,7 +12,7 @@ import RecentTransactions from '../../components/transactions/RecentTransactions
 import { black, gray, blue, darkGray, white, darkOffWhite, darkGreen, lightGray, lightBlue } from '../../utils/colors';
 import { mobile } from '../../utils/media';
 
-const Receive = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlockstream }) => {
+const Receive = ({ config, currentAccount, setCurrentAccount }) => {
   document.title = `Receive - Lily Wallet`;
   const [unusedAddressIndex, setUnusedAddressIndex] = useState(0);
 
@@ -65,11 +65,6 @@ const Receive = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlo
 
                 <AddressDisplayWrapper>
                   {unusedAddresses[unusedAddressIndex] && unusedAddresses[unusedAddressIndex].address}
-                  {loadingDataFromBlockstream && (
-                    <GreenLoadingAnimation>
-                      {/* tb1qy8glxuvc7nqqlxmuucnpv93fekyv4lth6k3v3p */}
-                    </GreenLoadingAnimation>
-                  )}
                 </AddressDisplayWrapper>
 
                 <QRCodeWrapper>
@@ -103,10 +98,8 @@ const Receive = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlo
               <RecentTransactions
                 transactions={transactions}
                 flat={true}
-                loading={loadingDataFromBlockstream}
+                loading={currentAccount.loading}
                 maxItems={3} />
-
-
             </AccountReceiveContentRight>
           </GridArea>
         )}

@@ -9,7 +9,6 @@ import {
 } from "react-router-dom";
 import axios from 'axios';
 import BigNumber from 'bignumber.js';
-import moment from 'moment';
 import { networks } from 'bitcoinjs-lib';
 
 import { offWhite } from './utils/colors';
@@ -154,21 +153,21 @@ function App() {
   return (
     <ErrorBoundary>
       <Router>
-        <PageWrapper id="page-wrapper" loading={loadingDataFromBlockstream}>
+        <PageWrapper id="page-wrapper">
           <ScrollToTop />
           <ConfigRequired />
-          {!config.isEmpty && <Sidebar config={config} setCurrentAccount={setCurrentAccountFromMap} loading={loadingDataFromBlockstream} />}
-          {!config.isEmpty && <MobileNavbar config={config} setCurrentAccount={setCurrentAccountFromMap} loading={loadingDataFromBlockstream} />}
+          {!config.isEmpty && <Sidebar config={config} setCurrentAccount={setCurrentAccountFromMap} />}
+          {!config.isEmpty && <MobileNavbar config={config} setCurrentAccount={setCurrentAccountFromMap} />}
           <Switch>
-            <Route path="/vault/:id" component={() => <Vault config={config} setConfigFile={setConfigFile} toggleRefresh={toggleRefresh} currentAccount={currentAccount} setCurrentAccount={setCurrentAccountFromMap} currentBitcoinNetwork={currentBitcoinNetwork} currentBitcoinPrice={currentBitcoinPrice} loadingDataFromBlockstream={loadingDataFromBlockstream} />} />
-            <Route path="/receive" component={() => <Receive config={config} currentAccount={currentAccount} setCurrentAccount={setCurrentAccountFromMap} currentBitcoinPrice={currentBitcoinPrice} loadingDataFromBlockstream={loadingDataFromBlockstream} />} />
-            <Route path="/send" component={() => <Send config={config} currentAccount={currentAccount} setCurrentAccount={setCurrentAccountFromMap} currentBitcoinPrice={currentBitcoinPrice} loadingDataFromBlockstream={loadingDataFromBlockstream} currentBitcoinNetwork={currentBitcoinNetwork} />} />
+            <Route path="/vault/:id" component={() => <Vault config={config} setConfigFile={setConfigFile} toggleRefresh={toggleRefresh} currentAccount={currentAccount} setCurrentAccount={setCurrentAccountFromMap} currentBitcoinNetwork={currentBitcoinNetwork} currentBitcoinPrice={currentBitcoinPrice} />} />
+            <Route path="/receive" component={() => <Receive config={config} currentAccount={currentAccount} setCurrentAccount={setCurrentAccountFromMap} currentBitcoinPrice={currentBitcoinPrice} />} />
+            <Route path="/send" component={() => <Send config={config} currentAccount={currentAccount} setCurrentAccount={setCurrentAccountFromMap} currentBitcoinPrice={currentBitcoinPrice} currentBitcoinNetwork={currentBitcoinNetwork} />} />
             <Route path="/setup" component={() => <Setup config={config} setConfigFile={setConfigFile} currentBitcoinNetwork={currentBitcoinNetwork} />} />
             <Route path="/login" component={() => <Login setConfigFile={setConfigFile} />} />
             <Route path="/settings" component={() => <Settings config={config} currentBitcoinNetwork={currentBitcoinNetwork} changeCurrentBitcoinNetwork={changeCurrentBitcoinNetwork} />} />
             <Route path="/gdrive-import" component={() => <GDriveImport setConfigFile={setConfigFile} />} />
             <Route path="/coldcard-import-instructions" component={() => <ColdcardImportInstructions />} />
-            <Route path="/" component={() => <Home accountMap={accountMap} setCurrentAccount={setCurrentAccountFromMap} historicalBitcoinPrice={historicalBitcoinPrice} currentBitcoinPrice={currentBitcoinPrice} loading={loadingDataFromBlockstream} />} />
+            <Route path="/" component={() => <Home accountMap={accountMap} setCurrentAccount={setCurrentAccountFromMap} historicalBitcoinPrice={historicalBitcoinPrice} currentBitcoinPrice={currentBitcoinPrice} />} />
             <Route path="/" component={() => (
               <div>Not Found</div>
             )}

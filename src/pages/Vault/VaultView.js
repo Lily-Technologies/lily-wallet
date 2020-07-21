@@ -94,7 +94,9 @@ const VaultView = ({ currentAccount }) => {
           </ChartContainer>
         </ValueWrapper>
       )}
-      <RecentTransactions transactions={sortedTransactions.sort((a, b) => b.status.block_time - a.status.block_time)} loading={currentAccount.loading} />
+      <RecentTransactions
+        transactions={sortedTransactions.sort((a, b) => b.status.block_time - a.status.block_time)}
+        loading={currentAccount.loading} />
     </Fragment>
   )
 }

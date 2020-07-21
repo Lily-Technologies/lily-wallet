@@ -1,5 +1,4 @@
-const { execFile, exec } = require("child_process");
-const log = require("electron-log");
+const { execFile } = require("child_process");
 const path = require("path");
 var os = require("os");
 const { app } = require('electron');
@@ -20,7 +19,6 @@ const runCommand = async (command) => {
 
     execFile(pathToHwi, command, (error, stdout, stderr) => {
       if (error) {
-        log.info("error: ", error);
         reject(error);
       }
       resolve(stdout);

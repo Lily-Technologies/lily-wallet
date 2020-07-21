@@ -286,7 +286,7 @@ const Send = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlocks
                   <Input
                     onChange={(e) => setRecipientAddress(e.target.value)}
                     value={recipientAddress}
-                    placeholder="tb1qy8glxuvc7nqqlxmuucnpv93fekyv4lth6k3v3p"
+                    placeholder="bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4"
                     style={{ marginBottom: 36 }}
                     error={recipientAddressError}
                   />
@@ -327,8 +327,8 @@ const Send = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlocks
                 </CurrentBalanceWrapper>
                 <RecentTransactions
                   transactions={transactions}
-                  loading={loadingDataFromBlockstream}
                   flat={true}
+                  loading={currentAccount.loading}
                   maxItems={3} />
               </AccountSendContentRight>
             )}

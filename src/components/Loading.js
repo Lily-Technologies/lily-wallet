@@ -6,7 +6,7 @@ import { lightGreen, darkGray } from '../utils/colors';
 
 export const Loading = ({ itemText, style = {} }) => (
   <LoadingWrapper style={style}>
-    <img src={require('../assets/flower-loading.svg')} style={{ maxWidth: '6.25em' }} />
+    <img alt="loading placeholder" src={require('../assets/flower-loading.svg')} style={{ maxWidth: '6.25em' }} />
     <LoadingText>Loading {itemText}</LoadingText>
     <LoadingSubText>Please wait...</LoadingSubText>
   </LoadingWrapper>
