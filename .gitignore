@@ -3,5 +3,4 @@ build
 LilyWallet-darwin-x64
 .DS_Store
 dist/
-HWIs/*
 LilyWallet-*
