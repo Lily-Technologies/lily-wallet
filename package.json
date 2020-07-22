@@ -1,7 +1,8 @@
 {
-  "name": "LilyWallet",
-  "author": "Kevin Mulcrone",
+  "name": "Lily Wallet",
+  "author": "Kevin Mulcrone <kaybesee@gmail.com> (https://kevinmulcrone.com)",
   "description": "Lily is the easiest way to securely store and manage your Bitcoin",
+  "license": "MIT",
   "version": "0.0.2-rc1",
   "private": true,
   "main": "./src/main.js",
@@ -64,10 +65,6 @@
     "pack": "electron-builder --dir",
     "dist": "electron-builder -mwl",
     "postinstall": "electron-builder install-app-deps",
-    "package-mac": "electron-packager . LilyWallet --platform=darwin --arch=x64 --icon=./src/assets/AppIcon.icns --prune=true --ignore='(./src/server/HWI_LINUX|./src/server/hwi.exe)' --out=release-builds --overwrite",
-    "dist-mac": "electron-installer-dmg ./release-builds/LilyWallet-darwin-x64/LilyWallet.app LilyWallet-mac-v0.0.01-beta --overwrite",
-    "package-windows": "electron-packager . LilyWallet --platform=win32 --arch=x64 --asar=true --icon=./src/assets/icon_512@2x.png --prune=true --ignore='(./src/server/HWI_MAC|./src/server/HWI_LINUX)' --out=release-builds --overwrite",
-    "package-linux": "electron-packager . LilyWallet --platform=linux --arch=x64 --icon=./src/assets/AppIcon.icns --prune=true --ignore='(./src/server/HWI_MAC|./src/server/hwi.exe)' --out=release-builds --overwrite"
   },
   "dependencies": {
     "axios": "^0.19.2",
