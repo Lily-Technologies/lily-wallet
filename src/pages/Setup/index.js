@@ -66,169 +66,192 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
     history.push('/coldcard-import-instructions')
   }
 
-  return (
+  const SelectAccountScreen = () => (
+    <InnerWrapper>
+      <HeaderWrapper>
+        <HeaderModified>
+          <HeaderLeft>
+            <PageTitleSubtext>New Account</PageTitleSubtext>
+            <PageTitle>Select account type</PageTitle>
+          </HeaderLeft>
+          <HeaderRight>
+            {config.isEmpty && <CancelButton onClick={() => { history.push('login') }}>Return to Main Menu</CancelButton>}
+          </HeaderRight>
+        </HeaderModified>
+      </HeaderWrapper>
+      <SignupOptionMenu>
+        <SignupOptionItem onClick={() => { setSetupOption(2); setStep(1); }}>
+          <StyledIcon as={Wallet} size={48} style={{ marginBottom: '0.5em' }} />
+          <SignupOptionMainText>Wallet</SignupOptionMainText>
+          <SignupOptionSubtext>Create a new Bitcoin wallet</SignupOptionSubtext>
+        </SignupOptionItem>
 
-    <Wrapper>
-      {step === 0 ? ( // select account type
-        <InnerWrapper>
-          <HeaderWrapper>
-            <HeaderModified>
-              <HeaderLeft>
-                <PageTitleSubtext>New Account</PageTitleSubtext>
-                <PageTitle>Select account type</PageTitle>
-              </HeaderLeft>
-              <HeaderRight>
-                {config.isEmpty && <CancelButton onClick={() => { history.push('login') }}>Return to Main Menu</CancelButton>}
-              </HeaderRight>
-            </HeaderModified>
-          </HeaderWrapper>
-          <SignupOptionMenu>
-            <SignupOptionItem onClick={() => { setSetupOption(2); setStep(1); }}>
-              <StyledIcon as={Wallet} size={48} style={{ marginBottom: '0.5em' }} />
-              <SignupOptionMainText>Wallet</SignupOptionMainText>
-              <SignupOptionSubtext>Create a new Bitcoin wallet</SignupOptionSubtext>
-            </SignupOptionItem>
+        <SignupOptionItem style={{ borderTop: `8px solid ${blue}` }} onClick={() => { setSetupOption(1); setStep(1); }}>
+          <StyledIcon as={Safe} size={48} style={{ marginBottom: '0.5em' }} />
+          <SignupOptionMainText>Vault</SignupOptionMainText>
+          <SignupOptionSubtext>Use multiple hardware wallets to create a vault for securing large amounts of Bitcoin</SignupOptionSubtext>
+        </SignupOptionItem>
+      </SignupOptionMenu>
+    </InnerWrapper>
+  );
 
-            <SignupOptionItem style={{ borderTop: `8px solid ${blue}` }} onClick={() => { setSetupOption(1); setStep(1); }}>
-              <StyledIcon as={Safe} size={48} style={{ marginBottom: '0.5em' }} />
-              <SignupOptionMainText>Vault</SignupOptionMainText>
-              <SignupOptionSubtext>Use multiple hardware wallets to create a vault for securing large amounts of Bitcoin</SignupOptionSubtext>
-            </SignupOptionItem>
-          </SignupOptionMenu>
-        </InnerWrapper>
-      ) : step === 1 ? ( // input name
-        <InnerWrapper>
-          <HeaderWrapper>
-            <Header>
-              <HeaderLeft>
-                <PageTitleSubtext>New Account</PageTitleSubtext>
-                <PageTitle>Create new {setupOption === 2 ? 'wallet' : 'vault'}</PageTitle>
-              </HeaderLeft>
-              <HeaderRight>
-                {config.isEmpty && <CancelButton onClick={() => { history.push('login') }}>Return to Main Menu</CancelButton>}
-                {!config.isEmpty && <CancelButton onClick={() => { setStep(0) }}>Cancel</CancelButton>}
-              </HeaderRight>
-            </Header>
-          </HeaderWrapper>
-          <FormContainer>
-            <BoxedWrapper>
+  const InputNameScreen = () => (
+    <InnerWrapper>
+      <HeaderWrapper>
+        <Header>
+          <HeaderLeft>
+            <PageTitleSubtext>New Account</PageTitleSubtext>
+            <PageTitle>Create new {setupOption === 2 ? 'wallet' : 'vault'}</PageTitle>
+          </HeaderLeft>
+          <HeaderRight>
+            {config.isEmpty && <CancelButton onClick={() => { history.push('login') }}>Return to Main Menu</CancelButton>}
+            {!config.isEmpty && <CancelButton onClick={() => { setStep(0) }}>Cancel</CancelButton>}
+          </HeaderRight>
+        </Header>
+      </HeaderWrapper>
+      <FormContainer>
+        <BoxedWrapper>
+          <XPubHeaderWrapper>
+            <SetupHeaderWrapper>
+              <SetupExplainerText>
+                Give your {setupOption === 2 ? 'wallet' : 'vault'} a name (i.e. "My First {setupOption === 2 ? 'Wallet' : 'Vault'}") to identify it while using Lily.
+                </SetupExplainerText>
+            </SetupHeaderWrapper>
+          </XPubHeaderWrapper>
+          <PasswordWrapper>
+            <PasswordInput placeholder={`${setupOption === 2 ? 'Wallet' : 'Vault'} Name`} value={accountName} onChange={(e) => setAccountName(e.target.value)} />
+          </PasswordWrapper>
+
+          <ExportFilesButton
+            background={blue}
+            color={white}
+            active={accountName.length > 3}
+            onClick={() => {
+              if (accountName.length > 3) {
+                setStep(2);
+              }
+            }}>{`Continue`}</ExportFilesButton>
+        </BoxedWrapper>
+      </FormContainer>
+    </InnerWrapper>
+  );
+
+  const NewWalletScreen = () => (
+    <InnerWrapper>
+      <HeaderWrapper>
+        <Header>
+          <HeaderLeft>
+            <PageTitleSubtext>New Account</PageTitleSubtext>
+            <PageTitle>Create new wallet</PageTitle>
+          </HeaderLeft>
+          <HeaderRight>
+            {config.isEmpty && <CancelButton onClick={() => { history.push('login') }}>Return to Main Menu</CancelButton>}
+            {!config.isEmpty && <CancelButton onClick={() => { setStep(0) }}>Cancel</CancelButton>}
+          </HeaderRight>
+        </Header>
+      </HeaderWrapper>
+      <CreateWallet
+        config={config}
+        setConfigFile={setConfigFile}
+        accountName={accountName}
+        currentBitcoinNetwork={currentBitcoinNetwork}
+      />
+    </InnerWrapper>
+  );
+
+  const NewVaultScreen = () => (
+    <InnerWrapper>
+      <HeaderWrapper>
+        <Header>
+          <HeaderLeft>
+            <PageTitleSubtext>New Account</PageTitleSubtext>
+            <PageTitle>Create new vault</PageTitle>
+          </HeaderLeft>
+          <HeaderRight>
+            {config.isEmpty && <CancelButton onClick={() => { history.push('login') }}>Return to Main Menu</CancelButton>}
+            {!config.isEmpty && <CancelButton onClick={() => { setStep(0) }}>Cancel</CancelButton>}
+          </HeaderRight>
+        </Header>
+      </HeaderWrapper>
+      <FormContainer>
+        <BoxedWrapper>
+          {importedDevices.length < 3 && (
+            <Fragment>
               <XPubHeaderWrapper>
                 <SetupHeaderWrapper>
+                  <SetupHeader>Connect Devices to Computer</SetupHeader>
                   <SetupExplainerText>
-                    Give your {setupOption === 2 ? 'wallet' : 'vault'} a name (i.e. "My First {setupOption === 2 ? 'Wallet' : 'Vault'}") to identify it while using Lily.
-                </SetupExplainerText>
+                    Connect and unlock devices in order to create your multisignature vault.
+                    You may disconnect your device from your computer after it has been configured.
+                          </SetupExplainerText>
+                </SetupHeaderWrapper>
+              </XPubHeaderWrapper>
+              <DeviceSelect
+                deviceAction={importDevice}
+                deviceActionText={'Click to Configure'}
+                deviceActionLoadingText={'Extracting XPub'}
+                configuredDevices={importedDevices}
+                unconfiguredDevices={availableDevices}
+                errorDevices={errorDevices}
+                setUnconfiguredDevices={setAvailableDevices}
+                configuredThreshold={3}
+              />
+            </Fragment>
+          )}
+          {importedDevices.length === 3 && (
+            <Fragment>
+              <XPubHeaderWrapper>
+                <SetupHeaderWrapper>
+                  <SetupHeader>Set a password</SetupHeader>
+                  <SetupExplainerText>
+                    Lily Wallet encrypts your configuration file so that other people can't steal your funds.
+                    Please enter a password to be used to unlock your wallet in the future.
+                          </SetupExplainerText>
                 </SetupHeaderWrapper>
               </XPubHeaderWrapper>
               <PasswordWrapper>
-                <PasswordInput placeholder={`${setupOption === 2 ? 'Wallet' : 'Vault'} Name`} value={accountName} onChange={(e) => setAccountName(e.target.value)} />
+                {/* <PasswordText>Almost done, just set a password to encrypt your setup file:</PasswordText> */}
+                <PasswordInput placeholder="password" value={password} onChange={(e) => setPassword(e.target.value)} type="password" />
               </PasswordWrapper>
-
-              <ExportFilesButton
-                background={blue}
-                color={white}
-                active={accountName.length > 3}
-                onClick={() => {
-                  if (accountName.length > 3) {
-                    setStep(2);
-                  }
-                }}>{`Continue`}</ExportFilesButton>
-            </BoxedWrapper>
-          </FormContainer>
-        </InnerWrapper>
-      ) : setupOption === 2 && step === 2 ? ( // new wallet
-        <InnerWrapper>
-          <HeaderWrapper>
-            <Header>
-              <HeaderLeft>
-                <PageTitleSubtext>New Account</PageTitleSubtext>
-                <PageTitle>Create new wallet</PageTitle>
-              </HeaderLeft>
-              <HeaderRight>
-                {config.isEmpty && <CancelButton onClick={() => { history.push('login') }}>Return to Main Menu</CancelButton>}
-                {!config.isEmpty && <CancelButton onClick={() => { setStep(0) }}>Cancel</CancelButton>}
-              </HeaderRight>
-            </Header>
-          </HeaderWrapper>
-          <CreateWallet
-            config={config}
-            setConfigFile={setConfigFile}
-            accountName={accountName}
-            currentBitcoinNetwork={currentBitcoinNetwork}
-          />
-        </InnerWrapper>
-      ) : ( // new vault
-              <InnerWrapper>
-                <HeaderWrapper>
-                  <Header>
-                    <HeaderLeft>
-                      <PageTitleSubtext>New Account</PageTitleSubtext>
-                      <PageTitle>Create new vault</PageTitle>
-                    </HeaderLeft>
-                    <HeaderRight>
-                      {config.isEmpty && <CancelButton onClick={() => { history.push('login') }}>Return to Main Menu</CancelButton>}
-                      {!config.isEmpty && <CancelButton onClick={() => { setStep(0) }}>Cancel</CancelButton>}
-                    </HeaderRight>
-                  </Header>
-                </HeaderWrapper>
-                <FormContainer>
-                  <BoxedWrapper>
-                    {importedDevices.length < 3 && (
-                      <Fragment>
-                        <XPubHeaderWrapper>
-                          <SetupHeaderWrapper>
-                            <SetupHeader>Connect Devices to Computer</SetupHeader>
-                            <SetupExplainerText>
-                              Connect and unlock devices in order to create your multisignature vault.
-                              You may disconnect your device from your computer after it has been configured.
-                          </SetupExplainerText>
-                          </SetupHeaderWrapper>
-                        </XPubHeaderWrapper>
-                        <DeviceSelect
-                          deviceAction={importDevice}
-                          deviceActionText={'Click to Configure'}
-                          deviceActionLoadingText={'Extracting XPub'}
-                          configuredDevices={importedDevices}
-                          unconfiguredDevices={availableDevices}
-                          errorDevices={errorDevices}
-                          setUnconfiguredDevices={setAvailableDevices}
-                          configuredThreshold={3}
-                        />
-                      </Fragment>
-                    )}
-                    {importedDevices.length === 3 && (
-                      <Fragment>
-                        <XPubHeaderWrapper>
-                          <SetupHeaderWrapper>
-                            <SetupHeader>Set a password</SetupHeader>
-                            <SetupExplainerText>
-                              Lily Wallet encrypts your configuration file so that other people can't steal your funds.
-                              Please enter a password to be used to unlock your wallet in the future.
-                          </SetupExplainerText>
-                          </SetupHeaderWrapper>
-                        </XPubHeaderWrapper>
-                        <PasswordWrapper>
-                          {/* <PasswordText>Almost done, just set a password to encrypt your setup file:</PasswordText> */}
-                          <PasswordInput placeholder="password" value={password} onChange={(e) => setPassword(e.target.value)} type="password" />
-                        </PasswordWrapper>
-                      </Fragment>
-                    )}
-                    {
-                      importedDevices.length === 3 && <ExportFilesButton
-                        background={darkGreen}
-                        color={white}
-                        active={password.length > 3}
-                        onClick={() => {
-                          if (password.length > 3) {
-                            exportSetupFiles();
-                          }
-                        }}>{'Save Vault'}</ExportFilesButton>
-                    }
-                  </BoxedWrapper>
-                </FormContainer>
-              </InnerWrapper>
-            )}
-    </Wrapper >
+            </Fragment>
+          )}
+          {
+            importedDevices.length === 3 && <ExportFilesButton
+              background={darkGreen}
+              color={white}
+              active={password.length > 3}
+              onClick={() => {
+                if (password.length > 3) {
+                  exportSetupFiles();
+                }
+              }}>{'Save Vault'}</ExportFilesButton>
+          }
+        </BoxedWrapper>
+      </FormContainer>
+    </InnerWrapper>
   )
+
+  let screen = null;
+
+  switch (step) {
+    case 0:
+      screen = SelectAccountScreen();
+      break;
+    case 1:
+      screen = InputNameScreen();
+      break;
+    case 2:
+      if (setupOption === 2) {
+        screen = NewWalletScreen();
+      } else {
+        screen = NewVaultScreen();
+      }
+      break;
+    default:
+      screen = <div>Unexpected error</div>;
+  }
+
+  return <Wrapper>{screen}</Wrapper>
 }
 
 const CancelButton = styled.div`

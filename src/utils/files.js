@@ -23,15 +23,22 @@ export const createConfigFile = (importedDevices, accountName, config, currentBi
   const newKeys = importedDevices.map((device) => {
     return {
       id: uuidv4(),
+      created_at: Date.now(),
       parentFingerprint: device.fingerprint,
       network: getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork),
       bip32Path: "m/0",
-      xpub: device.xpub
+      xpub: device.xpub,
+      device: {
+        type: device.type,
+        model: device.model,
+        fingerprint: device.fingerprint
+      }
     }
   });
 
   configCopy.vaults.push({
     id: uuidv4(),
+    created_at: Date.now(),
     name: accountName,
     network: getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork),
     addressType: "P2WSH",

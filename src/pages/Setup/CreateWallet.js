@@ -57,8 +57,9 @@ const CreateWallet = ({
     const xpubString = child.toBase58();
     const xprvString = root.derivePath(path).toBase58();
 
-    configCopy.wallets.push({
+    const newKey = {
       id: uuidv4(),
+      created_at: Date.now(),
       name: accountName,
       network: getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork),
       addressType: "P2WSH",
@@ -67,7 +68,11 @@ const CreateWallet = ({
       xprv: xprvString,
       mnemonic: mnemonicWords,
       parentFingerprint: root.fingerprint,
-    });
+    };
+
+    configCopy.wallets.push(newKey);
+
+    configCopy.keys.push(newKey)
 
     const encryptedConfigObject = AES.encrypt(
       JSON.stringify(configCopy),
