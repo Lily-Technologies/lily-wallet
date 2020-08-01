@@ -5,13 +5,22 @@ import { AES } from 'crypto-js';
 import { Safe } from '@styled-icons/crypto';
 import { Wallet } from '@styled-icons/entypo';
 import moment from 'moment';
+import { bip32 } from "bitcoinjs-lib";
+import bs58check from 'bs58check';
 
 import { createConfigFile, createColdCardBlob, downloadFile } from '../../utils/files';
-import { Button, DeviceSelect, StyledIcon } from '../../components';
+import { Button, DeviceSelect, StyledIcon, FileUploader } from '../../components';
 import { GridArea, Header, HeaderLeft, HeaderRight, PageTitle } from '../../components/layout';
 import { black, gray, blue, white, darkGreen, offWhite, darkGray, darkOffWhite, lightBlue } from '../../utils/colors';
 
 import CreateWallet from './CreateWallet';
+
+const zpubToXpub = (zpub) => {
+  const zpubRemovedPrefix = zpub.slice(4);
+  const xpubBuffer = Buffer.concat([Buffer.from('0488b21e', 'hex'), zpubRemovedPrefix]);
+  const xpub = bs58check.encode(xpubBuffer);
+  return xpub
+}
 
 const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
   const [setupOption, setSetupOption] = useState(0);
@@ -46,6 +55,38 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
       errorDevicesCopy.push(device.fingerprint);
       setErrorDevices([...errorDevicesCopy])
     }
+  }
+
+  const importDeviceFromFile = (parsedFile) => {
+    const zpub = bs58check.decode(parsedFile.p2wsh);
+    const xpub = zpubToXpub(zpub);
+
+    const newDevice = {
+      type: 'coldcard',
+      fingerprint: parsedFile.xfp,
+      xpub: xpub
+    }
+
+    setImportedDevices([...importedDevices, newDevice])
+  }
+
+  const importMultisigWalletFromFile = (parsedFile) => {
+    const numPubKeys = Object.keys(parsedFile).filter((key) => key.startsWith('x')).length // all exports start with x
+    const devicesFromFile = [];
+
+    for (let i = 1; i < numPubKeys + 1; i++) {
+      const zpub = bs58check.decode(parsedFile[`x${i}/`].xpub);
+      const xpub = zpubToXpub(zpub);
+
+      const newDevice = {
+        type: parsedFile[`x${i}/`].hw_type,
+        fingerprint: parsedFile[`x${i}/`].label.substring(parsedFile[`x${i}/`].label.indexOf('Coldcard ') + 'Coldcard '.length),
+        xpub: xpub
+      };
+
+      devicesFromFile.push(newDevice);
+    }
+    setImportedDevices([...importedDevices, ...devicesFromFile])
   }
 
   const exportSetupFiles = () => {
@@ -177,13 +218,32 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
         <BoxedWrapper>
           {importedDevices.length < 3 && (
             <Fragment>
+
+              <FileUploader
+                accept="*"
+                id="localConfigFile"
+                onFileLoad={(file) => {
+                  console.log('file: ', file);
+                  const parsedFile = JSON.parse(file);
+                  // TODO: should probably have better checking for files to make sure users aren't uploading "weird" files
+                  if (parsedFile.seed_version) { // is a multisig file
+                    importMultisigWalletFromFile(parsedFile)
+                  } else { // is a wallet export file
+                    importDeviceFromFile(parsedFile)
+                  }
+                }}
+              />
+
               <XPubHeaderWrapper>
                 <SetupHeaderWrapper>
-                  <SetupHeader>Connect Devices to Computer</SetupHeader>
-                  <SetupExplainerText>
-                    Connect and unlock devices in order to create your multisignature vault.
-                    You may disconnect your device from your computer after it has been configured.
-                          </SetupExplainerText>
+                  <SetupHeaderContainer>
+                    <SetupHeader>Connect Devices to Computer</SetupHeader>
+                    <SetupExplainerText>
+                      Connect and unlock devices in order to create your multisignature vault.
+                      You may disconnect your device from your computer after it has been configured.
+                  </SetupExplainerText>
+                  </SetupHeaderContainer>
+                  <ImportFromFileButton htmlFor="localConfigFile" background={white} color={'#869198'}>Import from File</ImportFromFileButton>
                 </SetupHeaderWrapper>
               </XPubHeaderWrapper>
               <DeviceSelect
@@ -194,7 +254,7 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
                 unconfiguredDevices={availableDevices}
                 errorDevices={errorDevices}
                 setUnconfiguredDevices={setAvailableDevices}
-                configuredThreshold={3}
+                configuredThreshold={15}
               />
             </Fragment>
           )}
@@ -202,11 +262,13 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
             <Fragment>
               <XPubHeaderWrapper>
                 <SetupHeaderWrapper>
-                  <SetupHeader>Set a password</SetupHeader>
-                  <SetupExplainerText>
-                    Lily Wallet encrypts your configuration file so that other people can't steal your funds.
-                    Please enter a password to be used to unlock your wallet in the future.
-                          </SetupExplainerText>
+                  <SetupHeaderContainer>
+                    <SetupHeader>Set a password</SetupHeader>
+                    <SetupExplainerText>
+                      Lily Wallet encrypts your configuration file so that other people can't steal your funds.
+                      Please enter a password to be used to unlock your wallet in the future.
+                  </SetupExplainerText>
+                  </SetupHeaderContainer>
                 </SetupHeaderWrapper>
               </XPubHeaderWrapper>
               <PasswordWrapper>
@@ -322,12 +384,10 @@ const BoxedWrapper = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  border-left: 1px solid ${gray};
-  border-right: 1px solid ${gray};
-  border-bottom: 1px solid ${gray};
   border-top-left-radius: 4px;
   border-top-right-radius: 4px;
   border-top: 11px solid ${blue};
+  box-shadow: rgba(43, 48, 64, 0.2) 0px 0.1rem 0.5rem 0px;
 `;
 
 const Wrapper = styled.div`
@@ -355,16 +415,15 @@ const XPubHeaderWrapper = styled.div`
   margin: 0;
   display: flex;
   justify-content: space-between;
-  padding: 1.5em 1.5em 0;
+  padding: 1.5em;
+  border-bottom: 1px solid #E4E7EB;
 `;
 
 const SetupHeaderWrapper = styled.div`
   display: flex;
-  // align-items: center;
   justify-content: space-between;
-  flex-direction: column;
   flex: 1;
-  padding: 0 48px 0 0;
+  align-items: flex-start;
 `;
 
 const SetupHeader = styled.span`
@@ -373,10 +432,19 @@ const SetupHeader = styled.span`
   color: ${black};
 `;
 
+const SetupHeaderContainer = styled.div``;
+
+const ImportFromFileButton = styled.label`
+  ${Button}
+  font-size: 0.75em;
+  border: 1px solid ${darkGray};
+`;
+
 const SetupExplainerText = styled.div`
   color: ${darkGray};
   font-size: .8em;
   margin: 8px 0;
+  padding: 0 3em 0 0;
 `;
 
 const PasswordWrapper = styled.div`

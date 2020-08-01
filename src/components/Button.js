@@ -16,6 +16,7 @@ export const Button = css`
   background: ${p => p.background ? p.background : blue};
   text-decoration: none;
   text-align: center;
+  white-space: nowrap;
 
   // transition-duration: .2s;
   // transition: all .2s ease-out;  
