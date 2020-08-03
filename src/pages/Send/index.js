@@ -15,7 +15,7 @@ import {
 
 import { Psbt, address, bip32, networks } from 'bitcoinjs-lib';
 
-import { StyledIcon, Button, PageWrapper, GridArea, PageTitle, Header, HeaderRight, HeaderLeft, Loading, FileUploader } from '../../components';
+import { StyledIcon, Button, PageWrapper, GridArea, PageTitle, Header, HeaderRight, HeaderLeft, Loading, FileUploader, Modal } from '../../components';
 import RecentTransactions from '../../components/transactions/RecentTransactions';
 
 import SignWithDevice from './SignWithDevice'
@@ -102,6 +102,8 @@ const Send = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlocks
   const [outputTotal, setOutputTotal] = useState(BigNumber(0));
   const [signedPsbts, setSignedPsbts] = useState([]);
   const [signedDevices, setSignedDevices] = useState([]);
+  const [pastePsbtModalOpen, setPastePsbtModalOpen] = useState(false);
+  const [pastedPsbtValue, setPastedPsbtValue] = useState(null);
 
   // Get account data
   const { transactions, availableUtxos, unusedChangeAddresses, currentBalance } = currentAccount;
@@ -196,6 +198,77 @@ const Send = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlocks
       psbt.finalizeAllInputs();
 
       setSignedPsbts([psbt]);
+    }
+  }
+
+  const importTxToForm = (file) => {
+    {
+      let tx;
+      // try seeing if we are getting base64 encoded tx
+      try {
+        tx = Psbt.fromBase64(file);
+      } catch (e) {
+        try { // try getting hex encoded tx
+          tx = Psbt.fromHex(file);
+        } catch (e) {
+          setImportTxFromFileError('Invalid Transaction')
+        }
+      }
+
+      // if valid transaction, then continue parsing
+      if (tx) { // transaction will be undefined if not created above
+        try {
+          // validate psbt and make sure it belongs to the current account
+          let sumInputs = new BigNumber(0);
+          for (let i = 0; i < tx.__CACHE.__TX.ins.length; i++) {
+            const currentInput = tx.__CACHE.__TX.ins[i];
+            const inputBuffer = cloneBuffer(currentInput.hash);
+            const currentUtxo = utxosMap.get(inputBuffer.reverse().toString('hex'));
+            if (!currentUtxo) {
+              throw new Error('This transaction isn\'t associated with this wallet')
+            };
+            console.log('currentUtxo: ', currentUtxo);
+            sumInputs = sumInputs.plus(currentUtxo.value);
+          }
+          const sumOutputs = tx.__CACHE.__TX.outs.reduce((accum, curr) => accum + curr.value, 0);
+          setFeeEstimate(sumInputs.minus(sumOutputs).integerValue(BigNumber.ROUND_CEIL));
+          if (!finalPsbt) {
+            setFinalPsbt(tx);
+          }
+
+          // check if any partial signatures already
+          const importedFingerprints = [];
+          for (let i = 0; i < tx.data.inputs.length; i++) {
+            const currentInput = tx.data.inputs[i];
+            // if there is, figure out what device it belongs to
+            if (currentInput.partialSig) {
+              for (let j = 0; j < currentInput.partialSig.length; j++) {
+                currentInput.bip32Derivation.forEach((bipItem) => {
+                  // and add device to list if it isn't already
+                  if (Buffer.compare(currentInput.partialSig[j].pubkey, bipItem.pubkey) === 0 && !importedFingerprints.includes(bufferToHex(bipItem.masterFingerprint))) {
+                    importedFingerprints.push(bufferToHex(bipItem.masterFingerprint));
+                    currentAccount.config.extendedPublicKeys.forEach((pubKeyFromConfigFile) => {
+                      if (pubKeyFromConfigFile.device.fingerprint === bufferToHex(bipItem.masterFingerprint)) {
+                        setSignedDevices([...signedDevices, pubKeyFromConfigFile.device])
+                      }
+                    })
+                  }
+                })
+              }
+            }
+          }
+
+          // if there are any imported fingerprints, then add tx to signedPsbts array
+          if (importedFingerprints.length) {
+            setSignedPsbts([...signedPsbts, tx.toBase64()])
+          }
+
+          setTxImportedFromFile(true);
+          setStep(1);
+        } catch (e) {
+          setImportTxFromFileError(e.message);
+        }
+      }
     }
   }
 
@@ -317,67 +390,49 @@ const Send = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlocks
                         accept="*"
                         id="txFile"
                         onFileLoad={(file) => {
-                          try {
-                            console.log('file: ', file);
-                            const tx = Psbt.fromBase64(file);
-                            console.log('tx: ', tx);
-                            // validate psbt and make sure it belongs to the current account
-                            let sumInputs = new BigNumber(0);
-                            for (let i = 0; i < tx.__CACHE.__TX.ins.length; i++) {
-                              const currentInput = tx.__CACHE.__TX.ins[i];
-                              const inputBuffer = cloneBuffer(currentInput.hash);
-                              const currentUtxo = utxosMap.get(inputBuffer.reverse().toString('hex'));
-                              if (!currentUtxo) {
-                                throw new Error('This transaction isn\'t associated with this wallet')
-                              };
-                              console.log('currentUtxo: ', currentUtxo);
-                              sumInputs = sumInputs.plus(currentUtxo.value);
-                            }
-                            const sumOutputs = tx.__CACHE.__TX.outs.reduce((accum, curr) => accum + curr.value, 0);
-                            setFeeEstimate(sumInputs.minus(sumOutputs).integerValue(BigNumber.ROUND_CEIL));
-                            if (!finalPsbt) {
-                              setFinalPsbt(tx);
-                            }
-
-                            // TODO: this should only set signedPsbt if there is a partial sig on any of the inputs
-                            setSignedPsbts([...signedPsbts, tx.toBase64()])
-
-                            // check if any partial signatures already
-                            const importedFingerprints = [];
-                            for (let i = 0; i < tx.data.inputs.length; i++) {
-                              const currentInput = tx.data.inputs[i];
-                              // if there is, figure out what device it belongs to
-                              if (currentInput.partialSig) {
-                                for (let j = 0; j < currentInput.partialSig.length; j++) {
-                                  currentInput.bip32Derivation.forEach((bipItem) => {
-                                    // and add device to list if it isn't already
-                                    if (Buffer.compare(currentInput.partialSig[j].pubkey, bipItem.pubkey) === 0 && !importedFingerprints.includes(bufferToHex(bipItem.masterFingerprint))) {
-                                      importedFingerprints.push(bufferToHex(bipItem.masterFingerprint));
-                                      currentAccount.config.extendedPublicKeys.forEach((pubKeyFromConfigFile) => {
-                                        if (pubKeyFromConfigFile.device.fingerprint === bufferToHex(bipItem.masterFingerprint)) {
-                                          setSignedDevices([...signedDevices, pubKeyFromConfigFile.device])
-                                        }
-                                      })
-                                    }
-                                  })
-                                }
-                              }
-                            }
-
-
-                            setTxImportedFromFile(true);
-                            setStep(1);
-                          } catch (e) {
-                            setImportTxFromFileError(e.message);
-                          }
+                          importTxToForm(file)
                         }}
                       />
                       <FromFileButtonLabel htmlFor="txFile">From a file</FromFileButtonLabel>
-                      <FromFileButton style={{ marginLeft: '0.5em' }}>Paste as text</FromFileButton>
+                      <FromFileButton
+                        onClick={() => {
+                          setImportTxFromFileError(false)
+                          setPastePsbtModalOpen(true)
+                        }}
+                        style={{ marginLeft: '0.5em' }}>Paste as text</FromFileButton>
+
+                      <Modal
+                        isOpen={pastePsbtModalOpen}
+                        onRequestClose={() => {
+                          setPastedPsbtValue(null);
+                          setImportTxFromFileError(false);
+                          setPastePsbtModalOpen(false);
+                        }}>
+                        <div>Paste PSBT or Transaction Hex Below</div>
+                        <PastePsbtTextArea
+                          rows={20}
+                          onChange={(e) => {
+                            setPastedPsbtValue(e.target.value)
+                          }}
+                        />
+                        {importTxFromFileError && <ErrorText style={{ paddingBottom: '1em' }}>{importTxFromFileError}</ErrorText>}
+                        <ImportButtons>
+                          <FromFileButton
+                            style={{ marginRight: '1em' }}
+                            onClick={() => {
+                              setPastedPsbtValue(null);
+                              setImportTxFromFileError(false);
+                              setPastePsbtModalOpen(false);
+                            }}>Cancel</FromFileButton>
+                          <CopyAddressButton
+                            onClick={() => {
+                              importTxToForm(pastedPsbtValue)
+                            }}>Import Transaction</CopyAddressButton>
+                        </ImportButtons>
+                      </Modal>
 
                     </ImportButtons>
-                    {importTxFromFileError && <ErrorText>{importTxFromFileError}</ErrorText>}
-
+                    {importTxFromFileError && !pastePsbtModalOpen && <ErrorText style={{ paddingTop: '1em' }}>{importTxFromFileError}</ErrorText>}
                   </SendButtonContainer>
                 </AccountSendContentLeft>
               </div>
@@ -436,10 +491,28 @@ const Send = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlocks
   )
 }
 
+const PastePsbtTextArea = styled.textarea`
+  width: 100%;
+  resize: none;
+  border-color: #d2d6dc;
+  border-width: 1px;
+  border-radius: .375rem;
+  padding: .5rem .75rem;
+  box-sizing: border-box;
+  margin: 2em 0;
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(164,202,254,.45);
+    border-color: #a4cafe;
+  }
+`;
+
 const ErrorText = styled.div`
   color: ${red};
   text-align: center;
-  padding: 1em 0 0;
+  padding-left: 0;
+  padding-right: 0;
 `;
 
 const ImportButtons = styled.div`
@@ -452,6 +525,7 @@ const FromFileButton = styled.div`
   border-radius: .375rem;
   flex: 1;
   text-align: center;
+  font-family: 'Montserrat', sans-serif;
 
   &:hover {
     border: 1px solid ${darkGray};

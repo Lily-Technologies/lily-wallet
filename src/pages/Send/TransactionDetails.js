@@ -113,14 +113,14 @@ const TransactionDetails = ({ finalPsbt, feeEstimate, outputTotal, txImportedFro
               <MoreDetailsSection>
                 <MoreDetailsHeader>PSBT</MoreDetailsHeader>
                 <div style={{ display: 'flex' }}>
-                  <TextArea rows={8} value={finalPsbt.toBase64()} />
+                  <TextArea rows={8} value={finalPsbt.toHex()} />
                 </div>
               </MoreDetailsSection>
             )}
             {!txImportedFromFile && (
               <MoreDetails>
                 <span onClick={() => setShowMoreDetails(!showMoreDetails)}>{showMoreDetails ? 'Less' : 'More'} Details ></span>
-                <span onClick={() => setStep(0)}>Manual Transaction</span>
+                {/* <span onClick={() => setStep(0)}>Manual Transaction</span> */}
               </MoreDetails>
             )}
             {txError && <ErrorBox>{txError}</ErrorBox>}

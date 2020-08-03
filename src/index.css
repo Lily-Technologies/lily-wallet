@@ -54,3 +54,7 @@ th {
   -webkit-user-select: none;
   -webkit-app-region: drag;
 }
+
+.ReactModal__Content {
+  font-family: 'Montserrat', sans-serif;
+}

@@ -27,7 +27,7 @@ export const Modal = ({ isOpen, onAfterOpen, onRequestClose, style, children }) 
       border: 'none',
       maxWidth: '24rem',
       padding: '1.5rem',
-      position: 'initial',
+      position: 'relative',
       width: '100%',
       transform: localOpen ? 'scale(1)' : 'scale(0.9)',
       transition: 'transform 0.25s',
@@ -37,7 +37,8 @@ export const Modal = ({ isOpen, onAfterOpen, onRequestClose, style, children }) 
       transition: 'background 0.25s',
       display: 'flex',
       justifyContent: 'center',
-      alignItems: 'center'
+      alignItems: 'center',
+      zIndex: '1000'
     }
   }
 
