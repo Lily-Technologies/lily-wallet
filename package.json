@@ -1,5 +1,5 @@
 {
-  "name": "Lily Wallet",
+  "name": "LilyWallet",
   "author": "Kevin Mulcrone <kaybesee@gmail.com> (https://kevinmulcrone.com)",
   "description": "Lily is the easiest way to securely store and manage your Bitcoin",
   "license": "MIT",
@@ -7,6 +7,16 @@
   "private": true,
   "main": "./src/main.js",
   "homepage": "./",
+  "scripts": {
+    "electron": "electron .",
+    "start": "PORT=3001 react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder -mwl",
+    "postinstall": "electron-builder install-app-deps"
+  },
   "build": {
     "productName": "Lily Wallet",
     "appId": "com.kevinmulcrone.lily",
@@ -55,16 +65,6 @@
         "./HWIs/hwi.exe"
       ]
     }
-  },
-  "scripts": {
-    "electron": "electron .",
-    "start": "PORT=3001 react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "pack": "electron-builder --dir",
-    "dist": "electron-builder -mwl",
-    "postinstall": "electron-builder install-app-deps",
   },
   "dependencies": {
     "axios": "^0.19.2",
