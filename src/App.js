@@ -29,14 +29,15 @@ import Home from './pages/Home';
 
 const emptyConfig = {
   name: "",
-  version: "0.0.1",
+  version: "0.0.2",
   isEmpty: true,
   backup_options: {
     gDrive: false
   },
   wallets: [],
   vaults: [],
-  keys: []
+  keys: [],
+  exchanges: []
 }
 
 function App() {
@@ -50,9 +51,6 @@ function App() {
   const [currentBitcoinNetwork, setCurrentBitcoinNetwork] = useState(networks.bitcoin);
   const [refresh, setRefresh] = useState(false);
   const [flyInAnimation, setInitialFlyInAnimation] = useState(true);
-
-  // WALLET DATA
-  const [loadingDataFromBlockstream, setLoadingDataFromBlockstream] = useState(false);
 
   const ConfigRequired = () => {
     const { pathname } = useLocation();

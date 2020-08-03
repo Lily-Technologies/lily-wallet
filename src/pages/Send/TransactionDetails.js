@@ -15,12 +15,13 @@ import { StyledIcon, Button, SidewaysShake } from '../../components';
 
 import { gray, blue, darkGray, white, darkOffWhite, green, darkGreen, lightGray, red, lightRed } from '../../utils/colors';
 
-const TransactionDetails = ({ finalPsbt, feeEstimate, outputTotal, recipientAddress, sendAmount, setStep, transactionsMap, signedPsbts, signThreshold, currentBitcoinNetwork, currentBitcoinPrice }) => {
-  const [showMoreDetails, setShowMoreDetails] = useState(false);
+const TransactionDetails = ({ finalPsbt, feeEstimate, outputTotal, txImportedFromFile, recipientAddress, sendAmount, setStep, utxosMap, signedPsbts, signThreshold, currentBitcoinNetwork, currentBitcoinPrice }) => {
+  const [showMoreDetails, setShowMoreDetails] = useState(txImportedFromFile);
   const [broadcastedTxId, setBroadcastedTxId] = useState('');
   const [txError, setTxError] = useState(null);
 
   const broadcastTransaction = async () => {
+    console.log('signedPsbts: ', signedPsbts);
     if (signedPsbts.length === signThreshold) {
       try {
         // TODO: support combining more than 2 PSBTs
@@ -45,6 +46,8 @@ const TransactionDetails = ({ finalPsbt, feeEstimate, outputTotal, recipientAddr
       }
     }
   }
+
+  console.log('satoshisToBitcoins(feeEstimate).toNumber(): ', satoshisToBitcoins(feeEstimate).toNumber());
 
 
   return (
@@ -85,17 +88,17 @@ const TransactionDetails = ({ finalPsbt, feeEstimate, outputTotal, recipientAddr
               <MoreDetailsHeader>Inputs</MoreDetailsHeader>
               {finalPsbt.__CACHE.__TX.ins.map(input => {
                 const inputBuffer = cloneBuffer(input.hash);
-                const txInput = transactionsMap.get(inputBuffer.reverse().toString('hex'));
+                const utxo = utxosMap.get(inputBuffer.reverse().toString('hex'));
                 return (
                   <OutputItem>
-                    <OutputAddress>{txInput.vout[input.index].scriptpubkey_address}</OutputAddress>
-                    <OutputAmount>{satoshisToBitcoins(txInput.vout[input.index].value).toNumber()} BTC</OutputAmount>
+                    <OutputAddress>{utxo.address.address}</OutputAddress>
+                    <OutputAmount>{satoshisToBitcoins(utxo.value).toNumber()} BTC</OutputAmount>
                   </OutputItem>
                 )
               })}
             </MoreDetailsSection>
             <MoreDetailsSection>
-              <MoreDetailsHeader>Outputs</MoreDetailsHeader>
+              <MoreDetailsHeader style={{ marginTop: '1em' }}>Outputs</MoreDetailsHeader>
               {finalPsbt.__CACHE.__TX.outs.map(output => (
                 <OutputItem>
                   {/* script: {output.script.toString('hex')}, */}
@@ -103,17 +106,34 @@ const TransactionDetails = ({ finalPsbt, feeEstimate, outputTotal, recipientAddr
                 </OutputItem>
               ))}
 
+              <MoreDetailsHeader style={{ display: 'flex', justifyContent: 'space-between', marginTop: '2em' }}>Fees: {<span>{satoshisToBitcoins(feeEstimate).toNumber()} BTC (${satoshisToBitcoins(feeEstimate.multipliedBy(currentBitcoinPrice)).toFixed(2)})</span>}</MoreDetailsHeader>
+
             </MoreDetailsSection>
-            <MoreDetailsSection>
-              <MoreDetailsHeader>PSBT</MoreDetailsHeader>
-              <div style={{ display: 'flex' }}>
-                <TextArea rows={8} value={finalPsbt.toHex()} />
-              </div>
-            </MoreDetailsSection>
-            <MoreDetails>
-              <span onClick={() => setShowMoreDetails(!showMoreDetails)}>{showMoreDetails ? 'Less' : 'More'} Details ></span>
-              <span onClick={() => setStep(0)}>Manual Transaction</span>
-            </MoreDetails>
+            {!txImportedFromFile && (
+              <MoreDetailsSection>
+                <MoreDetailsHeader>PSBT</MoreDetailsHeader>
+                <div style={{ display: 'flex' }}>
+                  <TextArea rows={8} value={finalPsbt.toBase64()} />
+                </div>
+              </MoreDetailsSection>
+            )}
+            {!txImportedFromFile && (
+              <MoreDetails>
+                <span onClick={() => setShowMoreDetails(!showMoreDetails)}>{showMoreDetails ? 'Less' : 'More'} Details ></span>
+                <span onClick={() => setStep(0)}>Manual Transaction</span>
+              </MoreDetails>
+            )}
+            {txError && <ErrorBox>{txError}</ErrorBox>}
+            {!broadcastedTxId && <SendButton background={green} color={white} loaded={signedPsbts.length === signThreshold} onClick={broadcastTransaction}>
+              {signedPsbts.length < signThreshold ? `Confirm on Devices (${signedPsbts.length}/${signThreshold})` : 'Send Transaction'}
+              {signedPsbts.length < signThreshold ? null : (
+                <SendButtonCheckmark loaded={signedPsbts.length}>
+                  <StyledIcon as={ArrowIosForwardOutline} size={16} />
+                </SendButtonCheckmark>
+              )}
+            </SendButton>}
+
+            {broadcastedTxId && <ViewTransactionButton href={`https://blockstream.info/tx/${broadcastedTxId}`} target="_blank">View Transaction</ViewTransactionButton>}
           </SendDetailsContainer>
         )}
     </AccountSendContentRight>

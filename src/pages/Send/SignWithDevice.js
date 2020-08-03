@@ -7,9 +7,10 @@ import { darkGray } from '../../utils/colors';
 const SignWithDevice = ({
   psbt,
   signedPsbts,
-  setSignedPsbts
+  setSignedPsbts,
+  signedDevices,
+  setSignedDevices
 }) => {
-  const [signedDevices, setSignedDevices] = useState([]);
   const [unsignedDevices, setUnsignedDevices] = useState([]);
   const [errorDevices, setErrorDevices] = useState([]);
 

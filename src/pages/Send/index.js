@@ -15,7 +15,7 @@ import {
 
 import { Psbt, address, bip32, networks } from 'bitcoinjs-lib';
 
-import { StyledIcon, Button, PageWrapper, GridArea, PageTitle, Header, HeaderRight, HeaderLeft, Loading } from '../../components';
+import { StyledIcon, Button, PageWrapper, GridArea, PageTitle, Header, HeaderRight, HeaderLeft, Loading, FileUploader } from '../../components';
 import RecentTransactions from '../../components/transactions/RecentTransactions';
 
 import SignWithDevice from './SignWithDevice'
@@ -23,6 +23,7 @@ import TransactionDetails from './TransactionDetails';
 
 import { red, gray, blue, darkGray, white, darkOffWhite, lightGray, lightBlue } from '../../utils/colors';
 import { mobile } from '../../utils/media';
+import { cloneBuffer, bufferToHex } from '../../utils/other';
 
 const validateAddress = (recipientAddress) => {
   try {
@@ -66,6 +67,14 @@ const createTransactionMapFromTransactionArray = (transactionsArray) => {
   return transactionMap
 }
 
+const createUtxoMapFromUtxoArray = (utxosArray) => {
+  const utxoMap = new Map();
+  utxosArray.forEach((utxo) => {
+    utxoMap.set(utxo.txid, utxo)
+  });
+  return utxoMap
+}
+
 const coinSelection = (amountInSats, availableUtxos) => {
   availableUtxos.sort((a, b) => b.value - a.value); // sort available utxos from largest size to smallest size to minimize inputs
   let currentTotal = BigNumber(0);
@@ -83,6 +92,8 @@ const Send = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlocks
   document.title = `Send - Lily Wallet`;
   const [sendAmount, setSendAmount] = useState('');
   const [sendAmountError, setSendAmountError] = useState(false);
+  const [txImportedFromFile, setTxImportedFromFile] = useState(false);
+  const [importTxFromFileError, setImportTxFromFileError] = useState(false);
   const [recipientAddress, setRecipientAddress] = useState('');
   const [recipientAddressError, setRecipientAddressError] = useState(false);
   const [step, setStep] = useState(0);
@@ -90,6 +101,7 @@ const Send = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlocks
   const [feeEstimate, setFeeEstimate] = useState(BigNumber(0));
   const [outputTotal, setOutputTotal] = useState(BigNumber(0));
   const [signedPsbts, setSignedPsbts] = useState([]);
+  const [signedDevices, setSignedDevices] = useState([]);
 
   // Get account data
   const { transactions, availableUtxos, unusedChangeAddresses, currentBalance } = currentAccount;
@@ -104,7 +116,7 @@ const Send = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlocks
 
     if (spendingUtxos.length > 1) {
       currentFeeEstimate = await (await getFeeForMultisig(currentAccount.config.addressType, spendingUtxos.length, 2, currentAccount.config.quorum.requiredSigners, currentAccount.config.quorum.totalSigners)).integerValue(BigNumber.ROUND_CEIL);
-      outputTotal = BigNumber(bitcoinsToSatoshis(amountInBitcoins)).plus(feeEstimate.toNumber());
+      outputTotal = BigNumber(bitcoinsToSatoshis(amountInBitcoins)).plus(currentFeeEstimate.toNumber());
       [spendingUtxos, spendingUtxosTotal] = coinSelection(outputTotal, availableUtxos);
     }
 
@@ -187,7 +199,10 @@ const Send = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlocks
     }
   }
 
-  const transactionsMap = createTransactionMapFromTransactionArray(transactions);
+  let utxosMap;
+  if (availableUtxos) {
+    utxosMap = createUtxoMapFromUtxoArray(availableUtxos);
+  }
 
   const validateAndCreateTransaction = () => {
     if (!validateAddress(recipientAddress)) {
@@ -287,6 +302,82 @@ const Send = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlocks
                   <SendButtonContainer>
                     {/* <CopyAddressButton background="transparent" color={darkGray}>Advanced Options</CopyAddressButton> */}
                     <CopyAddressButton onClick={() => validateAndCreateTransaction()}>Preview Transaction</CopyAddressButton>
+
+                    <ImportTxContainer>
+                      <ImportTxDividerContainer>
+                        <ImportTxDividerLine></ImportTxDividerLine>
+                      </ImportTxDividerContainer>
+                      <ImportTxTextContainer>
+                        <ImportTxText>Or import transaction</ImportTxText>
+                      </ImportTxTextContainer>
+                    </ImportTxContainer>
+
+                    <ImportButtons>
+                      <FileUploader
+                        accept="*"
+                        id="txFile"
+                        onFileLoad={(file) => {
+                          try {
+                            console.log('file: ', file);
+                            const tx = Psbt.fromBase64(file);
+                            console.log('tx: ', tx);
+                            // validate psbt and make sure it belongs to the current account
+                            let sumInputs = new BigNumber(0);
+                            for (let i = 0; i < tx.__CACHE.__TX.ins.length; i++) {
+                              const currentInput = tx.__CACHE.__TX.ins[i];
+                              const inputBuffer = cloneBuffer(currentInput.hash);
+                              const currentUtxo = utxosMap.get(inputBuffer.reverse().toString('hex'));
+                              if (!currentUtxo) {
+                                throw new Error('This transaction isn\'t associated with this wallet')
+                              };
+                              console.log('currentUtxo: ', currentUtxo);
+                              sumInputs = sumInputs.plus(currentUtxo.value);
+                            }
+                            const sumOutputs = tx.__CACHE.__TX.outs.reduce((accum, curr) => accum + curr.value, 0);
+                            setFeeEstimate(sumInputs.minus(sumOutputs).integerValue(BigNumber.ROUND_CEIL));
+                            if (!finalPsbt) {
+                              setFinalPsbt(tx);
+                            }
+
+                            // TODO: this should only set signedPsbt if there is a partial sig on any of the inputs
+                            setSignedPsbts([...signedPsbts, tx.toBase64()])
+
+                            // check if any partial signatures already
+                            const importedFingerprints = [];
+                            for (let i = 0; i < tx.data.inputs.length; i++) {
+                              const currentInput = tx.data.inputs[i];
+                              // if there is, figure out what device it belongs to
+                              if (currentInput.partialSig) {
+                                for (let j = 0; j < currentInput.partialSig.length; j++) {
+                                  currentInput.bip32Derivation.forEach((bipItem) => {
+                                    // and add device to list if it isn't already
+                                    if (Buffer.compare(currentInput.partialSig[j].pubkey, bipItem.pubkey) === 0 && !importedFingerprints.includes(bufferToHex(bipItem.masterFingerprint))) {
+                                      importedFingerprints.push(bufferToHex(bipItem.masterFingerprint));
+                                      currentAccount.config.extendedPublicKeys.forEach((pubKeyFromConfigFile) => {
+                                        if (pubKeyFromConfigFile.device.fingerprint === bufferToHex(bipItem.masterFingerprint)) {
+                                          setSignedDevices([...signedDevices, pubKeyFromConfigFile.device])
+                                        }
+                                      })
+                                    }
+                                  })
+                                }
+                              }
+                            }
+
+
+                            setTxImportedFromFile(true);
+                            setStep(1);
+                          } catch (e) {
+                            setImportTxFromFileError(e.message);
+                          }
+                        }}
+                      />
+                      <FromFileButtonLabel htmlFor="txFile">From a file</FromFileButtonLabel>
+                      <FromFileButton style={{ marginLeft: '0.5em' }}>Paste as text</FromFileButton>
+
+                    </ImportButtons>
+                    {importTxFromFileError && <ErrorText>{importTxFromFileError}</ErrorText>}
+
                   </SendButtonContainer>
                 </AccountSendContentLeft>
               </div>
@@ -300,8 +391,9 @@ const Send = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlocks
                 recipientAddress={recipientAddress}
                 setStep={setStep}
                 sendAmount={sendAmount}
-                transactionsMap={transactionsMap}
+                utxosMap={utxosMap}
                 signedPsbts={signedPsbts}
+                txImportedFromFile={txImportedFromFile}
                 signThreshold={currentAccount.config.quorum.requiredSigners}
                 currentBitcoinNetwork={currentBitcoinNetwork}
                 currentBitcoinPrice={currentBitcoinPrice}
@@ -332,6 +424,8 @@ const Send = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlocks
                   psbt={finalPsbt}
                   setSignedPsbts={setSignedPsbts}
                   signedPsbts={signedPsbts}
+                  signedDevices={signedDevices}
+                  setSignedDevices={setSignedDevices}
                 />
               </AccountSendContentRight>
             )}
@@ -342,10 +436,81 @@ const Send = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlocks
   )
 }
 
+const ErrorText = styled.div`
+  color: ${red};
+  text-align: center;
+  padding: 1em 0 0;
+`;
+
+const ImportButtons = styled.div`
+  display: flex;
+`;
+
+const FromFileButton = styled.div`
+  padding: 1em 1.25rem;
+  border: 1px solid ${gray};
+  border-radius: .375rem;
+  flex: 1;
+  text-align: center;
+
+  &:hover {
+    border: 1px solid ${darkGray};
+    cursor: pointer;
+  }
+`;
+
+const FromFileButtonLabel = styled.label`
+  padding: 1em 1.25rem;
+  border: 1px solid ${gray};
+  border-radius: .375rem;
+  flex: 1;
+  text-align: center;
+
+  &:hover {
+    border: 1px solid ${darkGray};
+    cursor: pointer;
+  }
+`;
+
+const ImportTxTextContainer = styled.div`
+  position: relative;
+  display: flex;
+  justify-content: center;
+`;
+
+const ImportTxText = styled.div`
+  text-align: center;
+  padding: 0 0.5em;
+  background: ${white};
+  color: ${darkGray};
+`;
+
+const ImportTxDividerContainer = styled.div`
+  position: absolute;
+  right: 0;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  align-items: center;
+  display: flex;
+`;
+
+const ImportTxDividerLine = styled.div`
+  border: 1px solid ${gray};
+  width: 100%;
+`;
+
+const ImportTxContainer = styled.div`
+  position: relative;
+  text-align: center;
+  margin: 1em 0;
+`;
+
 const SendButtonContainer = styled.div`
   margin-bottom: 0;
   display: flex;
   justify-content: space-between;
+  flex-direction: column;
 `;
 
 const CopyAddressButton = styled.div`
