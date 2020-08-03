@@ -8,5 +8,6 @@ export * from './MobileNavbar';
 export * from './ErrorBoundary';
 export * from './MnemonicWordsDisplayer';
 export * from './FileUploader';
+export * from './Modal';
 
 export * from './layout';
