@@ -243,7 +243,7 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
                       You may disconnect your device from your computer after it has been configured.
                   </SetupExplainerText>
                   </SetupHeaderContainer>
-                  <ImportFromFileButton htmlFor="localConfigFile" background={white} color={'#869198'}>Import from File</ImportFromFileButton>
+                  <ImportFromFileButton htmlFor="localConfigFile" background={white} color={darkGray}>Import from File</ImportFromFileButton>
                 </SetupHeaderWrapper>
               </XPubHeaderWrapper>
               <DeviceSelect
@@ -328,7 +328,7 @@ const HeaderModified = styled(Header)`
 
 const PageTitleSubtext = styled.div`
   font-size: 1em;
-  color: #869198;
+  color: ${darkGray};
 `;
 
 const HeaderWrapper = styled.div`

@@ -6,7 +6,7 @@ import { Upload } from '@styled-icons/boxicons-regular';
 
 import GDriveImport from './GDriveImport';
 
-import { StyledIcon } from '../components';
+import { StyledIcon, FileUploader } from '../components';
 
 import { GridArea } from '../components/layout';
 
@@ -14,6 +14,7 @@ import { black, darkGray, white, blue, gray, offWhite } from '../utils/colors';
 
 const Login = ({ setConfigFile }) => {
   const [encryptedConfigFile, setEncryptedConfigFile] = useState(null);
+
   const history = useHistory();
 
   document.title = `Login - Lily Wallet`;
@@ -32,18 +33,11 @@ const Login = ({ setConfigFile }) => {
         </MainText>
       <Subtext>Lily is the easiest way to securely store and manage your Bitcoin</Subtext>
 
-      <FileInput
-        type="file"
+      <FileUploader
         accept="*"
         id="localConfigFile"
-        onChange={(e) => {
-          const filereader = new FileReader();
-
-          filereader.onload = (event) => {
-            setEncryptedConfigFile(event.target.result)
-          };
-
-          filereader.readAsText(e.target.files[0]);
+        onFileLoad={(file) => {
+          setEncryptedConfigFile(file)
         }}
       />
 
@@ -77,15 +71,6 @@ const Wrapper = styled.div`
   padding-top: 48px;
   padding: 1em;
   justify-content: center;
-`;
-
-const FileInput = styled.input`
-	width: 0.1px;
-	height: 0.1px;
-	opacity: 0;
-	overflow: hidden;
-	position: absolute;
-	z-index: -1;
 `;
 
 const MainText = styled.div`

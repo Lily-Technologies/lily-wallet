@@ -6,9 +6,9 @@ export const Button = css`
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: .75em;
+  padding: 1em;
   border: none;
-  border-radius: 4px;
+  border-radius: .375rem;
   cursor: pointer;
   outline: 0;
   font-family: Montserrat, sans-serif;

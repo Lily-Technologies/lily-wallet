@@ -44,7 +44,7 @@ const SecondaryMenu = styled.div`
   -webkit-overflow-scrolling: touch;
   overflow-x: scroll;
   overflow-y: hidden;
-  color: #868686;
+  color: ${darkGray};
   background: ${white};
   // border-bottom: 1px solid ${darkGray};
 `;

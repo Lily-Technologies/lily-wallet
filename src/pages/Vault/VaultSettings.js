@@ -54,7 +54,13 @@ const VaultSettings = ({ config, setConfigFile, currentAccount, setViewAddresses
     // need to have a name for each pubkey, so just use parentFingerprint...should use a loop in the future but lazy
     for (let i = 0; i < configCopy.extendedPublicKeys.length; i++) {
       configCopy.extendedPublicKeys[i].name = configCopy.extendedPublicKeys[i].parentFingerprint;
-      configCopy.extendedPublicKeys[i].method = 'xpub';
+
+      // we need to populate the method field for caravan. if the device is of type trezor or ledger, put that in. else just put xpub.
+      if (configCopy.extendedPublicKeys[i].device && (configCopy.extendedPublicKeys[i].device.type === 'trezor' || configCopy.extendedPublicKeys[i].device.type === 'ledger')) {
+        configCopy.extendedPublicKeys[i].method = configCopy.extendedPublicKeys[i].device.type;
+      } else {
+        configCopy.extendedPublicKeys[i].method = 'xpub';
+      }
     }
     const caravanFile = new Blob([JSON.stringify(configCopy)], { type: 'application/json' })
     downloadFile(caravanFile, "lily_wallet_caravan_export.json");

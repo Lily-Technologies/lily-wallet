@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import styled from 'styled-components';
 
-import { blue, white } from '../utils/colors';
+import { blue, white, darkGray } from '../utils/colors';
 
 export const MnemonicWordsDisplayer = ({ mnemonicWords }) => {
   const mnemonicWordsArray = mnemonicWords.split(" ");
@@ -64,5 +64,5 @@ const WordIndex = styled.span`
   top: 5px;
   left: 5px;
   font-size: .5em;
-  color: #869198;
+  color: ${darkGray};
 `;

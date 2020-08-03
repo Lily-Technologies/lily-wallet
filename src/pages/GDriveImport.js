@@ -129,7 +129,7 @@ const GDriveImport = ({ encryptedConfig, setConfigFile }) => {
 
         </CurtainLeft>
         <CurtainBehind>
-          {/* <DecryptingText>Decrypting Wallet...</DecryptingText> */}
+          <DecryptingText>Decrypting Wallet...</DecryptingText>
         </CurtainBehind>
         <CurtainRight startCurtain={startCurtain}>
           <CurtainRightInner>

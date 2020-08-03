@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import styled, { css } from 'styled-components';
 import { useLocation } from "react-router-dom";
-import { useSpring, animated } from 'react-spring'
+import { useSpring, animated } from 'react-spring';
 
 import { NavLinks } from './NavLinks';
 

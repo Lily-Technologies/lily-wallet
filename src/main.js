@@ -30,9 +30,9 @@ function createWindow() {
   mainWindow.maximize();
 
   // load production url
-  mainWindow.loadURL(`file://${__dirname}/../build/index.html`);
+  // mainWindow.loadURL(`file://${__dirname}/../build/index.html`);
   // load dev url
-  // mainWindow.loadURL(`http://localhost:3001/`);
+  mainWindow.loadURL(`http://localhost:3001/`);
 
   // Open the DevTools.
   // mainWindow.webContents.openDevTools();
@@ -121,7 +121,7 @@ ipcMain.handle('/enumerate', async (event, args) => {
     return Promise.reject(new Error('Error enumerating hardware wallets'))
   }
   const filteredDevices = resp.filter((device) => {
-    return device.type === 'coldcard' || device.type === 'ledger';
+    return device.type === 'coldcard' || device.type === 'ledger' || device.type === 'trezor';
   })
   return Promise.resolve(filteredDevices);
 });

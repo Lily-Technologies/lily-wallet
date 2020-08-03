@@ -61,9 +61,8 @@ Name: ColdcardKitchen
 Policy: 2 of 3
 Derivation: m/48'/0'/0'/2'
 Format: P2WSH
-
-${importedDevices[0].fingerprint || importedDevices[0].parentFingerprint}: ${importedDevices[0].xpub}
-${importedDevices[1].fingerprint || importedDevices[1].parentFingerprint}: ${importedDevices[1].xpub}
-${importedDevices[2].fingerprint || importedDevices[2].parentFingerprint}: ${importedDevices[2].xpub}
+${importedDevices.map((device) => (
+    `\n${device.fingerprint || device.parentFingerprint}: ${device.xpub}`
+  ))}
 `], { type: 'text/plain' });
 }
