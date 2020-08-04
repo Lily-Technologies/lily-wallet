@@ -11,7 +11,7 @@ import {
 import { Psbt, address } from 'bitcoinjs-lib';
 
 import { cloneBuffer } from '../../utils/other';
-import { StyledIcon, Button, SidewaysShake } from '../../components';
+import { StyledIcon, Button, SidewaysShake, Dropdown } from '../../components';
 
 import { gray, blue, darkGray, white, darkOffWhite, green, darkGreen, lightGray, red, lightRed } from '../../utils/colors';
 
@@ -19,6 +19,7 @@ const TransactionDetails = ({ finalPsbt, feeEstimate, outputTotal, txImportedFro
   const [showMoreDetails, setShowMoreDetails] = useState(txImportedFromFile);
   const [broadcastedTxId, setBroadcastedTxId] = useState('');
   const [txError, setTxError] = useState(null);
+  const [optionsDropdownOpen, setOptionsDropdownOpen] = useState(false);
 
   const broadcastTransaction = async () => {
     console.log('signedPsbts: ', signedPsbts);
@@ -54,7 +55,21 @@ const TransactionDetails = ({ finalPsbt, feeEstimate, outputTotal, txImportedFro
     <AccountSendContentRight>
       {!showMoreDetails ? (
         <SendDetailsContainer>
-          <TransactionDetailsHeader>Transaction Details</TransactionDetailsHeader>
+          <TransactionDetailsHeader>
+            <span>Transaction Details</span>
+            <Dropdown
+              isOpen={optionsDropdownOpen}
+              setIsOpen={setOptionsDropdownOpen}
+              minimal={true}
+              dropdownItems={[
+                { label: 'Edit Transaction', onClick: () => setStep(0) },
+                { label: `View ${showMoreDetails ? 'less' : 'more'} details`, onClick: () => setShowMoreDetails(!showMoreDetails) },
+                { label: 'Adjust Fee', onClick: () => { console.log('foobar2') } },
+                { label: 'View PSBT', onClick: () => { console.log('foobar3') } },
+                { label: 'Export Transaction', onClick: () => { console.log('foobar3') } }
+              ]}
+            />
+          </TransactionDetailsHeader>
           <MainTxData>
             <SendingHeader style={{ padding: 0 }}>{`Sending ${sendAmount} BTC`}</SendingHeader>
             <ToField>to</ToField>
@@ -74,10 +89,6 @@ const TransactionDetails = ({ finalPsbt, feeEstimate, outputTotal, txImportedFro
             </SendButton>}
 
             {broadcastedTxId && <ViewTransactionButton href={`https://blockstream.info/tx/${broadcastedTxId}`} target="_blank">View Transaction</ViewTransactionButton>}
-            <MoreDetails>
-              <span onClick={() => setShowMoreDetails(!showMoreDetails)}>{showMoreDetails ? 'Less' : 'More'} Details ></span>
-              <span onClick={() => setStep(0)}>Edit Transaction</span>
-            </MoreDetails>
           </div>
 
 
@@ -202,6 +213,8 @@ const TransactionDetailsHeader = styled.div`
   font-size: 1.5em;
   color: ${darkGray};
   margin-bottom: 12px;
+  display: flex;
+  justify-content: space-between;
 `;
 
 

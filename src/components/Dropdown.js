@@ -12,6 +12,7 @@ import { white } from '../utils/colors';
     isOpen={isOpen}
     setIsOpen={setIsOpen}
     buttonLabel={'Options'}
+    minimal={false}
     dropdownItems={[
       { label: 'Item #1', onClick: () => { console.log('foobar') } },
       { label: 'Item #2', onClick: () => { console.log('foobar2') } },
@@ -21,24 +22,36 @@ import { white } from '../utils/colors';
 
 */}
 
-export const Dropdown = ({ isOpen, setIsOpen, buttonLabel, dropdownItems }) => {
+export const Dropdown = ({ isOpen, setIsOpen, buttonLabel, dropdownItems, minimal }) => {
   console.log('isOpen: ', isOpen)
   return (
     <DropdownWrapper>
       <div>
-        <DropdownButtonContainer>
-          <DropdownButton
+        {minimal ? (
+          <MinimalDropdownButtonContainer
             onClick={() => setIsOpen(!isOpen)}
-            type="button"
-            id="options-menu"
-            aria-haspopup="true"
-            aria-expanded="true">
-            {buttonLabel}
-            <DownArrowIcon viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-            </DownArrowIcon>
-          </DropdownButton>
-        </DropdownButtonContainer>
+            aria-label="Options" id="options-menu"
+            aria-haspopup="true" aria-expanded={isOpen}>
+            <DotDotDotImage fill="currentColor" viewBox="0 0 20 20">
+              <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path>
+            </DotDotDotImage>
+          </MinimalDropdownButtonContainer>
+        ) : (
+            <DropdownButtonContainer>
+              <DropdownButton
+                onClick={() => setIsOpen(!isOpen)}
+                type="button"
+                id="options-menu"
+                aria-haspopup="true"
+                fill="currentColor"
+                aria-expanded={isOpen}>
+                {buttonLabel}
+                <DownArrowIcon fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                </DownArrowIcon>
+              </DropdownButton>
+            </DropdownButtonContainer>
+          )}
       </div>
       <Transition
         show={isOpen}
@@ -61,7 +74,7 @@ export const Dropdown = ({ isOpen, setIsOpen, buttonLabel, dropdownItems }) => {
           </DropdownItemsContainer>
         </DropdownItemsWrapper>
       </Transition>
-    </DropdownWrapper>
+    </DropdownWrapper >
   )
 }
 
@@ -74,6 +87,24 @@ const DropdownWrapper = styled.div`
 const DropdownButtonContainer = styled.span`
   box-shadow: 0 1px 2px 0 rgba(0,0,0,.05);
   border-radius: .375rem;
+`;
+
+const MinimalDropdownButtonContainer = styled.button`
+  display: flex;
+  align-items: center;
+  color: rgb(159,166,178);
+  padding: 0;
+  cursor: pointer;
+  border: none;
+
+  &:hover {
+    color: rgb(75,85,99);
+  }
+
+  &:focus {
+    color: rgb(75,85,99);
+    outline: 0;
+  }
 `;
 
 const DropdownButton = styled.button`
@@ -109,6 +140,13 @@ const DropdownButton = styled.button`
     outline: 0;
     border-color: rgb(164,202,254)
   }
+`;
+
+const DotDotDotImage = styled.svg`
+  height: 1.25rem;
+  width: 1.25rem;
+  display: block;
+  vertical-align: middle;
 `;
 
 const DownArrowIcon = styled.svg`
