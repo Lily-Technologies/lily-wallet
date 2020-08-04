@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import styled, { css } from 'styled-components';
 import { useLocation } from "react-router-dom";
 import { useSpring, animated } from 'react-spring';
@@ -15,26 +15,33 @@ export const Sidebar = ({ config, setCurrentAccount, loading, flyInAnimation }) 
 
   if (pathname !== '/coldcard-import-instructions') {
     return (
-      <SidebarWrapperAnimated style={{ ...sidebarAnimationProps }}>
-        <SidebarContainer>
-          <WalletTitle>
-            <LilyImage src={require('../assets/flower.svg')} />
+      <Fragment>
+        <SidebarPlaceholder></SidebarPlaceholder>
+        <SidebarWrapperAnimated style={{ ...sidebarAnimationProps }}>
+          <SidebarContainer>
+            <WalletTitle>
+              <LilyImage src={require('../assets/flower.svg')} />
           Lily Wallet
           </WalletTitle>
-          <NavLinks config={config} setCurrentAccount={setCurrentAccount} loading={loading} />
-          <FooterPositionWrapper>
-            <FooterWrapper>
-              <ViewSourceCodeText href="https://github.com/KayBeSee/lily-wallet" target="_blank">View Source Code</ViewSourceCodeText>
-              <DontTrustVerify>Don't Trust. Verify.</DontTrustVerify>
-            </FooterWrapper>
-          </FooterPositionWrapper>
-        </SidebarContainer>
-      </SidebarWrapperAnimated>
+            <NavLinks config={config} setCurrentAccount={setCurrentAccount} loading={loading} />
+            <FooterPositionWrapper>
+              <FooterWrapper>
+                <ViewSourceCodeText href="https://github.com/KayBeSee/lily-wallet" target="_blank">View Source Code</ViewSourceCodeText>
+                <DontTrustVerify>Don't Trust. Verify.</DontTrustVerify>
+              </FooterWrapper>
+            </FooterPositionWrapper>
+          </SidebarContainer>
+        </SidebarWrapperAnimated>
+      </Fragment>
     );
   } else {
     return null;
   }
 }
+
+const SidebarPlaceholder = styled.div`
+  width: 12em;
+`;
 
 const SidebarWrapper = styled.div`
   display: flex;
@@ -44,7 +51,7 @@ const SidebarWrapper = styled.div`
   border: solid 1px ${darkOffWhite};
   border-left: none;
   height: 100vh;
-  position: relative;
+  position: fixed;
 
   ${mobile(css`
     flex-direction: row;
