@@ -9,5 +9,7 @@ export * from './ErrorBoundary';
 export * from './MnemonicWordsDisplayer';
 export * from './FileUploader';
 export * from './Modal';
+export * from './Transition';
+export * from './Dropdown';
 
 export * from './layout';

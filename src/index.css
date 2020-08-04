@@ -58,3 +58,63 @@ th {
 .ReactModal__Content {
   font-family: 'Montserrat', sans-serif;
 }
+
+/* tailwind transition classes */
+.ease-in-out {
+  transition-timing-function: cubic-bezier(.4,0,.2,1);
+}
+
+.duration-150 {
+  transition-duration: .15s;
+}
+
+.transition {
+  transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
+}
+
+.scale-95 {
+  transform: scale(.95);
+}
+
+.scale-100 {
+  transform: scale(1);
+}
+
+.ease-in {
+  transition-timing-function: cubic-bezier(0.4, 0, 1, 1);
+}
+
+.ease-out {
+  transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
+}
+
+.ease-in-out {
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.transform {
+  --transform-translate-x: 0 !important;
+  --transform-translate-y: 0 !important;
+  --transform-rotate: 0 !important;
+  --transform-skew-x: 0 !important;
+  --transform-skew-y: 0 !important;
+  --transform-scale-x: 1 !important;
+  --transform-scale-y: 1 !important;
+  transform: translateX(var(--transform-translate-x)) translateY(var(--transform-translate-y)) rotate(var(--transform-rotate)) skewX(var(--transform-skew-x)) skewY(var(--transform-skew-y)) scaleX(var(--transform-scale-x)) scaleY(var(--transform-scale-y)) !important;
+}
+
+.opacity-0 {
+  opacity: 0;
+}
+
+.opacity-100 {
+  opacity: 1;
+}
+
+.duration-75 {
+  transition-duration: 75ms;
+}
+
+.duration-100 {
+  transition-duration: 100ms;
+}
