@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import axios from 'axios';
 import styled, { css } from 'styled-components';
 import { Safe } from '@styled-icons/crypto';
@@ -15,7 +15,7 @@ import {
 
 import { Psbt, address, bip32, networks } from 'bitcoinjs-lib';
 
-import { StyledIcon, Button, PageWrapper, GridArea, PageTitle, Header, HeaderRight, HeaderLeft, Loading, FileUploader, Modal } from '../../components';
+import { StyledIcon, Button, PageWrapper, GridArea, PageTitle, Header, HeaderRight, HeaderLeft, Loading, FileUploader, Modal, Dropdown } from '../../components';
 import RecentTransactions from '../../components/transactions/RecentTransactions';
 
 import SignWithDevice from './SignWithDevice'
@@ -104,6 +104,8 @@ const Send = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlocks
   const [signedDevices, setSignedDevices] = useState([]);
   const [pastePsbtModalOpen, setPastePsbtModalOpen] = useState(false);
   const [pastedPsbtValue, setPastedPsbtValue] = useState(null);
+  const [optionsDropdownOpen, setOptionsDropdownOpen] = useState(false);
+  const fileUploadLabelRef = useRef(null);
 
   // Get account data
   const { transactions, availableUtxos, unusedChangeAddresses, currentBalance } = currentAccount;
@@ -306,6 +308,38 @@ const Send = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlocks
     }
   }
 
+  const PastePsbtModal = () => (
+    <Modal
+      isOpen={pastePsbtModalOpen}
+      onRequestClose={() => {
+        setPastedPsbtValue(null);
+        setImportTxFromFileError(false);
+        setPastePsbtModalOpen(false);
+      }}>
+      <div>Paste PSBT or Transaction Hex Below</div>
+      <PastePsbtTextArea
+        rows={20}
+        onChange={(e) => {
+          setPastedPsbtValue(e.target.value)
+        }}
+      />
+      {importTxFromFileError && <ErrorText style={{ paddingBottom: '1em' }}>{importTxFromFileError}</ErrorText>}
+      <ImportButtons>
+        <FromFileButton
+          style={{ marginRight: '1em' }}
+          onClick={() => {
+            setPastedPsbtValue(null);
+            setImportTxFromFileError(false);
+            setPastePsbtModalOpen(false);
+          }}>Cancel</FromFileButton>
+        <CopyAddressButton
+          onClick={() => {
+            importTxToForm(pastedPsbtValue)
+          }}>Import Transaction</CopyAddressButton>
+      </ImportButtons>
+    </Modal>
+  )
+
   return (
     <PageWrapper>
       <Header>
@@ -347,7 +381,44 @@ const Send = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlocks
                 </CurrentBalanceWrapper>
 
                 <AccountSendContentLeft>
-                  <SendToAddressHeader>
+                  <Dropdown
+                    isOpen={optionsDropdownOpen}
+                    setIsOpen={setOptionsDropdownOpen}
+                    minimal={true}
+                    style={{ alignSelf: 'flex-end' }}
+                    dropdownItems={[
+                      {
+                        label: 'Import from file',
+                        onClick: () => {
+                          console.log('fileUploadLabelRef: ', fileUploadLabelRef);
+                          const txFileUploadButton = fileUploadLabelRef.current;
+                          txFileUploadButton.click()
+                        }
+                      },
+                      {
+                        label: 'Import from clipboard',
+                        onClick: () => {
+                          setImportTxFromFileError(false)
+                          setPastePsbtModalOpen(true)
+                        }
+                      }
+                    ]}
+                  />
+
+                  {/* Stuff hidden in dropdown */}
+                  <FileUploader
+                    accept="*"
+                    id="txFile"
+                    onFileLoad={(file) => {
+                      importTxToForm(file)
+                    }}
+                  />
+                  <label style={{ display: 'none' }} ref={fileUploadLabelRef} htmlFor="txFile"></label>
+
+                  <PastePsbtModal />
+
+                  {/* Visible in form */}
+                  <SendToAddressHeader style={{ marginTop: 0 }}>
                     Send bitcoin to
                   </SendToAddressHeader>
 
@@ -380,63 +451,6 @@ const Send = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlocks
                   <SendButtonContainer>
                     {/* <CopyAddressButton background="transparent" color={darkGray}>Advanced Options</CopyAddressButton> */}
                     <CopyAddressButton onClick={() => validateAndCreateTransaction()}>Preview Transaction</CopyAddressButton>
-
-                    <ImportTxContainer>
-                      <ImportTxDividerContainer>
-                        <ImportTxDividerLine></ImportTxDividerLine>
-                      </ImportTxDividerContainer>
-                      <ImportTxTextContainer>
-                        <ImportTxText>Or import transaction</ImportTxText>
-                      </ImportTxTextContainer>
-                    </ImportTxContainer>
-
-                    <ImportButtons>
-                      <FileUploader
-                        accept="*"
-                        id="txFile"
-                        onFileLoad={(file) => {
-                          importTxToForm(file)
-                        }}
-                      />
-                      <FromFileButtonLabel htmlFor="txFile">From a file</FromFileButtonLabel>
-                      <FromFileButton
-                        onClick={() => {
-                          setImportTxFromFileError(false)
-                          setPastePsbtModalOpen(true)
-                        }}
-                        style={{ marginLeft: '0.5em' }}>Paste as text</FromFileButton>
-
-                      <Modal
-                        isOpen={pastePsbtModalOpen}
-                        onRequestClose={() => {
-                          setPastedPsbtValue(null);
-                          setImportTxFromFileError(false);
-                          setPastePsbtModalOpen(false);
-                        }}>
-                        <div>Paste PSBT or Transaction Hex Below</div>
-                        <PastePsbtTextArea
-                          rows={20}
-                          onChange={(e) => {
-                            setPastedPsbtValue(e.target.value)
-                          }}
-                        />
-                        {importTxFromFileError && <ErrorText style={{ paddingBottom: '1em' }}>{importTxFromFileError}</ErrorText>}
-                        <ImportButtons>
-                          <FromFileButton
-                            style={{ marginRight: '1em' }}
-                            onClick={() => {
-                              setPastedPsbtValue(null);
-                              setImportTxFromFileError(false);
-                              setPastePsbtModalOpen(false);
-                            }}>Cancel</FromFileButton>
-                          <CopyAddressButton
-                            onClick={() => {
-                              importTxToForm(pastedPsbtValue)
-                            }}>Import Transaction</CopyAddressButton>
-                        </ImportButtons>
-                      </Modal>
-
-                    </ImportButtons>
                     {importTxFromFileError && !pastePsbtModalOpen && <ErrorText style={{ paddingTop: '1em' }}>{importTxFromFileError}</ErrorText>}
                   </SendButtonContainer>
                 </AccountSendContentLeft>
@@ -542,53 +556,6 @@ const FromFileButton = styled.div`
               border: 1px solid ${darkGray};
     cursor: pointer;
   }
-`;
-
-const FromFileButtonLabel = styled.label`
-  padding: 1em 1.25rem;
-  border: 1px solid ${gray};
-  border-radius: .375rem;
-  flex: 1;
-  text-align: center;
-
-  &:hover {
-              border: 1px solid ${darkGray};
-    cursor: pointer;
-  }
-`;
-
-const ImportTxTextContainer = styled.div`
-  position: relative;
-  display: flex;
-  justify-content: center;
-`;
-
-const ImportTxText = styled.div`
-  text-align: center;
-  padding: 0 0.5em;
-  background: ${white};
-  color: ${darkGray};
-`;
-
-const ImportTxDividerContainer = styled.div`
-  position: absolute;
-  right: 0;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  align-items: center;
-  display: flex;
-`;
-
-const ImportTxDividerLine = styled.div`
-  border: 1px solid ${gray};
-  width: 100%;
-`;
-
-const ImportTxContainer = styled.div`
-  position: relative;
-  text-align: center;
-  margin: 3em 0 1em;
 `;
 
 const SendButtonContainer = styled.div`

@@ -22,10 +22,10 @@ import { white } from '../utils/colors';
 
 */}
 
-export const Dropdown = ({ isOpen, setIsOpen, buttonLabel, dropdownItems, minimal }) => {
+export const Dropdown = ({ isOpen, setIsOpen, buttonLabel, dropdownItems, minimal, style }) => {
   console.log('isOpen: ', isOpen)
   return (
-    <DropdownWrapper>
+    <DropdownWrapper style={style}>
       <div>
         {minimal ? (
           <MinimalDropdownButtonContainer
@@ -170,6 +170,7 @@ const DropdownItemsWrapper = styled.div`
   position: absolute;
   margin-top: .5rem;
   border-radius: .375rem;
+  z-index: 2;
 `;
 
 const DropdownItemsContainer = styled.div`

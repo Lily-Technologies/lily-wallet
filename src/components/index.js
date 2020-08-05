@@ -11,5 +11,6 @@ export * from './FileUploader';
 export * from './Modal';
 export * from './Transition';
 export * from './Dropdown';
+export * from './DividerWithText';
 
 export * from './layout';
