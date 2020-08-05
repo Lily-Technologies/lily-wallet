@@ -50,7 +50,6 @@ export const GridArea = styled.div`
   grid-gap: 1.5em;
   padding: 1.5em;
   justify-items: center;
-  align-items: flex-start;
 `;
 
 export const PageTitle = styled.div`

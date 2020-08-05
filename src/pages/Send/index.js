@@ -247,11 +247,13 @@ const Send = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlocks
                   // and add device to list if it isn't already
                   if (Buffer.compare(currentInput.partialSig[j].pubkey, bipItem.pubkey) === 0 && !importedFingerprints.includes(bufferToHex(bipItem.masterFingerprint))) {
                     importedFingerprints.push(bufferToHex(bipItem.masterFingerprint));
-                    currentAccount.config.extendedPublicKeys.forEach((pubKeyFromConfigFile) => {
-                      if (pubKeyFromConfigFile.device.fingerprint === bufferToHex(bipItem.masterFingerprint)) {
-                        setSignedDevices([...signedDevices, pubKeyFromConfigFile.device])
+                    for (let k = 0; k < currentAccount.config.extendedPublicKeys.length; k++) {
+                      if (currentAccount.config.extendedPublicKeys[k].device.fingerprint === bufferToHex(bipItem.masterFingerprint)) {
+                        console.log('currentAccount.config.extendedPublicKeys[k].device: ', currentAccount.config.extendedPublicKeys[k].device);
+                        console.log('signedDevices: ', signedDevices);
+                        setSignedDevices([...signedDevices, currentAccount.config.extendedPublicKeys[k].device])
                       }
-                    })
+                    }
                   }
                 })
               }
@@ -260,7 +262,12 @@ const Send = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlocks
 
           // if there are any imported fingerprints, then add tx to signedPsbts array
           if (importedFingerprints.length) {
-            setSignedPsbts([...signedPsbts, tx.toBase64()])
+            const newlySignedPsbts = [];
+            importedFingerprints.forEach(() => {
+              newlySignedPsbts.push(tx.toBase64())
+            })
+
+            setSignedPsbts([...signedPsbts, ...newlySignedPsbts])
           }
 
           setTxImportedFromFile(true);
@@ -327,7 +334,7 @@ const Send = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlocks
 
         {currentAccount.loading && <Loading itemText={'Send Information'} />}
         {!currentAccount.loading && (
-          <GridArea>
+          <GridArea style={{ borderRadius: '0.375rem', alignItems: txImportedFromFile ? 'flex-start' : 'inherit' }}>
             {step === 0 && (
               <div style={{ display: 'flex', flexDirection: 'column' }}>
                 <CurrentBalanceWrapper displayDesktop={false} displayMobile={true} style={{ marginBottom: '1em' }}>
@@ -340,11 +347,21 @@ const Send = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlocks
                 </CurrentBalanceWrapper>
 
                 <AccountSendContentLeft>
+                  <SendToAddressHeader>
+                    Send bitcoin to
+                  </SendToAddressHeader>
+
+                  <Input
+                    onChange={(e) => setRecipientAddress(e.target.value)}
+                    value={recipientAddress}
+                    placeholder="bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4"
+                    style={{ marginBottom: 36 }}
+                    error={recipientAddressError}
+                  />
 
                   <SendToAddressHeader>
                     Amount of bitcoin to send
-              </SendToAddressHeader>
-
+                  </SendToAddressHeader>
                   <AddressDisplayWrapper>
                     <Input
                       value={sendAmount}
@@ -359,18 +376,6 @@ const Send = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlocks
                     >BTC</InputStaticText>
                   </AddressDisplayWrapper>
                   {sendAmountError && <SendAmountError>Not enough funds</SendAmountError>}
-
-                  <SendToAddressHeader>
-                    Send bitcoin to
-              </SendToAddressHeader>
-
-                  <Input
-                    onChange={(e) => setRecipientAddress(e.target.value)}
-                    value={recipientAddress}
-                    placeholder="bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4"
-                    style={{ marginBottom: 36 }}
-                    error={recipientAddressError}
-                  />
 
                   <SendButtonContainer>
                     {/* <CopyAddressButton background="transparent" color={darkGray}>Advanced Options</CopyAddressButton> */}
@@ -474,7 +479,13 @@ const Send = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlocks
             )}
 
             {step === 1 && currentAccount.config.quorum.requiredSigners > 1 && (
-              <AccountSendContentRight style={{ background: white, padding: 24, border: `1px solid ${darkOffWhite}` }}>
+              <AccountSendContentRight
+                style={{
+                  background: white,
+                  padding: '1.5rem',
+                  boxShadow: '0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06)',
+                  borderRadius: '0.375rem'
+                }}>
                 <SignWithDevice
                   psbt={finalPsbt}
                   setSignedPsbts={setSignedPsbts}
@@ -492,9 +503,9 @@ const Send = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlocks
 }
 
 const PastePsbtTextArea = styled.textarea`
-  width: 100%;
-  resize: none;
-  border-color: #d2d6dc;
+  width: 100 %;
+                resize: none;
+                border- color: #d2d6dc;
   border-width: 1px;
   border-radius: .375rem;
   padding: .5rem .75rem;
@@ -502,7 +513,7 @@ const PastePsbtTextArea = styled.textarea`
   margin: 2em 0;
 
   &:focus {
-    outline: none;
+              outline: none;
     box-shadow: 0 0 0 3px rgba(164,202,254,.45);
     border-color: #a4cafe;
   }
@@ -528,7 +539,7 @@ const FromFileButton = styled.div`
   font-family: 'Montserrat', sans-serif;
 
   &:hover {
-    border: 1px solid ${darkGray};
+              border: 1px solid ${darkGray};
     cursor: pointer;
   }
 `;
@@ -541,7 +552,7 @@ const FromFileButtonLabel = styled.label`
   text-align: center;
 
   &:hover {
-    border: 1px solid ${darkGray};
+              border: 1px solid ${darkGray};
     cursor: pointer;
   }
 `;
@@ -577,7 +588,7 @@ const ImportTxDividerLine = styled.div`
 const ImportTxContainer = styled.div`
   position: relative;
   text-align: center;
-  margin: 1em 0;
+  margin: 3em 0 1em;
 `;
 
 const SendButtonContainer = styled.div`
@@ -630,11 +641,11 @@ const InputStyles = css`
   z-index: 1;
 
   ::placeholder {
-    color: ${gray};
+              color: ${gray};
   }
 
   :active, :focused {
-    outline: 0;
+              outline: 0;
     border: none;
   }
 `;
@@ -657,9 +668,9 @@ const InputStaticText = styled.label`
   font-size: 1.5em;
   font-weight: 100;
   color: ${gray};
-  
+
   &::after {
-    content: ${p => p.text};
+              content: ${p => p.text};
     position: absolute;
     top: 4px;
     left: 94px;

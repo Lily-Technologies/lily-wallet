@@ -67,7 +67,10 @@ export const Dropdown = ({ isOpen, setIsOpen, buttonLabel, dropdownItems, minima
             <DropdownItems role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
               {dropdownItems.map((item) => (
                 <DropdownItem
-                  onClick={() => item.onClick()}
+                  onClick={() => {
+                    item.onClick();
+                    setIsOpen(false);
+                  }}
                   role="menuitem">{item.label}</DropdownItem>
               ))}
             </DropdownItems>

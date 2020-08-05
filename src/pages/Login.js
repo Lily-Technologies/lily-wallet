@@ -104,7 +104,6 @@ const SignupOptionMenu = styled(GridArea)`
   max-width: 46.875em;
   width: 100%;
   padding-top: 3.75em;
-  align-items: flex-end;
 `;
 
 const SignupOptionMainText = styled.div`

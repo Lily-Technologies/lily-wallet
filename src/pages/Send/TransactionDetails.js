@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, Fragment } from 'react';
 import styled, { css } from 'styled-components';
 import axios from 'axios';
 import { ArrowIosForwardOutline } from '@styled-icons/evaicons-outline'
@@ -11,31 +11,50 @@ import {
 import { Psbt, address } from 'bitcoinjs-lib';
 
 import { cloneBuffer } from '../../utils/other';
-import { StyledIcon, Button, SidewaysShake, Dropdown } from '../../components';
+import { StyledIcon, Button, SidewaysShake, Dropdown, Modal } from '../../components';
 
 import { gray, blue, darkGray, white, darkOffWhite, green, darkGreen, lightGray, red, lightRed } from '../../utils/colors';
+import { downloadFile } from '../../utils/files';
+
+const combinePsbts = (finalPsbt, signedPsbts) => {
+  console.log('finalPsbt, signedPsbts: ', finalPsbt, signedPsbts);
+  const psbt = finalPsbt;
+  const base64SignedPsbts = signedPsbts.map((psbt) => {
+    if (typeof psbt === 'object') {
+      return psbt;
+    } else {
+      return Psbt.fromBase64(psbt);
+    }
+  })
+  if (base64SignedPsbts.length) { // if there are signed psbts, combine them
+    psbt.combine(...base64SignedPsbts);
+  }
+  return psbt;
+}
 
 const TransactionDetails = ({ finalPsbt, feeEstimate, outputTotal, txImportedFromFile, recipientAddress, sendAmount, setStep, utxosMap, signedPsbts, signThreshold, currentBitcoinNetwork, currentBitcoinPrice }) => {
   const [showMoreDetails, setShowMoreDetails] = useState(txImportedFromFile);
   const [broadcastedTxId, setBroadcastedTxId] = useState('');
   const [txError, setTxError] = useState(null);
   const [optionsDropdownOpen, setOptionsDropdownOpen] = useState(false);
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [modalContent, setModalContent] = useState(null);
+
+  const openInModal = (component) => {
+    setModalIsOpen(true);
+    setModalContent(component);
+  }
 
   const broadcastTransaction = async () => {
-    console.log('signedPsbts: ', signedPsbts);
     if (signedPsbts.length === signThreshold) {
       try {
         // TODO: support combining more than 2 PSBTs
         if (signThreshold > 1) {
-          const psbt = finalPsbt;
-          const psbt1 = Psbt.fromBase64(signedPsbts[0]);
-          const psbt2 = Psbt.fromBase64(signedPsbts[1]);
+          const combinedPsbt = combinePsbts(finalPsbt, signedPsbts)
 
-          psbt.combine(psbt1, psbt2);
+          combinedPsbt.finalizeAllInputs();
 
-          psbt.finalizeAllInputs();
-
-          const { data } = await axios.get(blockExplorerAPIURL(`/broadcast?tx=${psbt.extractTransaction().toHex()}`, currentBitcoinNetwork));
+          const { data } = await axios.get(blockExplorerAPIURL(`/broadcast?tx=${combinedPsbt.extractTransaction().toHex()}`, currentBitcoinNetwork));
           setBroadcastedTxId(data);
 
         } else {
@@ -48,108 +67,167 @@ const TransactionDetails = ({ finalPsbt, feeEstimate, outputTotal, txImportedFro
     }
   }
 
-  console.log('satoshisToBitcoins(feeEstimate).toNumber(): ', satoshisToBitcoins(feeEstimate).toNumber());
+  const downloadPsbt = () => {
+    const combinedPsbt = combinePsbts(finalPsbt, signedPsbts);
+    console.log('combinedPsbt: ', combinedPsbt);
+    console.log('combinedPsbt.toBase64(): ', combinedPsbt.toBase64());
 
+    const psbtForDownload = new Blob([combinedPsbt.toBase64()]);
+    downloadFile(psbtForDownload, 'my-sweet-tx.psbt');
+  }
+
+  const TransactionOptionsDropdown = () => {
+    const dropdownItems = [
+      { label: 'View PSBT', onClick: () => { openInModal(<PsbtDetails />) } },
+      { label: 'Download PSBT', onClick: () => { downloadPsbt(); openInModal(<PsbtDownloadDetails />) } }
+    ];
+
+    // if we are creating the transaction ourselves, give options for adjustment
+    if (!txImportedFromFile) {
+      dropdownItems.unshift(
+        { label: 'Edit Transaction', onClick: () => setStep(0) },
+        { label: `View ${showMoreDetails ? 'less' : 'more'} details`, onClick: () => { openInModal(<TransactionDetails />); } },
+        { label: 'Adjust Fee', onClick: () => { openInModal(<FeeSelector />) } }
+      );
+    }
+
+    return (
+      <Dropdown
+        isOpen={optionsDropdownOpen}
+        setIsOpen={setOptionsDropdownOpen}
+        minimal={true}
+        dropdownItems={dropdownItems}
+      />
+    )
+  }
+
+  const FeeSelector = () => (
+    <div>fee selector</div>
+  )
+
+  const PsbtDetails = () => (
+    <Fragment>
+      <ModalHeaderContainer>
+        PSBT
+      </ModalHeaderContainer>
+      <div style={{ padding: '1.5em' }}>
+        <OutputItem style={{ wordBreak: 'break-word' }}>
+          {finalPsbt.toBase64()}
+        </OutputItem>
+      </div>
+    </Fragment>
+  )
+
+  const PsbtDownloadDetails = () => (
+    <Fragment>
+      <ModalHeaderContainer>
+        Download Complete
+      </ModalHeaderContainer>
+      <div>Check your downloads folder for psbt file</div>
+    </Fragment>
+  )
+
+  const TransactionSummary = () => (
+    <Fragment>
+      <ModalHeaderContainer>
+        <span>Transaction Summary</span>
+        <TransactionOptionsDropdown />
+      </ModalHeaderContainer>
+      <MainTxData>
+        <SendingHeader style={{ padding: 0 }}>{`Sending ${sendAmount} BTC`}</SendingHeader>
+        <ToField>to</ToField>
+        <RecipientAddressRow style={{ paddingTop: 0, textAlign: 'right' }}>{recipientAddress}</RecipientAddressRow>
+      </MainTxData>
+      <div>
+        <TransactionFeeField>Transaction Fee: <span>{satoshisToBitcoins(feeEstimate).toNumber()} BTC (${satoshisToBitcoins(feeEstimate.multipliedBy(currentBitcoinPrice)).toFixed(2)})</span></TransactionFeeField>
+      </div>
+    </Fragment>
+  )
+
+  const TransactionDetails = () => (
+    <Fragment>
+      <ModalHeaderContainer>
+        <span>Transaction Details</span>
+        {txImportedFromFile && <TransactionOptionsDropdown />}
+      </ModalHeaderContainer>
+      <MoreDetailsContainer>
+        <MoreDetailsSection>
+          <MoreDetailsHeader>Inputs</MoreDetailsHeader>
+          {finalPsbt.__CACHE.__TX.ins.map(input => {
+            const inputBuffer = cloneBuffer(input.hash);
+            const utxo = utxosMap.get(inputBuffer.reverse().toString('hex'));
+            return (
+              <OutputItem>
+                <OutputAddress>{utxo.address.address}</OutputAddress>
+                <OutputAmount>{satoshisToBitcoins(utxo.value).toNumber()} BTC</OutputAmount>
+              </OutputItem>
+            )
+          })}
+        </MoreDetailsSection>
+        <MoreDetailsSection>
+          <MoreDetailsHeader style={{ marginTop: '1em' }}>Outputs</MoreDetailsHeader>
+          {finalPsbt.__CACHE.__TX.outs.map(output => (
+            <OutputItem>
+              {/* script: {output.script.toString('hex')}, */}
+              <OutputAddress>{address.fromOutputScript(output.script, finalPsbt.opts.network)}</OutputAddress> <OutputAmount>{satoshisToBitcoins(output.value).toNumber()} BTC</OutputAmount>
+            </OutputItem>
+          ))}
+
+          <MoreDetailsHeader style={{ display: 'flex', justifyContent: 'space-between', marginTop: '2em' }}>Fees: {<span>{satoshisToBitcoins(feeEstimate).toNumber()} BTC (${satoshisToBitcoins(feeEstimate.multipliedBy(currentBitcoinPrice)).toFixed(2)})</span>}</MoreDetailsHeader>
+        </MoreDetailsSection>
+      </MoreDetailsContainer>
+    </Fragment>
+  );
+
+  let screen = null;
+
+  if (!txImportedFromFile) {
+    screen = TransactionSummary()
+  } else {
+    screen = TransactionDetails()
+  }
 
   return (
-    <AccountSendContentRight>
-      {!showMoreDetails ? (
+    <Fragment>
+      <Modal
+        isOpen={modalIsOpen}
+        onRequestClose={() => {
+          setModalIsOpen(false);
+          setModalContent(null);
+        }}
+      >
+        {modalContent}
+      </Modal>
+      <AccountSendContentRight>
         <SendDetailsContainer>
-          <TransactionDetailsHeader>
-            <span>Transaction Details</span>
-            <Dropdown
-              isOpen={optionsDropdownOpen}
-              setIsOpen={setOptionsDropdownOpen}
-              minimal={true}
-              dropdownItems={[
-                { label: 'Edit Transaction', onClick: () => setStep(0) },
-                { label: `View ${showMoreDetails ? 'less' : 'more'} details`, onClick: () => setShowMoreDetails(!showMoreDetails) },
-                { label: 'Adjust Fee', onClick: () => { console.log('foobar2') } },
-                { label: 'View PSBT', onClick: () => { console.log('foobar3') } },
-                { label: 'Export Transaction', onClick: () => { console.log('foobar3') } }
-              ]}
-            />
-          </TransactionDetailsHeader>
-          <MainTxData>
-            <SendingHeader style={{ padding: 0 }}>{`Sending ${sendAmount} BTC`}</SendingHeader>
-            <ToField>to</ToField>
-            <RecipientAddressRow style={{ paddingTop: 0, textAlign: 'right' }}>{recipientAddress}</RecipientAddressRow>
-          </MainTxData>
-          <div>
-            <TransactionFeeField>Transaction Fee: <span>{satoshisToBitcoins(feeEstimate).toNumber()} BTC (${satoshisToBitcoins(feeEstimate.multipliedBy(currentBitcoinPrice)).toFixed(2)})</span></TransactionFeeField>
-            {txError && <ErrorBox>{txError}</ErrorBox>}
-
-            {!broadcastedTxId && <SendButton background={green} color={white} loaded={signedPsbts.length === signThreshold} onClick={broadcastTransaction}>
-              {signedPsbts.length < signThreshold ? `Confirm on Devices (${signedPsbts.length}/${signThreshold})` : 'Send Transaction'}
-              {signedPsbts.length < signThreshold ? null : (
-                <SendButtonCheckmark loaded={signedPsbts.length}>
-                  <StyledIcon as={ArrowIosForwardOutline} size={16} />
-                </SendButtonCheckmark>
-              )}
-            </SendButton>}
-
-            {broadcastedTxId && <ViewTransactionButton href={`https://blockstream.info/tx/${broadcastedTxId}`} target="_blank">View Transaction</ViewTransactionButton>}
-          </div>
-
-
+          {screen}
+          {txError && <ErrorBox>{txError}</ErrorBox>}
+          {!broadcastedTxId && <SendButton background={green} color={white} loaded={signedPsbts.length === signThreshold} onClick={broadcastTransaction}>
+            {signedPsbts.length < signThreshold ? `Confirm on Devices (${signedPsbts.length}/${signThreshold})` : 'Send Transaction'}
+            {signedPsbts.length < signThreshold ? null : (
+              <SendButtonCheckmark loaded={signedPsbts.length}>
+                <StyledIcon as={ArrowIosForwardOutline} size={16} />
+              </SendButtonCheckmark>
+            )}
+          </SendButton>}
+          {broadcastedTxId && <ViewTransactionButton href={`https://blockstream.info/tx/${broadcastedTxId}`} target="_blank">View Transaction</ViewTransactionButton>}
         </SendDetailsContainer>
-      ) : (
-          <SendDetailsContainer>
-            <MoreDetailsSection>
-              <MoreDetailsHeader>Inputs</MoreDetailsHeader>
-              {finalPsbt.__CACHE.__TX.ins.map(input => {
-                const inputBuffer = cloneBuffer(input.hash);
-                const utxo = utxosMap.get(inputBuffer.reverse().toString('hex'));
-                return (
-                  <OutputItem>
-                    <OutputAddress>{utxo.address.address}</OutputAddress>
-                    <OutputAmount>{satoshisToBitcoins(utxo.value).toNumber()} BTC</OutputAmount>
-                  </OutputItem>
-                )
-              })}
-            </MoreDetailsSection>
-            <MoreDetailsSection>
-              <MoreDetailsHeader style={{ marginTop: '1em' }}>Outputs</MoreDetailsHeader>
-              {finalPsbt.__CACHE.__TX.outs.map(output => (
-                <OutputItem>
-                  {/* script: {output.script.toString('hex')}, */}
-                  <OutputAddress>{address.fromOutputScript(output.script, finalPsbt.opts.network)}</OutputAddress> <OutputAmount>{satoshisToBitcoins(output.value).toNumber()} BTC</OutputAmount>
-                </OutputItem>
-              ))}
-
-              <MoreDetailsHeader style={{ display: 'flex', justifyContent: 'space-between', marginTop: '2em' }}>Fees: {<span>{satoshisToBitcoins(feeEstimate).toNumber()} BTC (${satoshisToBitcoins(feeEstimate.multipliedBy(currentBitcoinPrice)).toFixed(2)})</span>}</MoreDetailsHeader>
-
-            </MoreDetailsSection>
-            {!txImportedFromFile && (
-              <MoreDetailsSection>
-                <MoreDetailsHeader>PSBT</MoreDetailsHeader>
-                <div style={{ display: 'flex' }}>
-                  <TextArea rows={8} value={finalPsbt.toHex()} />
-                </div>
-              </MoreDetailsSection>
-            )}
-            {!txImportedFromFile && (
-              <MoreDetails>
-                <span onClick={() => setShowMoreDetails(!showMoreDetails)}>{showMoreDetails ? 'Less' : 'More'} Details ></span>
-                {/* <span onClick={() => setStep(0)}>Manual Transaction</span> */}
-              </MoreDetails>
-            )}
-            {txError && <ErrorBox>{txError}</ErrorBox>}
-            {!broadcastedTxId && <SendButton background={green} color={white} loaded={signedPsbts.length === signThreshold} onClick={broadcastTransaction}>
-              {signedPsbts.length < signThreshold ? `Confirm on Devices (${signedPsbts.length}/${signThreshold})` : 'Send Transaction'}
-              {signedPsbts.length < signThreshold ? null : (
-                <SendButtonCheckmark loaded={signedPsbts.length}>
-                  <StyledIcon as={ArrowIosForwardOutline} size={16} />
-                </SendButtonCheckmark>
-              )}
-            </SendButton>}
-
-            {broadcastedTxId && <ViewTransactionButton href={`https://blockstream.info/tx/${broadcastedTxId}`} target="_blank">View Transaction</ViewTransactionButton>}
-          </SendDetailsContainer>
-        )}
-    </AccountSendContentRight>
+      </AccountSendContentRight>
+    </Fragment>
   )
 }
+
+const ModalHeaderContainer = styled.div`
+  border-bottom: 1px solid rgb(229,231,235);
+  padding-top: 1.25rem;
+  padding-bottom: 1.25rem;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 1.5em;
+`;
 
 const SendingHeader = styled.div`
   font-size: 1.75em;
@@ -160,6 +238,8 @@ const MainTxData = styled.div`
   flex-direction: column;
   align-items: center;
   margin: 4em 0 3em;
+  padding-left: 3.5rem;
+  padding-right: 3.5rem;
 `;
 
 const RecipientAddressRow = styled.div`
@@ -200,8 +280,10 @@ const OutputAmount = styled.span`
   text-align: right;
 `;
 
-const MoreDetailsSection = styled.div`
+const MoreDetailsSection = styled.div``;
 
+const MoreDetailsContainer = styled.div`
+  padding: 1.5rem;
 `;
 
 const MoreDetailsHeader = styled.div`
@@ -220,13 +302,12 @@ const TransactionDetailsHeader = styled.div`
 
 const SendDetailsContainer = styled.div`
   background: ${white};
-  // margin-top: 1.5em;
-  padding: 2em 2.25em;
   display: flex;
   flex-direction: column;
   flex: 1;
-  border: solid 1px ${darkGray};
   justify-content: space-between;
+  box-shadow: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06);
+  border-radius: 0.375rem;
 `;
 
 const ToField = styled.div`
@@ -237,11 +318,13 @@ const ToField = styled.div`
 `;
 
 const TransactionFeeField = styled.div`
-  font-size: 0.75em;
+  font-size: 1em;
   padding: 1em 0;
   display: flex;
   justify-content: space-between;
   color: ${gray};
+  flex-direction: column;
+  align-items: center;
 `;
 
 const MoreDetails = styled.div`
@@ -266,7 +349,8 @@ const SendButton = styled.div`
   transition: ease-out 0.4s;
   position: relative;
   font-size: 1.5em;
-  margin-top: 2em;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
 
   &:hover {
     box-shadow: inset 500px 0 0 0 ${darkGreen};
