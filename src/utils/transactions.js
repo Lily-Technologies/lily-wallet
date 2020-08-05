@@ -98,77 +98,25 @@ const serializeTransactions = (transactionsFromBlockstream, addresses, changeAdd
   return transactionsArray;
 }
 
-const getChildPubKeysFromXpubs = (xpubs, multisig = true, currentBitcoinNetwork) => {
-  const childPubKeys = [];
-  for (let i = 0; i < 30; i++) {
-    xpubs.forEach((xpub) => {
-      const childPubKeysBip32Path = `m/0/${i}`;
-      const bip32derivationPath = multisig ? `${getMultisigDeriationPathForNetwork(currentBitcoinNetwork)}/${childPubKeysBip32Path.replace('m/', '')}` : `m/84'/0'/0'/${childPubKeysBip32Path.replace('m/', '')}`;
-      childPubKeys.push({
-        childPubKey: deriveChildPublicKey(xpub.xpub, childPubKeysBip32Path, getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)),
-        bip32derivation: {
-          masterFingerprint: Buffer.from(xpub.parentFingerprint, 'hex'),
-          pubkey: Buffer.from(deriveChildPublicKey(xpub.xpub, childPubKeysBip32Path, getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)), 'hex'),
-          path: bip32derivationPath
-        }
-      });
-    })
-  }
-  return childPubKeys;
-}
-
-const getChildChangePubKeysFromXpubs = (xpubs, multisig = true, currentBitcoinNetwork) => {
-  const childChangePubKeys = [];
-  for (let i = 0; i < 30; i++) {
-    xpubs.forEach((xpub) => {
-      const childChangeAddressPubKeysBip32Path = `m/1/${i}`;
-      const bip32derivationPath = multisig ? `${getMultisigDeriationPathForNetwork(currentBitcoinNetwork)}/${childChangeAddressPubKeysBip32Path.replace('m/', '')}` : `m/84'/0'/0'/${childChangeAddressPubKeysBip32Path.replace('m/', '')}`;
-      childChangePubKeys.push({
-        childPubKey: deriveChildPublicKey(xpub.xpub, childChangeAddressPubKeysBip32Path, getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)),
-        bip32derivation: {
-          masterFingerprint: Buffer.from(xpub.parentFingerprint, 'hex'),
-          pubkey: Buffer.from(deriveChildPublicKey(xpub.xpub, childChangeAddressPubKeysBip32Path, getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)), 'hex'),
-          path: bip32derivationPath,
-        }
-      });
-    })
-  }
-  return childChangePubKeys;
-}
-
-const getMultisigAddressesFromPubKeys = (pubkeys, config, currentBitcoinNetwork) => {
-  const addresses = [];
-  for (let i = 0; i < pubkeys.length; i + 3) {
-    const publicKeysForMultisigAddress = pubkeys.splice(i, 3);
-    const rawPubkeys = publicKeysForMultisigAddress.map((publicKey) => publicKey.childPubKey);
-    rawPubkeys.sort();
-    const address = generateMultisigFromPublicKeys(getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork), config.addressType, config.quorum.requiredSigners, rawPubkeys[0], rawPubkeys[1], rawPubkeys[2]);
-    address.bip32derivation = publicKeysForMultisigAddress.map((publicKey) => publicKey.bip32derivation)
-    addresses.push(address);
-  }
-  return addresses;
-}
-
-const getTransactionsFromAddresses = async (addresses, currentBitcoinNetwork) => {
-  const transactions = [];
-  for (let i = 0; i < addresses.length; i++) {
-    const txsFromBlockstream = await (await axios.get(blockExplorerAPIURL(`/address/${addresses[i].address}/txs`, getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)))).data;
-    txsFromBlockstream.forEach((tx) => {
-      transactions.push(tx);
-    })
-  }
-  return transactions;
-}
-
-const getUnusedAddresses = async (addresses, currentBitcoinNetwork) => {
-  const unusedAddresses = [];
-  for (let i = 0; i < addresses.length; i++) {
-    const txsFromBlockstream = await (await axios.get(blockExplorerAPIURL(`/address/${addresses[i].address}/txs`, getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)))).data;
-    if (!txsFromBlockstream.length > 0) {
-      unusedAddresses.push(addresses[i]);
+const getChildPubKeyFromXpub = (xpub, bip32Path, multisig, currentBitcoinNetwork) => {
+  const childPubKeysBip32Path = bip32Path;
+  const bip32derivationPath = multisig ? `${getMultisigDeriationPathForNetwork(currentBitcoinNetwork)}/${childPubKeysBip32Path.replace('m/', '')}` : `m/84'/0'/0'/${childPubKeysBip32Path.replace('m/', '')}`;
+  return {
+    childPubKey: deriveChildPublicKey(xpub.xpub, childPubKeysBip32Path, getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)),
+    bip32derivation: {
+      masterFingerprint: Buffer.from(xpub.parentFingerprint, 'hex'),
+      pubkey: Buffer.from(deriveChildPublicKey(xpub.xpub, childPubKeysBip32Path, getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)), 'hex'),
+      path: bip32derivationPath
     }
   }
-  return unusedAddresses;
+}
+
+const getMultisigAddressFromPubKeys = (pubkeys, config, currentBitcoinNetwork) => {
+  const rawPubkeys = pubkeys.map((publicKey) => publicKey.childPubKey);
+  rawPubkeys.sort();
+  const address = generateMultisigFromPublicKeys(getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork), config.addressType, config.quorum.requiredSigners, ...rawPubkeys);
+  address.bip32derivation = pubkeys.map((publicKey) => publicKey.bip32derivation)
+  return address;
 }
 
 const getUtxosForAddresses = async (addresses, currentBitcoinNetwork) => {
@@ -185,56 +133,92 @@ const getUtxosForAddresses = async (addresses, currentBitcoinNetwork) => {
   return availableUtxos;
 }
 
-const getDataFromMultisig = async (config, currentBitcoinNetwork) => {
-  const childPubKeys = getChildPubKeysFromXpubs(config.extendedPublicKeys, true, currentBitcoinNetwork);
-  const childChangePubKeys = getChildChangePubKeysFromXpubs(config.extendedPublicKeys, true, currentBitcoinNetwork);
-
-  const addresses = getMultisigAddressesFromPubKeys(childPubKeys, config, currentBitcoinNetwork);
-  const changeAddresses = getMultisigAddressesFromPubKeys(childChangePubKeys, config, currentBitcoinNetwork);
-
-  const transactions = await getTransactionsFromAddresses(addresses.concat(changeAddresses), currentBitcoinNetwork);
-  const unusedAddresses = await getUnusedAddresses(addresses, currentBitcoinNetwork);
-  const unusedChangeAddresses = await getUnusedAddresses(changeAddresses, currentBitcoinNetwork);
-
-  const availableUtxos = await getUtxosForAddresses(addresses.concat(changeAddresses), currentBitcoinNetwork);
-
-  const organizedTransactions = serializeTransactions(transactions, addresses, changeAddresses);
-
-  return [addresses, changeAddresses, organizedTransactions, unusedAddresses, unusedChangeAddresses, availableUtxos];
+const getAddressFromPubKey = (childPubKey, currentBitcoinNetwork) => {
+  const address = payments.p2wpkh({ pubkey: Buffer.from(childPubKey.childPubKey, 'hex'), network: currentBitcoinNetwork });
+  address.bip32derivation = [childPubKey.bip32derivation];
+  return address;
 }
 
-const getDataFromXPub = async (currentWallet, currentBitcoinNetwork) => {
-  const childPubKeys = getChildPubKeysFromXpubs([currentWallet], false, currentBitcoinNetwork);
-  const childChangePubKeys = getChildChangePubKeysFromXpubs([currentWallet], false, currentBitcoinNetwork);
+const getTransactionsFromAddress = async (address, currentBitcoinNetwork) => {
+  return await (await axios.get(blockExplorerAPIURL(`/address/${address}/txs`, getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)))).data
+}
 
-  const addresses = childPubKeys.map((childPubKey, i) => {
-    const address = payments.p2wpkh({ pubkey: Buffer.from(childPubKey.childPubKey, 'hex'), network: currentBitcoinNetwork });
-    address.bip32derivation = [childPubKey.bip32derivation];
-    return address;
-  });
+const getAddressFromAccount = (account, path, currentBitcoinNetwork) => {
+  if (account.quorum.totalSigners > 1) { // multisig
+    const childPubKeys = account.extendedPublicKeys.map((extendedPublicKey) => {
+      return getChildPubKeyFromXpub(extendedPublicKey, path, true, currentBitcoinNetwork)
+    })
+    return getMultisigAddressFromPubKeys(childPubKeys, account, currentBitcoinNetwork)
+  } else { // single sig
+    const receivePubKey = getChildPubKeyFromXpub(account, path, false, currentBitcoinNetwork);
+    return getAddressFromPubKey(receivePubKey, currentBitcoinNetwork);
+  }
+}
 
-  const changeAddresses = childChangePubKeys.map((childPubKey, i) => {
-    const address = payments.p2wpkh({ pubkey: Buffer.from(childPubKey.childPubKey, 'hex'), network: currentBitcoinNetwork });
-    address.bip32derivation = [childPubKey.bip32derivation];
-    return address;
-  });
 
-  const transactions = await getTransactionsFromAddresses(addresses.concat(changeAddresses), currentBitcoinNetwork);
-  const unusedAddresses = await getUnusedAddresses(addresses, currentBitcoinNetwork);
-  const unusedChangeAddresses = await getUnusedAddresses(changeAddresses, currentBitcoinNetwork);
 
-  const availableUtxos = await getUtxosForAddresses(addresses.concat(changeAddresses), currentBitcoinNetwork);
+const scanForAddressesAndTransactions = async (account, currentBitcoinNetwork, limitGap) => {
+  const receiveAddresses = [];
+  const changeAddresses = [];
+  let transactions = [];
 
-  const organizedTransactions = serializeTransactions(transactions, addresses, changeAddresses);
+  const unusedReceiveAddresses = [];
+  const unusedChangeAddresses = [];
 
-  return [addresses, changeAddresses, organizedTransactions, unusedAddresses, unusedChangeAddresses, availableUtxos];
+  let gap = 0;
+  let i = 0;
+
+  while (gap < limitGap) {
+    const receiveAddress = getAddressFromAccount(account, `m/0/${i}`, currentBitcoinNetwork)
+
+    receiveAddresses.push(receiveAddress);
+    const receiveTxs = await getTransactionsFromAddress(receiveAddress.address, currentBitcoinNetwork);
+    if (!receiveTxs.length) {
+      unusedReceiveAddresses.push(receiveAddress)
+    } else {
+      transactions = [...transactions, ...receiveTxs]
+    }
+
+    const changeAddress = getAddressFromAccount(account, `m/1/${i}`, currentBitcoinNetwork)
+    changeAddresses.push(changeAddress);
+    const changeTxs = await getTransactionsFromAddress(changeAddress.address, currentBitcoinNetwork)
+    if (!changeTxs.length) {
+      unusedChangeAddresses.push(changeAddress)
+    } else {
+      transactions = [...transactions, ...changeTxs]
+    }
+
+    if (!!!receiveTxs.length && !!!changeTxs.length) {
+      gap = gap + 1;
+    } else {
+      gap = 0
+    }
+
+    i = i + 1;
+  }
+  return { receiveAddresses, changeAddresses, unusedReceiveAddresses, unusedChangeAddresses, transactions }
+}
+
+const getDataFromMultisig = async (account, currentBitcoinNetwork) => {
+  const { receiveAddresses, changeAddresses, unusedReceiveAddresses, unusedChangeAddresses, transactions } = await scanForAddressesAndTransactions(account, currentBitcoinNetwork, 10)
+  const availableUtxos = await getUtxosForAddresses(receiveAddresses.concat(changeAddresses), currentBitcoinNetwork);
+  const organizedTransactions = serializeTransactions(transactions, receiveAddresses, changeAddresses);
+
+  return [receiveAddresses, changeAddresses, organizedTransactions, unusedReceiveAddresses, unusedChangeAddresses, availableUtxos];
+}
+
+const getDataFromXPub = async (account, currentBitcoinNetwork) => {
+  const { receiveAddresses, changeAddresses, unusedReceiveAddresses, unusedChangeAddresses, transactions } = await scanForAddressesAndTransactions(account, currentBitcoinNetwork, 10)
+
+  const availableUtxos = await getUtxosForAddresses(receiveAddresses.concat(changeAddresses), currentBitcoinNetwork);
+  const organizedTransactions = serializeTransactions(transactions, receiveAddresses, changeAddresses);
+
+  return [receiveAddresses, changeAddresses, organizedTransactions, unusedReceiveAddresses, unusedChangeAddresses, availableUtxos];
 }
 
 module.exports = {
   getMultisigDeriationPathForNetwork: getMultisigDeriationPathForNetwork,
   createAddressMapFromAddressArray: createAddressMapFromAddressArray,
-  getChildPubKeysFromXpubs: getChildPubKeysFromXpubs,
-  getChildChangePubKeysFromXpubs: getChildChangePubKeysFromXpubs,
   getDataFromMultisig: getDataFromMultisig,
   getDataFromXPub: getDataFromXPub
 }
