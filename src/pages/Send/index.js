@@ -24,6 +24,7 @@ import TransactionDetails from './TransactionDetails';
 import { red, gray, blue, darkGray, white, darkOffWhite, lightGray, lightBlue } from '../../utils/colors';
 import { mobile } from '../../utils/media';
 import { cloneBuffer, bufferToHex } from '../../utils/other';
+import { combinePsbts } from '../../utils/files';
 
 const validateAddress = (recipientAddress) => {
   try {
@@ -143,11 +144,11 @@ const Send = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlocks
           hash: utxo.txid,
           index: utxo.vout,
           sequence: 0xffffffff,
-          witnessUtxo: {
-            script: Buffer.from(transactionMap.get(utxo.txid).vout[utxo.vout].scriptpubkey, 'hex'),
-            value: utxo.value
-          },
-          // nonWitnessUtxo: Buffer.from(prevTxHex, 'hex'),
+          // witnessUtxo: {
+          //   script: Buffer.from(transactionMap.get(utxo.txid).vout[utxo.vout].scriptpubkey, 'hex'),
+          //   value: utxo.value
+          // },
+          nonWitnessUtxo: Buffer.from(prevTxHex, 'hex'),
           // redeemScript: utxo.address.redeem.output,
           witnessScript: Buffer.from(multisigWitnessScript(utxo.address).output),
           bip32Derivation: utxo.address.bip32derivation.map((derivation) => ({
@@ -204,79 +205,77 @@ const Send = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlocks
   }
 
   const importTxToForm = (file) => {
-    {
-      let tx;
-      // try seeing if we are getting base64 encoded tx
-      try {
-        tx = Psbt.fromBase64(file);
+    let tx;
+    // try seeing if we are getting base64 encoded tx
+    try {
+      tx = Psbt.fromBase64(file);
+    } catch (e) {
+      try { // try getting hex encoded tx
+        tx = Psbt.fromHex(file);
       } catch (e) {
-        try { // try getting hex encoded tx
-          tx = Psbt.fromHex(file);
-        } catch (e) {
-          setImportTxFromFileError('Invalid Transaction')
-        }
+        setImportTxFromFileError('Invalid Transaction')
       }
+    }
 
-      // if valid transaction, then continue parsing
-      if (tx) { // transaction will be undefined if not created above
-        try {
-          // validate psbt and make sure it belongs to the current account
-          let sumInputs = new BigNumber(0);
-          for (let i = 0; i < tx.__CACHE.__TX.ins.length; i++) {
-            const currentInput = tx.__CACHE.__TX.ins[i];
-            const inputBuffer = cloneBuffer(currentInput.hash);
-            const currentUtxo = utxosMap.get(inputBuffer.reverse().toString('hex'));
-            if (!currentUtxo) {
-              throw new Error('This transaction isn\'t associated with this wallet')
-            };
-            console.log('currentUtxo: ', currentUtxo);
-            sumInputs = sumInputs.plus(currentUtxo.value);
+    // if valid transaction, then continue parsing
+    if (tx) { // transaction will be undefined if not created above
+      try {
+        if (!finalPsbt) {
+          setFinalPsbt(tx);
+        } else {
+          try {
+            tx = combinePsbts(finalPsbt, [...signedPsbts, tx])
+          } catch (e) {
+            throw new Error(e)
           }
-          const sumOutputs = tx.__CACHE.__TX.outs.reduce((accum, curr) => accum + curr.value, 0);
-          setFeeEstimate(sumInputs.minus(sumOutputs).integerValue(BigNumber.ROUND_CEIL));
-          if (!finalPsbt) {
-            setFinalPsbt(tx);
-          }
+        }
+        // validate psbt and make sure it belongs to the current account
+        let sumInputs = new BigNumber(0);
+        for (let i = 0; i < tx.__CACHE.__TX.ins.length; i++) {
+          const currentInput = tx.__CACHE.__TX.ins[i];
+          const inputBuffer = cloneBuffer(currentInput.hash);
+          const currentUtxo = utxosMap.get(inputBuffer.reverse().toString('hex'));
+          if (!currentUtxo) {
+            throw new Error('This transaction isn\'t associated with this wallet')
+          };
+          sumInputs = sumInputs.plus(currentUtxo.value);
+        }
+        const sumOutputs = tx.__CACHE.__TX.outs.reduce((accum, curr) => accum + curr.value, 0);
+        setFeeEstimate(sumInputs.minus(sumOutputs).integerValue(BigNumber.ROUND_CEIL));
 
-          // check if any partial signatures already
-          const importedFingerprints = [];
-          for (let i = 0; i < tx.data.inputs.length; i++) {
-            const currentInput = tx.data.inputs[i];
-            // if there is, figure out what device it belongs to
-            if (currentInput.partialSig) {
-              for (let j = 0; j < currentInput.partialSig.length; j++) {
-                currentInput.bip32Derivation.forEach((bipItem) => {
-                  // and add device to list if it isn't already
-                  if (Buffer.compare(currentInput.partialSig[j].pubkey, bipItem.pubkey) === 0 && !importedFingerprints.includes(bufferToHex(bipItem.masterFingerprint))) {
-                    importedFingerprints.push(bufferToHex(bipItem.masterFingerprint));
-                    for (let k = 0; k < currentAccount.config.extendedPublicKeys.length; k++) {
-                      if (currentAccount.config.extendedPublicKeys[k].device.fingerprint === bufferToHex(bipItem.masterFingerprint)) {
-                        console.log('currentAccount.config.extendedPublicKeys[k].device: ', currentAccount.config.extendedPublicKeys[k].device);
-                        console.log('signedDevices: ', signedDevices);
-                        setSignedDevices([...signedDevices, currentAccount.config.extendedPublicKeys[k].device])
-                      }
+        // check if any partial signatures already
+        const signedFingerprints = [];
+        const signedDevicesObjects = [];
+        for (let i = 0; i < tx.data.inputs.length; i++) {
+          const currentInput = tx.data.inputs[i];
+          // if there is, figure out what device it belongs to
+          if (currentInput.partialSig) {
+            for (let j = 0; j < currentInput.partialSig.length; j++) {
+              currentInput.bip32Derivation.forEach((bipItem) => {
+                // and add device to list if it isn't already
+                if (Buffer.compare(currentInput.partialSig[j].pubkey, bipItem.pubkey) === 0 && !signedFingerprints.includes(bufferToHex(bipItem.masterFingerprint))) {
+                  signedFingerprints.push(bufferToHex(bipItem.masterFingerprint));
+                  for (let k = 0; k < currentAccount.config.extendedPublicKeys.length; k++) {
+                    if (currentAccount.config.extendedPublicKeys[k].device.fingerprint.toLowerCase() === bufferToHex(bipItem.masterFingerprint).toLowerCase()) {
+                      signedDevicesObjects.push(currentAccount.config.extendedPublicKeys[k].device);
                     }
                   }
-                })
-              }
+                }
+              })
             }
           }
-
-          // if there are any imported fingerprints, then add tx to signedPsbts array
-          if (importedFingerprints.length) {
-            const newlySignedPsbts = [];
-            importedFingerprints.forEach(() => {
-              newlySignedPsbts.push(tx.toBase64())
-            })
-
-            setSignedPsbts([...signedPsbts, ...newlySignedPsbts])
-          }
-
-          setTxImportedFromFile(true);
-          setStep(1);
-        } catch (e) {
-          setImportTxFromFileError(e.message);
         }
+
+        // if there are any imported fingerprints, then add tx to signedPsbts array
+        if (signedFingerprints.length) {
+          setSignedPsbts([...signedPsbts, tx.toBase64()]);
+          setSignedDevices(signedDevicesObjects);
+        }
+
+        setTxImportedFromFile(true);
+        setStep(1);
+      } catch (e) {
+        setImportTxFromFileError(e.message);
       }
     }
   }
@@ -350,6 +349,16 @@ const Send = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlocks
         </HeaderRight>
       </Header>
 
+      {/* Stuff hidden in dropdown */}
+      <FileUploader
+        accept="*"
+        id="txFile"
+        onFileLoad={(file) => {
+          importTxToForm(file)
+        }}
+      />
+      <label style={{ display: 'none' }} ref={fileUploadLabelRef} htmlFor="txFile"></label>
+
       <SendWrapper>
         <AccountMenu>
           {config.vaults.map((vault, index) => (
@@ -390,7 +399,6 @@ const Send = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlocks
                       {
                         label: 'Import from file',
                         onClick: () => {
-                          console.log('fileUploadLabelRef: ', fileUploadLabelRef);
                           const txFileUploadButton = fileUploadLabelRef.current;
                           txFileUploadButton.click()
                         }
@@ -404,16 +412,6 @@ const Send = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlocks
                       }
                     ]}
                   />
-
-                  {/* Stuff hidden in dropdown */}
-                  <FileUploader
-                    accept="*"
-                    id="txFile"
-                    onFileLoad={(file) => {
-                      importTxToForm(file)
-                    }}
-                  />
-                  <label style={{ display: 'none' }} ref={fileUploadLabelRef} htmlFor="txFile"></label>
 
                   <PastePsbtModal />
 
@@ -467,7 +465,9 @@ const Send = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlocks
                 sendAmount={sendAmount}
                 utxosMap={utxosMap}
                 signedPsbts={signedPsbts}
+                signedDevices={signedDevices}
                 txImportedFromFile={txImportedFromFile}
+                fileUploadLabelRef={fileUploadLabelRef}
                 signThreshold={currentAccount.config.quorum.requiredSigners}
                 currentBitcoinNetwork={currentBitcoinNetwork}
                 currentBitcoinPrice={currentBitcoinPrice}

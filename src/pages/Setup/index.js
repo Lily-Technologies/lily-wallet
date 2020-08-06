@@ -223,7 +223,6 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
                 accept="*"
                 id="localConfigFile"
                 onFileLoad={(file) => {
-                  console.log('file: ', file);
                   const parsedFile = JSON.parse(file);
                   // TODO: should probably have better checking for files to make sure users aren't uploading "weird" files
                   if (parsedFile.seed_version) { // is a multisig file

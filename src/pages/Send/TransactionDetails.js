@@ -1,39 +1,23 @@
 import React, { useState, Fragment } from 'react';
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 import axios from 'axios';
-import { ArrowIosForwardOutline } from '@styled-icons/evaicons-outline'
+import moment from 'moment';
+import { ArrowIosForwardOutline } from '@styled-icons/evaicons-outline';
 
 import {
   blockExplorerAPIURL,
   satoshisToBitcoins,
 } from "unchained-bitcoin";
 
-import { Psbt, address } from 'bitcoinjs-lib';
+import { address } from 'bitcoinjs-lib';
 
 import { cloneBuffer } from '../../utils/other';
 import { StyledIcon, Button, SidewaysShake, Dropdown, Modal } from '../../components';
 
 import { gray, blue, darkGray, white, darkOffWhite, green, darkGreen, lightGray, red, lightRed } from '../../utils/colors';
-import { downloadFile } from '../../utils/files';
+import { downloadFile, combinePsbts } from '../../utils/files';
 
-const combinePsbts = (finalPsbt, signedPsbts) => {
-  console.log('finalPsbt, signedPsbts: ', finalPsbt, signedPsbts);
-  const psbt = finalPsbt;
-  const base64SignedPsbts = signedPsbts.map((psbt) => {
-    if (typeof psbt === 'object') {
-      return psbt;
-    } else {
-      return Psbt.fromBase64(psbt);
-    }
-  })
-  if (base64SignedPsbts.length) { // if there are signed psbts, combine them
-    psbt.combine(...base64SignedPsbts);
-  }
-  return psbt;
-}
-
-const TransactionDetails = ({ finalPsbt, feeEstimate, outputTotal, txImportedFromFile, recipientAddress, sendAmount, setStep, utxosMap, signedPsbts, signThreshold, currentBitcoinNetwork, currentBitcoinPrice }) => {
-  const [showMoreDetails, setShowMoreDetails] = useState(txImportedFromFile);
+const TransactionDetails = ({ finalPsbt, feeEstimate, outputTotal, fileUploadLabelRef, txImportedFromFile, signedDevices, recipientAddress, sendAmount, setStep, utxosMap, signedPsbts, signThreshold, currentBitcoinNetwork, currentBitcoinPrice }) => {
   const [broadcastedTxId, setBroadcastedTxId] = useState('');
   const [txError, setTxError] = useState(null);
   const [optionsDropdownOpen, setOptionsDropdownOpen] = useState(false);
@@ -48,7 +32,6 @@ const TransactionDetails = ({ finalPsbt, feeEstimate, outputTotal, txImportedFro
   const broadcastTransaction = async () => {
     if (signedPsbts.length === signThreshold) {
       try {
-        // TODO: support combining more than 2 PSBTs
         if (signThreshold > 1) {
           const combinedPsbt = combinePsbts(finalPsbt, signedPsbts)
 
@@ -69,35 +52,41 @@ const TransactionDetails = ({ finalPsbt, feeEstimate, outputTotal, txImportedFro
 
   const downloadPsbt = () => {
     const combinedPsbt = combinePsbts(finalPsbt, signedPsbts);
-    console.log('combinedPsbt: ', combinedPsbt);
-    console.log('combinedPsbt.toBase64(): ', combinedPsbt.toBase64());
-
     const psbtForDownload = new Blob([combinedPsbt.toBase64()]);
-    downloadFile(psbtForDownload, 'my-sweet-tx.psbt');
+    downloadFile(psbtForDownload, `tx-${moment().format('MMDDYY-hhmmss')}.psbt`);
   }
 
   const TransactionOptionsDropdown = () => {
     const dropdownItems = [
       { label: 'View PSBT', onClick: () => { openInModal(<PsbtDetails />) } },
-      { label: 'Download PSBT', onClick: () => { downloadPsbt(); openInModal(<PsbtDownloadDetails />) } }
+      { label: 'Download PSBT', onClick: () => { downloadPsbt(); openInModal(<PsbtDownloadDetails />) } },
+      {
+        label: 'Add signature from file',
+        onClick: () => {
+          const txFileUploadButton = fileUploadLabelRef.current;
+          txFileUploadButton.click()
+        }
+      }
     ];
 
     // if we are creating the transaction ourselves, give options for adjustment
     if (!txImportedFromFile) {
       dropdownItems.unshift(
         { label: 'Edit Transaction', onClick: () => setStep(0) },
-        { label: `View ${showMoreDetails ? 'less' : 'more'} details`, onClick: () => { openInModal(<TransactionDetails />); } },
+        { label: 'View more details', onClick: () => { openInModal(<TransactionDetails />); } },
         { label: 'Adjust Fee', onClick: () => { openInModal(<FeeSelector />) } }
       );
     }
 
     return (
-      <Dropdown
-        isOpen={optionsDropdownOpen}
-        setIsOpen={setOptionsDropdownOpen}
-        minimal={true}
-        dropdownItems={dropdownItems}
-      />
+      <Fragment>
+        <Dropdown
+          isOpen={optionsDropdownOpen}
+          setIsOpen={setOptionsDropdownOpen}
+          minimal={true}
+          dropdownItems={dropdownItems}
+        />
+      </Fragment>
     )
   }
 
@@ -168,7 +157,6 @@ const TransactionDetails = ({ finalPsbt, feeEstimate, outputTotal, txImportedFro
           <MoreDetailsHeader style={{ marginTop: '1em' }}>Outputs</MoreDetailsHeader>
           {finalPsbt.__CACHE.__TX.outs.map(output => (
             <OutputItem>
-              {/* script: {output.script.toString('hex')}, */}
               <OutputAddress>{address.fromOutputScript(output.script, finalPsbt.opts.network)}</OutputAddress> <OutputAmount>{satoshisToBitcoins(output.value).toNumber()} BTC</OutputAmount>
             </OutputItem>
           ))}
@@ -202,10 +190,10 @@ const TransactionDetails = ({ finalPsbt, feeEstimate, outputTotal, txImportedFro
         <SendDetailsContainer>
           {screen}
           {txError && <ErrorBox>{txError}</ErrorBox>}
-          {!broadcastedTxId && <SendButton background={green} color={white} loaded={signedPsbts.length === signThreshold} onClick={broadcastTransaction}>
-            {signedPsbts.length < signThreshold ? `Confirm on Devices (${signedPsbts.length}/${signThreshold})` : 'Send Transaction'}
-            {signedPsbts.length < signThreshold ? null : (
-              <SendButtonCheckmark loaded={signedPsbts.length}>
+          {!broadcastedTxId && <SendButton background={green} color={white} loaded={signedDevices.length === signThreshold} onClick={broadcastTransaction}>
+            {signedDevices.length < signThreshold ? `Confirm on Devices (${signedDevices.length}/${signThreshold})` : 'Send Transaction'}
+            {signedDevices.length < signThreshold ? null : (
+              <SendButtonCheckmark loaded={signedDevices.length}>
                 <StyledIcon as={ArrowIosForwardOutline} size={16} />
               </SendButtonCheckmark>
             )}
@@ -291,14 +279,6 @@ const MoreDetailsHeader = styled.div`
   font-size: 1.5em;
 `;
 
-const TransactionDetailsHeader = styled.div`
-  font-size: 1.5em;
-  color: ${darkGray};
-  margin-bottom: 12px;
-  display: flex;
-  justify-content: space-between;
-`;
-
 
 const SendDetailsContainer = styled.div`
   background: ${white};
@@ -327,21 +307,6 @@ const TransactionFeeField = styled.div`
   align-items: center;
 `;
 
-const MoreDetails = styled.div`
-  color: ${gray};
-  align-self: center;
-  align-items: flex-end;
-  display: flex;
-  justify-content: space-around;
-  width: 100%;
-  padding: 1.25em 0;
-
-  span:hover {
-    text-decoration: underline;
-    cursor: pointer;
-  }
-`;
-
 const SendButton = styled.div`
   ${Button};
   pointer-events: ${p => p.loaded ? 'auto' : 'none'};
@@ -367,37 +332,6 @@ const ErrorBox = styled.div`
   color: ${red};
   border: 1px solid ${red};
   margin: 1.5em 0;
-`;
-
-const InputStyles = css`
-  border: 1px solid ${darkOffWhite};
-  background: ${lightGray};
-  padding: 1.5em;
-  color: ${darkGray};
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 1em;
-  border-radius: 4px;
-  font-size: 1.5em;
-  z-index: 1;
-  flex: 1;
-
-  ::placeholder {
-    color: ${gray};
-  }
-
-  :active, :focused {
-    outline: 0;
-    border: none;
-  }
-`;
-
-const TextArea = styled.textarea`
-  ${InputStyles};
-  font-size: 8px;
-  padding: 10px;
-  margin: 0;
 `;
 
 const ViewTransactionButton = styled.a`

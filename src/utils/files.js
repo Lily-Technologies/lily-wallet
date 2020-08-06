@@ -1,6 +1,6 @@
 import moment from 'moment';
 import { v4 as uuidv4 } from 'uuid';
-const { networks } = require('bitcoinjs-lib');
+import { networks, Psbt } from 'bitcoinjs-lib';
 
 const getUnchainedNetworkFromBjslibNetwork = (bitcoinJslibNetwork) => {
   if (bitcoinJslibNetwork === networks.bitcoin) {
@@ -8,6 +8,22 @@ const getUnchainedNetworkFromBjslibNetwork = (bitcoinJslibNetwork) => {
   } else {
     return 'testnet';
   }
+}
+
+// TODO: move this somewhere more logical
+export const combinePsbts = (finalPsbt, signedPsbts) => {
+  const psbt = finalPsbt;
+  const base64SignedPsbts = signedPsbts.map((psbt) => {
+    if (typeof psbt === 'object') {
+      return psbt;
+    } else {
+      return Psbt.fromBase64(psbt);
+    }
+  })
+  if (base64SignedPsbts.length) { // if there are signed psbts, combine them
+    psbt.combine(...base64SignedPsbts);
+  }
+  return psbt;
 }
 
 export const downloadFile = (file, filename) => {

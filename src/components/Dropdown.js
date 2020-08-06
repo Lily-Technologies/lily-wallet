@@ -5,7 +5,7 @@ import { Transition } from '.'
 
 import { white } from '../utils/colors';
 
-{/* 
+/* 
   Example Usage
   
   <Dropdown
@@ -20,10 +20,9 @@ import { white } from '../utils/colors';
     ]}
   /> 
 
-*/}
+*/
 
 export const Dropdown = ({ isOpen, setIsOpen, buttonLabel, dropdownItems, minimal, style }) => {
-  console.log('isOpen: ', isOpen)
   return (
     <DropdownWrapper style={style}>
       <div>
