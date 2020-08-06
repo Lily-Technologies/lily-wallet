@@ -307,38 +307,6 @@ const Send = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlocks
     }
   }
 
-  const PastePsbtModal = () => (
-    <Modal
-      isOpen={pastePsbtModalOpen}
-      onRequestClose={() => {
-        setPastedPsbtValue(null);
-        setImportTxFromFileError(false);
-        setPastePsbtModalOpen(false);
-      }}>
-      <div>Paste PSBT or Transaction Hex Below</div>
-      <PastePsbtTextArea
-        rows={20}
-        onChange={(e) => {
-          setPastedPsbtValue(e.target.value)
-        }}
-      />
-      {importTxFromFileError && <ErrorText style={{ paddingBottom: '1em' }}>{importTxFromFileError}</ErrorText>}
-      <ImportButtons>
-        <FromFileButton
-          style={{ marginRight: '1em' }}
-          onClick={() => {
-            setPastedPsbtValue(null);
-            setImportTxFromFileError(false);
-            setPastePsbtModalOpen(false);
-          }}>Cancel</FromFileButton>
-        <CopyAddressButton
-          onClick={() => {
-            importTxToForm(pastedPsbtValue)
-          }}>Import Transaction</CopyAddressButton>
-      </ImportButtons>
-    </Modal>
-  )
-
   return (
     <PageWrapper>
       <Header>
@@ -377,7 +345,7 @@ const Send = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlocks
 
         {currentAccount.loading && <Loading itemText={'Send Information'} />}
         {!currentAccount.loading && (
-          <GridArea style={{ borderRadius: '0.375rem', alignItems: txImportedFromFile ? 'flex-start' : 'inherit' }}>
+          <GridArea style={{ borderRadius: '0.375rem', alignItems: 'flex-start' }}>
             {step === 0 && (
               <div style={{ display: 'flex', flexDirection: 'column' }}>
                 <CurrentBalanceWrapper displayDesktop={false} displayMobile={true} style={{ marginBottom: '1em' }}>
@@ -413,7 +381,39 @@ const Send = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlocks
                     ]}
                   />
 
-                  <PastePsbtModal />
+                  <Modal
+                    isOpen={pastePsbtModalOpen}
+                    onRequestClose={() => {
+                      setPastedPsbtValue(null);
+                      setImportTxFromFileError(false);
+                      setPastePsbtModalOpen(false);
+                    }}>
+                    <ModalHeaderContainer>
+                      Paste PSBT or Transaction Hex Below
+      </ModalHeaderContainer>
+                    <div style={{ padding: '1.5em' }}>
+                      <PastePsbtTextArea
+                        rows={20}
+                        onChange={(e) => {
+                          setPastedPsbtValue(e.target.value)
+                        }}
+                      />
+                      {importTxFromFileError && <ErrorText style={{ paddingBottom: '1em' }}>{importTxFromFileError}</ErrorText>}
+                      <ImportButtons>
+                        <FromFileButton
+                          style={{ marginRight: '1em' }}
+                          onClick={() => {
+                            setPastedPsbtValue(null);
+                            setImportTxFromFileError(false);
+                            setPastePsbtModalOpen(false);
+                          }}>Cancel</FromFileButton>
+                        <CopyAddressButton
+                          onClick={() => {
+                            importTxToForm(pastedPsbtValue)
+                          }}>Import Transaction</CopyAddressButton>
+                      </ImportButtons>
+                    </div>
+                  </Modal>
 
                   {/* Visible in form */}
                   <SendToAddressHeader style={{ marginTop: 0 }}>
@@ -474,7 +474,7 @@ const Send = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlocks
               />
             )}
 
-            {step === 0 && (
+            {(step === 0 || (step === 1 && currentAccount.config.quorum.requiredSigners === 1)) && (
               <AccountSendContentRight>
                 <CurrentBalanceWrapper displayDesktop={true} displayMobile={false}>
                   <CurrentBalanceText>
@@ -516,10 +516,22 @@ const Send = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlocks
   )
 }
 
+const ModalHeaderContainer = styled.div`
+  border-bottom: 1px solid rgb(229,231,235);
+  padding-top: 1.25rem;
+  padding-bottom: 1.25rem;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 1.5em;
+`;
+
 const PastePsbtTextArea = styled.textarea`
-  width: 100 %;
-                resize: none;
-                border- color: #d2d6dc;
+  width: 100%;
+  resize: none;
+  border-color: #d2d6dc;
   border-width: 1px;
   border-radius: .375rem;
   padding: .5rem .75rem;
@@ -527,7 +539,7 @@ const PastePsbtTextArea = styled.textarea`
   margin: 2em 0;
 
   &:focus {
-              outline: none;
+    outline: none;
     box-shadow: 0 0 0 3px rgba(164,202,254,.45);
     border-color: #a4cafe;
   }

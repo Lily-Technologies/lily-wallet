@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import axios from 'axios';
 import moment from 'moment';
 import { ArrowIosForwardOutline } from '@styled-icons/evaicons-outline';
+import { CheckCircle } from '@styled-icons/material';
 
 import {
   blockExplorerAPIURL,
@@ -74,7 +75,7 @@ const TransactionDetails = ({ finalPsbt, feeEstimate, outputTotal, fileUploadLab
       dropdownItems.unshift(
         { label: 'Edit Transaction', onClick: () => setStep(0) },
         { label: 'View more details', onClick: () => { openInModal(<TransactionDetails />); } },
-        { label: 'Adjust Fee', onClick: () => { openInModal(<FeeSelector />) } }
+        // { label: 'Adjust Fee', onClick: () => { openInModal(<FeeSelector />) } }
       );
     }
 
@@ -112,7 +113,12 @@ const TransactionDetails = ({ finalPsbt, feeEstimate, outputTotal, fileUploadLab
       <ModalHeaderContainer>
         Download Complete
       </ModalHeaderContainer>
-      <div>Check your downloads folder for psbt file</div>
+      <ModalBody>
+        <IconWrapper style={{ color: green }}>
+          <StyledIcon as={CheckCircle} size={100} />
+        </IconWrapper>
+        <ModalSubtext>Check your downloads folder for the PSBT file</ModalSubtext>
+      </ModalBody>
     </Fragment>
   )
 
@@ -204,6 +210,23 @@ const TransactionDetails = ({ finalPsbt, feeEstimate, outputTotal, fileUploadLab
     </Fragment>
   )
 }
+
+const IconWrapper = styled.div`
+
+`;
+
+const ModalBody = styled.div`
+  display: flex;
+  flex-direction: column;
+  padding: 2.5rem;
+  align-items: center;
+  justify-content: center;
+`;
+
+const ModalSubtext = styled.div`
+  color: ${darkGray};
+  margin-top: 1rem;
+`;
 
 const ModalHeaderContainer = styled.div`
   border-bottom: 1px solid rgb(229,231,235);
