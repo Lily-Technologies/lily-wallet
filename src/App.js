@@ -158,31 +158,31 @@ function App() {
   }, []);
 
   return (
-    <ErrorBoundary>
-      <Router>
-        <PageWrapper id="page-wrapper">
-          <ScrollToTop />
-          <ConfigRequired />
-          {!config.isEmpty && <Sidebar config={config} setCurrentAccount={setCurrentAccountFromMap} flyInAnimation={flyInAnimation} />}
-          {!config.isEmpty && <MobileNavbar config={config} setCurrentAccount={setCurrentAccountFromMap} />}
-          <Switch>
-            <Route path="/vault/:id" component={() => <Vault config={config} setConfigFile={setConfigFile} toggleRefresh={toggleRefresh} currentAccount={currentAccount} setCurrentAccount={setCurrentAccountFromMap} currentBitcoinNetwork={currentBitcoinNetwork} currentBitcoinPrice={currentBitcoinPrice} />} />
-            <Route path="/receive" component={() => <Receive config={config} currentAccount={currentAccount} setCurrentAccount={setCurrentAccountFromMap} currentBitcoinPrice={currentBitcoinPrice} />} />
-            <Route path="/send" component={() => <Send config={config} currentAccount={currentAccount} setCurrentAccount={setCurrentAccountFromMap} currentBitcoinPrice={currentBitcoinPrice} currentBitcoinNetwork={currentBitcoinNetwork} />} />
-            <Route path="/setup" component={() => <Setup config={config} setConfigFile={setConfigFile} currentBitcoinNetwork={currentBitcoinNetwork} />} />
-            <Route path="/login" component={() => <Login setConfigFile={setConfigFile} />} />
-            <Route path="/settings" component={() => <Settings config={config} currentBitcoinNetwork={currentBitcoinNetwork} changeCurrentBitcoinNetwork={changeCurrentBitcoinNetwork} />} />
-            <Route path="/gdrive-import" component={() => <GDriveImport setConfigFile={setConfigFile} />} />
-            <Route path="/coldcard-import-instructions" component={() => <ColdcardImportInstructions />} />
-            <Route path="/" component={() => <Home flyInAnimation={flyInAnimation} accountMap={accountMap} setCurrentAccount={setCurrentAccountFromMap} historicalBitcoinPrice={historicalBitcoinPrice} currentBitcoinPrice={currentBitcoinPrice} />} />
-            <Route path="/" component={() => (
-              <div>Not Found</div>
-            )}
-            />
-          </Switch>
-        </PageWrapper>
-      </Router>
-    </ErrorBoundary>
+    // <ErrorBoundary>
+    <Router>
+      <PageWrapper id="page-wrapper">
+        <ScrollToTop />
+        <ConfigRequired />
+        {!config.isEmpty && <Sidebar config={config} setCurrentAccount={setCurrentAccountFromMap} flyInAnimation={flyInAnimation} />}
+        {!config.isEmpty && <MobileNavbar config={config} setCurrentAccount={setCurrentAccountFromMap} />}
+        <Switch>
+          <Route path="/vault/:id" component={() => <Vault config={config} setConfigFile={setConfigFile} toggleRefresh={toggleRefresh} currentAccount={currentAccount} setCurrentAccount={setCurrentAccountFromMap} currentBitcoinNetwork={currentBitcoinNetwork} currentBitcoinPrice={currentBitcoinPrice} />} />
+          <Route path="/receive" component={() => <Receive config={config} currentAccount={currentAccount} setCurrentAccount={setCurrentAccountFromMap} currentBitcoinPrice={currentBitcoinPrice} />} />
+          <Route path="/send" component={() => <Send config={config} currentAccount={currentAccount} setCurrentAccount={setCurrentAccountFromMap} currentBitcoinPrice={currentBitcoinPrice} currentBitcoinNetwork={currentBitcoinNetwork} />} />
+          <Route path="/setup" component={() => <Setup config={config} setConfigFile={setConfigFile} currentBitcoinNetwork={currentBitcoinNetwork} />} />
+          <Route path="/login" component={() => <Login setConfigFile={setConfigFile} />} />
+          <Route path="/settings" component={() => <Settings config={config} currentBitcoinNetwork={currentBitcoinNetwork} changeCurrentBitcoinNetwork={changeCurrentBitcoinNetwork} />} />
+          <Route path="/gdrive-import" component={() => <GDriveImport setConfigFile={setConfigFile} />} />
+          <Route path="/coldcard-import-instructions" component={() => <ColdcardImportInstructions />} />
+          <Route path="/" component={() => <Home flyInAnimation={flyInAnimation} accountMap={accountMap} setCurrentAccount={setCurrentAccountFromMap} historicalBitcoinPrice={historicalBitcoinPrice} currentBitcoinPrice={currentBitcoinPrice} />} />
+          <Route path="/" component={() => (
+            <div>Not Found</div>
+          )}
+          />
+        </Switch>
+      </PageWrapper>
+    </Router>
+    // </ErrorBoundary>
   );
 }
 

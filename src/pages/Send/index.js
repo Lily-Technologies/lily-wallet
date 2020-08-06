@@ -226,7 +226,8 @@ const Send = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlocks
           try {
             tx = combinePsbts(finalPsbt, [...signedPsbts, tx])
           } catch (e) {
-            throw new Error(e)
+            console.log('error: ', e)
+            setImportTxFromFileError('Signature is for a different transaction')
           }
         }
         // validate psbt and make sure it belongs to the current account
@@ -390,7 +391,7 @@ const Send = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlocks
                     }}>
                     <ModalHeaderContainer>
                       Paste PSBT or Transaction Hex Below
-      </ModalHeaderContainer>
+                    </ModalHeaderContainer>
                     <div style={{ padding: '1.5em' }}>
                       <PastePsbtTextArea
                         rows={20}
@@ -468,6 +469,7 @@ const Send = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlocks
                 signedDevices={signedDevices}
                 txImportedFromFile={txImportedFromFile}
                 fileUploadLabelRef={fileUploadLabelRef}
+                importTxFromFileError={importTxFromFileError}
                 signThreshold={currentAccount.config.quorum.requiredSigners}
                 currentBitcoinNetwork={currentBitcoinNetwork}
                 currentBitcoinPrice={currentBitcoinPrice}

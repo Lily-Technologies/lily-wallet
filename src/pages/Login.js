@@ -29,9 +29,11 @@ const Login = ({ setConfigFile }) => {
     <Wrapper>
       <MainText>
         <LilyImage src={require('../assets/flower.svg')} />
-        Lily Wallet
-        </MainText>
-      <Subtext>Lily is the easiest way to securely store and manage your Bitcoin</Subtext>
+        <TextContainer>
+          <div>Lily Wallet</div>
+          <Subtext>Load or create new account</Subtext>
+        </TextContainer>
+      </MainText>
 
       <FileUploader
         accept="*"
@@ -82,15 +84,24 @@ const MainText = styled.div`
   flex-wrap: wrap;
 `;
 
+const TextContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  justify-content: center;
+  margin-top: .5em;
+  margin-left: 0.25em;
+`;
+
 const Subtext = styled.div`
-  font-size: .75em;
+  font-size: .5em;
   color: ${darkGray};
   margin-bottom: 12px;
 `;
 
 const LilyImage = styled.img`
-  width: 36px;
-  height: 36px;
+  width: 100px;
+  height: 100px;
   margin-right: 12px;
 `;
 

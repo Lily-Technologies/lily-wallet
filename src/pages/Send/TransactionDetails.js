@@ -18,7 +18,7 @@ import { StyledIcon, Button, SidewaysShake, Dropdown, Modal } from '../../compon
 import { gray, blue, darkGray, white, darkOffWhite, green, darkGreen, lightGray, red, lightRed } from '../../utils/colors';
 import { downloadFile, combinePsbts } from '../../utils/files';
 
-const TransactionDetails = ({ finalPsbt, feeEstimate, outputTotal, fileUploadLabelRef, txImportedFromFile, signedDevices, recipientAddress, sendAmount, setStep, utxosMap, signedPsbts, signThreshold, currentBitcoinNetwork, currentBitcoinPrice }) => {
+const TransactionDetails = ({ finalPsbt, feeEstimate, importTxFromFileError, fileUploadLabelRef, txImportedFromFile, signedDevices, recipientAddress, sendAmount, setStep, utxosMap, signedPsbts, signThreshold, currentBitcoinNetwork, currentBitcoinPrice }) => {
   const [broadcastedTxId, setBroadcastedTxId] = useState('');
   const [txError, setTxError] = useState(null);
   const [optionsDropdownOpen, setOptionsDropdownOpen] = useState(false);
@@ -196,6 +196,7 @@ const TransactionDetails = ({ finalPsbt, feeEstimate, outputTotal, fileUploadLab
         <SendDetailsContainer>
           {screen}
           {txError && <ErrorBox>{txError}</ErrorBox>}
+          {importTxFromFileError && <ErrorBox>{importTxFromFileError}</ErrorBox>}
           {!broadcastedTxId && <SendButton background={green} color={white} loaded={signedDevices.length === signThreshold} onClick={broadcastTransaction}>
             {signedDevices.length < signThreshold ? `Confirm on Devices (${signedDevices.length}/${signThreshold})` : 'Send Transaction'}
             {signedDevices.length < signThreshold ? null : (
