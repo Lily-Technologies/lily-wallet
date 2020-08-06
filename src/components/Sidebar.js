@@ -21,8 +21,8 @@ export const Sidebar = ({ config, setCurrentAccount, loading, flyInAnimation }) 
           <SidebarContainer>
             <WalletTitle>
               <LilyImage src={require('../assets/flower.svg')} />
-          Lily Wallet
-          </WalletTitle>
+              <WalletTitleText>Lily Wallet</WalletTitleText>
+            </WalletTitle>
             <NavLinks config={config} setCurrentAccount={setCurrentAccount} loading={loading} />
             <FooterPositionWrapper>
               <FooterWrapper>
@@ -79,9 +79,14 @@ const WalletsHeader = styled.h3`
 const WalletTitle = styled(WalletsHeader)`
   display: flex;
   align-items: center;
-  padding: 2.5em 1em 1.5em;
+  padding: 2.5em 0.5em 1.5em;
   font-weight: 700;
   margin: 0;
+`;
+
+const WalletTitleText = styled.span`
+  margin-left: 0.15em;
+  margin-top: 0.25em;
 `;
 
 const LilyImage = styled.img`
