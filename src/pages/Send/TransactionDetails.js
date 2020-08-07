@@ -4,6 +4,7 @@ import axios from 'axios';
 import moment from 'moment';
 import { ArrowIosForwardOutline } from '@styled-icons/evaicons-outline';
 import { CheckCircle } from '@styled-icons/material';
+import { useHistory } from "react-router-dom";
 
 import {
   blockExplorerAPIURL,
@@ -18,12 +19,14 @@ import { StyledIcon, Button, SidewaysShake, Dropdown, Modal } from '../../compon
 import { gray, blue, darkGray, white, darkOffWhite, green, darkGreen, lightGray, red, lightRed } from '../../utils/colors';
 import { downloadFile, combinePsbts } from '../../utils/files';
 
-const TransactionDetails = ({ finalPsbt, feeEstimate, importTxFromFileError, fileUploadLabelRef, txImportedFromFile, signedDevices, recipientAddress, sendAmount, setStep, utxosMap, signedPsbts, signThreshold, currentBitcoinNetwork, currentBitcoinPrice }) => {
+const TransactionDetails = ({ finalPsbt, feeEstimate, importTxFromFileError, currentAccount, toggleRefresh, fileUploadLabelRef, txImportedFromFile, signedDevices, recipientAddress, sendAmount, setStep, utxosMap, signedPsbts, signThreshold, currentBitcoinNetwork, currentBitcoinPrice }) => {
   const [broadcastedTxId, setBroadcastedTxId] = useState('');
   const [txError, setTxError] = useState(null);
   const [optionsDropdownOpen, setOptionsDropdownOpen] = useState(false);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalContent, setModalContent] = useState(null);
+
+  const history = useHistory();
 
   const openInModal = (component) => {
     setModalIsOpen(true);
@@ -40,10 +43,14 @@ const TransactionDetails = ({ finalPsbt, feeEstimate, importTxFromFileError, fil
 
           const { data } = await axios.get(blockExplorerAPIURL(`/broadcast?tx=${combinedPsbt.extractTransaction().toHex()}`, currentBitcoinNetwork));
           setBroadcastedTxId(data);
+          setModalIsOpen(true);
+          setModalContent(<TransactionSuccess broadcastedTxId={data} />);
 
         } else {
           const { data } = await axios.get(blockExplorerAPIURL(`/broadcast?tx=${signedPsbts[0].extractTransaction().toHex()}`, currentBitcoinNetwork));
           setBroadcastedTxId(data);
+          setModalIsOpen(true);
+          setModalContent(<TransactionSuccess broadcastedTxId={data} />);
         }
       } catch (e) {
         setTxError(e.message);
@@ -139,6 +146,21 @@ const TransactionDetails = ({ finalPsbt, feeEstimate, importTxFromFileError, fil
     </Fragment>
   )
 
+  const TransactionSuccess = ({ broadcastedTxId }) => (
+    <Fragment>
+      <ModalHeaderContainer>
+        Transaction Success
+      </ModalHeaderContainer>
+      <ModalBody>
+        <IconWrapper style={{ color: green }}>
+          <StyledIcon as={CheckCircle} size={100} />
+        </IconWrapper>
+        <ModalSubtext>Your transaction has been broadcast.</ModalSubtext>
+        <ViewTransactionButton color={white} background={green} href={`https://blockstream.info/tx/${broadcastedTxId}`} target="_blank">View Transaction</ViewTransactionButton>
+      </ModalBody>
+    </Fragment>
+  )
+
   const TransactionDetails = () => (
     <Fragment>
       <ModalHeaderContainer>
@@ -188,6 +210,11 @@ const TransactionDetails = ({ finalPsbt, feeEstimate, importTxFromFileError, fil
         onRequestClose={() => {
           setModalIsOpen(false);
           setModalContent(null);
+
+          if (broadcastedTxId) {
+            toggleRefresh();
+            history.push(`vault/${currentAccount.config.id}`)
+          }
         }}
       >
         {modalContent}
@@ -205,7 +232,6 @@ const TransactionDetails = ({ finalPsbt, feeEstimate, importTxFromFileError, fil
               </SendButtonCheckmark>
             )}
           </SendButton>}
-          {broadcastedTxId && <ViewTransactionButton href={`https://blockstream.info/tx/${broadcastedTxId}`} target="_blank">View Transaction</ViewTransactionButton>}
         </SendDetailsContainer>
       </AccountSendContentRight>
     </Fragment>

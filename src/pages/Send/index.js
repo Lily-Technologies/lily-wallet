@@ -89,7 +89,7 @@ const coinSelection = (amountInSats, availableUtxos) => {
   return [spendingUtxos, currentTotal];
 }
 
-const Send = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlockstream, currentBitcoinNetwork, currentBitcoinPrice }) => {
+const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, currentBitcoinNetwork, currentBitcoinPrice }) => {
   document.title = `Send - Lily Wallet`;
   const [sendAmount, setSendAmount] = useState('');
   const [sendAmountError, setSendAmountError] = useState(false);
@@ -200,11 +200,15 @@ const Send = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlocks
       psbt.validateSignaturesOfAllInputs();
       psbt.finalizeAllInputs();
 
+      setSignedDevices([currentAccount]) // this could probably have better information in it but
       setSignedPsbts([psbt]);
     }
   }
 
   const importTxToForm = (file) => {
+    if (importTxFromFileError) {
+      setImportTxFromFileError(null)
+    }
     let tx;
     // try seeing if we are getting base64 encoded tx
     try {
@@ -213,7 +217,7 @@ const Send = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlocks
       try { // try getting hex encoded tx
         tx = Psbt.fromHex(file);
       } catch (e) {
-        setImportTxFromFileError('Invalid Transaction')
+        setImportTxFromFileError('Invalid Transaction');
       }
     }
 
@@ -473,6 +477,8 @@ const Send = ({ config, currentAccount, setCurrentAccount, loadingDataFromBlocks
                 signThreshold={currentAccount.config.quorum.requiredSigners}
                 currentBitcoinNetwork={currentBitcoinNetwork}
                 currentBitcoinPrice={currentBitcoinPrice}
+                toggleRefresh={toggleRefresh}
+                currentAccount={currentAccount}
               />
             )}
 
