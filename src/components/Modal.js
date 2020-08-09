@@ -25,7 +25,7 @@ export const Modal = ({ isOpen, onAfterOpen, onRequestClose, style, children }) 
       boxShadow: '0 20px 25px -5px rgba(0,0,0,.1), 0 10px 10px -5px rgba(0,0,0,.04)',
       borderRadius: '.5rem',
       border: 'none',
-      maxWidth: '50vw',
+      maxWidth: '50em',
       padding: '0',
       position: 'relative',
       width: '100%',
