@@ -453,6 +453,10 @@ const SendButton = styled.div`
   font-size: 1.5em;
   border-top-left-radius: 0;
   border-top-right-radius: 0;
+  padding-left: 2.5rem;
+  padding-right: 2.5rem;
+  padding-top: 1.75rem;
+  padding-bottom: 1.75rem;
 
   &:hover {
     box-shadow: inset 500px 0 0 0 ${darkGreen};
