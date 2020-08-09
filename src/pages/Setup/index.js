@@ -51,6 +51,10 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
         setErrorDevices(errorDevicesCopy);
       }
       setAvailableDevices([...availableDevices]);
+
+      if (importedDevices.length === 2) { // we have to use the old value of importedDevice since the new render hasn't hapened yet
+        setStep(3);
+      }
     } catch (e) {
       const errorDevicesCopy = [...errorDevices];
       errorDevicesCopy.push(device.fingerprint);
@@ -108,6 +112,34 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
     history.push('/coldcard-import-instructions')
   }
 
+  const InputPasswordScreen = () => (
+    <InnerWrapper>
+      <XPubHeaderWrapper>
+        <SetupHeaderWrapper>
+          <SetupHeaderContainer>
+            <SetupHeader>Set a password</SetupHeader>
+            <SetupExplainerText>
+              Lily Wallet encrypts your configuration file so that other people can't track your balance and transaction information.
+              Please enter a password to be used to unlock your wallet in the future.
+                  </SetupExplainerText>
+          </SetupHeaderContainer>
+        </SetupHeaderWrapper>
+      </XPubHeaderWrapper>
+      <PasswordWrapper>
+        <PasswordInput placeholder="password" value={password} onChange={(e) => setPassword(e.target.value)} type="password" />
+      </PasswordWrapper>
+      <ExportFilesButton
+        background={darkGreen}
+        color={white}
+        active={password.length > 3}
+        onClick={() => {
+          if (password.length > 3) {
+            exportSetupFiles();
+          }
+        }}>{'Save Vault'}</ExportFilesButton>
+    </InnerWrapper>
+  )
+
   const StepGroups = () => (
     <Steps>
       <StepItem arrow={true} completed={step > 1} active={step === 1}>
@@ -120,14 +152,18 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
         </StepItemTextContainer>
       </StepItem>
       <StepItem arrow={true} completed={step > 2} active={step === 2}>
-        <StepCircle completed={step > 2}>02</StepCircle>
+        <StepCircle completed={step > 2}>
+          {step > 2 ? <StyledIcon as={Check} size={25} /> : '02'}
+        </StepCircle>
         <StepItemTextContainer>
           <StepItemMainText>Step 2</StepItemMainText>
           <StepItemSubText>Connect devices associated with vault</StepItemSubText>
         </StepItemTextContainer>
       </StepItem>
       <StepItem arrow={false} completed={step > 3} active={step === 3}>
-        <StepCircle completed={step > 3}>03</StepCircle>
+        <StepCircle completed={step > 3}>
+          {step > 3 ? <StyledIcon as={Check} size={25} /> : '03'}
+        </StepCircle>
         <StepItemTextContainer>
           <StepItemMainText>Step 3</StepItemMainText>
           <StepItemSubText>Encrypt your configuration file</StepItemSubText>
@@ -225,6 +261,7 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
         setConfigFile={setConfigFile}
         accountName={accountName}
         currentBitcoinNetwork={currentBitcoinNetwork}
+        setStep={setStep}
       />
     </InnerWrapper>
   );
@@ -245,77 +282,42 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
       </HeaderWrapper>
       <FormContainer>
         <BoxedWrapper>
-          {importedDevices.length < 3 && (
-            <Fragment>
+          <FileUploader
+            accept="*"
+            id="localConfigFile"
+            onFileLoad={(file) => {
+              const parsedFile = JSON.parse(file);
+              // TODO: should probably have better checking for files to make sure users aren't uploading "weird" files
+              if (parsedFile.seed_version) { // is a multisig file
+                importMultisigWalletFromFile(parsedFile)
+              } else { // is a wallet export file
+                importDeviceFromFile(parsedFile)
+              }
+            }}
+          />
 
-              <FileUploader
-                accept="*"
-                id="localConfigFile"
-                onFileLoad={(file) => {
-                  const parsedFile = JSON.parse(file);
-                  // TODO: should probably have better checking for files to make sure users aren't uploading "weird" files
-                  if (parsedFile.seed_version) { // is a multisig file
-                    importMultisigWalletFromFile(parsedFile)
-                  } else { // is a wallet export file
-                    importDeviceFromFile(parsedFile)
-                  }
-                }}
-              />
-
-              <XPubHeaderWrapper>
-                <SetupHeaderWrapper>
-                  <SetupHeaderContainer>
-                    <SetupHeader>Connect Devices to Computer</SetupHeader>
-                    <SetupExplainerText>
-                      Connect and unlock devices in order to create your multisignature vault.
-                      You may disconnect your device from your computer after it has been configured.
+          <XPubHeaderWrapper>
+            <SetupHeaderWrapper>
+              <SetupHeaderContainer>
+                <SetupHeader>Connect Devices to Computer</SetupHeader>
+                <SetupExplainerText>
+                  Connect and unlock devices in order to create your multisignature vault.
+                  You may disconnect your device from your computer after it has been configured.
                   </SetupExplainerText>
-                  </SetupHeaderContainer>
-                  <ImportFromFileButton htmlFor="localConfigFile" background={white} color={darkGray}>Import from File</ImportFromFileButton>
-                </SetupHeaderWrapper>
-              </XPubHeaderWrapper>
-              <DeviceSelect
-                deviceAction={importDevice}
-                deviceActionText={'Click to Configure'}
-                deviceActionLoadingText={'Extracting XPub'}
-                configuredDevices={importedDevices}
-                unconfiguredDevices={availableDevices}
-                errorDevices={errorDevices}
-                setUnconfiguredDevices={setAvailableDevices}
-                configuredThreshold={15}
-              />
-            </Fragment>
-          )}
-          {importedDevices.length === 3 && (
-            <Fragment>
-              <XPubHeaderWrapper>
-                <SetupHeaderWrapper>
-                  <SetupHeaderContainer>
-                    <SetupHeader>Set a password</SetupHeader>
-                    <SetupExplainerText>
-                      Lily Wallet encrypts your configuration file so that other people can't steal your funds.
-                      Please enter a password to be used to unlock your wallet in the future.
-                  </SetupExplainerText>
-                  </SetupHeaderContainer>
-                </SetupHeaderWrapper>
-              </XPubHeaderWrapper>
-              <PasswordWrapper>
-                {/* <PasswordText>Almost done, just set a password to encrypt your setup file:</PasswordText> */}
-                <PasswordInput placeholder="password" value={password} onChange={(e) => setPassword(e.target.value)} type="password" />
-              </PasswordWrapper>
-            </Fragment>
-          )}
-          {
-            importedDevices.length === 3 && <ExportFilesButton
-              background={darkGreen}
-              color={white}
-              active={password.length > 3}
-              onClick={() => {
-                if (password.length > 3) {
-                  exportSetupFiles();
-                }
-              }}>{'Save Vault'}</ExportFilesButton>
-          }
+              </SetupHeaderContainer>
+              <ImportFromFileButton htmlFor="localConfigFile" background={white} color={darkGray}>Import from File</ImportFromFileButton>
+            </SetupHeaderWrapper>
+          </XPubHeaderWrapper>
+          <DeviceSelect
+            deviceAction={importDevice}
+            deviceActionText={'Click to Configure'}
+            deviceActionLoadingText={'Extracting XPub'}
+            configuredDevices={importedDevices}
+            unconfiguredDevices={availableDevices}
+            errorDevices={errorDevices}
+            setUnconfiguredDevices={setAvailableDevices}
+            configuredThreshold={15}
+          />
         </BoxedWrapper>
       </FormContainer>
     </InnerWrapper>
@@ -335,6 +337,13 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
         screen = NewWalletScreen();
       } else {
         screen = NewVaultScreen();
+      }
+      break;
+    case 3:
+      if (setupOption === 2) {
+        screen = NewWalletScreen();
+      } else {
+        screen = InputPasswordScreen();
       }
       break;
     default:
@@ -384,7 +393,7 @@ const StepItem = styled.div`
   // flex-direction: column;
   background: ${p => (p.active || p.completed) ? white : gray100};
   color: ${p => (p.active || p.completed) ? gray700 : gray400};
-  padding: 1em;
+  padding: 1em 2em 1em 1em;
   border-bottom: 4px solid ${p => p.active ? blue500 : 'none'};
 
   border-right: 1px solid rgba(34,36,38,.15);

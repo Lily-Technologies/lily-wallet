@@ -32,6 +32,7 @@ const CreateWallet = ({
   accountName,
   setConfigFile,
   currentBitcoinNetwork,
+  setStep,
 }) => {
   const [createWalletStep, setCreateWalletStep] = useState(0);
   const [password, setPassword] = useState("");
@@ -113,7 +114,10 @@ const CreateWallet = ({
       <WordContainer>
         <MnemonicWordsDisplayer mnemonicWords={mnemonicWords} />
       </WordContainer>
-      <SaveWalletButton onClick={() => setCreateWalletStep(1)}>
+      <SaveWalletButton onClick={() => {
+        setStep(3); // set step in parent component...this is lazy TODO: refactor the setup files
+        setCreateWalletStep(1);
+      }}>
         I have written these words down
       </SaveWalletButton>
     </Fragment>
