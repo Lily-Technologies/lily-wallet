@@ -5,10 +5,12 @@ import moment from 'moment';
 import { ArrowIosForwardOutline } from '@styled-icons/evaicons-outline';
 import { CheckCircle } from '@styled-icons/material';
 import { useHistory } from "react-router-dom";
+import BigNumber from 'bignumber.js';
 
 import {
   blockExplorerAPIURL,
   satoshisToBitcoins,
+  estimateMultisigP2WSHTransactionVSize
 } from "unchained-bitcoin";
 
 import { address } from 'bitcoinjs-lib';
@@ -16,15 +18,27 @@ import { address } from 'bitcoinjs-lib';
 import { cloneBuffer } from '../../utils/other';
 import { StyledIcon, Button, SidewaysShake, Dropdown, Modal } from '../../components';
 
-import { gray, blue, darkGray, white, darkOffWhite, green, darkGreen, lightGray, red, lightRed } from '../../utils/colors';
+import { gray, blue, darkGray, white, darkOffWhite, green, darkGreen, lightGray, red, lightRed, lightBlue, offWhite } from '../../utils/colors';
 import { downloadFile, combinePsbts } from '../../utils/files';
+import { getFeeForMultisig } from './utils';
 
-const TransactionDetails = ({ finalPsbt, feeEstimate, importTxFromFileError, currentAccount, toggleRefresh, fileUploadLabelRef, txImportedFromFile, signedDevices, recipientAddress, sendAmount, setStep, utxosMap, signedPsbts, signThreshold, currentBitcoinNetwork, currentBitcoinPrice }) => {
+const TransactionDetails = ({ finalPsbt, feeEstimate, importTxFromFileError, feeRates, currentAccount, toggleRefresh, fileUploadLabelRef, txImportedFromFile, signedDevices, recipientAddress, sendAmount, setStep, utxosMap, signedPsbts, signThreshold, currentBitcoinNetwork, currentBitcoinPrice }) => {
   const [broadcastedTxId, setBroadcastedTxId] = useState('');
   const [txError, setTxError] = useState(null);
   const [optionsDropdownOpen, setOptionsDropdownOpen] = useState(false);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalContent, setModalContent] = useState(null);
+
+  const txSize = estimateMultisigP2WSHTransactionVSize({
+    numInputs: finalPsbt.txInputs.length,
+    numOutputs: finalPsbt.txOutputs.length,
+    n: currentAccount.config.quorum.requiredSigners,
+    m: currentAccount.config.quorum.totalSigners,
+  });
+
+  console.log('txSize: ', txSize);
+  console.log('feerate: ', feeRates['1']);
+  console.log('xxx: ', txSize * feeRates['1']);
 
   const history = useHistory();
 
@@ -53,7 +67,7 @@ const TransactionDetails = ({ finalPsbt, feeEstimate, importTxFromFileError, cur
           setModalContent(<TransactionSuccess broadcastedTxId={data} />);
         }
       } catch (e) {
-        setTxError(e.message);
+        setTxError(e.response.data);
       }
     }
   }
@@ -82,7 +96,7 @@ const TransactionDetails = ({ finalPsbt, feeEstimate, importTxFromFileError, cur
       dropdownItems.unshift(
         { label: 'Edit Transaction', onClick: () => setStep(0) },
         { label: 'View more details', onClick: () => { openInModal(<TransactionDetails />); } },
-        // { label: 'Adjust Fee', onClick: () => { openInModal(<FeeSelector />) } }
+        { label: 'Adjust Fee', onClick: () => { openInModal(<FeeSelector />) } }
       );
     }
 
@@ -98,14 +112,55 @@ const TransactionDetails = ({ finalPsbt, feeEstimate, importTxFromFileError, cur
     )
   }
 
-  const FeeSelector = () => (
-    <div>fee selector</div>
-  )
+  const FeeSelector = ({ feeArray }) => {
+    console.log('finalPsbt: ', finalPsbt)
+    const fastestFee = getFeeForMultisig(feeRates['1'], currentAccount.config.addressType, finalPsbt.__CACHE.__TX.ins.length, finalPsbt.__CACHE.__TX.outs.length, currentAccount.config.quorum.requiredSigners, currentAccount.config.quorum.totalSigners).integerValue(BigNumber.ROUND_CEIL);
+    let normalFee = getFeeForMultisig(feeRates['3'], currentAccount.config.addressType, finalPsbt.__CACHE.__TX.ins.length, finalPsbt.__CACHE.__TX.outs.length, currentAccount.config.quorum.requiredSigners, currentAccount.config.quorum.totalSigners).integerValue(BigNumber.ROUND_CEIL);
+    if (normalFee === fastestFee) {
+      normalFee = getFeeForMultisig(feeRates['4'], currentAccount.config.addressType, finalPsbt.__CACHE.__TX.ins.length, finalPsbt.__CACHE.__TX.outs.length, currentAccount.config.quorum.requiredSigners, currentAccount.config.quorum.totalSigners).integerValue(BigNumber.ROUND_CEIL);
+    }
+    const slowFee = getFeeForMultisig(feeRates['6'], currentAccount.config.addressType, finalPsbt.__CACHE.__TX.ins.length, finalPsbt.__CACHE.__TX.outs.length, currentAccount.config.quorum.requiredSigners, currentAccount.config.quorum.totalSigners).integerValue(BigNumber.ROUND_CEIL);
+
+    console.log('feeRates[1]xx: ', feeRates[1]);
+    console.log('fastestFee: ', fastestFee);
+    console.log('normalFee: ', fastestFee);
+    console.log('slowFee: ', slowFee);
+
+
+    console.log('satoshisToBitcoins(fastestFee).multipliedBy(currentBitcoinPrice).toFixed(2): ', satoshisToBitcoins(fastestFee).multipliedBy(currentBitcoinPrice).toFixed(2));
+    console.log('satoshisToBitcoins(fastestFee).toNumber(): ', satoshisToBitcoins(fastestFee).toNumber());
+
+    return (
+      <Fragment>
+        <ModalHeaderContainer>
+          Adjust Transaction Fee
+      </ModalHeaderContainer>
+        <div style={{ padding: '1.5em' }}>
+          <FeeItem selected={true}>
+            <FeeMainText>Fast: ~10 minutes</FeeMainText>
+            <FeeSubtext>${satoshisToBitcoins(fastestFee).multipliedBy(currentBitcoinPrice).toFixed(2)}, {satoshisToBitcoins(fastestFee).toNumber()} BTC</FeeSubtext>
+          </FeeItem>
+          <FeeItem>
+            <FeeMainText>Normal: ~30 minutes</FeeMainText>
+            <FeeSubtext>${satoshisToBitcoins(normalFee).multipliedBy(currentBitcoinPrice).toFixed(2)}, {satoshisToBitcoins(normalFee).toNumber()} BTC</FeeSubtext>
+          </FeeItem>
+          <FeeItem>
+            <FeeMainText>Slow: ~1 hour</FeeMainText>
+            <FeeSubtext>${satoshisToBitcoins(slowFee).multipliedBy(currentBitcoinPrice).toFixed(2)}, {satoshisToBitcoins(slowFee).toNumber()} BTC</FeeSubtext>
+          </FeeItem>
+          <FeeItem>
+            <FeeMainText>Custom Fee</FeeMainText>
+            <FeeSubtext>Enter a specific fee amount</FeeSubtext>
+          </FeeItem>
+        </div>
+      </Fragment>
+    )
+  }
 
   const PsbtDetails = () => (
     <Fragment>
       <ModalHeaderContainer>
-        PSBT
+        Raw PSBT
       </ModalHeaderContainer>
       <div style={{ padding: '1.5em' }}>
         <OutputItem style={{ wordBreak: 'break-word' }}>
@@ -225,7 +280,7 @@ const TransactionDetails = ({ finalPsbt, feeEstimate, importTxFromFileError, cur
           {txError && <ErrorBox>{txError}</ErrorBox>}
           {importTxFromFileError && <ErrorBox>{importTxFromFileError}</ErrorBox>}
           {!broadcastedTxId && <SendButton background={green} color={white} loaded={signedDevices.length === signThreshold} onClick={broadcastTransaction}>
-            {signedDevices.length < signThreshold ? `Confirm on Devices (${signedDevices.length}/${signThreshold})` : 'Send Transaction'}
+            {signedDevices.length < signThreshold && currentAccount.config.quorum.requiredSigners > 1 ? `Confirm on Devices (${signedDevices.length}/${signThreshold})` : 'Send Transaction'}
             {signedDevices.length < signThreshold ? null : (
               <SendButtonCheckmark loaded={signedDevices.length}>
                 <StyledIcon as={ArrowIosForwardOutline} size={16} />
@@ -237,6 +292,38 @@ const TransactionDetails = ({ finalPsbt, feeEstimate, importTxFromFileError, cur
     </Fragment>
   )
 }
+
+const FeeMainText = styled.div`
+  font-size: 1em;
+`;
+
+const FeeSubtext = styled.div`
+  color: ${darkGray};
+  font-size: 0.75em;
+`;
+
+const FeeItem = styled.div`
+  display: flex;
+  flex-direction: column;
+  padding: 1.5em;
+  margin: 12px 0;
+  background: ${ p => p.selected ? lightBlue : lightGray};
+  border: 1px solid ${p => p.selected ? blue : offWhite};
+  justify-content: center;
+  align-items: center;
+  border-radius: 4px;
+  cursor: pointer;
+  transition-duration: .15s;
+
+  &:hover {
+    border: 1px solid ${p => p.selected ? blue : offWhite};
+    background: ${ p => p.selected ? lightBlue : offWhite};
+  }
+
+  &:active {
+    background: ${ p => p.selected ? lightBlue : gray};
+  }
+`;
 
 const IconWrapper = styled.div`
 

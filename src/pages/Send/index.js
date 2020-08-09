@@ -1,19 +1,12 @@
-import React, { useState, useRef } from 'react';
-import axios from 'axios';
+import React, { useState, useRef, useEffect } from 'react';
 import styled, { css } from 'styled-components';
 import { Safe } from '@styled-icons/crypto';
 import { Wallet } from '@styled-icons/entypo';
 import BigNumber from 'bignumber.js';
 import { mnemonicToSeed } from 'bip39';
-import {
-  satoshisToBitcoins,
-  bitcoinsToSatoshis,
-  multisigWitnessScript,
-  blockExplorerAPIURL,
-  estimateMultisigTransactionFee
-} from "unchained-bitcoin";
+import { satoshisToBitcoins, estimateMultisigP2WSHTransactionVSize } from "unchained-bitcoin";
 
-import { Psbt, address, bip32, networks } from 'bitcoinjs-lib';
+import { Psbt, bip32 } from 'bitcoinjs-lib';
 
 import { StyledIcon, Button, PageWrapper, GridArea, PageTitle, Header, HeaderRight, HeaderLeft, Loading, FileUploader, Modal, Dropdown } from '../../components';
 import RecentTransactions from '../../components/transactions/RecentTransactions';
@@ -26,68 +19,7 @@ import { mobile } from '../../utils/media';
 import { cloneBuffer, bufferToHex } from '../../utils/other';
 import { combinePsbts } from '../../utils/files';
 
-const validateAddress = (recipientAddress) => {
-  try {
-    address.toOutputScript(recipientAddress)
-    return true
-  } catch (e) {
-    return false
-  }
-}
-
-const getUnchainedNetworkFromBjslibNetwork = (bitcoinJslibNetwork) => {
-  if (bitcoinJslibNetwork === networks.bitcoin) {
-    return 'mainnet';
-  } else {
-    return 'testnet';
-  }
-}
-
-const getTxHex = async (txid, currentBitcoinNetwork) => {
-  const txHex = await (await axios.get(blockExplorerAPIURL(`/tx/${txid}/hex`, getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)))).data;
-  return txHex;
-}
-
-const getFeeForMultisig = async (addressType, numInputs, numOutputs, requiredSigners, totalSigners, currentBitcoinNetwork) => {
-  const feeRate = await (await axios.get(blockExplorerAPIURL(`/fee-estimates`, currentBitcoinNetwork))).data;
-  return estimateMultisigTransactionFee({
-    addressType: addressType,
-    numInputs: numInputs,
-    numOutputs: numOutputs,
-    m: requiredSigners,
-    n: totalSigners,
-    feesPerByteInSatoshis: feeRate[1].toString()
-  })
-}
-
-const createTransactionMapFromTransactionArray = (transactionsArray) => {
-  const transactionMap = new Map();
-  transactionsArray.forEach((tx) => {
-    transactionMap.set(tx.txid, tx)
-  });
-  return transactionMap
-}
-
-const createUtxoMapFromUtxoArray = (utxosArray) => {
-  const utxoMap = new Map();
-  utxosArray.forEach((utxo) => {
-    utxoMap.set(utxo.txid, utxo)
-  });
-  return utxoMap
-}
-
-const coinSelection = (amountInSats, availableUtxos) => {
-  availableUtxos.sort((a, b) => b.value - a.value); // sort available utxos from largest size to smallest size to minimize inputs
-  let currentTotal = BigNumber(0);
-  const spendingUtxos = [];
-  let index = 0;
-  while (currentTotal.isLessThan(amountInSats) && index < availableUtxos.length) {
-    currentTotal = currentTotal.plus(availableUtxos[index].value);
-    spendingUtxos.push(availableUtxos[index]);
-    index++;
-  }
-  return [spendingUtxos, currentTotal];
-}
+import { createTransaction, validateAddress, createUtxoMapFromUtxoArray } from './utils'
 
 const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, currentBitcoinNetwork, currentBitcoinPrice }) => {
   document.title = `Send - Lily Wallet`;
@@ -100,110 +32,16 @@ const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, curren
   const [step, setStep] = useState(0);
   const [finalPsbt, setFinalPsbt] = useState(null);
   const [feeEstimate, setFeeEstimate] = useState(BigNumber(0));
-  const [outputTotal, setOutputTotal] = useState(BigNumber(0));
   const [signedPsbts, setSignedPsbts] = useState([]);
   const [signedDevices, setSignedDevices] = useState([]);
   const [pastePsbtModalOpen, setPastePsbtModalOpen] = useState(false);
   const [pastedPsbtValue, setPastedPsbtValue] = useState(null);
   const [optionsDropdownOpen, setOptionsDropdownOpen] = useState(false);
+  const [feeRates, setFeeRates] = useState(null);
   const fileUploadLabelRef = useRef(null);
 
   // Get account data
   const { transactions, availableUtxos, unusedChangeAddresses, currentBalance } = currentAccount;
-
-
-  const createTransaction = async (amountInBitcoins, recipientAddress, availableUtxos, transactionsFromBlockstream) => {
-    const transactionMap = createTransactionMapFromTransactionArray(transactionsFromBlockstream);
-
-    let currentFeeEstimate = await (await getFeeForMultisig(currentAccount.config.addressType, 1, 2, currentAccount.config.quorum.requiredSigners, currentAccount.config.quorum.totalSigners, currentBitcoinNetwork)).integerValue(BigNumber.ROUND_CEIL);
-    let outputTotal = BigNumber(bitcoinsToSatoshis(amountInBitcoins)).plus(currentFeeEstimate.toNumber());
-    let [spendingUtxos, spendingUtxosTotal] = coinSelection(outputTotal, availableUtxos);
-
-    if (spendingUtxos.length > 1) {
-      currentFeeEstimate = await (await getFeeForMultisig(currentAccount.config.addressType, spendingUtxos.length, 2, currentAccount.config.quorum.requiredSigners, currentAccount.config.quorum.totalSigners)).integerValue(BigNumber.ROUND_CEIL);
-      outputTotal = BigNumber(bitcoinsToSatoshis(amountInBitcoins)).plus(currentFeeEstimate.toNumber());
-      [spendingUtxos, spendingUtxosTotal] = coinSelection(outputTotal, availableUtxos);
-    }
-
-    setFeeEstimate(currentFeeEstimate);
-    setOutputTotal(outputTotal);
-
-    const psbt = new Psbt({ network: currentBitcoinNetwork });
-    psbt.setVersion(2); // These are defaults. This line is not needed.
-    psbt.setLocktime(0); // These are defaults. This line is not needed.
-
-    for (let i = 0; i < spendingUtxos.length; i++) {
-      const utxo = spendingUtxos[i];
-      if (currentAccount.config.quorum.requiredSigners > 1) {
-
-        // need to construct prevTx b/c of segwit fee vulnerability requires on trezor
-        const prevTxHex = await getTxHex(utxo.txid, currentBitcoinNetwork);
-
-        // KBC-TODO: eventually break this up into different functions depending on if Trezor or not, leave for now...I guess
-        psbt.addInput({
-          hash: utxo.txid,
-          index: utxo.vout,
-          sequence: 0xffffffff,
-          // witnessUtxo: {
-          //   script: Buffer.from(transactionMap.get(utxo.txid).vout[utxo.vout].scriptpubkey, 'hex'),
-          //   value: utxo.value
-          // },
-          nonWitnessUtxo: Buffer.from(prevTxHex, 'hex'),
-          // redeemScript: utxo.address.redeem.output,
-          witnessScript: Buffer.from(multisigWitnessScript(utxo.address).output),
-          bip32Derivation: utxo.address.bip32derivation.map((derivation) => ({
-            masterFingerprint: Buffer.from(derivation.masterFingerprint.buffer, derivation.masterFingerprint.byteOffset, derivation.masterFingerprint.byteLength),
-            pubkey: Buffer.from(derivation.pubkey.buffer, derivation.pubkey.byteOffset, derivation.pubkey.byteLength),
-            path: derivation.path
-          }))
-        })
-      } else {
-        psbt.addInput({
-          hash: utxo.txid,
-          index: utxo.vout,
-          sequence: 0xffffffff,
-          witnessUtxo: {
-            script: Buffer.from(transactionMap.get(utxo.txid).vout[utxo.vout].scriptpubkey, 'hex'),
-            value: utxo.value
-          },
-          bip32Derivation: [{
-            masterFingerprint: Buffer.from(utxo.address.bip32derivation[0].masterFingerprint.buffer, utxo.address.bip32derivation[0].masterFingerprint.byteOffset, utxo.address.bip32derivation[0].masterFingerprint.byteLength),
-            pubkey: Buffer.from(utxo.address.bip32derivation[0].pubkey.buffer, utxo.address.bip32derivation[0].pubkey.byteOffset, utxo.address.bip32derivation[0].pubkey.byteLength),
-            path: utxo.address.bip32derivation[0].path
-          }]
-        })
-      }
-    }
-
-    psbt.addOutput({
-      script: address.toOutputScript(recipientAddress, currentBitcoinNetwork),
-      // address: recipientAddress,
-      value: bitcoinsToSatoshis(amountInBitcoins).toNumber(),
-    });
-
-    if (spendingUtxosTotal.isGreaterThan(outputTotal)) {
-      psbt.addOutput({
-        script: address.toOutputScript(unusedChangeAddresses[0].address, currentBitcoinNetwork),
-        value: spendingUtxosTotal.minus(outputTotal).toNumber()
-      })
-    }
-
-    setFinalPsbt(psbt);
-    setStep(1);
-
-    // if only single sign, then sign tx right away
-    if (currentAccount.config.quorum.requiredSigners === 1) {
-      const seed = await mnemonicToSeed(currentAccount.config.mnemonic);
-      const root = bip32.fromSeed(seed, currentBitcoinNetwork);
-
-      psbt.signAllInputsHD(root);
-      psbt.validateSignaturesOfAllInputs();
-      psbt.finalizeAllInputs();
-
-      setSignedDevices([currentAccount]) // this could probably have better information in it but
-      setSignedPsbts([psbt]);
-    }
-  }
 
   const importTxToForm = (file) => {
     if (importTxFromFileError) {
@@ -231,7 +69,7 @@ const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, curren
             tx = combinePsbts(finalPsbt, [...signedPsbts, tx])
           } catch (e) {
             console.log('error: ', e)
-            setImportTxFromFileError('Signature is for a different transaction')
+            throw new Error('Signature is for a different transaction')
           }
         }
         // validate psbt and make sure it belongs to the current account
@@ -290,7 +128,7 @@ const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, curren
     utxosMap = createUtxoMapFromUtxoArray(availableUtxos);
   }
 
-  const validateAndCreateTransaction = () => {
+  const validateAndCreateTransaction = async () => {
     if (!validateAddress(recipientAddress)) {
       setRecipientAddressError(true);
     }
@@ -308,9 +146,44 @@ const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, curren
     }
 
     if (validateAddress(recipientAddress) && sendAmount && satoshisToBitcoins(feeEstimate.plus(currentBalance)).isGreaterThan(sendAmount)) {
-      createTransaction(sendAmount, recipientAddress, availableUtxos, transactions)
+      const { psbt, fee, feeRates } = await createTransaction(currentAccount, sendAmount, recipientAddress, undefined, availableUtxos, transactions, unusedChangeAddresses, currentBitcoinNetwork);
+      setFinalPsbt(psbt);
+      setFeeEstimate(fee);
+      setFeeRates(feeRates);
+
+      setStep(1);
+
+      // if only single sign, then sign tx right away
+      if (currentAccount.config.quorum.requiredSigners === 1) {
+        const seed = await mnemonicToSeed(currentAccount.config.mnemonic);
+        const root = bip32.fromSeed(seed, currentBitcoinNetwork);
+
+        psbt.signAllInputsHD(root);
+        psbt.validateSignaturesOfAllInputs();
+        psbt.finalizeAllInputs();
+
+        setSignedDevices([currentAccount]) // this could probably have better information in it but
+        setSignedPsbts([psbt]);
+      }
     }
   }
+
+  const SelectAccountMenu = () => (
+    <AccountMenu>
+      {config.vaults.map((vault, index) => (
+        <AccountMenuItemWrapper active={vault.name === currentAccount.name} borderRight={(index < config.vaults.length - 1) || config.wallets.length} onClick={() => setCurrentAccount(vault.id)}>
+          <StyledIcon as={Safe} size={48} />
+          <AccountMenuItemName>{vault.name}</AccountMenuItemName>
+        </AccountMenuItemWrapper>
+      ))}
+      {config.wallets.map((wallet, index) => (
+        <AccountMenuItemWrapper active={wallet.name === currentAccount.name} borderRight={(index < config.wallets.length - 1)} onClick={() => setCurrentAccount(wallet.id)}>
+          <StyledIcon as={Wallet} size={48} />
+          <AccountMenuItemName>{wallet.name}</AccountMenuItemName>
+        </AccountMenuItemWrapper>
+      ))}
+    </AccountMenu>
+  )
 
   return (
     <PageWrapper>
@@ -333,20 +206,7 @@ const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, curren
       <label style={{ display: 'none' }} ref={fileUploadLabelRef} htmlFor="txFile"></label>
 
       <SendWrapper>
-        <AccountMenu>
-          {config.vaults.map((vault, index) => (
-            <AccountMenuItemWrapper active={vault.name === currentAccount.name} borderRight={(index < config.vaults.length - 1) || config.wallets.length} onClick={() => setCurrentAccount(vault.id)}>
-              <StyledIcon as={Safe} size={48} />
-              <AccountMenuItemName>{vault.name}</AccountMenuItemName>
-            </AccountMenuItemWrapper>
-          ))}
-          {config.wallets.map((wallet, index) => (
-            <AccountMenuItemWrapper active={wallet.name === currentAccount.name} borderRight={(index < config.wallets.length - 1)} onClick={() => setCurrentAccount(wallet.id)}>
-              <StyledIcon as={Wallet} size={48} />
-              <AccountMenuItemName>{wallet.name}</AccountMenuItemName>
-            </AccountMenuItemWrapper>
-          ))}
-        </AccountMenu>
+        <SelectAccountMenu />
 
         {currentAccount.loading && <Loading itemText={'Send Information'} />}
         {!currentAccount.loading && (
@@ -464,7 +324,6 @@ const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, curren
               <TransactionDetails
                 finalPsbt={finalPsbt}
                 feeEstimate={feeEstimate}
-                outputTotal={outputTotal}
                 recipientAddress={recipientAddress}
                 setStep={setStep}
                 sendAmount={sendAmount}
@@ -479,6 +338,7 @@ const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, curren
                 currentBitcoinPrice={currentBitcoinPrice}
                 toggleRefresh={toggleRefresh}
                 currentAccount={currentAccount}
+                feeRates={feeRates}
               />
             )}
 
