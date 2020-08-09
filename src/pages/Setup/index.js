@@ -7,11 +7,12 @@ import { Wallet } from '@styled-icons/entypo';
 import moment from 'moment';
 import { bip32 } from "bitcoinjs-lib";
 import bs58check from 'bs58check';
+import { Check } from '@styled-icons/material';
 
 import { createConfigFile, createColdCardBlob, downloadFile } from '../../utils/files';
 import { Button, DeviceSelect, StyledIcon, FileUploader } from '../../components';
 import { GridArea, Header, HeaderLeft, HeaderRight, PageTitle } from '../../components/layout';
-import { black, gray, blue, white, darkGreen, offWhite, darkGray, darkOffWhite, lightBlue } from '../../utils/colors';
+import { black, gray, blue, white, darkGreen, offWhite, darkGray, darkOffWhite, lightBlue, gray100, gray200, gray300, gray400, gray500, gray700, blue100, blue300, blue400, blue500, blue600 } from '../../utils/colors';
 
 import CreateWallet from './CreateWallet';
 
@@ -107,6 +108,34 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
     history.push('/coldcard-import-instructions')
   }
 
+  const StepGroups = () => (
+    <Steps>
+      <StepItem arrow={true} completed={step > 1} active={step === 1}>
+        <StepCircle completed={step > 1}>
+          {step > 1 ? <StyledIcon as={Check} size={25} /> : '01'}
+        </StepCircle>
+        <StepItemTextContainer>
+          <StepItemMainText>Step 1</StepItemMainText>
+          <StepItemSubText>Give your vault a name</StepItemSubText>
+        </StepItemTextContainer>
+      </StepItem>
+      <StepItem arrow={true} completed={step > 2} active={step === 2}>
+        <StepCircle completed={step > 2}>02</StepCircle>
+        <StepItemTextContainer>
+          <StepItemMainText>Step 2</StepItemMainText>
+          <StepItemSubText>Connect devices associated with vault</StepItemSubText>
+        </StepItemTextContainer>
+      </StepItem>
+      <StepItem arrow={false} completed={step > 3} active={step === 3}>
+        <StepCircle completed={step > 3}>03</StepCircle>
+        <StepItemTextContainer>
+          <StepItemMainText>Step 3</StepItemMainText>
+          <StepItemSubText>Encrypt your configuration file</StepItemSubText>
+        </StepItemTextContainer>
+      </StepItem>
+    </Steps>
+  )
+
   const SelectAccountScreen = () => (
     <InnerWrapper>
       <HeaderWrapper>
@@ -127,7 +156,7 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
           <SignupOptionSubtext>Create a new Bitcoin wallet</SignupOptionSubtext>
         </SignupOptionItem>
 
-        <SignupOptionItem style={{ borderTop: `8px solid ${blue}` }} onClick={() => { setSetupOption(1); setStep(1); }}>
+        <SignupOptionItem style={{ borderTop: `8px solid ${blue500}` }} onClick={() => { setSetupOption(1); setStep(1); }}>
           <StyledIcon as={Safe} size={48} style={{ marginBottom: '0.5em' }} />
           <SignupOptionMainText>Vault</SignupOptionMainText>
           <SignupOptionSubtext>Use multiple hardware wallets to create a vault for securing large amounts of Bitcoin</SignupOptionSubtext>
@@ -312,8 +341,78 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
       screen = <div>Unexpected error</div>;
   }
 
-  return <Wrapper>{screen}</Wrapper>
+  return (
+    <Wrapper step={step}>
+      {step > 0 && <StepGroups />}
+      {screen}
+    </Wrapper>
+  )
 }
+
+const StepItemTextContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin-left: 1em;
+  justify-content: center;
+`;
+
+const StepCircle = styled.div`
+  border-radius: 9999px;
+  border: 1px solid ${p => p.completed ? blue500 : gray400};
+  background: ${p => p.completed ? blue400 : 'transparent'};
+  color: ${p => p.completed ? white : gray500};
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const Steps = styled.div`
+  display: inline-flex;
+  border-radius: 0.375em;
+  border: 1px solid ${gray300};
+  align-items: stretch;
+  margin-bottom: 3em;
+`;
+
+
+const StepItem = styled.div`
+  display: flex;
+  align-items: center;
+  position: relative;
+  // flex-direction: column;
+  background: ${p => (p.active || p.completed) ? white : gray100};
+  color: ${p => (p.active || p.completed) ? gray700 : gray400};
+  padding: 1em;
+  border-bottom: 4px solid ${p => p.active ? blue500 : 'none'};
+
+  border-right: 1px solid rgba(34,36,38,.15);
+
+  &:after { 
+    display: ${p => p.arrow ? 'auto' : 'none'};
+    position: absolute;
+    z-index: 2;
+    content: '';
+    top: 50%;
+    right: 0;
+    border: medium none;
+    background-color: ${p => (p.active || p.completed) ? white : gray100};
+    width: 1.14285714em;
+    height: 1.14285714em;
+    border-style: solid;
+    border-color: ${gray300};
+    border-width: 0 1px 1px 0;
+    -webkit-transition: background-color .1s ease,opacity .1s ease,color .1s ease,-webkit-box-shadow .1s ease;
+    transition: background-color .1s ease,opacity .1s ease,color .1s ease,-webkit-box-shadow .1s ease;
+    transition: background-color .1s ease,opacity .1s ease,color .1s ease,box-shadow .1s ease;
+    transition: background-color .1s ease,opacity .1s ease,color .1s ease,box-shadow .1s ease,-webkit-box-shadow .1s ease;
+    -webkit-transform: translateY(-50%) translateX(50%) rotate(-45deg);
+    transform: translateY(-50%) translateX(50%) rotate(-45deg);
+  }
+`;
+const StepItemMainText = styled.div``;
+const StepItemSubText = styled.div``;
 
 const CancelButton = styled.div`
   color: ${gray};
@@ -385,7 +484,7 @@ const BoxedWrapper = styled.div`
   justify-content: space-between;
   border-top-left-radius: 4px;
   border-top-right-radius: 4px;
-  border-top: 11px solid ${blue};
+  border-top: 11px solid ${blue500};
   box-shadow: rgba(43, 48, 64, 0.2) 0px 0.1rem 0.5rem 0px;
 `;
 
@@ -398,7 +497,7 @@ const Wrapper = styled.div`
   align-items: center;
   display: flex;
   flex: 1;
-  justify-content: center;
+  justify-content: ${p => p.step === 0 ? 'center' : 'flex-start'};
   flex-direction: column;
   padding-top: 50px;
 `;
