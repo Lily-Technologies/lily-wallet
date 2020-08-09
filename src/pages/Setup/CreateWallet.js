@@ -85,7 +85,7 @@ const CreateWallet = ({
     );
     downloadFile(
       encryptedConfigFile,
-      `lily_wallet_config-${moment().format()}.txt`
+      `lily_wallet_config-${moment().format('MMDDYY-hhmmss')}.txt`
     );
     setnewConfig(configCopy);
     // setConfigFile(configCopy);

@@ -92,13 +92,13 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
   const exportSetupFiles = () => {
     const contentType = "text/plain;charset=utf-8;";
 
-    const ccFile = createColdCardBlob(importedDevices);
+    const ccFile = createColdCardBlob(accountName, importedDevices);
     const configObject = createConfigFile(importedDevices, accountName, config, currentBitcoinNetwork);
     const encryptedConfigObject = AES.encrypt(JSON.stringify(configObject), password).toString();
     const encryptedConfigFile = new Blob([decodeURIComponent(encodeURI(encryptedConfigObject))], { type: contentType });
 
     setConfigFile(configObject);
-    downloadFile(ccFile, "coldcard_import_file.txt");
+    downloadFile(ccFile, `${moment().format('MMDDYYYY')}-lily-coldcard-file.txt`);
     // KBC-TODO: electron-dl bug requires us to wait for the first file to finish downloading before downloading the second
     // this should be fixed somehow
     setTimeout(() => {

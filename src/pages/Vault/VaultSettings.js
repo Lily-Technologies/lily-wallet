@@ -44,7 +44,7 @@ const VaultSettings = ({ config, setConfigFile, currentAccount, setViewAddresses
 
   const downloadColdcardMultisigFile = () => {
     const ccFile = createColdCardBlob(currentAccount.config.extendedPublicKeys);
-    downloadFile(ccFile, "coldcard_import_file.txt");
+    downloadFile(ccFile, `${moment().format('MMDDYYYY')}-lily-coldcard-file.txt`);
   }
 
   const downloadCaravanFile = () => {
@@ -63,7 +63,7 @@ const VaultSettings = ({ config, setConfigFile, currentAccount, setViewAddresses
       }
     }
     const caravanFile = new Blob([JSON.stringify(configCopy)], { type: 'application/json' })
-    downloadFile(caravanFile, "lily_wallet_caravan_export.json");
+    downloadFile(caravanFile, `${moment().format('MMDDYYYY')}-lily-caravan-file.json`);
   }
 
   const getMnemonicQrCode = () => {

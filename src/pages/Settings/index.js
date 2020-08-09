@@ -39,7 +39,7 @@ const Settings = ({ config }) => {
     const contentType = "text/plain;charset=utf-8;";
     const encryptedConfigObject = AES.encrypt(JSON.stringify(config), password).toString();
     var encryptedConfigFile = new Blob([decodeURIComponent(encodeURI(encryptedConfigObject))], { type: contentType });
-    downloadFile(encryptedConfigFile, `lily_wallet_config-${moment().format()}.txt`);
+    downloadFile(encryptedConfigFile, `lily_wallet_config-${moment().format('MMDDYY-hhmmss')}.txt`);
   }
 
   return (

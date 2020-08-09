@@ -70,10 +70,10 @@ export const createConfigFile = (importedDevices, accountName, config, currentBi
   return configCopy;
 }
 
-export const createColdCardBlob = (importedDevices) => {
+export const createColdCardBlob = (accountName, importedDevices) => {
   return new Blob([`# Coldcard Multisig setup file (created by Lily Wallet on ${moment(Date.now()).format('MM/DD/YYYY')})
 #
-Name: ColdcardKitchen
+Name: ${accountName}
 Policy: 2 of 3
 Derivation: m/48'/0'/0'/2'
 Format: P2WSH
