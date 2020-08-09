@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Fragment } from 'react';
 import { Link, useParams } from "react-router-dom";
 import styled from 'styled-components';
 import { VerticalAlignBottom, ArrowUpward, Settings, Refresh } from '@styled-icons/material';
@@ -11,7 +11,7 @@ import AddressesView from './AddressesView';
 import UtxosView from './UtxosView';
 import VaultSettings from './VaultSettings';
 
-import { darkGray, lightBlue } from '../../utils/colors';
+import { darkGray, lightBlue, gray400, gray500 } from '../../utils/colors';
 
 const Vault = ({ config, setConfigFile, toggleRefresh, currentAccount, setCurrentAccount, currentBitcoinNetwork }) => {
   document.title = `Vault - Lily Wallet`;
@@ -36,8 +36,20 @@ const Vault = ({ config, setConfigFile, toggleRefresh, currentAccount, setCurren
         <HeaderLeft>
           <PageTitle>{currentAccount.name}</PageTitle>
           <VaultExplainerText>
-            {currentAccount.config.quorum.requiredSigners > 1 && 'This is a vault account. Vaults require multiple devices to approve outgoing transactions and should be used to store Bitcoin savings.'}
-            {currentAccount.config.quorum.requiredSigners === 1 && 'This is a wallet account. Wallets are used for everyday transactions and should be used to store small amounts of discretionary money.'}
+            {currentAccount.config.quorum.requiredSigners > 1 && (
+              <Fragment>
+                <IconSvg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10.496 2.132a1 1 0 00-.992 0l-7 4A1 1 0 003 8v7a1 1 0 100 2h14a1 1 0 100-2V8a1 1 0 00.496-1.868l-7-4zM6 9a1 1 0 00-1 1v3a1 1 0 102 0v-3a1 1 0 00-1-1zm3 1a1 1 0 012 0v3a1 1 0 11-2 0v-3zm5-1a1 1 0 00-1 1v3a1 1 0 102 0v-3a1 1 0 00-1-1z" clip-rule="evenodd"></path></IconSvg>
+                {currentAccount.config.quorum.requiredSigners} of {currentAccount.config.quorum.totalSigners} Multisignature Vault
+              </Fragment>
+            )}
+            {currentAccount.config.quorum.requiredSigners === 1 && (
+              <Fragment>
+                <IconSvg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 1118 8zm-6-4a1 1 0 100 2 2 2 0 012 2 1 1 0 102 0 4 4 0 00-4-4z" clip-rule="evenodd"></path></IconSvg>
+                <span>
+                  Single Key Wallet
+              </span>
+              </Fragment>
+            )}
           </VaultExplainerText>
         </HeaderLeft>
         <HeaderRight>
@@ -90,6 +102,14 @@ const Vault = ({ config, setConfigFile, toggleRefresh, currentAccount, setCurren
   )
 }
 
+const IconSvg = styled.svg`
+  color: ${gray400};
+  width: 1.25rem;
+  margin-right: .375rem;
+  height: 1.25rem;
+  flex-shrink: 0;
+`;
+
 const SendButton = styled(Link)`
   ${Button}
   margin: 12px;
@@ -107,8 +127,12 @@ const SettingsButton = styled.div`
 `;
 
 const VaultExplainerText = styled.div`
-  color: ${darkGray};
+  color: ${gray500};
   font-size: .75em;
+  display: flex;
+  align-items: center;
+  font-size: 1em;
+    margin-top: .5em;
 `;
 
 export default Vault;
