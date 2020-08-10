@@ -177,13 +177,13 @@ const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, curren
   const SelectAccountMenu = () => (
     <AccountMenu>
       {config.vaults.map((vault, index) => (
-        <AccountMenuItemWrapper active={vault.name === currentAccount.name} borderRight={(index < config.vaults.length - 1) || config.wallets.length} onClick={() => setCurrentAccount(vault.id)}>
+        <AccountMenuItemWrapper active={vault.id === currentAccount.config.id} borderRight={(index < config.vaults.length - 1) || config.wallets.length} onClick={() => setCurrentAccount(vault.id)}>
           <StyledIcon as={Safe} size={48} />
           <AccountMenuItemName>{vault.name}</AccountMenuItemName>
         </AccountMenuItemWrapper>
       ))}
       {config.wallets.map((wallet, index) => (
-        <AccountMenuItemWrapper active={wallet.name === currentAccount.name} borderRight={(index < config.wallets.length - 1)} onClick={() => setCurrentAccount(wallet.id)}>
+        <AccountMenuItemWrapper active={wallet.id === currentAccount.config.id} borderRight={(index < config.wallets.length - 1)} onClick={() => setCurrentAccount(wallet.id)}>
           <StyledIcon as={Wallet} size={48} />
           <AccountMenuItemName>{wallet.name}</AccountMenuItemName>
         </AccountMenuItemWrapper>
