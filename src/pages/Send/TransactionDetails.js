@@ -22,7 +22,7 @@ import { gray, blue, darkGray, white, darkOffWhite, green, darkGreen, lightGray,
 import { downloadFile, combinePsbts } from '../../utils/files';
 import { getFeeForMultisig } from './utils';
 
-const TransactionDetails = ({ finalPsbt, feeEstimate, importTxFromFileError, feeRates, currentAccount, toggleRefresh, fileUploadLabelRef, txImportedFromFile, signedDevices, recipientAddress, sendAmount, setStep, utxosMap, signedPsbts, signThreshold, currentBitcoinNetwork, currentBitcoinPrice }) => {
+const TransactionDetails = ({ finalPsbt, feeEstimate, importTxFromFileError, feeRates, currentAccount, toggleRefresh, fileUploadLabelRef, txImportedFromFile, signedDevices, recipientAddress, sendAmount, setStep, utxosMap, signedPsbts, signThreshold, currentBitcoinNetwork, currentBitcoinPrice, createTransactionAndSetState }) => {
   const [broadcastedTxId, setBroadcastedTxId] = useState('');
   const [txError, setTxError] = useState(null);
   const [optionsDropdownOpen, setOptionsDropdownOpen] = useState(false);
@@ -45,6 +45,11 @@ const TransactionDetails = ({ finalPsbt, feeEstimate, importTxFromFileError, fee
   const openInModal = (component) => {
     setModalIsOpen(true);
     setModalContent(component);
+  }
+
+  const closeModal = () => {
+    setModalIsOpen(false);
+    setModalContent(null);
   }
 
   const broadcastTransaction = async () => {
@@ -121,37 +126,43 @@ const TransactionDetails = ({ finalPsbt, feeEstimate, importTxFromFileError, fee
     }
     const slowFee = getFeeForMultisig(feeRates['6'], currentAccount.config.addressType, finalPsbt.__CACHE.__TX.ins.length, finalPsbt.__CACHE.__TX.outs.length, currentAccount.config.quorum.requiredSigners, currentAccount.config.quorum.totalSigners).integerValue(BigNumber.ROUND_CEIL);
 
-    console.log('feeRates[1]xx: ', feeRates[1]);
-    console.log('fastestFee: ', fastestFee);
-    console.log('normalFee: ', fastestFee);
-    console.log('slowFee: ', slowFee);
-
-
-    console.log('satoshisToBitcoins(fastestFee).multipliedBy(currentBitcoinPrice).toFixed(2): ', satoshisToBitcoins(fastestFee).multipliedBy(currentBitcoinPrice).toFixed(2));
-    console.log('satoshisToBitcoins(fastestFee).toNumber(): ', satoshisToBitcoins(fastestFee).toNumber());
-
     return (
       <Fragment>
         <ModalHeaderContainer>
           Adjust Transaction Fee
       </ModalHeaderContainer>
         <div style={{ padding: '1.5em' }}>
-          <FeeItem selected={true}>
+          <FeeItem
+            onClick={() => {
+              createTransactionAndSetState(fastestFee);
+              closeModal();
+            }}
+            selected={fastestFee === feeEstimate}>
             <FeeMainText>Fast: ~10 minutes</FeeMainText>
             <FeeSubtext>${satoshisToBitcoins(fastestFee).multipliedBy(currentBitcoinPrice).toFixed(2)}, {satoshisToBitcoins(fastestFee).toNumber()} BTC</FeeSubtext>
           </FeeItem>
-          <FeeItem>
+          <FeeItem
+            onClick={() => {
+              createTransactionAndSetState(normalFee);
+              closeModal();
+            }}
+            selected={normalFee === feeEstimate}>
             <FeeMainText>Normal: ~30 minutes</FeeMainText>
             <FeeSubtext>${satoshisToBitcoins(normalFee).multipliedBy(currentBitcoinPrice).toFixed(2)}, {satoshisToBitcoins(normalFee).toNumber()} BTC</FeeSubtext>
           </FeeItem>
-          <FeeItem>
+          <FeeItem
+            onClick={() => {
+              createTransactionAndSetState(slowFee);
+              closeModal();
+            }}
+            selected={slowFee === feeEstimate}>
             <FeeMainText>Slow: ~1 hour</FeeMainText>
             <FeeSubtext>${satoshisToBitcoins(slowFee).multipliedBy(currentBitcoinPrice).toFixed(2)}, {satoshisToBitcoins(slowFee).toNumber()} BTC</FeeSubtext>
           </FeeItem>
-          <FeeItem>
+          {/* <FeeItem>
             <FeeMainText>Custom Fee</FeeMainText>
             <FeeSubtext>Enter a specific fee amount</FeeSubtext>
-          </FeeItem>
+          </FeeItem> */}
         </div>
       </Fragment>
     )

@@ -43,6 +43,15 @@ const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, curren
   // Get account data
   const { transactions, availableUtxos, unusedChangeAddresses, currentBalance } = currentAccount;
 
+  // TODO: refactor this...ugly
+  const createTransactionAndSetState = async (theFee) => {
+    const { psbt, fee, feeRates } = await createTransaction(currentAccount, sendAmount, recipientAddress, theFee, availableUtxos, transactions, unusedChangeAddresses, currentBitcoinNetwork);
+    setFinalPsbt(psbt);
+    setFeeEstimate(fee);
+    setFeeRates(feeRates);
+    return psbt
+  }
+
   const importTxToForm = (file) => {
     if (importTxFromFileError) {
       setImportTxFromFileError(null)
@@ -146,10 +155,7 @@ const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, curren
     }
 
     if (validateAddress(recipientAddress) && sendAmount && satoshisToBitcoins(feeEstimate.plus(currentBalance)).isGreaterThan(sendAmount)) {
-      const { psbt, fee, feeRates } = await createTransaction(currentAccount, sendAmount, recipientAddress, undefined, availableUtxos, transactions, unusedChangeAddresses, currentBitcoinNetwork);
-      setFinalPsbt(psbt);
-      setFeeEstimate(fee);
-      setFeeRates(feeRates);
+      const psbt = await createTransactionAndSetState(undefined);
 
       setStep(1);
 
@@ -339,6 +345,7 @@ const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, curren
                 toggleRefresh={toggleRefresh}
                 currentAccount={currentAccount}
                 feeRates={feeRates}
+                createTransactionAndSetState={createTransactionAndSetState}
               />
             )}
 

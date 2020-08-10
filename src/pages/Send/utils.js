@@ -78,14 +78,15 @@ export const createTransaction = async (currentAccount, amountInBitcoins, recipi
   const transactionMap = createTransactionMapFromTransactionArray(transactions);
 
   let fee;
-  let feeRates;
+  const feeRates = await (await axios.get(blockExplorerAPIURL(`/fee-estimates`, currentBitcoinNetwork))).data;
   if (!desiredFee) { // if no fee specified, pick next block
-    feeRates = await (await axios.get(blockExplorerAPIURL(`/fee-estimates`, currentBitcoinNetwork))).data;
     console.log('feeRates[1]yyy: ', feeRates[1])
     fee = await getFeeForMultisig(feeRates[1], currentAccount.config.addressType, 1, 2, currentAccount.config.quorum.requiredSigners, currentAccount.config.quorum.totalSigners).integerValue(BigNumber.ROUND_CEIL);
+  } else {
+    fee = desiredFee;
   }
 
-  let outputTotal = BigNumber(bitcoinsToSatoshis(amountInBitcoins)).plus(fee.toNumber());
+  let outputTotal = BigNumber(bitcoinsToSatoshis(amountInBitcoins)).plus(BigNumber(fee).toNumber());
   let [spendingUtxos, spendingUtxosTotal] = coinSelection(outputTotal, availableUtxos);
 
   if (spendingUtxos.length > 1 && !desiredFee) { // we assumed 1 input utxo when first calculating fee, if more inputs then readjust fee
