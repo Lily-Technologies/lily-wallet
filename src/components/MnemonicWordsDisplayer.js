@@ -10,7 +10,7 @@ export const MnemonicWordsDisplayer = ({ mnemonicWords }) => {
     <Fragment>
       <WordSection>
         {mnemonicWordsArray.slice(0, 6).map((word, index) => (
-          <Word>
+          <Word key={index}>
             <WordIndex>({index + 1})</WordIndex>
             {word}
           </Word>
@@ -18,7 +18,7 @@ export const MnemonicWordsDisplayer = ({ mnemonicWords }) => {
       </WordSection>
       <WordSection>
         {mnemonicWordsArray.slice(6, 12).map((word, index) => (
-          <Word>
+          <Word key={index + 6}>
             <WordIndex>({index + 7}) </WordIndex>
             {word}
           </Word>
@@ -26,7 +26,7 @@ export const MnemonicWordsDisplayer = ({ mnemonicWords }) => {
       </WordSection>
       <WordSection>
         {mnemonicWordsArray.slice(12, 18).map((word, index) => (
-          <Word>
+          <Word key={index + 12}>
             <WordIndex>({index + 13})</WordIndex>
             {word}
           </Word>
@@ -34,7 +34,7 @@ export const MnemonicWordsDisplayer = ({ mnemonicWords }) => {
       </WordSection>
       <WordSection>
         {mnemonicWordsArray.slice(18, 24).map((word, index) => (
-          <Word>
+          <Word key={index + 18}>
             <WordIndex>({index + 19})</WordIndex>
             {word}
           </Word>

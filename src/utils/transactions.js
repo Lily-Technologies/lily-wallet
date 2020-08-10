@@ -17,7 +17,7 @@ const getMultisigDeriationPathForNetwork = (network) => {
   }
 }
 
-const getUnchainedNetworkFromBjslibNetwork = (bitcoinJslibNetwork) => {
+export const getUnchainedNetworkFromBjslibNetwork = (bitcoinJslibNetwork) => {
   if (bitcoinJslibNetwork === networks.bitcoin) {
     return 'mainnet';
   } else {

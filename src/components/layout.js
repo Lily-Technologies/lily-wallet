@@ -40,7 +40,6 @@ const Content = styled.div`
   flex: 1;
   max-width: 1200px;
   width: 100%;
-  justify-content: center;
 `;
 
 export const GridArea = styled.div`

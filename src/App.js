@@ -75,7 +75,10 @@ function App() {
   }
 
   const setCurrentAccountFromMap = (accountId) => {
+    console.log('setCurrentAccountFromMap accountId: ', accountId)
+    console.log('setCurrentAccountFromMap accountMap: ', accountMap);
     const newAccount = accountMap.get(accountId);
+    console.log('setCurrentAccountFromMap newAccount: ', newAccount);
     if (newAccount) {
       setCurrentAccount(newAccount);
     }
@@ -156,6 +159,8 @@ function App() {
       setAccountMap(accountMap);
     });
   }, []);
+
+  console.log('appjs config: ', config);
 
   return (
     // <ErrorBoundary>

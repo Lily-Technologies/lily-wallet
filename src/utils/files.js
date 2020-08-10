@@ -2,7 +2,7 @@ import moment from 'moment';
 import { v4 as uuidv4 } from 'uuid';
 import { networks, Psbt } from 'bitcoinjs-lib';
 
-const getUnchainedNetworkFromBjslibNetwork = (bitcoinJslibNetwork) => {
+export const getUnchainedNetworkFromBjslibNetwork = (bitcoinJslibNetwork) => {
   if (bitcoinJslibNetwork === networks.bitcoin) {
     return 'mainnet';
   } else {

@@ -36,35 +36,39 @@ export const NavLinks = ({ config, setCurrentAccount, loading }) => {
         </SidebarItemLink>
 
       <WalletsHeader>Accounts</WalletsHeader>
-      {
-        config.wallets.map((wallet) => (
-          <SidebarItemLink
-            active={pathname === `/vault/${wallet.id}`}
-            onClick={() => {
-              setCurrentAccount(wallet.id);
-            }}
-            to={`/vault/${wallet.id}`}
-            loading={loading}
-          >
-            <StyledIcon as={Wallet} size={24} style={{ marginRight: 12 }} />
-            {wallet.name}</SidebarItemLink>
-        ))
-      }
+      <AccountsContainer>
+        {
+          config.wallets.map((wallet) => (
+            <SidebarItemLink
+              key={wallet.id}
+              active={pathname === `/vault/${wallet.id}`}
+              onClick={() => {
+                setCurrentAccount(wallet.id);
+              }}
+              to={`/vault/${wallet.id}`}
+              loading={loading}
+            >
+              <StyledIcon as={Wallet} size={24} style={{ marginRight: 12 }} />
+              {wallet.name}</SidebarItemLink>
+          ))
+        }
 
-      {
-        config.vaults.map((vault) => (
-          <SidebarItemLink
-            active={pathname === `/vault/${vault.id}`}
-            onClick={() => {
-              setCurrentAccount(vault.id);
-            }}
-            to={`/vault/${vault.id}`}
-            loading={loading}
-          >
-            <StyledIcon as={Safe} size={24} style={{ marginRight: 12 }} />
-            {vault.name}</SidebarItemLink>
-        ))
-      }
+        {
+          config.vaults.map((vault) => (
+            <SidebarItemLink
+              key={vault.id}
+              active={pathname === `/vault/${vault.id}`}
+              onClick={() => {
+                setCurrentAccount(vault.id);
+              }}
+              to={`/vault/${vault.id}`}
+              loading={loading}
+            >
+              <StyledIcon as={Safe} size={24} style={{ marginRight: 12 }} />
+              {vault.name}</SidebarItemLink>
+          ))
+        }
+      </AccountsContainer>
 
       <SidebarItemLink
         active={pathname === '/setup'}
@@ -76,6 +80,11 @@ export const NavLinks = ({ config, setCurrentAccount, loading }) => {
     </Fragment >
   )
 }
+
+const AccountsContainer = styled.div`
+  overflow: scroll;
+  height: auto;
+`;
 
 const SidebarItemStyle = css`
   background: ${ p => p.active ? lightBlue : white};
