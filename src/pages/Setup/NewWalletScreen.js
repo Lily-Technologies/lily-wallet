@@ -25,9 +25,6 @@ const CreateWallet = ({
   setWalletMnemonic,
   setStep
 }) => {
-
-  console.log('walletMnemonic: ', walletMnemonic);
-
   useEffect(() => {
     setWalletMnemonic(generateMnemonic(256));
   }, []);

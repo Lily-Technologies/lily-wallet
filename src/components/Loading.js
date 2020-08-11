@@ -4,10 +4,12 @@ import styled, { keyframes } from 'styled-components';
 import { lightGreen, darkGray } from '../utils/colors';
 // Loading State
 
-export const Loading = ({ itemText, style = {} }) => (
+// TODO: refactor, doesn't need itemText and message...im lazy
+export const Loading = ({ itemText, style = {}, message }) => (
   <LoadingWrapper style={style}>
     <img alt="loading placeholder" src={require('../assets/flower-loading.svg')} style={{ maxWidth: '6.25em' }} />
-    <LoadingText>Loading {itemText}</LoadingText>
+    {!message && <LoadingText>Loading {itemText}</LoadingText>}
+    {message && <LoadingText>{message}</LoadingText>}
     <LoadingSubText>Please wait...</LoadingSubText>
   </LoadingWrapper>
 );

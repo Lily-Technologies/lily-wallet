@@ -2,12 +2,13 @@ import React, { useState, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { ErrorOutline, CheckCircle } from '@styled-icons/material';
 
-import { Button, StyledIcon } from '../components';
+import { Button, StyledIcon, PromptPinModal } from '../components';
 import { lightGreen, gray, green, blue, white, darkGray, lightBlack, red, lightRed, yellow, lightYellow, black } from '../utils/colors';
 
 export const DeviceSelect = ({ configuredDevices, unconfiguredDevices, errorDevices, setUnconfiguredDevices, configuredThreshold, deviceAction, deviceActionText, deviceActionLoadingText }) => {
   const [devicesLoading, setDevicesLoading] = useState(false);
   const [deviceActionLoading, setDeviceActionLoading] = useState(null);
+  const [promptPinModalDevice, setPromptPinModalDevice] = useState(null);
 
 
   useEffect(() => {
@@ -48,6 +49,7 @@ export const DeviceSelect = ({ configuredDevices, unconfiguredDevices, errorDevi
 
   return (
     <Wrapper>
+      <PromptPinModal promptPinModalIsOpen={!!promptPinModalDevice} setPromptPinModalDevice={setPromptPinModalDevice} device={promptPinModalDevice} enumerate={enumerate} />
       <DevicesWrapper>
         {configuredDevices.map((device, index) => (
           <DeviceWrapper
@@ -72,14 +74,18 @@ export const DeviceSelect = ({ configuredDevices, unconfiguredDevices, errorDevi
 
         {unconfiguredDevices.map((device, index) => {
           const deviceError = errorDevices.includes(device.fingerprint);
-          const deviceWarning = !device.fingerprint; // if ledger isn't in the BTC app, it wont give fingerprint, so show warning
+          const deviceWarning = !device.fingerprint; // if ledger isn't in the BTC app or trezor is locked, it wont give fingerprint, so show warning
           return (
             <DeviceWrapper
               key={index}
               onClick={async () => {
                 if (deviceActionLoading === null) {
                   if (deviceWarning) {
-                    await enumerate();
+                    if (device.type === 'trezor') {
+                      setPromptPinModalDevice(device);
+                    } else {
+                      await enumerate();
+                    }
                   } else {
                     performDeviceAction(device, index)
                   }
@@ -115,7 +121,7 @@ export const DeviceSelect = ({ configuredDevices, unconfiguredDevices, errorDevi
                     </ConfiguringText>
                   ) : deviceError || deviceWarning ? (
                     <ConfiguringText error={true} warning={deviceWarning}>
-                      {deviceError ? 'Click to Retry' : 'Open Bitcoin App on Device'}
+                      {deviceError ? 'Click to Retry' : device.type === 'ledger' ? 'Open Bitcoin App on Device' : 'Click to enter PIN'}
                     </ConfiguringText>
                   ) : (
                         <ConfiguringText>

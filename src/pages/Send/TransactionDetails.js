@@ -36,10 +36,6 @@ const TransactionDetails = ({ finalPsbt, feeEstimate, importTxFromFileError, fee
     m: currentAccount.config.quorum.totalSigners,
   });
 
-  console.log('txSize: ', txSize);
-  console.log('feerate: ', feeRates['1']);
-  console.log('xxx: ', txSize * feeRates['1']);
-
   const history = useHistory();
 
   const openInModal = (component) => {
@@ -118,7 +114,6 @@ const TransactionDetails = ({ finalPsbt, feeEstimate, importTxFromFileError, fee
   }
 
   const FeeSelector = ({ feeArray }) => {
-    console.log('finalPsbt: ', finalPsbt)
     const fastestFee = getFeeForMultisig(feeRates['1'], currentAccount.config.addressType, finalPsbt.__CACHE.__TX.ins.length, finalPsbt.__CACHE.__TX.outs.length, currentAccount.config.quorum.requiredSigners, currentAccount.config.quorum.totalSigners).integerValue(BigNumber.ROUND_CEIL);
     let normalFee = getFeeForMultisig(feeRates['3'], currentAccount.config.addressType, finalPsbt.__CACHE.__TX.ins.length, finalPsbt.__CACHE.__TX.outs.length, currentAccount.config.quorum.requiredSigners, currentAccount.config.quorum.totalSigners).integerValue(BigNumber.ROUND_CEIL);
     if (normalFee === fastestFee) {

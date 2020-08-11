@@ -41,7 +41,6 @@ const getUnchainedNetworkFromBjslibNetwork = (bitcoinJslibNetwork) => {
 }
 
 export const getFeeForMultisig = (feeRate, addressType, numInputs, numOutputs, requiredSigners, totalSigners) => {
-  console.log('feeRate, addressType, numInputs, numOutputs, requiredSigners, totalSigners: ', feeRate, addressType, numInputs, numOutputs, requiredSigners, totalSigners);
   const feeRateString = feeRate.toString();
   return estimateMultisigTransactionFee({
     addressType: addressType,
@@ -80,7 +79,6 @@ export const createTransaction = async (currentAccount, amountInBitcoins, recipi
   let fee;
   const feeRates = await (await axios.get(blockExplorerAPIURL(`/fee-estimates`, currentBitcoinNetwork))).data;
   if (!desiredFee) { // if no fee specified, pick next block
-    console.log('feeRates[1]yyy: ', feeRates[1])
     fee = await getFeeForMultisig(feeRates[1], currentAccount.config.addressType, 1, 2, currentAccount.config.quorum.requiredSigners, currentAccount.config.quorum.totalSigners).integerValue(BigNumber.ROUND_CEIL);
   } else {
     fee = desiredFee;
@@ -155,6 +153,5 @@ export const createTransaction = async (currentAccount, amountInBitcoins, recipi
     })
   }
 
-  console.log('util psbt, fee: ', psbt, fee, feeRates)
   return { psbt, fee, feeRates }
 }

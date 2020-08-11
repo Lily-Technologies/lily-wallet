@@ -5,7 +5,7 @@ const { networks } = require('bitcoinjs-lib');
 const BigNumber = require('bignumber.js');
 const { download } = require('electron-dl');
 
-const { enumerate, getXPub, signtx } = require('./server/commands');
+const { enumerate, getXPub, signtx, promptpin, sendpin } = require('./server/commands');
 const { getDataFromMultisig, getDataFromXPub } = require('./utils/transactions');
 
 const path = require('path');
@@ -141,6 +141,23 @@ ipcMain.handle('/sign', async (event, args) => {
   if (resp.error) {
     return Promise.reject(new Error('Error signing transaction'));
   }
+  return Promise.resolve(resp);
+});
 
+ipcMain.handle('/promptpin', async (event, args) => {
+  const { deviceType, devicePath } = args;
+  const resp = JSON.parse(await promptpin(deviceType, devicePath));
+  if (resp.error) {
+    return Promise.reject(new Error('Error prompting pin'));
+  }
+  return Promise.resolve(resp);
+});
+
+ipcMain.handle('/sendpin', async (event, args) => {
+  const { deviceType, devicePath, pin } = args;
+  const resp = JSON.parse(await sendpin(deviceType, devicePath, pin));
+  if (resp.error) {
+    return Promise.reject(new Error('Error sending pin'));
+  }
   return Promise.resolve(resp);
 });

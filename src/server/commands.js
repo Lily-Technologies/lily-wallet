@@ -20,10 +20,20 @@ const displayaddress = async (deviceType, devicePath, path) => {
   return await runCommand(['-t', deviceType, '-d', devicePath, 'getxpub', path])
 }
 
+const promptpin = async (deviceType, devicePath) => {
+  return await runCommand(['-t', deviceType, '-d', devicePath, 'promptpin'])
+}
+
+const sendpin = async (deviceType, devicePath, pin) => {
+  return await runCommand(['-t', deviceType, '-d', devicePath, 'sendpin', pin])
+}
+
 module.exports = {
   enumerate,
   getMasterXPub,
   getXPub,
   signtx,
-  displayaddress
+  displayaddress,
+  promptpin,
+  sendpin
 }
