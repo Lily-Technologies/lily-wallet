@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import ReactModal from 'react-modal'
 
-import { black, white } from '../utils/colors';
+import { white } from '../utils/colors';
 
 export const Modal = ({ isOpen, onAfterOpen, onRequestClose, style, children }) => {
   const [localOpen, setLocalOpen] = useState(false);

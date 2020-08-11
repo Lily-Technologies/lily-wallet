@@ -178,12 +178,6 @@ const MainText = styled.div`
   margin-bottom: 8px;
 `;
 
-const Subtext = styled.div`
-  font-size: .5em;
-  color: ${darkGray};
-  margin-bottom: 12px;
-`;
-
 const LilyImage = styled.img`
   width: 100px;
   height: 100px;

@@ -1,10 +1,10 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import styled, { css } from 'styled-components';
 import { Safe } from '@styled-icons/crypto';
 import { Wallet } from '@styled-icons/entypo';
 import BigNumber from 'bignumber.js';
 import { mnemonicToSeed } from 'bip39';
-import { satoshisToBitcoins, estimateMultisigP2WSHTransactionVSize } from "unchained-bitcoin";
+import { satoshisToBitcoins } from "unchained-bitcoin";
 
 import { Psbt, bip32 } from 'bitcoinjs-lib';
 

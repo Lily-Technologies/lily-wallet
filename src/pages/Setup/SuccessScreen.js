@@ -4,7 +4,7 @@ import { useHistory } from "react-router-dom";
 import { CheckCircle } from '@styled-icons/material';
 
 import { StyledIcon, Button } from '../../components';
-import { green500, white, darkGray, green } from '../../utils/colors';
+import { white, darkGray, green } from '../../utils/colors';
 import { FormContainer, InnerWrapper, BoxedWrapper } from './styles';
 
 const SuccessScreen = ({ exportSetupFiles }) => {
@@ -23,7 +23,6 @@ const SuccessScreen = ({ exportSetupFiles }) => {
             This file is required to restore your wallet next time you start Lilly Wallet.
           </SuccessSubtext>
           <DownloadButton
-            color={green500}
             color={white}
             onClick={() => {
               history.push('/');

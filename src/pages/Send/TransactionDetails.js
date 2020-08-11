@@ -9,8 +9,7 @@ import BigNumber from 'bignumber.js';
 
 import {
   blockExplorerAPIURL,
-  satoshisToBitcoins,
-  estimateMultisigP2WSHTransactionVSize
+  satoshisToBitcoins
 } from "unchained-bitcoin";
 
 import { address } from 'bitcoinjs-lib';
@@ -28,13 +27,6 @@ const TransactionDetails = ({ finalPsbt, feeEstimate, importTxFromFileError, fee
   const [optionsDropdownOpen, setOptionsDropdownOpen] = useState(false);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalContent, setModalContent] = useState(null);
-
-  const txSize = estimateMultisigP2WSHTransactionVSize({
-    numInputs: finalPsbt.txInputs.length,
-    numOutputs: finalPsbt.txOutputs.length,
-    n: currentAccount.config.quorum.requiredSigners,
-    m: currentAccount.config.quorum.totalSigners,
-  });
 
   const history = useHistory();
 

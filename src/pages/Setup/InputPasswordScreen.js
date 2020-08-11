@@ -2,8 +2,8 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { Button } from '../../components';
-import { InnerWrapper, HeaderWrapper, CancelButton, PageTitleSubtext, XPubHeaderWrapper, SetupHeaderWrapper, SetupHeader, SetupExplainerText } from './styles';
-import { blue500, darkGray, white, gray, darkGreen, darkOffWhite, lightBlue, black } from '../../utils/colors';
+import { InnerWrapper, XPubHeaderWrapper, SetupHeaderWrapper, SetupHeader, SetupExplainerText } from './styles';
+import { white, gray, darkGreen, darkOffWhite, lightBlue, black } from '../../utils/colors';
 
 const InputPasswordScreen = ({ password, setPassword, exportSetupFiles, setStep }) => {
 

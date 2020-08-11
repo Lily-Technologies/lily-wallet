@@ -6,7 +6,7 @@ import { QRCode } from "react-qr-svg";
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { satoshisToBitcoins } from "unchained-bitcoin";
 
-import { StyledIcon, Button, GreenLoadingAnimation, PageWrapper, GridArea, PageTitle, Header, HeaderRight, HeaderLeft, Loading } from '../../components';
+import { StyledIcon, Button, PageWrapper, GridArea, PageTitle, Header, HeaderRight, HeaderLeft, Loading } from '../../components';
 import RecentTransactions from '../../components/transactions/RecentTransactions';
 
 import { black, gray, blue, darkGray, white, darkOffWhite, darkGreen, lightGray, lightBlue } from '../../utils/colors';

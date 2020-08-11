@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useHistory } from "react-router-dom";
 import styled from 'styled-components';
 import { AES } from 'crypto-js';
 import moment from 'moment';
@@ -44,16 +43,10 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
 
   const importDevice = async (device, index) => {
     try {
-      // const response = await window.ipcRenderer.invoke('/xpub', {
-      //   deviceType: device.type,
-      //   devicePath: device.path,
-      //   path: `m/48'/0'/0'/2'` // we are assuming BIP48 P2WSH wallet
-      // });
-
-      const response = await window.ipcRenderer.invoke('/promptpin', {
+      const response = await window.ipcRenderer.invoke('/xpub', {
         deviceType: device.type,
         devicePath: device.path,
-        // path: `m/48'/0'/0'/2'` // we are assuming BIP48 P2WSH wallet
+        path: `m/48'/0'/0'/2'` // we are assuming BIP48 P2WSH wallet
       });
 
       setImportedDevices([...importedDevices, { ...device, ...response }]);

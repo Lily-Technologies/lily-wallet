@@ -4,7 +4,7 @@ import { DotSingle } from '@styled-icons/entypo';
 
 import { Modal, Button, Loading, StyledIcon } from '.';
 
-import { blue, white, blue400, blue500, blue600, gray100, red500 } from '../utils/colors';
+import { white, blue400, blue500, blue600, gray100, red500 } from '../utils/colors';
 
 export const PromptPinModal = ({ device, promptPinModalIsOpen, setPromptPinModalDevice, enumerate }) => {
   const [currentPin, setCurrentPin] = useState('');

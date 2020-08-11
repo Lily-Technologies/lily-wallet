@@ -4,7 +4,7 @@ import { Check } from '@styled-icons/material';
 
 import { StyledIcon } from '../../components';
 
-import { black, gray, blue, white, darkGreen, offWhite, darkGray, darkOffWhite, lightBlue, gray100, gray200, gray300, gray400, gray500, gray700, blue100, blue300, blue400, blue500, blue600 } from '../../utils/colors';
+import { white, gray100, gray300, gray400, gray500, gray700, blue400, blue500 } from '../../utils/colors';
 
 const Steps = ({ step }) => {
   return (
