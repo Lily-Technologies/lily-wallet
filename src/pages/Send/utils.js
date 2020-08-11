@@ -99,7 +99,7 @@ export const createTransaction = async (currentAccount, amountInBitcoins, recipi
 
   for (let i = 0; i < spendingUtxos.length; i++) {
     const utxo = spendingUtxos[i];
-    if (currentAccount.config.quorum.requiredSigners > 1) {
+    if (currentAccount.config.quorum.totalSigners > 1) {
 
       // need to construct prevTx b/c of segwit fee vulnerability requires on trezor
       const prevTxHex = await getTxHex(utxo.txid, currentBitcoinNetwork);

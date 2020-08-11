@@ -11,6 +11,14 @@ import { blue, white, darkOffWhite, lightBlue, black, gray } from '../../utils/c
 const InputNameScreen = ({ setupOption, config, setStep, accountName, setAccountName }) => {
   const history = useHistory();
 
+  const onInputEnter = (e) => {
+    if (e.key === 'Enter') {
+      if (accountName.length > 3) {
+        setStep(2);
+      }
+    }
+  }
+
   return (
     <InnerWrapper>
       <HeaderWrapper>
@@ -35,15 +43,16 @@ const InputNameScreen = ({ setupOption, config, setStep, accountName, setAccount
             </SetupHeaderWrapper>
           </XPubHeaderWrapper>
           <PasswordWrapper>
-            <PasswordInput
+            <NameInput
+              autoFocus
               placeholder={`${setupOption === 2 ? 'Wallet' : 'Vault'} Name`}
               value={accountName}
-              onChange={(e) => setAccountName(e.target.value)} />
+              onChange={(e) => setAccountName(e.target.value)}
+              onKeyDown={(e) => onInputEnter(e)}
+            />
           </PasswordWrapper>
 
           <ExportFilesButton
-            background={blue}
-            color={white}
             active={accountName.length > 3}
             onClick={() => {
               if (accountName.length > 3) {
@@ -63,7 +72,7 @@ const PasswordWrapper = styled.div`
   background: ${white};
 `;
 
-const PasswordInput = styled.input`
+const NameInput = styled.input`
   position: relative;
   border: 1px solid ${darkOffWhite};
   background: ${lightBlue};

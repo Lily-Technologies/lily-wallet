@@ -12,7 +12,7 @@ import {
   satoshisToBitcoins
 } from "unchained-bitcoin";
 
-import { address } from 'bitcoinjs-lib';
+import { address, Psbt } from 'bitcoinjs-lib';
 
 import { cloneBuffer } from '../../utils/other';
 import { StyledIcon, Button, SidewaysShake, Dropdown, Modal } from '../../components';
@@ -54,7 +54,15 @@ const TransactionDetails = ({ finalPsbt, feeEstimate, importTxFromFileError, fee
           setModalContent(<TransactionSuccess broadcastedTxId={data} />);
 
         } else {
-          const { data } = await axios.get(blockExplorerAPIURL(`/broadcast?tx=${signedPsbts[0].extractTransaction().toHex()}`, currentBitcoinNetwork));
+          let broadcastPsbt;
+          if (typeof signedPsbts[0] === 'string') { // if hww signs, then signedPsbt[0] is a string and we need to turn it into a hex to broadcast
+            broadcastPsbt = Psbt.fromBase64(signedPsbts[0]);
+            broadcastPsbt.finalizeAllInputs();
+          } else {
+            broadcastPsbt = signedPsbts[0];
+          }
+
+          const { data } = await axios.get(blockExplorerAPIURL(`/broadcast?tx=${broadcastPsbt.extractTransaction().toHex()}`, currentBitcoinNetwork));
           setBroadcastedTxId(data);
           setModalIsOpen(true);
           setModalContent(<TransactionSuccess broadcastedTxId={data} />);
@@ -278,7 +286,7 @@ const TransactionDetails = ({ finalPsbt, feeEstimate, importTxFromFileError, fee
           {txError && <ErrorBox>{txError}</ErrorBox>}
           {importTxFromFileError && <ErrorBox>{importTxFromFileError}</ErrorBox>}
           {!broadcastedTxId && <SendButton background={green} color={white} loaded={signedDevices.length === signThreshold} onClick={broadcastTransaction}>
-            {signedDevices.length < signThreshold && currentAccount.config.quorum.requiredSigners > 1 ? `Confirm on Devices (${signedDevices.length}/${signThreshold})` : 'Send Transaction'}
+            {signedDevices.length < signThreshold ? `Confirm on Devices (${signedDevices.length}/${signThreshold})` : 'Send Transaction'}
             {signedDevices.length < signThreshold ? null : (
               <SendButtonCheckmark loaded={signedDevices.length}>
                 <StyledIcon as={ArrowIosForwardOutline} size={16} />

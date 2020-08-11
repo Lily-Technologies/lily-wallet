@@ -9,7 +9,8 @@ const SignWithDevice = ({
   signedPsbts,
   setSignedPsbts,
   signedDevices,
-  setSignedDevices
+  setSignedDevices,
+  signThreshold
 }) => {
   const [unsignedDevices, setUnsignedDevices] = useState([]);
   const [errorDevices, setErrorDevices] = useState([]);
@@ -43,7 +44,7 @@ const SignWithDevice = ({
       <SetupHeaderContainer>
         <SetupHeaderWrapper>
           <SetupHeader>Confirm on Devices</SetupHeader>
-          <SetupSubheader>{signedDevices.length} of 2 devices confirmed</SetupSubheader>
+          <SetupSubheader>{signedDevices.length} of {signThreshold} devices confirmed</SetupSubheader>
         </SetupHeaderWrapper>
         <SetupExplainerText>
           Click on a device to confirm the transaction. If you don't see your device, click "Scan for New Devices".

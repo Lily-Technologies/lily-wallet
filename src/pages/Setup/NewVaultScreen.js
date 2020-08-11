@@ -1,15 +1,30 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useHistory } from "react-router-dom";
 import styled from 'styled-components';
 
 
-import { Button, DeviceSelect, FileUploader } from '../../components';
+import { Button, DeviceSelect, FileUploader, Modal } from '../../components';
 import { InnerWrapper, HeaderWrapper, CancelButton, PageTitleSubtext, XPubHeaderWrapper, SetupHeaderWrapper, SetupExplainerText, FormContainer, BoxedWrapper, SetupHeader } from './styles';
 import { Header, HeaderLeft, HeaderRight, PageTitle } from '../../components/layout';
 import { darkGray, white } from '../../utils/colors';
 
-const NewVaultScreen = ({ config, setStep, importMultisigWalletFromFile, importDeviceFromFile, importDevice, importedDevices, availableDevices, errorDevices, setAvailableDevices }) => {
+import RequiredDevicesModal from './RequiredDevicesModal';
+
+const NewVaultScreen = ({
+  config,
+  setStep,
+  importMultisigWalletFromFile,
+  importDeviceFromFile,
+  importDevice,
+  importedDevices,
+  availableDevices,
+  errorDevices,
+  setAvailableDevices,
+  setConfigRequiredSigners,
+  configRequiredSigners
+}) => {
   const history = useHistory();
+  const [selectNumberRequiredModalOpen, setSelectNumberRequiredModalOpen] = useState(false);
 
   return (
     <InnerWrapper>
@@ -46,8 +61,8 @@ const NewVaultScreen = ({ config, setStep, importMultisigWalletFromFile, importD
               <div>
                 <SetupHeader>Connect Devices to Computer</SetupHeader>
                 <SetupExplainerText>
-                  Connect and unlock devices in order to create your multisignature vault.
-                  You may disconnect your device from your computer after it has been configured.
+                  Devices unlocked and connected to your computer will appear here. Click on them to include them in your vault.
+                  You may disconnect a device from your computer after it has been imported.
                   </SetupExplainerText>
               </div>
               <ImportFromFileButton htmlFor="localConfigFile" background={white} color={darkGray}>Import from File</ImportFromFileButton>
@@ -64,10 +79,33 @@ const NewVaultScreen = ({ config, setStep, importMultisigWalletFromFile, importD
             configuredThreshold={15}
           />
         </BoxedWrapper>
+        {importedDevices.length > 1 && <ContinueButton
+          onClick={() => {
+            // if (importedDevices.length === 1) {
+            //   setStep(3);
+            // } else {
+            setSelectNumberRequiredModalOpen(true)
+            // }
+          }}>Continue</ContinueButton>}
       </FormContainer>
+
+      <RequiredDevicesModal
+        selectNumberRequiredModalOpen={selectNumberRequiredModalOpen}
+        setSelectNumberRequiredModalOpen={setSelectNumberRequiredModalOpen}
+        numberOfImportedDevices={importedDevices.length}
+        setConfigRequiredSigners={setConfigRequiredSigners}
+        configRequiredSigners={configRequiredSigners}
+        setStep={setStep}
+      />
     </InnerWrapper>
   )
 }
+
+const ContinueButton = styled.div`
+  ${Button};
+  border-top-right-radius: 0;
+  border-top-left-radius: 0;
+`;
 
 const ImportFromFileButton = styled.label`
   ${Button}

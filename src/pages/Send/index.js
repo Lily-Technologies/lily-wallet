@@ -160,7 +160,7 @@ const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, curren
       setStep(1);
 
       // if only single sign, then sign tx right away
-      if (currentAccount.config.quorum.requiredSigners === 1) {
+      if (currentAccount.config.mnemonic) {
         const seed = await mnemonicToSeed(currentAccount.config.mnemonic);
         const root = bip32.fromSeed(seed, currentBitcoinNetwork);
 
@@ -349,7 +349,7 @@ const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, curren
               />
             )}
 
-            {(step === 0 || (step === 1 && currentAccount.config.quorum.requiredSigners === 1)) && (
+            {(step === 0 || (step === 1 && currentAccount.config.mnemonic === 1)) && (
               <AccountSendContentRight>
                 <CurrentBalanceWrapper displayDesktop={true} displayMobile={false}>
                   <CurrentBalanceText>
@@ -367,7 +367,7 @@ const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, curren
               </AccountSendContentRight>
             )}
 
-            {step === 1 && currentAccount.config.quorum.requiredSigners > 1 && (
+            {step === 1 && !currentAccount.config.mnemonic && (
               <AccountSendContentRight
                 style={{
                   background: white,
@@ -381,6 +381,7 @@ const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, curren
                   signedPsbts={signedPsbts}
                   signedDevices={signedDevices}
                   setSignedDevices={setSignedDevices}
+                  signThreshold={currentAccount.config.quorum.requiredSigners}
                 />
               </AccountSendContentRight>
             )}

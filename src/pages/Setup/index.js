@@ -34,6 +34,7 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
   const [errorDevices, setErrorDevices] = useState([]);
   const [password, setPassword] = useState('');
   const [walletMnemonic, setWalletMnemonic] = useState(null);
+  const [configRequiredSigners, setConfigRequiredSigners] = useState(1);
 
   useEffect(() => {
     setWalletMnemonic(generateMnemonic(256));
@@ -140,8 +141,8 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
   const exportSetupFilesMultisig = async () => {
     const contentType = "text/plain;charset=utf-8;";
 
-    const ccFile = createColdCardBlob(accountName, importedDevices);
-    const configObject = createMultisigConfigFile(importedDevices, accountName, config, currentBitcoinNetwork);
+    const ccFile = createColdCardBlob(configRequiredSigners, importedDevices.length, accountName, importedDevices);
+    const configObject = createMultisigConfigFile(importedDevices, configRequiredSigners, accountName, config, currentBitcoinNetwork);
     const encryptedConfigObject = AES.encrypt(JSON.stringify(configObject), password).toString();
     const encryptedConfigFile = new Blob([decodeURIComponent(encodeURI(encryptedConfigObject))], { type: contentType });
 
@@ -189,6 +190,8 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
           availableDevices={availableDevices}
           errorDevices={errorDevices}
           setAvailableDevices={setAvailableDevices}
+          setConfigRequiredSigners={setConfigRequiredSigners}
+          configRequiredSigners={configRequiredSigners}
         />;
       }
       break;

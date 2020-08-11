@@ -66,7 +66,7 @@ export const createSinglesigConfigFile = async (walletMnemonic, accountName, con
   return configCopy;
 }
 
-export const createMultisigConfigFile = (importedDevices, accountName, config, currentBitcoinNetwork) => {
+export const createMultisigConfigFile = (importedDevices, requiredSigners, accountName, config, currentBitcoinNetwork) => {
   const configCopy = { ...config };
   configCopy.isEmpty = false;
 
@@ -93,7 +93,7 @@ export const createMultisigConfigFile = (importedDevices, accountName, config, c
     network: getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork),
     addressType: "P2WSH",
     quorum: {
-      requiredSigners: 2,
+      requiredSigners: requiredSigners,
       totalSigners: importedDevices.length
     },
     extendedPublicKeys: newKeys
@@ -104,11 +104,11 @@ export const createMultisigConfigFile = (importedDevices, accountName, config, c
   return configCopy;
 }
 
-export const createColdCardBlob = (accountName, importedDevices) => {
+export const createColdCardBlob = (requiredSigners, totalSigners, accountName, importedDevices) => {
   return new Blob([`# Coldcard Multisig setup file (created by Lily Wallet on ${moment(Date.now()).format('MM/DD/YYYY')})
 #
 Name: ${accountName}
-Policy: 2 of 3
+Policy: ${requiredSigners} of ${totalSigners}
 Derivation: m/48'/0'/0'/2'
 Format: P2WSH
 ${importedDevices.map((device) => (

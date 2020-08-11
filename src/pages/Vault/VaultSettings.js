@@ -43,7 +43,7 @@ const VaultSettings = ({ config, setConfigFile, currentAccount, setViewAddresses
   const history = useHistory();
 
   const downloadColdcardMultisigFile = () => {
-    const ccFile = createColdCardBlob(currentAccount.config.name, currentAccount.config.extendedPublicKeys);
+    const ccFile = createColdCardBlob(currentAccount.config.quorum.requiredSigners, currentAccount.config.quorum.totalSigners, currentAccount.config.name, currentAccount.config.extendedPublicKeys);
     downloadFile(ccFile, `${currentAccount.config.name}-lily-coldcard-file-${moment().format('MMDDYYYY')}.txt`);
   }
 
@@ -112,7 +112,7 @@ const VaultSettings = ({ config, setConfigFile, currentAccount, setViewAddresses
   const removeAccountAndDownloadConfig = () => {
     const contentType = "text/plain;charset=utf-8;";
     const configCopy = { ...config };
-    if (currentAccount.config.quorum.requiredSigners === 1) {
+    if (currentAccount.config.quorum.totalSigners === 1) {
       configCopy.wallets = configCopy.wallets.filter((wallet) => wallet.id !== currentAccount.config.id)
     } else {
       configCopy.vaults = configCopy.vaults.filter((vault) => vault.id !== currentAccount.config.id)

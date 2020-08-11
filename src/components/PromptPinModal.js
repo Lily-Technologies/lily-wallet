@@ -56,7 +56,7 @@ export const PromptPinModal = ({ device, promptPinModalIsOpen, setPromptPinModal
     });
     setCurrentPin('');
     if (response.success) {
-      enumerate();
+      await enumerate();
       closeModal();
     } else {
       setPromptPinError('Incorrect Pin');

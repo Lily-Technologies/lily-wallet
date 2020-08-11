@@ -7,6 +7,12 @@ import { white, gray, darkGreen, darkOffWhite, lightBlue, black } from '../../ut
 
 const InputPasswordScreen = ({ password, setPassword, setStep }) => {
 
+  const onInputEnter = (e) => {
+    if (e.key === 'Enter') {
+      setStep(4);
+    }
+  }
+
   return (
     <InnerWrapper>
       <XPubHeaderWrapper>
@@ -21,7 +27,13 @@ const InputPasswordScreen = ({ password, setPassword, setStep }) => {
         </SetupHeaderWrapper>
       </XPubHeaderWrapper>
       <PasswordWrapper>
-        <PasswordInput placeholder="password" value={password} onChange={(e) => setPassword(e.target.value)} type="password" />
+        <PasswordInput
+          autoFocus
+          placeholder="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          onKeyDown={(e) => onInputEnter(e)}
+          type="password" />
       </PasswordWrapper>
       <ExportFilesButton
         background={darkGreen}
