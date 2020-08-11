@@ -26,6 +26,7 @@ const CustomTooltip = ({ active, payload, label }) => {
 
 const VaultView = ({ currentAccount }) => {
   const { currentBalance, transactions } = currentAccount;
+  const transactionsCopy = [...transactions];
   const sortedTransactions = transactions.sort((a, b) => a.status.block_time - b.status.block_time);
 
   let dataForChart;
@@ -95,7 +96,18 @@ const VaultView = ({ currentAccount }) => {
         </ValueWrapper>
       )}
       <RecentTransactions
-        transactions={sortedTransactions.sort((a, b) => b.status.block_time - a.status.block_time)}
+        transactions={transactionsCopy.sort((a, b) => {
+          console.log('a: ', a)
+          console.log('b: ', b)
+          if (!b.status.confirmed && !a.status.confirmed) {
+            return 0;
+          } else if (!b.status.confirmed) {
+            return -1;
+          } else if (!a.status.confirmed) {
+            return -1;
+          }
+          return b.status.block_time - a.status.block_time
+        })}
         loading={currentAccount.loading} />
     </Fragment>
   )

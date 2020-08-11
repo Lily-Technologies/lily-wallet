@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { AES } from 'crypto-js';
 import moment from 'moment';
-import { bip32 } from "bitcoinjs-lib";
+
 import bs58check from 'bs58check';
 import { generateMnemonic, mnemonicToSeed } from "bip39";
 import { v4 as uuidv4 } from 'uuid';
 
-import { createConfigFile, createColdCardBlob, downloadFile, getUnchainedNetworkFromBjslibNetwork } from '../../utils/files';
+import { createMultisigConfigFile, createSinglesigConfigFile, createColdCardBlob, downloadFile } from '../../utils/files';
 import { black } from '../../utils/colors';
 
 import StepGroups from './Steps';
@@ -58,7 +58,7 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
       }
       setAvailableDevices([...availableDevices]);
 
-      if (importedDevices.length === 2) { // we have to use the old value of importedDevice since the new render hasn't hapened yet
+      if (importedDevices.length > 2) { // we have to use the old value of importedDevice since the new render hasn't happened yet
         setStep(3);
       }
     } catch (e) {
@@ -78,7 +78,11 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
       xpub: xpub
     }
 
-    setImportedDevices([...importedDevices, newDevice])
+    const updatedImportedDevices = [...importedDevices, newDevice];
+    setImportedDevices(updatedImportedDevices)
+    if (updatedImportedDevices.length > 2) {
+      setStep(3);
+    }
   }
 
   const importMultisigWalletFromFile = (parsedFile) => {
@@ -97,46 +101,24 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
 
       devicesFromFile.push(newDevice);
     }
+    const updatedImportedDevices = [...importedDevices, ...devicesFromFile];
     setImportedDevices([...importedDevices, ...devicesFromFile])
+    if (updatedImportedDevices.length > 2) {
+      setStep(3);
+    }
   }
 
-  const exportSetupFiles = () => {
+  const exportSetupFiles = async () => {
     if (setupOption === 2) {
-      exportSetupFilesSingleSig()
+      await exportSetupFilesSingleSig()
     } else {
-      exportSetupFilesMultisig()
+      await exportSetupFilesMultisig()
     }
   }
 
   const exportSetupFilesSingleSig = async () => {
     const contentType = "text/plain;charset=utf-8;";
-    const configObject = { ...config };
-    configObject.isEmpty = false;
-
-    // taken from BlueWallet so you can import and use on mobile
-    const seed = await mnemonicToSeed(walletMnemonic);
-    const root = bip32.fromSeed(seed, currentBitcoinNetwork);
-    const path = "m/84'/0'/0'";
-    const child = root.derivePath(path).neutered();
-    const xpubString = child.toBase58();
-    const xprvString = root.derivePath(path).toBase58();
-
-    const newKey = {
-      id: uuidv4(),
-      created_at: Date.now(),
-      name: accountName,
-      network: getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork),
-      addressType: "P2WSH",
-      quorum: { requiredSigners: 1, totalSigners: 1 },
-      xpub: xpubString,
-      xprv: xprvString,
-      mnemonic: walletMnemonic,
-      parentFingerprint: root.fingerprint,
-    };
-
-    configObject.wallets.push(newKey);
-
-    configObject.keys.push(newKey)
+    const configObject = await createSinglesigConfigFile(walletMnemonic, accountName, config, currentBitcoinNetwork);
 
     const encryptedConfigObject = AES.encrypt(
       JSON.stringify(configObject),
@@ -155,15 +137,15 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
     setConfigFile(configObject);
   };
 
-  const exportSetupFilesMultisig = () => {
+  const exportSetupFilesMultisig = async () => {
     const contentType = "text/plain;charset=utf-8;";
 
     const ccFile = createColdCardBlob(accountName, importedDevices);
-    const configObject = createConfigFile(importedDevices, accountName, config, currentBitcoinNetwork);
+    const configObject = createMultisigConfigFile(importedDevices, accountName, config, currentBitcoinNetwork);
     const encryptedConfigObject = AES.encrypt(JSON.stringify(configObject), password).toString();
     const encryptedConfigFile = new Blob([decodeURIComponent(encodeURI(encryptedConfigObject))], { type: contentType });
 
-    downloadFile(ccFile, `${moment().format('MMDDYYYY')}-lily-coldcard-file.txt`);
+    downloadFile(ccFile, `${accountName}-lily-coldcard-file-${moment().format('MMDDYYYY')}.txt`);
     // KBC-TODO: electron-dl bug requires us to wait for the first file to finish downloading before downloading the second
     // this should be fixed somehow
     setTimeout(() => {
@@ -214,7 +196,6 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
       screen = <InputPasswordScreen
         password={password}
         setPassword={setPassword}
-        exportSetupFiles={exportSetupFiles}
         setStep={setStep}
       />;
       break;
@@ -229,7 +210,7 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
 
   return (
     <Wrapper step={step}>
-      {step > 0 && <StepGroups step={step} />}
+      {step > 0 && <StepGroups step={step} setupOption={setupOption} />}
       {screen}
     </Wrapper>
   )

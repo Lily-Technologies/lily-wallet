@@ -19,6 +19,7 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
+    backgroundColor: 'rgb(245, 247, 250)',
     // icon: path.join(__dirname, '/assets/AppIcon.icns'),
     titleBarStyle: 'hiddenInset',
     webPreferences: {
@@ -36,6 +37,10 @@ function createWindow() {
 
   // Open the DevTools.
   // mainWindow.webContents.openDevTools();
+
+  // mainWindow.once('ready-to-show', () => {
+  //   mainWindow.show()
+  // })
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {

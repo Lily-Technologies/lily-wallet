@@ -48,7 +48,7 @@ const Login = ({ setConfigFile }) => {
           <SignupOptionItem style={{ borderTop: `8px solid ${blue}` }}>
             <StyledIcon as={Upload} size={48} style={{ marginBottom: '0.5em' }} />
             <SignupOptionMainText>Load Wallet</SignupOptionMainText>
-            <SignupOptionSubtext>Load an existing wallet configuration from a file on your local machine</SignupOptionSubtext>
+            <SignupOptionSubtext>Load an existing configuration from a file on your local machine</SignupOptionSubtext>
           </SignupOptionItem>
         </LabelOverlay>
 

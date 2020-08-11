@@ -24,9 +24,9 @@ const SuccessScreen = ({ exportSetupFiles }) => {
           </SuccessSubtext>
           <DownloadButton
             color={white}
-            onClick={() => {
+            onClick={async () => {
+              await exportSetupFiles();
               history.push('/');
-              exportSetupFiles();
             }}>Download Configuration File</DownloadButton>
         </BoxedWrapperModified>
       </FormContainer>

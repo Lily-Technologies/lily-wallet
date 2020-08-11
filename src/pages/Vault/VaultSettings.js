@@ -43,8 +43,8 @@ const VaultSettings = ({ config, setConfigFile, currentAccount, setViewAddresses
   const history = useHistory();
 
   const downloadColdcardMultisigFile = () => {
-    const ccFile = createColdCardBlob(currentAccount.config.extendedPublicKeys);
-    downloadFile(ccFile, `${moment().format('MMDDYYYY')}-lily-coldcard-file.txt`);
+    const ccFile = createColdCardBlob(currentAccount.config.name, currentAccount.config.extendedPublicKeys);
+    downloadFile(ccFile, `${currentAccount.config.name}-lily-coldcard-file-${moment().format('MMDDYYYY')}.txt`);
   }
 
   const downloadCaravanFile = () => {
@@ -58,6 +58,7 @@ const VaultSettings = ({ config, setConfigFile, currentAccount, setViewAddresses
       // we need to populate the method field for caravan. if the device is of type trezor or ledger, put that in. else just put xpub.
       if (configCopy.extendedPublicKeys[i].device && (configCopy.extendedPublicKeys[i].device.type === 'trezor' || configCopy.extendedPublicKeys[i].device.type === 'ledger')) {
         configCopy.extendedPublicKeys[i].method = configCopy.extendedPublicKeys[i].device.type;
+        configCopy.extendedPublicKeys[i].bip32Path = "m/48'/0'/0'/2'"
       } else {
         configCopy.extendedPublicKeys[i].method = 'xpub';
       }

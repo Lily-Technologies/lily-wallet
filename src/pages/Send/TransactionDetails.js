@@ -41,7 +41,7 @@ const TransactionDetails = ({ finalPsbt, feeEstimate, importTxFromFileError, fee
   }
 
   const broadcastTransaction = async () => {
-    if (signedPsbts.length === signThreshold) {
+    if (signedDevices.length === signThreshold) {
       try {
         if (signThreshold > 1) {
           const combinedPsbt = combinePsbts(finalPsbt, signedPsbts)

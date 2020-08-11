@@ -17,7 +17,7 @@ const getMultisigDeriationPathForNetwork = (network) => {
   }
 }
 
-export const getUnchainedNetworkFromBjslibNetwork = (bitcoinJslibNetwork) => {
+const getUnchainedNetworkFromBjslibNetwork = (bitcoinJslibNetwork) => {
   if (bitcoinJslibNetwork === networks.bitcoin) {
     return 'mainnet';
   } else {
@@ -220,5 +220,6 @@ module.exports = {
   getMultisigDeriationPathForNetwork: getMultisigDeriationPathForNetwork,
   createAddressMapFromAddressArray: createAddressMapFromAddressArray,
   getDataFromMultisig: getDataFromMultisig,
-  getDataFromXPub: getDataFromXPub
+  getDataFromXPub: getDataFromXPub,
+  getUnchainedNetworkFromBjslibNetwork: getUnchainedNetworkFromBjslibNetwork
 }

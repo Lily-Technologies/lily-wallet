@@ -3,7 +3,7 @@ import styled, { keyframes } from 'styled-components';
 import { ErrorOutline, CheckCircle } from '@styled-icons/material';
 
 import { Button, StyledIcon, PromptPinModal } from '../components';
-import { lightGreen, gray, green, blue, white, darkGray, lightBlack, red, lightRed, yellow, lightYellow, black } from '../utils/colors';
+import { lightGreen, gray, green, blue, white, darkGray, lightBlack, red, lightRed, yellow, lightYellow, black, gray600 } from '../utils/colors';
 
 export const DeviceSelect = ({ configuredDevices, unconfiguredDevices, errorDevices, setUnconfiguredDevices, configuredThreshold, deviceAction, deviceActionText, deviceActionLoadingText }) => {
   const [devicesLoading, setDevicesLoading] = useState(false);
@@ -205,7 +205,7 @@ const NoDevicesSubheader = styled.h4`
 `;
 
 const ConfiguringText = styled.div`
-  color: ${p => p.error ? lightBlack : darkGray};
+  color: ${p => p.error ? gray600 : darkGray};
   font-size: ${p => p.warning ? '0.75em' : '1em'};
   text-align: center;
 `;

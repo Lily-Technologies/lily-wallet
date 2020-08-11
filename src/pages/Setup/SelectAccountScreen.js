@@ -39,7 +39,7 @@ const SelectAccountScreen = ({ setSetupOption, setStep, config }) => {
         <SignupOptionItem style={{ borderTop: `8px solid ${blue500}` }} onClick={() => { setSetupOption(1); setStep(1); }}>
           <StyledIcon as={Safe} size={48} style={{ marginBottom: '0.5em' }} />
           <SignupOptionMainText>Vault</SignupOptionMainText>
-          <SignupOptionSubtext>Use multiple hardware wallets to create a vault for securing large amounts of Bitcoin</SignupOptionSubtext>
+          <SignupOptionSubtext>Use hardware wallets to create a vault for securing larger amounts of Bitcoin</SignupOptionSubtext>
         </SignupOptionItem>
       </SignupOptionMenu>
     </InnerWrapper>

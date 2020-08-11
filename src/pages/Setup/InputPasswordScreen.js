@@ -5,7 +5,7 @@ import { Button } from '../../components';
 import { InnerWrapper, XPubHeaderWrapper, SetupHeaderWrapper, SetupHeader, SetupExplainerText } from './styles';
 import { white, gray, darkGreen, darkOffWhite, lightBlue, black } from '../../utils/colors';
 
-const InputPasswordScreen = ({ password, setPassword, exportSetupFiles, setStep }) => {
+const InputPasswordScreen = ({ password, setPassword, setStep }) => {
 
   return (
     <InnerWrapper>

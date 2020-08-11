@@ -6,7 +6,7 @@ import { StyledIcon } from '../../components';
 
 import { white, gray100, gray300, gray400, gray500, gray700, blue400, blue500 } from '../../utils/colors';
 
-const Steps = ({ step }) => {
+const Steps = ({ step, setupOption }) => {
   return (
     <StepsGroup>
       <StepItem arrow={true} completed={step > 1} active={step === 1}>
@@ -15,7 +15,7 @@ const Steps = ({ step }) => {
         </StepCircle>
         <StepItemTextContainer>
           <StepItemMainText>Step 1</StepItemMainText>
-          <StepItemSubText>Give your vault a name</StepItemSubText>
+          <StepItemSubText>Give your {setupOption === 2 ? 'wallet' : 'vault'} a name</StepItemSubText>
         </StepItemTextContainer>
       </StepItem>
       <StepItem arrow={true} completed={step > 2} active={step === 2}>
@@ -24,7 +24,8 @@ const Steps = ({ step }) => {
         </StepCircle>
         <StepItemTextContainer>
           <StepItemMainText>Step 2</StepItemMainText>
-          <StepItemSubText>Connect devices associated with vault</StepItemSubText>
+          {setupOption === 2 && <StepItemSubText>Write down your seed phrase</StepItemSubText>}
+          {setupOption != 2 && <StepItemSubText>Connect or import devices</StepItemSubText>}
         </StepItemTextContainer>
       </StepItem>
       <StepItem arrow={false} completed={step > 3} active={step === 3}>
@@ -64,7 +65,7 @@ const StepsGroup = styled.div`
   border-radius: 0.375em;
   border: 1px solid ${gray300};
   align-items: stretch;
-  margin-bottom: 3em;
+  margin-bottom: 5em;
 `;
 
 
