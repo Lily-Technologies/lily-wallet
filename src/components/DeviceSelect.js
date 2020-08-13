@@ -214,6 +214,7 @@ const DevicesWrapper = styled.div`
   display: flex;
   justify-content: center;
   margin-bottom: 1.25em;
+  overflow: scroll;
 `;
 
 const DeviceInfoWrapper = styled.div`

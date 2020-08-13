@@ -42,11 +42,19 @@ const Vault = ({ config, setConfigFile, toggleRefresh, currentAccount, setCurren
                 {currentAccount.config.quorum.requiredSigners} of {currentAccount.config.quorum.totalSigners} Multisignature Vault
               </Fragment>
             )}
-            {currentAccount.config.quorum.totalSigners === 1 && (
+            {currentAccount.config.quorum.totalSigners === 1 && currentAccount.config.mnemonic && (
               <Fragment>
                 <IconSvg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 1118 8zm-6-4a1 1 0 100 2 2 2 0 012 2 1 1 0 102 0 4 4 0 00-4-4z" clip-rule="evenodd"></path></IconSvg>
                 <span>
-                  Single Key Wallet
+                  Hot Wallet
+              </span>
+              </Fragment>
+            )}
+            {currentAccount.config.quorum.totalSigners === 1 && currentAccount.config.device && (
+              <Fragment>
+                <IconSvg viewBox="0 0 20 20" fill="currentColor" class="calculator w-6 h-6"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V4a2 2 0 00-2-2H6zm1 2a1 1 0 000 2h6a1 1 0 100-2H7zm6 7a1 1 0 011 1v3a1 1 0 11-2 0v-3a1 1 0 011-1zm-3 3a1 1 0 100 2h.01a1 1 0 100-2H10zm-4 1a1 1 0 011-1h.01a1 1 0 110 2H7a1 1 0 01-1-1zm1-4a1 1 0 100 2h.01a1 1 0 100-2H7zm2 1a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1zm4-4a1 1 0 100 2h.01a1 1 0 100-2H13zM9 9a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1zM7 8a1 1 0 000 2h.01a1 1 0 000-2H7z" clip-rule="evenodd"></path></IconSvg>
+                <span>
+                  Hardware Wallet
               </span>
               </Fragment>
             )}

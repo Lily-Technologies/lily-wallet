@@ -117,13 +117,23 @@ const TransactionDetails = ({
       }
     ];
 
+    if (!signedDevices.length) {
+      dropdownItems.unshift(
+        { label: 'Adjust Fee', onClick: () => { openInModal(<FeeSelector />) } }
+      )
+    }
+
     // if we are creating the transaction ourselves, give options for adjustment
     if (!txImportedFromFile) {
       dropdownItems.unshift(
-        { label: 'Edit Transaction', onClick: () => setStep(0) },
-        { label: 'View more details', onClick: () => { openInModal(<TransactionDetails />); } },
-        { label: 'Adjust Fee', onClick: () => { openInModal(<FeeSelector />) } }
+        { label: 'View more details', onClick: () => { openInModal(<TransactionDetails />); } }
       );
+    }
+
+    if (!signedDevices.length) {
+      dropdownItems.unshift(
+        { label: 'Edit Transaction', onClick: () => setStep(0) }
+      )
     }
 
     return (

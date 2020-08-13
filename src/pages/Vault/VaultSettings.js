@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, Fragment } from 'react';
 import styled, { css } from 'styled-components';
 import { AES } from 'crypto-js';
 import { useHistory } from "react-router-dom";
@@ -148,72 +148,73 @@ const VaultSettings = ({ config, setConfigFile, currentAccount, setViewAddresses
         </SettingsSection>
       )}
 
-      <SettingsHeadingItem>Export Wallet</SettingsHeadingItem>
-      {currentAccount.config.quorum.totalSigners === 1 && (
-        <SettingsSection>
-          <SettingsSectionLeft>
-            <SettingsHeader>Connect to BlueWallet</SettingsHeader>
-            <SettingsSubheader>View a QR code to import this wallet into BlueWallet</SettingsSubheader>
-          </SettingsSectionLeft>
-          <SettingsSectionRight>
-            <ViewAddressesButton onClick={() => { setViewExportQRCode(true); }}>View QR Code</ViewAddressesButton>
-          </SettingsSectionRight>
-
-          <Modal
-            isOpen={viewExportQRCode}
-            onRequestClose={() => setViewExportQRCode(false)}>
-            <ModalContentWrapper>
-              {getMnemonicQrCode()}
-              <ScanInstructions>Scan this QR code to import this wallet into BlueWallet</ScanInstructions>
-            </ModalContentWrapper>
-          </Modal>
-        </SettingsSection>
-      )}
       {currentAccount.config.mnemonic && (
-        <SettingsSection>
-          <SettingsSectionLeft>
-            <SettingsHeader>View Mnemonic Seed</SettingsHeader>
-            <SettingsSubheader>View the mnemonic phrase for this wallet. This can be used to import this wallet data into another application.</SettingsSubheader>
-          </SettingsSectionLeft>
-          <SettingsSectionRight>
-            <ViewAddressesButton onClick={() => { setViewMnemonic(true); }}>View Wallet Mnemonic</ViewAddressesButton>
-          </SettingsSectionRight>
+        <Fragment>
+          <SettingsHeadingItem>Export Wallet</SettingsHeadingItem>
+          <SettingsSection>
+            <SettingsSectionLeft>
+              <SettingsHeader>Connect to BlueWallet</SettingsHeader>
+              <SettingsSubheader>View a QR code to import this wallet into BlueWallet</SettingsSubheader>
+            </SettingsSectionLeft>
+            <SettingsSectionRight>
+              <ViewAddressesButton onClick={() => { setViewExportQRCode(true); }}>View QR Code</ViewAddressesButton>
+            </SettingsSectionRight>
 
-          <Modal
-            isOpen={viewMnemonic}
-            onRequestClose={() => setViewMnemonic(false)}>
-            <ModalContentWrapper>
-              {getMnemonic()}
-            </ModalContentWrapper>
-          </Modal>
-        </SettingsSection>
+            <Modal
+              isOpen={viewExportQRCode}
+              onRequestClose={() => setViewExportQRCode(false)}>
+              <ModalContentWrapper>
+                {getMnemonicQrCode()}
+                <ScanInstructions>Scan this QR code to import this wallet into BlueWallet</ScanInstructions>
+              </ModalContentWrapper>
+            </Modal>
+          </SettingsSection>
+          <SettingsSection>
+            <SettingsSectionLeft>
+              <SettingsHeader>View Mnemonic Seed</SettingsHeader>
+              <SettingsSubheader>View the mnemonic phrase for this wallet. This can be used to import this wallet data into another application.</SettingsSubheader>
+            </SettingsSectionLeft>
+            <SettingsSectionRight>
+              <ViewAddressesButton onClick={() => { setViewMnemonic(true); }}>View Wallet Mnemonic</ViewAddressesButton>
+            </SettingsSectionRight>
+
+            <Modal
+              isOpen={viewMnemonic}
+              onRequestClose={() => setViewMnemonic(false)}>
+              <ModalContentWrapper>
+                {getMnemonic()}
+              </ModalContentWrapper>
+            </Modal>
+          </SettingsSection>
+        </Fragment>
       )}
       {currentAccount.config.quorum.totalSigners > 1 && (
-        <SettingsSection>
-          <SettingsSectionLeft>
-            <SettingsHeader>Download Coldcard File</SettingsHeader>
-            <SettingsSubheader>
-              Download the multisig wallet import file for Coldcard and place on microsd card. <br />
+        <Fragment>
+          <SettingsHeadingItem>Export Wallet</SettingsHeadingItem>
+          <SettingsSection>
+            <SettingsSectionLeft>
+              <SettingsHeader>Download Coldcard File</SettingsHeader>
+              <SettingsSubheader>
+                Download the multisig wallet import file for Coldcard and place on microsd card. <br />
               Import via Settings > Multisig > Import from SD.
             </SettingsSubheader>
-          </SettingsSectionLeft>
-          <SettingsSectionRight>
-            <ViewAddressesButton onClick={() => { downloadColdcardMultisigFile(); }}>Download Coldcard File</ViewAddressesButton>
-          </SettingsSectionRight>
-        </SettingsSection>
-      )}
-      {currentAccount.config.quorum.totalSigners > 1 && (
-        <SettingsSection>
-          <SettingsSectionLeft>
-            <SettingsHeader>Download Caravan File</SettingsHeader>
-            <SettingsSubheader>
-              <span>Download this vault's configuration file to use in <UCLink href="https://unchained-capital.com/" target="_blank" rel="noopener noreferrer">Unchained Capital's</UCLink> <UCLink href="https://unchained-capital.github.io/caravan/#/" target="_blank" rel="noopener noreferrer">Caravan</UCLink> multisig coordination software.</span>
-            </SettingsSubheader>
-          </SettingsSectionLeft>
-          <SettingsSectionRight>
-            <ViewAddressesButton onClick={() => { downloadCaravanFile(); }}>Download Caravan File</ViewAddressesButton>
-          </SettingsSectionRight>
-        </SettingsSection>
+            </SettingsSectionLeft>
+            <SettingsSectionRight>
+              <ViewAddressesButton onClick={() => { downloadColdcardMultisigFile(); }}>Download Coldcard File</ViewAddressesButton>
+            </SettingsSectionRight>
+          </SettingsSection>
+          <SettingsSection>
+            <SettingsSectionLeft>
+              <SettingsHeader>Download Caravan File</SettingsHeader>
+              <SettingsSubheader>
+                <span>Download this vault's configuration file to use in <UCLink href="https://unchained-capital.com/" target="_blank" rel="noopener noreferrer">Unchained Capital's</UCLink> <UCLink href="https://unchained-capital.github.io/caravan/#/" target="_blank" rel="noopener noreferrer">Caravan</UCLink> multisig coordination software.</span>
+              </SettingsSubheader>
+            </SettingsSectionLeft>
+            <SettingsSectionRight>
+              <ViewAddressesButton onClick={() => { downloadCaravanFile(); }}>Download Caravan File</ViewAddressesButton>
+            </SettingsSectionRight>
+          </SettingsSection>
+        </Fragment>
       )}
       <SettingsHeadingItem>Danger Zone</SettingsHeadingItem>
       <SettingsSection>
