@@ -19,7 +19,7 @@ import { mobile } from '../../utils/media';
 import { cloneBuffer, bufferToHex } from '../../utils/other';
 import { combinePsbts } from '../../utils/files';
 
-import { createTransaction, validateAddress, createUtxoMapFromUtxoArray } from './utils'
+import { createTransaction, validateAddress, createUtxoMapFromUtxoArray, getFee } from './utils'
 
 const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, currentBitcoinNetwork, currentBitcoinPrice }) => {
   document.title = `Send - Lily Wallet`;
@@ -52,7 +52,7 @@ const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, curren
     return psbt
   }
 
-  const importTxToForm = (file) => {
+  const importTxFromFile = (file) => {
     if (importTxFromFileError) {
       setImportTxFromFileError(null)
     }
@@ -83,6 +83,10 @@ const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, curren
         }
         // validate psbt and make sure it belongs to the current account
         let sumInputs = new BigNumber(0);
+        let utxosMap;
+        if (availableUtxos) {
+          utxosMap = createUtxoMapFromUtxoArray(availableUtxos);
+        }
         for (let i = 0; i < tx.__CACHE.__TX.ins.length; i++) {
           const currentInput = tx.__CACHE.__TX.ins[i];
           const inputBuffer = cloneBuffer(currentInput.hash);
@@ -132,11 +136,6 @@ const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, curren
     }
   }
 
-  let utxosMap;
-  if (availableUtxos) {
-    utxosMap = createUtxoMapFromUtxoArray(availableUtxos);
-  }
-
   const validateAndCreateTransaction = async () => {
     if (!validateAddress(recipientAddress)) {
       setRecipientAddressError(true);
@@ -146,15 +145,15 @@ const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, curren
       setRecipientAddressError(false);
     }
 
-    if (!satoshisToBitcoins(feeEstimate.plus(currentBalance)).isGreaterThan(sendAmount)) {
+    if (!satoshisToBitcoins(BigNumber(feeEstimate).plus(currentBalance)).isGreaterThan(sendAmount)) {
       setSendAmountError(true)
     }
 
-    if (satoshisToBitcoins(feeEstimate.plus(currentBalance)).isGreaterThan(sendAmount) && sendAmountError) {
+    if (satoshisToBitcoins(BigNumber(feeEstimate).plus(currentBalance)).isGreaterThan(sendAmount) && sendAmountError) {
       setSendAmountError(false)
     }
 
-    if (validateAddress(recipientAddress) && sendAmount && satoshisToBitcoins(feeEstimate.plus(currentBalance)).isGreaterThan(sendAmount)) {
+    if (validateAddress(recipientAddress) && sendAmount && satoshisToBitcoins(BigNumber(feeEstimate).plus(currentBalance)).isGreaterThan(sendAmount)) {
       const psbt = await createTransactionAndSetState(undefined);
 
       setStep(1);
@@ -206,7 +205,7 @@ const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, curren
         accept="*"
         id="txFile"
         onFileLoad={(file) => {
-          importTxToForm(file)
+          importTxFromFile(file)
         }}
       />
       <label style={{ display: 'none' }} ref={fileUploadLabelRef} htmlFor="txFile"></label>
@@ -280,7 +279,7 @@ const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, curren
                           }}>Cancel</FromFileButton>
                         <CopyAddressButton
                           onClick={() => {
-                            importTxToForm(pastedPsbtValue)
+                            importTxFromFile(pastedPsbtValue)
                           }}>Import Transaction</CopyAddressButton>
                       </ImportButtons>
                     </div>
@@ -329,11 +328,11 @@ const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, curren
             {step === 1 && (
               <TransactionDetails
                 finalPsbt={finalPsbt}
-                feeEstimate={feeEstimate}
+                feeEstimate={getFee(finalPsbt, transactions)}
                 recipientAddress={recipientAddress}
                 setStep={setStep}
                 sendAmount={sendAmount}
-                utxosMap={utxosMap}
+                availableUtxos={availableUtxos}
                 signedPsbts={signedPsbts}
                 signedDevices={signedDevices}
                 txImportedFromFile={txImportedFromFile}

@@ -1,30 +1,18 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Safe } from '@styled-icons/crypto';
-import { Wallet } from '@styled-icons/entypo';
-import { useHistory } from "react-router-dom";
+import { Bank } from '@styled-icons/remix-line';
+import { Wallet } from '@styled-icons/ionicons-outline';
 
 import { StyledIcon } from '../../components';
-import { InnerWrapper, HeaderWrapper, CancelButton, PageTitleSubtext } from './styles';
-import { GridArea, Header, HeaderLeft, HeaderRight, PageTitle } from '../../components/layout';
+import { InnerWrapper } from './styles';
+import { GridArea, Header } from '../../components/layout';
 import { blue500, darkGray, white, gray, offWhite } from '../../utils/colors';
 
-const SelectAccountScreen = ({ setSetupOption, setStep, config }) => {
-  const history = useHistory();
+const SelectAccountScreen = ({ header, setSetupOption, setStep }) => {
 
   return (
     <InnerWrapper>
-      <HeaderWrapper>
-        <HeaderModified>
-          <HeaderLeft>
-            <PageTitleSubtext>New Account</PageTitleSubtext>
-            <PageTitle>Select account type</PageTitle>
-          </HeaderLeft>
-          <HeaderRight>
-            {config.isEmpty && <CancelButton onClick={() => { history.push('login') }}>Return to Main Menu</CancelButton>}
-          </HeaderRight>
-        </HeaderModified>
-      </HeaderWrapper>
+      {header}
       <SignupOptionMenu>
         <SignupOptionItem
           onClick={() => {
@@ -33,11 +21,11 @@ const SelectAccountScreen = ({ setSetupOption, setStep, config }) => {
           }}>
           <StyledIcon as={Wallet} size={48} style={{ marginBottom: '0.5em' }} />
           <SignupOptionMainText>Wallet</SignupOptionMainText>
-          <SignupOptionSubtext>Create a new Bitcoin wallet</SignupOptionSubtext>
+          <SignupOptionSubtext>Create a new Bitcoin wallet or connect an existing hardware wallet</SignupOptionSubtext>
         </SignupOptionItem>
 
         <SignupOptionItem style={{ borderTop: `8px solid ${blue500}` }} onClick={() => { setSetupOption(1); setStep(1); }}>
-          <StyledIcon as={Safe} size={48} style={{ marginBottom: '0.5em' }} />
+          <StyledIcon as={Bank} size={48} style={{ marginBottom: '0.5em' }} />
           <SignupOptionMainText>Vault</SignupOptionMainText>
           <SignupOptionSubtext>Use hardware wallets to create a vault for securing larger amounts of Bitcoin</SignupOptionSubtext>
         </SignupOptionItem>
@@ -45,10 +33,6 @@ const SelectAccountScreen = ({ setSetupOption, setStep, config }) => {
     </InnerWrapper>
   )
 }
-
-const HeaderModified = styled(Header)`
-  margin-bottom: 0;
-`;
 
 const SignupOptionMenu = styled(GridArea)`
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));

@@ -29,6 +29,7 @@ export const XPubHeaderWrapper = styled.div`
   justify-content: space-between;
   padding: 1.5em;
   border-bottom: 1px solid #E4E7EB;
+  align-items: flex-start;
 `;
 
 export const SetupHeaderWrapper = styled.div`

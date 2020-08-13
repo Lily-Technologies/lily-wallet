@@ -4,13 +4,13 @@ import { AES } from 'crypto-js';
 import moment from 'moment';
 
 import bs58check from 'bs58check';
-import { generateMnemonic, mnemonicToSeed } from "bip39";
-import { v4 as uuidv4 } from 'uuid';
+import { generateMnemonic } from "bip39";
 
-import { createMultisigConfigFile, createSinglesigConfigFile, createColdCardBlob, downloadFile } from '../../utils/files';
+import { createMultisigConfigFile, createSinglesigConfigFile, createSinglesigHWWConfigFile, createColdCardBlob, downloadFile } from '../../utils/files';
 import { black } from '../../utils/colors';
 
 import StepGroups from './Steps';
+import PageHeader from './PageHeader';
 import SelectAccountScreen from './SelectAccountScreen';
 import InputPasswordScreen from './InputPasswordScreen';
 import InputNameScreen from './InputNameScreen';
@@ -42,7 +42,7 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
 
   document.title = `Create Files - Lily Wallet`;
 
-  const importDevice = async (device, index) => {
+  const importMultisigDevice = async (device, index) => {
     try {
       const response = await window.ipcRenderer.invoke('/xpub', {
         deviceType: device.type,
@@ -59,9 +59,6 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
       }
       setAvailableDevices([...availableDevices]);
 
-      if (importedDevices.length > 2) { // we have to use the old value of importedDevice since the new render hasn't happened yet
-        setStep(3);
-      }
     } catch (e) {
       const errorDevicesCopy = [...errorDevices];
       errorDevicesCopy.push(device.fingerprint);
@@ -69,6 +66,32 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
     }
   }
 
+  const importSingleSigDevice = async (device, index) => {
+    try {
+      const response = await window.ipcRenderer.invoke('/xpub', {
+        deviceType: device.type,
+        devicePath: device.path,
+        path: `m/84'/0'/0'` // we are assuming BIP48 P2WSH wallet
+      });
+
+      setImportedDevices([...importedDevices, { ...device, ...response }]);
+      availableDevices.splice(index, 1);
+      if (errorDevices.includes(device.fingerprint)) {
+        const errorDevicesCopy = [...errorDevices];
+        errorDevicesCopy.splice(errorDevices.indexOf(device.fingerprint), 1);
+        setErrorDevices(errorDevicesCopy);
+      }
+      setAvailableDevices([...availableDevices]);
+
+      setStep(3);
+    } catch (e) {
+      const errorDevicesCopy = [...errorDevices];
+      errorDevicesCopy.push(device.fingerprint);
+      setErrorDevices([...errorDevicesCopy])
+    }
+  }
+
+  // TODO: eventually support this for single hww implementations
   const importDeviceFromFile = (parsedFile) => {
     const zpub = bs58check.decode(parsedFile.p2wsh);
     const xpub = zpubToXpub(zpub);
@@ -81,9 +104,6 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
 
     const updatedImportedDevices = [...importedDevices, newDevice];
     setImportedDevices(updatedImportedDevices)
-    if (updatedImportedDevices.length > 2) {
-      setStep(3);
-    }
   }
 
   const importMultisigWalletFromFile = (parsedFile) => {
@@ -104,9 +124,6 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
     }
     const updatedImportedDevices = [...importedDevices, ...devicesFromFile];
     setImportedDevices([...importedDevices, ...devicesFromFile])
-    if (updatedImportedDevices.length > 2) {
-      setStep(3);
-    }
   }
 
   const exportSetupFiles = async () => {
@@ -119,7 +136,12 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
 
   const exportSetupFilesSingleSig = async () => {
     const contentType = "text/plain;charset=utf-8;";
-    const configObject = await createSinglesigConfigFile(walletMnemonic, accountName, config, currentBitcoinNetwork);
+    let configObject;
+    if (importedDevices.length) {
+      configObject = await createSinglesigHWWConfigFile(importedDevices[0], accountName, config, currentBitcoinNetwork)
+    } else {
+      configObject = await createSinglesigConfigFile(walletMnemonic, accountName, config, currentBitcoinNetwork);
+    }
 
     const encryptedConfigObject = AES.encrypt(
       JSON.stringify(configObject),
@@ -155,37 +177,62 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
     setConfigFile(configObject);
   }
 
+  const Header = (
+    <PageHeader
+      config={config}
+      headerText={(step === 0) ? 'Select account type' : `Create new ${setupOption === 2 ? 'wallet' : 'vault'}`}
+      setStep={setStep}
+      step={step}
+    />
+  )
+
   let screen = null;
 
   switch (step) {
     case 0:
       screen = <SelectAccountScreen
+        header={Header}
+        config={config}
         setSetupOption={setSetupOption}
-        setStep={setStep}
-        config={config} />;
+        setStep={setStep} />;
       break;
     case 1:
       screen = <InputNameScreen
-        setupOption={setupOption}
+        header={Header}
         config={config}
+        setupOption={setupOption}
         setStep={setStep}
         accountName={accountName}
         setAccountName={setAccountName} />;
       break;
+    // case 5:
+    //   screen = <SelectWalletTypeScreen
+    //     setStep={setStep}
+    //     config={config}
+    //   />
+    //   break;
     case 2:
       if (setupOption === 2) {
         screen = <NewWalletScreen
+          header={Header}
+          config={config}
           walletMnemonic={walletMnemonic}
           setWalletMnemonic={setWalletMnemonic}
           setStep={setStep}
+          importedDevices={importedDevices}
+          availableDevices={availableDevices}
+          setAvailableDevices={setAvailableDevices}
+          errorDevices={errorDevices}
+          importDevice={importSingleSigDevice}
         />;
       } else {
         screen = <NewVaultScreen
+          header={Header}
           config={config}
           setStep={setStep}
           importMultisigWalletFromFile={importMultisigWalletFromFile}
           importDeviceFromFile={importDeviceFromFile}
-          importDevice={importDevice}
+          importDevice={importMultisigDevice}
           importedDevices={importedDevices}
           availableDevices={availableDevices}
           errorDevices={errorDevices}
@@ -197,6 +244,9 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
       break;
     case 3:
       screen = <InputPasswordScreen
+        header={Header}
+        config={config}
+        setupOption={setupOption}
         password={password}
         setPassword={setPassword}
         setStep={setStep}

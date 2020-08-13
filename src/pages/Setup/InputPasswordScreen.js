@@ -5,7 +5,7 @@ import { Button } from '../../components';
 import { InnerWrapper, XPubHeaderWrapper, SetupHeaderWrapper, SetupHeader, SetupExplainerText } from './styles';
 import { white, gray, darkGreen, darkOffWhite, lightBlue, black } from '../../utils/colors';
 
-const InputPasswordScreen = ({ password, setPassword, setStep }) => {
+const InputPasswordScreen = ({ header, config, password, setPassword, setStep, setupOption }) => {
 
   const onInputEnter = (e) => {
     if (e.key === 'Enter') {
@@ -15,6 +15,7 @@ const InputPasswordScreen = ({ password, setPassword, setStep }) => {
 
   return (
     <InnerWrapper>
+      {header}
       <XPubHeaderWrapper>
         <SetupHeaderWrapper>
           <div>

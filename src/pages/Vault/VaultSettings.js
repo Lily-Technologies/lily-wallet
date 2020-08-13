@@ -2,37 +2,14 @@ import React, { useState } from 'react';
 import styled, { css } from 'styled-components';
 import { AES } from 'crypto-js';
 import { useHistory } from "react-router-dom";
-import Modal from 'react-modal';
 import { QRCode } from "react-qr-svg";
 import moment from 'moment';
 
-import { MnemonicWordsDisplayer } from '../../components';
+import { MnemonicWordsDisplayer, Modal } from '../../components';
 
 import { black, gray, white, blue, darkGray, darkOffWhite, lightBlue, red, lightGray, darkGreen } from '../../utils/colors';
 import { mobile } from '../../utils/media';
 import { createColdCardBlob, downloadFile } from '../../utils/files';
-
-const modalStyles = {
-  overlay: {
-    backgroundColor: 'rgba(0, 0, 0, 0.75)',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  content: {
-    top: 'auto',
-    left: 'auto',
-    right: 'auto',
-    bottom: 'auto',
-    display: 'flex',
-    flexDirection: 'column',
-    maxWidth: '500px',
-    width: '100%',
-    minHeight: '500px',
-    justifyContent: 'center',
-    alignItems: 'center'
-  }
-}
 
 const VaultSettings = ({ config, setConfigFile, currentAccount, setViewAddresses, setViewUtxos, currentBitcoinNetwork }) => {
   const [viewXpub, setViewXpub] = useState(false);
@@ -51,7 +28,7 @@ const VaultSettings = ({ config, setConfigFile, currentAccount, setViewAddresses
     // need to add some properties to our config to use with Caravan
     const configCopy = { ...currentAccount.config };
     configCopy.client = { type: 'public' };
-    // need to have a name for each pubkey, so just use parentFingerprint...should use a loop in the future but lazy
+    // need to have a name for each pubkey, so just use parentFingerprint
     for (let i = 0; i < configCopy.extendedPublicKeys.length; i++) {
       configCopy.extendedPublicKeys[i].name = configCopy.extendedPublicKeys[i].parentFingerprint;
 
@@ -162,10 +139,11 @@ const VaultSettings = ({ config, setConfigFile, currentAccount, setViewAddresses
 
           <Modal
             isOpen={viewXpub}
-            onRequestClose={() => setViewXpub(false)}
-            style={modalStyles}>
-            {getXpubQrCode()}
-            <XpubWellWrapper>{currentAccount.config.xpub}</XpubWellWrapper>
+            onRequestClose={() => setViewXpub(false)}>
+            <ModalContentWrapper>
+              {getXpubQrCode()}
+              <XpubWellWrapper>{currentAccount.config.xpub}</XpubWellWrapper>
+            </ModalContentWrapper>
           </Modal>
         </SettingsSection>
       )}
@@ -183,14 +161,15 @@ const VaultSettings = ({ config, setConfigFile, currentAccount, setViewAddresses
 
           <Modal
             isOpen={viewExportQRCode}
-            onRequestClose={() => setViewExportQRCode(false)}
-            style={modalStyles}>
-            {getMnemonicQrCode()}
-            <ScanInstructions>Scan this QR code to import this wallet into BlueWallet</ScanInstructions>
+            onRequestClose={() => setViewExportQRCode(false)}>
+            <ModalContentWrapper>
+              {getMnemonicQrCode()}
+              <ScanInstructions>Scan this QR code to import this wallet into BlueWallet</ScanInstructions>
+            </ModalContentWrapper>
           </Modal>
         </SettingsSection>
       )}
-      {currentAccount.config.quorum.totalSigners === 1 && (
+      {currentAccount.config.mnemonic && (
         <SettingsSection>
           <SettingsSectionLeft>
             <SettingsHeader>View Mnemonic Seed</SettingsHeader>
@@ -202,13 +181,11 @@ const VaultSettings = ({ config, setConfigFile, currentAccount, setViewAddresses
 
           <Modal
             isOpen={viewMnemonic}
-            onRequestClose={() => setViewMnemonic(false)}
-            style={modalStyles}>
-
-            {getMnemonic()}
+            onRequestClose={() => setViewMnemonic(false)}>
+            <ModalContentWrapper>
+              {getMnemonic()}
+            </ModalContentWrapper>
           </Modal>
-
-
         </SettingsSection>
       )}
       {currentAccount.config.quorum.totalSigners > 1 && (
@@ -254,29 +231,38 @@ const VaultSettings = ({ config, setConfigFile, currentAccount, setViewAddresses
 
         <Modal
           isOpen={viewDeleteAccount}
-          onRequestClose={() => setViewDeleteAccount(false)}
-          style={{ ...modalStyles, content: { ...modalStyles.content, border: `5px solid ${red}` } }}>
+          onRequestClose={() => setViewDeleteAccount(false)}>
+          <ModalContentWrapper>
+            <DangerText>Danger!</DangerText>
 
-          <DangerText>Danger!</DangerText>
-
-          <DangerSubtext>
-            You are about to delete an account from this configuration.
+            <DangerSubtext>
+              You are about to delete an account from this configuration.
              <br />
              If there are any funds remaining in this account, they will be lost forever.
              </DangerSubtext>
-          <EnterPasswordSubtext>If you would like to continue, enter a password to encrypt your updated configuration file.</EnterPasswordSubtext>
+            <EnterPasswordSubtext>If you would like to continue, enter a password to encrypt your updated configuration file.</EnterPasswordSubtext>
 
-          <PasswordInput placeholder="password" autoFocus type="password" value={configEncryptionPassword} onChange={(e) => setConfigEncryptionPassword(e.target.value)} onKeyDown={(e) => onInputEnter(e)} />
+            <PasswordInput placeholder="password" autoFocus type="password" value={configEncryptionPassword} onChange={(e) => setConfigEncryptionPassword(e.target.value)} onKeyDown={(e) => onInputEnter(e)} />
 
-          <ViewAddressesButton
-            style={{ color: red, border: `1px solid ${red}` }}
-            onClick={() => { removeAccountAndDownloadConfig() }}>Delete Account</ViewAddressesButton>
+            <ViewAddressesButton
+              style={{ color: red, border: `1px solid ${red}` }}
+              onClick={() => { removeAccountAndDownloadConfig() }}>Delete Account</ViewAddressesButton>
+          </ModalContentWrapper>
         </Modal>
 
       </SettingsSection>
     </Wrapper>
   )
 }
+
+const ModalContentWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 500px;
+  justify-content: center;
+  align-items: center;
+`;
 
 const DangerText = styled.div`
   font-size: 1.5em;

@@ -97,8 +97,6 @@ const VaultView = ({ currentAccount }) => {
       )}
       <RecentTransactions
         transactions={transactionsCopy.sort((a, b) => {
-          console.log('a: ', a)
-          console.log('b: ', b)
           if (!b.status.confirmed && !a.status.confirmed) {
             return 0;
           } else if (!b.status.confirmed) {

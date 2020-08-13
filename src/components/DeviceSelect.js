@@ -3,7 +3,7 @@ import styled, { keyframes } from 'styled-components';
 import { ErrorOutline, CheckCircle } from '@styled-icons/material';
 
 import { Button, StyledIcon, PromptPinModal } from '../components';
-import { lightGreen, gray, green, blue, white, darkGray, lightBlack, red, lightRed, yellow, lightYellow, black, gray600 } from '../utils/colors';
+import { lightGreen, gray, green, blue, white, darkGray, red, lightRed, yellow, lightYellow, black, gray600 } from '../utils/colors';
 
 export const DeviceSelect = ({ configuredDevices, unconfiguredDevices, errorDevices, setUnconfiguredDevices, configuredThreshold, deviceAction, deviceActionText, deviceActionLoadingText }) => {
   const [devicesLoading, setDevicesLoading] = useState(false);

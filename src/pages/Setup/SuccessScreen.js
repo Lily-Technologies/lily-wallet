@@ -20,7 +20,7 @@ const SuccessScreen = ({ exportSetupFiles }) => {
           <SuccessText>Setup Success!</SuccessText>
           <SuccessSubtext>
             The configuration file will be saved in your default download folder. <br /><br />
-            This file is required to restore your wallet next time you start Lilly Wallet.
+            This file is required to restore your wallet next time you start Lily Wallet.
           </SuccessSubtext>
           <DownloadButton
             color={white}

@@ -1,16 +1,15 @@
 import React, { useState } from 'react';
-import { useHistory } from "react-router-dom";
 import styled from 'styled-components';
 
 
-import { Button, DeviceSelect, FileUploader, Modal } from '../../components';
-import { InnerWrapper, HeaderWrapper, CancelButton, PageTitleSubtext, XPubHeaderWrapper, SetupHeaderWrapper, SetupExplainerText, FormContainer, BoxedWrapper, SetupHeader } from './styles';
-import { Header, HeaderLeft, HeaderRight, PageTitle } from '../../components/layout';
+import { Button, DeviceSelect, FileUploader } from '../../components';
+import { InnerWrapper, XPubHeaderWrapper, SetupHeaderWrapper, SetupExplainerText, FormContainer, BoxedWrapper, SetupHeader } from './styles';
 import { darkGray, white } from '../../utils/colors';
 
 import RequiredDevicesModal from './RequiredDevicesModal';
 
 const NewVaultScreen = ({
+  header,
   config,
   setStep,
   importMultisigWalletFromFile,
@@ -23,23 +22,11 @@ const NewVaultScreen = ({
   setConfigRequiredSigners,
   configRequiredSigners
 }) => {
-  const history = useHistory();
   const [selectNumberRequiredModalOpen, setSelectNumberRequiredModalOpen] = useState(false);
 
   return (
     <InnerWrapper>
-      <HeaderWrapper>
-        <Header>
-          <HeaderLeft>
-            <PageTitleSubtext>New Account</PageTitleSubtext>
-            <PageTitle>Create new vault</PageTitle>
-          </HeaderLeft>
-          <HeaderRight>
-            {config.isEmpty && <CancelButton onClick={() => { history.push('login') }}>Return to Main Menu</CancelButton>}
-            {!config.isEmpty && <CancelButton onClick={() => { setStep(0) }}>Cancel</CancelButton>}
-          </HeaderRight>
-        </Header>
-      </HeaderWrapper>
+      {header}
       <FormContainer>
         <BoxedWrapper>
           <FileUploader
@@ -86,7 +73,7 @@ const NewVaultScreen = ({
             // } else {
             setSelectNumberRequiredModalOpen(true)
             // }
-          }}>Continue</ContinueButton>}
+          }}>Finish Adding Devices</ContinueButton>}
       </FormContainer>
 
       <RequiredDevicesModal

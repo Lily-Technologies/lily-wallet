@@ -6,10 +6,12 @@ import { ArrowIosForwardOutline } from '@styled-icons/evaicons-outline';
 import { CheckCircle } from '@styled-icons/material';
 import { useHistory } from "react-router-dom";
 import BigNumber from 'bignumber.js';
+import coinSelect from 'coinselect';
 
 import {
   blockExplorerAPIURL,
-  satoshisToBitcoins
+  satoshisToBitcoins,
+  bitcoinsToSatoshis
 } from "unchained-bitcoin";
 
 import { address, Psbt } from 'bitcoinjs-lib';
@@ -19,9 +21,28 @@ import { StyledIcon, Button, SidewaysShake, Dropdown, Modal } from '../../compon
 
 import { gray, blue, darkGray, white, darkOffWhite, green, darkGreen, lightGray, red, lightRed, lightBlue, offWhite } from '../../utils/colors';
 import { downloadFile, combinePsbts } from '../../utils/files';
-import { getFeeForMultisig } from './utils';
+import { getFeeForMultisig, createUtxoMapFromUtxoArray } from './utils';
 
-const TransactionDetails = ({ finalPsbt, feeEstimate, importTxFromFileError, feeRates, currentAccount, toggleRefresh, fileUploadLabelRef, txImportedFromFile, signedDevices, recipientAddress, sendAmount, setStep, utxosMap, signedPsbts, signThreshold, currentBitcoinNetwork, currentBitcoinPrice, createTransactionAndSetState }) => {
+const TransactionDetails = ({
+  finalPsbt,
+  feeEstimate,
+  importTxFromFileError,
+  feeRates,
+  currentAccount,
+  toggleRefresh,
+  fileUploadLabelRef,
+  txImportedFromFile,
+  signedDevices,
+  recipientAddress,
+  sendAmount,
+  setStep,
+  availableUtxos,
+  signedPsbts,
+  signThreshold,
+  currentBitcoinPrice,
+  createTransactionAndSetState,
+  currentBitcoinNetwork,
+}) => {
   const [broadcastedTxId, setBroadcastedTxId] = useState('');
   const [txError, setTxError] = useState(null);
   const [optionsDropdownOpen, setOptionsDropdownOpen] = useState(false);
@@ -68,7 +89,11 @@ const TransactionDetails = ({ finalPsbt, feeEstimate, importTxFromFileError, fee
           setModalContent(<TransactionSuccess broadcastedTxId={data} />);
         }
       } catch (e) {
-        setTxError(e.response.data);
+        if (e.response) {
+          setTxError(e.response.data);
+        } else {
+          setTxError(e.message);
+        }
       }
     }
   }
@@ -113,13 +138,19 @@ const TransactionDetails = ({ finalPsbt, feeEstimate, importTxFromFileError, fee
     )
   }
 
-  const FeeSelector = ({ feeArray }) => {
-    const fastestFee = getFeeForMultisig(feeRates['1'], currentAccount.config.addressType, finalPsbt.__CACHE.__TX.ins.length, finalPsbt.__CACHE.__TX.outs.length, currentAccount.config.quorum.requiredSigners, currentAccount.config.quorum.totalSigners).integerValue(BigNumber.ROUND_CEIL);
-    let normalFee = getFeeForMultisig(feeRates['3'], currentAccount.config.addressType, finalPsbt.__CACHE.__TX.ins.length, finalPsbt.__CACHE.__TX.outs.length, currentAccount.config.quorum.requiredSigners, currentAccount.config.quorum.totalSigners).integerValue(BigNumber.ROUND_CEIL);
-    if (normalFee === fastestFee) {
-      normalFee = getFeeForMultisig(feeRates['4'], currentAccount.config.addressType, finalPsbt.__CACHE.__TX.ins.length, finalPsbt.__CACHE.__TX.outs.length, currentAccount.config.quorum.requiredSigners, currentAccount.config.quorum.totalSigners).integerValue(BigNumber.ROUND_CEIL);
+  const FeeSelector = () => {
+    let fastestFee;
+    let normalFee;
+    let slowFee;
+    if (currentAccount.config.quorum.totalSigners > 1) {
+      fastestFee = getFeeForMultisig(feeRates.fastestFee, currentAccount.config.addressType, finalPsbt.__CACHE.__TX.ins.length, finalPsbt.__CACHE.__TX.outs.length, currentAccount.config.quorum.requiredSigners, currentAccount.config.quorum.totalSigners).integerValue(BigNumber.ROUND_CEIL);
+      normalFee = getFeeForMultisig(feeRates.halfHourFee, currentAccount.config.addressType, finalPsbt.__CACHE.__TX.ins.length, finalPsbt.__CACHE.__TX.outs.length, currentAccount.config.quorum.requiredSigners, currentAccount.config.quorum.totalSigners).integerValue(BigNumber.ROUND_CEIL);
+      slowFee = getFeeForMultisig(feeRates.hourFee, currentAccount.config.addressType, finalPsbt.__CACHE.__TX.ins.length, finalPsbt.__CACHE.__TX.outs.length, currentAccount.config.quorum.requiredSigners, currentAccount.config.quorum.totalSigners).integerValue(BigNumber.ROUND_CEIL);
+    } else {
+      fastestFee = coinSelect(availableUtxos, [{ address: recipientAddress, value: bitcoinsToSatoshis(sendAmount).toNumber() }], feeRates.fastestFee).fee;
+      normalFee = coinSelect(availableUtxos, [{ address: recipientAddress, value: bitcoinsToSatoshis(sendAmount).toNumber() }], feeRates.halfHourFee).fee;
+      slowFee = coinSelect(availableUtxos, [{ address: recipientAddress, value: bitcoinsToSatoshis(sendAmount).toNumber() }], feeRates.hourFee).fee;
     }
-    const slowFee = getFeeForMultisig(feeRates['6'], currentAccount.config.addressType, finalPsbt.__CACHE.__TX.ins.length, finalPsbt.__CACHE.__TX.outs.length, currentAccount.config.quorum.requiredSigners, currentAccount.config.quorum.totalSigners).integerValue(BigNumber.ROUND_CEIL);
 
     return (
       <Fragment>
@@ -202,7 +233,7 @@ const TransactionDetails = ({ finalPsbt, feeEstimate, importTxFromFileError, fee
         <RecipientAddressRow style={{ paddingTop: 0, textAlign: 'right' }}>{recipientAddress}</RecipientAddressRow>
       </MainTxData>
       <div>
-        <TransactionFeeField>Transaction Fee: <span>{satoshisToBitcoins(feeEstimate).toNumber()} BTC (${satoshisToBitcoins(feeEstimate.multipliedBy(currentBitcoinPrice)).toFixed(2)})</span></TransactionFeeField>
+        <TransactionFeeField>Transaction Fee: <span>{satoshisToBitcoins(feeEstimate).toNumber()} BTC (${satoshisToBitcoins(feeEstimate).multipliedBy(currentBitcoinPrice).toFixed(2)})</span></TransactionFeeField>
       </div>
     </Fragment>
   )
@@ -222,39 +253,45 @@ const TransactionDetails = ({ finalPsbt, feeEstimate, importTxFromFileError, fee
     </Fragment>
   )
 
-  const TransactionDetails = () => (
-    <Fragment>
-      <ModalHeaderContainer>
-        <span>Transaction Details</span>
-        {txImportedFromFile && <TransactionOptionsDropdown />}
-      </ModalHeaderContainer>
-      <MoreDetailsContainer>
-        <MoreDetailsSection>
-          <MoreDetailsHeader>Inputs</MoreDetailsHeader>
-          {finalPsbt.__CACHE.__TX.ins.map(input => {
-            const inputBuffer = cloneBuffer(input.hash);
-            const utxo = utxosMap.get(inputBuffer.reverse().toString('hex'));
-            return (
+  const TransactionDetails = () => {
+    let utxosMap;
+    if (availableUtxos) {
+      utxosMap = createUtxoMapFromUtxoArray(availableUtxos);
+    }
+    return (
+      <Fragment>
+        <ModalHeaderContainer>
+          <span>Transaction Details</span>
+          {txImportedFromFile && <TransactionOptionsDropdown />}
+        </ModalHeaderContainer>
+        <MoreDetailsContainer>
+          <MoreDetailsSection>
+            <MoreDetailsHeader>Inputs</MoreDetailsHeader>
+            {finalPsbt.__CACHE.__TX.ins.map(input => {
+              const inputBuffer = cloneBuffer(input.hash);
+              const utxo = utxosMap.get(inputBuffer.reverse().toString('hex'));
+              return (
+                <OutputItem>
+                  <OutputAddress>{utxo.address.address}</OutputAddress>
+                  <OutputAmount>{satoshisToBitcoins(utxo.value).toNumber()} BTC</OutputAmount>
+                </OutputItem>
+              )
+            })}
+          </MoreDetailsSection>
+          <MoreDetailsSection>
+            <MoreDetailsHeader style={{ marginTop: '1em' }}>Outputs</MoreDetailsHeader>
+            {finalPsbt.__CACHE.__TX.outs.map(output => (
               <OutputItem>
-                <OutputAddress>{utxo.address.address}</OutputAddress>
-                <OutputAmount>{satoshisToBitcoins(utxo.value).toNumber()} BTC</OutputAmount>
+                <OutputAddress>{address.fromOutputScript(output.script, finalPsbt.opts.network)}</OutputAddress> <OutputAmount>{satoshisToBitcoins(output.value).toNumber()} BTC</OutputAmount>
               </OutputItem>
-            )
-          })}
-        </MoreDetailsSection>
-        <MoreDetailsSection>
-          <MoreDetailsHeader style={{ marginTop: '1em' }}>Outputs</MoreDetailsHeader>
-          {finalPsbt.__CACHE.__TX.outs.map(output => (
-            <OutputItem>
-              <OutputAddress>{address.fromOutputScript(output.script, finalPsbt.opts.network)}</OutputAddress> <OutputAmount>{satoshisToBitcoins(output.value).toNumber()} BTC</OutputAmount>
-            </OutputItem>
-          ))}
+            ))}
 
-          <MoreDetailsHeader style={{ display: 'flex', justifyContent: 'space-between', marginTop: '2em' }}>Fees: {<span>{satoshisToBitcoins(feeEstimate).toNumber()} BTC (${satoshisToBitcoins(feeEstimate.multipliedBy(currentBitcoinPrice)).toFixed(2)})</span>}</MoreDetailsHeader>
-        </MoreDetailsSection>
-      </MoreDetailsContainer>
-    </Fragment>
-  );
+            <MoreDetailsHeader style={{ display: 'flex', justifyContent: 'space-between', marginTop: '2em' }}>Fees: {<span>{satoshisToBitcoins(feeEstimate).toNumber()} BTC (${satoshisToBitcoins(feeEstimate).multipliedBy(currentBitcoinPrice).toFixed(2)})</span>}</MoreDetailsHeader>
+          </MoreDetailsSection>
+        </MoreDetailsContainer>
+      </Fragment>
+    )
+  };
 
   let screen = null;
 

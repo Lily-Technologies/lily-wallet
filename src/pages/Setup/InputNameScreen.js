@@ -1,45 +1,39 @@
 import React from 'react';
-import { useHistory } from "react-router-dom";
 import styled from 'styled-components';
 
 import { Button } from '../../components';
-import { InnerWrapper, HeaderWrapper, CancelButton, PageTitleSubtext, XPubHeaderWrapper, SetupHeaderWrapper, SetupExplainerText, FormContainer, BoxedWrapper } from './styles';
-import { Header, HeaderLeft, HeaderRight, PageTitle } from '../../components/layout';
+import { InnerWrapper, XPubHeaderWrapper, SetupHeaderWrapper, SetupExplainerText, FormContainer, BoxedWrapper, SetupHeader } from './styles';
 
-import { blue, white, darkOffWhite, lightBlue, black, gray } from '../../utils/colors';
+import { white, darkOffWhite, lightBlue, black, gray } from '../../utils/colors';
 
-const InputNameScreen = ({ setupOption, config, setStep, accountName, setAccountName }) => {
-  const history = useHistory();
+
+const InputNameScreen = ({ header, setupOption, setStep, accountName, setAccountName }) => {
+
+  const nextScreenAction = () => {
+    if (accountName.length > 3) {
+      setStep(2);
+    }
+  }
 
   const onInputEnter = (e) => {
     if (e.key === 'Enter') {
-      if (accountName.length > 3) {
-        setStep(2);
-      }
+      nextScreenAction();
     }
   }
 
   return (
     <InnerWrapper>
-      <HeaderWrapper>
-        <Header>
-          <HeaderLeft>
-            <PageTitleSubtext>New Account</PageTitleSubtext>
-            <PageTitle>Create new {setupOption === 2 ? 'wallet' : 'vault'}</PageTitle>
-          </HeaderLeft>
-          <HeaderRight>
-            {config.isEmpty && <CancelButton onClick={() => { history.push('login') }}>Return to Main Menu</CancelButton>}
-            {!config.isEmpty && <CancelButton onClick={() => { setStep(0) }}>Cancel</CancelButton>}
-          </HeaderRight>
-        </Header>
-      </HeaderWrapper>
+      {header}
       <FormContainer>
         <BoxedWrapper>
           <XPubHeaderWrapper>
             <SetupHeaderWrapper>
-              <SetupExplainerText>
-                Give your {setupOption === 2 ? 'wallet' : 'vault'} a name (i.e. "My First {setupOption === 2 ? 'Wallet' : 'Vault'}") to identify it while using Lily.
+              <div>
+                <SetupHeader>Enter a name</SetupHeader>
+                <SetupExplainerText>
+                  Give your {setupOption === 2 ? 'wallet' : 'vault'} a name (i.e. "My First {setupOption === 2 ? 'Wallet' : 'Vault'}") to identify it while using Lily.
                 </SetupExplainerText>
+              </div>
             </SetupHeaderWrapper>
           </XPubHeaderWrapper>
           <PasswordWrapper>
@@ -54,11 +48,7 @@ const InputNameScreen = ({ setupOption, config, setStep, accountName, setAccount
 
           <ExportFilesButton
             active={accountName.length > 3}
-            onClick={() => {
-              if (accountName.length > 3) {
-                setStep(2);
-              }
-            }}>{`Continue`}</ExportFilesButton>
+            onClick={() => nextScreenAction()}>{`Continue`}</ExportFilesButton>
         </BoxedWrapper>
       </FormContainer>
     </InnerWrapper>

@@ -9,6 +9,9 @@ import {
 import { Psbt, address, networks } from 'bitcoinjs-lib';
 
 import BigNumber from 'bignumber.js';
+import coinSelect from 'coinselect';
+
+import { cloneBuffer } from '../../utils/other';
 
 const getTxHex = async (txid, currentBitcoinNetwork) => {
   const txHex = await (await axios.get(blockExplorerAPIURL(`/tx/${txid}/hex`, getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)))).data;
@@ -52,6 +55,17 @@ export const getFeeForMultisig = (feeRate, addressType, numInputs, numOutputs, r
   })
 }
 
+export const getFee = (psbt, transactions) => {
+  const outputSum = psbt.txOutputs.reduce((acc, cur) => acc + cur.value, 0);
+  const txMap = createTransactionMapFromTransactionArray(transactions);
+  const inputSum = psbt.txInputs.reduce((acc, cur) => {
+    const inputBuffer = cloneBuffer(cur.hash);
+    const currentUtxo = txMap.get(inputBuffer.reverse().toString('hex'));
+    return currentUtxo.vout[cur.index].value + acc
+  }, 0);
+  return inputSum - outputSum;
+}
+
 const createTransactionMapFromTransactionArray = (transactionsArray) => {
   const transactionMap = new Map();
   transactionsArray.forEach((tx) => {
@@ -74,21 +88,25 @@ const coinSelection = (amountInSats, availableUtxos) => {
 }
 
 export const createTransaction = async (currentAccount, amountInBitcoins, recipientAddress, desiredFee, availableUtxos, transactions, unusedChangeAddresses, currentBitcoinNetwork) => {
-  const transactionMap = createTransactionMapFromTransactionArray(transactions);
+  // const transactionMap = createTransactionMapFromTransactionArray(transactions);
 
   let fee;
-  const feeRates = await (await axios.get(blockExplorerAPIURL(`/fee-estimates`, currentBitcoinNetwork))).data;
-  if (!desiredFee) { // if no fee specified, pick next block
-    fee = await getFeeForMultisig(feeRates[1], currentAccount.config.addressType, 1, 2, currentAccount.config.quorum.requiredSigners, currentAccount.config.quorum.totalSigners).integerValue(BigNumber.ROUND_CEIL);
-  } else {
+  // const feeRates = await (await axios.get(blockExplorerAPIURL(`/fee-estimates`, currentBitcoinNetwork))).data;
+  const feeRates = await (await axios.get('https://bitcoinfees.earn.com/api/v1/fees/recommended')).data;
+  if (desiredFee) { // if no fee specified, pick next block
     fee = desiredFee;
+  } else if (currentAccount.config.quorum.totalSigners > 1) {
+    fee = await getFeeForMultisig(feeRates.halfHourFee, currentAccount.config.addressType, 1, 2, currentAccount.config.quorum.requiredSigners, currentAccount.config.quorum.totalSigners).integerValue(BigNumber.ROUND_CEIL);
+  } else {
+    const coinSelectResult = coinSelect(availableUtxos, [{ address: recipientAddress, value: bitcoinsToSatoshis(amountInBitcoins).toNumber() }], feeRates.halfHourFee);
+    fee = coinSelectResult.fee;
   }
 
   let outputTotal = BigNumber(bitcoinsToSatoshis(amountInBitcoins)).plus(BigNumber(fee).toNumber());
   let [spendingUtxos, spendingUtxosTotal] = coinSelection(outputTotal, availableUtxos);
 
-  if (spendingUtxos.length > 1 && !desiredFee) { // we assumed 1 input utxo when first calculating fee, if more inputs then readjust fee
-    fee = await getFeeForMultisig(feeRates[1], currentAccount.config.addressType, spendingUtxos.length, 2, currentAccount.config.quorum.requiredSigners, currentAccount.config.quorum.totalSigners).integerValue(BigNumber.ROUND_CEIL);
+  if (spendingUtxos.length > 1 && !desiredFee && currentAccount.config.quorum.totalSigners > 1) { // we assumed 1 input utxo when first calculating fee, if more inputs then readjust fee
+    fee = await getFeeForMultisig(feeRates.halfHourFee, currentAccount.config.addressType, spendingUtxos.length, 2, currentAccount.config.quorum.requiredSigners, currentAccount.config.quorum.totalSigners).integerValue(BigNumber.ROUND_CEIL);
     outputTotal = BigNumber(bitcoinsToSatoshis(amountInBitcoins)).plus(fee.toNumber());
     [spendingUtxos, spendingUtxosTotal] = coinSelection(outputTotal, availableUtxos);
   }
@@ -110,7 +128,7 @@ export const createTransaction = async (currentAccount, amountInBitcoins, recipi
         index: utxo.vout,
         sequence: 0xffffffff,
         // witnessUtxo: {
-        //   script: Buffer.from(transactionMap.get(utxo.txid).vout[utxo.vout].scriptpubkey, 'hex'),
+        // script: Buffer.from(transactionMap.get(utxo.txid).vout[utxo.vout].scriptpubkey, 'hex'),
         //   value: utxo.value
         // },
         nonWitnessUtxo: Buffer.from(prevTxHex, 'hex'),
@@ -123,14 +141,17 @@ export const createTransaction = async (currentAccount, amountInBitcoins, recipi
         }))
       })
     } else {
+      const prevTxHex = await getTxHex(utxo.txid, currentBitcoinNetwork);
+      // KBC-TODO: eventually break this up into different functions depending on if Trezor or not, leave for now...I guess
       psbt.addInput({
         hash: utxo.txid,
         index: utxo.vout,
         sequence: 0xffffffff,
-        witnessUtxo: {
-          script: Buffer.from(transactionMap.get(utxo.txid).vout[utxo.vout].scriptpubkey, 'hex'),
-          value: utxo.value
-        },
+        // witnessUtxo: {
+        // script: Buffer.from(transactionMap.get(utxo.txid).vout[utxo.vout].scriptpubkey, 'hex'),
+        //   value: utxo.value
+        // },
+        nonWitnessUtxo: Buffer.from(prevTxHex, 'hex'),
         bip32Derivation: [{
           masterFingerprint: Buffer.from(utxo.address.bip32derivation[0].masterFingerprint.buffer, utxo.address.bip32derivation[0].masterFingerprint.byteOffset, utxo.address.bip32derivation[0].masterFingerprint.byteLength),
           pubkey: Buffer.from(utxo.address.bip32derivation[0].pubkey.buffer, utxo.address.bip32derivation[0].pubkey.byteOffset, utxo.address.bip32derivation[0].pubkey.byteLength),

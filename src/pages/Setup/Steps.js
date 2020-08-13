@@ -24,8 +24,8 @@ const Steps = ({ step, setupOption }) => {
         </StepCircle>
         <StepItemTextContainer>
           <StepItemMainText>Step 2</StepItemMainText>
-          {setupOption === 2 && <StepItemSubText>Write down your seed phrase</StepItemSubText>}
-          {setupOption != 2 && <StepItemSubText>Connect or import devices</StepItemSubText>}
+          {setupOption === 2 && <StepItemSubText>Write down recovery words or connect device</StepItemSubText>}
+          {setupOption !== 2 && <StepItemSubText>Connect or import devices</StepItemSubText>}
         </StepItemTextContainer>
       </StepItem>
       <StepItem arrow={false} completed={step > 3} active={step === 3}>
@@ -65,7 +65,7 @@ const StepsGroup = styled.div`
   border-radius: 0.375em;
   border: 1px solid ${gray300};
   align-items: stretch;
-  margin-bottom: 5em;
+  margin-bottom: 4em;
 `;
 
 

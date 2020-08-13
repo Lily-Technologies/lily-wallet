@@ -51,12 +51,39 @@ export const createSinglesigConfigFile = async (walletMnemonic, accountName, con
     created_at: Date.now(),
     name: accountName,
     network: getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork),
-    addressType: "P2WSH",
+    addressType: "P2WPKH",
     quorum: { requiredSigners: 1, totalSigners: 1 },
     xpub: xpubString,
     xprv: xprvString,
     mnemonic: walletMnemonic,
     parentFingerprint: root.fingerprint,
+  };
+
+  configCopy.wallets.push(newKey);
+
+  configCopy.keys.push(newKey);
+
+  return configCopy;
+}
+
+export const createSinglesigHWWConfigFile = async (device, accountName, config, currentBitcoinNetwork) => {
+  const configCopy = { ...config };
+  configCopy.isEmpty = false;
+
+  const newKey = {
+    id: uuidv4(),
+    created_at: Date.now(),
+    name: accountName,
+    network: getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork),
+    addressType: "P2WPKH",
+    quorum: { requiredSigners: 1, totalSigners: 1 },
+    xpub: device.xpub,
+    parentFingerprint: device.fingerprint,
+    device: {
+      type: device.type,
+      model: device.model,
+      fingerprint: device.fingerprint
+    }
   };
 
   configCopy.wallets.push(newKey);
