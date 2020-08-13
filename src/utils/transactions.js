@@ -98,9 +98,17 @@ const serializeTransactions = (transactionsFromBlockstream, addresses, changeAdd
   return transactionsArray;
 }
 
-const getChildPubKeyFromXpub = (xpub, bip32Path, multisig, currentBitcoinNetwork) => {
+const getChildPubKeyFromXpub = (xpub, bip32Path, addressType, currentBitcoinNetwork) => {
   const childPubKeysBip32Path = bip32Path;
-  const bip32derivationPath = multisig ? `${getMultisigDeriationPathForNetwork(currentBitcoinNetwork)}/${childPubKeysBip32Path.replace('m/', '')}` : `m/84'/0'/0'/${childPubKeysBip32Path.replace('m/', '')}`;
+  let bip32derivationPath;
+  if (addressType === 'multisig') {
+    bip32derivationPath = `${getMultisigDeriationPathForNetwork(currentBitcoinNetwork)}/${childPubKeysBip32Path.replace('m/', '')}`;
+  } else if (addressType === 'p2sh') {
+    bip32derivationPath = `m/49'/0'/0'/${childPubKeysBip32Path.replace('m/', '')}`;
+  } else { // p2wpkh
+    bip32derivationPath = `m/84'/0'/0'/${childPubKeysBip32Path.replace('m/', '')}`;
+  }
+
   return {
     childPubKey: deriveChildPublicKey(xpub.xpub, childPubKeysBip32Path, getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)),
     bip32derivation: {
@@ -133,8 +141,16 @@ const getUtxosForAddresses = async (addresses, currentBitcoinNetwork) => {
   return availableUtxos;
 }
 
-const getAddressFromPubKey = (childPubKey, currentBitcoinNetwork) => {
-  const address = payments.p2wpkh({ pubkey: Buffer.from(childPubKey.childPubKey, 'hex'), network: currentBitcoinNetwork });
+const getAddressFromPubKey = (childPubKey, addressType, currentBitcoinNetwork) => {
+  let address;
+  if (addressType === 'p2sh') {
+    address = payments.p2sh({
+      redeem: payments.p2wpkh({ pubkey: Buffer.from(childPubKey.childPubKey, 'hex') }),
+    });
+  } else { // p2wpkh
+    address = payments.p2wpkh({ pubkey: Buffer.from(childPubKey.childPubKey, 'hex'), network: currentBitcoinNetwork });
+  }
+
   address.bip32derivation = [childPubKey.bip32derivation];
   return address;
 }
@@ -146,12 +162,17 @@ const getTransactionsFromAddress = async (address, currentBitcoinNetwork) => {
 const getAddressFromAccount = (account, path, currentBitcoinNetwork) => {
   if (account.quorum.totalSigners > 1) { // multisig
     const childPubKeys = account.extendedPublicKeys.map((extendedPublicKey) => {
-      return getChildPubKeyFromXpub(extendedPublicKey, path, true, currentBitcoinNetwork)
+      return getChildPubKeyFromXpub(extendedPublicKey, path, 'multisig', currentBitcoinNetwork)
     })
     return getMultisigAddressFromPubKeys(childPubKeys, account, currentBitcoinNetwork)
   } else { // single sig
-    const receivePubKey = getChildPubKeyFromXpub(account, path, false, currentBitcoinNetwork);
-    return getAddressFromPubKey(receivePubKey, currentBitcoinNetwork);
+    if (account.device) {
+      const receivePubKey = getChildPubKeyFromXpub(account, path, 'p2sh', currentBitcoinNetwork);
+      return getAddressFromPubKey(receivePubKey, 'p2sh', currentBitcoinNetwork);
+    } else {
+      const receivePubKey = getChildPubKeyFromXpub(account, path, 'p2wpkh', currentBitcoinNetwork);
+      return getAddressFromPubKey(receivePubKey, 'p2wpkh', currentBitcoinNetwork);
+    }
   }
 }
 
