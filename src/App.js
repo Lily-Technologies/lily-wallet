@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import styled, { css } from 'styled-components';
 import {
   HashRouter as Router,
@@ -89,6 +89,11 @@ function App() {
     }
   }
 
+  const prevSetFlyInAnimation = useRef();
+  useEffect(() => {
+    prevSetFlyInAnimation.current = flyInAnimation;
+  })
+
   useEffect(() => {
     if (!config.isEmpty) {
       setTimeout(() => {
@@ -138,24 +143,35 @@ function App() {
         window.ipcRenderer.send('/account-data', { config: config.vaults[i] })
       }
 
+      window.ipcRenderer.on('/account-data', (event, ...args) => {
+        updateAccountMap(args[0]);
+        const accountInfo = args[0];
+        accountMap.set(accountInfo.config.id, {
+          ...accountInfo,
+          loading: false
+        });
+        if (currentAccount.loading) { // set the first account that comes in as current account
+          setCurrentAccount(accountMap.get(accountInfo.config.id));
+        }
+        setAccountMap(new Map([...initialAccountMap, ...accountMap]));
+      });
+
       setCurrentAccount(initialAccountMap.values().next().value)
       setAccountMap(initialAccountMap);
     }
   }, [config, currentBitcoinNetwork, refresh]);
 
-  useEffect(() => {
-    window.ipcRenderer.on('/account-data', (event, ...args) => {
-      const accountInfo = args[0];
-      accountMap.set(accountInfo.config.id, {
-        ...accountInfo,
-        loading: false
-      });
-      if (currentAccount.loading) { // set the first account that comes in as current account
-        setCurrentAccount(accountMap.get(accountInfo.config.id));
-      }
-      setAccountMap(accountMap);
+
+  const updateAccountMap = (accountInfo) => {
+    accountMap.set(accountInfo.config.id, {
+      ...accountInfo,
+      loading: false
     });
-  }, []);
+    if (currentAccount.loading) {
+      setCurrentAccount(accountMap.get(accountInfo.config.id));
+    }
+    setAccountMap(accountMap);
+  }
 
   return (
     // <ErrorBoundary>
@@ -174,7 +190,7 @@ function App() {
           <Route path="/settings" component={() => <Settings config={config} currentBitcoinNetwork={currentBitcoinNetwork} changeCurrentBitcoinNetwork={changeCurrentBitcoinNetwork} />} />
           <Route path="/gdrive-import" component={() => <GDriveImport setConfigFile={setConfigFile} />} />
           <Route path="/coldcard-import-instructions" component={() => <ColdcardImportInstructions />} />
-          <Route path="/" component={() => <Home flyInAnimation={flyInAnimation} accountMap={accountMap} setCurrentAccount={setCurrentAccountFromMap} historicalBitcoinPrice={historicalBitcoinPrice} currentBitcoinPrice={currentBitcoinPrice} />} />
+          <Route path="/" component={() => <Home flyInAnimation={flyInAnimation} prevFlyInAnimation={prevSetFlyInAnimation.current} accountMap={accountMap} setCurrentAccount={setCurrentAccountFromMap} historicalBitcoinPrice={historicalBitcoinPrice} currentBitcoinPrice={currentBitcoinPrice} />} />
           <Route path="/" component={() => (
             <div>Not Found</div>
           )}

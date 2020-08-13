@@ -39,16 +39,16 @@ const getLastTransactionTime = (transactions) => {
   }
 }
 
-const Home = ({ config, setCurrentAccount, accountMap, historicalBitcoinPrice, currentBitcoinPrice, flyInAnimation }) => {
+const Home = ({ config, setCurrentAccount, accountMap, historicalBitcoinPrice, currentBitcoinPrice, flyInAnimation, prevFlyInAnimation }) => {
   const [currentDomain, setCurrentDomain] = useState(0);
   const [animateChart, setAnimateChart] = useState(false);
-  const [localFlyInAnimation, setLocalFlyInAnimation] = useState(true);
+  const [initialLoad, setInitialLoad] = useState(false);
 
   useEffect(() => {
-    if (!flyInAnimation && localFlyInAnimation) { // if these values are different, change local
-      setLocalFlyInAnimation(false)
+    if (flyInAnimation !== prevFlyInAnimation) { // if these values are different, change local
+      setInitialLoad(true)
     }
-  })
+  }, [])
 
   const oneMonthDomain = Object.keys(historicalBitcoinPrice).length - 31;
   const sixMonthDomain = Object.keys(historicalBitcoinPrice).length - (30 * 6);
@@ -72,8 +72,8 @@ const Home = ({ config, setCurrentAccount, accountMap, historicalBitcoinPrice, c
     }
   }
 
-  const chartProps = useSpring({ transform: localFlyInAnimation ? 'translateY(-120%)' : 'translateY(0%)' });
-  const accountsProps = useSpring({ transform: localFlyInAnimation ? 'translateY(120%)' : 'translateY(0%)' });
+  const chartProps = useSpring({ transform: initialLoad || (flyInAnimation === false && prevFlyInAnimation === false) ? 'translateY(0%)' : 'translateY(-120%)' });
+  const accountsProps = useSpring({ transform: initialLoad || (flyInAnimation === false && prevFlyInAnimation === false) ? 'translateY(0%)' : 'translateY(120%)' });
 
   return (
     <PageWrapper>
