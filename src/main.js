@@ -4,11 +4,14 @@ const { app, BrowserWindow, ipcMain } = require('electron');
 const { networks } = require('bitcoinjs-lib');
 const BigNumber = require('bignumber.js');
 const { download } = require('electron-dl');
+const {argv} = require('yargs')
 
 const { enumerate, getXPub, signtx, promptpin, sendpin } = require('./server/commands');
 const { getDataFromMultisig, getDataFromXPub } = require('./utils/transactions');
 
 const path = require('path');
+
+const currentBitcoinNetwork = argv.testnet ? networks.testnet : networks.bitcoin;
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -30,10 +33,13 @@ function createWindow() {
 
   mainWindow.maximize();
 
-  // load production url
-  mainWindow.loadURL(`file://${__dirname}/../build/index.html`);
-  // load dev url
-  // mainWindow.loadURL(`http://localhost:3001/`);
+  if (argv.devurl) {
+    // load dev url
+    mainWindow.loadURL(`http://localhost:3001/`);
+  } else {
+    // load production url
+    mainWindow.loadURL(`file://${__dirname}/../build/index.html`);
+  }
 
   // Open the DevTools.
   // mainWindow.webContents.openDevTools();
@@ -81,7 +87,6 @@ app.on('activate', function () {
 
 ipcMain.on('/account-data', async (event, args) => {
   const { config } = args;
-  const currentBitcoinNetwork = networks.bitcoin;
   let addresses, changeAddresses, transactions, unusedAddresses, unusedChangeAddresses, availableUtxos;
 
   if (config.quorum.totalSigners > 1) {
@@ -105,6 +110,10 @@ ipcMain.on('/account-data', async (event, args) => {
   };
 
   event.reply('/account-data', accountData);
+});
+
+ipcMain.handle('/bitcoin-network', async (event, args) => {
+  return Promise.resolve(currentBitcoinNetwork)
 });
 
 ipcMain.handle('/historical-btc-price', async (event, args) => {

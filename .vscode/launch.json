@@ -9,7 +9,9 @@
             "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron",
             "runtimeArgs": [
                 "${workspaceRoot}/src/main.js",
-                "--remote-debugging-port=9223"
+                "--remote-debugging-port=9223",
+                "--devurl",
+                "--testnet"
             ],
             "windows": {
                 "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron.cmd"

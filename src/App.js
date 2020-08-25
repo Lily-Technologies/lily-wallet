@@ -95,6 +95,14 @@ function App() {
   })
 
   useEffect(() => {
+    async function fetchBitcoinNetwork() {
+      const bitcoinNetwork = await window.ipcRenderer.invoke('/bitcoin-network');
+      setCurrentBitcoinNetwork(bitcoinNetwork);
+    }
+    fetchBitcoinNetwork();
+  }, []);
+
+  useEffect(() => {
     if (!config.isEmpty) {
       setTimeout(() => {
         setInitialFlyInAnimation(false);

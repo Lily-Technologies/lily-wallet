@@ -92,7 +92,8 @@
     "styled-components": "^5.1.0",
     "styled-icons": "^10.2.1",
     "unchained-bitcoin": "0.0.9",
-    "uuid": "^8.0.0"
+    "uuid": "^8.0.0",
+    "yargs": "^15.4.1"
   },
   "browserslist": {
     "production": [
