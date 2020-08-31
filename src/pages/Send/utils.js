@@ -19,9 +19,9 @@ const getTxHex = async (txid, currentBitcoinNetwork) => {
   return txHex;
 }
 
-export const validateAddress = (recipientAddress) => {
+export const validateAddress = (recipientAddress, currentBitcoinNetwork) => {
   try {
-    address.toOutputScript(recipientAddress)
+    address.toOutputScript(recipientAddress, currentBitcoinNetwork)
     return true
   } catch (e) {
     return false
