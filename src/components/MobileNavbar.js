@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import styled, { css } from 'styled-components';
 import { KeyboardArrowDown } from '@styled-icons/material';
+import { networks } from 'bitcoinjs-lib';
 
 import { NavLinks } from './NavLinks';
 
 import { white, darkGray, lightBlack, lightGray } from '../utils/colors';
 import rem from '../utils/rem';
 import { mobile } from '../utils/media';
+import { bitcoinNetworkEqual } from '../utils/transactions';
 
 const HEADER_HEIGHT = 125;
 
@@ -88,7 +90,7 @@ const WalletTitle = styled(WalletsHeader)`
   // border-bottom: 0.0625em solid ${lightGray};
 `;
 
-export const MobileNavbar = ({ config, setCurrentAccount }) => {
+export const MobileNavbar = ({ config, setCurrentAccount, currentBitcoinNetwork }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -101,8 +103,11 @@ export const MobileNavbar = ({ config, setCurrentAccount }) => {
 
       <WalletTitle>
         <LilyImage src={require('../assets/flower.svg')} />
-          Lily Wallet
-          </WalletTitle>
+        Lily Wallet
+        { bitcoinNetworkEqual(currentBitcoinNetwork, networks.testnet) &&
+            ' (testnet)'
+        }
+      </WalletTitle>
       <div>
         {/* <div onClick={onSearchButtonClick}>
           <StyledIcon as={Search} size={28} />

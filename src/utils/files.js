@@ -4,8 +4,10 @@ import { networks, Psbt } from 'bitcoinjs-lib';
 import { bip32 } from "bitcoinjs-lib";
 import { mnemonicToSeed } from "bip39";
 
+import { bitcoinNetworkEqual } from './transactions';
+
 export const getUnchainedNetworkFromBjslibNetwork = (bitcoinJslibNetwork) => {
-  if (bitcoinJslibNetwork === networks.bitcoin) {
+  if (bitcoinNetworkEqual(bitcoinJslibNetwork, networks.bitcoin)) {
     return 'mainnet';
   } else {
     return 'testnet';
@@ -26,6 +28,14 @@ export const combinePsbts = (finalPsbt, signedPsbts) => {
     psbt.combine(...base64SignedPsbts);
   }
   return psbt;
+}
+
+export const formatFilename = (fileContents, currentBitcoinNetwork, fileType) => {
+  if (bitcoinNetworkEqual(currentBitcoinNetwork, networks.bitcoin)) {
+    return `${fileContents}-bitcoin-${moment().format('MMDDYY-hhmmss')}.${fileType}`;
+  } else {
+    return `${fileContents}-testnet-${moment().format('MMDDYY-hhmmss')}.${fileType}`;
+  }
 }
 
 export const downloadFile = (file, filename) => {

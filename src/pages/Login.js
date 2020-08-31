@@ -3,6 +3,7 @@ import { useHistory } from "react-router-dom";
 import styled from 'styled-components';
 import { AddCircleOutline } from '@styled-icons/material';
 import { Upload } from '@styled-icons/boxicons-regular';
+import { networks } from 'bitcoinjs-lib';
 
 import GDriveImport from './GDriveImport';
 
@@ -11,8 +12,9 @@ import { StyledIcon, FileUploader } from '../components';
 import { GridArea } from '../components/layout';
 
 import { black, darkGray, white, blue, gray, offWhite } from '../utils/colors';
+import { bitcoinNetworkEqual } from '../utils/transactions';
 
-const Login = ({ setConfigFile }) => {
+const Login = ({ setConfigFile, currentBitcoinNetwork }) => {
   const [encryptedConfigFile, setEncryptedConfigFile] = useState(null);
 
   const history = useHistory();
@@ -31,7 +33,11 @@ const Login = ({ setConfigFile }) => {
         <LilyImage src={require('../assets/flower.svg')} />
         <TextContainer>
           <div>Lily Wallet</div>
-          <Subtext>Load or create new account</Subtext>
+          <Subtext>Load or create new account
+          { bitcoinNetworkEqual(currentBitcoinNetwork, networks.testnet) &&
+            ' (testnet)'
+          }
+          </Subtext>
         </TextContainer>
       </MainText>
 

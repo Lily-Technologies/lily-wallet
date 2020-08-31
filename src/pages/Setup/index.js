@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { AES } from 'crypto-js';
-import moment from 'moment';
 
 import bs58check from 'bs58check';
 import { generateMnemonic } from "bip39";
 
-import { createMultisigConfigFile, createSinglesigConfigFile, createSinglesigHWWConfigFile, createColdCardBlob, downloadFile } from '../../utils/files';
+import { createMultisigConfigFile, createSinglesigConfigFile, createSinglesigHWWConfigFile, createColdCardBlob, downloadFile, formatFilename } from '../../utils/files';
 import { black } from '../../utils/colors';
 
 import StepGroups from './Steps';
@@ -154,7 +153,7 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
     );
     downloadFile(
       encryptedConfigFile,
-      `lily_wallet_config-${moment().format('MMDDYY-hhmmss')}.txt`
+      formatFilename('lily_wallet_config', currentBitcoinNetwork, 'txt')
     );
 
     setConfigFile(configObject);
@@ -168,11 +167,11 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
     const encryptedConfigObject = AES.encrypt(JSON.stringify(configObject), password).toString();
     const encryptedConfigFile = new Blob([decodeURIComponent(encodeURI(encryptedConfigObject))], { type: contentType });
 
-    downloadFile(ccFile, `${accountName}-lily-coldcard-file-${moment().format('MMDDYYYY')}.txt`);
+    downloadFile(ccFile, formatFilename(`${accountName}-lily-coldcard-file`, currentBitcoinNetwork, 'txt'));
     // KBC-TODO: electron-dl bug requires us to wait for the first file to finish downloading before downloading the second
     // this should be fixed somehow
     setTimeout(() => {
-      downloadFile(encryptedConfigFile, `lily_wallet_config-${moment().format('MMDDYY-hhmmss')}.txt`)
+      downloadFile(encryptedConfigFile, formatFilename('lily_wallet_config', currentBitcoinNetwork, 'txt'))
     }, 500);
     setConfigFile(configObject);
   }

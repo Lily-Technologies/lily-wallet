@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import styled, { css } from 'styled-components';
 import { AES } from 'crypto-js';
-import moment from 'moment';
 import Modal from 'react-modal';
 
 import { PageWrapper, PageTitle, Header, HeaderLeft, Button } from '../../components';
 
 import { blue, darkGray, white, lightBlue, darkOffWhite, lightGray, gray } from '../../utils/colors';
-import { downloadFile } from '../../utils/files';
+import { downloadFile, formatFilename } from '../../utils/files';
 import { mobile } from '../../utils/media';
 
 const modalStyles = {
@@ -30,7 +29,7 @@ const modalStyles = {
   }
 }
 
-const Settings = ({ config }) => {
+const Settings = ({ config, currentBitcoinNetwork }) => {
   const [downloadConfigModalIsOpen, setDownloadConfigModalIsOpen] = useState(false);
   const [password, setPassword] = useState(null);
 
@@ -39,7 +38,7 @@ const Settings = ({ config }) => {
     const contentType = "text/plain;charset=utf-8;";
     const encryptedConfigObject = AES.encrypt(JSON.stringify(config), password).toString();
     var encryptedConfigFile = new Blob([decodeURIComponent(encodeURI(encryptedConfigObject))], { type: contentType });
-    downloadFile(encryptedConfigFile, `lily_wallet_config-${moment().format('MMDDYY-hhmmss')}.txt`);
+    downloadFile(encryptedConfigFile, formatFilename('lily_wallet_config', currentBitcoinNetwork, 'txt'));
   }
 
   return (

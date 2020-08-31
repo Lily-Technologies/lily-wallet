@@ -7,10 +7,15 @@ const {
   generateMultisigFromPublicKeys,
 } = require("unchained-bitcoin");
 
+
+const bitcoinNetworkEqual = (a, b) => {
+  return a.bech32 === b.bech32;
+}
+
 const getMultisigDeriationPathForNetwork = (network) => {
-  if (network === networks.bitcoin) {
+  if (bitcoinNetworkEqual(network, networks.bitcoin)) {
     return "m/48'/0'/0'/2'"
-  } else if (network === networks.testnet) {
+  } else if (bitcoinNetworkEqual(network, networks.testnet)) {
     return "m/48'/1'/0'/2'"
   } else { // return mainnet by default...this should never run though
     return "m/48'/0'/0'/2'"
@@ -18,7 +23,7 @@ const getMultisigDeriationPathForNetwork = (network) => {
 }
 
 const getUnchainedNetworkFromBjslibNetwork = (bitcoinJslibNetwork) => {
-  if (bitcoinJslibNetwork === networks.bitcoin) {
+  if (bitcoinNetworkEqual(bitcoinJslibNetwork, networks.bitcoin)) {
     return 'mainnet';
   } else {
     return 'testnet';
@@ -238,6 +243,7 @@ const getDataFromXPub = async (account, currentBitcoinNetwork) => {
 }
 
 module.exports = {
+  bitcoinNetworkEqual: bitcoinNetworkEqual,
   getMultisigDeriationPathForNetwork: getMultisigDeriationPathForNetwork,
   createAddressMapFromAddressArray: createAddressMapFromAddressArray,
   getDataFromMultisig: getDataFromMultisig,

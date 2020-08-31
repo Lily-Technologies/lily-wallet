@@ -1,7 +1,6 @@
 import React, { useState, Fragment } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
-import moment from 'moment';
 import { ArrowIosForwardOutline } from '@styled-icons/evaicons-outline';
 import { CheckCircle } from '@styled-icons/material';
 import { useHistory } from "react-router-dom";
@@ -20,7 +19,7 @@ import { cloneBuffer } from '../../utils/other';
 import { StyledIcon, Button, SidewaysShake, Dropdown, Modal } from '../../components';
 
 import { gray, blue, darkGray, white, darkOffWhite, green, darkGreen, lightGray, red, lightRed, lightBlue, offWhite } from '../../utils/colors';
-import { downloadFile, combinePsbts } from '../../utils/files';
+import { downloadFile, formatFilename, combinePsbts } from '../../utils/files';
 import { getFeeForMultisig, createUtxoMapFromUtxoArray } from './utils';
 
 const TransactionDetails = ({
@@ -101,7 +100,7 @@ const TransactionDetails = ({
   const downloadPsbt = () => {
     const combinedPsbt = combinePsbts(finalPsbt, signedPsbts);
     const psbtForDownload = new Blob([combinedPsbt.toBase64()]);
-    downloadFile(psbtForDownload, `tx-${moment().format('MMDDYY-hhmmss')}.psbt`);
+    downloadFile(psbtForDownload, formatFilename('tx', currentBitcoinNetwork, 'psbt'));
   }
 
   const TransactionOptionsDropdown = () => {

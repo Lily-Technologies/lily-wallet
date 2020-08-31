@@ -12,6 +12,7 @@ import BigNumber from 'bignumber.js';
 import coinSelect from 'coinselect';
 
 import { cloneBuffer } from '../../utils/other';
+import { bitcoinNetworkEqual } from '../../utils/transactions';
 
 const getTxHex = async (txid, currentBitcoinNetwork) => {
   const txHex = await (await axios.get(blockExplorerAPIURL(`/tx/${txid}/hex`, getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)))).data;
@@ -36,7 +37,7 @@ export const createUtxoMapFromUtxoArray = (utxosArray) => {
 }
 
 const getUnchainedNetworkFromBjslibNetwork = (bitcoinJslibNetwork) => {
-  if (bitcoinJslibNetwork === networks.bitcoin) {
+  if (bitcoinNetworkEqual(bitcoinJslibNetwork, networks.bitcoin)) {
     return 'mainnet';
   } else {
     return 'testnet';
