@@ -1,3 +1,5 @@
+const bs58check = require('bs58check');
+
 export function cloneBuffer(buffer) {
   const clone = Buffer.alloc(buffer.length);
   buffer.copy(clone);
@@ -24,4 +26,11 @@ export function formatMoney(amount, decimalCount = 2, decimal = ".", thousands =
   } catch (e) {
     console.log(e)
   }
+};
+
+export function zpubToXpub(zpub) {
+  const zpubRemovedPrefix = zpub.slice(4);
+  const xpubBuffer = Buffer.concat([Buffer.from('0488b21e', 'hex'), zpubRemovedPrefix]);
+  const xpub = bs58check.encode(xpubBuffer);
+  return xpub
 };

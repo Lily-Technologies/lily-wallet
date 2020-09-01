@@ -21,6 +21,30 @@ const InputNameScreen = ({ header, setupOption, setStep, accountName, setAccount
     }
   }
 
+  const getAccountType = (setupOption, capitalize) => {
+    let option;
+    if (setupOption === 1) {
+      option = 'vault'
+    } else if (setupOption === 2) {
+      option = 'wallet'
+    } else {
+      option = 'hardware wallet'
+    }
+
+    if (capitalize === 'all') {
+      const splitOption = option.toLowerCase().split(' ');
+      for (var i = 0; i < splitOption.length; i++) {
+        splitOption[i] = splitOption[i].charAt(0).toUpperCase() + splitOption[i].substring(1);
+      }
+      // Directly return the joined string
+      return splitOption.join(' ');
+    } else if (capitalize === 'first') {
+      return option.charAt(0).toUpperCase() + option.slice(1);
+    } else {
+      return option
+    }
+  }
+
   return (
     <InnerWrapper>
       {header}
@@ -31,7 +55,7 @@ const InputNameScreen = ({ header, setupOption, setStep, accountName, setAccount
               <div>
                 <SetupHeader>Enter a name</SetupHeader>
                 <SetupExplainerText>
-                  Give your {setupOption === 2 ? 'wallet' : 'vault'} a name (i.e. "My First {setupOption === 2 ? 'Wallet' : 'Vault'}") to identify it while using Lily.
+                  Give your {getAccountType(setupOption)} a name (i.e. "My First {getAccountType(setupOption, 'all')}") to identify it while using Lily.
                 </SetupExplainerText>
               </div>
             </SetupHeaderWrapper>
@@ -39,7 +63,7 @@ const InputNameScreen = ({ header, setupOption, setStep, accountName, setAccount
           <PasswordWrapper>
             <NameInput
               autoFocus
-              placeholder={`${setupOption === 2 ? 'Wallet' : 'Vault'} Name`}
+              placeholder={`${getAccountType(setupOption, 'all')} Name`}
               value={accountName}
               onChange={(e) => setAccountName(e.target.value)}
               onKeyDown={(e) => onInputEnter(e)}

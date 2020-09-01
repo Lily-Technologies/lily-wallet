@@ -12,6 +12,15 @@ export const getUnchainedNetworkFromBjslibNetwork = (bitcoinJslibNetwork) => {
   }
 }
 
+export const containsColdcard = (devices) => {
+  for (let i = 0; i < devices.length; i++) {
+    if (devices[i].type === 'coldcard') {
+      return true
+    }
+  }
+  return false;
+}
+
 // TODO: move this somewhere more logical
 export const combinePsbts = (finalPsbt, signedPsbts) => {
   const psbt = finalPsbt;
@@ -28,10 +37,13 @@ export const combinePsbts = (finalPsbt, signedPsbts) => {
   return psbt;
 }
 
-export const downloadFile = (file, filename) => {
-  const fileUrl = URL.createObjectURL(file);
-
-  window.ipcRenderer.send('download-item', { url: fileUrl, filename: filename })
+export const downloadFile = async (file, filename) => {
+  try {
+    const fileUrl = URL.createObjectURL(file);
+    await window.ipcRenderer.invoke('download-item', { url: fileUrl, filename: filename })
+  } catch (e) {
+    console.log('e: ', e);
+  }
 }
 
 export const createSinglesigConfigFile = async (walletMnemonic, accountName, config, currentBitcoinNetwork) => {

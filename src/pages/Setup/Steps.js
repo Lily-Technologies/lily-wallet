@@ -10,30 +10,31 @@ const Steps = ({ step, setupOption }) => {
   return (
     <StepsGroup>
       <StepItem arrow={true} completed={step > 1} active={step === 1}>
-        <StepCircle completed={step > 1}>
+        <StepCircle completed={step > 1} active={step === 1}>
           {step > 1 ? <StyledIcon as={Check} size={25} /> : '01'}
         </StepCircle>
         <StepItemTextContainer>
-          <StepItemMainText>Step 1</StepItemMainText>
+          {/* <StepItemMainText>Step 1</StepItemMainText> */}
           <StepItemSubText>Give your {setupOption === 2 ? 'wallet' : 'vault'} a name</StepItemSubText>
         </StepItemTextContainer>
       </StepItem>
       <StepItem arrow={true} completed={step > 2} active={step === 2}>
-        <StepCircle completed={step > 2}>
+        <StepCircle completed={step > 2} active={step === 2}>
           {step > 2 ? <StyledIcon as={Check} size={25} /> : '02'}
         </StepCircle>
         <StepItemTextContainer>
-          <StepItemMainText>Step 2</StepItemMainText>
-          {setupOption === 2 && <StepItemSubText>Write down recovery words or connect device</StepItemSubText>}
-          {setupOption !== 2 && <StepItemSubText>Connect or import devices</StepItemSubText>}
+          {/* <StepItemMainText>Step 2</StepItemMainText> */}
+          {setupOption === 1 && <StepItemSubText>Connect or import hardware wallets</StepItemSubText>}
+          {setupOption === 2 && <StepItemSubText>Write down recovery words</StepItemSubText>}
+          {setupOption === 3 && <StepItemSubText>Connect or import hardware wallet</StepItemSubText>}
         </StepItemTextContainer>
       </StepItem>
       <StepItem arrow={false} completed={step > 3} active={step === 3}>
-        <StepCircle completed={step > 3}>
+        <StepCircle completed={step > 3} active={step === 3}>
           {step > 3 ? <StyledIcon as={Check} size={25} /> : '03'}
         </StepCircle>
         <StepItemTextContainer>
-          <StepItemMainText>Step 3</StepItemMainText>
+          {/* <StepItemMainText>Step 3</StepItemMainText> */}
           <StepItemSubText>Encrypt your configuration file</StepItemSubText>
         </StepItemTextContainer>
       </StepItem>
@@ -50,9 +51,9 @@ const StepItemTextContainer = styled.div`
 
 const StepCircle = styled.div`
   border-radius: 9999px;
-  border: 1px solid ${p => p.completed ? blue500 : gray400};
+  border: 1px solid ${p => (p.active || p.completed) ? blue500 : gray400};
   background: ${p => p.completed ? blue400 : 'transparent'};
-  color: ${p => p.completed ? white : gray500};
+  color: ${p => p.completed ? white : p.active ? blue500 : gray500};
   width: 2.5rem;
   height: 2.5rem;
   display: flex;
@@ -75,10 +76,8 @@ const StepItem = styled.div`
   position: relative;
   // flex-direction: column;
   background: ${p => (p.active || p.completed) ? white : gray100};
-  color: ${p => (p.active || p.completed) ? gray700 : gray400};
+  color: ${p => p.active ? blue500 : p.completed ? gray700 : gray400};
   padding: 1em 2em 1em 1em;
-  border-bottom: 4px solid ${p => p.active ? blue500 : 'none'};
-
   border-right: 1px solid rgba(34,36,38,.15);
 
   &:after { 
