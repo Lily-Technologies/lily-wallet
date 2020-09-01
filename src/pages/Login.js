@@ -30,7 +30,10 @@ const Login = ({ setConfigFile, currentBitcoinNetwork }) => {
   return (
     <Wrapper>
       <MainText>
-        <LilyImage src={require('../assets/flower.svg')} />
+        { bitcoinNetworkEqual(currentBitcoinNetwork, networks.testnet) ?
+          <LilyImageGray src={require('../assets/flower.svg')} /> :
+          <LilyImage src={require('../assets/flower.svg')} />
+        }
         <TextContainer>
           <div>Lily Wallet</div>
           <Subtext>Load or create new account
@@ -111,6 +114,12 @@ const LilyImage = styled.img`
   margin-right: 12px;
 `;
 
+const LilyImageGray = styled.img`
+  width: 100px;
+  height: 100px;
+  margin-right: 12px;
+  filter: grayscale(100%);
+`;
 
 const LabelOverlay = styled.label`
   width: 100%;

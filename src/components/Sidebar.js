@@ -2,13 +2,15 @@ import React, { Fragment } from 'react';
 import styled, { css } from 'styled-components';
 import { useLocation } from "react-router-dom";
 import { useSpring, animated } from 'react-spring';
+import { networks } from 'bitcoinjs-lib';
 
 import { NavLinks } from './NavLinks';
 
 import { black, white, gray, offWhite, darkOffWhite, lightBlack } from '../utils/colors';
 import { mobile } from '../utils/media';
+import { bitcoinNetworkEqual } from '../utils/transactions';
 
-export const Sidebar = ({ config, setCurrentAccount, loading, flyInAnimation }) => {
+export const Sidebar = ({ config, setCurrentAccount, loading, flyInAnimation, currentBitcoinNetwork }) => {
   const { pathname } = useLocation();
 
   const sidebarAnimationProps = useSpring({ transform: flyInAnimation ? 'translateX(-120%)' : 'translateX(0%)' });
@@ -20,8 +22,16 @@ export const Sidebar = ({ config, setCurrentAccount, loading, flyInAnimation }) 
         <SidebarWrapperAnimated style={{ ...sidebarAnimationProps }}>
           <SidebarContainer>
             <WalletTitle>
-              <LilyImage src={require('../assets/flower.svg')} />
-              <WalletTitleText>Lily Wallet</WalletTitleText>
+              { bitcoinNetworkEqual(currentBitcoinNetwork, networks.testnet) ?
+                <LilyImageGray src={require('../assets/flower.svg')} /> :
+                <LilyImage src={require('../assets/flower.svg')} />
+              }
+              <WalletTitleText>
+                Lily Wallet
+                { bitcoinNetworkEqual(currentBitcoinNetwork, networks.testnet) &&
+                  ' (testnet)'
+                }
+              </WalletTitleText>
             </WalletTitle>
             <NavLinks config={config} setCurrentAccount={setCurrentAccount} loading={loading} />
             <FooterPositionWrapper>
@@ -93,6 +103,13 @@ const LilyImage = styled.img`
   width: 36px;
   height: 36px;
   margin-right: .25em;
+`;
+
+const LilyImageGray = styled.img`
+  width: 36px;
+  height: 36px;
+  margin-right: .25em;
+  filter: grayscale(100%);
 `;
 
 const FooterWrapper = styled.div`

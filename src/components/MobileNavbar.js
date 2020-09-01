@@ -74,6 +74,13 @@ const LilyImage = styled.img`
   margin-right: .25em;
 `;
 
+const LilyImageGray = styled.img`
+  width: 36px;
+  height: 36px;
+  margin-right: .25em;
+  filter: grayscale(100%);
+`;
+
 const WalletsHeader = styled.h3`
   color: ${lightBlack};
   margin: 1.125em;
@@ -102,7 +109,10 @@ export const MobileNavbar = ({ config, setCurrentAccount, currentBitcoinNetwork 
       )} */}
 
       <WalletTitle>
-        <LilyImage src={require('../assets/flower.svg')} />
+        { bitcoinNetworkEqual(currentBitcoinNetwork, networks.testnet) ?
+          <LilyImageGray src={require('../assets/flower.svg')} /> :
+          <LilyImage src={require('../assets/flower.svg')} />
+        }
         Lily Wallet
         { bitcoinNetworkEqual(currentBitcoinNetwork, networks.testnet) &&
             ' (testnet)'
