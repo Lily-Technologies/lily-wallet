@@ -61,7 +61,20 @@ const TransactionDetails = ({
     setModalContent(null);
   }
 
-  const broadcastTransaction = async () => {
+  const broadcastTransaction = async (currentAccount, psbt, currentBitcoinNetwork) => {
+    if (currentAccount.nodeConfig) {
+      const data = await window.ipcRenderer.invoke('/broadcastTx', {
+        nodeConfig: currentAccount.nodeConfig,
+        txHex: psbt.extractTransaction().toHex()
+      });
+      return data;
+    } else {
+      const { data } = await axios.get(blockExplorerAPIURL(`/broadcast?tx=${psbt.extractTransaction().toHex()}`, currentBitcoinNetwork));
+      return data;
+    }
+  }
+
+  const sendTransaction = async () => {
     if (signedDevices.length === signThreshold) {
       try {
         if (signThreshold > 1) {
@@ -69,10 +82,10 @@ const TransactionDetails = ({
 
           combinedPsbt.finalizeAllInputs();
 
-          const { data } = await axios.get(blockExplorerAPIURL(`/broadcast?tx=${combinedPsbt.extractTransaction().toHex()}`, currentBitcoinNetwork));
-          setBroadcastedTxId(data);
+          const broadcastId = await broadcastTransaction(currentAccount, combinedPsbt, currentBitcoinNetwork);
+          setBroadcastedTxId(broadcastId);
           setModalIsOpen(true);
-          setModalContent(<TransactionSuccess broadcastedTxId={data} />);
+          setModalContent(<TransactionSuccess broadcastedTxId={broadcastId} />);
 
         } else {
           let broadcastPsbt;
@@ -83,10 +96,10 @@ const TransactionDetails = ({
             broadcastPsbt = signedPsbts[0];
           }
 
-          const { data } = await axios.get(blockExplorerAPIURL(`/broadcast?tx=${broadcastPsbt.extractTransaction().toHex()}`, currentBitcoinNetwork));
-          setBroadcastedTxId(data);
+          const broadcastId = await broadcastTransaction(currentAccount, broadcastPsbt, currentBitcoinNetwork);
+          setBroadcastedTxId(broadcastId);
           setModalIsOpen(true);
-          setModalContent(<TransactionSuccess broadcastedTxId={data} />);
+          setModalContent(<TransactionSuccess broadcastedTxId={broadcastId} />);
         }
       } catch (e) {
         if (e.response) {
@@ -332,7 +345,7 @@ const TransactionDetails = ({
           {screen}
           {txError && <ErrorBox>{txError}</ErrorBox>}
           {importTxFromFileError && <ErrorBox>{importTxFromFileError}</ErrorBox>}
-          {!broadcastedTxId && <SendButton background={green} color={white} loaded={signedDevices.length === signThreshold} onClick={broadcastTransaction}>
+          {!broadcastedTxId && <SendButton background={green} color={white} loaded={signedDevices.length === signThreshold} onClick={sendTransaction}>
             {signedDevices.length < signThreshold ? `Confirm on Devices (${signedDevices.length}/${signThreshold})` : 'Send Transaction'}
             {signedDevices.length < signThreshold ? null : (
               <SendButtonCheckmark loaded={signedDevices.length}>

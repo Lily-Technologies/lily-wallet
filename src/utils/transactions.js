@@ -5,6 +5,7 @@ const {
   deriveChildPublicKey,
   blockExplorerAPIURL,
   generateMultisigFromPublicKeys,
+  bitcoinsToSatoshis
 } = require("unchained-bitcoin");
 
 const getMultisigDeriationPathForNetwork = (network) => {
@@ -23,6 +24,12 @@ const getUnchainedNetworkFromBjslibNetwork = (bitcoinJslibNetwork) => {
   } else {
     return 'testnet';
   }
+}
+
+const getMultisigDescriptor = async (client, reqSigners, xpubs, isChange) => {
+  const descriptor = `wsh(sortedmulti(${reqSigners},${xpubs.map((xpub) => `${xpub}/${isChange ? '1' : '0'}/*`)}))`;
+  const descriptorWithChecksum = await client.getDescriptorInfo(descriptor);
+  return descriptorWithChecksum;
 }
 
 const createAddressMapFromAddressArray = (addressArray) => {
@@ -98,6 +105,48 @@ const serializeTransactions = (transactionsFromBlockstream, addresses, changeAdd
   return transactionsArray;
 }
 
+const serializeTransactionsFromNode = async (nodeClient, transactions, addresses, changeAddresses) => {
+  const changeAddressesMap = createAddressMapFromAddressArray(changeAddresses);
+  const addressesMap = createAddressMapFromAddressArray(addresses);
+
+  transactions.sort((a, b) => a.blockheight - b.blockheight);
+
+  let currentAccountTotal = BigNumber(0);
+  const transactionsMap = new Map();
+  for (let i = 0; i < transactions.length; i++) {
+    const currentTransaction = await nodeClient.getTransaction({ txid: transactions[i].txid, verbose: true });
+    currentAccountTotal = currentAccountTotal.plus(bitcoinsToSatoshis(currentTransaction.details[0].amount));
+    const transactionWithValues = currentTransaction;
+    transactionWithValues.value = bitcoinsToSatoshis(currentTransaction.details[0].amount).abs().toNumber();
+    transactionWithValues.address = currentTransaction.details[0].address;
+    transactionWithValues.type = currentTransaction.details[0].category === 'receive' ? 'received' : 'sent';
+    transactionWithValues.totalValue = currentAccountTotal.toNumber();
+    transactionWithValues.vout = currentTransaction.decoded.vout.map((vout) => {
+      vout.value = bitcoinsToSatoshis(vout.value).abs().toNumber();
+      return vout;
+    });
+    transactionWithValues.vin = currentTransaction.decoded.vin.map((vin) => {
+      vin.value = bitcoinsToSatoshis(vin.value).abs().toNumber();
+      return vin;
+    });
+    transactionWithValues.status = {
+      block_time: currentTransaction.blocktime,
+      block_height: currentTransaction.blockheight,
+      confirmed: true // TODO: change later
+    }
+    transactionsMap.set(currentTransaction.txid, transactionWithValues);
+  }
+
+  const transactionsIterator = transactionsMap.values();
+  const transactionsArray = [];
+  for (let i = 0; i < transactionsMap.size; i++) {
+    transactionsArray.push(transactionsIterator.next().value);
+  }
+
+  transactionsArray.sort((a, b) => b.status.block_time - a.status.block_time);
+  return transactionsArray;
+}
+
 const getChildPubKeyFromXpub = (xpub, bip32Path, addressType, currentBitcoinNetwork) => {
   const childPubKeysBip32Path = bip32Path;
   let bip32derivationPath;
@@ -155,8 +204,19 @@ const getAddressFromPubKey = (childPubKey, addressType, currentBitcoinNetwork) =
   return address;
 }
 
-const getTransactionsFromAddress = async (address, currentBitcoinNetwork) => {
-  return await (await axios.get(blockExplorerAPIURL(`/address/${address}/txs`, getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)))).data
+const getTransactionsFromAddress = async (address, nodeClient, currentBitcoinNetwork) => {
+  if (nodeClient) {
+    let addressTxs = [];
+    const transactions = await getTransactionsFromNode(nodeClient);
+    for (let i = 0; i < transactions.length; i++) {
+      if (transactions[i].address === address) {
+        addressTxs.push(transactions[i]);
+      }
+    }
+    return addressTxs;
+  } else {
+    return await (await axios.get(blockExplorerAPIURL(`/address/${address}/txs`, getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)))).data
+  }
 }
 
 const getAddressFromAccount = (account, path, currentBitcoinNetwork) => {
@@ -178,7 +238,7 @@ const getAddressFromAccount = (account, path, currentBitcoinNetwork) => {
 
 
 
-const scanForAddressesAndTransactions = async (account, currentBitcoinNetwork, limitGap) => {
+const scanForAddressesAndTransactions = async (account, nodeClient, currentBitcoinNetwork, limitGap) => {
   const receiveAddresses = [];
   const changeAddresses = [];
   let transactions = [];
@@ -193,7 +253,7 @@ const scanForAddressesAndTransactions = async (account, currentBitcoinNetwork, l
     const receiveAddress = getAddressFromAccount(account, `m/0/${i}`, currentBitcoinNetwork)
 
     receiveAddresses.push(receiveAddress);
-    const receiveTxs = await getTransactionsFromAddress(receiveAddress.address, currentBitcoinNetwork);
+    const receiveTxs = await getTransactionsFromAddress(receiveAddress.address, nodeClient, currentBitcoinNetwork);
     if (!receiveTxs.length) {
       unusedReceiveAddresses.push(receiveAddress)
     } else {
@@ -202,7 +262,7 @@ const scanForAddressesAndTransactions = async (account, currentBitcoinNetwork, l
 
     const changeAddress = getAddressFromAccount(account, `m/1/${i}`, currentBitcoinNetwork)
     changeAddresses.push(changeAddress);
-    const changeTxs = await getTransactionsFromAddress(changeAddress.address, currentBitcoinNetwork)
+    const changeTxs = await getTransactionsFromAddress(changeAddress.address, nodeClient, currentBitcoinNetwork)
     if (!changeTxs.length) {
       unusedChangeAddresses.push(changeAddress)
     } else {
@@ -217,19 +277,41 @@ const scanForAddressesAndTransactions = async (account, currentBitcoinNetwork, l
 
     i = i + 1;
   }
+
+  if (nodeClient) { // if we are using a node, its better to just get all txs from it.
+    transactions = await getTransactionsFromNode(nodeClient);
+  }
+
   return { receiveAddresses, changeAddresses, unusedReceiveAddresses, unusedChangeAddresses, transactions }
 }
 
-const getDataFromMultisig = async (account, currentBitcoinNetwork) => {
-  const { receiveAddresses, changeAddresses, unusedReceiveAddresses, unusedChangeAddresses, transactions } = await scanForAddressesAndTransactions(account, currentBitcoinNetwork, 10)
-  const availableUtxos = await getUtxosForAddresses(receiveAddresses.concat(changeAddresses), currentBitcoinNetwork);
-  const organizedTransactions = serializeTransactions(transactions, receiveAddresses, changeAddresses);
+const getTransactionsFromNode = async (nodeClient) => {
+  return await nodeClient.listTransactions({ count: 100 });
+}
+
+const getDataFromMultisig = async (account, nodeClient, currentBitcoinNetwork) => {
+  const { receiveAddresses, changeAddresses, unusedReceiveAddresses, unusedChangeAddresses, transactions } = await scanForAddressesAndTransactions(account, nodeClient, currentBitcoinNetwork, 10)
+
+  let organizedTransactions;
+  let availableUtxos;
+  if (nodeClient) {
+    organizedTransactions = await serializeTransactionsFromNode(nodeClient, transactions, receiveAddresses, changeAddresses);
+    availableUtxos = await nodeClient.listUnspent();
+    const addressMap = createAddressMapFromAddressArray(receiveAddresses.concat(changeAddresses));
+    for (let i = 0; i < availableUtxos.length; i++) {
+      availableUtxos[i].value = bitcoinsToSatoshis(availableUtxos[i].amount).toNumber();
+      availableUtxos[i].address = addressMap.get(availableUtxos[i].address);
+    }
+  } else {
+    organizedTransactions = serializeTransactions(transactions, receiveAddresses, changeAddresses);
+    availableUtxos = await getUtxosForAddresses(receiveAddresses.concat(changeAddresses), currentBitcoinNetwork);
+  }
 
   return [receiveAddresses, changeAddresses, organizedTransactions, unusedReceiveAddresses, unusedChangeAddresses, availableUtxos];
 }
 
-const getDataFromXPub = async (account, currentBitcoinNetwork) => {
-  const { receiveAddresses, changeAddresses, unusedReceiveAddresses, unusedChangeAddresses, transactions } = await scanForAddressesAndTransactions(account, currentBitcoinNetwork, 10)
+const getDataFromXPub = async (account, nodeClient, currentBitcoinNetwork) => {
+  const { receiveAddresses, changeAddresses, unusedReceiveAddresses, unusedChangeAddresses, transactions } = await scanForAddressesAndTransactions(account, nodeClient, currentBitcoinNetwork, 10)
 
   const availableUtxos = await getUtxosForAddresses(receiveAddresses.concat(changeAddresses), currentBitcoinNetwork);
   const organizedTransactions = serializeTransactions(transactions, receiveAddresses, changeAddresses);
@@ -242,5 +324,6 @@ module.exports = {
   createAddressMapFromAddressArray: createAddressMapFromAddressArray,
   getDataFromMultisig: getDataFromMultisig,
   getDataFromXPub: getDataFromXPub,
-  getUnchainedNetworkFromBjslibNetwork: getUnchainedNetworkFromBjslibNetwork
+  getUnchainedNetworkFromBjslibNetwork: getUnchainedNetworkFromBjslibNetwork,
+  getMultisigDescriptor: getMultisigDescriptor
 }
