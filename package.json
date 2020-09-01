@@ -91,7 +91,7 @@
     "react-spring": "^8.0.27",
     "recharts": "^1.8.5",
     "styled-components": "^5.1.0",
-    "styled-icons": "^10.2.1",
+    "styled-icons": "^10.19.0",
     "unchained-bitcoin": "0.0.9",
     "uuid": "^8.0.0"
   },

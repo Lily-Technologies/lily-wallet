@@ -53,12 +53,6 @@ function createWindow() {
   })
 }
 
-
-ipcMain.on('download-item', async (event, { url, filename }) => {
-  const win = BrowserWindow.getFocusedWindow();
-  await download(win, url, { filename });
-});
-
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
@@ -160,6 +154,16 @@ ipcMain.on('/account-data', async (event, args) => {
   };
 
   event.reply('/account-data', accountData);
+});
+
+ipcMain.handle('download-item', async (event, { url, filename }) => {
+  try {
+    const win = BrowserWindow.getFocusedWindow();
+    await download(win, url, { filename });
+    return Promise.reject(true)
+  } catch (e) {
+    return Promise.reject(false)
+  }
 });
 
 ipcMain.handle('/historical-btc-price', async (event, args) => {
