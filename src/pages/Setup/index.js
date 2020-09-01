@@ -7,6 +7,7 @@ import { generateMnemonic } from "bip39";
 
 import { createMultisigConfigFile, createSinglesigConfigFile, createSinglesigHWWConfigFile, createColdCardBlob, downloadFile, formatFilename } from '../../utils/files';
 import { black } from '../../utils/colors';
+import { getMultisigDeriationPathForNetwork, getP2shDeriationPathForNetwork } from '../../utils/transactions';
 
 import StepGroups from './Steps';
 import PageHeader from './PageHeader';
@@ -46,7 +47,7 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
       const response = await window.ipcRenderer.invoke('/xpub', {
         deviceType: device.type,
         devicePath: device.path,
-        path: `m/48'/0'/0'/2'` // we are assuming BIP48 P2WSH wallet
+        path: getMultisigDeriationPathForNetwork(currentBitcoinNetwork) // we are assuming BIP48 P2WSH wallet
       });
 
       setImportedDevices([...importedDevices, { ...device, ...response }]);
@@ -70,7 +71,7 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
       const response = await window.ipcRenderer.invoke('/xpub', {
         deviceType: device.type,
         devicePath: device.path,
-        path: `m/49'/0'/0'` // we are assuming BIP48 P2WSH wallet
+        path: getP2shDeriationPathForNetwork(currentBitcoinNetwork) // we are assuming BIP48 P2WSH wallet
       });
 
       setImportedDevices([...importedDevices, { ...device, ...response }]);
@@ -162,7 +163,7 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
   const exportSetupFilesMultisig = async () => {
     const contentType = "text/plain;charset=utf-8;";
 
-    const ccFile = createColdCardBlob(configRequiredSigners, importedDevices.length, accountName, importedDevices);
+    const ccFile = createColdCardBlob(configRequiredSigners, importedDevices.length, accountName, importedDevices, currentBitcoinNetwork);
     const configObject = createMultisigConfigFile(importedDevices, configRequiredSigners, accountName, config, currentBitcoinNetwork);
     const encryptedConfigObject = AES.encrypt(JSON.stringify(configObject), password).toString();
     const encryptedConfigFile = new Blob([decodeURIComponent(encodeURI(encryptedConfigObject))], { type: contentType });
