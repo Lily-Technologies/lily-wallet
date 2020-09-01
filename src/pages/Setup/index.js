@@ -71,7 +71,7 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
       const response = await window.ipcRenderer.invoke('/xpub', {
         deviceType: device.type,
         devicePath: device.path,
-        path: `m/49'/0'/0'` // we are assuming BIP48 P2WSH wallet
+        path: `m/49'/0'/0'` // we are assuming BIP49 P2WPKH-nested-in-P2SH since Trezor and Ledger use that
       });
 
       setImportedDevices([...importedDevices, { ...device, ...response }]);

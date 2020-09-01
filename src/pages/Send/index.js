@@ -45,11 +45,15 @@ const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, curren
 
   // TODO: refactor this...ugly
   const createTransactionAndSetState = async (theFee) => {
-    const { psbt, fee, feeRates } = await createTransaction(currentAccount, sendAmount, recipientAddress, theFee, availableUtxos, transactions, unusedChangeAddresses, currentBitcoinNetwork);
-    setFinalPsbt(psbt);
-    setFeeEstimate(fee);
-    setFeeRates(feeRates);
-    return psbt
+    try {
+      const { psbt, fee, feeRates } = await createTransaction(currentAccount, sendAmount, recipientAddress, theFee, availableUtxos, transactions, unusedChangeAddresses, currentBitcoinNetwork);
+      setFinalPsbt(psbt);
+      setFeeEstimate(fee);
+      setFeeRates(feeRates);
+      return psbt
+    } catch (e) {
+      throw new Error(e.message)
+    }
   }
 
   const importTxFromFile = (file) => {
@@ -154,21 +158,27 @@ const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, curren
     }
 
     if (validateAddress(recipientAddress) && sendAmount && satoshisToBitcoins(BigNumber(feeEstimate).plus(currentBalance)).isGreaterThan(sendAmount)) {
-      const psbt = await createTransactionAndSetState(undefined);
+      try {
+        const psbt = await createTransactionAndSetState(undefined);
 
-      setStep(1);
+        setStep(1);
 
-      // if only single sign, then sign tx right away
-      if (currentAccount.config.mnemonic) {
-        const seed = await mnemonicToSeed(currentAccount.config.mnemonic);
-        const root = bip32.fromSeed(seed, currentBitcoinNetwork);
+        // if only single sign, then sign tx right away
+        if (currentAccount.config.mnemonic) {
+          const seed = await mnemonicToSeed(currentAccount.config.mnemonic);
+          const root = bip32.fromSeed(seed, currentBitcoinNetwork);
 
-        psbt.signAllInputsHD(root);
-        psbt.validateSignaturesOfAllInputs();
-        psbt.finalizeAllInputs();
+          psbt.signAllInputsHD(root);
+          psbt.validateSignaturesOfAllInputs();
+          psbt.finalizeAllInputs();
 
-        setSignedDevices([currentAccount]) // this could probably have better information in it but
-        setSignedPsbts([psbt]);
+          setSignedDevices([currentAccount]) // this could probably have better information in it but
+          setSignedPsbts([psbt]);
+        }
+      } catch (e) {
+        console.log('e: ', e);
+        console.log('e.message: ', e.message);
+        setImportTxFromFileError(e.message)
       }
     }
   }

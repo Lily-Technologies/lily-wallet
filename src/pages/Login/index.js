@@ -3,17 +3,21 @@ import { useHistory } from "react-router-dom";
 import styled from 'styled-components';
 import { AddCircleOutline } from '@styled-icons/material';
 import { Upload } from '@styled-icons/boxicons-regular';
+import { Circle } from '@styled-icons/boxicons-solid';
 
-import GDriveImport from './GDriveImport';
+import GDriveImport from '../GDriveImport';
 
-import { StyledIcon, FileUploader } from '../components';
+import { StyledIcon, FileUploader, Button, Modal, Input, Spinner } from '../../components';
 
-import { GridArea } from '../components/layout';
+import { GridArea } from '../../components/layout';
 
-import { black, darkGray, white, blue, gray, offWhite } from '../utils/colors';
+import { black, darkGray, white, blue, gray, offWhite, gray300, gray400, gray500, red500, green400 } from '../../utils/colors';
 
-const Login = ({ setConfigFile }) => {
+import ConnectToNodeModal from './ConnectToNodeModal';
+
+const Login = ({ setConfigFile, setNodeConfig, nodeConfig }) => {
   const [encryptedConfigFile, setEncryptedConfigFile] = useState(null);
+  const [nodeConfigModalOpen, setNodeConfigModalOpen] = useState(false);
 
   const history = useHistory();
 
@@ -27,8 +31,23 @@ const Login = ({ setConfigFile }) => {
 
   return (
     <Wrapper>
+      <ConnectToNodeModal
+        isOpen={nodeConfigModalOpen}
+        onRequestClose={() => setNodeConfigModalOpen(false)}
+        setNodeConfig={setNodeConfig}
+      />
+      <NodeButtonContainer>
+        <NodeButton
+          background={white}
+          color={gray500}
+          onClick={() => setNodeConfigModalOpen(true)}
+        >
+          <StyledIcon as={Circle} style={{ color: green400, marginRight: '.5em' }} />
+          {nodeConfig ? "Connected to Node" : "Connected to Blockstream"}
+        </NodeButton>
+      </NodeButtonContainer>
       <MainText>
-        <LilyImage src={require('../assets/flower.svg')} />
+        <LilyImage src={require('../../assets/flower.svg')} />
         <TextContainer>
           <div>Lily Wallet</div>
           <Subtext>Load or create new account</Subtext>
@@ -58,9 +77,24 @@ const Login = ({ setConfigFile }) => {
           <SignupOptionSubtext>Create a new vault or wallet to send and receive Bitcoin</SignupOptionSubtext>
         </SignupOptionItem>
       </SignupOptionMenu>
-    </Wrapper>
+    </Wrapper >
   )
 }
+
+const NodeButtonContainer = styled.div`
+  top: 0;
+  right: 0;
+  position: absolute;
+`;
+
+const NodeButton = styled.button`
+  ${Button};
+  border: 1px solid ${gray400};
+  align-self: flex-end;
+  cursor: pointer;
+  margin: 2em;
+  font-size: 0.85em;
+`;
 
 const Wrapper = styled.div`
   text-align: center;
@@ -73,6 +107,7 @@ const Wrapper = styled.div`
   padding-top: 48px;
   padding: 1em;
   justify-content: center;
+  position: relative;
 `;
 
 const MainText = styled.div`

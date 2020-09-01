@@ -92,39 +92,43 @@ const Home = ({ config, setCurrentAccount, accountMap, historicalBitcoinPrice, c
             </ChartControlsContainer>
           </ChartInfo >
           <ResponsiveContainer width="100%" height={400}>
-            <AreaChart width={400} height={400} data={historicalBitcoinPrice.slice(currentDomain, historicalBitcoinPrice.length)}>
-              <YAxis hide={true} domain={['dataMin - 500', 'dataMax + 500']} />
-              <XAxis
-                dataKey="date"
-                tickCount={6}
-                interval={getChartInterval()} // TODO: adjust to accept 1yr, 1month, 1 week, need to use domain prop
-                tickLine={false}
-                tickFormatter={(date) => {
-                  if (currentDomain === oneMonthDomain) {
-                    return moment(date).format('MMM D')
-                  } else if (currentDomain === sixMonthDomain) {
-                    return moment(date).format('MMM D')
-                  } else {
-                    return moment(date).format('MMM YYYY')
-                  }
-                }}
-              />
-              <Area
-                type="monotone"
-                dataKey="price"
-                stroke={blue}
-                strokeWidth={2}
-                isAnimationActive={animateChart}
-                fill={lightBlue} />
-              <Tooltip
-                offset={-100}
-                cursor={false}
-                allowEscapeViewBox={{ x: true, y: true }}
-                wrapperStyle={{
-                  marginLeft: -10
-                }}
-                content={<CustomTooltip />} />
-            </AreaChart>
+            {historicalBitcoinPrice.length ? ( // if the call to get historical price fails, then set loading or filler screen
+              <AreaChart width={400} height={400} data={historicalBitcoinPrice.slice(currentDomain, historicalBitcoinPrice.length)}>
+                <YAxis hide={true} domain={['dataMin - 500', 'dataMax + 500']} />
+                <XAxis
+                  dataKey="date"
+                  tickCount={6}
+                  interval={getChartInterval()} // TODO: adjust to accept 1yr, 1month, 1 week, need to use domain prop
+                  tickLine={false}
+                  tickFormatter={(date) => {
+                    if (currentDomain === oneMonthDomain) {
+                      return moment(date).format('MMM D')
+                    } else if (currentDomain === sixMonthDomain) {
+                      return moment(date).format('MMM D')
+                    } else {
+                      return moment(date).format('MMM YYYY')
+                    }
+                  }}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="price"
+                  stroke={blue}
+                  strokeWidth={2}
+                  isAnimationActive={animateChart}
+                  fill={lightBlue} />
+                <Tooltip
+                  offset={-100}
+                  cursor={false}
+                  allowEscapeViewBox={{ x: true, y: true }}
+                  wrapperStyle={{
+                    marginLeft: -10
+                  }}
+                  content={<CustomTooltip />} />
+              </AreaChart>
+            ) : (
+                <div>Error Loading</div>
+              )}
           </ResponsiveContainer>
         </ChartContainer >
       </animated.div>

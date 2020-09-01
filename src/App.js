@@ -51,6 +51,7 @@ function App() {
   const [currentBitcoinNetwork, setCurrentBitcoinNetwork] = useState(networks.bitcoin);
   const [refresh, setRefresh] = useState(false);
   const [flyInAnimation, setInitialFlyInAnimation] = useState(true);
+  const [nodeConfig, setNodeConfig] = useState(undefined);
 
   const ConfigRequired = () => {
     const { pathname } = useLocation();
@@ -112,11 +113,17 @@ function App() {
 
   useEffect(() => {
     async function fetchHistoricalBTCPrice() {
-      const response = await window.ipcRenderer.invoke('/historical-btc-price');
-      setHistoricalBitcoinPrice(response);
+      try {
+        const response = await window.ipcRenderer.invoke('/historical-btc-price');
+        setHistoricalBitcoinPrice(response);
+      } catch (e) {
+        console.log('Error retrieving historical bitcoin price')
+      }
     }
     fetchHistoricalBTCPrice();
   }, []);
+
+  console.log('config: ', config);
 
   // fetch/build account data from config file
   useEffect(() => {
@@ -130,7 +137,7 @@ function App() {
           transactions: [],
           loading: true
         })
-        window.ipcRenderer.send('/account-data', { config: config.wallets[i] })
+        window.ipcRenderer.send('/account-data', { config: config.wallets[i], nodeConfig }) // TODO: allow setting nodeConfig to be dynamic later
       }
 
       for (let i = 0; i < config.vaults.length; i++) {
@@ -140,12 +147,19 @@ function App() {
           transactions: [],
           loading: true
         })
-        window.ipcRenderer.send('/account-data', { config: config.vaults[i] })
+        window.ipcRenderer.send('/account-data', { config: config.vaults[i], nodeConfig }) // TODO: allow setting nodeConfig to be dynamic later
       }
 
       window.ipcRenderer.on('/account-data', (event, ...args) => {
-        updateAccountMap(args[0]);
         const accountInfo = args[0];
+        if (nodeConfig) {
+          accountInfo.nodeConfig = {
+            ...nodeConfig,
+            wallet: accountInfo.config.name,
+          };
+        }
+        console.log('accountInfo: ', accountInfo);
+        updateAccountMap(args[0]);
         accountMap.set(accountInfo.config.id, {
           ...accountInfo,
           loading: false
@@ -186,7 +200,7 @@ function App() {
           <Route path="/receive" component={() => <Receive config={config} currentAccount={currentAccount} setCurrentAccount={setCurrentAccountFromMap} currentBitcoinPrice={currentBitcoinPrice} />} />
           <Route path="/send" component={() => <Send config={config} currentAccount={currentAccount} setCurrentAccount={setCurrentAccountFromMap} toggleRefresh={toggleRefresh} currentBitcoinPrice={currentBitcoinPrice} currentBitcoinNetwork={currentBitcoinNetwork} />} />
           <Route path="/setup" component={() => <Setup config={config} setConfigFile={setConfigFile} currentBitcoinNetwork={currentBitcoinNetwork} />} />
-          <Route path="/login" component={() => <Login setConfigFile={setConfigFile} />} />
+          <Route path="/login" component={() => <Login setConfigFile={setConfigFile} setNodeConfig={setNodeConfig} nodeConfig={nodeConfig} />} />
           <Route path="/settings" component={() => <Settings config={config} currentBitcoinNetwork={currentBitcoinNetwork} changeCurrentBitcoinNetwork={changeCurrentBitcoinNetwork} />} />
           <Route path="/gdrive-import" component={() => <GDriveImport setConfigFile={setConfigFile} />} />
           <Route path="/coldcard-import-instructions" component={() => <ColdcardImportInstructions />} />
