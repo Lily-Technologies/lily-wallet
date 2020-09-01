@@ -72,9 +72,8 @@ const CreateWallet = ({
             <div>
               <SetupHeader>Connect Devices to Computer</SetupHeader>
               <SetupExplainerText>
-                Devices unlocked and connected to your computer will appear here. Click on them to include them in your vault.
-                You may disconnect a device from your computer after it has been imported.
-                  </SetupExplainerText>
+                Devices unlocked and connected to your computer will appear here. Click on them to import and manage their funds with Lily.
+              </SetupExplainerText>
             </div>
             {/* <ConnectHWWButton htmlFor="localConfigFile" background={white} color={darkGray}>Import from File</ConnectHWWButton> */}
           </SetupHeaderWrapper>

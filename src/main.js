@@ -4,9 +4,11 @@ const { app, BrowserWindow, ipcMain } = require('electron');
 const { networks } = require('bitcoinjs-lib');
 const BigNumber = require('bignumber.js');
 const { download } = require('electron-dl');
+const Client = require('bitcoin-core');
+const { bitcoinsToSatoshis } = require("unchained-bitcoin");
 
 const { enumerate, getXPub, signtx, promptpin, sendpin } = require('./server/commands');
-const { getDataFromMultisig, getDataFromXPub } = require('./utils/transactions');
+const { getDataFromMultisig, getDataFromXPub, getMultisigDescriptor } = require('./utils/transactions');
 
 const path = require('path');
 
@@ -31,9 +33,9 @@ function createWindow() {
   mainWindow.maximize();
 
   // load production url
-  mainWindow.loadURL(`file://${__dirname}/../build/index.html`);
+  // mainWindow.loadURL(`file://${__dirname}/../build/index.html`);
   // load dev url
-  // mainWindow.loadURL(`http://localhost:3001/`);
+  mainWindow.loadURL(`http://localhost:3001/`);
 
   // Open the DevTools.
   // mainWindow.webContents.openDevTools();
@@ -80,14 +82,67 @@ app.on('activate', function () {
 });
 
 ipcMain.on('/account-data', async (event, args) => {
-  const { config } = args;
+  const { config, nodeConfig } = args;
   const currentBitcoinNetwork = networks.bitcoin;
   let addresses, changeAddresses, transactions, unusedAddresses, unusedChangeAddresses, availableUtxos;
+  let nodeClient = undefined;
+  if (nodeConfig) {
+    const nodeClient = new Client({
+      // wallet: config.name,
+      username: nodeConfig.username,
+      password: nodeConfig.password,
+      version: '0.20.0'
+    });
+
+    const walletList = await nodeClient.listWallets();
+    console.log('walletList: ', walletList);
+
+    if (!walletList.includes(config.name)) {
+      try {
+        const walletResp = await nodeClient.loadWallet({ filename: config.name });
+        console.log('walletResp: ', walletResp);
+      } catch (e) { // if failed to load wallet, then probably doesnt exist so let's create one and import
+        console.log('hits catch: ', e);
+        await nodeClient.createWallet({ wallet_name: config.name });
+        console.log('after createWallet: ', config)
+        if (config.quorum.totalSigners === 1) {
+          for (let i = 0; i < 1000; i++) {
+            const receiveAddress = getAddressFromAccount(config, `m/0/${i}`, currentBitcoinNetwork)
+            const changeAddress = getAddressFromAccount(config, `m/1/${i}`, currentBitcoinNetwork)
+
+            await client.importAddress({
+              address: receiveAddress,
+              rescan: false
+            });
+
+            await client.importAddress({
+              address: changeAddress,
+              rescan: i === 999 ? true : false
+            });
+
+          }
+
+        } else { // multisig
+          //  import receive addresses
+          await client.importMulti({
+            desc: getMultisigDescriptor(nodeClient, config.quorum.requiredSigners, config.extendedPublicKeys, true),
+            range: [0, 1000]
+          });
+
+          // import change
+          await client.importMulti({
+            desc: getMultisigDescriptor(nodeClient, config.quorum.requiredSigners, config.extendedPublicKeys, false),
+            range: [0, 1000]
+          });
+        }
+      }
+    }
+  }
 
   if (config.quorum.totalSigners > 1) {
-    [addresses, changeAddresses, transactions, unusedAddresses, unusedChangeAddresses, availableUtxos] = await getDataFromMultisig(config, currentBitcoinNetwork);
+    [addresses, changeAddresses, transactions, unusedAddresses, unusedChangeAddresses, availableUtxos] = await getDataFromMultisig(config, nodeClient, currentBitcoinNetwork);
   } else {
-    [addresses, changeAddresses, transactions, unusedAddresses, unusedChangeAddresses, availableUtxos] = await getDataFromXPub(config, currentBitcoinNetwork);
+    [addresses, changeAddresses, transactions, unusedAddresses, unusedChangeAddresses, availableUtxos] = await getDataFromXPub(config, nodeClient, currentBitcoinNetwork);
   }
 
   const currentBalance = availableUtxos.reduce((accum, utxo) => accum.plus(utxo.value), BigNumber(0));
@@ -165,4 +220,44 @@ ipcMain.handle('/sendpin', async (event, args) => {
     return Promise.reject(new Error('Error sending pin'));
   }
   return Promise.resolve(resp);
+});
+
+ipcMain.handle('/estimateFee', async (event, args) => {
+  const { nodeConfig, targetBlocks } = args;
+
+  const nodeClient = new Client(nodeConfig);
+
+  try {
+    const { feerate } = await nodeClient.estimateSmartFee(targetBlocks);
+    const feeAdjusted = BigNumber(feerate).multipliedBy(100000).integerValue(BigNumber.ROUND_CEIL).toNumber(); // TODO: this probably needs relooked at
+    return Promise.resolve(feeAdjusted);
+  } catch (e) {
+    return Promise.reject(new Error('Error retrieving fee'));
+  }
+});
+
+ipcMain.handle('/broadcastTx', async (event, args) => {
+  const { nodeConfig, txHex } = args;
+  try {
+    const nodeClient = new Client(nodeConfig);
+    const resp = await nodeClient.sendRawTransaction(txHex);
+    console.log('resp: ', resp);
+    return Promise.resolve(resp);
+  } catch (e) {
+    return Promise.reject(new Error('Error broadcasting transaction'));
+  }
+});
+
+ipcMain.handle('/check-node-connection', async (event, args) => {
+  const { nodeConfig } = args;
+  console.log('nodeConfig: ', nodeConfig);
+  try {
+    const nodeClient = new Client(nodeConfig);
+    console.log('nodeClient: ', nodeClient);
+    const resp = await nodeClient.upTime();
+    console.log('resp: ', resp);
+    return Promise.resolve(resp);
+  } catch (e) {
+    return Promise.reject(new Error('Error connecting to node'));
+  }
 });

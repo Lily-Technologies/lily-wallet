@@ -1,4 +1,5 @@
 export * from './Button';
+export * from './Input';
 export * from './StyledIcon';
 export * from './DeviceSelect';
 export * from './Sidebar';
@@ -13,5 +14,6 @@ export * from './Transition';
 export * from './Dropdown';
 export * from './DividerWithText';
 export * from './PromptPinModal';
+export * from './Spinner';
 
 export * from './layout';

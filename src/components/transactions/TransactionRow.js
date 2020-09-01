@@ -9,7 +9,6 @@ import { white, offWhite, green, gray, lightBlue } from '../../utils/colors';
 
 const TransactionRow = ({ transaction, flat }) => {
   const [isOpen, setIsOpen] = useState(false);
-
   return (
     <TransactionRowWrapper flat={flat}>
       <TransactionRowContainer flat={flat} isOpen={isOpen} onClick={() => { !flat && setIsOpen(!isOpen) }}>
