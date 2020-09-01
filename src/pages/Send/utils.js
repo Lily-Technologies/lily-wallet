@@ -30,7 +30,7 @@ export const validateAddress = (recipientAddress) => {
 export const createUtxoMapFromUtxoArray = (utxosArray) => {
   const utxoMap = new Map();
   utxosArray.forEach((utxo) => {
-    utxoMap.set(utxo.txid, utxo)
+    utxoMap.set(`${utxo.txid}:${utxo.vout}`, utxo)
   });
   return utxoMap
 }

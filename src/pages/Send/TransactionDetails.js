@@ -279,7 +279,7 @@ const TransactionDetails = ({
             <MoreDetailsHeader>Inputs</MoreDetailsHeader>
             {finalPsbt.__CACHE.__TX.ins.map(input => {
               const inputBuffer = cloneBuffer(input.hash);
-              const utxo = utxosMap.get(inputBuffer.reverse().toString('hex'));
+              const utxo = utxosMap.get(`${inputBuffer.reverse().toString('hex')}:${input.index}`);
               return (
                 <OutputItem>
                   <OutputAddress>{utxo.address.address}</OutputAddress>

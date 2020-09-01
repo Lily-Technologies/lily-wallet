@@ -90,7 +90,7 @@ const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, curren
         for (let i = 0; i < tx.__CACHE.__TX.ins.length; i++) {
           const currentInput = tx.__CACHE.__TX.ins[i];
           const inputBuffer = cloneBuffer(currentInput.hash);
-          const currentUtxo = utxosMap.get(inputBuffer.reverse().toString('hex'));
+          const currentUtxo = utxosMap.get(`${inputBuffer.reverse().toString('hex')}:${currentInput.index}`);
           if (!currentUtxo) {
             throw new Error('This transaction isn\'t associated with this wallet')
           };
