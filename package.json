@@ -92,8 +92,7 @@
     "styled-components": "^5.1.0",
     "styled-icons": "^10.2.1",
     "unchained-bitcoin": "0.0.9",
-    "uuid": "^8.0.0",
-    "yargs": "^15.4.1"
+    "uuid": "^8.0.0"
   },
   "browserslist": {
     "production": [
@@ -108,7 +107,7 @@
     ]
   },
   "devDependencies": {
-    "electron": "^9.2.1",
+    "electron": "^9.0.0",
     "electron-builder": "^22.7.0",
     "electron-installer-dmg": "^3.0.0",
     "electron-packager": "^14.2.1",

@@ -4,14 +4,13 @@ const { app, BrowserWindow, ipcMain } = require('electron');
 const { networks } = require('bitcoinjs-lib');
 const BigNumber = require('bignumber.js');
 const { download } = require('electron-dl');
-const {argv} = require('yargs')
 
 const { enumerate, getXPub, signtx, promptpin, sendpin } = require('./server/commands');
 const { getDataFromMultisig, getDataFromXPub } = require('./utils/transactions');
 
 const path = require('path');
 
-const currentBitcoinNetwork = argv.testnet ? networks.testnet : networks.bitcoin;
+const currentBitcoinNetwork = 'TESTNET' in process.env ? networks.testnet : networks.bitcoin;
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -33,7 +32,7 @@ function createWindow() {
 
   mainWindow.maximize();
 
-  if (argv.devurl) {
+  if ('DEVURL' in process.env) {
     // load dev url
     mainWindow.loadURL(`http://localhost:3001/`);
   } else {

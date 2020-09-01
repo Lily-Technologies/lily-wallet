@@ -7,11 +7,13 @@
             "name": "Electron: Main",
             "protocol": "inspector",
             "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron",
+            "env": {
+                "DEVURL": "true",
+                "TESTNET": "true"
+            },
             "runtimeArgs": [
                 "${workspaceRoot}/src/main.js",
                 "--remote-debugging-port=9223",
-                "--devurl",
-                "--testnet"
             ],
             "windows": {
                 "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron.cmd"
