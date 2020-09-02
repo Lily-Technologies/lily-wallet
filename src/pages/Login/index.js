@@ -11,7 +11,7 @@ import { StyledIcon, FileUploader, Button, Modal, Input, Spinner } from '../../c
 
 import { GridArea } from '../../components/layout';
 
-import { black, darkGray, white, blue, gray, offWhite, gray300, gray400, gray500, red500, green400 } from '../../utils/colors';
+import { black, darkGray, white, blue, gray, offWhite, gray300, gray400, gray700, gray900, red500, green400 } from '../../utils/colors';
 
 import ConnectToNodeModal from './ConnectToNodeModal';
 
@@ -39,7 +39,7 @@ const Login = ({ setConfigFile, setNodeConfig, nodeConfig }) => {
       <NodeButtonContainer>
         <NodeButton
           background={white}
-          color={gray500}
+          color={gray700}
           onClick={() => setNodeConfigModalOpen(true)}
         >
           <StyledIcon as={Circle} style={{ color: green400, marginRight: '.5em' }} />
@@ -64,14 +64,20 @@ const Login = ({ setConfigFile, setNodeConfig, nodeConfig }) => {
 
       <SignupOptionMenu>
         <LabelOverlay htmlFor="localConfigFile">
-          <SignupOptionItem style={{ borderTop: `8px solid ${blue}` }}>
+          <SignupOptionItem
+            background={white}
+            color={gray900}
+            style={{ borderTop: `8px solid ${blue}` }}>
             <StyledIcon as={Upload} size={48} style={{ marginBottom: '0.5em' }} />
             <SignupOptionMainText>Load Wallet</SignupOptionMainText>
             <SignupOptionSubtext>Load an existing configuration from a file on your local machine</SignupOptionSubtext>
           </SignupOptionItem>
         </LabelOverlay>
 
-        <SignupOptionItem onClick={() => history.push('setup')}>
+        <SignupOptionItem
+          background={white}
+          color={gray900}
+          onClick={() => history.push('setup')}>
           <StyledIcon as={AddCircleOutline} size={48} style={{ marginBottom: '0.5em' }} />
           <SignupOptionMainText>New Account</SignupOptionMainText>
           <SignupOptionSubtext>Create a new vault or wallet to send and receive Bitcoin</SignupOptionSubtext>
@@ -161,10 +167,12 @@ const SignupOptionSubtext = styled.div`
   margin-top: 0.5em;
   color: ${darkGray};
   padding: 0 5em;
+  line-height: 1.5em;
+  white-space: normal;
 `;
 
 const SignupOptionItem = styled.div`
-  background: ${white};
+  ${Button}
   border: 1px solid ${gray};
   width: 100%;
   display: flex;
@@ -176,11 +184,6 @@ const SignupOptionItem = styled.div`
   align-items: center;
   justify-content: center;
   font-size: 1.5em;
-
-  &:hover {
-    background: ${offWhite};
-    cursor: pointer;
-  }
 `;
 
 export default Login;
