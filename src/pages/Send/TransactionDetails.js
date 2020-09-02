@@ -20,10 +20,12 @@ import { cloneBuffer } from '../../utils/other';
 import { bitcoinNetworkEqual } from '../../utils/transactions';
 import { StyledIcon, Button, SidewaysShake, Dropdown, Modal } from '../../components';
 
-import { gray, blue, darkGray, white, darkOffWhite, green, darkGreen, lightGray, red, lightRed, lightBlue, offWhite } from '../../utils/colors';
+import { gray, blue, darkGray, white, darkOffWhite, green, darkGreen, lightGray, red, lightRed, orange, lightOrange, lightBlue, offWhite } from '../../utils/colors';
 import { downloadFile, formatFilename, combinePsbts } from '../../utils/files';
 import { getFeeForMultisig, createUtxoMapFromUtxoArray } from './utils';
 import { AddressDisplayWrapper, Input, InputStaticText } from './styles';
+
+const ABSURD_FEE = 1000000; // 0.01 BTC
 
 const TransactionDetails = ({
   finalPsbt,
@@ -297,6 +299,7 @@ const TransactionDetails = ({
       </MainTxData>
       <div>
         <TransactionFeeField>Transaction Fee: <span>{satoshisToBitcoins(feeEstimate).toNumber()} BTC (${satoshisToBitcoins(feeEstimate).multipliedBy(currentBitcoinPrice).toFixed(2)})</span></TransactionFeeField>
+        { feeEstimate >= ABSURD_FEE && <WarningBox>Warning: transaction fee is very high</WarningBox> }
       </div>
     </Fragment>
   )
@@ -578,6 +581,14 @@ const ErrorBox = styled.div`
   background: ${lightRed};
   color: ${red};
   border: 1px solid ${red};
+  margin: 1.5em 0;
+`;
+
+const WarningBox = styled.div`
+  padding: 1.5em;
+  background: ${lightOrange};
+  color: ${orange};
+  border: 1px solid ${orange};
   margin: 1.5em 0;
 `;
 
