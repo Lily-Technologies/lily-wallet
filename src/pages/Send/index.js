@@ -50,7 +50,23 @@ const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, curren
     setFinalPsbt(psbt);
     setFeeEstimate(fee);
     setFeeRates(feeRates);
+    signTransactionIfSingleSigner(psbt);
     return psbt
+  }
+
+  const signTransactionIfSingleSigner = async (psbt) => {
+    // if only single sign, then sign tx right away
+    if (currentAccount.config.mnemonic) {
+      const seed = await mnemonicToSeed(currentAccount.config.mnemonic);
+      const root = bip32.fromSeed(seed, currentBitcoinNetwork);
+
+      psbt.signAllInputsHD(root);
+      psbt.validateSignaturesOfAllInputs();
+      psbt.finalizeAllInputs();
+
+      setSignedDevices([currentAccount]) // this could probably have better information in it but
+      setSignedPsbts([psbt]);
+    }
   }
 
   const importTxFromFile = (file) => {
@@ -158,19 +174,6 @@ const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, curren
       const psbt = await createTransactionAndSetState(undefined);
 
       setStep(1);
-
-      // if only single sign, then sign tx right away
-      if (currentAccount.config.mnemonic) {
-        const seed = await mnemonicToSeed(currentAccount.config.mnemonic);
-        const root = bip32.fromSeed(seed, currentBitcoinNetwork);
-
-        psbt.signAllInputsHD(root);
-        psbt.validateSignaturesOfAllInputs();
-        psbt.finalizeAllInputs();
-
-        setSignedDevices([currentAccount]) // this could probably have better information in it but
-        setSignedPsbts([psbt]);
-      }
     }
   }
 

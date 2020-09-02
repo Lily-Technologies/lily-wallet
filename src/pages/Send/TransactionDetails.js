@@ -126,7 +126,7 @@ const TransactionDetails = ({
       }
     ];
 
-    if (!signedDevices.length) {
+    if (!signedDevices.length || currentAccount.config.mnemonic) {
       dropdownItems.unshift(
         { label: 'Adjust Fee', onClick: () => { openInModal(<FeeSelector />) } }
       )
@@ -139,7 +139,7 @@ const TransactionDetails = ({
       );
     }
 
-    if (!signedDevices.length) {
+    if (!signedDevices.length || currentAccount.config.mnemonic) {
       dropdownItems.unshift(
         { label: 'Edit Transaction', onClick: () => setStep(0) }
       )
