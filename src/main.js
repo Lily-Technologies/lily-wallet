@@ -201,7 +201,9 @@ ipcMain.handle('/xpub', async (event, args) => {
 
 ipcMain.handle('/sign', async (event, args) => {
   const { deviceType, devicePath, psbt } = args;
+  console.log('psbt: ', psbt);
   const resp = JSON.parse(await signtx(deviceType, devicePath, psbt));
+  console.log('resp: ', resp);
   if (resp.error) {
     return Promise.reject(new Error('Error signing transaction'));
   }

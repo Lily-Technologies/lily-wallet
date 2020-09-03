@@ -11,7 +11,7 @@ import axios from 'axios';
 import BigNumber from 'bignumber.js';
 import { networks } from 'bitcoinjs-lib';
 
-import { offWhite } from './utils/colors';
+import { offWhite, blue600, white } from './utils/colors';
 import { mobile } from './utils/media';
 
 import { Sidebar, MobileNavbar, ErrorBoundary } from './components';
@@ -52,6 +52,7 @@ function App() {
   const [refresh, setRefresh] = useState(false);
   const [flyInAnimation, setInitialFlyInAnimation] = useState(true);
   const [nodeConfig, setNodeConfig] = useState(undefined);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   const ConfigRequired = () => {
     const { pathname } = useLocation();
@@ -191,10 +192,12 @@ function App() {
     // <ErrorBoundary>
     <Router>
       <PageWrapper id="page-wrapper">
+        <DraggableTitleBar />
         <ScrollToTop />
         <ConfigRequired />
         {!config.isEmpty && <Sidebar config={config} setCurrentAccount={setCurrentAccountFromMap} flyInAnimation={flyInAnimation} />}
-        {!config.isEmpty && <MobileNavbar config={config} setCurrentAccount={setCurrentAccountFromMap} />}
+        {!config.isEmpty && <MobileNavbar mobileNavOpen={mobileNavOpen} setMobileNavOpen={setMobileNavOpen} config={config} setCurrentAccount={setCurrentAccountFromMap} />}
+        {!config.isEmpty && <MobileNavbarOpenButton onClick={() => setMobileNavOpen(true)}>open</MobileNavbarOpenButton>}
         <Switch>
           <Route path="/vault/:id" component={() => <Vault config={config} setConfigFile={setConfigFile} toggleRefresh={toggleRefresh} currentAccount={currentAccount} setCurrentAccount={setCurrentAccountFromMap} currentBitcoinNetwork={currentBitcoinNetwork} currentBitcoinPrice={currentBitcoinPrice} />} />
           <Route path="/receive" component={() => <Receive config={config} currentAccount={currentAccount} setCurrentAccount={setCurrentAccountFromMap} currentBitcoinPrice={currentBitcoinPrice} />} />
@@ -215,6 +218,24 @@ function App() {
     // </ErrorBoundary>
   );
 }
+
+const DraggableTitleBar = styled.div`
+  position: fixed;
+  background: ${white};
+  -webkit-user-select: none;
+  -webkit-app-region: drag;
+  height: 2.5rem;
+  width: 100%;
+  z-index: 10;
+`;
+
+const MobileNavbarOpenButton = styled.button`
+  display: none;
+  
+  ${mobile(css`
+    display: flex;
+  `)};
+`;
 
 const PageWrapper = styled.div`
   height: 100%;

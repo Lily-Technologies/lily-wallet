@@ -18,6 +18,10 @@ export const NavLinks = ({ config, setCurrentAccount, loading }) => {
 
   return (
     <Fragment>
+      <WalletTitle>
+        <LilyImage src={require('../assets/flower.svg')} />
+        <WalletTitleText>Lily Wallet</WalletTitleText>
+      </WalletTitle>
       <SidebarItem active={pathname === '/'} to="/" loading={false}>
         <StyledIcon as={Home} size={24} style={{ marginRight: '.65rem' }} />
           Home
@@ -85,6 +89,32 @@ export const NavLinks = ({ config, setCurrentAccount, loading }) => {
   )
 }
 
+const WalletTitleText = styled.span`
+  margin-left: 0.15em;
+  margin-top: 0.25em;
+`;
+
+const LilyImage = styled.img`
+  width: 36px;
+  height: 36px;
+  margin-right: .25em;
+`;
+
+const WalletsHeader = styled.h3`
+  color: ${lightBlack};
+  margin: 1.125em;
+  font-size: 1.125em;
+  font-weight: 100;
+`;
+
+const WalletTitle = styled(WalletsHeader)`
+  display: flex;
+  align-items: center;
+  padding: 2.5em 0.5em 1.5em;
+  font-weight: 700;
+  margin: 0;
+`;
+
 const IconSvg = styled.svg`
   color: #869198;
   width: 1.25rem;
@@ -111,13 +141,6 @@ const SidebarItemStyle = css`
   display: flex;
   align-items: center;
 
-  ${mobile(css`
-    border-left: none;
-    border-top: ${ p => p.active ? `solid 0.6875em ${blue}` : 'none'};
-    margin-top: ${ p => p.active ? `solid 0.6875em ${blue}` : 'none'};
-    align-items: center;
-  `)};
-
   &:hover {
     background: ${offWhite};
   }
@@ -133,11 +156,4 @@ const SidebarItemLink = styled(Link)`
   text-decoration: none;
   cursor: ${p => p.loading ? 'wait' : 'pointer'};
   pointer-events: ${p => p.loading ? 'none' : 'auto'};
-`;
-
-const WalletsHeader = styled.h3`
-  color: ${lightBlack};
-  margin: 2.125em 1.125em .25em;
-  font-size: 1em;
-  font-weight: 100;
 `;

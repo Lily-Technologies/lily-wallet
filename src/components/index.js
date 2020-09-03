@@ -15,5 +15,6 @@ export * from './Dropdown';
 export * from './DividerWithText';
 export * from './PromptPinModal';
 export * from './Spinner';
+export * from './NavLinks';
 
 export * from './layout';

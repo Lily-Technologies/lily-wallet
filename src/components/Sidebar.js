@@ -19,10 +19,6 @@ export const Sidebar = ({ config, setCurrentAccount, loading, flyInAnimation }) 
         <SidebarPlaceholder></SidebarPlaceholder>
         <SidebarWrapperAnimated style={{ ...sidebarAnimationProps }}>
           <SidebarContainer>
-            <WalletTitle>
-              <LilyImage src={require('../assets/flower.svg')} />
-              <WalletTitleText>Lily Wallet</WalletTitleText>
-            </WalletTitle>
             <NavLinks config={config} setCurrentAccount={setCurrentAccount} loading={loading} />
             <FooterPositionWrapper>
               <FooterWrapper>
@@ -67,32 +63,6 @@ const SidebarContainer = styled.div`
   height: 100%;
   width: 12em;
   background: ${white};
-`;
-
-const WalletsHeader = styled.h3`
-  color: ${lightBlack};
-  margin: 1.125em;
-  font-size: 1.125em;
-  font-weight: 100;
-`;
-
-const WalletTitle = styled(WalletsHeader)`
-  display: flex;
-  align-items: center;
-  padding: 2.5em 0.5em 1.5em;
-  font-weight: 700;
-  margin: 0;
-`;
-
-const WalletTitleText = styled.span`
-  margin-left: 0.15em;
-  margin-top: 0.25em;
-`;
-
-const LilyImage = styled.img`
-  width: 36px;
-  height: 36px;
-  margin-right: .25em;
 `;
 
 const FooterWrapper = styled.div`
