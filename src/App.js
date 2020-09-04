@@ -13,6 +13,7 @@ import { networks } from 'bitcoinjs-lib';
 
 import { offWhite } from './utils/colors';
 import { mobile } from './utils/media';
+import { bitcoinNetworkEqual } from './utils/transactions';
 
 import { Sidebar, MobileNavbar, ErrorBoundary } from './components';
 
@@ -82,7 +83,7 @@ function App() {
   }
 
   const changeCurrentBitcoinNetwork = () => {
-    if (currentBitcoinNetwork === networks.bitcoin) {
+    if (bitcoinNetworkEqual(currentBitcoinNetwork, networks.bitcoin)) {
       setCurrentBitcoinNetwork(networks.testnet);
     } else {
       setCurrentBitcoinNetwork(networks.bitcoin)
@@ -93,6 +94,14 @@ function App() {
   useEffect(() => {
     prevSetFlyInAnimation.current = flyInAnimation;
   })
+
+  useEffect(() => {
+    async function fetchBitcoinNetwork() {
+      const bitcoinNetwork = await window.ipcRenderer.invoke('/bitcoin-network');
+      setCurrentBitcoinNetwork(bitcoinNetwork);
+    }
+    fetchBitcoinNetwork();
+  }, []);
 
   useEffect(() => {
     if (!config.isEmpty) {
@@ -179,14 +188,14 @@ function App() {
       <PageWrapper id="page-wrapper">
         <ScrollToTop />
         <ConfigRequired />
-        {!config.isEmpty && <Sidebar config={config} setCurrentAccount={setCurrentAccountFromMap} flyInAnimation={flyInAnimation} />}
-        {!config.isEmpty && <MobileNavbar config={config} setCurrentAccount={setCurrentAccountFromMap} />}
+        {!config.isEmpty && <Sidebar config={config} setCurrentAccount={setCurrentAccountFromMap} flyInAnimation={flyInAnimation} currentBitcoinNetwork={currentBitcoinNetwork} />}
+        {!config.isEmpty && <MobileNavbar config={config} setCurrentAccount={setCurrentAccountFromMap} currentBitcoinNetwork={currentBitcoinNetwork} />}
         <Switch>
           <Route path="/vault/:id" component={() => <Vault config={config} setConfigFile={setConfigFile} toggleRefresh={toggleRefresh} currentAccount={currentAccount} setCurrentAccount={setCurrentAccountFromMap} currentBitcoinNetwork={currentBitcoinNetwork} currentBitcoinPrice={currentBitcoinPrice} />} />
           <Route path="/receive" component={() => <Receive config={config} currentAccount={currentAccount} setCurrentAccount={setCurrentAccountFromMap} currentBitcoinPrice={currentBitcoinPrice} />} />
           <Route path="/send" component={() => <Send config={config} currentAccount={currentAccount} setCurrentAccount={setCurrentAccountFromMap} toggleRefresh={toggleRefresh} currentBitcoinPrice={currentBitcoinPrice} currentBitcoinNetwork={currentBitcoinNetwork} />} />
           <Route path="/setup" component={() => <Setup config={config} setConfigFile={setConfigFile} currentBitcoinNetwork={currentBitcoinNetwork} />} />
-          <Route path="/login" component={() => <Login setConfigFile={setConfigFile} />} />
+          <Route path="/login" component={() => <Login setConfigFile={setConfigFile} currentBitcoinNetwork={currentBitcoinNetwork} />} />
           <Route path="/settings" component={() => <Settings config={config} currentBitcoinNetwork={currentBitcoinNetwork} changeCurrentBitcoinNetwork={changeCurrentBitcoinNetwork} />} />
           <Route path="/gdrive-import" component={() => <GDriveImport setConfigFile={setConfigFile} />} />
           <Route path="/coldcard-import-instructions" component={() => <ColdcardImportInstructions />} />

@@ -1,7 +1,6 @@
 import React, { useState, Fragment } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
-import moment from 'moment';
 import { ArrowIosForwardOutline } from '@styled-icons/evaicons-outline';
 import { CheckCircle } from '@styled-icons/material';
 import { useHistory } from "react-router-dom";
@@ -10,17 +9,19 @@ import coinSelect from 'coinselect';
 
 import {
   blockExplorerAPIURL,
+  blockExplorerTransactionURL,
   satoshisToBitcoins,
   bitcoinsToSatoshis
 } from "unchained-bitcoin";
 
-import { address, Psbt } from 'bitcoinjs-lib';
+import { address, Psbt, networks } from 'bitcoinjs-lib';
 
 import { cloneBuffer } from '../../utils/other';
+import { bitcoinNetworkEqual } from '../../utils/transactions';
 import { StyledIcon, Button, SidewaysShake, Dropdown, Modal } from '../../components';
 
 import { gray, blue, darkGray, white, darkOffWhite, green, darkGreen, lightGray, red, lightRed, lightBlue, offWhite } from '../../utils/colors';
-import { downloadFile, combinePsbts } from '../../utils/files';
+import { downloadFile, formatFilename, combinePsbts } from '../../utils/files';
 import { getFeeForMultisig, createUtxoMapFromUtxoArray } from './utils';
 
 const TransactionDetails = ({
@@ -61,6 +62,14 @@ const TransactionDetails = ({
     setModalContent(null);
   }
 
+  const getUnchainedNetworkFromBjslibNetwork = (bitcoinJslibNetwork) => {
+    if (bitcoinNetworkEqual(bitcoinJslibNetwork, networks.bitcoin)) {
+      return 'mainnet';
+    } else {
+      return 'testnet';
+    }
+  }
+
   const broadcastTransaction = async () => {
     if (signedDevices.length === signThreshold) {
       try {
@@ -69,7 +78,7 @@ const TransactionDetails = ({
 
           combinedPsbt.finalizeAllInputs();
 
-          const { data } = await axios.get(blockExplorerAPIURL(`/broadcast?tx=${combinedPsbt.extractTransaction().toHex()}`, currentBitcoinNetwork));
+          const { data } = await axios.get(blockExplorerAPIURL(`/broadcast?tx=${combinedPsbt.extractTransaction().toHex()}`, getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)));
           setBroadcastedTxId(data);
           setModalIsOpen(true);
           setModalContent(<TransactionSuccess broadcastedTxId={data} />);
@@ -83,7 +92,7 @@ const TransactionDetails = ({
             broadcastPsbt = signedPsbts[0];
           }
 
-          const { data } = await axios.get(blockExplorerAPIURL(`/broadcast?tx=${broadcastPsbt.extractTransaction().toHex()}`, currentBitcoinNetwork));
+          const { data } = await axios.get(blockExplorerAPIURL(`/broadcast?tx=${broadcastPsbt.extractTransaction().toHex()}`, getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)));
           setBroadcastedTxId(data);
           setModalIsOpen(true);
           setModalContent(<TransactionSuccess broadcastedTxId={data} />);
@@ -101,7 +110,7 @@ const TransactionDetails = ({
   const downloadPsbt = () => {
     const combinedPsbt = combinePsbts(finalPsbt, signedPsbts);
     const psbtForDownload = new Blob([combinedPsbt.toBase64()]);
-    downloadFile(psbtForDownload, `tx-${moment().format('MMDDYY-hhmmss')}.psbt`);
+    downloadFile(psbtForDownload, formatFilename('tx', currentBitcoinNetwork, 'psbt'));
   }
 
   const TransactionOptionsDropdown = () => {
@@ -258,7 +267,7 @@ const TransactionDetails = ({
           <StyledIcon as={CheckCircle} size={100} />
         </IconWrapper>
         <ModalSubtext>Your transaction has been broadcast.</ModalSubtext>
-        <ViewTransactionButton color={white} background={green} href={`https://blockstream.info/tx/${broadcastedTxId}`} target="_blank">View Transaction</ViewTransactionButton>
+        <ViewTransactionButton color={white} background={green} href={blockExplorerTransactionURL(broadcastedTxId, getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork))} target="_blank">View Transaction</ViewTransactionButton>
       </ModalBody>
     </Fragment>
   )

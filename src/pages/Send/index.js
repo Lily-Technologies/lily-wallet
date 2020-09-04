@@ -6,7 +6,7 @@ import BigNumber from 'bignumber.js';
 import { mnemonicToSeed } from 'bip39';
 import { satoshisToBitcoins } from "unchained-bitcoin";
 
-import { Psbt, bip32 } from 'bitcoinjs-lib';
+import { Psbt, bip32, networks } from 'bitcoinjs-lib';
 
 import { StyledIcon, Button, PageWrapper, GridArea, PageTitle, Header, HeaderRight, HeaderLeft, Loading, FileUploader, Modal, Dropdown } from '../../components';
 import RecentTransactions from '../../components/transactions/RecentTransactions';
@@ -18,6 +18,7 @@ import { red, gray, blue, darkGray, white, darkOffWhite, lightGray, lightBlue } 
 import { mobile } from '../../utils/media';
 import { cloneBuffer, bufferToHex } from '../../utils/other';
 import { combinePsbts } from '../../utils/files';
+import { bitcoinNetworkEqual } from '../../utils/transactions';
 
 import { createTransaction, validateAddress, createUtxoMapFromUtxoArray, getFee } from './utils'
 
@@ -137,11 +138,11 @@ const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, curren
   }
 
   const validateAndCreateTransaction = async () => {
-    if (!validateAddress(recipientAddress)) {
+    if (!validateAddress(recipientAddress, currentBitcoinNetwork)) {
       setRecipientAddressError(true);
     }
 
-    if (validateAddress(recipientAddress) && recipientAddressError) {
+    if (validateAddress(recipientAddress, currentBitcoinNetwork) && recipientAddressError) {
       setRecipientAddressError(false);
     }
 
@@ -153,7 +154,7 @@ const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, curren
       setSendAmountError(false)
     }
 
-    if (validateAddress(recipientAddress) && sendAmount && satoshisToBitcoins(BigNumber(feeEstimate).plus(currentBalance)).isGreaterThan(sendAmount)) {
+    if (validateAddress(recipientAddress, currentBitcoinNetwork) && sendAmount && satoshisToBitcoins(BigNumber(feeEstimate).plus(currentBalance)).isGreaterThan(sendAmount)) {
       const psbt = await createTransactionAndSetState(undefined);
 
       setStep(1);
@@ -293,7 +294,9 @@ const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, curren
                   <Input
                     onChange={(e) => setRecipientAddress(e.target.value)}
                     value={recipientAddress}
-                    placeholder="bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4"
+                    placeholder={bitcoinNetworkEqual(currentBitcoinNetwork, networks.testnet) ?
+                      "tb1q4h5xd5wsalmes2496y8dtphc609rt0un3gl69r" :
+                      "bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4"}
                     style={{ marginBottom: 36 }}
                     error={recipientAddressError}
                   />

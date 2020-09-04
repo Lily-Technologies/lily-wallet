@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { AES } from 'crypto-js';
-import moment from 'moment';
 
 import bs58check from 'bs58check';
 import { generateMnemonic } from "bip39";
 
-import { createMultisigConfigFile, createSinglesigConfigFile, createSinglesigHWWConfigFile, createColdCardBlob, downloadFile } from '../../utils/files';
+import { createMultisigConfigFile, createSinglesigConfigFile, createSinglesigHWWConfigFile, createColdCardBlob, downloadFile, formatFilename } from '../../utils/files';
 import { black } from '../../utils/colors';
+import { getMultisigDeriationPathForNetwork, getP2shDeriationPathForNetwork } from '../../utils/transactions';
 
 import StepGroups from './Steps';
 import PageHeader from './PageHeader';
@@ -47,7 +47,7 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
       const response = await window.ipcRenderer.invoke('/xpub', {
         deviceType: device.type,
         devicePath: device.path,
-        path: `m/48'/0'/0'/2'` // we are assuming BIP48 P2WSH wallet
+        path: getMultisigDeriationPathForNetwork(currentBitcoinNetwork) // we are assuming BIP48 P2WSH wallet
       });
 
       setImportedDevices([...importedDevices, { ...device, ...response }]);
@@ -71,7 +71,7 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
       const response = await window.ipcRenderer.invoke('/xpub', {
         deviceType: device.type,
         devicePath: device.path,
-        path: `m/49'/0'/0'` // we are assuming BIP48 P2WSH wallet
+        path: getP2shDeriationPathForNetwork(currentBitcoinNetwork) // we are assuming BIP48 P2WSH wallet
       });
 
       setImportedDevices([...importedDevices, { ...device, ...response }]);
@@ -154,7 +154,7 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
     );
     downloadFile(
       encryptedConfigFile,
-      `lily_wallet_config-${moment().format('MMDDYY-hhmmss')}.txt`
+      formatFilename('lily_wallet_config', currentBitcoinNetwork, 'txt')
     );
 
     setConfigFile(configObject);
@@ -163,16 +163,16 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
   const exportSetupFilesMultisig = async () => {
     const contentType = "text/plain;charset=utf-8;";
 
-    const ccFile = createColdCardBlob(configRequiredSigners, importedDevices.length, accountName, importedDevices);
+    const ccFile = createColdCardBlob(configRequiredSigners, importedDevices.length, accountName, importedDevices, currentBitcoinNetwork);
     const configObject = createMultisigConfigFile(importedDevices, configRequiredSigners, accountName, config, currentBitcoinNetwork);
     const encryptedConfigObject = AES.encrypt(JSON.stringify(configObject), password).toString();
     const encryptedConfigFile = new Blob([decodeURIComponent(encodeURI(encryptedConfigObject))], { type: contentType });
 
-    downloadFile(ccFile, `${accountName}-lily-coldcard-file-${moment().format('MMDDYYYY')}.txt`);
+    downloadFile(ccFile, formatFilename(`${accountName}-lily-coldcard-file`, currentBitcoinNetwork, 'txt'));
     // KBC-TODO: electron-dl bug requires us to wait for the first file to finish downloading before downloading the second
     // this should be fixed somehow
     setTimeout(() => {
-      downloadFile(encryptedConfigFile, `lily_wallet_config-${moment().format('MMDDYY-hhmmss')}.txt`)
+      downloadFile(encryptedConfigFile, formatFilename('lily_wallet_config', currentBitcoinNetwork, 'txt'))
     }, 500);
     setConfigFile(configObject);
   }

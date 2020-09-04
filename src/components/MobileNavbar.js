@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import styled, { css } from 'styled-components';
 import { KeyboardArrowDown } from '@styled-icons/material';
+import { networks } from 'bitcoinjs-lib';
 
 import { NavLinks } from './NavLinks';
 
 import { white, darkGray, lightBlack, lightGray } from '../utils/colors';
 import rem from '../utils/rem';
 import { mobile } from '../utils/media';
+import { bitcoinNetworkEqual } from '../utils/transactions';
 
 const HEADER_HEIGHT = 125;
 
@@ -72,6 +74,13 @@ const LilyImage = styled.img`
   margin-right: .25em;
 `;
 
+const LilyImageGray = styled.img`
+  width: 36px;
+  height: 36px;
+  margin-right: .25em;
+  filter: grayscale(100%);
+`;
+
 const WalletsHeader = styled.h3`
   color: ${lightBlack};
   margin: 1.125em;
@@ -88,7 +97,7 @@ const WalletTitle = styled(WalletsHeader)`
   // border-bottom: 0.0625em solid ${lightGray};
 `;
 
-export const MobileNavbar = ({ config, setCurrentAccount }) => {
+export const MobileNavbar = ({ config, setCurrentAccount, currentBitcoinNetwork }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -100,9 +109,15 @@ export const MobileNavbar = ({ config, setCurrentAccount }) => {
       )} */}
 
       <WalletTitle>
-        <LilyImage src={require('../assets/flower.svg')} />
-          Lily Wallet
-          </WalletTitle>
+        { bitcoinNetworkEqual(currentBitcoinNetwork, networks.testnet) ?
+          <LilyImageGray src={require('../assets/flower.svg')} /> :
+          <LilyImage src={require('../assets/flower.svg')} />
+        }
+        Lily Wallet
+        { bitcoinNetworkEqual(currentBitcoinNetwork, networks.testnet) &&
+            ' (testnet)'
+        }
+      </WalletTitle>
       <div>
         {/* <div onClick={onSearchButtonClick}>
           <StyledIcon as={Search} size={28} />
