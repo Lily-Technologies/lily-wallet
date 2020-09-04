@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
-import { Button, Modal, Input, Spinner } from '../../components';
+import { Button, Modal, Input, Spinner } from '.';
 
-import { black, darkGray, white, blue, gray, offWhite, gray300, red500 } from '../../utils/colors';
+import { black, darkGray, white, blue, gray, offWhite, gray300, red500 } from '../utils/colors';
 
-const ConnectToNodeModal = ({
+export const ConnectToNodeModal = ({
   isOpen,
   onRequestClose,
   setNodeConfig
@@ -110,5 +110,3 @@ const InputsWrapper = styled.div`
 const ErrorText = styled.div`
   color: ${red500};
 `;
-
-export default ConnectToNodeModal;

@@ -3,7 +3,6 @@ import { useHistory } from "react-router-dom";
 import styled from 'styled-components';
 import { AddCircleOutline } from '@styled-icons/material';
 import { Upload } from '@styled-icons/boxicons-regular';
-import { Circle } from '@styled-icons/boxicons-solid';
 
 import GDriveImport from '../GDriveImport';
 
@@ -13,11 +12,8 @@ import { GridArea } from '../../components/layout';
 
 import { black, darkGray, white, blue, gray, offWhite, gray300, gray400, gray700, gray900, red500, green400 } from '../../utils/colors';
 
-import ConnectToNodeModal from './ConnectToNodeModal';
-
 const Login = ({ setConfigFile, setNodeConfig, nodeConfig }) => {
   const [encryptedConfigFile, setEncryptedConfigFile] = useState(null);
-  const [nodeConfigModalOpen, setNodeConfigModalOpen] = useState(false);
 
   const history = useHistory();
 
@@ -31,21 +27,6 @@ const Login = ({ setConfigFile, setNodeConfig, nodeConfig }) => {
 
   return (
     <Wrapper>
-      <ConnectToNodeModal
-        isOpen={nodeConfigModalOpen}
-        onRequestClose={() => setNodeConfigModalOpen(false)}
-        setNodeConfig={setNodeConfig}
-      />
-      <NodeButtonContainer>
-        <NodeButton
-          background={white}
-          color={gray700}
-          onClick={() => setNodeConfigModalOpen(true)}
-        >
-          <StyledIcon as={Circle} style={{ color: green400, marginRight: '.5em' }} />
-          {nodeConfig ? "Connected to Node" : "Connected to Blockstream"}
-        </NodeButton>
-      </NodeButtonContainer>
       <MainText>
         <LilyImage src={require('../../assets/flower.svg')} />
         <TextContainer>
@@ -86,21 +67,6 @@ const Login = ({ setConfigFile, setNodeConfig, nodeConfig }) => {
     </Wrapper >
   )
 }
-
-const NodeButtonContainer = styled.div`
-  top: 0;
-  right: 0;
-  position: absolute;
-`;
-
-const NodeButton = styled.button`
-  ${Button};
-  border: 1px solid ${gray400};
-  align-self: flex-end;
-  cursor: pointer;
-  margin: 2em;
-  font-size: 0.85em;
-`;
 
 const Wrapper = styled.div`
   text-align: center;

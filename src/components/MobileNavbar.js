@@ -1,10 +1,11 @@
 import React, { useState, Fragment } from 'react';
 import styled, { css } from 'styled-components';
 import { KeyboardArrowDown } from '@styled-icons/material';
+import { CloseOutline } from '@styled-icons/evaicons-outline';
 
-import { NavLinks, Transition, Sidebar, Button } from '.';
+import { NavLinks, Transition, Sidebar, Button, StyledIcon } from '.';
 
-import { white, darkGray, lightBlack, lightGray, gray600, black } from '../utils/colors';
+import { white, darkGray, lightBlack, lightGray, gray600, gray800, black } from '../utils/colors';
 import rem from '../utils/rem';
 import { mobile } from '../utils/media';
 
@@ -46,18 +47,16 @@ export const MobileNavbar = ({ config, setCurrentAccount, mobileNavOpen, setMobi
       >
         <SomeContainer>
           <SidebarContainer>
-            <NavLinks config={config} setCurrentAccount={setCurrentAccount} loading={false} />
+            <NavLinks config={config} setCurrentAccount={setCurrentAccount} setMobileNavOpen={setMobileNavOpen} />
+            <CloseButtonContainer>
+              <CloseButton background="transparent" onClick={() => setMobileNavOpen(false)}>
+                <StyledIcon as={CloseOutline} size={36} />
+              </CloseButton>
+            </CloseButtonContainer>
           </SidebarContainer>
-          <CloseButtonContainer>
-            <CloseButton background="transparent" onClick={() => setMobileNavOpen(false)}>
-              <SVGXImage viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-              </SVGXImage>
-            </CloseButton>
-          </CloseButtonContainer>
         </SomeContainer>
       </Transition>
-    </Wrapper >
+    </Wrapper>
   );
 };
 
@@ -67,24 +66,28 @@ const SidebarContainer = styled.div`
   width: 12em;
   background: ${white};
   z-index: 100;
+  padding-top: 1em;
 `;
 
 const CloseButton = styled.button`
   ${Button}
+  width: 3rem;
+  height: 3rem;
+  padding: 0;
 `;
 
 const CloseButtonContainer = styled.div`
   display: none;
   overflow: hidden;
-  height: 100vh;
+  // height: 100vh;
   z-index: 50;
   ${mobile(css`
     display: flex;
-    // align-items: center;
-    // justify-content: space-between;
-    // height: ${rem(HEADER_HEIGHT)};
-    // border-bottom: 1px solid ${darkGray};
-    // background: ${white};
+    margin-right: -3.5em;
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: .25rem;
   `)};
 `;
 
@@ -121,7 +124,7 @@ const BackgroundOverlay = styled.div`
   right: 0;
   left: 0;
   opacity: 0.75;
-  background: ${gray600};
+  background: ${gray800};
 `;
 
 export default MobileNavbar;

@@ -16,5 +16,7 @@ export * from './DividerWithText';
 export * from './PromptPinModal';
 export * from './Spinner';
 export * from './NavLinks';
+export * from './TitleBar';
+export * from './ConnectToNodeModal';
 
 export * from './layout';

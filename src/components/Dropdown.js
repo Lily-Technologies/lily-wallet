@@ -24,10 +24,11 @@ import { white } from '../utils/colors';
 
 export const Dropdown = ({ isOpen, setIsOpen, buttonLabel, dropdownItems, minimal, style }) => {
   return (
-    <DropdownWrapper style={style}>
+    <DropdownWrapper>
       <div>
         {minimal ? (
           <MinimalDropdownButtonContainer
+            style={style}
             onClick={() => setIsOpen(!isOpen)}
             aria-label="Options" id="options-menu"
             aria-haspopup="true" aria-expanded={isOpen}>
@@ -38,6 +39,7 @@ export const Dropdown = ({ isOpen, setIsOpen, buttonLabel, dropdownItems, minima
         ) : (
             <DropdownButtonContainer>
               <DropdownButton
+                style={style}
                 onClick={() => setIsOpen(!isOpen)}
                 type="button"
                 id="options-menu"
@@ -45,9 +47,9 @@ export const Dropdown = ({ isOpen, setIsOpen, buttonLabel, dropdownItems, minima
                 fill="currentColor"
                 aria-expanded={isOpen}>
                 {buttonLabel}
-                <DownArrowIcon fill="currentColor" viewBox="0 0 20 20">
+                {/* <DownArrowIcon style={style} fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                </DownArrowIcon>
+                </DownArrowIcon> */}
               </DropdownButton>
             </DropdownButtonContainer>
           )}
@@ -89,6 +91,7 @@ const DropdownWrapper = styled.div`
 const DropdownButtonContainer = styled.span`
   box-shadow: 0 1px 2px 0 rgba(0,0,0,.05);
   border-radius: .375rem;
+  cursor: pointer;
 `;
 
 const MinimalDropdownButtonContainer = styled.button`
@@ -123,10 +126,11 @@ const DropdownButton = styled.button`
   font-weight: 500;
   justify-content: center;
   display: inline-flex;
-  border-width: 1px;
+  // border-width: 1px;
   border-radius: .375rem;
-  border-color: rgb(210,214,220);
+  // border-color: rgb(210,214,220);
   background: ${white};
+  cursor: pointer;
 
   &:active {
     color: rgb(37,47,63);

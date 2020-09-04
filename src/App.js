@@ -14,7 +14,7 @@ import { networks } from 'bitcoinjs-lib';
 import { offWhite, blue600, white } from './utils/colors';
 import { mobile } from './utils/media';
 
-import { Sidebar, MobileNavbar, ErrorBoundary } from './components';
+import { Sidebar, MobileNavbar, ErrorBoundary, TitleBar } from './components';
 
 // Pages
 import Login from './pages/Login';
@@ -43,8 +43,6 @@ const emptyConfig = {
 function App() {
   const [currentBitcoinPrice, setCurrentBitcoinPrice] = useState(BigNumber(0));
   const [historicalBitcoinPrice, setHistoricalBitcoinPrice] = useState({});
-  // const [config, setConfigFile] = useState(configFixture);
-  // const [currentAccount, setCurrentAccount] = useState({ config: config.vaults[0] });
   const [config, setConfigFile] = useState(emptyConfig);
   const [currentAccount, setCurrentAccount] = useState({ name: 'Loading...', loading: true });
   const [accountMap, setAccountMap] = useState(new Map());
@@ -191,13 +189,12 @@ function App() {
   return (
     // <ErrorBoundary>
     <Router>
+      <TitleBar setNodeConfig={setNodeConfig} nodeConfig={nodeConfig} setMobileNavOpen={setMobileNavOpen} config={config} />
       <PageWrapper id="page-wrapper">
-        <DraggableTitleBar />
         <ScrollToTop />
         <ConfigRequired />
         {!config.isEmpty && <Sidebar config={config} setCurrentAccount={setCurrentAccountFromMap} flyInAnimation={flyInAnimation} />}
         {!config.isEmpty && <MobileNavbar mobileNavOpen={mobileNavOpen} setMobileNavOpen={setMobileNavOpen} config={config} setCurrentAccount={setCurrentAccountFromMap} />}
-        {!config.isEmpty && <MobileNavbarOpenButton onClick={() => setMobileNavOpen(true)}>open</MobileNavbarOpenButton>}
         <Switch>
           <Route path="/vault/:id" component={() => <Vault config={config} setConfigFile={setConfigFile} toggleRefresh={toggleRefresh} currentAccount={currentAccount} setCurrentAccount={setCurrentAccountFromMap} currentBitcoinNetwork={currentBitcoinNetwork} currentBitcoinPrice={currentBitcoinPrice} />} />
           <Route path="/receive" component={() => <Receive config={config} currentAccount={currentAccount} setCurrentAccount={setCurrentAccountFromMap} currentBitcoinPrice={currentBitcoinPrice} />} />
@@ -219,16 +216,6 @@ function App() {
   );
 }
 
-const DraggableTitleBar = styled.div`
-  position: fixed;
-  background: ${white};
-  -webkit-user-select: none;
-  -webkit-app-region: drag;
-  height: 2.5rem;
-  width: 100%;
-  z-index: 10;
-`;
-
 const MobileNavbarOpenButton = styled.button`
   display: none;
   
@@ -240,6 +227,7 @@ const MobileNavbarOpenButton = styled.button`
 const PageWrapper = styled.div`
   height: 100%;
   display: flex;
+  margin-top: 2.5rem;;
   font-family: 'Raleway', sans-serif;
   flex: 1;
   background: ${offWhite};

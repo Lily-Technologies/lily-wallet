@@ -97,6 +97,7 @@ const SignupOptionItem = styled.div`
   margin: 0.25em 0;
   font-size: 1.5em;
   text-align: center;
+  white-space: normal;
 `;
 
 export default SelectAccountScreen

@@ -139,17 +139,15 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
 }
 
 const Wrapper = styled.div`
-  // padding: 1em;
   text-align: left;
   font-family: 'Montserrat', sans-serif;
   color: ${ black};
-  // margin-top: -1px;
   align-items: center;
   display: flex;
   flex: 1;
   justify-content: ${ p => p.step === 0 ? 'center' : 'flex-start'};
   flex-direction: column;
-  // padding-top: 50px;
+  padding: 0 3em;
   `;
 
 export default Setup;

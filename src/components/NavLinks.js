@@ -13,7 +13,7 @@ import { blue, white, offWhite, darkGray, darkOffWhite, lightBlue, lightBlack, g
 import { mobile } from '../utils/media';
 
 
-export const NavLinks = ({ config, setCurrentAccount, loading }) => {
+export const NavLinks = ({ config, setCurrentAccount }) => {
   const { pathname } = useLocation();
 
   return (
@@ -26,15 +26,15 @@ export const NavLinks = ({ config, setCurrentAccount, loading }) => {
         <StyledIcon as={Home} size={24} style={{ marginRight: '.65rem' }} />
           Home
         </SidebarItem>
-      <SidebarItemLink active={pathname === '/send'} to="/send" loading={loading}>
+      <SidebarItemLink active={pathname === '/send'} to="/send">
         <StyledIcon as={SendPlane} size={24} style={{ marginRight: '.65rem' }} />
           Send
         </SidebarItemLink>
-      <SidebarItemLink active={pathname === '/receive'} to="/receive" loading={loading}>
+      <SidebarItemLink active={pathname === '/receive'} to="/receive">
         <StyledIcon as={VerticalAlignBottom} size={24} style={{ marginRight: '.65rem' }} />
             Receive
         </SidebarItemLink>
-      <SidebarItemLink active={pathname === '/settings'} to="/settings" loading={loading}>
+      <SidebarItemLink active={pathname === '/settings'} to="/settings">
         <StyledIcon as={Settings} size={24} style={{ marginRight: '.65rem' }} />
             Settings
         </SidebarItemLink>
@@ -50,7 +50,6 @@ export const NavLinks = ({ config, setCurrentAccount, loading }) => {
                 setCurrentAccount(wallet.id);
               }}
               to={`/vault/${wallet.id}`}
-              loading={loading}
             >
               {wallet.mnemonic ? (
                 <IconSvg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 1118 8zm-6-4a1 1 0 100 2 2 2 0 012 2 1 1 0 102 0 4 4 0 00-4-4z" clip-rule="evenodd"></path></IconSvg>
@@ -70,7 +69,6 @@ export const NavLinks = ({ config, setCurrentAccount, loading }) => {
                 setCurrentAccount(vault.id);
               }}
               to={`/vault/${vault.id}`}
-              loading={loading}
             >
               <IconSvg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10.496 2.132a1 1 0 00-.992 0l-7 4A1 1 0 003 8v7a1 1 0 100 2h14a1 1 0 100-2V8a1 1 0 00.496-1.868l-7-4zM6 9a1 1 0 00-1 1v3a1 1 0 102 0v-3a1 1 0 00-1-1zm3 1a1 1 0 012 0v3a1 1 0 11-2 0v-3zm5-1a1 1 0 00-1 1v3a1 1 0 102 0v-3a1 1 0 00-1-1z" clip-rule="evenodd"></path></IconSvg>
               {vault.name}</SidebarItemLink>
@@ -110,7 +108,7 @@ const WalletsHeader = styled.h3`
 const WalletTitle = styled(WalletsHeader)`
   display: flex;
   align-items: center;
-  padding: 2.5em 0.5em 1.5em;
+  padding: 1.5em 0.5em 1.5em;
   font-weight: 700;
   margin: 0;
 `;
@@ -154,6 +152,5 @@ const SidebarItem = styled(Link)`
 const SidebarItemLink = styled(Link)`
   ${SidebarItemStyle};
   text-decoration: none;
-  cursor: ${p => p.loading ? 'wait' : 'pointer'};
   pointer-events: ${p => p.loading ? 'none' : 'auto'};
 `;

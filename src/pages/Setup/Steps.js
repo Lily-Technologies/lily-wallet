@@ -66,7 +66,7 @@ const StepsGroup = styled.div`
   border-radius: 0.375em;
   border: 1px solid ${gray300};
   align-items: stretch;
-  margin-bottom: 4em;
+  margin-bottom: 2em;
 `;
 
 

@@ -20,12 +20,6 @@ export const Sidebar = ({ config, setCurrentAccount, loading, flyInAnimation }) 
         <SidebarWrapperAnimated style={{ ...sidebarAnimationProps }}>
           <SidebarContainer>
             <NavLinks config={config} setCurrentAccount={setCurrentAccount} loading={loading} />
-            <FooterPositionWrapper>
-              <FooterWrapper>
-                <ViewSourceCodeText href="https://github.com/KayBeSee/lily-wallet" target="_blank">View Source Code</ViewSourceCodeText>
-                <DontTrustVerify>Don't Trust. Verify.</DontTrustVerify>
-              </FooterWrapper>
-            </FooterPositionWrapper>
           </SidebarContainer>
         </SidebarWrapperAnimated>
       </Fragment>

@@ -22,13 +22,20 @@ function createWindow() {
     width: 800,
     height: 600,
     backgroundColor: 'rgb(245, 247, 250)',
+    transparent: true,
+    frame: false,
     // icon: path.join(__dirname, '/assets/AppIcon.icns'),
-    titleBarStyle: 'hiddenInset',
+    titleBarStyle: 'hidden',
     webPreferences: {
       nodeIntegration: false,
       preload: path.resolve(__dirname, 'preload.js')
     }
   });
+
+  mainWindow.setTrafficLightPosition && mainWindow.setTrafficLightPosition({
+    x: 10,
+    y: 20
+  })
 
   mainWindow.maximize();
 
