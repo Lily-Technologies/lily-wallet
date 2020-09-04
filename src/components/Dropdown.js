@@ -2,9 +2,11 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { Transition } from '.'
+import OutsideClick from './OutsideClick'
 
 import { white } from '../utils/colors';
 
+// https://codesandbox.io/s/outside-alerter-hooks-lmr2y?module=/src/OutsideAlerter.js&file=/src/OutsideAlerter.js
 /* 
   Example Usage
   
@@ -63,20 +65,22 @@ export const Dropdown = ({ isOpen, setIsOpen, buttonLabel, dropdownItems, minima
         leaveFrom="transform opacity-100 scale-100"
         leaveTo="transform opacity-0 scale-95"
       >
-        <DropdownItemsWrapper>
-          <DropdownItemsContainer>
-            <DropdownItems role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
-              {dropdownItems.map((item) => (
-                <DropdownItem
-                  onClick={() => {
-                    item.onClick();
-                    setIsOpen(false);
-                  }}
-                  role="menuitem">{item.label}</DropdownItem>
-              ))}
-            </DropdownItems>
-          </DropdownItemsContainer>
-        </DropdownItemsWrapper>
+        <OutsideClick onOutsideClick={() => setIsOpen(false)}>
+          <DropdownItemsWrapper>
+            <DropdownItemsContainer>
+              <DropdownItems role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
+                {dropdownItems.map((item) => (
+                  <DropdownItem
+                    onClick={() => {
+                      item.onClick();
+                      setIsOpen(false);
+                    }}
+                    role="menuitem">{item.label}</DropdownItem>
+                ))}
+              </DropdownItems>
+            </DropdownItemsContainer>
+          </DropdownItemsWrapper>
+        </OutsideClick>
       </Transition>
     </DropdownWrapper >
   )
