@@ -3,7 +3,7 @@
   "author": "Kevin Mulcrone <kaybesee@gmail.com> (https://kevinmulcrone.com)",
   "description": "Lily is the easiest way to securely store and manage your Bitcoin",
   "license": "MIT",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "main": "./src/main.js",
   "homepage": "./",

@@ -141,7 +141,7 @@ export const createTransaction = async (currentAccount, amountInBitcoins, recipi
           path: derivation.path
         }))
       })
-    } else {
+    } else if (currentAccount.config.mnemonic) {
       const prevTxHex = await getTxHex(utxo.txid, currentBitcoinNetwork);
       // KBC-TODO: eventually break this up into different functions depending on if Trezor or not, leave for now...I guess
       psbt.addInput({
@@ -152,6 +152,20 @@ export const createTransaction = async (currentAccount, amountInBitcoins, recipi
         // script: Buffer.from(transactionMap.get(utxo.txid).vout[utxo.vout].scriptpubkey, 'hex'),
         //   value: utxo.value
         // },
+        nonWitnessUtxo: Buffer.from(prevTxHex, 'hex'),
+        bip32Derivation: [{
+          masterFingerprint: Buffer.from(utxo.address.bip32derivation[0].masterFingerprint.buffer, utxo.address.bip32derivation[0].masterFingerprint.byteOffset, utxo.address.bip32derivation[0].masterFingerprint.byteLength),
+          pubkey: Buffer.from(utxo.address.bip32derivation[0].pubkey.buffer, utxo.address.bip32derivation[0].pubkey.byteOffset, utxo.address.bip32derivation[0].pubkey.byteLength),
+          path: utxo.address.bip32derivation[0].path
+        }]
+      })
+    } else {
+      const prevTxHex = await getTxHex(utxo.txid, currentBitcoinNetwork);
+      psbt.addInput({
+        hash: utxo.txid,
+        index: utxo.vout,
+        sequence: 0xffffffff,
+        redeemScript: Buffer.from(utxo.address.redeem.output.buffer, utxo.address.redeem.output.byteOffset, utxo.address.redeem.output.byteLength),
         nonWitnessUtxo: Buffer.from(prevTxHex, 'hex'),
         bip32Derivation: [{
           masterFingerprint: Buffer.from(utxo.address.bip32derivation[0].masterFingerprint.buffer, utxo.address.bip32derivation[0].masterFingerprint.byteOffset, utxo.address.bip32derivation[0].masterFingerprint.byteLength),
