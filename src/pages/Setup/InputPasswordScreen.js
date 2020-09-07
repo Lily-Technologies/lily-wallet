@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 
 import { Button } from '../../components';
@@ -7,11 +7,7 @@ import { white, gray, darkGreen, darkOffWhite, lightBlue, black } from '../../ut
 
 const InputPasswordScreen = ({ header, config, password, setPassword, setStep, setupOption }) => {
 
-  const onInputEnter = (e) => {
-    if (e.key === 'Enter') {
-      setStep(4);
-    }
-  }
+  const [confirmation, setConfirmation] = useState('');
 
   return (
     <InnerWrapper>
@@ -33,15 +29,22 @@ const InputPasswordScreen = ({ header, config, password, setPassword, setStep, s
           placeholder="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          onKeyDown={(e) => onInputEnter(e)}
           type="password" />
+      </PasswordWrapper>
+      <PasswordWrapper>
+        <PasswordInput
+          placeholder="confirmation"
+          value={confirmation}
+          onChange={(e) => setConfirmation(e.target.value)}
+          type="password"/>
       </PasswordWrapper>
       <ExportFilesButton
         background={darkGreen}
         color={white}
-        active={password.length > 3}
+        active={password.length > 3 && password === confirmation}
         onClick={() => {
-          if (password.length > 3) {
+          if (password.length > 3 && password === confirmation) {
+            setPassword(password);
             setStep(4);
           }
         }}>{'Save Vault'}</ExportFilesButton>
