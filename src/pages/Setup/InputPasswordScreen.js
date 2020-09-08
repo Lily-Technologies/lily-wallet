@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import styled from 'styled-components';
 
 import { Button } from '../../components';
@@ -16,6 +16,9 @@ const InputPasswordScreen = ({ header, config, password, setPassword, setStep, s
   const [confirmation, setConfirmation] = useState('');
   const [passwordError, setPasswordError] = useState(undefined);
   const [confirmationError, setConfirmationError] = useState(undefined);
+
+  const confirmationRef = useRef();
+  const buttonRef = useRef();
 
   const validateInput = (event, which) => {
     switch(which) {
@@ -47,6 +50,20 @@ const InputPasswordScreen = ({ header, config, password, setPassword, setStep, s
     }
   }
 
+  const onInputEnter = (event, field) => {
+    if (event.key === 'Enter') {
+      switch(field) {
+        case FIELD_PASSWORD:
+          confirmationRef.current.focus();
+          break;
+        case FIELD_CONFIRMATION:
+          buttonRef.current.focus();
+          break;
+      }
+      event.preventDefault();
+    }
+  }
+
   return (
     <InnerWrapper>
       {header}
@@ -66,19 +83,23 @@ const InputPasswordScreen = ({ header, config, password, setPassword, setStep, s
           autoFocus
           placeholder="password"
           value={password}
+          onKeyDown={(e) => onInputEnter(e, FIELD_PASSWORD)}
           onChange={(e) => validateInput(e, FIELD_PASSWORD)}
           type="password" />
         { passwordError !== undefined && <PasswordError>{passwordError}</PasswordError>}
       </PasswordWrapper>
       <PasswordWrapper>
         <PasswordInput
+          ref={confirmationRef}
           placeholder="confirmation"
           value={confirmation}
+          onKeyDown={(e) => onInputEnter(e, FIELD_CONFIRMATION)}
           onChange={(e) => validateInput(e, FIELD_CONFIRMATION)}
           type="password"/>
         { confirmationError !== undefined && <PasswordError>{confirmationError}</PasswordError>}
       </PasswordWrapper>
       <ExportFilesButton
+        ref={buttonRef}
         background={darkGreen}
         color={white}
         active={!(passwordError !== false || confirmationError !== false)}
