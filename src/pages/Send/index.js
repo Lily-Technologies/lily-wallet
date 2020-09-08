@@ -183,7 +183,7 @@ const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, curren
         </AccountMenuItemWrapper>
       ))}
       {config.wallets.map((wallet, index) => (
-        <AccountMenuItemWrapper active={wallet.id === currentAccount.config.id} borderRight={(index < config.wallets.length - 1)} onClick={() => setCurrentAccount(wallet.id)}>
+        <AccountMenuItemWrapper key={index} active={wallet.id === currentAccount.config.id} borderRight={(index < config.wallets.length - 1)} onClick={() => setCurrentAccount(wallet.id)}>
           <StyledIcon as={Wallet} size={48} />
           <AccountMenuItemName>{wallet.name}</AccountMenuItemName>
         </AccountMenuItemWrapper>
@@ -222,10 +222,10 @@ const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, curren
                 <CurrentBalanceWrapper displayDesktop={false} displayMobile={true} style={{ marginBottom: '1em' }}>
                   <CurrentBalanceText>
                     Current Balance:
-              </CurrentBalanceText>
+                  </CurrentBalanceText>
                   <CurrentBalanceValue>
                     {satoshisToBitcoins(currentBalance).toNumber()} BTC
-                </CurrentBalanceValue>
+                  </CurrentBalanceValue>
                 </CurrentBalanceWrapper>
 
                 <AccountSendContentLeft>

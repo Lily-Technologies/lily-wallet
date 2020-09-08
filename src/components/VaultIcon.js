@@ -4,7 +4,7 @@ import styled from 'styled-components';
 export const VaultIcon = ({ loading }) => {
 
   return (
-    <VaultDoorInner loading={loading}>
+    <VaultDoorInner loading={loading ? 1 : undefined}>
       {/* <VaultDoorLockShadow /> */}
       <VaultDoorLockWrapper>
         < VaultDoorCircle />
@@ -12,7 +12,7 @@ export const VaultIcon = ({ loading }) => {
           <Piston number={1} />
           <Piston number={2} />
           <Piston number={3} />
-          <piston number={4} />
+          <Piston number={4} />
         </VaultDoorPistons>
       </VaultDoorLockWrapper>
       {/* <VaultDoorHandleShadow /> */}

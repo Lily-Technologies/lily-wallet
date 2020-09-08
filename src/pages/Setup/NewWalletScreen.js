@@ -5,11 +5,9 @@ import { generateMnemonic } from "bip39";
 import { Button, MnemonicWordsDisplayer, DeviceSelect } from "../../components";
 import {
   lightBlue,
-  blue,
   white,
   darkOffWhite,
   darkGray,
-  gray,
 } from "../../utils/colors";
 import { InnerWrapper, XPubHeaderWrapper, SetupHeaderWrapper, SetupExplainerText, FormContainer, BoxedWrapper, SetupHeader } from './styles';
 

@@ -123,7 +123,7 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
       devicesFromFile.push(newDevice);
     }
     const updatedImportedDevices = [...importedDevices, ...devicesFromFile];
-    setImportedDevices([...importedDevices, ...devicesFromFile])
+    setImportedDevices(updatedImportedDevices)
   }
 
   const exportSetupFiles = async () => {
