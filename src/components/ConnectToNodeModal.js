@@ -19,7 +19,7 @@ export const ConnectToNodeModal = ({
   const configureNode = async () => {
     try {
       setIsLoading(true)
-      const response = await window.ipcRenderer.invoke('/check-node-connection', {
+      const response = await window.ipcRenderer.invoke('/changeNodeConfig', {
         nodeConfig: {
           // host: host,
           username: username,

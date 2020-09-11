@@ -64,7 +64,7 @@ const TransactionDetails = ({
   const broadcastTransaction = async (currentAccount, psbt, currentBitcoinNetwork) => {
     if (currentAccount.nodeConfig) {
       const data = await window.ipcRenderer.invoke('/broadcastTx', {
-        nodeConfig: currentAccount.nodeConfig,
+        walletName: currentAccount.name,
         txHex: psbt.extractTransaction().toHex()
       });
       return data;

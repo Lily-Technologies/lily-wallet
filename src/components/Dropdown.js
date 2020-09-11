@@ -69,14 +69,25 @@ export const Dropdown = ({ isOpen, setIsOpen, buttonLabel, dropdownItems, minima
           <DropdownItemsWrapper>
             <DropdownItemsContainer>
               <DropdownItems role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
-                {dropdownItems.map((item) => (
-                  <DropdownItem
-                    onClick={() => {
-                      item.onClick();
-                      setIsOpen(false);
-                    }}
-                    role="menuitem">{item.label}</DropdownItem>
-                ))}
+                {dropdownItems.map((item) => {
+                  if (item.label) {
+                    return (
+                      <DropdownItem
+                        clickable={!!item.onClick}
+                        onClick={() => {
+                          if (item.onClick) {
+                            item.onClick();
+                            setIsOpen(false);
+                          }
+                        }}
+                        role="menuitem">{item.label}</DropdownItem>
+                    )
+                  } else {
+                    return (
+                      <Divider />
+                    )
+                  }
+                })}
               </DropdownItems>
             </DropdownItemsContainer>
           </DropdownItemsWrapper>
@@ -159,16 +170,6 @@ const DotDotDotImage = styled.svg`
   vertical-align: middle;
 `;
 
-const DownArrowIcon = styled.svg`
-  width: 1.25rem;
-  margin-right: -.25rem;
-  margin-left: .5rem;
-  height: 1.25rem;
-  display: block;
-  vertical-align: middle;
-  color: rgb(37,47,63);
-`;
-
 const DropdownItemsWrapper = styled.div`
   transform-origin: top right;
   width: 14rem;
@@ -191,6 +192,11 @@ const DropdownItems = styled.div`
   padding-bottom: .25rem;
 `;
 
+const Divider = styled.div`
+  background: #d2d6dc;
+  height: 1px;
+`;
+
 const DropdownItem = styled.a`
   padding-left: 1rem;
   padding-right: 1rem;
@@ -201,7 +207,7 @@ const DropdownItem = styled.a`
   display: block;
   background-color: transparent;
   text-decoration: none;
-  cursor: pointer;
+  cursor: ${p => p.clickable ? 'pointer' : 'default'};
 
   &:hover {
     background: rgb(244,245,247);

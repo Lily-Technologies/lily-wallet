@@ -89,6 +89,31 @@ function App() {
     }
   }
 
+  const connectToBlockstream = async () => {
+    setNodeConfig(undefined);
+    const response = await window.ipcRenderer.invoke('/changeNodeConfig', {
+      nodeConfig: {
+        provider: 'Blockstream'
+      }
+    });
+    setNodeConfig(response)
+  }
+
+  const connectToBitcoinCore = async () => {
+    setNodeConfig(undefined);
+    const response = await window.ipcRenderer.invoke('/changeNodeConfig', {
+      nodeConfig: {
+        provider: 'Bitcoin Core'
+      }
+    });
+    setNodeConfig(response)
+  }
+
+  const getNodeConfig = async () => {
+    const response = await window.ipcRenderer.invoke('/getNodeConfig');
+    setNodeConfig(response)
+  }
+
   const prevSetFlyInAnimation = useRef();
   useEffect(() => {
     prevSetFlyInAnimation.current = flyInAnimation;
@@ -120,6 +145,18 @@ function App() {
       }
     }
     fetchHistoricalBTCPrice();
+  }, []);
+
+  useEffect(() => {
+    async function fetchNodeConfig() {
+      try {
+        const response = await window.ipcRenderer.invoke('/getNodeConfig');
+        setNodeConfig(response);
+      } catch (e) {
+        console.log(e.message)
+      }
+    }
+    fetchNodeConfig();
   }, []);
 
   console.log('config: ', config);
@@ -189,7 +226,7 @@ function App() {
   return (
     // <ErrorBoundary>
     <Router>
-      <TitleBar setNodeConfig={setNodeConfig} nodeConfig={nodeConfig} setMobileNavOpen={setMobileNavOpen} config={config} />
+      <TitleBar setNodeConfig={setNodeConfig} nodeConfig={nodeConfig} setMobileNavOpen={setMobileNavOpen} config={config} connectToBlockstream={connectToBlockstream} connectToBitcoinCore={connectToBitcoinCore} getNodeConfig={getNodeConfig} />
       <PageWrapper id="page-wrapper">
         <ScrollToTop />
         <ConfigRequired />

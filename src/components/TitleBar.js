@@ -3,15 +3,51 @@ import styled, { css } from 'styled-components';
 import { mobile } from '../utils/media';
 import { Circle } from '@styled-icons/boxicons-solid';
 import { Menu } from '@styled-icons/boxicons-regular';
+import BigNumber from 'bignumber.js';
 
-import { offWhite, blue600, blue700, blue800, white, gray400, gray700, green400 } from '../utils/colors';
+import { offWhite, blue500, blue600, blue700, blue800, white, gray400, gray700, green400, orange400, red500 } from '../utils/colors';
 
 import { ConnectToNodeModal, Button, StyledIcon, Dropdown } from '.';
 
-export const TitleBar = ({ setNodeConfig, nodeConfig, setMobileNavOpen, config }) => {
+export const TitleBar = ({ setNodeConfig, nodeConfig, setMobileNavOpen, config, connectToBlockstream, connectToBitcoinCore, getNodeConfig }) => {
+  console.log('nodeConfig: ', nodeConfig)
   const [nodeConfigModalOpen, setNodeConfigModalOpen] = useState(false);
   const [moreOptionsDropdownOpen, setMoreOptionsDropdownOpen] = useState(false);
   const [nodeOptionsDropdownOpen, setNodeOptionsDropdownOpen] = useState(false);
+
+  const refreshNodeData = async () => {
+    await getNodeConfig();
+  }
+
+  const dropdownItems = [];
+
+  dropdownItems.push({
+    label: (
+      <Fragment>
+        Status: <br />
+        {nodeConfig && nodeConfig.initialblockdownload ? `Initializing (${BigNumber(nodeConfig.verificationprogress).multipliedBy(100).toFixed(2)}%)`
+          : nodeConfig && nodeConfig.connected ? 'Connected'
+            : nodeConfig && !nodeConfig.connected ? 'Disconnected'
+              : 'Connecting...'}
+      </Fragment>
+    )
+  });
+
+  dropdownItems.push({})
+
+  if (nodeConfig && nodeConfig.blocks) {
+    dropdownItems.push({ label: `Block Height: ${nodeConfig ? nodeConfig.blocks.toLocaleString() : 'Connecting...'}` });
+  }
+
+  dropdownItems.push({ label: 'Refresh Node Info', onClick: () => { refreshNodeData() } });
+  dropdownItems.push({})
+
+  if (nodeConfig && nodeConfig.provider !== 'Bitcoin Core') {
+    dropdownItems.push({ label: 'Connect to Bitcoin Core', onClick: async () => await connectToBitcoinCore() })
+  } else {
+    dropdownItems.push({ label: 'Connect to Blockstream', onClick: async () => await connectToBlockstream() })
+  }
+  dropdownItems.push({ label: 'Connect to Custom Node', onClick: () => setNodeConfigModalOpen(true) })
 
   return (
     <DraggableTitleBar>
@@ -35,14 +71,22 @@ export const TitleBar = ({ setNodeConfig, nodeConfig, setMobileNavOpen, config }
             style={{ background: blue800, color: white, padding: '0.35em 1em', border: 'none', fontFamily: 'Montserrat, sans-serif', display: 'flex', alignItems: 'center' }}
             buttonLabel={
               <Fragment>
-                <StyledIcon as={Circle} style={{ color: green400, marginRight: '.5em' }} />
-                {nodeConfig ? "Connected to Node" : "Connected to Blockstream"}
+                {nodeConfig ? (
+                  <StyledIcon as={Circle} style={{
+                    color: (nodeConfig.initialblockdownload) ? orange400
+                      : (nodeConfig.connected) ? green400
+                        : red500, // !nodeConfig.connected
+                    marginRight: '.5em'
+                  }} />
+                ) : (
+                    <LoadingImage alt="loading placeholder" src={require('../assets/flower-loading.svg')} />
+                  )}
+                {nodeConfig && nodeConfig.connected ? `Connected: ${nodeConfig.provider}`
+                  : nodeConfig && !nodeConfig.connected ? `Disconnected: ${nodeConfig.provider}`
+                    : 'Connecting...'}
               </Fragment>
             }
-            dropdownItems={[
-              { label: 'Block Height: 164,002', onClick: () => { console.log('foobar2') } },
-              { label: 'Connect to Node', onClick: () => setNodeConfigModalOpen(true) },
-            ]}
+            dropdownItems={dropdownItems}
           >
           </Dropdown>
         </NodeButtonContainer>
@@ -66,6 +110,13 @@ export const TitleBar = ({ setNodeConfig, nodeConfig, setMobileNavOpen, config }
   )
 
 }
+
+const LoadingImage = styled.img`
+  filter: brightness(0) invert(1);
+  max-width: 1.25em;
+  margin-right: .25em;
+  opacity: 0.9;
+`;
 
 const LeftSection = styled.div`
   display: flex;
@@ -101,7 +152,7 @@ const DotDotDotContainer = styled.div`
 
 const DraggableTitleBar = styled.div`
   position: fixed;
-  background: ${blue700};
+  background: ${blue600};
   -webkit-user-select: none;
   -webkit-app-region: drag;
   height: 2.5rem;

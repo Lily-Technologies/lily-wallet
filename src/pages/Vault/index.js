@@ -61,8 +61,8 @@ const Vault = ({ config, setConfigFile, toggleRefresh, currentAccount, setCurren
           </VaultExplainerText>
         </HeaderLeft>
         <HeaderRight>
-          <SendButton to="/send"><StyledIcon as={ArrowUpward} size={24} style={{ marginRight: 4 }} />Send</SendButton>
-          <ReceiveButton to="/receive"><StyledIcon as={VerticalAlignBottom} size={24} style={{ marginRight: 4 }} />Receive</ReceiveButton>
+          <SendButton to="/send"><StyledIcon as={ArrowUpward} size={24} style={{ marginRight: '.5rem', marginLeft: '-0.25rem' }} />Send</SendButton>
+          <ReceiveButton to="/receive"><StyledIcon as={VerticalAlignBottom} size={24} style={{ marginRight: '.5rem', marginLeft: '-0.25rem' }} />Receive</ReceiveButton>
           <SettingsButton
             onClick={() => toggleRefresh()}
             color={darkGray}
@@ -121,11 +121,19 @@ const IconSvg = styled.svg`
 const SendButton = styled(Link)`
   ${Button}
   margin: 12px;
+  padding-top: 0.5em;
+  padding-bottom: 0.5em;
+  padding-left: 1em;
+  padding-right: 1em;
 `;
 
 const ReceiveButton = styled(Link)`
   ${Button}
   margin: 12px;
+  padding-top: 0.5em;
+  padding-bottom: 0.5em;
+  padding-left: 1em;
+  padding-right: 1em;
 `;
 
 const SettingsButton = styled.div`
