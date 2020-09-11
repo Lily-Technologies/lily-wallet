@@ -3,6 +3,7 @@ import { useHistory } from "react-router-dom";
 import styled from 'styled-components';
 import { AddCircleOutline } from '@styled-icons/material';
 import { Upload } from '@styled-icons/boxicons-regular';
+import { networks } from 'bitcoinjs-lib';
 
 import GDriveImport from '../GDriveImport';
 
@@ -10,9 +11,10 @@ import { StyledIcon, FileUploader, Button, Modal, Input, Spinner } from '../../c
 
 import { GridArea } from '../../components/layout';
 
-import { black, darkGray, white, blue, gray, offWhite, gray300, gray400, gray700, gray900, red500, green400 } from '../../utils/colors';
+import { black, darkGray, white, blue, gray, offWhite, gray900 } from '../../utils/colors';
+import { bitcoinNetworkEqual } from '../../utils/transactions';
 
-const Login = ({ setConfigFile, setNodeConfig, nodeConfig }) => {
+const Login = ({ setConfigFile, currentBitcoinNetwork }) => {
   const [encryptedConfigFile, setEncryptedConfigFile] = useState(null);
 
   const history = useHistory();
@@ -28,10 +30,17 @@ const Login = ({ setConfigFile, setNodeConfig, nodeConfig }) => {
   return (
     <Wrapper>
       <MainText>
-        <LilyImage src={require('../../assets/flower.svg')} />
+        {bitcoinNetworkEqual(currentBitcoinNetwork, networks.testnet) ?
+          <LilyImageGray src={require('../../assets/flower.svg')} /> :
+          <LilyImage src={require('../../assets/flower.svg')} />
+        }
         <TextContainer>
           <div>Lily Wallet</div>
-          <Subtext>Load or create new account</Subtext>
+          <Subtext>Load or create new account
+          {bitcoinNetworkEqual(currentBitcoinNetwork, networks.testnet) &&
+              ' (testnet)'
+            }
+          </Subtext>
         </TextContainer>
       </MainText>
 
@@ -112,6 +121,12 @@ const LilyImage = styled.img`
   margin-right: 12px;
 `;
 
+const LilyImageGray = styled.img`
+  width: 100px;
+  height: 100px;
+  margin-right: 12px;
+  filter: grayscale(100%);
+`;
 
 const LabelOverlay = styled.label`
   width: 100%;

@@ -6,21 +6,31 @@ import { Safe } from '@styled-icons/crypto';
 import { Wallet } from '@styled-icons/entypo';
 import { Home } from '@styled-icons/fa-solid'
 import { SendPlane } from '@styled-icons/remix-fill';
+import { networks } from 'bitcoinjs-lib';
 
 import { StyledIcon } from '.';
 
 import { blue, white, offWhite, darkGray, darkOffWhite, lightBlue, lightBlack, gray400 } from '../utils/colors';
-import { mobile } from '../utils/media';
+import { bitcoinNetworkEqual } from '../utils/transactions';
 
 
-export const NavLinks = ({ config, setCurrentAccount }) => {
+export const NavLinks = ({ config, setCurrentAccount, currentBitcoinNetwork }) => {
   const { pathname } = useLocation();
 
   return (
     <Fragment>
       <WalletTitle>
-        <LilyImage src={require('../assets/flower.svg')} />
-        <WalletTitleText>Lily Wallet</WalletTitleText>
+        {bitcoinNetworkEqual(currentBitcoinNetwork, networks.testnet) ?
+          <LilyImageGray src={require('../assets/flower.svg')} /> :
+          <LilyImage src={require('../assets/flower.svg')} />
+        }
+        <WalletTitleText>
+          Lily Wallet
+        {bitcoinNetworkEqual(currentBitcoinNetwork, networks.testnet) &&
+            ' (testnet)'
+          }
+        </WalletTitleText>
+
       </WalletTitle>
       <SidebarItem active={pathname === '/'} to="/" loading={false}>
         <StyledIcon as={Home} size={24} style={{ marginRight: '.65rem' }} />
@@ -97,6 +107,14 @@ const LilyImage = styled.img`
   height: 36px;
   margin-right: .25em;
 `;
+
+const LilyImageGray = styled.img`
+  width: 36px;
+  height: 36px;
+  margin-right: .25em;
+  filter: grayscale(100%);
+`;
+
 
 const WalletsHeader = styled.h3`
   color: ${lightBlack};

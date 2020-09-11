@@ -8,8 +8,46 @@ import { NavLinks, Transition, Sidebar, Button, StyledIcon } from '.';
 import { white, darkGray, lightBlack, lightGray, gray600, gray800, black } from '../utils/colors';
 import rem from '../utils/rem';
 import { mobile } from '../utils/media';
+import { bitcoinNetworkEqual } from '../utils/transactions';
 
-const HEADER_HEIGHT = 125;
+export const MobileNavbar = ({ config, setCurrentAccount, mobileNavOpen, setMobileNavOpen, currentBitcoinNetwork }) => (
+  <Wrapper>
+    <Transition
+      show={mobileNavOpen}
+      enter="transition ease-linear duration-300"
+      enterFrom="transform opacity-0"
+      enterTo="transform opacity-100"
+      leave="transition ease-linear duration-300"
+      leaveFrom="transform opacity-100"
+      leaveTo="transform opacity-0"
+    >
+      <BackgroundContainer onClick={() => setMobileNavOpen(false)}>
+        <BackgroundOverlay></BackgroundOverlay>
+      </BackgroundContainer>
+    </Transition>
+
+    <Transition
+      show={mobileNavOpen}
+      enter="transition ease-in-out duration-300 transform"
+      enterFrom="-translate-x-full"
+      enterTo="translate-x-0"
+      leave="transition ease-in-out duration-300 transform"
+      leaveFrom="translate-x-0"
+      leaveTo="-translate-x-full"
+    >
+      <SomeContainer>
+        <SidebarContainer>
+          <NavLinks config={config} setCurrentAccount={setCurrentAccount} setMobileNavOpen={setMobileNavOpen} currentBitcoinNetwork={currentBitcoinNetwork} />
+          <CloseButtonContainer>
+            <CloseButton background="transparent" onClick={() => setMobileNavOpen(false)}>
+              <StyledIcon as={CloseOutline} size={36} />
+            </CloseButton>
+          </CloseButtonContainer>
+        </SidebarContainer>
+      </SomeContainer>
+    </Transition>
+  </Wrapper>
+);
 
 const Wrapper = styled.div`
   display: none;
@@ -17,48 +55,6 @@ const Wrapper = styled.div`
     display: flex;
   `)}
 `;
-
-export const MobileNavbar = ({ config, setCurrentAccount, mobileNavOpen, setMobileNavOpen }) => {
-
-  return (
-    <Wrapper>
-      <Transition
-        show={mobileNavOpen}
-        enter="transition ease-linear duration-300"
-        enterFrom="transform opacity-0"
-        enterTo="transform opacity-100"
-        leave="transition ease-linear duration-300"
-        leaveFrom="transform opacity-100"
-        leaveTo="transform opacity-0"
-      >
-        <BackgroundContainer onClick={() => setMobileNavOpen(false)}>
-          <BackgroundOverlay></BackgroundOverlay>
-        </BackgroundContainer>
-      </Transition>
-
-      <Transition
-        show={mobileNavOpen}
-        enter="transition ease-in-out duration-300 transform"
-        enterFrom="-translate-x-full"
-        enterTo="translate-x-0"
-        leave="transition ease-in-out duration-300 transform"
-        leaveFrom="translate-x-0"
-        leaveTo="-translate-x-full"
-      >
-        <SomeContainer>
-          <SidebarContainer>
-            <NavLinks config={config} setCurrentAccount={setCurrentAccount} setMobileNavOpen={setMobileNavOpen} />
-            <CloseButtonContainer>
-              <CloseButton background="transparent" onClick={() => setMobileNavOpen(false)}>
-                <StyledIcon as={CloseOutline} size={36} />
-              </CloseButton>
-            </CloseButtonContainer>
-          </SidebarContainer>
-        </SomeContainer>
-      </Transition>
-    </Wrapper>
-  );
-};
 
 const SidebarContainer = styled.div`
   position: relative;

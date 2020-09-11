@@ -3,13 +3,13 @@ import styled, { css } from 'styled-components';
 import { AES } from 'crypto-js';
 import { useHistory } from "react-router-dom";
 import { QRCode } from "react-qr-svg";
-import moment from 'moment';
 
 import { MnemonicWordsDisplayer, Modal } from '../../components';
 
 import { black, gray, white, blue, darkGray, darkOffWhite, lightBlue, red, lightGray, darkGreen } from '../../utils/colors';
 import { mobile } from '../../utils/media';
-import { createColdCardBlob, downloadFile } from '../../utils/files';
+import { createColdCardBlob, downloadFile, formatFilename } from '../../utils/files';
+import { getMultisigDeriationPathForNetwork } from '../../utils/transactions';
 
 const VaultSettings = ({ config, setConfigFile, currentAccount, setViewAddresses, setViewUtxos, currentBitcoinNetwork }) => {
   const [viewXpub, setViewXpub] = useState(false);
@@ -20,8 +20,8 @@ const VaultSettings = ({ config, setConfigFile, currentAccount, setViewAddresses
   const history = useHistory();
 
   const downloadColdcardMultisigFile = () => {
-    const ccFile = createColdCardBlob(currentAccount.config.quorum.requiredSigners, currentAccount.config.quorum.totalSigners, currentAccount.config.name, currentAccount.config.extendedPublicKeys);
-    downloadFile(ccFile, `${currentAccount.config.name}-lily-coldcard-file-${moment().format('MMDDYYYY')}.txt`);
+    const ccFile = createColdCardBlob(currentAccount.config.quorum.requiredSigners, currentAccount.config.quorum.totalSigners, currentAccount.config.name, currentAccount.config.extendedPublicKeys, currentBitcoinNetwork);
+    downloadFile(ccFile, formatFilename(`${currentAccount.config.name}-lily-coldcard-file`, currentBitcoinNetwork, 'txt'));
   }
 
   const downloadCaravanFile = () => {
@@ -35,13 +35,13 @@ const VaultSettings = ({ config, setConfigFile, currentAccount, setViewAddresses
       // we need to populate the method field for caravan. if the device is of type trezor or ledger, put that in. else just put xpub.
       if (configCopy.extendedPublicKeys[i].device && (configCopy.extendedPublicKeys[i].device.type === 'trezor' || configCopy.extendedPublicKeys[i].device.type === 'ledger')) {
         configCopy.extendedPublicKeys[i].method = configCopy.extendedPublicKeys[i].device.type;
-        configCopy.extendedPublicKeys[i].bip32Path = "m/48'/0'/0'/2'"
+        configCopy.extendedPublicKeys[i].bip32Path = getMultisigDeriationPathForNetwork(currentBitcoinNetwork);
       } else {
         configCopy.extendedPublicKeys[i].method = 'xpub';
       }
     }
     const caravanFile = new Blob([JSON.stringify(configCopy)], { type: 'application/json' })
-    downloadFile(caravanFile, `${moment().format('MMDDYYYY')}-lily-caravan-file.json`);
+    downloadFile(caravanFile, formatFilename('lily-caravan-file', currentBitcoinNetwork, 'json'));
   }
 
   const getMnemonicQrCode = () => {
@@ -98,7 +98,7 @@ const VaultSettings = ({ config, setConfigFile, currentAccount, setViewAddresses
     const encryptedConfigObject = AES.encrypt(JSON.stringify(configCopy), configEncryptionPassword).toString();
     const encryptedConfigFile = new Blob([decodeURIComponent(encodeURI(encryptedConfigObject))], { type: contentType });
 
-    downloadFile(encryptedConfigFile, `lily_wallet_config-${moment().format('MMDDYY-hhmmss')}.txt`);
+    downloadFile(encryptedConfigFile, formatFilename('lily_wallet_config', currentBitcoinNetwork, 'txt'));
     setConfigFile(configCopy);
     history.push('/');
   }

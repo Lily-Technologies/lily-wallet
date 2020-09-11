@@ -2,13 +2,15 @@ import React, { Fragment } from 'react';
 import styled, { css } from 'styled-components';
 import { useLocation } from "react-router-dom";
 import { useSpring, animated } from 'react-spring';
+import { networks } from 'bitcoinjs-lib';
 
 import { NavLinks } from './NavLinks';
 
 import { black, white, gray, offWhite, darkOffWhite, lightBlack } from '../utils/colors';
 import { mobile } from '../utils/media';
+import { bitcoinNetworkEqual } from '../utils/transactions';
 
-export const Sidebar = ({ config, setCurrentAccount, loading, flyInAnimation }) => {
+export const Sidebar = ({ config, setCurrentAccount, loading, flyInAnimation, currentBitcoinNetwork }) => {
   const { pathname } = useLocation();
 
   const sidebarAnimationProps = useSpring({ transform: flyInAnimation ? 'translateX(-120%)' : 'translateX(0%)' });
@@ -19,7 +21,12 @@ export const Sidebar = ({ config, setCurrentAccount, loading, flyInAnimation }) 
         <SidebarPlaceholder></SidebarPlaceholder>
         <SidebarWrapperAnimated style={{ ...sidebarAnimationProps }}>
           <SidebarContainer>
-            <NavLinks config={config} setCurrentAccount={setCurrentAccount} loading={loading} />
+            <NavLinks
+              config={config}
+              setCurrentAccount={setCurrentAccount}
+              loading={loading}
+              currentBitcoinNetwork={currentBitcoinNetwork}
+            />
           </SidebarContainer>
         </SidebarWrapperAnimated>
       </Fragment>
@@ -57,35 +64,4 @@ const SidebarContainer = styled.div`
   height: 100%;
   width: 12em;
   background: ${white};
-`;
-
-const FooterWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background: ${offWhite};
-  padding: 1.5em;
-
-  ${mobile(css`
-    padding: 1.5em;
-    font-size: 0.75em;
-  `)};
-`;
-
-const FooterPositionWrapper = styled.div`
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-`;
-
-const ViewSourceCodeText = styled.a`
-  color: ${ black};
-  text-decoration: none;
-  cursor: pointer;
-  letter-spacing: -0.03em;
-  font-family: 'Raleway', sans-serif;
-`;
-
-const DontTrustVerify = styled.span`
-color: ${ gray};
 `;

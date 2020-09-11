@@ -4,8 +4,10 @@ import { networks, Psbt } from 'bitcoinjs-lib';
 import { bip32 } from "bitcoinjs-lib";
 import { mnemonicToSeed } from "bip39";
 
+import { bitcoinNetworkEqual, getMultisigDeriationPathForNetwork, getP2wpkhDeriationPathForNetwork } from './transactions';
+
 export const getUnchainedNetworkFromBjslibNetwork = (bitcoinJslibNetwork) => {
-  if (bitcoinJslibNetwork === networks.bitcoin) {
+  if (bitcoinNetworkEqual(bitcoinJslibNetwork, networks.bitcoin)) {
     return 'mainnet';
   } else {
     return 'testnet';
@@ -37,6 +39,14 @@ export const combinePsbts = (finalPsbt, signedPsbts) => {
   return psbt;
 }
 
+export const formatFilename = (fileContents, currentBitcoinNetwork, fileType) => {
+  if (bitcoinNetworkEqual(currentBitcoinNetwork, networks.bitcoin)) {
+    return `${fileContents}-bitcoin-${moment().format('MMDDYY-hhmmss')}.${fileType}`;
+  } else {
+    return `${fileContents}-testnet-${moment().format('MMDDYY-hhmmss')}.${fileType}`;
+  }
+}
+
 export const downloadFile = async (file, filename) => {
   try {
     const fileUrl = URL.createObjectURL(file);
@@ -53,7 +63,7 @@ export const createSinglesigConfigFile = async (walletMnemonic, accountName, con
   // taken from BlueWallet so you can import and use on mobile
   const seed = await mnemonicToSeed(walletMnemonic);
   const root = bip32.fromSeed(seed, currentBitcoinNetwork);
-  const path = "m/84'/0'/0'";
+  const path = getP2wpkhDeriationPathForNetwork(currentBitcoinNetwork);
   const child = root.derivePath(path).neutered();
   const xpubString = child.toBase58();
   const xprvString = root.derivePath(path).toBase58();
@@ -143,12 +153,13 @@ export const createMultisigConfigFile = (importedDevices, requiredSigners, accou
   return configCopy;
 }
 
-export const createColdCardBlob = (requiredSigners, totalSigners, accountName, importedDevices) => {
+export const createColdCardBlob = (requiredSigners, totalSigners, accountName, importedDevices, currentBitcoinNetwork) => {
+  let derivationPath = getMultisigDeriationPathForNetwork(currentBitcoinNetwork);
   return new Blob([`# Coldcard Multisig setup file (created by Lily Wallet on ${moment(Date.now()).format('MM/DD/YYYY')})
 #
 Name: ${accountName}
 Policy: ${requiredSigners} of ${totalSigners}
-Derivation: m/48'/0'/0'/2'
+Derivation: ${derivationPath}
 Format: P2WSH
 ${importedDevices.map((device) => (
     `\n${device.fingerprint || device.parentFingerprint}: ${device.xpub}`

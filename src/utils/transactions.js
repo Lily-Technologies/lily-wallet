@@ -8,18 +8,54 @@ const {
   bitcoinsToSatoshis
 } = require("unchained-bitcoin");
 
+
+const bitcoinNetworkEqual = (a, b) => {
+  return a.bech32 === b.bech32;
+}
+
+const getDerivationPath = (addressType, bip32Path, currentBitcoinNetwork) => {
+  const childPubKeysBip32Path = bip32Path;
+  if (addressType === 'multisig') {
+    return `${getMultisigDeriationPathForNetwork(currentBitcoinNetwork)}/${childPubKeysBip32Path.replace('m/', '')}`;
+  } else if (addressType === 'p2sh') {
+    return `${getP2shDeriationPathForNetwork(currentBitcoinNetwork)}/${childPubKeysBip32Path.replace('m/', '')}`;
+  } else { // p2wpkh
+    return `${getP2wpkhDeriationPathForNetwork(currentBitcoinNetwork)}/${childPubKeysBip32Path.replace('m/', '')}`;
+  }
+}
+
 const getMultisigDeriationPathForNetwork = (network) => {
-  if (network === networks.bitcoin) {
+  if (bitcoinNetworkEqual(network, networks.bitcoin)) {
     return "m/48'/0'/0'/2'"
-  } else if (network === networks.testnet) {
+  } else if (bitcoinNetworkEqual(network, networks.testnet)) {
     return "m/48'/1'/0'/2'"
   } else { // return mainnet by default...this should never run though
     return "m/48'/0'/0'/2'"
   }
 }
 
+const getP2shDeriationPathForNetwork = (network) => {
+  if (bitcoinNetworkEqual(network, networks.bitcoin)) {
+    return "m/49'/0'/0'"
+  } else if (bitcoinNetworkEqual(network, networks.testnet)) {
+    return "m/49'/1'/0'"
+  } else { // return mainnet by default...this should never run though
+    return "m/49'/0'/0'"
+  }
+}
+
+const getP2wpkhDeriationPathForNetwork = (network) => {
+  if (bitcoinNetworkEqual(network, networks.bitcoin)) {
+    return "m/84'/0'/0'"
+  } else if (bitcoinNetworkEqual(network, networks.testnet)) {
+    return "m/84'/1'/0'"
+  } else { // return mainnet by default...this should never run though
+    return "m/84'/0'/0'"
+  }
+}
+
 const getUnchainedNetworkFromBjslibNetwork = (bitcoinJslibNetwork) => {
-  if (bitcoinJslibNetwork === networks.bitcoin) {
+  if (bitcoinNetworkEqual(bitcoinJslibNetwork, networks.bitcoin)) {
     return 'mainnet';
   } else {
     return 'testnet';
@@ -149,14 +185,7 @@ const serializeTransactionsFromNode = async (nodeClient, transactions, addresses
 
 const getChildPubKeyFromXpub = (xpub, bip32Path, addressType, currentBitcoinNetwork) => {
   const childPubKeysBip32Path = bip32Path;
-  let bip32derivationPath;
-  if (addressType === 'multisig') {
-    bip32derivationPath = `${getMultisigDeriationPathForNetwork(currentBitcoinNetwork)}/${childPubKeysBip32Path.replace('m/', '')}`;
-  } else if (addressType === 'p2sh') {
-    bip32derivationPath = `m/49'/0'/0'/${childPubKeysBip32Path.replace('m/', '')}`;
-  } else { // p2wpkh
-    bip32derivationPath = `m/84'/0'/0'/${childPubKeysBip32Path.replace('m/', '')}`;
-  }
+  let bip32derivationPath = getDerivationPath(addressType, bip32Path, currentBitcoinNetwork);
 
   return {
     childPubKey: deriveChildPublicKey(xpub.xpub, childPubKeysBip32Path, getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)),
@@ -194,7 +223,8 @@ const getAddressFromPubKey = (childPubKey, addressType, currentBitcoinNetwork) =
   let address;
   if (addressType === 'p2sh') {
     address = payments.p2sh({
-      redeem: payments.p2wpkh({ pubkey: Buffer.from(childPubKey.childPubKey, 'hex') }),
+      redeem: payments.p2wpkh({ pubkey: Buffer.from(childPubKey.childPubKey, 'hex'), network: currentBitcoinNetwork }),
+      network: currentBitcoinNetwork
     });
   } else { // p2wpkh
     address = payments.p2wpkh({ pubkey: Buffer.from(childPubKey.childPubKey, 'hex'), network: currentBitcoinNetwork });
@@ -320,7 +350,10 @@ const getDataFromXPub = async (account, nodeClient, currentBitcoinNetwork) => {
 }
 
 module.exports = {
+  bitcoinNetworkEqual: bitcoinNetworkEqual,
   getMultisigDeriationPathForNetwork: getMultisigDeriationPathForNetwork,
+  getP2shDeriationPathForNetwork: getP2shDeriationPathForNetwork,
+  getP2wpkhDeriationPathForNetwork: getP2wpkhDeriationPathForNetwork,
   createAddressMapFromAddressArray: createAddressMapFromAddressArray,
   getDataFromMultisig: getDataFromMultisig,
   getDataFromXPub: getDataFromXPub,

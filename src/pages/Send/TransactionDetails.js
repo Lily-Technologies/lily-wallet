@@ -1,7 +1,6 @@
 import React, { useState, Fragment } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
-import moment from 'moment';
 import { ArrowIosForwardOutline } from '@styled-icons/evaicons-outline';
 import { CheckCircle } from '@styled-icons/material';
 import { useHistory } from "react-router-dom";
@@ -10,17 +9,19 @@ import coinSelect from 'coinselect';
 
 import {
   blockExplorerAPIURL,
+  blockExplorerTransactionURL,
   satoshisToBitcoins,
   bitcoinsToSatoshis
 } from "unchained-bitcoin";
 
-import { address, Psbt } from 'bitcoinjs-lib';
+import { address, Psbt, networks } from 'bitcoinjs-lib';
 
 import { cloneBuffer } from '../../utils/other';
+import { getUnchainedNetworkFromBjslibNetwork } from '../../utils/transactions';
 import { StyledIcon, Button, SidewaysShake, Dropdown, Modal } from '../../components';
 
 import { gray, blue, darkGray, white, darkOffWhite, green, darkGreen, lightGray, red, lightRed, lightBlue, offWhite } from '../../utils/colors';
-import { downloadFile, combinePsbts } from '../../utils/files';
+import { downloadFile, formatFilename, combinePsbts } from '../../utils/files';
 import { getFeeForMultisig, createUtxoMapFromUtxoArray } from './utils';
 
 const TransactionDetails = ({
@@ -62,7 +63,9 @@ const TransactionDetails = ({
   }
 
   const broadcastTransaction = async (currentAccount, psbt, currentBitcoinNetwork) => {
-    if (currentAccount.nodeConfig) {
+    console.log('psbt: ', psbt);
+    console.log('currentBitcoinNetworkxxx: ', currentBitcoinNetwork);
+    if (currentAccount.nodeConfig.provider !== 'Blockstream') {
       const data = await window.ipcRenderer.invoke('/broadcastTx', {
         walletName: currentAccount.name,
         txHex: psbt.extractTransaction().toHex()
@@ -114,7 +117,7 @@ const TransactionDetails = ({
   const downloadPsbt = () => {
     const combinedPsbt = combinePsbts(finalPsbt, signedPsbts);
     const psbtForDownload = new Blob([combinedPsbt.toBase64()]);
-    downloadFile(psbtForDownload, `tx-${moment().format('MMDDYY-hhmmss')}.psbt`);
+    downloadFile(psbtForDownload, formatFilename('tx', currentBitcoinNetwork, 'psbt'));
   }
 
   const TransactionOptionsDropdown = () => {
@@ -271,7 +274,7 @@ const TransactionDetails = ({
           <StyledIcon as={CheckCircle} size={100} />
         </IconWrapper>
         <ModalSubtext>Your transaction has been broadcast.</ModalSubtext>
-        <ViewTransactionButton color={white} background={green} href={`https://blockstream.info/tx/${broadcastedTxId}`} target="_blank">View Transaction</ViewTransactionButton>
+        <ViewTransactionButton color={white} background={green} href={blockExplorerTransactionURL(broadcastedTxId, getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork))} target="_blank">View Transaction</ViewTransactionButton>
       </ModalBody>
     </Fragment>
   )
@@ -292,7 +295,7 @@ const TransactionDetails = ({
             <MoreDetailsHeader>Inputs</MoreDetailsHeader>
             {finalPsbt.__CACHE.__TX.ins.map(input => {
               const inputBuffer = cloneBuffer(input.hash);
-              const utxo = utxosMap.get(inputBuffer.reverse().toString('hex'));
+              const utxo = utxosMap.get(`${inputBuffer.reverse().toString('hex')}:${input.index}`);
               return (
                 <OutputItem>
                   <OutputAddress>{utxo.address.address}</OutputAddress>

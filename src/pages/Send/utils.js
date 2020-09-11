@@ -12,15 +12,16 @@ import BigNumber from 'bignumber.js';
 import coinSelect from 'coinselect';
 
 import { cloneBuffer } from '../../utils/other';
+import { bitcoinNetworkEqual } from '../../utils/transactions';
 
 const getTxHex = async (txid, currentBitcoinNetwork) => {
   const txHex = await (await axios.get(blockExplorerAPIURL(`/tx/${txid}/hex`, getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)))).data;
   return txHex;
 }
 
-export const validateAddress = (recipientAddress) => {
+export const validateAddress = (recipientAddress, currentBitcoinNetwork) => {
   try {
-    address.toOutputScript(recipientAddress)
+    address.toOutputScript(recipientAddress, currentBitcoinNetwork)
     return true
   } catch (e) {
     return false
@@ -30,13 +31,13 @@ export const validateAddress = (recipientAddress) => {
 export const createUtxoMapFromUtxoArray = (utxosArray) => {
   const utxoMap = new Map();
   utxosArray.forEach((utxo) => {
-    utxoMap.set(utxo.txid, utxo)
+    utxoMap.set(`${utxo.txid}:${utxo.vout}`, utxo)
   });
   return utxoMap
 }
 
 const getUnchainedNetworkFromBjslibNetwork = (bitcoinJslibNetwork) => {
-  if (bitcoinJslibNetwork === networks.bitcoin) {
+  if (bitcoinNetworkEqual(bitcoinJslibNetwork, networks.bitcoin)) {
     return 'mainnet';
   } else {
     return 'testnet';
@@ -95,10 +96,10 @@ const getFeeFromNode = async ({ currentAccount, targetBlocks }) => {
 }
 
 export const createTransaction = async (currentAccount, amountInBitcoins, recipientAddress, desiredFee, availableUtxos, transactions, unusedChangeAddresses, currentBitcoinNetwork) => {
-  // const transactionMap = createTransactionMapFromTransactionArray(transactions);
+  const transactionMap = createTransactionMapFromTransactionArray(transactions);
   let fee;
   let feeRates;
-  if (currentAccount.nodeConfig) {
+  if (currentAccount.nodeConfig.provider !== 'Blockstream') {
     feeRates = {}; // replicate response back from bitcoinfees.earn.com
     feeRates.fastestFee = await getFeeFromNode({ currentAccount, targetBlocks: 1 });
     feeRates.halfHourFee = await getFeeFromNode({ currentAccount, targetBlocks: 3 });
@@ -158,7 +159,9 @@ export const createTransaction = async (currentAccount, amountInBitcoins, recipi
           path: derivation.path
         }))
       })
-    } else {
+    } else if (currentAccount.config.mnemonic) {
+      console.log('utxo: ', utxo);
+      console.log('transactionMap.get(utxo.txid): ', transactionMap.get(utxo.txid));
       const prevTxHex = await getTxHex(utxo.txid, currentBitcoinNetwork);
       // KBC-TODO: eventually break this up into different functions depending on if Trezor or not, leave for now...I guess
       psbt.addInput({
@@ -166,9 +169,24 @@ export const createTransaction = async (currentAccount, amountInBitcoins, recipi
         index: utxo.vout,
         sequence: 0xffffffff,
         // witnessUtxo: {
-        // script: Buffer.from(transactionMap.get(utxo.txid).vout[utxo.vout].scriptpubkey, 'hex'),
+        //   script: Buffer.from(transactionMap.get(utxo.txid).vout[utxo.vout].scriptpubkey, 'hex'),
         //   value: utxo.value
         // },
+        nonWitnessUtxo: Buffer.from(prevTxHex, 'hex'),
+        // witnessScript: Buffer.from(utxo.witnessScript),
+        bip32Derivation: [{
+          masterFingerprint: Buffer.from(utxo.address.bip32derivation[0].masterFingerprint.buffer, utxo.address.bip32derivation[0].masterFingerprint.byteOffset, utxo.address.bip32derivation[0].masterFingerprint.byteLength),
+          pubkey: Buffer.from(utxo.address.bip32derivation[0].pubkey.buffer, utxo.address.bip32derivation[0].pubkey.byteOffset, utxo.address.bip32derivation[0].pubkey.byteLength),
+          path: utxo.address.bip32derivation[0].path
+        }]
+      })
+    } else {
+      const prevTxHex = await getTxHex(utxo.txid, currentBitcoinNetwork);
+      psbt.addInput({
+        hash: utxo.txid,
+        index: utxo.vout,
+        sequence: 0xffffffff,
+        redeemScript: Buffer.from(utxo.address.redeem.output.buffer, utxo.address.redeem.output.byteOffset, utxo.address.redeem.output.byteLength),
         nonWitnessUtxo: Buffer.from(prevTxHex, 'hex'),
         bip32Derivation: [{
           masterFingerprint: Buffer.from(utxo.address.bip32derivation[0].masterFingerprint.buffer, utxo.address.bip32derivation[0].masterFingerprint.byteOffset, utxo.address.bip32derivation[0].masterFingerprint.byteLength),

@@ -6,8 +6,9 @@ import moment from 'moment';
 import bs58check from 'bs58check';
 import { generateMnemonic } from "bip39";
 
-import { createMultisigConfigFile, createSinglesigConfigFile, createSinglesigHWWConfigFile, createColdCardBlob, downloadFile, containsColdcard } from '../../utils/files';
+import { createMultisigConfigFile, createSinglesigConfigFile, createSinglesigHWWConfigFile, createColdCardBlob, downloadFile, containsColdcard, formatFilename } from '../../utils/files';
 import { black } from '../../utils/colors';
+import { getMultisigDeriationPathForNetwork, getP2shDeriationPathForNetwork } from '../../utils/transactions';
 
 import StepGroups from './Steps';
 import PageHeader from './PageHeader';
@@ -33,6 +34,7 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
     setWalletMnemonic(generateMnemonic(256));
   }, []);
 
+  document.title = `Create Files - Lily Wallet`;
 
   const exportSetupFiles = async () => {
     let configObject;
@@ -48,11 +50,22 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
       configObject = await createSinglesigHWWConfigFile(importedDevices[0], accountName, config, currentBitcoinNetwork)
     }
 
-    const encryptedConfigObject = AES.encrypt(JSON.stringify(configObject), password).toString();
-    const encryptedConfigFile = new Blob([decodeURIComponent(encodeURI(encryptedConfigObject))], { type: "text/plain;charset=utf-8;" });
-    await downloadFile(encryptedConfigFile, `lily_wallet_config-${moment().format('MMDDYY-hhmmss')}.txt`)
+    const encryptedConfigObject = AES.encrypt(
+      JSON.stringify(configObject),
+      password
+    ).toString();
+
+    const encryptedConfigFile = new Blob(
+      [decodeURIComponent(encodeURI(encryptedConfigObject))],
+      { type: "text/plain;charset=utf-8;" }
+    );
+    downloadFile(
+      encryptedConfigFile,
+      formatFilename('lily_wallet_config', currentBitcoinNetwork, 'txt')
+    );
+
     setConfigFile(configObject);
-  }
+  };
 
   const Header = (
     <PageHeader
@@ -108,6 +121,7 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
           setImportedDevices={setImportedDevices}
           setConfigRequiredSigners={setConfigRequiredSigners}
           configRequiredSigners={configRequiredSigners}
+          currentBitcoinNetwork={currentBitcoinNetwork}
         />;
       }
       break;

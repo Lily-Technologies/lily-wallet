@@ -13,6 +13,8 @@ const { getDataFromMultisig, getDataFromXPub, getMultisigDescriptor } = require(
 
 const path = require('path');
 
+const currentBitcoinNetwork = 'TESTNET' in process.env ? networks.testnet : networks.bitcoin;
+
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
@@ -42,10 +44,13 @@ function createWindow() {
 
   mainWindow.maximize();
 
-  // load production url
-  // mainWindow.loadURL(`file://${__dirname}/../build/index.html`);
-  // load dev url
-  mainWindow.loadURL(`http://localhost:3001/`);
+  if ('DEVURL' in process.env) {
+    // load dev url
+    mainWindow.loadURL(`http://localhost:3001/`);
+  } else {
+    // load production url
+    mainWindow.loadURL(`file://${__dirname}/../build/index.html`);
+  }
 
   // Open the DevTools.
   // mainWindow.webContents.openDevTools();
@@ -146,14 +151,12 @@ app.on('activate', function () {
 });
 
 ipcMain.on('/account-data', async (event, args) => {
-  const { config, nodeConfig } = args;
-  const currentBitcoinNetwork = networks.bitcoin;
+  const { config } = args;
   let addresses, changeAddresses, transactions, unusedAddresses, unusedChangeAddresses, availableUtxos;
   let nodeClient = undefined;
   try {
     if (currentNodeConfig) {
       const nodeClient = new Client({
-        // wallet: config.name,
         username: currentNodeConfig.rpcuser,
         password: currentNodeConfig.rpcpassword,
         version: '0.20.0'
@@ -239,6 +242,10 @@ ipcMain.handle('download-item', async (event, { url, filename }) => {
   } catch (e) {
     return Promise.reject(false)
   }
+});
+
+ipcMain.handle('/bitcoin-network', async (event, args) => {
+  return Promise.resolve(currentBitcoinNetwork)
 });
 
 ipcMain.handle('/historical-btc-price', async (event, args) => {

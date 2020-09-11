@@ -6,6 +6,7 @@ import { Button, DeviceSelect, FileUploader } from '../../components';
 import { InnerWrapper, XPubHeaderWrapper, SetupHeaderWrapper, SetupExplainerText, FormContainer, BoxedWrapper, SetupHeader } from './styles';
 import { darkGray, white } from '../../utils/colors';
 import { zpubToXpub } from '../../utils/other';
+import { getMultisigDeriationPathForNetwork } from '../../utils/transactions';
 
 import RequiredDevicesModal from './RequiredDevicesModal';
 
@@ -16,7 +17,8 @@ const NewVaultScreen = ({
   importedDevices,
   setImportedDevices,
   setConfigRequiredSigners,
-  configRequiredSigners
+  configRequiredSigners,
+  currentBitcoinNetwork
 }) => {
   const [selectNumberRequiredModalOpen, setSelectNumberRequiredModalOpen] = useState(false);
   const [availableDevices, setAvailableDevices] = useState([]);
@@ -27,7 +29,7 @@ const NewVaultScreen = ({
       const response = await window.ipcRenderer.invoke('/xpub', {
         deviceType: device.type,
         devicePath: device.path,
-        path: `m/48'/0'/0'/2'` // we are assuming BIP48 P2WSH wallet
+        path: getMultisigDeriationPathForNetwork(currentBitcoinNetwork) // we are assuming BIP48 P2WSH wallet
       });
 
       setImportedDevices([...importedDevices, { ...device, ...response }]);
