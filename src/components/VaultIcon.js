@@ -29,6 +29,7 @@ const VaultDoorLockWrapper = styled.div`
   position: absolute;
   width: 190px;
   height: 190px;
+  box-sizing: content-box;
 `;
 
 const VaultDoorLock = styled.div`
@@ -79,6 +80,7 @@ const VaultDoorHandle = styled.div`
   margin: 102px;
   border-radius: 50%;
   transition: all .3s ease-in-out;
+  box-sizing: content-box;
 `;
 
 // const VaultDoorOuter = styled.div`
@@ -96,6 +98,15 @@ const VaultDoorInner = styled.div`
   background: rgb(219,219,219);
   border-top-left-radius: 4px;
   border-top-right-radius: 4px;
+  box-sizing: content-box;
+
+  &:before {
+    box-sizing: content-box;
+  }
+
+  &:after {
+    box-sizing: content-box;
+  }
 
   ${VaultDoorHandle} {
     transform: ${p => p.loading && 'rotate(-180deg)'};

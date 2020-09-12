@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, Fragment } from 'react';
 import styled, { css } from 'styled-components';
 import { Safe } from '@styled-icons/crypto';
 import { Wallet } from '@styled-icons/entypo';
@@ -222,23 +222,56 @@ const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, curren
       />
       <label style={{ display: 'none' }} ref={fileUploadLabelRef} htmlFor="txFile"></label>
 
+      <Modal
+        isOpen={pastePsbtModalOpen}
+        onRequestClose={() => {
+          setPastedPsbtValue(null);
+          setImportTxFromFileError(false);
+          setPastePsbtModalOpen(false);
+        }}>
+        <ModalHeaderContainer>
+          Paste PSBT or Transaction Hex Below
+                    </ModalHeaderContainer>
+        <div style={{ padding: '1.5em' }}>
+          <PastePsbtTextArea
+            rows={20}
+            onChange={(e) => {
+              setPastedPsbtValue(e.target.value)
+            }}
+          />
+          {importTxFromFileError && <ErrorText style={{ paddingBottom: '1em' }}>{importTxFromFileError}</ErrorText>}
+          <ImportButtons>
+            <FromFileButton
+              style={{ marginRight: '1em' }}
+              onClick={() => {
+                setPastedPsbtValue(null);
+                setImportTxFromFileError(false);
+                setPastePsbtModalOpen(false);
+              }}>Cancel</FromFileButton>
+            <CopyAddressButton
+              onClick={() => {
+                importTxFromFile(pastedPsbtValue)
+              }}>Import Transaction</CopyAddressButton>
+          </ImportButtons>
+        </div>
+      </Modal>
+
       <SendWrapper>
         <SelectAccountMenu />
 
         {currentAccount.loading && <Loading itemText={'Send Information'} />}
         {!currentAccount.loading && (
-          <GridArea style={{ borderRadius: '0.375rem', alignItems: 'flex-start' }}>
-            {step === 0 && (
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <CurrentBalanceWrapper displayDesktop={false} displayMobile={true} style={{ marginBottom: '1em' }}>
-                  <CurrentBalanceText>
-                    Current Balance:
-              </CurrentBalanceText>
-                  <CurrentBalanceValue>
-                    {satoshisToBitcoins(currentBalance).toNumber()} BTC
-                </CurrentBalanceValue>
-                </CurrentBalanceWrapper>
-
+          <GridArea>
+            <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+              <CurrentBalanceWrapper displayDesktop={false} displayMobile={true} style={{ marginBottom: '1em' }}>
+                <CurrentBalanceText>
+                  Current Balance:
+                  </CurrentBalanceText>
+                <CurrentBalanceValue>
+                  {satoshisToBitcoins(currentBalance).toNumber()} BTC
+                  </CurrentBalanceValue>
+              </CurrentBalanceWrapper>
+              {step === 0 && (
                 <AccountSendContentLeft>
                   <Dropdown
                     isOpen={optionsDropdownOpen}
@@ -262,40 +295,6 @@ const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, curren
                       }
                     ]}
                   />
-
-                  <Modal
-                    isOpen={pastePsbtModalOpen}
-                    onRequestClose={() => {
-                      setPastedPsbtValue(null);
-                      setImportTxFromFileError(false);
-                      setPastePsbtModalOpen(false);
-                    }}>
-                    <ModalHeaderContainer>
-                      Paste PSBT or Transaction Hex Below
-                    </ModalHeaderContainer>
-                    <div style={{ padding: '1.5em' }}>
-                      <PastePsbtTextArea
-                        rows={20}
-                        onChange={(e) => {
-                          setPastedPsbtValue(e.target.value)
-                        }}
-                      />
-                      {importTxFromFileError && <ErrorText style={{ paddingBottom: '1em' }}>{importTxFromFileError}</ErrorText>}
-                      <ImportButtons>
-                        <FromFileButton
-                          style={{ marginRight: '1em' }}
-                          onClick={() => {
-                            setPastedPsbtValue(null);
-                            setImportTxFromFileError(false);
-                            setPastePsbtModalOpen(false);
-                          }}>Cancel</FromFileButton>
-                        <CopyAddressButton
-                          onClick={() => {
-                            importTxFromFile(pastedPsbtValue)
-                          }}>Import Transaction</CopyAddressButton>
-                      </ImportButtons>
-                    </div>
-                  </Modal>
 
                   {/* Visible in form */}
                   <SendToAddressHeader style={{ marginTop: 0 }}>
@@ -323,71 +322,71 @@ const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, curren
                       style={{ paddingRight: 80, color: darkGray, flex: 1 }}
                       error={sendAmountError}
                     />
-                    <InputStaticText
-                      disabled
-                      text="BTC"
-                    >BTC</InputStaticText>
+                    <InputStaticText disabled text="BTC">BTC</InputStaticText>
                   </AddressDisplayWrapper>
                   {sendAmountError && <SendAmountError>Not enough funds</SendAmountError>}
-
                   <SendButtonContainer>
                     {/* <CopyAddressButton background="transparent" color={darkGray}>Advanced Options</CopyAddressButton> */}
                     <CopyAddressButton onClick={() => validateAndCreateTransaction()}>Preview Transaction</CopyAddressButton>
                     {importTxFromFileError && !pastePsbtModalOpen && <ErrorText style={{ paddingTop: '1em' }}>{importTxFromFileError}</ErrorText>}
                   </SendButtonContainer>
                 </AccountSendContentLeft>
-              </div>
-            )}
+              )}
 
-            {step === 1 && (
-              <TransactionDetails
-                finalPsbt={finalPsbt}
-                feeEstimate={getFee(finalPsbt, transactions)}
-                recipientAddress={recipientAddress}
-                setStep={setStep}
-                sendAmount={sendAmount}
-                availableUtxos={availableUtxos}
-                signedPsbts={signedPsbts}
-                signedDevices={signedDevices}
-                txImportedFromFile={txImportedFromFile}
-                fileUploadLabelRef={fileUploadLabelRef}
-                importTxFromFileError={importTxFromFileError}
-                signThreshold={currentAccount.config.quorum.requiredSigners}
-                currentBitcoinNetwork={currentBitcoinNetwork}
-                currentBitcoinPrice={currentBitcoinPrice}
-                toggleRefresh={toggleRefresh}
-                currentAccount={currentAccount}
-                feeRates={feeRates}
-                createTransactionAndSetState={createTransactionAndSetState}
-              />
-            )}
+              {step === 1 && (
+                <TransactionDetails
+                  finalPsbt={finalPsbt}
+                  feeEstimate={getFee(finalPsbt, transactions)}
+                  recipientAddress={recipientAddress}
+                  setStep={setStep}
+                  sendAmount={sendAmount}
+                  availableUtxos={availableUtxos}
+                  signedPsbts={signedPsbts}
+                  signedDevices={signedDevices}
+                  txImportedFromFile={txImportedFromFile}
+                  fileUploadLabelRef={fileUploadLabelRef}
+                  importTxFromFileError={importTxFromFileError}
+                  signThreshold={currentAccount.config.quorum.requiredSigners}
+                  currentBitcoinNetwork={currentBitcoinNetwork}
+                  currentBitcoinPrice={currentBitcoinPrice}
+                  toggleRefresh={toggleRefresh}
+                  currentAccount={currentAccount}
+                  feeRates={feeRates}
+                  createTransactionAndSetState={createTransactionAndSetState}
+                />
+              )}
+            </div>
 
-            {(step === 0 || (step === 1 && currentAccount.config.mnemonic === 1)) && (
-              <AccountSendContentRight>
-                <CurrentBalanceWrapper displayDesktop={true} displayMobile={false}>
-                  <CurrentBalanceText>
-                    Current Balance:
-                  </CurrentBalanceText>
-                  <CurrentBalanceValue>
-                    {satoshisToBitcoins(currentBalance).toNumber()} BTC
-                </CurrentBalanceValue>
-                </CurrentBalanceWrapper>
-                <RecentTransactions
-                  transactions={transactions}
-                  flat={true}
-                  loading={currentAccount.loading}
-                  maxItems={3} />
-              </AccountSendContentRight>
-            )}
 
-            {step === 1 && !currentAccount.config.mnemonic && (
-              <AccountSendContentRight
-                style={{
-                  background: white,
-                  padding: '1.5rem',
-                  boxShadow: '0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06)',
-                  borderRadius: '0.375rem'
-                }}>
+
+            <AccountSendContentRight>
+              {(step === 0 || (step === 1 && currentAccount.config.mnemonic)) && (
+                <Fragment>
+                  <CurrentBalanceWrapper displayDesktop={true} displayMobile={false}>
+                    <CurrentBalanceText>
+                      Current Balance:
+                    </CurrentBalanceText>
+                    <CurrentBalanceValue>
+                      {satoshisToBitcoins(currentBalance).toNumber()} BTC
+                  </CurrentBalanceValue>
+                  </CurrentBalanceWrapper>
+                  <RecentTransactionContainer>
+                    <RecentTransactions
+                      transactions={transactions}
+                      flat={true}
+                      loading={currentAccount.loading}
+                      maxItems={3} />
+                  </RecentTransactionContainer>
+                </Fragment>
+              )}
+              {step === 1 && !currentAccount.config.mnemonic && (
+                // <AccountSendContentRight
+                //   style={{
+                //     background: white,
+                //     padding: '1.5rem',
+                //     boxShadow: '0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06)',
+                //     borderRadius: '0.375rem'
+                //   }}>
                 <SignWithDevice
                   psbt={finalPsbt}
                   setSignedPsbts={setSignedPsbts}
@@ -396,14 +395,19 @@ const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, curren
                   setSignedDevices={setSignedDevices}
                   signThreshold={currentAccount.config.quorum.requiredSigners}
                 />
-              </AccountSendContentRight>
-            )}
+                // </AccountSendContentRight>
+              )}
+            </AccountSendContentRight>
           </GridArea>
         )}
       </SendWrapper>
     </PageWrapper >
   )
 }
+
+const RecentTransactionContainer = styled.div`
+  padding: 0 1em;
+`;
 
 const ModalHeaderContainer = styled.div`
   border-bottom: 1px solid rgb(229,231,235);
@@ -592,6 +596,7 @@ const AccountSendContentRight = styled.div`
   display: flex;
   flex: 1;
   flex-direction: column;
+  width: 100%;
 `;
 
 const CurrentBalanceWrapper = styled.div`

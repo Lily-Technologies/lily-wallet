@@ -27,7 +27,7 @@ import { white } from '../utils/colors';
 export const Dropdown = ({ isOpen, setIsOpen, buttonLabel, dropdownItems, minimal, style }) => {
   return (
     <DropdownWrapper>
-      <div>
+      <ButtonContainer>
         {minimal ? (
           <MinimalDropdownButtonContainer
             style={style}
@@ -55,7 +55,7 @@ export const Dropdown = ({ isOpen, setIsOpen, buttonLabel, dropdownItems, minima
               </DropdownButton>
             </DropdownButtonContainer>
           )}
-      </div>
+      </ButtonContainer>
       <Transition
         show={isOpen}
         enter="transition ease-out duration-100"
@@ -97,10 +97,16 @@ export const Dropdown = ({ isOpen, setIsOpen, buttonLabel, dropdownItems, minima
   )
 }
 
+const ButtonContainer = styled.div`
+  display: flex;
+  justify-content: flex-end;
+`;
+
 const DropdownWrapper = styled.div`
   position: relative;
   display: inline-block;
   text-align: left;
+  z-index: 10;
 `;
 
 const DropdownButtonContainer = styled.span`
