@@ -9,6 +9,11 @@ html, body {
   flex-direction: column;
 }
 
+*, :before, :after {
+  box-sizing: border-box;
+  border: 0 solid #d2d6dc;
+}
+
 /* sofia-pro, "Helvetica Neue", Helvetica, Arial, sans-serif ? */
 body {
   margin: 0;

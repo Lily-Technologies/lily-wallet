@@ -165,6 +165,7 @@ const SignupOptionItem = styled.div`
   align-items: center;
   justify-content: center;
   font-size: 1.5em;
+  min-height: 12em;
 `;
 
 export default Login;

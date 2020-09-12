@@ -38,14 +38,14 @@ const Content = styled.div`
   padding: 2.25em 2em;
   overflow: scroll;
   flex: 1;
-  max-width: 1200px;
+  max-width: 75rem;
   width: 100%;
 `;
 
 export const GridArea = styled.div`
   display: grid;
   background: #f2f7fe;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(25rem, 1fr));
   grid-gap: 1.5em;
   padding: 1.5em;
   justify-items: center;

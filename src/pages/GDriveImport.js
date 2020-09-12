@@ -258,6 +258,7 @@ const CurtainContainer = styled.div`
   display: flex;
   background: ${lightBlue};
   width: 100%;
+  box-sizing: content-box;
 `;
 
 const CurtainLeft = styled.div`

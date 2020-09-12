@@ -48,7 +48,7 @@ const Receive = ({ config, currentAccount, setCurrentAccount }) => {
         {currentAccount.loading && <Loading itemText={'Receive Information'} />}
         {!currentAccount.loading && (
           <GridArea>
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
               <CurrentBalanceWrapper displayDesktop={false} displayMobile={true} style={{ marginBottom: '1em' }}>
                 <CurrentBalanceText>
                   Current Balance:
@@ -61,7 +61,7 @@ const Receive = ({ config, currentAccount, setCurrentAccount }) => {
               <AccountReceiveContentLeft>
                 <SendToAddressHeader>
                   Send bitcoin to
-              </SendToAddressHeader>
+                </SendToAddressHeader>
 
                 <AddressDisplayWrapper>
                   {unusedAddresses[unusedAddressIndex] && unusedAddresses[unusedAddressIndex].address}
@@ -94,12 +94,13 @@ const Receive = ({ config, currentAccount, setCurrentAccount }) => {
                   {satoshisToBitcoins(currentBalance).toNumber()} BTC
                 </CurrentBalanceValue>
               </CurrentBalanceWrapper>
-
-              <RecentTransactions
-                transactions={transactions}
-                flat={true}
-                loading={currentAccount.loading}
-                maxItems={3} />
+              <RecentTransactionContainer>
+                <RecentTransactions
+                  transactions={transactions}
+                  flat={true}
+                  loading={currentAccount.loading}
+                  maxItems={3} />
+              </RecentTransactionContainer>
             </AccountReceiveContentRight>
           </GridArea>
         )}
@@ -107,6 +108,10 @@ const Receive = ({ config, currentAccount, setCurrentAccount }) => {
     </PageWrapper >
   )
 }
+
+const RecentTransactionContainer = styled.div`
+  padding: 0 1em;
+`;
 
 const ReceiveButtonContainer = styled.div`
   margin: 24px;
@@ -182,6 +187,7 @@ const AccountReceiveContentLeft = styled.div`
   border-radius: 4px;
   // box-shadow: rgba(0, 0, 0, 0.15) 0px 5px 15px 0px;
   justify-content: center;
+  width: 100%;
 `;
 
 const AccountReceiveContentRight = styled.div`
@@ -190,7 +196,8 @@ const AccountReceiveContentRight = styled.div`
   display: flex;
   flex: 1;
   flex-direction: column;
-  overflow: scroll;
+  overflow: hidden;
+  width: 100%;
 `;
 
 const CurrentBalanceWrapper = styled.div`
