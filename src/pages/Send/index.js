@@ -355,7 +355,7 @@ const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, curren
               />
             )}
 
-            {(step === 0 || (step === 1 && currentAccount.config.mnemonic === 1)) && (
+            {(step === 0 || (step === 1 && currentAccount.config.mnemonic)) && (
               <AccountSendContentRight>
                 <CurrentBalanceWrapper displayDesktop={true} displayMobile={false}>
                   <CurrentBalanceText>
@@ -447,7 +447,7 @@ const FromFileButton = styled.div`
   font-family: 'Montserrat', sans-serif;
 
   &:hover {
-              border: 1px solid ${darkGray};
+    border: 1px solid ${darkGray};
     cursor: pointer;
   }
 `;
