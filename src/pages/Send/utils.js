@@ -93,7 +93,7 @@ export const createTransaction = async (currentAccount, amountInBitcoins, recipi
 
   let fee;
   // const feeRates = await (await axios.get(blockExplorerAPIURL(`/fee-estimates`, currentBitcoinNetwork))).data;
-  const feeRates = await (await axios.get('https://bitcoinfees.earn.com/api/v1/fees/recommended')).data;
+  const feeRates = await (await axios.get('https://mempool.space/api/v1/fees/recommended')).data;
   if (desiredFee) { // if no fee specified, pick next block
     fee = desiredFee;
   } else if (currentAccount.config.quorum.totalSigners > 1) {

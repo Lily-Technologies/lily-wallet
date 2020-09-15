@@ -4,14 +4,11 @@ import axios from 'axios';
 import { ArrowIosForwardOutline } from '@styled-icons/evaicons-outline';
 import { CheckCircle } from '@styled-icons/material';
 import { useHistory } from "react-router-dom";
-import BigNumber from 'bignumber.js';
-import coinSelect from 'coinselect';
 
 import {
   blockExplorerAPIURL,
   blockExplorerTransactionURL,
-  satoshisToBitcoins,
-  bitcoinsToSatoshis
+  satoshisToBitcoins
 } from "unchained-bitcoin";
 
 import { address, Psbt, networks } from 'bitcoinjs-lib';
@@ -20,9 +17,12 @@ import { cloneBuffer } from '../../utils/other';
 import { bitcoinNetworkEqual } from '../../utils/transactions';
 import { StyledIcon, Button, SidewaysShake, Dropdown, Modal } from '../../components';
 
-import { gray, blue, darkGray, white, darkOffWhite, green, darkGreen, lightGray, red, lightRed, lightBlue, offWhite } from '../../utils/colors';
+import { gray, blue, darkGray, white, darkOffWhite, green, darkGreen, lightGray, red, lightRed, orange, lightOrange, lightBlue, offWhite } from '../../utils/colors';
 import { downloadFile, formatFilename, combinePsbts } from '../../utils/files';
-import { getFeeForMultisig, createUtxoMapFromUtxoArray } from './utils';
+import { createUtxoMapFromUtxoArray } from './utils';
+import { FeeSelector } from './FeeSelector';
+
+const ABSURD_FEE = 1000000; // 0.01 BTC
 
 const TransactionDetails = ({
   finalPsbt,
@@ -126,9 +126,20 @@ const TransactionDetails = ({
       }
     ];
 
-    if (!signedDevices.length) {
+    if (!signedDevices.length || currentAccount.config.mnemonic) {
       dropdownItems.unshift(
-        { label: 'Adjust Fee', onClick: () => { openInModal(<FeeSelector />) } }
+        { label: 'Adjust Fee', onClick: () => { openInModal(<FeeSelector
+          currentAccount={currentAccount}
+          feeEstimate={feeEstimate}
+          finalPsbt={finalPsbt}
+          feeRates={feeRates}
+          availableUtxos={availableUtxos}
+          recipientAddress={recipientAddress}
+          sendAmount={sendAmount}
+          closeModal={closeModal}
+          createTransactionAndSetState={createTransactionAndSetState}
+          currentBitcoinPrice={currentBitcoinPrice}
+        />) } }
       )
     }
 
@@ -139,7 +150,7 @@ const TransactionDetails = ({
       );
     }
 
-    if (!signedDevices.length) {
+    if (!signedDevices.length || currentAccount.config.mnemonic) {
       dropdownItems.unshift(
         { label: 'Edit Transaction', onClick: () => setStep(0) }
       )
@@ -153,62 +164,6 @@ const TransactionDetails = ({
           minimal={true}
           dropdownItems={dropdownItems}
         />
-      </Fragment>
-    )
-  }
-
-  const FeeSelector = () => {
-    let fastestFee;
-    let normalFee;
-    let slowFee;
-    if (currentAccount.config.quorum.totalSigners > 1) {
-      fastestFee = getFeeForMultisig(feeRates.fastestFee, currentAccount.config.addressType, finalPsbt.__CACHE.__TX.ins.length, finalPsbt.__CACHE.__TX.outs.length, currentAccount.config.quorum.requiredSigners, currentAccount.config.quorum.totalSigners).integerValue(BigNumber.ROUND_CEIL);
-      normalFee = getFeeForMultisig(feeRates.halfHourFee, currentAccount.config.addressType, finalPsbt.__CACHE.__TX.ins.length, finalPsbt.__CACHE.__TX.outs.length, currentAccount.config.quorum.requiredSigners, currentAccount.config.quorum.totalSigners).integerValue(BigNumber.ROUND_CEIL);
-      slowFee = getFeeForMultisig(feeRates.hourFee, currentAccount.config.addressType, finalPsbt.__CACHE.__TX.ins.length, finalPsbt.__CACHE.__TX.outs.length, currentAccount.config.quorum.requiredSigners, currentAccount.config.quorum.totalSigners).integerValue(BigNumber.ROUND_CEIL);
-    } else {
-      fastestFee = coinSelect(availableUtxos, [{ address: recipientAddress, value: bitcoinsToSatoshis(sendAmount).toNumber() }], feeRates.fastestFee).fee;
-      normalFee = coinSelect(availableUtxos, [{ address: recipientAddress, value: bitcoinsToSatoshis(sendAmount).toNumber() }], feeRates.halfHourFee).fee;
-      slowFee = coinSelect(availableUtxos, [{ address: recipientAddress, value: bitcoinsToSatoshis(sendAmount).toNumber() }], feeRates.hourFee).fee;
-    }
-
-    return (
-      <Fragment>
-        <ModalHeaderContainer>
-          Adjust Transaction Fee
-      </ModalHeaderContainer>
-        <div style={{ padding: '1.5em' }}>
-          <FeeItem
-            onClick={() => {
-              createTransactionAndSetState(fastestFee);
-              closeModal();
-            }}
-            selected={fastestFee === feeEstimate}>
-            <FeeMainText>Fast: ~10 minutes</FeeMainText>
-            <FeeSubtext>${satoshisToBitcoins(fastestFee).multipliedBy(currentBitcoinPrice).toFixed(2)}, {satoshisToBitcoins(fastestFee).toNumber()} BTC</FeeSubtext>
-          </FeeItem>
-          <FeeItem
-            onClick={() => {
-              createTransactionAndSetState(normalFee);
-              closeModal();
-            }}
-            selected={normalFee === feeEstimate}>
-            <FeeMainText>Normal: ~30 minutes</FeeMainText>
-            <FeeSubtext>${satoshisToBitcoins(normalFee).multipliedBy(currentBitcoinPrice).toFixed(2)}, {satoshisToBitcoins(normalFee).toNumber()} BTC</FeeSubtext>
-          </FeeItem>
-          <FeeItem
-            onClick={() => {
-              createTransactionAndSetState(slowFee);
-              closeModal();
-            }}
-            selected={slowFee === feeEstimate}>
-            <FeeMainText>Slow: ~1 hour</FeeMainText>
-            <FeeSubtext>${satoshisToBitcoins(slowFee).multipliedBy(currentBitcoinPrice).toFixed(2)}, {satoshisToBitcoins(slowFee).toNumber()} BTC</FeeSubtext>
-          </FeeItem>
-          {/* <FeeItem>
-            <FeeMainText>Custom Fee</FeeMainText>
-            <FeeSubtext>Enter a specific fee amount</FeeSubtext>
-          </FeeItem> */}
-        </div>
       </Fragment>
     )
   }
@@ -253,6 +208,7 @@ const TransactionDetails = ({
       </MainTxData>
       <div>
         <TransactionFeeField>Transaction Fee: <span>{satoshisToBitcoins(feeEstimate).toNumber()} BTC (${satoshisToBitcoins(feeEstimate).multipliedBy(currentBitcoinPrice).toFixed(2)})</span></TransactionFeeField>
+        { feeEstimate >= ABSURD_FEE && <WarningBox>Warning: transaction fee is very high</WarningBox> }
       </div>
     </Fragment>
   )
@@ -534,6 +490,14 @@ const ErrorBox = styled.div`
   background: ${lightRed};
   color: ${red};
   border: 1px solid ${red};
+  margin: 1.5em 0;
+`;
+
+const WarningBox = styled.div`
+  padding: 1.5em;
+  background: ${lightOrange};
+  color: ${orange};
+  border: 1px solid ${orange};
   margin: 1.5em 0;
 `;
 
