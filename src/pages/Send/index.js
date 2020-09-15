@@ -21,6 +21,7 @@ import { combinePsbts } from '../../utils/files';
 import { bitcoinNetworkEqual } from '../../utils/transactions';
 
 import { createTransaction, validateAddress, createUtxoMapFromUtxoArray, getFee } from './utils'
+import { AddressDisplayWrapper, Input, InputStaticText } from './styles';
 
 const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, currentBitcoinNetwork, currentBitcoinPrice }) => {
   document.title = `Send - Lily Wallet`;
@@ -50,7 +51,23 @@ const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, curren
     setFinalPsbt(psbt);
     setFeeEstimate(fee);
     setFeeRates(feeRates);
+    signTransactionIfSingleSigner(psbt);
     return psbt
+  }
+
+  const signTransactionIfSingleSigner = async (psbt) => {
+    // if only single sign, then sign tx right away
+    if (currentAccount.config.mnemonic) {
+      const seed = await mnemonicToSeed(currentAccount.config.mnemonic);
+      const root = bip32.fromSeed(seed, currentBitcoinNetwork);
+
+      psbt.signAllInputsHD(root);
+      psbt.validateSignaturesOfAllInputs();
+      psbt.finalizeAllInputs();
+
+      setSignedDevices([currentAccount]) // this could probably have better information in it but
+      setSignedPsbts([psbt]);
+    }
   }
 
   const importTxFromFile = (file) => {
@@ -158,19 +175,6 @@ const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, curren
       const psbt = await createTransactionAndSetState(undefined);
 
       setStep(1);
-
-      // if only single sign, then sign tx right away
-      if (currentAccount.config.mnemonic) {
-        const seed = await mnemonicToSeed(currentAccount.config.mnemonic);
-        const root = bip32.fromSeed(seed, currentBitcoinNetwork);
-
-        psbt.signAllInputsHD(root);
-        psbt.validateSignaturesOfAllInputs();
-        psbt.finalizeAllInputs();
-
-        setSignedDevices([currentAccount]) // this could probably have better information in it but
-        setSignedPsbts([psbt]);
-      }
     }
   }
 
@@ -351,7 +355,7 @@ const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, curren
               />
             )}
 
-            {(step === 0 || (step === 1 && currentAccount.config.mnemonic === 1)) && (
+            {(step === 0 || (step === 1 && currentAccount.config.mnemonic)) && (
               <AccountSendContentRight>
                 <CurrentBalanceWrapper displayDesktop={true} displayMobile={false}>
                   <CurrentBalanceText>
@@ -443,7 +447,7 @@ const FromFileButton = styled.div`
   font-family: 'Montserrat', sans-serif;
 
   &:hover {
-              border: 1px solid ${darkGray};
+    border: 1px solid ${darkGray};
     cursor: pointer;
   }
 `;
@@ -474,69 +478,10 @@ const SendToAddressHeader = styled.div`
   margin-bottom: 0px;
 `;
 
-const AddressDisplayWrapper = styled.div`
-  display: flex;
-`;
-
 const SendAmountError = styled.div`
   font-size: 0.5em;
   color: ${red};
   text-align: right;
-`;
-
-const InputStyles = css`
-  border: ${p => p.error ? `1px solid ${red}` : `1px solid ${darkOffWhite}`};
-  background: ${lightGray};
-  padding: 1.5em;
-  color: ${darkGray};
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 1em;
-  border-radius: 4px;
-  font-size: 1.5em;
-  z-index: 1;
-
-  ::placeholder {
-              color: ${gray};
-  }
-
-  :active, :focused {
-              outline: 0;
-    border: none;
-  }
-`;
-
-const Input = styled.input`
-  position: relative;
-  text-align: right;
-  ${InputStyles}
-`;
-
-const InputStaticText = styled.label`
-  position: relative;
-  display: flex;
-  flex: 0 0;
-  justify-self: center;
-  align-self: center;
-  margin-left: -87px;
-  z-index: 1;
-  margin-right: 40px;
-  font-size: 1.5em;
-  font-weight: 100;
-  color: ${gray};
-
-  &::after {
-              content: ${p => p.text};
-    position: absolute;
-    top: 4px;
-    left: 94px;
-    font-family: arial, helvetica, sans-serif;
-    font-size: .75em;
-    display: block;
-    color: rgba(0, 0, 0, 0.6);
-    font-weight: bold;
-  }
 `;
 
 const AccountMenuItemWrapper = styled.div`
