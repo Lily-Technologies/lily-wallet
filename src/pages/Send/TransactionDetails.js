@@ -4,14 +4,11 @@ import axios from 'axios';
 import { ArrowIosForwardOutline } from '@styled-icons/evaicons-outline';
 import { CheckCircle } from '@styled-icons/material';
 import { useHistory } from "react-router-dom";
-import BigNumber from 'bignumber.js';
-import coinSelect from 'coinselect';
 
 import {
   blockExplorerAPIURL,
   blockExplorerTransactionURL,
-  satoshisToBitcoins,
-  bitcoinsToSatoshis
+  satoshisToBitcoins
 } from "unchained-bitcoin";
 
 import { address, Psbt, networks } from 'bitcoinjs-lib';
@@ -22,8 +19,8 @@ import { StyledIcon, Button, SidewaysShake, Dropdown, Modal } from '../../compon
 
 import { gray, blue, darkGray, white, darkOffWhite, green, darkGreen, lightGray, red, lightRed, orange, lightOrange, lightBlue, offWhite } from '../../utils/colors';
 import { downloadFile, formatFilename, combinePsbts } from '../../utils/files';
-import { getFeeForMultisig, createUtxoMapFromUtxoArray } from './utils';
-import { AddressDisplayWrapper, Input, InputStaticText } from './styles';
+import { createUtxoMapFromUtxoArray } from './utils';
+import { FeeSelector } from './FeeSelector';
 
 const ABSURD_FEE = 1000000; // 0.01 BTC
 
@@ -131,7 +128,18 @@ const TransactionDetails = ({
 
     if (!signedDevices.length || currentAccount.config.mnemonic) {
       dropdownItems.unshift(
-        { label: 'Adjust Fee', onClick: () => { openInModal(<FeeSelector />) } }
+        { label: 'Adjust Fee', onClick: () => { openInModal(<FeeSelector
+          currentAccount={currentAccount}
+          feeEstimate={feeEstimate}
+          finalPsbt={finalPsbt}
+          feeRates={feeRates}
+          availableUtxos={availableUtxos}
+          recipientAddress={recipientAddress}
+          sendAmount={sendAmount}
+          closeModal={closeModal}
+          createTransactionAndSetState={createTransactionAndSetState}
+          currentBitcoinPrice={currentBitcoinPrice}
+        />) } }
       )
     }
 
@@ -156,105 +164,6 @@ const TransactionDetails = ({
           minimal={true}
           dropdownItems={dropdownItems}
         />
-      </Fragment>
-    )
-  }
-
-  const FeeSelector = () => {
-    let fastestFee;
-    let normalFee;
-    let slowFee;
-    if (currentAccount.config.quorum.totalSigners > 1) {
-      fastestFee = getFeeForMultisig(feeRates.fastestFee, currentAccount.config.addressType, finalPsbt.__CACHE.__TX.ins.length, finalPsbt.__CACHE.__TX.outs.length, currentAccount.config.quorum.requiredSigners, currentAccount.config.quorum.totalSigners).integerValue(BigNumber.ROUND_CEIL);
-      normalFee = getFeeForMultisig(feeRates.halfHourFee, currentAccount.config.addressType, finalPsbt.__CACHE.__TX.ins.length, finalPsbt.__CACHE.__TX.outs.length, currentAccount.config.quorum.requiredSigners, currentAccount.config.quorum.totalSigners).integerValue(BigNumber.ROUND_CEIL);
-      slowFee = getFeeForMultisig(feeRates.hourFee, currentAccount.config.addressType, finalPsbt.__CACHE.__TX.ins.length, finalPsbt.__CACHE.__TX.outs.length, currentAccount.config.quorum.requiredSigners, currentAccount.config.quorum.totalSigners).integerValue(BigNumber.ROUND_CEIL);
-    } else {
-      fastestFee = coinSelect(availableUtxos, [{ address: recipientAddress, value: bitcoinsToSatoshis(sendAmount).toNumber() }], feeRates.fastestFee).fee;
-      normalFee = coinSelect(availableUtxos, [{ address: recipientAddress, value: bitcoinsToSatoshis(sendAmount).toNumber() }], feeRates.halfHourFee).fee;
-      slowFee = coinSelect(availableUtxos, [{ address: recipientAddress, value: bitcoinsToSatoshis(sendAmount).toNumber() }], feeRates.hourFee).fee;
-    }
-    const [customFee, setCustomFee] = useState(feeEstimate);
-    const [customFeeError, setCustomFeeError] = useState(false);
-    const [customFeeBtc, setCustomFeeBtc] = useState(satoshisToBitcoins(feeEstimate));
-
-    const validateCustomFee = () => {
-      if (!satoshisToBitcoins(BigNumber(customFee)).isGreaterThan(0)) {
-        setCustomFeeError(true);
-        return false;
-      }
-      if (satoshisToBitcoins(BigNumber(customFee)).isGreaterThan(0) && customFeeError) {
-        setCustomFeeError(false)
-      }
-      return true;
-    }
-
-    return (
-      <Fragment>
-        <ModalHeaderContainer>
-          Adjust Transaction Fee
-      </ModalHeaderContainer>
-        <div style={{ padding: '1.5em' }}>
-          <FeeItem
-            onClick={() => {
-              createTransactionAndSetState(fastestFee);
-              closeModal();
-            }}
-            selected={fastestFee === feeEstimate}>
-            <FeeMainText>Fast: ~10 minutes</FeeMainText>
-            <FeeSubtext>${satoshisToBitcoins(fastestFee).multipliedBy(currentBitcoinPrice).toFixed(2)}, {satoshisToBitcoins(fastestFee).toNumber()} BTC</FeeSubtext>
-          </FeeItem>
-          <FeeItem
-            onClick={() => {
-              createTransactionAndSetState(normalFee);
-              closeModal();
-            }}
-            selected={normalFee === feeEstimate}>
-            <FeeMainText>Normal: ~30 minutes</FeeMainText>
-            <FeeSubtext>${satoshisToBitcoins(normalFee).multipliedBy(currentBitcoinPrice).toFixed(2)}, {satoshisToBitcoins(normalFee).toNumber()} BTC</FeeSubtext>
-          </FeeItem>
-          <FeeItem
-            onClick={() => {
-              createTransactionAndSetState(slowFee);
-              closeModal();
-            }}
-            selected={slowFee === feeEstimate}>
-            <FeeMainText>Slow: ~1 hour</FeeMainText>
-            <FeeSubtext>${satoshisToBitcoins(slowFee).multipliedBy(currentBitcoinPrice).toFixed(2)}, {satoshisToBitcoins(slowFee).toNumber()} BTC</FeeSubtext>
-          </FeeItem>
-          <FeeItem
-            onClick={() => {
-              if (validateCustomFee()) {
-                createTransactionAndSetState(customFee);
-                closeModal();
-              }
-            }}
-            selected={customFee === feeEstimate}>
-            <FeeMainText>Custom Fee</FeeMainText>
-            <FeeSubtext>
-              { customFee ?
-                `$${satoshisToBitcoins(customFee).multipliedBy(currentBitcoinPrice).toFixed(2)}, ${satoshisToBitcoins(customFee).toNumber()} BTC` :
-                "Enter a specific fee amount"
-              }
-            </FeeSubtext>
-          </FeeItem>
-          <AddressDisplayWrapper>
-            <Input
-              onChange={(e) => {
-                setCustomFeeBtc(e.target.value);
-                setCustomFee(bitcoinsToSatoshis(e.target.value));
-                validateCustomFee();
-              }}
-              value={customFeeBtc}
-              placeholder={"0.00001"}
-              style={{ paddingRight: 80, color: darkGray, flex: 1 }}
-              error={customFeeError}
-            />
-            <InputStaticText
-              disabled
-              text="BTC"
-            >BTC</InputStaticText>
-          </AddressDisplayWrapper>
-        </div>
       </Fragment>
     )
   }
