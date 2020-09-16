@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import styled, { css } from 'styled-components';
 import {
   HashRouter as Router,
@@ -11,11 +11,11 @@ import axios from 'axios';
 import BigNumber from 'bignumber.js';
 import { networks } from 'bitcoinjs-lib';
 
-import { offWhite, blue600, white } from './utils/colors';
+import { offWhite } from './utils/colors';
 import { mobile } from './utils/media';
 import { bitcoinNetworkEqual } from './utils/transactions';
 
-import { Sidebar, MobileNavbar, ErrorBoundary, TitleBar } from './components';
+import { Sidebar, MobileNavbar, TitleBar } from './components';
 
 // Pages
 import Login from './pages/Login';
@@ -170,6 +170,19 @@ function App() {
 
   console.log('config: ', config);
 
+  const updateAccountMap = useCallback(
+    (accountInfo) => {
+      accountMap.set(accountInfo.config.id, {
+        ...accountInfo,
+        loading: false
+      });
+      if (currentAccount.loading) {
+        setCurrentAccount(accountMap.get(accountInfo.config.id));
+      }
+      setAccountMap(accountMap);
+    }, [accountMap, currentAccount]
+  );
+
   // fetch/build account data from config file
   useEffect(() => {
     if (config.wallets.length || config.vaults.length) {
@@ -218,22 +231,9 @@ function App() {
       setCurrentAccount(initialAccountMap.values().next().value)
       setAccountMap(initialAccountMap);
     }
-  }, [config, currentBitcoinNetwork, refresh]);
-
-
-  const updateAccountMap = (accountInfo) => {
-    accountMap.set(accountInfo.config.id, {
-      ...accountInfo,
-      loading: false
-    });
-    if (currentAccount.loading) {
-      setCurrentAccount(accountMap.get(accountInfo.config.id));
-    }
-    setAccountMap(accountMap);
-  }
+  }, [config, refresh, nodeConfig]);
 
   return (
-    // <ErrorBoundary>
     <Router>
       <TitleBar setNodeConfig={setNodeConfig} nodeConfig={nodeConfig} setMobileNavOpen={setMobileNavOpen} config={config} connectToBlockstream={connectToBlockstream} connectToBitcoinCore={connectToBitcoinCore} getNodeConfig={getNodeConfig} />
       <PageWrapper id="page-wrapper">
@@ -246,7 +246,7 @@ function App() {
           <Route path="/receive" component={() => <Receive config={config} currentAccount={currentAccount} setCurrentAccount={setCurrentAccountFromMap} currentBitcoinPrice={currentBitcoinPrice} />} />
           <Route path="/send" component={() => <Send config={config} currentAccount={currentAccount} setCurrentAccount={setCurrentAccountFromMap} toggleRefresh={toggleRefresh} currentBitcoinPrice={currentBitcoinPrice} currentBitcoinNetwork={currentBitcoinNetwork} />} />
           <Route path="/setup" component={() => <Setup config={config} setConfigFile={setConfigFile} currentBitcoinNetwork={currentBitcoinNetwork} />} />
-          <Route path="/login" component={() => <Login setConfigFile={setConfigFile} setNodeConfig={setNodeConfig} nodeConfig={nodeConfig} currentBitcoinNetwork={currentBitcoinNetwork} />} />
+          <Route path="/login" component={() => <Login setConfigFile={setConfigFile} currentBitcoinNetwork={currentBitcoinNetwork} />} />
           <Route path="/settings" component={() => <Settings config={config} currentBitcoinNetwork={currentBitcoinNetwork} changeCurrentBitcoinNetwork={changeCurrentBitcoinNetwork} />} />
           <Route path="/gdrive-import" component={() => <GDriveImport setConfigFile={setConfigFile} />} />
           <Route path="/coldcard-import-instructions" component={() => <ColdcardImportInstructions />} />
@@ -258,17 +258,8 @@ function App() {
         </Switch>
       </PageWrapper>
     </Router>
-    // </ErrorBoundary>
   );
 }
-
-const MobileNavbarOpenButton = styled.button`
-  display: none;
-  
-  ${mobile(css`
-    display: flex;
-  `)};
-`;
 
 const PageWrapper = styled.div`
   height: 100%;

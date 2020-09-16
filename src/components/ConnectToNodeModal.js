@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import { Button, Modal, Input, Spinner } from '.';
 
-import { black, darkGray, white, blue, gray, offWhite, gray300, red500 } from '../utils/colors';
+import { gray300, red500 } from '../utils/colors';
 
 export const ConnectToNodeModal = ({
   isOpen,

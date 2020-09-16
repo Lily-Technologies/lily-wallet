@@ -2,13 +2,10 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { AES } from 'crypto-js';
 import moment from 'moment';
-
-import bs58check from 'bs58check';
 import { generateMnemonic } from "bip39";
 
 import { createMultisigConfigFile, createSinglesigConfigFile, createSinglesigHWWConfigFile, createColdCardBlob, downloadFile, containsColdcard, formatFilename } from '../../utils/files';
 import { black } from '../../utils/colors';
-import { getMultisigDeriationPathForNetwork, getP2shDeriationPathForNetwork } from '../../utils/transactions';
 
 import StepGroups from './Steps';
 import PageHeader from './PageHeader';
@@ -111,6 +108,7 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
           setStep={setStep}
           importedDevices={importedDevices}
           setImportedDevices={setImportedDevices}
+          currentBitcoinNetwork={currentBitcoinNetwork}
         />;
       } else {
         screen = <NewVaultScreen

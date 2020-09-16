@@ -48,7 +48,7 @@ const Home = ({ config, setCurrentAccount, accountMap, historicalBitcoinPrice, c
     if (flyInAnimation !== prevFlyInAnimation) { // if these values are different, change local
       setInitialLoad(true)
     }
-  }, [])
+  }, [flyInAnimation, prevFlyInAnimation])
 
   const oneMonthDomain = Object.keys(historicalBitcoinPrice).length - 31;
   const sixMonthDomain = Object.keys(historicalBitcoinPrice).length - (30 * 6);

@@ -13,8 +13,8 @@ const TransactionRow = ({ transaction, flat }) => {
     <TransactionRowWrapper flat={flat}>
       <TransactionRowContainer flat={flat} isOpen={isOpen} onClick={() => { !flat && setIsOpen(!isOpen) }}>
         <TxTypeIcon flat={flat}>
-          {transaction.type === 'received' && <StyledIconModified as={VerticalAlignBottom} size={flat ? 12 : 24} receive={true} />}
-          {transaction.type === 'sent' && <StyledIconModified as={ArrowUpward} size={flat ? 12 : 24} />}
+          {transaction.type === 'received' && <StyledIconModified as={VerticalAlignBottom} size={flat ? 36 : 48} receive={true} />}
+          {transaction.type === 'sent' && <StyledIconModified as={ArrowUpward} size={flat ? 36 : 48} />}
           <TxTypeTextWrapper flat={flat}>
             <TxTypeText>{transaction.type}</TxTypeText>
             <TxTypeTime>{transaction.status.confirmed ? moment.unix(transaction.status.block_time).format('h:mm A') : 'Unconfirmed'}</TxTypeTime>

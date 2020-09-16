@@ -142,9 +142,6 @@ const serializeTransactions = (transactionsFromBlockstream, addresses, changeAdd
 }
 
 const serializeTransactionsFromNode = async (nodeClient, transactions, addresses, changeAddresses) => {
-  const changeAddressesMap = createAddressMapFromAddressArray(changeAddresses);
-  const addressesMap = createAddressMapFromAddressArray(addresses);
-
   transactions.sort((a, b) => a.blockheight - b.blockheight);
 
   let currentAccountTotal = BigNumber(0);

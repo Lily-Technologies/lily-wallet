@@ -5,9 +5,9 @@ import { Circle } from '@styled-icons/boxicons-solid';
 import { Menu } from '@styled-icons/boxicons-regular';
 import BigNumber from 'bignumber.js';
 
-import { offWhite, blue500, blue600, blue700, blue800, white, gray400, gray700, green400, orange400, red500 } from '../utils/colors';
+import { blue600, blue800, white, green400, orange400, red500 } from '../utils/colors';
 
-import { ConnectToNodeModal, Button, StyledIcon, Dropdown } from '.';
+import { ConnectToNodeModal, StyledIcon, Dropdown } from '.';
 
 export const TitleBar = ({ setNodeConfig, nodeConfig, setMobileNavOpen, config, connectToBlockstream, connectToBitcoinCore, getNodeConfig }) => {
   console.log('nodeConfig: ', nodeConfig)
@@ -128,9 +128,6 @@ const RightSection = styled.div`
   justify-content: flex-end;
 `;
 
-const NodeConfigDropdown = styled(Dropdown)`
-`;
-
 const MobileMenuOpen = styled.div`
   display: none;
   color: ${white};
@@ -167,12 +164,4 @@ const DraggableTitleBar = styled.div`
 const NodeButtonContainer = styled.div`
   margin: 0 1em;
   -webkit-app-region: no-drag;
-`;
-
-const NodeButton = styled.button`
-  ${Button};
-  align-self: flex-end;
-  cursor: pointer;
-  font-size: 0.85em;
-  padding: 0.15em 1em;
 `;

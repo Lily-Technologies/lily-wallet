@@ -96,7 +96,6 @@ const getFeeFromNode = async ({ currentAccount, targetBlocks }) => {
 }
 
 export const createTransaction = async (currentAccount, amountInBitcoins, recipientAddress, desiredFee, availableUtxos, transactions, unusedChangeAddresses, currentBitcoinNetwork) => {
-  const transactionMap = createTransactionMapFromTransactionArray(transactions);
   let fee;
   let feeRates;
   if (currentAccount.nodeConfig.provider !== 'Blockstream') {
@@ -160,8 +159,6 @@ export const createTransaction = async (currentAccount, amountInBitcoins, recipi
         }))
       })
     } else if (currentAccount.config.mnemonic) {
-      console.log('utxo: ', utxo);
-      console.log('transactionMap.get(utxo.txid): ', transactionMap.get(utxo.txid));
       const prevTxHex = await getTxHex(utxo.txid, currentBitcoinNetwork);
       // KBC-TODO: eventually break this up into different functions depending on if Trezor or not, leave for now...I guess
       psbt.addInput({

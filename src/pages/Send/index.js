@@ -14,13 +14,14 @@ import RecentTransactions from '../../components/transactions/RecentTransactions
 import SignWithDevice from './SignWithDevice'
 import TransactionDetails from './TransactionDetails';
 
-import { red, gray, blue, darkGray, white, darkOffWhite, lightGray, lightBlue } from '../../utils/colors';
+import { red, gray, blue, darkGray, white, darkOffWhite, lightBlue } from '../../utils/colors';
 import { mobile } from '../../utils/media';
 import { cloneBuffer, bufferToHex } from '../../utils/other';
 import { combinePsbts } from '../../utils/files';
 import { bitcoinNetworkEqual } from '../../utils/transactions';
 
 import { createTransaction, validateAddress, createUtxoMapFromUtxoArray, getFee } from './utils'
+import { AddressDisplayWrapper, Input, InputStaticText } from './styles';
 
 const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, currentBitcoinNetwork, currentBitcoinPrice }) => {
   document.title = `Send - Lily Wallet`;
@@ -51,9 +52,25 @@ const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, curren
       setFinalPsbt(psbt);
       setFeeEstimate(fee);
       setFeeRates(feeRates);
+      signTransactionIfSingleSigner(psbt);
       return psbt
     } catch (e) {
       throw new Error(e.message)
+    }
+  }
+
+  const signTransactionIfSingleSigner = async (psbt) => {
+    // if only single sign, then sign tx right away
+    if (currentAccount.config.mnemonic) {
+      const seed = await mnemonicToSeed(currentAccount.config.mnemonic);
+      const root = bip32.fromSeed(seed, currentBitcoinNetwork);
+
+      psbt.signAllInputsHD(root);
+      psbt.validateSignaturesOfAllInputs();
+      psbt.finalizeAllInputs();
+
+      setSignedDevices([currentAccount]) // this could probably have better information in it but
+      setSignedPsbts([psbt]);
     }
   }
 
@@ -159,29 +176,8 @@ const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, curren
     }
 
     if (validateAddress(recipientAddress, currentBitcoinNetwork) && sendAmount && satoshisToBitcoins(BigNumber(feeEstimate).plus(currentBalance)).isGreaterThan(sendAmount)) {
-      try {
-        const psbt = await createTransactionAndSetState(undefined);
-        setStep(1);
-
-        // if only single sign, then sign tx right away
-        console.log('currentBitcoinNetwork: ', currentBitcoinNetwork);
-        console.log('currentAccount: ', currentAccount);
-        if (currentAccount.config.mnemonic) {
-          const seed = await mnemonicToSeed(currentAccount.config.mnemonic);
-          const root = bip32.fromSeed(seed, currentBitcoinNetwork);
-
-          psbt.signAllInputsHD(root);
-          psbt.validateSignaturesOfAllInputs();
-          psbt.finalizeAllInputs();
-
-          setSignedDevices([currentAccount]) // this could probably have better information in it but
-          setSignedPsbts([psbt]);
-        }
-      } catch (e) {
-        console.log('e: ', e);
-        console.log('e.message: ', e.message);
-        setImportTxFromFileError(e.message)
-      }
+      await createTransactionAndSetState(undefined);
+      setStep(1);
     }
   }
 
@@ -194,7 +190,7 @@ const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, curren
         </AccountMenuItemWrapper>
       ))}
       {config.wallets.map((wallet, index) => (
-        <AccountMenuItemWrapper active={wallet.id === currentAccount.config.id} borderRight={(index < config.wallets.length - 1)} onClick={() => setCurrentAccount(wallet.id)}>
+        <AccountMenuItemWrapper key={index} active={wallet.id === currentAccount.config.id} borderRight={(index < config.wallets.length - 1)} onClick={() => setCurrentAccount(wallet.id)}>
           <StyledIcon as={Wallet} size={48} />
           <AccountMenuItemName>{wallet.name}</AccountMenuItemName>
         </AccountMenuItemWrapper>
@@ -380,13 +376,6 @@ const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, curren
                 </Fragment>
               )}
               {step === 1 && !currentAccount.config.mnemonic && (
-                // <AccountSendContentRight
-                //   style={{
-                //     background: white,
-                //     padding: '1.5rem',
-                //     boxShadow: '0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06)',
-                //     borderRadius: '0.375rem'
-                //   }}>
                 <SignWithDevice
                   psbt={finalPsbt}
                   setSignedPsbts={setSignedPsbts}
@@ -395,7 +384,6 @@ const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, curren
                   setSignedDevices={setSignedDevices}
                   signThreshold={currentAccount.config.quorum.requiredSigners}
                 />
-                // </AccountSendContentRight>
               )}
             </AccountSendContentRight>
           </GridArea>
@@ -458,7 +446,7 @@ const FromFileButton = styled.div`
   font-family: 'Montserrat', sans-serif;
 
   &:hover {
-              border: 1px solid ${darkGray};
+    border: 1px solid ${darkGray};
     cursor: pointer;
   }
 `;
@@ -489,69 +477,10 @@ const SendToAddressHeader = styled.div`
   margin-bottom: 0px;
 `;
 
-const AddressDisplayWrapper = styled.div`
-  display: flex;
-`;
-
 const SendAmountError = styled.div`
   font-size: 0.5em;
   color: ${red};
   text-align: right;
-`;
-
-const InputStyles = css`
-  border: ${p => p.error ? `1px solid ${red}` : `1px solid ${darkOffWhite}`};
-  background: ${lightGray};
-  padding: 1.5em;
-  color: ${darkGray};
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 1em;
-  border-radius: 4px;
-  font-size: 1.5em;
-  z-index: 1;
-
-  ::placeholder {
-              color: ${gray};
-  }
-
-  :active, :focused {
-              outline: 0;
-    border: none;
-  }
-`;
-
-const Input = styled.input`
-  position: relative;
-  text-align: right;
-  ${InputStyles}
-`;
-
-const InputStaticText = styled.label`
-  position: relative;
-  display: flex;
-  flex: 0 0;
-  justify-self: center;
-  align-self: center;
-  margin-left: -87px;
-  z-index: 1;
-  margin-right: 40px;
-  font-size: 1.5em;
-  font-weight: 100;
-  color: ${gray};
-
-  &::after {
-              content: ${p => p.text};
-    position: absolute;
-    top: 4px;
-    left: 94px;
-    font-family: arial, helvetica, sans-serif;
-    font-size: .75em;
-    display: block;
-    color: rgba(0, 0, 0, 0.6);
-    font-weight: bold;
-  }
 `;
 
 const AccountMenuItemWrapper = styled.div`

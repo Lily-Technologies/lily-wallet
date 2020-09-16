@@ -1,14 +1,11 @@
-import React, { useState, Fragment } from 'react';
+import React from 'react';
 import styled, { css } from 'styled-components';
-import { KeyboardArrowDown } from '@styled-icons/material';
 import { CloseOutline } from '@styled-icons/evaicons-outline';
 
-import { NavLinks, Transition, Sidebar, Button, StyledIcon } from '.';
+import { NavLinks, Transition, Button, StyledIcon } from '.';
 
-import { white, darkGray, lightBlack, lightGray, gray600, gray800, black } from '../utils/colors';
-import rem from '../utils/rem';
+import { white, gray800 } from '../utils/colors';
 import { mobile } from '../utils/media';
-import { bitcoinNetworkEqual } from '../utils/transactions';
 
 export const MobileNavbar = ({ config, setCurrentAccount, mobileNavOpen, setMobileNavOpen, currentBitcoinNetwork }) => (
   <Wrapper>
@@ -85,12 +82,6 @@ const CloseButtonContainer = styled.div`
     right: 0;
     padding: .25rem;
   `)};
-`;
-
-const SVGXImage = styled.svg`
-  width: 1.5em;
-  height: 1.5em;
-  color: ${black};
 `;
 
 const BackgroundContainer = styled.div`

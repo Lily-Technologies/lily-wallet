@@ -14,7 +14,6 @@ const Steps = ({ step, setupOption }) => {
           {step > 1 ? <StyledIcon as={Check} size={25} /> : '01'}
         </StepCircle>
         <StepItemTextContainer>
-          {/* <StepItemMainText>Step 1</StepItemMainText> */}
           <StepItemSubText>Give your {setupOption === 2 ? 'wallet' : 'vault'} a name</StepItemSubText>
         </StepItemTextContainer>
       </StepItem>
@@ -23,7 +22,6 @@ const Steps = ({ step, setupOption }) => {
           {step > 2 ? <StyledIcon as={Check} size={25} /> : '02'}
         </StepCircle>
         <StepItemTextContainer>
-          {/* <StepItemMainText>Step 2</StepItemMainText> */}
           {setupOption === 1 && <StepItemSubText>Connect or import hardware wallets</StepItemSubText>}
           {setupOption === 2 && <StepItemSubText>Write down recovery words</StepItemSubText>}
           {setupOption === 3 && <StepItemSubText>Connect or import hardware wallet</StepItemSubText>}
@@ -34,7 +32,6 @@ const Steps = ({ step, setupOption }) => {
           {step > 3 ? <StyledIcon as={Check} size={25} /> : '03'}
         </StepCircle>
         <StepItemTextContainer>
-          {/* <StepItemMainText>Step 3</StepItemMainText> */}
           <StepItemSubText>Encrypt your configuration file</StepItemSubText>
         </StepItemTextContainer>
       </StepItem>
@@ -102,7 +99,7 @@ const StepItem = styled.div`
     transform: translateY(-50%) translateX(50%) rotate(-45deg);
   }
 `;
-const StepItemMainText = styled.div``;
+
 const StepItemSubText = styled.div``;
 
 export default Steps;

@@ -2,13 +2,11 @@ import React, { Fragment } from 'react';
 import styled, { css } from 'styled-components';
 import { useLocation } from "react-router-dom";
 import { useSpring, animated } from 'react-spring';
-import { networks } from 'bitcoinjs-lib';
 
 import { NavLinks } from './NavLinks';
 
-import { black, white, gray, offWhite, darkOffWhite, lightBlack } from '../utils/colors';
+import { white, darkOffWhite } from '../utils/colors';
 import { mobile } from '../utils/media';
-import { bitcoinNetworkEqual } from '../utils/transactions';
 
 export const Sidebar = ({ config, setCurrentAccount, loading, flyInAnimation, currentBitcoinNetwork }) => {
   const { pathname } = useLocation();

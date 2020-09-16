@@ -6,8 +6,7 @@ import { Button, DeviceSelect, FileUploader } from '../../components';
 import { InnerWrapper, XPubHeaderWrapper, SetupHeaderWrapper, SetupExplainerText, FormContainer, BoxedWrapper, SetupHeader } from './styles';
 import { darkGray, white } from '../../utils/colors';
 import { zpubToXpub } from '../../utils/other';
-
-import RequiredDevicesModal from './RequiredDevicesModal';
+import { getP2shDeriationPathForNetwork } from '../../utils/transactions';
 
 const NewHardwareWalletScreen = ({
   header,
@@ -15,8 +14,8 @@ const NewHardwareWalletScreen = ({
   setStep,
   importedDevices,
   setImportedDevices,
+  currentBitcoinNetwork
 }) => {
-  const [selectNumberRequiredModalOpen, setSelectNumberRequiredModalOpen] = useState(false);
   const [availableDevices, setAvailableDevices] = useState([]);
   const [errorDevices, setErrorDevices] = useState([]);
 
@@ -25,7 +24,7 @@ const NewHardwareWalletScreen = ({
       const response = await window.ipcRenderer.invoke('/xpub', {
         deviceType: device.type,
         devicePath: device.path,
-        path: `m/49'/0'/0'` // we are assuming BIP49 P2WPKH-nested-in-P2SH since Trezor and Ledger use that
+        path: getP2shDeriationPathForNetwork(currentBitcoinNetwork) // we are assuming BIP48 P2WSH wallet
       });
 
       setImportedDevices([...importedDevices, { ...device, ...response }]);

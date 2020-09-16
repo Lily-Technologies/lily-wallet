@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useState, useCallback } from 'react';
 import styled from 'styled-components';
 import { DotSingle } from '@styled-icons/entypo';
 
@@ -9,7 +9,14 @@ import { white, blue400, blue500, blue600, gray100, red500 } from '../utils/colo
 export const PromptPinModal = ({ device, promptPinModalIsOpen, setPromptPinModalDevice, enumerate }) => {
   const [currentPin, setCurrentPin] = useState('');
   const [loadingMessage, setLoadingMessage] = useState(false);
-  const [promptPinError, setPromptPinError] = useState(undefined)
+  const [promptPinError, setPromptPinError] = useState(undefined);
+
+  const closeModal = useCallback(
+    () => {
+      setPromptPinModalDevice(null);
+      setPromptPinError(undefined);
+    }, [setPromptPinModalDevice]
+  );
 
   useEffect(() => {
     async function promptPin() {
@@ -31,12 +38,7 @@ export const PromptPinModal = ({ device, promptPinModalIsOpen, setPromptPinModal
     if (device) {
       promptPin()
     }
-  }, [device]);
-
-  const closeModal = () => {
-    setPromptPinModalDevice(null);
-    setPromptPinError(undefined);
-  }
+  }, [device, closeModal]);
 
   const addToPin = (number) => {
     if (promptPinError) {

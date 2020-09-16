@@ -1,15 +1,11 @@
-import React, { useEffect, Fragment, useState } from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import { generateMnemonic } from "bip39";
 
-import { Button, MnemonicWordsDisplayer, DeviceSelect } from "../../components";
+import { Button, MnemonicWordsDisplayer } from "../../components";
 import {
   lightBlue,
-  blue,
-  white,
   darkOffWhite,
-  darkGray,
-  gray,
 } from "../../utils/colors";
 import { InnerWrapper, XPubHeaderWrapper, SetupHeaderWrapper, SetupExplainerText, FormContainer, BoxedWrapper, SetupHeader } from './styles';
 
@@ -22,7 +18,7 @@ const CreateWallet = ({
 
   useEffect(() => {
     setWalletMnemonic(generateMnemonic(256));
-  }, []);
+  }, [setWalletMnemonic]);
 
   return (
     <InnerWrapper style={{ marginBottom: '2em' }}>
@@ -55,18 +51,6 @@ const CreateWallet = ({
     </InnerWrapper>
   )
 };
-
-const ContinueButton = styled.div`
-  ${Button};
-  border-top-right-radius: 0;
-  border-top-left-radius: 0;
-`;
-
-const ConnectHWWButton = styled.label`
-  ${Button}
-  font-size: 0.75em;
-  border: 1px solid ${darkGray};
-`;
 
 const SaveWalletButton = styled.div`
   ${Button};

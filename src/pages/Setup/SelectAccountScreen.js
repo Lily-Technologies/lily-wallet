@@ -6,7 +6,7 @@ import { Calculator } from '@styled-icons/heroicons-outline';
 
 import { StyledIcon, Button } from '../../components';
 import { InnerWrapper } from './styles';
-import { blue500, darkGray, white, gray, offWhite, gray800 } from '../../utils/colors';
+import { blue500, darkGray, white, gray, gray800 } from '../../utils/colors';
 
 const SelectAccountScreen = ({ header, setSetupOption, setStep }) => {
 

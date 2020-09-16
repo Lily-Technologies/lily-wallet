@@ -7,11 +7,11 @@ import { networks } from 'bitcoinjs-lib';
 
 import GDriveImport from '../GDriveImport';
 
-import { StyledIcon, FileUploader, Button, Modal, Input, Spinner } from '../../components';
+import { StyledIcon, FileUploader, Button } from '../../components';
 
 import { GridArea } from '../../components/layout';
 
-import { black, darkGray, white, blue, gray, offWhite, gray900 } from '../../utils/colors';
+import { black, darkGray, white, blue, gray, gray900 } from '../../utils/colors';
 import { bitcoinNetworkEqual } from '../../utils/transactions';
 
 const Login = ({ setConfigFile, currentBitcoinNetwork }) => {
