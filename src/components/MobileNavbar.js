@@ -123,7 +123,7 @@ export const MobileNavbar = ({ config, setCurrentAccount, currentBitcoinNetwork 
           <StyledIcon as={Search} size={28} />
         </div> */}
 
-        <div onClick={() => setIsOpen(!isOpen)} active={isOpen}>
+        <div onClick={() => setIsOpen(!isOpen)} active={isOpen ? 1 : undefined}>
           <ArrowWrapper shouldRotate={isOpen}>
             <StyledIcon as={KeyboardArrowDown} size={36} />
           </ArrowWrapper>

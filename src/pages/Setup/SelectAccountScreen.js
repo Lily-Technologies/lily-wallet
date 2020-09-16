@@ -5,7 +5,7 @@ import { Wallet } from '@styled-icons/ionicons-outline';
 
 import { StyledIcon } from '../../components';
 import { InnerWrapper } from './styles';
-import { GridArea, Header } from '../../components/layout';
+import { GridArea } from '../../components/layout';
 import { blue500, darkGray, white, gray, offWhite } from '../../utils/colors';
 
 const SelectAccountScreen = ({ header, setSetupOption, setStep }) => {

@@ -108,7 +108,7 @@ const GDriveImport = ({ encryptedConfig, setConfigFile }) => {
                 error={passwordError} />
               {passwordError && <PasswordError>Incorrect Password</PasswordError>}
               <UnlockButton
-                loading={loadingGDrive}
+                loading={loadingGDrive ? 1 : undefined}
                 onClick={() => unlockFile()}>
                 Unlock Wallet
                 </UnlockButton>

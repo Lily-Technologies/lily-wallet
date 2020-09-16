@@ -15,7 +15,7 @@ import { offWhite } from './utils/colors';
 import { mobile } from './utils/media';
 import { bitcoinNetworkEqual } from './utils/transactions';
 
-import { Sidebar, MobileNavbar, ErrorBoundary } from './components';
+import { Sidebar, MobileNavbar } from './components';
 
 // Pages
 import Login from './pages/Login';
@@ -183,7 +183,6 @@ function App() {
   }
 
   return (
-    // <ErrorBoundary>
     <Router>
       <PageWrapper id="page-wrapper">
         <ScrollToTop />
@@ -207,7 +206,6 @@ function App() {
         </Switch>
       </PageWrapper>
     </Router>
-    // </ErrorBoundary>
   );
 }
 

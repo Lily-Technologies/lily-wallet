@@ -96,7 +96,7 @@ export const DeviceSelect = ({ configuredDevices, unconfiguredDevices, errorDevi
               error={deviceError}
               displayLoadingCursor={deviceActionLoading !== null}
             >
-              {deviceError || deviceWarning && (
+              {(deviceError || deviceWarning) && (
                 <IconWrapper style={{ color: red }}>
                   <StyledIcon as={ErrorOutline} size={24} />
                 </IconWrapper>
@@ -149,7 +149,7 @@ export const DeviceSelect = ({ configuredDevices, unconfiguredDevices, errorDevi
       {unconfiguredDevices.length === 0 && configuredDevices.length === 0 && devicesLoading && (
         <NoDevicesContainer>
           <LoadingDevicesWrapper>
-            <img src={require('../assets/flower-loading.svg')} style={{ maxWidth: '6.25em' }} />
+            <img src={require('../assets/flower-loading.svg')} style={{ maxWidth: '6.25em' }} alt="loading" />
             <LoadingText>Loading Devices</LoadingText>
             <LoadingSubText>Please wait...</LoadingSubText>
           </LoadingDevicesWrapper>
