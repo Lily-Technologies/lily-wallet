@@ -154,6 +154,7 @@ ipcMain.on('/account-data', async (event, args) => {
   const { config } = args;
   let addresses, changeAddresses, transactions, unusedAddresses, unusedChangeAddresses, availableUtxos;
   let nodeClient = undefined;
+  console.log('/account-data currentNodeConfig: ', currentNodeConfig);
   try {
     if (currentNodeConfig) {
       const nodeClient = new Client({
@@ -161,6 +162,9 @@ ipcMain.on('/account-data', async (event, args) => {
         password: currentNodeConfig.rpcpassword,
         version: '0.20.0'
       });
+
+      console.log('/account-data nodeClient: ', nodeClient);
+      console.log('/account-data xxx: ', await nodeClient.getBlockchainInfo());
 
       const walletList = await nodeClient.listWallets();
       console.log('walletList: ', walletList);
@@ -309,17 +313,34 @@ ipcMain.handle('/sendpin', async (event, args) => {
 });
 
 ipcMain.handle('/estimateFee', async (event, args) => {
-  const { nodeConfig, targetBlocks } = args;
+  if (currentNodeConfig.provider === 'Blockstream') {
+    try {
+      feeRates = await (await axios.get('https://mempool.space/api/v1/fees/recommended')).data; // TODO: should catch if URL is down
+    } catch (e) {
+      throw new Error('Error retrieving fees from mempool.space. Please try again.')
+    }
+    return Promise.resolve(feeRates);
+  } else {
+    const nodeClient = new Client(currentNodeConfig);
+    try {
+      const feeRates = {
+        fastestFee: undefined,
+        halfHourFee: undefined,
+        hourFee: undefined
+      }
+      const fastestFeeRate = await nodeClient.estimateSmartFee(1).feerate;
+      feeRates.fastestFee = BigNumber(fastestFeeRate).multipliedBy(100000).integerValue(BigNumber.ROUND_CEIL).toNumber(); // TODO: this probably needs relooked at
+      const halfHourFeeRate = await nodeClient.estimateSmartFee(3).feerate;
+      feeRates.halfHourFee = BigNumber(halfHourFeeRate).multipliedBy(100000).integerValue(BigNumber.ROUND_CEIL).toNumber(); // TODO: this probably needs relooked at
+      const hourFeeRate = await nodeClient.estimateSmartFee(6).feerate;
+      feeRates.hourFee = BigNumber(hourFeeRate).multipliedBy(100000).integerValue(BigNumber.ROUND_CEIL).toNumber(); // TODO: this probably needs relooked at
 
-  const nodeClient = new Client(nodeConfig);
-
-  try {
-    const { feerate } = await nodeClient.estimateSmartFee(targetBlocks);
-    const feeAdjusted = BigNumber(feerate).multipliedBy(100000).integerValue(BigNumber.ROUND_CEIL).toNumber(); // TODO: this probably needs relooked at
-    return Promise.resolve(feeAdjusted);
-  } catch (e) {
-    return Promise.reject(new Error('Error retrieving fee'));
+      return Promise.resolve(feeRates);
+    } catch (e) {
+      return Promise.reject(new Error('Error retrieving fee'));
+    }
   }
+
 });
 
 ipcMain.handle('/broadcastTx', async (event, args) => {
@@ -336,7 +357,8 @@ ipcMain.handle('/broadcastTx', async (event, args) => {
 
 ipcMain.handle('/changeNodeConfig', async (event, args) => {
   const { nodeConfig } = args;
-  console.log('currentNodeConfig: ', currentNodeConfig);
+  console.log('/changeNodeConfig currentNodeConfig: ', currentNodeConfig);
+  console.log('/changeNodeConfig nodeConfig: ', nodeConfig);
   if (nodeConfig.provider === 'Bitcoin Core') {
     try {
       currentNodeConfig = await getBitcoinCoreConfig();
@@ -380,6 +402,7 @@ ipcMain.handle('/changeNodeConfig', async (event, args) => {
 });
 
 ipcMain.handle('/getNodeConfig', async (event, args) => {
+  console.log('/getNodeConfig currentNodeConfig: ', currentNodeConfig)
   if (currentNodeConfig) {
     try {
       const blockchainInfo = await getBitcoinCoreBlockchainInfo();

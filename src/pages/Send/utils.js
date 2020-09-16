@@ -88,29 +88,10 @@ const coinSelection = (amountInSats, availableUtxos) => {
   return [spendingUtxos, currentTotal];
 }
 
-const getFeeFromNode = async ({ currentAccount, targetBlocks }) => {
-  return await window.ipcRenderer.invoke('/estimateFee', {
-    nodeConfig: currentAccount.nodeConfig,
-    targetBlocks: targetBlocks
-  });
-}
-
-export const createTransaction = async (currentAccount, amountInBitcoins, recipientAddress, desiredFee, availableUtxos, transactions, unusedChangeAddresses, currentBitcoinNetwork) => {
+export const createTransaction = async (currentAccount, amountInBitcoins, recipientAddress, desiredFee, availableUtxos, unusedChangeAddresses, currentBitcoinNetwork) => {
   let fee;
-  let feeRates;
-  if (currentAccount.nodeConfig.provider !== 'Blockstream') {
-    feeRates = {}; // replicate response back from bitcoinfees.earn.com
-    feeRates.fastestFee = await getFeeFromNode({ currentAccount, targetBlocks: 1 });
-    feeRates.halfHourFee = await getFeeFromNode({ currentAccount, targetBlocks: 3 });
-    feeRates.hourFee = await getFeeFromNode({ currentAccount, targetBlocks: 6 });
-  } else {
-    try {
-      feeRates = await (await axios.get('https://bitcoinfees.earn.com/api/v1/fees/recommended')).data; // TODO: should catch if URL is down
-    } catch (e) {
-      throw new Error('Error retrieving fees. Please try again.')
-    }
-  }
-  if (desiredFee) { // if no fee specified, pick next block
+  const feeRates = await window.ipcRenderer.invoke('/estimateFee');
+  if (desiredFee) { // if no fee specified, pick halfhour
     fee = desiredFee;
   } else if (currentAccount.config.quorum.totalSigners > 1) {
     fee = await getFeeForMultisig(feeRates.halfHourFee, currentAccount.config.addressType, 1, 2, currentAccount.config.quorum.requiredSigners, currentAccount.config.quorum.totalSigners).integerValue(BigNumber.ROUND_CEIL);
@@ -144,14 +125,8 @@ export const createTransaction = async (currentAccount, amountInBitcoins, recipi
         hash: utxo.txid,
         index: utxo.vout,
         sequence: 0xffffffff,
-        // witnessUtxo: {
-        // script: Buffer.from(transactionMap.get(utxo.txid).vout[utxo.vout].scriptpubkey, 'hex'),
-        //   value: utxo.value
-        // },
         nonWitnessUtxo: Buffer.from(prevTxHex, 'hex'),
-        // redeemScript: utxo.address.redeem.output,
         witnessScript: Buffer.from(multisigWitnessScript(utxo.address).output),
-        // witnessScript: Buffer.from(utxo.witnessScript),
         bip32Derivation: utxo.address.bip32derivation.map((derivation) => ({
           masterFingerprint: Buffer.from(derivation.masterFingerprint.buffer, derivation.masterFingerprint.byteOffset, derivation.masterFingerprint.byteLength),
           pubkey: Buffer.from(derivation.pubkey.buffer, derivation.pubkey.byteOffset, derivation.pubkey.byteLength),
@@ -165,12 +140,7 @@ export const createTransaction = async (currentAccount, amountInBitcoins, recipi
         hash: utxo.txid,
         index: utxo.vout,
         sequence: 0xffffffff,
-        // witnessUtxo: {
-        //   script: Buffer.from(transactionMap.get(utxo.txid).vout[utxo.vout].scriptpubkey, 'hex'),
-        //   value: utxo.value
-        // },
         nonWitnessUtxo: Buffer.from(prevTxHex, 'hex'),
-        // witnessScript: Buffer.from(utxo.witnessScript),
         bip32Derivation: [{
           masterFingerprint: Buffer.from(utxo.address.bip32derivation[0].masterFingerprint.buffer, utxo.address.bip32derivation[0].masterFingerprint.byteOffset, utxo.address.bip32derivation[0].masterFingerprint.byteLength),
           pubkey: Buffer.from(utxo.address.bip32derivation[0].pubkey.buffer, utxo.address.bip32derivation[0].pubkey.byteOffset, utxo.address.bip32derivation[0].pubkey.byteLength),
@@ -196,7 +166,6 @@ export const createTransaction = async (currentAccount, amountInBitcoins, recipi
 
   psbt.addOutput({
     script: address.toOutputScript(recipientAddress, currentBitcoinNetwork),
-    // address: recipientAddress,
     value: bitcoinsToSatoshis(amountInBitcoins).toNumber(),
   });
 

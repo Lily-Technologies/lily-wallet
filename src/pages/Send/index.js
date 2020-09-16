@@ -48,7 +48,7 @@ const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, curren
   // TODO: refactor this...ugly
   const createTransactionAndSetState = async (theFee) => {
     try {
-      const { psbt, fee, feeRates } = await createTransaction(currentAccount, sendAmount, recipientAddress, theFee, availableUtxos, transactions, unusedChangeAddresses, currentBitcoinNetwork);
+      const { psbt, fee, feeRates } = await createTransaction(currentAccount, sendAmount, recipientAddress, theFee, availableUtxos, unusedChangeAddresses, currentBitcoinNetwork);
       setFinalPsbt(psbt);
       setFeeEstimate(fee);
       setFeeRates(feeRates);
