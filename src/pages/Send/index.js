@@ -490,13 +490,12 @@ const AccountMenuItemWrapper = styled.div`
   align-items: center;
   background: ${p => p.active ? lightBlue : white};
   color: ${p => p.active ? darkGray : gray};
-  padding: 12px;
+  padding: .75em;
   flex: 1;
   cursor: ${p => p.active ? 'auto' : 'pointer'};
   border-top: ${p => p.active ? `solid 11px ${blue}` : `none`};
   border-bottom: ${p => p.active ? 'none' : `solid 1px ${gray}`};
-  border-left: ${p => !p.active && p.borderLeft && `solid 1px ${gray}`};
-  border-right: ${p => !p.active && p.borderRight && `solid 1px ${gray}`};
+  border-right: ${p => p.borderRight && `solid 1px ${gray}`};
 `;
 
 const AccountMenuItemName = styled.div``;
