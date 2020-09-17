@@ -6,7 +6,7 @@ const BigNumber = require('bignumber.js');
 const { download } = require('electron-dl');
 
 const { enumerate, getXPub, signtx, promptpin, sendpin } = require('./server/commands');
-const { getDataFromMultisig, getDataFromXPub } = require('./utils/transactions');
+const { bitcoinNetworkEqual, getDataFromMultisig, getDataFromXPub } = require('./utils/transactions');
 
 const path = require('path');
 
@@ -141,7 +141,7 @@ ipcMain.handle('/enumerate', async (event, args) => {
 
 ipcMain.handle('/xpub', async (event, args) => {
   const { deviceType, devicePath, path } = args;
-  const resp = JSON.parse(await getXPub(deviceType, devicePath, path)); // responses come back as strings, need to be parsed
+  const resp = JSON.parse(await getXPub(deviceType, devicePath, path, bitcoinNetworkEqual(currentBitcoinNetwork, networks.testnet))); // responses come back as strings, need to be parsed
   if (resp.error) {
     return Promise.reject(new Error('Error extracting xpub'));
   }
@@ -150,7 +150,7 @@ ipcMain.handle('/xpub', async (event, args) => {
 
 ipcMain.handle('/sign', async (event, args) => {
   const { deviceType, devicePath, psbt } = args;
-  const resp = JSON.parse(await signtx(deviceType, devicePath, psbt));
+  const resp = JSON.parse(await signtx(deviceType, devicePath, psbt, bitcoinNetworkEqual(currentBitcoinNetwork, networks.testnet)));
   if (resp.error) {
     return Promise.reject(new Error('Error signing transaction'));
   }
