@@ -1,15 +1,66 @@
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import styled from 'styled-components';
 
 import { Button } from '../../components';
 import { InnerWrapper, XPubHeaderWrapper, SetupHeaderWrapper, SetupHeader, SetupExplainerText } from './styles';
-import { white, gray, darkGreen, darkOffWhite, lightBlue, black } from '../../utils/colors';
+import { red, white, gray, darkGreen, darkOffWhite, lightBlue, black } from '../../utils/colors';
+
+const MIN_PASSWORD_LENGTH = 8;
+
+// Potential input fields
+const FIELD_PASSWORD = 0;
+const FIELD_CONFIRMATION = 1;
 
 const InputPasswordScreen = ({ header, config, password, setPassword, setStep, setupOption }) => {
 
-  const onInputEnter = (e) => {
-    if (e.key === 'Enter') {
-      setStep(4);
+  const [confirmation, setConfirmation] = useState('');
+  const [passwordError, setPasswordError] = useState(undefined);
+  const [confirmationError, setConfirmationError] = useState(undefined);
+
+  const confirmationRef = useRef();
+  const buttonRef = useRef();
+
+  const validateInput = (event, which) => {
+    switch(which) {
+      case FIELD_PASSWORD:
+        const newPassword = event.target.value;
+        if (newPassword && newPassword.length < MIN_PASSWORD_LENGTH) {
+          setPasswordError(`Password must be at least ${MIN_PASSWORD_LENGTH} characters long`);
+        } else if (newPassword.length === 0) {
+          setPasswordError(undefined);
+        } else {
+          setPasswordError(false);
+        }
+        if (newPassword && confirmation && newPassword !== confirmation) {
+          setPasswordError('Password doesn\' match confirmation');
+        }
+        setPassword(newPassword);
+        break;
+      case FIELD_CONFIRMATION:
+        const _confirmation = event.target.value;
+        if (_confirmation && password !== _confirmation) {
+          setConfirmationError('Password & confirmation must match');
+        } else if(_confirmation.length === 0) {
+          setConfirmationError(undefined);
+        } else {
+          setConfirmationError(false);
+        }
+        setConfirmation(_confirmation);
+        break;
+    }
+  }
+
+  const onInputEnter = (event, field) => {
+    if (event.key === 'Enter') {
+      switch(field) {
+        case FIELD_PASSWORD:
+          confirmationRef.current.focus();
+          break;
+        case FIELD_CONFIRMATION:
+          buttonRef.current.focus();
+          break;
+      }
+      event.preventDefault();
     }
   }
 
@@ -32,16 +83,29 @@ const InputPasswordScreen = ({ header, config, password, setPassword, setStep, s
           autoFocus
           placeholder="password"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          onKeyDown={(e) => onInputEnter(e)}
+          onKeyDown={(e) => onInputEnter(e, FIELD_PASSWORD)}
+          onChange={(e) => validateInput(e, FIELD_PASSWORD)}
           type="password" />
+        { passwordError !== undefined && <PasswordError>{passwordError}</PasswordError>}
+      </PasswordWrapper>
+      <PasswordWrapper>
+        <PasswordInput
+          ref={confirmationRef}
+          placeholder="confirmation"
+          value={confirmation}
+          onKeyDown={(e) => onInputEnter(e, FIELD_CONFIRMATION)}
+          onChange={(e) => validateInput(e, FIELD_CONFIRMATION)}
+          type="password"/>
+        { confirmationError !== undefined && <PasswordError>{confirmationError}</PasswordError>}
       </PasswordWrapper>
       <ExportFilesButton
+        ref={buttonRef}
         background={darkGreen}
         color={white}
-        active={password.length > 3}
+        active={!(passwordError !== false || confirmationError !== false)}
         onClick={() => {
-          if (password.length > 3) {
+          if (!(passwordError !== false || confirmationError !== false)) {
+            setPassword(password);
             setStep(4);
           }
         }}>{'Save Vault'}</ExportFilesButton>
@@ -93,6 +157,12 @@ const ExportFilesButton = styled.button`
   border-top-left-radius: 0;
   border-top-right-radius: 0;
   width: 100%;
+`;
+
+const PasswordError = styled.div`
+  font-size: 0.5em;
+  color: ${red};
+  text-align: right;
 `;
 
 export default InputPasswordScreen;
