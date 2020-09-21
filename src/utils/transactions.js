@@ -347,8 +347,8 @@ const getDataFromXPub = async (account, nodeClient, currentBitcoinNetwork) => {
 }
 
 module.exports = {
-  bitcoinNetworkEqual: bitcoinNetworkEqual,
   getMultisigDeriationPathForNetwork: getMultisigDeriationPathForNetwork,
+  bitcoinNetworkEqual: bitcoinNetworkEqual,
   getP2shDeriationPathForNetwork: getP2shDeriationPathForNetwork,
   getP2wpkhDeriationPathForNetwork: getP2wpkhDeriationPathForNetwork,
   createAddressMapFromAddressArray: createAddressMapFromAddressArray,

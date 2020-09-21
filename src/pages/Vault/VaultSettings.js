@@ -8,10 +8,10 @@ import { MnemonicWordsDisplayer, Modal } from '../../components';
 
 import { black, gray, white, blue, darkGray, darkOffWhite, lightBlue, red, lightGray, darkGreen } from '../../utils/colors';
 import { mobile } from '../../utils/media';
-import { createColdCardBlob, downloadFile, formatFilename } from '../../utils/files';
+import { createColdCardBlob, downloadFile, formatFilename, saveConfig } from '../../utils/files';
 import { getMultisigDeriationPathForNetwork } from '../../utils/transactions';
 
-const VaultSettings = ({ config, setConfigFile, currentAccount, setViewAddresses, setViewUtxos, currentBitcoinNetwork }) => {
+const VaultSettings = ({ config, setConfigFile, password, currentAccount, setViewAddresses, setViewUtxos, currentBitcoinNetwork }) => {
   const [viewXpub, setViewXpub] = useState(false);
   const [viewExportQRCode, setViewExportQRCode] = useState(false);
   const [viewMnemonic, setViewMnemonic] = useState(false);
@@ -40,7 +40,7 @@ const VaultSettings = ({ config, setConfigFile, currentAccount, setViewAddresses
         configCopy.extendedPublicKeys[i].method = 'xpub';
       }
     }
-    const caravanFile = new Blob([JSON.stringify(configCopy)], { type: 'application/json' })
+    const caravanFile = JSON.stringify(configCopy);
     downloadFile(caravanFile, formatFilename('lily-caravan-file', currentBitcoinNetwork, 'json'));
   }
 
@@ -87,7 +87,6 @@ const VaultSettings = ({ config, setConfigFile, currentAccount, setViewAddresses
   }
 
   const removeAccountAndDownloadConfig = () => {
-    const contentType = "text/plain;charset=utf-8;";
     const configCopy = { ...config };
     if (currentAccount.config.quorum.totalSigners === 1) {
       configCopy.wallets = configCopy.wallets.filter((wallet) => wallet.id !== currentAccount.config.id)
@@ -95,10 +94,7 @@ const VaultSettings = ({ config, setConfigFile, currentAccount, setViewAddresses
       configCopy.vaults = configCopy.vaults.filter((vault) => vault.id !== currentAccount.config.id)
     }
 
-    const encryptedConfigObject = AES.encrypt(JSON.stringify(configCopy), configEncryptionPassword).toString();
-    const encryptedConfigFile = new Blob([decodeURIComponent(encodeURI(encryptedConfigObject))], { type: contentType });
-
-    downloadFile(encryptedConfigFile, formatFilename('lily_wallet_config', currentBitcoinNetwork, 'txt'));
+    saveConfig(configCopy, password);
     setConfigFile(configCopy);
     history.push('/');
   }

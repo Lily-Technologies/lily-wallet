@@ -34,6 +34,7 @@ const Settings = ({ config, currentBitcoinNetwork }) => {
   const [password, setPassword] = useState(null);
 
 
+  // KBC-TODO: think about how this should work
   const downloadCurrentConfig = (password) => {
     const contentType = "text/plain;charset=utf-8;";
     const encryptedConfigObject = AES.encrypt(JSON.stringify(config), password).toString();

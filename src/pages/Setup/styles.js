@@ -27,7 +27,7 @@ export const XPubHeaderWrapper = styled.div`
   margin: 0;
   display: flex;
   justify-content: space-between;
-  padding: 1.5em;
+  padding: 1.25em;
   border-bottom: 1px solid #E4E7EB;
   align-items: flex-start;
 `;
@@ -40,7 +40,7 @@ export const SetupHeaderWrapper = styled.div`
 `;
 
 export const SetupHeader = styled.span`
-  font-size: 1.5em;
+  font-size: 1.25em;
   margin: 4px 0;
   color: ${black};
 `;

@@ -27,7 +27,7 @@ export const ConnectToNodeModal = ({
           version: '0.20.0'
         }
       });
-      console.log('after uptime: ', response)
+
       setNodeConfig({
         host: host,
         username: username,
@@ -67,14 +67,25 @@ export const ConnectToNodeModal = ({
         </SaveButton>
       </ModalHeader>
       <InputsWrapper>
-        <Input label="Host" value={host} onChange={setHost} onKeyDown={(e) => onInputEnter(e)} />
-        <Input label="Username" value={username} onChange={setUsername} onKeyDown={(e) => onInputEnter(e)} />
-        <Input label="Password" type="password" value={password} onChange={setPassword} onKeyDown={(e) => onInputEnter(e)} />
+        <InputContainer style={{ marginTop: '1em' }}>
+          <Input label="Host" value={host} onChange={setHost} onKeyDown={(e) => onInputEnter(e)} />
+        </InputContainer>
+        <InputContainer>
+          <Input label="Username" value={username} onChange={setUsername} onKeyDown={(e) => onInputEnter(e)} />
+        </InputContainer>
+        <InputContainer>
+          <Input label="Password" type="password" value={password} onChange={setPassword} onKeyDown={(e) => onInputEnter(e)} />
+        </InputContainer>
         {nodeConnectError && <ErrorText>{nodeConnectError}</ErrorText>}
       </InputsWrapper>
     </Modal>
   )
 }
+
+const InputContainer = styled.div`
+  width: 100%;
+  margin-bottom: 1em;
+`;
 
 const ModalHeader = styled.div`
   padding-top: 1.25rem;

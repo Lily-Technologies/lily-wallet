@@ -19,7 +19,6 @@ import { Sidebar, MobileNavbar, TitleBar } from './components';
 
 // Pages
 import Login from './pages/Login';
-import GDriveImport from './pages/GDriveImport';
 import Setup from './pages/Setup';
 import Settings from './pages/Settings';
 import Vault from './pages/Vault';
@@ -45,6 +44,7 @@ function App() {
   const [currentBitcoinPrice, setCurrentBitcoinPrice] = useState(BigNumber(0));
   const [historicalBitcoinPrice, setHistoricalBitcoinPrice] = useState({});
   const [config, setConfigFile] = useState(emptyConfig);
+  const [encryptedConfigFile, setEncryptedConfigFile] = useState(null);
   const [currentAccount, setCurrentAccount] = useState({ name: 'Loading...', loading: true });
   const [accountMap, setAccountMap] = useState(new Map());
   const [currentBitcoinNetwork, setCurrentBitcoinNetwork] = useState(networks.bitcoin);
@@ -52,19 +52,26 @@ function App() {
   const [flyInAnimation, setInitialFlyInAnimation] = useState(true);
   const [nodeConfig, setNodeConfig] = useState(undefined);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [password, setPassword] = useState('');
 
   const ConfigRequired = () => {
     const { pathname } = useLocation();
     const history = useHistory();
-    if (config.isEmpty && (pathname !== '/login' && pathname !== '/gdrive-import' && pathname !== '/setup')) {
+    if (config.isEmpty && (pathname !== '/login' && pathname !== '/decrypt' && pathname !== '/setup')) {
       history.push('/login');
-      window.location.reload();
     }
     return null;
   }
 
   const toggleRefresh = () => {
     setRefresh(!refresh)
+  }
+
+  const resetConfigFile = async () => {
+    setConfigFile(emptyConfig);
+    const { file, modifiedTime } = await window.ipcRenderer.invoke('/get-config');
+    setEncryptedConfigFile({ file: file.toString(), modifiedTime });
+    setInitialFlyInAnimation(true);
   }
 
   const ScrollToTop = () => {
@@ -121,6 +128,20 @@ function App() {
   })
 
   useEffect(() => {
+    async function getConfig() {
+      if (config.isEmpty) {
+        try {
+          const { file, modifiedTime } = await window.ipcRenderer.invoke('/get-config');
+          setEncryptedConfigFile({ file: file.toString(), modifiedTime });
+        } catch (e) {
+
+        }
+      }
+    }
+    getConfig()
+  }, [])
+
+  useEffect(() => {
     async function fetchBitcoinNetwork() {
       const bitcoinNetwork = await window.ipcRenderer.invoke('/bitcoin-network');
       setCurrentBitcoinNetwork(bitcoinNetwork);
@@ -168,8 +189,6 @@ function App() {
     fetchNodeConfig();
   }, []);
 
-  console.log('config: ', config);
-
   const updateAccountMap = useCallback(
     (accountInfo) => {
       accountMap.set(accountInfo.config.id, {
@@ -216,7 +235,6 @@ function App() {
             wallet: accountInfo.config.name,
           };
         }
-        console.log('accountInfo: ', accountInfo);
         updateAccountMap(args[0]);
         accountMap.set(accountInfo.config.id, {
           ...accountInfo,
@@ -235,20 +253,19 @@ function App() {
 
   return (
     <Router>
-      <TitleBar setNodeConfig={setNodeConfig} nodeConfig={nodeConfig} setMobileNavOpen={setMobileNavOpen} config={config} connectToBlockstream={connectToBlockstream} connectToBitcoinCore={connectToBitcoinCore} getNodeConfig={getNodeConfig} />
+      <TitleBar setNodeConfig={setNodeConfig} nodeConfig={nodeConfig} setMobileNavOpen={setMobileNavOpen} config={config} connectToBlockstream={connectToBlockstream} connectToBitcoinCore={connectToBitcoinCore} getNodeConfig={getNodeConfig} resetConfigFile={resetConfigFile} />
       <PageWrapper id="page-wrapper">
         <ScrollToTop />
         <ConfigRequired />
         {!config.isEmpty && <Sidebar config={config} setCurrentAccount={setCurrentAccountFromMap} flyInAnimation={flyInAnimation} currentBitcoinNetwork={currentBitcoinNetwork} />}
         {!config.isEmpty && <MobileNavbar mobileNavOpen={mobileNavOpen} setMobileNavOpen={setMobileNavOpen} config={config} setCurrentAccount={setCurrentAccountFromMap} currentBitcoinNetwork={currentBitcoinNetwork} />}
         <Switch>
-          <Route path="/vault/:id" component={() => <Vault config={config} setConfigFile={setConfigFile} toggleRefresh={toggleRefresh} currentAccount={currentAccount} setCurrentAccount={setCurrentAccountFromMap} currentBitcoinNetwork={currentBitcoinNetwork} currentBitcoinPrice={currentBitcoinPrice} />} />
+          <Route path="/vault/:id" component={() => <Vault config={config} setConfigFile={setConfigFile} password={password} toggleRefresh={toggleRefresh} currentAccount={currentAccount} setCurrentAccount={setCurrentAccountFromMap} currentBitcoinNetwork={currentBitcoinNetwork} currentBitcoinPrice={currentBitcoinPrice} />} />
           <Route path="/receive" component={() => <Receive config={config} currentAccount={currentAccount} setCurrentAccount={setCurrentAccountFromMap} currentBitcoinPrice={currentBitcoinPrice} />} />
           <Route path="/send" component={() => <Send config={config} currentAccount={currentAccount} setCurrentAccount={setCurrentAccountFromMap} toggleRefresh={toggleRefresh} currentBitcoinPrice={currentBitcoinPrice} currentBitcoinNetwork={currentBitcoinNetwork} />} />
-          <Route path="/setup" component={() => <Setup config={config} setConfigFile={setConfigFile} currentBitcoinNetwork={currentBitcoinNetwork} />} />
-          <Route path="/login" component={() => <Login setConfigFile={setConfigFile} currentBitcoinNetwork={currentBitcoinNetwork} />} />
+          <Route path="/setup" component={() => <Setup config={config} setConfigFile={setConfigFile} password={password} encryptedConfigFile={encryptedConfigFile} setEncryptedConfigFile={setEncryptedConfigFile} currentBitcoinNetwork={currentBitcoinNetwork} />} />
+          <Route path="/login" component={() => <Login setConfigFile={setConfigFile} password={password} setPassword={setPassword} encryptedConfigFile={encryptedConfigFile} setEncryptedConfigFile={setEncryptedConfigFile} currentBitcoinNetwork={currentBitcoinNetwork} />} />
           <Route path="/settings" component={() => <Settings config={config} currentBitcoinNetwork={currentBitcoinNetwork} changeCurrentBitcoinNetwork={changeCurrentBitcoinNetwork} />} />
-          <Route path="/gdrive-import" component={() => <GDriveImport setConfigFile={setConfigFile} />} />
           <Route path="/coldcard-import-instructions" component={() => <ColdcardImportInstructions />} />
           <Route path="/" component={() => <Home flyInAnimation={flyInAnimation} prevFlyInAnimation={prevSetFlyInAnimation.current} accountMap={accountMap} setCurrentAccount={setCurrentAccountFromMap} historicalBitcoinPrice={historicalBitcoinPrice} currentBitcoinPrice={currentBitcoinPrice} />} />
           <Route path="/" component={() => (

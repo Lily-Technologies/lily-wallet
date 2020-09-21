@@ -1,14 +1,17 @@
 import React from 'react';
 import styled from 'styled-components';
+import { useHistory } from "react-router-dom";
 import { Bank } from '@styled-icons/remix-line';
 import { Wallet } from '@styled-icons/ionicons-outline';
 import { Calculator } from '@styled-icons/heroicons-outline';
+import { Upload } from '@styled-icons/boxicons-regular';
 
-import { StyledIcon, Button } from '../../components';
+import { StyledIcon, Button, FileUploader } from '../../components';
 import { InnerWrapper } from './styles';
 import { blue500, darkGray, white, gray, gray800 } from '../../utils/colors';
 
 const SelectAccountScreen = ({ header, setSetupOption, setStep }) => {
+  const history = useHistory();
 
   return (
     <InnerWrapper>
@@ -59,6 +62,10 @@ const SelectAccountScreen = ({ header, setSetupOption, setStep }) => {
     </InnerWrapper>
   )
 }
+
+const LabelOverlay = styled.label`
+  width: 100%;
+`;
 
 const SignupOptionMenu = styled.div`
   display: flex;

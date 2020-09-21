@@ -9,7 +9,7 @@ import { blue600, blue800, white, green400, orange400, red500 } from '../utils/c
 
 import { ConnectToNodeModal, StyledIcon, Dropdown } from '.';
 
-export const TitleBar = ({ setNodeConfig, nodeConfig, setMobileNavOpen, config, connectToBlockstream, connectToBitcoinCore, getNodeConfig }) => {
+export const TitleBar = ({ setNodeConfig, nodeConfig, setMobileNavOpen, config, connectToBlockstream, connectToBitcoinCore, getNodeConfig, resetConfigFile }) => {
   console.log('nodeConfig: ', nodeConfig)
   const [nodeConfigModalOpen, setNodeConfigModalOpen] = useState(false);
   const [moreOptionsDropdownOpen, setMoreOptionsDropdownOpen] = useState(false);
@@ -101,7 +101,7 @@ export const TitleBar = ({ setNodeConfig, nodeConfig, setMobileNavOpen, config, 
               { label: 'Support', onClick: () => { console.log('foobar') } },
               { label: 'License', onClick: () => { console.log('foobar2') } },
               { label: 'View source code', onClick: () => { console.log('foobar2') } },
-              { label: 'Sign out', onClick: () => { console.log('foobar3') } }
+              { label: 'Sign out', onClick: async () => { await resetConfigFile() } }
             ]}
           />
         </DotDotDotContainer>

@@ -4,10 +4,12 @@ import { useHistory } from "react-router-dom";
 import { CheckCircle } from '@styled-icons/material';
 
 import { StyledIcon, Button } from '../../components';
-import { white, darkGray, green } from '../../utils/colors';
+import { white, darkGray, green, gray500, gray600, gray700 } from '../../utils/colors';
 import { FormContainer, InnerWrapper, BoxedWrapper } from './styles';
 
-const SuccessScreen = ({ exportSetupFiles }) => {
+import { downloadFile } from '../../utils/files';
+
+const SuccessScreen = ({ exportSetupFiles, config }) => {
   const history = useHistory();
 
   return (
@@ -19,20 +21,49 @@ const SuccessScreen = ({ exportSetupFiles }) => {
           </IconWrapper>
           <SuccessText>Setup Success!</SuccessText>
           <SuccessSubtext>
-            The configuration file will be saved in your default download folder. <br /><br />
-            This file is required to restore your wallet next time you start Lily Wallet.
+            Your account configuration has been saved in your Lily app data directory. <br /><br />
+            You may backup this file to another location for safe keeping now <br /> or later via Settings > Download Backup Configuration.
           </SuccessSubtext>
-          <DownloadButton
-            color={white}
-            onClick={async () => {
-              await exportSetupFiles();
-              history.push('/');
-            }}>Download Configuration File</DownloadButton>
+          <Buttons>
+            <SaveBackupButton
+              background={white}
+              color={gray600}
+              onClick={() => {
+                downloadFile(JSON.stringify(config), 'lily-config-encrypted.json')
+              }}
+            >
+              Backup Config File
+          </SaveBackupButton>
+            <DownloadButton
+              color={white}
+              onClick={async () => {
+                await exportSetupFiles();
+                history.push('/');
+              }}>View Account</DownloadButton>
+          </Buttons>
         </BoxedWrapperModified>
       </FormContainer>
     </InnerWrapper>
   )
 }
+
+const Buttons = styled.div`
+  display: flex;
+  margin-top: 2em;
+  width: 100%;
+  justify-content: center;
+`;
+
+const SaveBackupButton = styled.button`
+  ${Button};
+  box-shadow: 0 1px 2px 0 rgba(0,0,0,.05);
+  border: 1px solid #d2d6dc;
+  margin-right: 1em;
+
+  &:hover {
+    color: ${gray500};
+  }
+`;
 
 const BoxedWrapperModified = styled(BoxedWrapper)`
   align-items: center;
@@ -44,6 +75,7 @@ const IconWrapper = styled.div``;
 const SuccessText = styled.div`
   margin-top: 0.5em;
   font-size: 1.5em;
+  color: ${gray700}
 `;
 
 const SuccessSubtext = styled.div`
@@ -52,9 +84,8 @@ const SuccessSubtext = styled.div`
   text-align: center;
 `;
 
-const DownloadButton = styled.div`
+const DownloadButton = styled.button`
   ${Button};
-  margin-top: 2em;
 `;
 
 export default SuccessScreen;

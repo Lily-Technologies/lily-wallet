@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { networks, Psbt } from 'bitcoinjs-lib';
 import { bip32 } from "bitcoinjs-lib";
 import { mnemonicToSeed } from "bip39";
+import { AES } from 'crypto-js';
 
 import { bitcoinNetworkEqual, getMultisigDeriationPathForNetwork, getP2wpkhDeriationPathForNetwork } from './transactions';
 
@@ -49,8 +50,16 @@ export const formatFilename = (fileContents, currentBitcoinNetwork, fileType) =>
 
 export const downloadFile = async (file, filename) => {
   try {
-    const fileUrl = URL.createObjectURL(file);
-    await window.ipcRenderer.invoke('download-item', { url: fileUrl, filename: filename })
+    await window.ipcRenderer.invoke('/download-item', { data: file, filename: filename })
+  } catch (e) {
+    console.log('e: ', e);
+  }
+}
+
+export const saveConfig = async (configFile, password) => {
+  const encryptedConfigObject = AES.encrypt(JSON.stringify(configFile), password).toString();
+  try {
+    await window.ipcRenderer.invoke('/save-config', { encryptedConfigFile: encryptedConfigObject })
   } catch (e) {
     console.log('e: ', e);
   }
@@ -155,7 +164,7 @@ export const createMultisigConfigFile = (importedDevices, requiredSigners, accou
 
 export const createColdCardBlob = (requiredSigners, totalSigners, accountName, importedDevices, currentBitcoinNetwork) => {
   let derivationPath = getMultisigDeriationPathForNetwork(currentBitcoinNetwork);
-  return new Blob([`# Coldcard Multisig setup file (created by Lily Wallet on ${moment(Date.now()).format('MM/DD/YYYY')})
+  return `# Coldcard Multisig setup file (created by Lily Wallet on ${moment(Date.now()).format('MM/DD/YYYY')})
 #
 Name: ${accountName}
 Policy: ${requiredSigners} of ${totalSigners}
@@ -164,5 +173,5 @@ Format: P2WSH
 ${importedDevices.map((device) => (
     `\n${device.fingerprint || device.parentFingerprint}: ${device.xpub}`
   ))}
-`], { type: 'text/plain' });
+`;
 }

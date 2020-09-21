@@ -1,50 +1,31 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useHistory } from "react-router-dom";
 import styled, { keyframes } from 'styled-components';
 import { AES, enc } from 'crypto-js';
 
 import { Button, VaultIcon } from '../components';
-import { black, gray, darkOffWhite, lightGray, darkGray, lightBlue, white, red } from '../utils/colors';
-
-import { getConfigFileFromGoogleDrive } from '../utils/google-drive';
+import { black, gray, darkOffWhite, lightGray, darkGray, lightBlue, white, red, gray400, gray500, gray600 } from '../utils/colors';
 
 
-const GDriveImport = ({ encryptedConfig, setConfigFile }) => {
-  document.title = `GDriveImport - Lily Wallet`;
+const DecryptConfigPage = ({ encryptedConfigFile, setConfigFile, setEncryptedConfigFile }) => {
+  document.title = `Enter Password - Lily Wallet`;
   const [loading, setLoading] = useState(false);
   const [loadingGDrive, setLoadingGDrive] = useState(false);
   const [password, setPassword] = useState('');
-  const [encryptedConfigFile, setEncryptedConfigFile] = useState(null);
   const [showCurtain, setShowCurtain] = useState(false);
   const [startCurtain, setStartCurtain] = useState(false);
   const [passwordError, setPasswordError] = useState(false);
 
   const history = useHistory();
 
-  useEffect(() => {
-    const onload = async () => {
-      if (!encryptedConfig) {
-        setLoadingGDrive(true);
-        const encryptedConfigFile = await getConfigFileFromGoogleDrive();
-        if (encryptedConfigFile) {
-          setLoadingGDrive(false);
-          setEncryptedConfigFile(encryptedConfigFile)
-        } else {
-          history.replace('/setup');
-        }
-      } else {
-        setEncryptedConfigFile(encryptedConfig);
-      }
-    }
-    onload();
-  }, []); // eslint-disable-line
-
   const unlockFile = () => {
     // KBC-TODO: probably need error handling for wrong password
     try {
-      const bytes = AES.decrypt(encryptedConfigFile, password);
+      const bytes = AES.decrypt(encryptedConfigFile.file, password);
       const decryptedData = JSON.parse(bytes.toString(enc.Utf8));
       setLoading(true);
+      // resave file with modified date
+      // save password in case we need to save config again
       setTimeout(() => setShowCurtain(true), 500);
       setTimeout(() => setStartCurtain(true), 550);
       setTimeout(() => {
@@ -113,6 +94,11 @@ const GDriveImport = ({ encryptedConfig, setConfigFile }) => {
                 Unlock Wallet
                 </UnlockButton>
             </DevicesWrapper>
+            <CreateNewAccountContainer>
+              <CreateNewAccountButton onClick={() => history.push('login')}>
+                Back to main menu
+              </CreateNewAccountButton>
+            </CreateNewAccountContainer>
           </SelectDeviceContainer>
         </FormContainer>
       </Wrapper>
@@ -138,6 +124,23 @@ const GDriveImport = ({ encryptedConfig, setConfigFile }) => {
     )
   }
 }
+
+const CreateNewAccountContainer = styled.div`
+  padding: 1.5em;
+`;
+
+const CreateNewAccountButton = styled.div`
+  cursor: pointer;
+  color: ${gray500};
+
+  &:hover {
+    color: ${gray400};
+  }
+
+  &:active {
+    color: ${gray600};
+  }
+`;
 
 const blinking = keyframes`
   0% { opacity: .2; }
@@ -166,8 +169,8 @@ const Wrapper = styled.div`
   flex: 1;
   justify-content: center;
   flex-direction: column;
-  padding-top: 5em;
   background: ${lightBlue};
+  overflow: hidden;
 `;
 
 const MainText = styled.div`
@@ -200,7 +203,7 @@ const PasswordInput = styled.input`
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 1em;
+  margin: .5em;
   border-radius: 4px;
   font-size: 1.5em;
   z-index: 1;
@@ -238,7 +241,6 @@ const SelectDeviceContainer = styled.div`
   align-items: center;
   padding: 0;
   border-radius: 4px;
-  margin: 18px;
 `;
 
 const DevicesWrapper = styled.div`
@@ -246,7 +248,7 @@ const DevicesWrapper = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  min-height: 400px;
+  min-height: 25em;
   flex-wrap: wrap;
   background: ${white};
   box-shadow: rgba(0, 0, 0, 0.15) 0px 5px 15px 0px;
@@ -311,4 +313,4 @@ const CurtainBehind = styled.div`
   align-items: center;
 `;
 
-export default GDriveImport;
+export default DecryptConfigPage;

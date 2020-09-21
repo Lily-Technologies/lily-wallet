@@ -63,8 +63,6 @@ const TransactionDetails = ({
   }
 
   const broadcastTransaction = async (currentAccount, psbt, currentBitcoinNetwork) => {
-    console.log('psbt: ', psbt);
-    console.log('currentBitcoinNetworkxxx: ', currentBitcoinNetwork);
     if (currentAccount.nodeConfig.provider !== 'Blockstream') {
       const data = await window.ipcRenderer.invoke('/broadcastTx', {
         walletName: currentAccount.name,
@@ -116,7 +114,7 @@ const TransactionDetails = ({
 
   const downloadPsbt = () => {
     const combinedPsbt = combinePsbts(finalPsbt, signedPsbts);
-    const psbtForDownload = new Blob([combinedPsbt.toBase64()]);
+    const psbtForDownload = combinedPsbt.toBase64();
     downloadFile(psbtForDownload, formatFilename('tx', currentBitcoinNetwork, 'psbt'));
   }
 

@@ -4,7 +4,7 @@ import { AES } from 'crypto-js';
 import moment from 'moment';
 import { generateMnemonic } from "bip39";
 
-import { createMultisigConfigFile, createSinglesigConfigFile, createSinglesigHWWConfigFile, createColdCardBlob, downloadFile, containsColdcard, formatFilename } from '../../utils/files';
+import { createMultisigConfigFile, createSinglesigConfigFile, createSinglesigHWWConfigFile, createColdCardBlob, downloadFile, saveConfig, containsColdcard } from '../../utils/files';
 import { black } from '../../utils/colors';
 
 import StepGroups from './Steps';
@@ -17,21 +17,18 @@ import SuccessScreen from './SuccessScreen';
 import NewWalletScreen from './NewWalletScreen';
 import NewHardwareWalletScreen from './NewHardwareWalletScreen';
 
-const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
-  document.title = `New Account - Lily Wallet`;
+const Setup = ({ config, setConfigFile, password, currentBitcoinNetwork }) => {
+  document.title = `Setup - Lily Wallet`;
   const [setupOption, setSetupOption] = useState(0);
   const [step, setStep] = useState(0);
   const [accountName, setAccountName] = useState('');
   const [importedDevices, setImportedDevices] = useState([]);
-  const [password, setPassword] = useState('');
   const [walletMnemonic, setWalletMnemonic] = useState(null);
   const [configRequiredSigners, setConfigRequiredSigners] = useState(1);
 
   useEffect(() => {
     setWalletMnemonic(generateMnemonic(256));
   }, []);
-
-  document.title = `Create Files - Lily Wallet`;
 
   const exportSetupFiles = async () => {
     let configObject;
@@ -47,20 +44,7 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
       configObject = await createSinglesigHWWConfigFile(importedDevices[0], accountName, config, currentBitcoinNetwork)
     }
 
-    const encryptedConfigObject = AES.encrypt(
-      JSON.stringify(configObject),
-      password
-    ).toString();
-
-    const encryptedConfigFile = new Blob(
-      [decodeURIComponent(encodeURI(encryptedConfigObject))],
-      { type: "text/plain;charset=utf-8;" }
-    );
-    downloadFile(
-      encryptedConfigFile,
-      formatFilename('lily_wallet_config', currentBitcoinNetwork, 'txt')
-    );
-
+    saveConfig(configObject, password);
     setConfigFile(configObject);
   };
 
@@ -79,7 +63,6 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
     case 0:
       screen = <SelectAccountScreen
         header={Header}
-        config={config}
         setSetupOption={setSetupOption}
         setStep={setStep} />;
       break;
@@ -129,13 +112,14 @@ const Setup = ({ config, setConfigFile, currentBitcoinNetwork }) => {
         config={config}
         setupOption={setupOption}
         password={password}
-        setPassword={setPassword}
+        setPassword={undefined}
         setStep={setStep}
       />;
       break;
     case 4:
       screen = <SuccessScreen
         exportSetupFiles={exportSetupFiles}
+        config={config}
       />;
       break;
     default:

@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import styled from 'styled-components';
 
 import { white, gray300, gray600, red400 } from '../utils/colors';
 
-export const Input = ({ value, onChange, error, label, id, placeholder, type }) => (
-  <InputContainer>
+export const Input = ({ value, onChange, error, label, id, placeholder, type, autoFocus }) => (
+  <Fragment>
     {label && <Label htmlFor={id}>{label}</Label>}
     <InputWrapper>
       <StyledInput
@@ -13,15 +13,12 @@ export const Input = ({ value, onChange, error, label, id, placeholder, type }) 
         value={value}
         onChange={(e) => onChange(e.target.value)}
         error={error}
+        autoFocus={autoFocus}
         placeholder={placeholder}
       />
     </InputWrapper>
-  </InputContainer>
+  </Fragment>
 )
-
-const InputContainer = styled.div`
-  margin: 1em 0;
-`;
 
 const Label = styled.label`
   font-size: .875rem;
@@ -35,6 +32,7 @@ const InputWrapper = styled.div`
   box-shadow: 0 1px 2px 0 rgba(0,0,0,.05);
   margin-top: 0.25rem;
   position: relative;
+  width: 100%;
 
   *, &:after, &:before {
     box-sizing: border-box;

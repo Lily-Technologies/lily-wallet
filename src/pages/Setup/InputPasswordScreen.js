@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 
 import { Button } from '../../components';
@@ -12,6 +12,12 @@ const InputPasswordScreen = ({ header, config, password, setPassword, setStep, s
       setStep(4);
     }
   }
+
+  useEffect(() => { // don't ask for password again if config isn't empty, use old password
+    if (!config.isEmpty) {
+      setStep(4)
+    }
+  })
 
   return (
     <InnerWrapper>

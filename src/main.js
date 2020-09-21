@@ -1,17 +1,17 @@
 const axios = require('axios');
 const moment = require('moment');
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, remote, dialog } = require('electron');
 const { networks } = require('bitcoinjs-lib');
 const BigNumber = require('bignumber.js');
 const { download } = require('electron-dl');
 const Client = require('bitcoin-core');
-const { bitcoinsToSatoshis } = require("unchained-bitcoin")
 
 const { enumerate, getXPub, signtx, promptpin, sendpin } = require('./server/commands');
 const { getRpcInfo } = require('./server/utils')
 const { getDataFromMultisig, getDataFromXPub, getMultisigDescriptor } = require('./utils/transactions');
 
 const path = require('path');
+const fs = require('fs');
 
 const currentBitcoinNetwork = 'TESTNET' in process.env ? networks.testnet : networks.bitcoin;
 
@@ -154,7 +154,6 @@ ipcMain.on('/account-data', async (event, args) => {
   const { config } = args;
   let addresses, changeAddresses, transactions, unusedAddresses, unusedChangeAddresses, availableUtxos;
   let nodeClient = undefined;
-  console.log('/account-data currentNodeConfig: ', currentNodeConfig);
   try {
     if (currentNodeConfig) {
       const nodeClient = new Client({
@@ -163,20 +162,13 @@ ipcMain.on('/account-data', async (event, args) => {
         version: '0.20.0'
       });
 
-      console.log('/account-data nodeClient: ', nodeClient);
-      console.log('/account-data xxx: ', await nodeClient.getBlockchainInfo());
-
       const walletList = await nodeClient.listWallets();
-      console.log('walletList: ', walletList);
 
       if (!walletList.includes(config.name)) {
         try {
           const walletResp = await nodeClient.loadWallet({ filename: config.name });
-          console.log('walletResp: ', walletResp);
         } catch (e) { // if failed to load wallet, then probably doesnt exist so let's create one and import
-          console.log('hits catch: ', e);
           await nodeClient.createWallet({ wallet_name: config.name });
-          console.log('after createWallet: ', config)
           if (config.quorum.totalSigners === 1) {
             for (let i = 0; i < 1000; i++) {
               const receiveAddress = getAddressFromAccount(config, `m / 0 / ${i} `, currentBitcoinNetwork)
@@ -238,11 +230,52 @@ ipcMain.on('/account-data', async (event, args) => {
   }
 });
 
-ipcMain.handle('download-item', async (event, { url, filename }) => {
+ipcMain.handle('/get-config', async (event, args) => {
+  const userDataPath = (app || remote.app).getPath('userData');
+  const filePath = path.join(userDataPath, 'lily-config-encrypted.txt');
+  const fileContents = fs.readFileSync(filePath);
+  if (fileContents) {
+    const stats = fs.statSync(filePath)
+    const mtime = stats.mtime;
+    return Promise.resolve({ file: fileContents.toString(), modifiedTime: mtime })
+  } else {
+    return Promise.reject()
+  }
+});
+
+ipcMain.handle('/save-config', async (event, args) => {
+  const { encryptedConfigFile } = args;
+  const userDataPath = (app || remote.app).getPath('userData');
+  const filePath = path.join(userDataPath, 'lily-config-encrypted.txt');
+  fs.writeFile(filePath, encryptedConfigFile, (err) => {
+    const fileContents = fs.readFileSync(filePath);
+    if (fileContents) {
+      const stats = fs.statSync(filePath)
+      const mtime = stats.mtime;
+      return Promise.resolve({ file: fileContents.toString(), modifiedTime: mtime })
+    } else {
+      return Promise.reject()
+    }
+  })
+});
+
+ipcMain.handle('/download-item', async (event, { data, filename }) => {
   try {
     const win = BrowserWindow.getFocusedWindow();
-    await download(win, url, { filename });
-    return Promise.reject(true)
+
+    const { canceled, filePath } = await dialog.showSaveDialog(win, {
+      defaultPath: filename
+    })
+
+    if (filePath) {
+      fs.writeFile(filePath, data, (err) => {
+        if (err) {
+          return Promise.reject(false)
+        } else {
+          return Promise.resolve(true)
+        }
+      })
+    }
   } catch (e) {
     return Promise.reject(false)
   }
@@ -357,8 +390,6 @@ ipcMain.handle('/broadcastTx', async (event, args) => {
 
 ipcMain.handle('/changeNodeConfig', async (event, args) => {
   const { nodeConfig } = args;
-  console.log('/changeNodeConfig currentNodeConfig: ', currentNodeConfig);
-  console.log('/changeNodeConfig nodeConfig: ', nodeConfig);
   if (nodeConfig.provider === 'Bitcoin Core') {
     try {
       currentNodeConfig = await getBitcoinCoreConfig();
@@ -402,7 +433,6 @@ ipcMain.handle('/changeNodeConfig', async (event, args) => {
 });
 
 ipcMain.handle('/getNodeConfig', async (event, args) => {
-  console.log('/getNodeConfig currentNodeConfig: ', currentNodeConfig)
   if (currentNodeConfig) {
     try {
       const blockchainInfo = await getBitcoinCoreBlockchainInfo();

@@ -13,7 +13,7 @@ import VaultSettings from './VaultSettings';
 
 import { darkGray, lightBlue, gray400, gray500 } from '../../utils/colors';
 
-const Vault = ({ config, setConfigFile, toggleRefresh, currentAccount, setCurrentAccount, currentBitcoinNetwork }) => {
+const Vault = ({ config, setConfigFile, password, toggleRefresh, currentAccount, setCurrentAccount, currentBitcoinNetwork }) => {
   document.title = `Vault - Lily Wallet`;
   const [viewSettings, setViewSettings] = useState(false);
   const [viewAddresses, setViewAddresses] = useState(false);
@@ -100,6 +100,7 @@ const Vault = ({ config, setConfigFile, toggleRefresh, currentAccount, setCurren
           setViewAddresses={setViewAddresses}
           setViewUtxos={setViewUtxos}
           currentBitcoinNetwork={currentBitcoinNetwork}
+          password={password}
         />
       ) : (
               <VaultView
