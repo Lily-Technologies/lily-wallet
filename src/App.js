@@ -53,10 +53,10 @@ function App() {
   const [nodeConfig, setNodeConfig] = useState(undefined);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [password, setPassword] = useState('');
+  const history = useHistory();
 
   const ConfigRequired = () => {
     const { pathname } = useLocation();
-    const history = useHistory();
     if (config.isEmpty && (pathname !== '/login' && pathname !== '/decrypt' && pathname !== '/setup')) {
       history.push('/login');
     }
@@ -72,6 +72,7 @@ function App() {
     const { file, modifiedTime } = await window.ipcRenderer.invoke('/get-config');
     setEncryptedConfigFile({ file: file.toString(), modifiedTime });
     setInitialFlyInAnimation(true);
+    history.push('/login');
   }
 
   const ScrollToTop = () => {
@@ -263,7 +264,7 @@ function App() {
           <Route path="/vault/:id" component={() => <Vault config={config} setConfigFile={setConfigFile} password={password} toggleRefresh={toggleRefresh} currentAccount={currentAccount} setCurrentAccount={setCurrentAccountFromMap} currentBitcoinNetwork={currentBitcoinNetwork} currentBitcoinPrice={currentBitcoinPrice} />} />
           <Route path="/receive" component={() => <Receive config={config} currentAccount={currentAccount} setCurrentAccount={setCurrentAccountFromMap} currentBitcoinPrice={currentBitcoinPrice} />} />
           <Route path="/send" component={() => <Send config={config} currentAccount={currentAccount} setCurrentAccount={setCurrentAccountFromMap} toggleRefresh={toggleRefresh} currentBitcoinPrice={currentBitcoinPrice} currentBitcoinNetwork={currentBitcoinNetwork} />} />
-          <Route path="/setup" component={() => <Setup config={config} setConfigFile={setConfigFile} password={password} encryptedConfigFile={encryptedConfigFile} setEncryptedConfigFile={setEncryptedConfigFile} currentBitcoinNetwork={currentBitcoinNetwork} />} />
+          <Route path="/setup" component={() => <Setup config={config} setConfigFile={setConfigFile} setPassword={setPassword} password={password} encryptedConfigFile={encryptedConfigFile} setEncryptedConfigFile={setEncryptedConfigFile} currentBitcoinNetwork={currentBitcoinNetwork} />} />
           <Route path="/login" component={() => <Login setConfigFile={setConfigFile} password={password} setPassword={setPassword} encryptedConfigFile={encryptedConfigFile} setEncryptedConfigFile={setEncryptedConfigFile} currentBitcoinNetwork={currentBitcoinNetwork} />} />
           <Route path="/settings" component={() => <Settings config={config} currentBitcoinNetwork={currentBitcoinNetwork} changeCurrentBitcoinNetwork={changeCurrentBitcoinNetwork} />} />
           <Route path="/coldcard-import-instructions" component={() => <ColdcardImportInstructions />} />

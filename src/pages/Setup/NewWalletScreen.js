@@ -16,10 +16,6 @@ const CreateWallet = ({
   setStep,
 }) => {
 
-  useEffect(() => {
-    setWalletMnemonic(generateMnemonic(256));
-  }, [setWalletMnemonic]);
-
   return (
     <InnerWrapper style={{ marginBottom: '2em' }}>
       {header}

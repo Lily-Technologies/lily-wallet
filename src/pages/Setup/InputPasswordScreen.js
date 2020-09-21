@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
 import styled from 'styled-components';
 
-import { Button } from '../../components';
-import { InnerWrapper, XPubHeaderWrapper, SetupHeaderWrapper, SetupHeader, SetupExplainerText } from './styles';
+import { Button, Input } from '../../components';
+import { InnerWrapper, FormContainer, BoxedWrapper, XPubHeaderWrapper, SetupHeaderWrapper, SetupHeader, SetupExplainerText } from './styles';
 import { red, white, gray, darkGreen, darkOffWhite, lightBlue, black } from '../../utils/colors';
 
 const MIN_PASSWORD_LENGTH = 8;
@@ -11,8 +11,8 @@ const MIN_PASSWORD_LENGTH = 8;
 const FIELD_PASSWORD = 0;
 const FIELD_CONFIRMATION = 1;
 
-const InputPasswordScreen = ({ header, config, password, setPassword, setStep, setupOption }) => {
-
+const InputPasswordScreen = ({ header, config, setSetupPassword, setStep }) => {
+  const [localPassword, setLocalPassword] = useState(undefined);
   const [confirmation, setConfirmation] = useState('');
   const [passwordError, setPasswordError] = useState(undefined);
   const [confirmationError, setConfirmationError] = useState(undefined);
@@ -20,10 +20,10 @@ const InputPasswordScreen = ({ header, config, password, setPassword, setStep, s
   const confirmationRef = useRef();
   const buttonRef = useRef();
 
-  const validateInput = (event, which) => {
+  const validateInput = (value, which) => {
     switch (which) {
       case FIELD_PASSWORD:
-        const newPassword = event.target.value;
+        const newPassword = value;
         if (newPassword && newPassword.length < MIN_PASSWORD_LENGTH) {
           setPasswordError(`Password must be at least ${MIN_PASSWORD_LENGTH} characters long`);
         } else if (newPassword.length === 0) {
@@ -34,11 +34,11 @@ const InputPasswordScreen = ({ header, config, password, setPassword, setStep, s
         if (newPassword && confirmation && newPassword !== confirmation) {
           setPasswordError('Password doesn\' match confirmation');
         }
-        setPassword(newPassword);
+        setLocalPassword(newPassword);
         break;
       case FIELD_CONFIRMATION:
-        const _confirmation = event.target.value;
-        if (_confirmation && password !== _confirmation) {
+        const _confirmation = value;
+        if (_confirmation && localPassword !== _confirmation) {
           setConfirmationError('Password & confirmation must match');
         } else if (_confirmation.length === 0) {
           setConfirmationError(undefined);
@@ -73,54 +73,59 @@ const InputPasswordScreen = ({ header, config, password, setPassword, setStep, s
   return (
     <InnerWrapper>
       {header}
-      <XPubHeaderWrapper>
-        <SetupHeaderWrapper>
-          <div>
-            <SetupHeader>Set a password</SetupHeader>
-            <SetupExplainerText>
-              Lily Wallet encrypts your configuration file so that other people can't track your balance and transaction information.
-              Please enter a password to be used to unlock your wallet in the future.
+      <FormContainer>
+        <BoxedWrapper>
+
+          <XPubHeaderWrapper>
+            <SetupHeaderWrapper>
+              <div>
+                <SetupHeader>Set a password</SetupHeader>
+                <SetupExplainerText>
+                  Lily Wallet encrypts your configuration file so that other people can't track your balance and transaction information.
+                  Please enter a password to be used to unlock your wallet in the future.
                   </SetupExplainerText>
-          </div>
-        </SetupHeaderWrapper>
-      </XPubHeaderWrapper>
-      <PasswordWrapper>
-        <PasswordInput
-          autoFocus
-          placeholder="password"
-          value={password}
-          onKeyDown={(e) => onInputEnter(e, FIELD_PASSWORD)}
-          onChange={(e) => validateInput(e, FIELD_PASSWORD)}
-          type="password" />
-        {passwordError !== undefined && <PasswordError>{passwordError}</PasswordError>}
-      </PasswordWrapper>
-      <PasswordWrapper>
-        <PasswordInput
-          ref={confirmationRef}
-          placeholder="confirmation"
-          value={confirmation}
-          onKeyDown={(e) => onInputEnter(e, FIELD_CONFIRMATION)}
-          onChange={(e) => validateInput(e, FIELD_CONFIRMATION)}
-          type="password" />
-        {confirmationError !== undefined && <PasswordError>{confirmationError}</PasswordError>}
-      </PasswordWrapper>
-      <ExportFilesButton
-        ref={buttonRef}
-        background={darkGreen}
-        color={white}
-        active={!(passwordError !== false || confirmationError !== false)}
-        onClick={() => {
-          if (!(passwordError !== false || confirmationError !== false)) {
-            setPassword(password);
-            setStep(4);
-          }
-        }}>{'Save Vault'}</ExportFilesButton>
+              </div>
+            </SetupHeaderWrapper>
+          </XPubHeaderWrapper>
+          <PasswordWrapper>
+            <Input
+              autoFocus
+              label="Password"
+              value={localPassword}
+              onKeyDown={(value) => onInputEnter(value, FIELD_PASSWORD)}
+              onChange={(value) => validateInput(value, FIELD_PASSWORD)}
+              type="password" />
+            {passwordError !== undefined && <PasswordError>{passwordError}</PasswordError>}
+          </PasswordWrapper>
+          <PasswordWrapper style={{ paddingBottom: '1.5em' }}>
+            <Input
+              ref={confirmationRef}
+              label="Confirm Password"
+              value={confirmation}
+              onKeyDown={(value) => onInputEnter(value, FIELD_CONFIRMATION)}
+              onChange={(value) => validateInput(value, FIELD_CONFIRMATION)}
+              type="password" />
+            {confirmationError !== undefined && <PasswordError>{confirmationError}</PasswordError>}
+          </PasswordWrapper>
+          <ExportFilesButton
+            ref={buttonRef}
+            background={darkGreen}
+            color={white}
+            active={!(passwordError !== false || confirmationError !== false)}
+            onClick={() => {
+              if (!(passwordError !== false || confirmationError !== false)) {
+                setSetupPassword(localPassword);
+                setStep(4);
+              }
+            }}>{'Save Vault'}</ExportFilesButton>
+        </BoxedWrapper>
+      </FormContainer>
     </InnerWrapper>
   )
 }
 
 const PasswordWrapper = styled.div`
-  padding: 0.5em;
+  padding: 1.5em 1.5em 0;
   display: flex;
   flex-direction: column;
   background: ${white};
@@ -169,6 +174,7 @@ const PasswordError = styled.div`
   font-size: 0.5em;
   color: ${red};
   text-align: right;
+  margin-top: 1em;
 `;
 
 export default InputPasswordScreen;

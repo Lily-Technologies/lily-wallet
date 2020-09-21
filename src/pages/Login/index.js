@@ -74,36 +74,31 @@ const Login = ({ setConfigFile, currentBitcoinNetwork, encryptedConfigFile, setE
         />
 
         <SignupOptionMenu>
-          <SignupOptionItem>
-            {encryptedConfigFile ? (
-              <Fragment>
-                <InputContainer>
-                  <Input
-                    label="Password"
-                    onChange={setLocalPassword}
-                    value={localPassword}
-                    type="password"
-                    error={passwordError}
-                    autoFocus
-                    onKeyDown={(e) => onInputEnter(e)}
-                  />
-                </InputContainer>
+          {encryptedConfigFile ? (
+            <SignupOptionItem>
+              <InputContainer>
+                <Input
+                  label="Password"
+                  onChange={setLocalPassword}
+                  value={localPassword}
+                  type="password"
+                  error={passwordError}
+                  autoFocus
+                  onKeyDown={(e) => onInputEnter(e)}
+                />
+              </InputContainer>
 
 
-                <SignInButton background={green500} color={white} onClick={() => unlockFile()}>
-                  {isLoading ? 'Unlocking' : 'Unlock'}
-                  {isLoading ? <LoadingImage alt="loading placeholder" src={require('../../assets/flower-loading.svg')} /> : <StyledIcon as={ArrowIosForwardOutline} size={24} />}
-                </SignInButton>
-                {passwordError && <PasswordError>Incorrect Password</PasswordError>}
-                <SignupOptionSubtext>Last accessed on {encryptedConfigFile && moment(encryptedConfigFile.modifiedTime).format('MM/DD/YYYY')}</SignupOptionSubtext>
-              </Fragment>
-            ) : (
-                <Fragment>
-                  <CreateAccountText>Make a new account with Lily to secure your bitcoins</CreateAccountText>
-                  <CreateNewAccountButton background={green500} color={white} onClick={() => history.push('setup')}>Get Started</CreateNewAccountButton>
-                </Fragment>
-              )}
-          </SignupOptionItem>
+              <SignInButton background={green500} color={white} onClick={() => unlockFile()}>
+                {isLoading ? 'Unlocking' : 'Unlock'}
+                {isLoading ? <LoadingImage alt="loading placeholder" src={require('../../assets/flower-loading.svg')} /> : <StyledIcon as={ArrowIosForwardOutline} size={24} />}
+              </SignInButton>
+              {passwordError && <PasswordError>Incorrect Password</PasswordError>}
+              <SignupOptionSubtext>Last accessed on {encryptedConfigFile && moment(encryptedConfigFile.modifiedTime).format('MM/DD/YYYY')}</SignupOptionSubtext>
+            </SignupOptionItem>
+          ) : (
+              <CreateNewAccountButton background={green500} color={white} onClick={() => history.push('setup')}>Get Started</CreateNewAccountButton>
+            )}
 
           <LoadFromFile>You can also restore a wallet <LabelOverlay htmlFor="localConfigFile"><SubTextLink>from a backup file</SubTextLink></LabelOverlay></LoadFromFile>
         </SignupOptionMenu>
@@ -125,11 +120,11 @@ const LoadingImage = styled.img`
 const CreateNewAccountButton = styled.button`
   ${Button};
   width: auto;
-  align-items: flex-end;
   text-align: right;
-  align-self: flex-end;
+  align-self: center;
   margin-top: 1em;
-  font-size: 0.75em;
+  margin-bottom: 1em;
+  font-size: 1em;
 `;
 
 const CreateAccountText = styled.div`

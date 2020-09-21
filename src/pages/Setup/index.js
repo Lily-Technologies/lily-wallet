@@ -17,7 +17,7 @@ import SuccessScreen from './SuccessScreen';
 import NewWalletScreen from './NewWalletScreen';
 import NewHardwareWalletScreen from './NewHardwareWalletScreen';
 
-const Setup = ({ config, setConfigFile, password, currentBitcoinNetwork }) => {
+const Setup = ({ config, setConfigFile, password, currentBitcoinNetwork, setPassword }) => {
   document.title = `Setup - Lily Wallet`;
   const [setupOption, setSetupOption] = useState(0);
   const [step, setStep] = useState(0);
@@ -25,6 +25,7 @@ const Setup = ({ config, setConfigFile, password, currentBitcoinNetwork }) => {
   const [importedDevices, setImportedDevices] = useState([]);
   const [walletMnemonic, setWalletMnemonic] = useState(null);
   const [configRequiredSigners, setConfigRequiredSigners] = useState(1);
+  const [setupPassword, setSetupPassword] = useState(undefined);
 
   useEffect(() => {
     setWalletMnemonic(generateMnemonic(256));
@@ -43,8 +44,12 @@ const Setup = ({ config, setConfigFile, password, currentBitcoinNetwork }) => {
     } else {
       configObject = await createSinglesigHWWConfigFile(importedDevices[0], accountName, config, currentBitcoinNetwork)
     }
-
-    saveConfig(configObject, password);
+    if (!password) { // if we dont have a global password set, then set it and save config
+      setPassword(setupPassword);
+      saveConfig(configObject, setupPassword);
+    } else {
+      saveConfig(configObject, password);
+    }
     setConfigFile(configObject);
   };
 
@@ -111,8 +116,7 @@ const Setup = ({ config, setConfigFile, password, currentBitcoinNetwork }) => {
         header={Header}
         config={config}
         setupOption={setupOption}
-        password={password}
-        setPassword={undefined}
+        setSetupPassword={setSetupPassword}
         setStep={setStep}
       />;
       break;
