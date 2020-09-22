@@ -1,10 +1,10 @@
 import React, { useState, Fragment } from 'react';
 import { useHistory } from "react-router-dom";
 import styled, { css } from 'styled-components';
-import { ArrowIosForwardOutline } from '@styled-icons/evaicons-outline';
 import { networks } from 'bitcoinjs-lib';
 import moment from 'moment';
 import { AES, enc } from 'crypto-js';
+import { ArrowIosForwardOutline } from '@styled-icons/evaicons-outline';
 
 import { StyledIcon, FileUploader, Button, Input } from '../../components';
 
@@ -13,35 +13,64 @@ import { bitcoinNetworkEqual } from '../../utils/transactions';
 import { mobile } from '../../utils/media';
 import { saveConfig } from '../../utils/files';
 
-const Login = ({ setConfigFile, currentBitcoinNetwork, encryptedConfigFile, setEncryptedConfigFile, setPassword }) => {
+const MIN_PASSWORD_LENGTH = 8;
+
+// Potential input fields
+const FIELD_PASSWORD = 0;
+const FIELD_CONFIRMATION = 1;
+
+const Login = ({ config, setConfigFile, currentBitcoinNetwork, encryptedConfigFile, setEncryptedConfigFile, setPassword }) => {
   document.title = `Login - Lily Wallet`;
-  const [passwordError, setPasswordError] = useState(false);
-  const [localPassword, setLocalPassword] = useState('');
+  const [localPassword, setLocalPassword] = useState(undefined);
+  const [passwordError, setPasswordError] = useState(undefined);
+  const [confirmation, setConfirmation] = useState(undefined);
+  const [confirmationError, setConfirmationError] = useState(undefined);
   const [isLoading, setIsLoading] = useState(false);
+  const [step, setStep] = useState(0);
   const history = useHistory();
 
   const unlockFile = () => {
     // KBC-TODO: probably need error handling for wrong password
     try {
       setIsLoading(true);
-      const bytes = AES.decrypt(encryptedConfigFile.file, localPassword);
-      const decryptedData = JSON.parse(bytes.toString(enc.Utf8));
-      setTimeout(() => {
-        setConfigFile(decryptedData);
-        setPassword(localPassword);
-        saveConfig(decryptedData, localPassword); // we resave the file after opening to update the modifiedDate value
-        setIsLoading(false);
-        history.replace(`/`);
-      }, 2000)
+      if (encryptedConfigFile) {
+        const bytes = AES.decrypt(encryptedConfigFile.file, localPassword);
+        const decryptedData = JSON.parse(bytes.toString(enc.Utf8));
+        setTimeout(() => {
+          setConfigFile(decryptedData);
+          setPassword(localPassword);
+          saveConfig(decryptedData, localPassword); // we resave the file after opening to update the modifiedDate value
+          setIsLoading(false);
+          history.replace(`/`);
+        }, 2000)
+      } else {
+        const configCopy = { ...config };
+        configCopy.isEmpty = false;
+        setTimeout(() => {
+          setConfigFile(configCopy);
+          saveConfig(configCopy, localPassword); // we save a blank config file
+          setPassword(localPassword);
+          setIsLoading(false);
+          history.replace(`/setup`);
+        }, 2000)
+      }
     } catch (e) {
       setPasswordError(true);
       setIsLoading(false);
     }
   }
 
-  const onInputEnter = (e) => {
-    if (e.key === 'Enter') {
-      unlockFile();
+  const validateInput = () => {
+    if (localPassword && localPassword.length < MIN_PASSWORD_LENGTH) {
+      setPasswordError(`Password must be at least ${MIN_PASSWORD_LENGTH} characters long`);
+      return false;
+    } else if (localPassword && confirmation && localPassword !== confirmation) {
+      setConfirmationError('Password doesn\'t match confirmation');
+      return false;
+    } else {
+      setPasswordError(undefined);
+      setConfirmationError(undefined);
+      return true;
     }
   }
 
@@ -57,7 +86,7 @@ const Login = ({ setConfigFile, currentBitcoinNetwork, encryptedConfigFile, setE
             <div>{encryptedConfigFile ? 'Unlock your account' : 'Welcome to Lily Wallet'}</div>
             <Subtext>
               {encryptedConfigFile ? (
-                <Fragment>or <SubTextLink onClick={() => history.push('setup')}>create a new one</SubTextLink></Fragment>
+                <Fragment>or <SubTextLink onClick={() => setEncryptedConfigFile(undefined)}>create a new one</SubTextLink></Fragment>
               ) : (
                   "The best way to secure your bitcoin"
                 )}
@@ -74,30 +103,50 @@ const Login = ({ setConfigFile, currentBitcoinNetwork, encryptedConfigFile, setE
         />
 
         <SignupOptionMenu>
-          {encryptedConfigFile ? (
+          {encryptedConfigFile || step === 1 ? (
             <SignupOptionItem>
               <InputContainer>
                 <Input
-                  label="Password"
-                  onChange={setLocalPassword}
-                  value={localPassword}
-                  type="password"
-                  error={passwordError}
                   autoFocus
-                  onKeyDown={(e) => onInputEnter(e)}
-                />
+                  label="Password"
+                  value={localPassword}
+                  // onKeyDown={(value) => onInputEnter(value, FIELD_PASSWORD)}
+                  onChange={setLocalPassword}
+                  type="password" />
+                {passwordError !== undefined && <PasswordError>{passwordError}</PasswordError>}
               </InputContainer>
-
-
-              <SignInButton background={green500} color={white} onClick={() => unlockFile()}>
-                {isLoading ? 'Unlocking' : 'Unlock'}
+              {!encryptedConfigFile && (
+                <InputContainer style={{ paddingBottom: '.5em' }}>
+                  <Input
+                    label="Confirm Password"
+                    value={confirmation}
+                    // onKeyDown={(value) => onInputEnter(value, FIELD_CONFIRMATION)}
+                    onChange={setConfirmation}
+                    type="password" />
+                  {confirmationError !== undefined && <PasswordError>{confirmationError}</PasswordError>}
+                </InputContainer>
+              )}
+              <SignInButton
+                background={green500}
+                color={white}
+                onClick={() => {
+                  if (!encryptedConfigFile) {
+                    if (validateInput()) {
+                      unlockFile()
+                    }
+                  } else {
+                    unlockFile()
+                  }
+                }
+                }>
+                {isLoading && !encryptedConfigFile ? 'Loading' : isLoading ? 'Unlocking' : encryptedConfigFile ? 'Unlock' : 'Continue'}
                 {isLoading ? <LoadingImage alt="loading placeholder" src={require('../../assets/flower-loading.svg')} /> : <StyledIcon as={ArrowIosForwardOutline} size={24} />}
               </SignInButton>
-              {passwordError && <PasswordError>Incorrect Password</PasswordError>}
-              <SignupOptionSubtext>Last accessed on {encryptedConfigFile && moment(encryptedConfigFile.modifiedTime).format('MM/DD/YYYY')}</SignupOptionSubtext>
+              {encryptedConfigFile && passwordError && <PasswordError>Incorrect Password</PasswordError>}
+              {encryptedConfigFile && <SignupOptionSubtext>Last accessed on {encryptedConfigFile && moment(encryptedConfigFile.modifiedTime).format('MM/DD/YYYY')}</SignupOptionSubtext>}
             </SignupOptionItem>
           ) : (
-              <CreateNewAccountButton background={green500} color={white} onClick={() => history.push('setup')}>Get Started</CreateNewAccountButton>
+              <CreateNewAccountButton background={green500} color={white} onClick={() => setStep(1)}>Get Started</CreateNewAccountButton>
             )}
 
           <LoadFromFile>You can also restore a wallet <LabelOverlay htmlFor="localConfigFile"><SubTextLink>from a backup file</SubTextLink></LabelOverlay></LoadFromFile>
@@ -117,20 +166,19 @@ const LoadingImage = styled.img`
   opacity: 0.9;
 `;
 
-const CreateNewAccountButton = styled.button`
-  ${Button};
-  width: auto;
-  text-align: right;
-  align-self: center;
-  margin-top: 1em;
-  margin-bottom: 1em;
-  font-size: 1em;
-`;
-
 const CreateAccountText = styled.div`
   margin-bottom: 1em;
   font-size: .75em;
   text-align: left;
+`;
+
+const SignInButton = styled.button`
+  ${Button};
+  padding-top: .5em;
+  padding-bottom: .5em;
+  font-size: 1em;
+  width: 100%;
+  justify-content: center;
 `;
 
 const InputContainer = styled.div`
@@ -147,13 +195,39 @@ const PasswordError = styled.div`
   margin-top: .5em;
 `;
 
-const SignInButton = styled.button`
-  ${Button};
-  padding-top: .5em;
-  padding-bottom: .5em;
-  font-size: .75em;
+const SignupOptionSubtext = styled.div`
+  font-size: .5em;
+  margin-top: 0.75em;
+  color: ${darkGray};
+  padding: 0 5em;
+  line-height: 1.5em;
+  white-space: normal;
+`;
+
+const SignupOptionItem = styled.div`
+  box-shadow: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06);
   width: 100%;
+  max-width: 22em;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2em;
+  border-radius: 4px;
+  align-items: center;
   justify-content: center;
+  font-size: 1em;
+  // min-height: 12em;
+  background: ${white};
+`;
+
+const CreateNewAccountButton = styled.button`
+  ${Button};
+  width: auto;
+  text-align: right;
+  align-self: center;
+  margin-top: 2em;
+  margin-bottom: 2em;
+  font-size: 1em;
 `;
 
 const LoadFromFile = styled.div`
@@ -270,31 +344,6 @@ const SignupOptionMenu = styled.div`
   padding-top: 1.75em;
   flex-direction: column;
   display: flex;
-`;
-
-const SignupOptionSubtext = styled.div`
-  font-size: .5em;
-  margin-top: 0.75em;
-  color: ${darkGray};
-  padding: 0 5em;
-  line-height: 1.5em;
-  white-space: normal;
-`;
-
-const SignupOptionItem = styled.div`
-  box-shadow: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06);
-  width: 100%;
-  max-width: 22em;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 2em;
-  border-radius: 4px;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5em;
-  // min-height: 12em;
-  background: ${white};
 `;
 
 export default Login;

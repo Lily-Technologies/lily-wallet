@@ -32,7 +32,7 @@ const Steps = ({ step, setupOption }) => {
           {step > 3 ? <StyledIcon as={Check} size={25} /> : '03'}
         </StepCircle>
         <StepItemTextContainer>
-          <StepItemSubText>Encrypt your configuration file</StepItemSubText>
+          <StepItemSubText>Stack Sats</StepItemSubText>
         </StepItemTextContainer>
       </StepItem>
     </StepsGroup>
@@ -63,7 +63,7 @@ const StepsGroup = styled.div`
   border-radius: 0.375em;
   border: 1px solid ${gray300};
   align-items: stretch;
-  margin-bottom: 1.5em;
+  margin-bottom: 3.5em;
 `;
 
 

@@ -10,7 +10,6 @@ import { black } from '../../utils/colors';
 import StepGroups from './Steps';
 import PageHeader from './PageHeader';
 import SelectAccountScreen from './SelectAccountScreen';
-import InputPasswordScreen from './InputPasswordScreen';
 import InputNameScreen from './InputNameScreen';
 import NewVaultScreen from './NewVaultScreen';
 import SuccessScreen from './SuccessScreen';
@@ -112,15 +111,6 @@ const Setup = ({ config, setConfigFile, password, currentBitcoinNetwork, setPass
       }
       break;
     case 3:
-      screen = <InputPasswordScreen
-        header={Header}
-        config={config}
-        setupOption={setupOption}
-        setSetupPassword={setSetupPassword}
-        setStep={setStep}
-      />;
-      break;
-    case 4:
       screen = <SuccessScreen
         exportSetupFiles={exportSetupFiles}
         config={config}
