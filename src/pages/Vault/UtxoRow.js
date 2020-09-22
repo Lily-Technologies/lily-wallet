@@ -22,7 +22,7 @@ const UtxoRow = ({ utxo, flat }) => {
 
 const UtxoRowWrapper = styled.div`
   background: ${p => p.flat ? 'transparent' : white};
-  box-shadow: ${p => p.flat ? 'none' : 'rgba(0, 0, 0, 0.15) 0px 5px 15px 0px'};;
+  box-shadow: ${p => p.flat ? 'none' : '0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06);'};;
   align-items: center;
   flex-direction: column;
 `;

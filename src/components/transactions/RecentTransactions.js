@@ -65,7 +65,7 @@ const TransactionRowWrapper = styled.div`
 
 
 const DateWrapper = styled.div`
-  margin: 24px 4px;
+  margin: 1.5em 0 1em;
   color: ${darkGray};
 `;
 
@@ -82,7 +82,7 @@ const NoTransasctionsSection = styled.div`
   align-items: center;
   font-weight: 100;
   background: ${p => p.flat ? 'transparent' : white};
-  box-shadow: ${p => p.flat ? 'none' : 'rgba(0, 0, 0, 0.15) 0px 5px 15px 0px'};
+  box-shadow: ${p => p.flat ? 'none' : '0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06);'};
   border: ${p => p.flat ? 'none' : `1px solid ${darkGray}`};
   border-top: ${p => p.flat ? 'none' : `11px solid ${blue}`};
 `;

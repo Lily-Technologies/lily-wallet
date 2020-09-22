@@ -35,7 +35,7 @@ const Setup = ({ config, setConfigFile, password, currentBitcoinNetwork, setPass
     if (setupOption === 1) {
       configObject = await createMultisigConfigFile(importedDevices, configRequiredSigners, accountName, config, currentBitcoinNetwork);
       if (containsColdcard(importedDevices)) {
-        const ccFile = createColdCardBlob(configRequiredSigners, importedDevices.length, accountName, importedDevices);
+        const ccFile = createColdCardBlob(configRequiredSigners, importedDevices.length, accountName, importedDevices, currentBitcoinNetwork);
         await downloadFile(ccFile, `${accountName}-lily-coldcard-file-${moment().format('MMDDYYYY')}.txt`);
       }
     } else if (setupOption === 2) {

@@ -466,7 +466,7 @@ const CopyAddressButton = styled.div`
 const SendWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  box-shadow: rgba(0, 0, 0, 0.15) 0px 5px 15px 0px;
+  box-shadow: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06);
   border: 1px solid ${gray};
 `;
 
@@ -514,7 +514,6 @@ const AccountSendContentLeft = styled.div`
   background: ${white};
   border: 1px solid ${darkGray};
   border-radius: 4px;
-  // box-shadow: rgba(0, 0, 0, 0.15) 0px 5px 15px 0px;
   justify-content: center;
 `;
 
@@ -534,7 +533,6 @@ const CurrentBalanceWrapper = styled.div`
   border: solid 1px ${darkOffWhite};
   border-radius: 4px;
   background: ${white};
-  // box-shadow: rgba(0, 0, 0, 0.15) 0px 5px 15px 0px;
   text-align: right;
 
   ${mobile(css`

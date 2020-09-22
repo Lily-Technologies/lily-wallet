@@ -66,7 +66,7 @@ const SelectDeviceContainer = styled.div`
   align-items: center;
   padding: 0;
   border-radius: 4px;
-  box-shadow: rgba(0, 0, 0, 0.15) 0px 5px 15px 0px;
+  box-shadow: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06);
   margin: 18px;
 `;
 

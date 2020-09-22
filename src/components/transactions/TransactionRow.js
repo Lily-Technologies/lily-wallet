@@ -35,7 +35,7 @@ const TransactionRow = ({ transaction, flat }) => {
 const TransactionRowWrapper = styled.div`
   border-bottom: 1px solid ${offWhite};
   background: ${p => p.flat ? 'transparent' : white};
-  box-shadow: ${p => p.flat ? 'none' : 'rgba(43, 48, 64, 0.2) 0px 0.1rem 0.5rem 0px;'};
+  box-shadow: ${p => p.flat ? 'none' : '0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06)'};
   align-items: center;
   flex-direction: column;
 `;

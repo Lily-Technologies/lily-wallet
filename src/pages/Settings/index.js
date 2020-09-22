@@ -87,7 +87,7 @@ const Settings = ({ config, currentBitcoinNetwork }) => {
 const ValueWrapper = styled.div`
   background: ${lightBlue};
   padding: 1.5em;
-  box-shadow: rgba(0, 0, 0, 0.15) 0px 5px 15px 0px;
+  box-shadow: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06);
   border-top: solid 11px ${blue} !important;
   border: 1px solid ${darkGray};
 `;

@@ -114,8 +114,8 @@ const VaultView = ({ currentAccount }) => {
 
 const ValueWrapper = styled.div`
   background: ${white};
-  // box-shadow: rgba(0, 0, 0, 0.15) 0px 5px 15px 0px;
   border: 1px solid ${gray};
+  box-shadow: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06);
 `;
 
 const ChartContainer = styled.div``;
