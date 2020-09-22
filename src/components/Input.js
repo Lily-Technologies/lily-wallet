@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import { white, gray300, gray600, red400 } from '../utils/colors';
 
-export const Input = ({ value, onChange, error, label, id, placeholder, type, autoFocus }) => (
+export const Input = ({ value, onChange, error, label, id, placeholder, type, autoFocus, onKeyDown }) => (
   <Fragment>
     {label && <Label htmlFor={id}>{label}</Label>}
     <InputWrapper>
@@ -12,6 +12,7 @@ export const Input = ({ value, onChange, error, label, id, placeholder, type, au
         id={id}
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        onKeyDown={onKeyDown}
         error={error}
         autoFocus={autoFocus}
         placeholder={placeholder}

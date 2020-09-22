@@ -3,13 +3,14 @@ import styled from 'styled-components';
 import moment from 'moment';
 import { satoshisToBitcoins } from "unchained-bitcoin";
 import { Bitcoin } from '@styled-icons/boxicons-logos';
+import { AddCircleOutline } from '@styled-icons/material';
 import { AreaChart, Area, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts';
 import { Link } from "react-router-dom";
 import { useSpring, animated } from 'react-spring';
 
 import { PageWrapper, StyledIcon } from '../components';
 
-import { blue, darkGray, white, lightBlue, offWhite, gray } from '../utils/colors';
+import { blue, darkGray, white, black, lightBlue, gray, gray400, gray500, gray600 } from '../utils/colors';
 
 var formatter = new Intl.NumberFormat('en-US', {
   style: 'currency',
@@ -148,32 +149,49 @@ const Home = ({ config, setCurrentAccount, accountMap, historicalBitcoinPrice, c
               </AccountInfoContainer>
             </AccountItem>
           ))}
+          <AccountItem to={`/setup`}>
+            <StyledIcon as={AddCircleOutline} size={48} />
+            <AccountInfoContainer>
+              <AccountName>Add a new account</AccountName>
+              <CurrentBalance>Create a new account to send, receive, and manage bitcoin</CurrentBalance>
+            </AccountInfoContainer>
+          </AccountItem>
+          {!accountMap.size && (
+            <InvisibleItem></InvisibleItem>
+          )}
         </AccountsWrapper>
       </animated.div>
     </PageWrapper >
   )
 };
 
+const InvisibleItem = styled.div`
+  height: 0;
+  width: 0;
+`;
 
 const AccountItem = styled(Link)`
   background: ${white};
   padding: 1.5em;
-  border: 1px solid ${gray};
   cursor: pointer;
-  color: ${gray};
+  color: ${darkGray};
   text-decoration: none;
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
   justify-content: flex-start;
-  box-shadow: rgba(43, 48, 64, 0.2) 0px 0.1rem 0.5rem 0px;
+  box-shadow: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06);
 
   &:hover {
-    background: ${offWhite};
+    color: ${gray500};
   }
 
-  &:visited {
-    color: ${gray};
+  transition-property: background-color,border-color,color,fill,stroke,opacity,box-shadow,transform;
+  transition-timing-function: cubic-bezier(.4,0,.2,1);
+  transition-duration: .15s;
+
+  &:active {
+    transform: scale(.99);
+    outline: 0;
   }
 `;
 
@@ -222,12 +240,11 @@ const HomeHeadingItem = styled.h3`
   font-size: 1.5em;
   margin: 4em 0 0;
   font-weight: 400;
-  color: ${darkGray};
+  color: ${black};
 `;
 
 const AccountName = styled.div`
   font-size: 1.25em;
-  color: ${darkGray};
 `;
 
 const CurrentBalance = styled.div`

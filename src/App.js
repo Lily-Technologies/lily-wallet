@@ -58,7 +58,7 @@ function App() {
   const ConfigRequired = () => {
     const { pathname } = useLocation();
     const history = useHistory();
-    if (config.isEmpty && (pathname !== '/login' && pathname !== '/decrypt' && pathname !== '/setup')) {
+    if (config.isEmpty && (pathname !== '/login')) {
       history.push('/login');
     }
     return null;

@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { ErrorOutline, CheckCircle } from '@styled-icons/material';
+import { ExclamationDiamond } from '@styled-icons/bootstrap'
 
 import { Button, StyledIcon, PromptPinModal } from '../components';
-import { lightGreen, gray, green, blue, white, darkGray, red, lightRed, yellow, lightYellow, black, gray600 } from '../utils/colors';
+import { lightGreen, gray, green, blue, white, darkGray, red, lightRed, yellow, lightYellow, gray600, gray900 } from '../utils/colors';
 
 export const DeviceSelect = ({ configuredDevices, unconfiguredDevices, errorDevices, setUnconfiguredDevices, configuredThreshold, deviceAction, deviceActionText, deviceActionLoadingText }) => {
   const [devicesLoading, setDevicesLoading] = useState(false);
@@ -98,7 +99,7 @@ export const DeviceSelect = ({ configuredDevices, unconfiguredDevices, errorDevi
             >
               {(deviceError || deviceWarning) && (
                 <IconWrapper style={{ color: red }}>
-                  <StyledIcon as={ErrorOutline} size={24} />
+                  <StyledIcon as={ExclamationDiamond} size={24} />
                 </IconWrapper>
               )}
               <DeviceImage
@@ -139,27 +140,29 @@ export const DeviceSelect = ({ configuredDevices, unconfiguredDevices, errorDevi
           <NoDevicesContainer>
             <NoDevicesWrapper>
               <NoDevicesHeader>No devices detected</NoDevicesHeader>
-              <StyledIcon as={ErrorOutline} size={96} />
+              <StyledIcon as={ExclamationDiamond} size={96} />
               <NoDevicesSubheader>Please make sure your device is connected and unlocked.</NoDevicesSubheader>
             </NoDevicesWrapper>
           </NoDevicesContainer>
         )}
-      </DevicesWrapper>
 
-      {unconfiguredDevices.length === 0 && configuredDevices.length === 0 && devicesLoading && (
-        <NoDevicesContainer>
+        {unconfiguredDevices.length === 0 && configuredDevices.length === 0 && devicesLoading && (
           <LoadingDevicesWrapper>
-            <img src={require('../assets/flower-loading.svg')} style={{ maxWidth: '6.25em' }} alt="loading" />
+            <LoadingImage src={require('../assets/flower-loading.svg')} style={{ maxWidth: '6.25em' }} alt="loading" />
             <LoadingText>Loading Devices</LoadingText>
             <LoadingSubText>Please wait...</LoadingSubText>
           </LoadingDevicesWrapper>
-        </NoDevicesContainer>
-      )}
+        )}
+      </DevicesWrapper>
 
       {configuredDevices.length < configuredThreshold && <ScanDevicesButton background={white} color={blue} onClick={enumerate}>{devicesLoading ? 'Updating Device List...' : 'Scan for devices'}</ScanDevicesButton>}
     </Wrapper>
   )
 }
+
+const LoadingImage = styled.img`
+  color: ${gray900};
+`;
 
 const Wrapper = styled.div`
   display: flex;
@@ -171,16 +174,14 @@ const NoDevicesContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 1.25em;
 `;
 
 const NoDevicesWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 1.5em;
   justify-content: center;
-  color: ${black};
+  color: ${gray900};
   text-align: center;
 `;
 
@@ -190,18 +191,18 @@ const LoadingDevicesWrapper = styled.div`
   align-items: center;
   padding: 1.5em;
   justify-content: center;
-  color: ${gray};
+  color: ${darkGray};
   text-align: center;
 `;
 
 
 const NoDevicesHeader = styled.h3`
-
+  font-weight: 100;
 `;
 
 
 const NoDevicesSubheader = styled.h4`
-
+  font-weight: 100;
 `;
 
 const ConfiguringText = styled.div`
@@ -214,6 +215,7 @@ const DevicesWrapper = styled.div`
   display: flex;
   justify-content: center;
   margin-bottom: 1.25em;
+  margin-top: 1.25em;
   overflow: scroll;
 `;
 

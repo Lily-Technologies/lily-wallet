@@ -15,10 +15,6 @@ import { saveConfig } from '../../utils/files';
 
 const MIN_PASSWORD_LENGTH = 8;
 
-// Potential input fields
-const FIELD_PASSWORD = 0;
-const FIELD_CONFIRMATION = 1;
-
 const Login = ({ config, setConfigFile, currentBitcoinNetwork, encryptedConfigFile, setEncryptedConfigFile, setPassword }) => {
   document.title = `Login - Lily Wallet`;
   const [localPassword, setLocalPassword] = useState(undefined);
@@ -36,6 +32,7 @@ const Login = ({ config, setConfigFile, currentBitcoinNetwork, encryptedConfigFi
       if (encryptedConfigFile) {
         const bytes = AES.decrypt(encryptedConfigFile.file, localPassword);
         const decryptedData = JSON.parse(bytes.toString(enc.Utf8));
+        setPasswordError(false);
         setTimeout(() => {
           setConfigFile(decryptedData);
           setPassword(localPassword);
@@ -51,12 +48,18 @@ const Login = ({ config, setConfigFile, currentBitcoinNetwork, encryptedConfigFi
           saveConfig(configCopy, localPassword); // we save a blank config file
           setPassword(localPassword);
           setIsLoading(false);
-          history.replace(`/setup`);
+          history.replace(`/`);
         }, 2000)
       }
     } catch (e) {
       setPasswordError(true);
       setIsLoading(false);
+    }
+  }
+
+  const onInputEnter = (e) => {
+    if (encryptedConfigFile && e.key === 'Enter') {
+      unlockFile();
     }
   }
 
@@ -105,12 +108,18 @@ const Login = ({ config, setConfigFile, currentBitcoinNetwork, encryptedConfigFi
         <SignupOptionMenu>
           {encryptedConfigFile || step === 1 ? (
             <SignupOptionItem>
+              {!encryptedConfigFile && (
+                <ExplainerText>
+                  Lily encrypts the information about your account on your local machine.
+                  This password will be used to decrypt this information when you use Lily in the future.
+                </ExplainerText>
+              )}
               <InputContainer>
                 <Input
                   autoFocus
                   label="Password"
                   value={localPassword}
-                  // onKeyDown={(value) => onInputEnter(value, FIELD_PASSWORD)}
+                  onKeyDown={(e) => onInputEnter(e)}
                   onChange={setLocalPassword}
                   type="password" />
                 {passwordError !== undefined && <PasswordError>{passwordError}</PasswordError>}
@@ -120,7 +129,7 @@ const Login = ({ config, setConfigFile, currentBitcoinNetwork, encryptedConfigFi
                   <Input
                     label="Confirm Password"
                     value={confirmation}
-                    // onKeyDown={(value) => onInputEnter(value, FIELD_CONFIRMATION)}
+                    onKeyDown={(e) => onInputEnter(e)}
                     onChange={setConfirmation}
                     type="password" />
                   {confirmationError !== undefined && <PasswordError>{confirmationError}</PasswordError>}
@@ -146,7 +155,9 @@ const Login = ({ config, setConfigFile, currentBitcoinNetwork, encryptedConfigFi
               {encryptedConfigFile && <SignupOptionSubtext>Last accessed on {encryptedConfigFile && moment(encryptedConfigFile.modifiedTime).format('MM/DD/YYYY')}</SignupOptionSubtext>}
             </SignupOptionItem>
           ) : (
-              <CreateNewAccountButton background={green500} color={white} onClick={() => setStep(1)}>Get Started</CreateNewAccountButton>
+              <SignupOptionItem>
+                <CreateNewAccountButton background={green500} color={white} onClick={() => setStep(1)}>Get Started</CreateNewAccountButton>
+              </SignupOptionItem>
             )}
 
           <LoadFromFile>You can also restore a wallet <LabelOverlay htmlFor="localConfigFile"><SubTextLink>from a backup file</SubTextLink></LabelOverlay></LoadFromFile>
@@ -158,6 +169,13 @@ const Login = ({ config, setConfigFile, currentBitcoinNetwork, encryptedConfigFi
     </PageWrapper>
   )
 }
+
+const ExplainerText = styled.span`
+  color: ${gray900};
+  font-size: 0.75em;
+  padding: 0 0 1.5em 0;
+  text-align: left;
+`;
 
 const LoadingImage = styled.img`
   filter: brightness(0) invert(1);
@@ -196,10 +214,10 @@ const PasswordError = styled.div`
 `;
 
 const SignupOptionSubtext = styled.div`
-  font-size: .5em;
-  margin-top: 0.75em;
+  font-size: .75em;
+  margin-top: 1em;
   color: ${darkGray};
-  padding: 0 5em;
+  padding: 0 2em;
   line-height: 1.5em;
   white-space: normal;
 `;
@@ -225,8 +243,6 @@ const CreateNewAccountButton = styled.button`
   width: auto;
   text-align: right;
   align-self: center;
-  margin-top: 2em;
-  margin-bottom: 2em;
   font-size: 1em;
 `;
 

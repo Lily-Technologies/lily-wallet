@@ -38,8 +38,8 @@ const SuccessScreen = ({ exportSetupFiles, config }) => {
               color={white}
               onClick={async () => {
                 await exportSetupFiles();
-                history.push('/');
-              }}>View Account</DownloadButton>
+                history.push(`/`);
+              }}>View Accounts</DownloadButton>
           </Buttons>
         </BoxedWrapperModified>
       </FormContainer>
