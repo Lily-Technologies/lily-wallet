@@ -13,7 +13,6 @@ import { networks } from 'bitcoinjs-lib';
 
 import { offWhite } from './utils/colors';
 import { mobile } from './utils/media';
-import { bitcoinNetworkEqual } from './utils/transactions';
 
 import { Sidebar, MobileNavbar, TitleBar } from './components';
 
@@ -26,6 +25,8 @@ import Receive from './pages/Receive';
 import Send from './pages/Send';
 import ColdcardImportInstructions from './pages/ColdcardImportInstructions';
 import Home from './pages/Home';
+
+import { bitcoinNetworkEqual } from './utils/files';
 
 const emptyConfig = {
   name: "",

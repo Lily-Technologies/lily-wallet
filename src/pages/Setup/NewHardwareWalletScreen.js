@@ -6,7 +6,7 @@ import { Button, DeviceSelect, FileUploader } from '../../components';
 import { InnerWrapper, XPubHeaderWrapper, SetupHeaderWrapper, SetupExplainerText, FormContainer, BoxedWrapper, SetupHeader } from './styles';
 import { darkGray, white } from '../../utils/colors';
 import { zpubToXpub } from '../../utils/other';
-import { getP2shDeriationPathForNetwork } from '../../utils/transactions';
+import { getP2shDeriationPathForNetwork } from '../../utils/files';
 
 const NewHardwareWalletScreen = ({
   header,

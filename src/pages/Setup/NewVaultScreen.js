@@ -6,9 +6,9 @@ import { Button, DeviceSelect, FileUploader } from '../../components';
 import { InnerWrapper, XPubHeaderWrapper, SetupHeaderWrapper, SetupExplainerText, FormContainer, BoxedWrapper, SetupHeader } from './styles';
 import { darkGray, white } from '../../utils/colors';
 import { zpubToXpub } from '../../utils/other';
-import { getMultisigDeriationPathForNetwork } from '../../utils/transactions';
-
 import RequiredDevicesModal from './RequiredDevicesModal';
+
+import { getMultisigDeriationPathForNetwork } from '../../utils/files';
 
 const NewVaultScreen = ({
   header,

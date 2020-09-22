@@ -9,7 +9,7 @@ import { MnemonicWordsDisplayer, Modal } from '../../components';
 import { black, gray, white, blue, darkGray, darkOffWhite, lightBlue, red, lightGray, darkGreen } from '../../utils/colors';
 import { mobile } from '../../utils/media';
 import { createColdCardBlob, downloadFile, formatFilename, saveConfig } from '../../utils/files';
-import { getMultisigDeriationPathForNetwork } from '../../utils/transactions';
+import { getMultisigDeriationPathForNetwork } from '../../utils/files';
 
 const VaultSettings = ({ config, setConfigFile, password, currentAccount, setViewAddresses, setViewUtxos, currentBitcoinNetwork }) => {
   const [viewXpub, setViewXpub] = useState(false);

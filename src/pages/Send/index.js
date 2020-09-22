@@ -18,10 +18,10 @@ import { red, gray, blue, darkGray, white, darkOffWhite, lightBlue } from '../..
 import { mobile } from '../../utils/media';
 import { cloneBuffer, bufferToHex } from '../../utils/other';
 import { combinePsbts } from '../../utils/files';
-import { bitcoinNetworkEqual } from '../../utils/transactions';
 
 import { createTransaction, validateAddress, createUtxoMapFromUtxoArray, getFee } from './utils'
 import { AddressDisplayWrapper, Input, InputStaticText } from './styles';
+import { bitcoinNetworkEqual } from '../../utils/files';
 
 const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, currentBitcoinNetwork, currentBitcoinPrice }) => {
   document.title = `Send - Lily Wallet`;

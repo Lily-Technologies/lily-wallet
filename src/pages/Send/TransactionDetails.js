@@ -14,13 +14,14 @@ import {
 import { address, Psbt } from 'bitcoinjs-lib';
 
 import { cloneBuffer } from '../../utils/other';
-import { getUnchainedNetworkFromBjslibNetwork } from '../../utils/transactions';
 import { StyledIcon, Button, SidewaysShake, Dropdown, Modal } from '../../components';
 
 import { gray, blue, darkGray, white, darkOffWhite, green, darkGreen, lightGray, red, lightRed, orange, lightOrange } from '../../utils/colors';
 import { downloadFile, formatFilename, combinePsbts } from '../../utils/files';
 import { createUtxoMapFromUtxoArray } from './utils';
 import { FeeSelector } from './FeeSelector';
+
+import { getUnchainedNetworkFromBjslibNetwork } from '../../utils/files';
 
 const ABSURD_FEE = 1000000; // 0.01 BTC
 

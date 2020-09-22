@@ -9,7 +9,7 @@ import { ArrowIosForwardOutline } from '@styled-icons/evaicons-outline';
 import { StyledIcon, FileUploader, Button, Input } from '../../components';
 
 import { black, darkGray, white, red, gray500, gray900, green500, green600 } from '../../utils/colors';
-import { bitcoinNetworkEqual } from '../../utils/transactions';
+import { bitcoinNetworkEqual } from '../../utils/files';
 import { mobile } from '../../utils/media';
 import { saveConfig } from '../../utils/files';
 

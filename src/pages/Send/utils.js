@@ -12,7 +12,7 @@ import BigNumber from 'bignumber.js';
 import coinSelect from 'coinselect';
 
 import { cloneBuffer } from '../../utils/other';
-import { bitcoinNetworkEqual } from '../../utils/transactions';
+import { getUnchainedNetworkFromBjslibNetwork } from '../../utils/files';
 
 const getTxHex = async (txid, currentBitcoinNetwork) => {
   const txHex = await (await axios.get(blockExplorerAPIURL(`/tx/${txid}/hex`, getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)))).data;
@@ -34,14 +34,6 @@ export const createUtxoMapFromUtxoArray = (utxosArray) => {
     utxoMap.set(`${utxo.txid}:${utxo.vout}`, utxo)
   });
   return utxoMap
-}
-
-const getUnchainedNetworkFromBjslibNetwork = (bitcoinJslibNetwork) => {
-  if (bitcoinNetworkEqual(bitcoinJslibNetwork, networks.bitcoin)) {
-    return 'mainnet';
-  } else {
-    return 'testnet';
-  }
 }
 
 export const getFeeForMultisig = (feeRate, addressType, numInputs, numOutputs, requiredSigners, totalSigners) => {

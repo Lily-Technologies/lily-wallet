@@ -5,7 +5,50 @@ import { bip32 } from "bitcoinjs-lib";
 import { mnemonicToSeed } from "bip39";
 import { AES } from 'crypto-js';
 
-import { bitcoinNetworkEqual, getMultisigDeriationPathForNetwork, getP2wpkhDeriationPathForNetwork } from './transactions';
+export const bitcoinNetworkEqual = (a, b) => {
+  return a.bech32 === b.bech32;
+}
+
+export const getDerivationPath = (addressType, bip32Path, currentBitcoinNetwork) => {
+  const childPubKeysBip32Path = bip32Path;
+  if (addressType === 'multisig') {
+    return `${getMultisigDeriationPathForNetwork(currentBitcoinNetwork)}/${childPubKeysBip32Path.replace('m/', '')}`;
+  } else if (addressType === 'p2sh') {
+    return `${getP2shDeriationPathForNetwork(currentBitcoinNetwork)}/${childPubKeysBip32Path.replace('m/', '')}`;
+  } else { // p2wpkh
+    return `${getP2wpkhDeriationPathForNetwork(currentBitcoinNetwork)}/${childPubKeysBip32Path.replace('m/', '')}`;
+  }
+}
+
+export const getMultisigDeriationPathForNetwork = (network) => {
+  if (bitcoinNetworkEqual(network, networks.bitcoin)) {
+    return "m/48'/0'/0'/2'"
+  } else if (bitcoinNetworkEqual(network, networks.testnet)) {
+    return "m/48'/1'/0'/2'"
+  } else { // return mainnet by default...this should never run though
+    return "m/48'/0'/0'/2'"
+  }
+}
+
+export const getP2shDeriationPathForNetwork = (network) => {
+  if (bitcoinNetworkEqual(network, networks.bitcoin)) {
+    return "m/49'/0'/0'"
+  } else if (bitcoinNetworkEqual(network, networks.testnet)) {
+    return "m/49'/1'/0'"
+  } else { // return mainnet by default...this should never run though
+    return "m/49'/0'/0'"
+  }
+}
+
+export const getP2wpkhDeriationPathForNetwork = (network) => {
+  if (bitcoinNetworkEqual(network, networks.bitcoin)) {
+    return "m/84'/0'/0'"
+  } else if (bitcoinNetworkEqual(network, networks.testnet)) {
+    return "m/84'/1'/0'"
+  } else { // return mainnet by default...this should never run though
+    return "m/84'/0'/0'"
+  }
+}
 
 export const getUnchainedNetworkFromBjslibNetwork = (bitcoinJslibNetwork) => {
   if (bitcoinNetworkEqual(bitcoinJslibNetwork, networks.bitcoin)) {

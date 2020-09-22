@@ -8,7 +8,6 @@ const {
   bitcoinsToSatoshis
 } = require("unchained-bitcoin");
 
-
 const bitcoinNetworkEqual = (a, b) => {
   return a.bech32 === b.bech32;
 }

@@ -9,7 +9,7 @@ import { networks } from 'bitcoinjs-lib';
 import { StyledIcon } from '.';
 
 import { blue, white, offWhite, darkGray, darkOffWhite, lightBlue, lightBlack } from '../utils/colors';
-import { bitcoinNetworkEqual } from '../utils/transactions';
+import { bitcoinNetworkEqual } from '../utils/files';
 
 
 export const NavLinks = ({ config, setCurrentAccount, currentBitcoinNetwork }) => {
