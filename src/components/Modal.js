@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
+import styled from 'styled-components';
 import ReactModal from 'react-modal'
+import { Close } from '@styled-icons/ionicons-outline';
 
-import { white } from '../utils/colors';
+import { StyledIcon } from '.';
+
+import { white, gray400, gray600 } from '../utils/colors';
 
 export const Modal = ({ isOpen, onAfterOpen, onRequestClose, style, children }) => {
   const [localOpen, setLocalOpen] = useState(false);
@@ -52,6 +56,22 @@ export const Modal = ({ isOpen, onAfterOpen, onRequestClose, style, children }) 
       contentLabel="Example Modal"
     >
       {children}
+      <CloseButtonContainer>
+        <StyledIcon onClick={() => requestClose()} as={Close} size={36} style={{ cursor: 'pointer' }} />
+      </CloseButtonContainer>
     </ReactModal>
   )
 }
+
+const CloseButtonContainer = styled.div`
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding-right: 1em;
+  padding-top: 1em;
+  color: ${gray400};
+
+  &:hover {
+    color: ${gray600};
+  }
+`;

@@ -53,6 +53,17 @@ export const ConnectToNodeModal = ({
     >
       <ModalHeader>
         <HeaderText>Input Node Information</HeaderText>
+      </ModalHeader>
+      <InputsWrapper>
+        <InputContainer style={{ marginTop: '1em' }}>
+          <Input label="Host" value={host} onChange={setHost} onKeyDown={(e) => onInputEnter(e)} />
+        </InputContainer>
+        <InputContainer>
+          <Input label="Username" value={username} onChange={setUsername} onKeyDown={(e) => onInputEnter(e)} />
+        </InputContainer>
+        <InputContainer>
+          <Input label="Password" type="password" value={password} onChange={setPassword} onKeyDown={(e) => onInputEnter(e)} />
+        </InputContainer>
         <SaveButton
           onClick={async () => {
             try {
@@ -65,17 +76,6 @@ export const ConnectToNodeModal = ({
           }}>
           {isLoading ? <Spinner /> : 'Connect to Node'}
         </SaveButton>
-      </ModalHeader>
-      <InputsWrapper>
-        <InputContainer style={{ marginTop: '1em' }}>
-          <Input label="Host" value={host} onChange={setHost} onKeyDown={(e) => onInputEnter(e)} />
-        </InputContainer>
-        <InputContainer>
-          <Input label="Username" value={username} onChange={setUsername} onKeyDown={(e) => onInputEnter(e)} />
-        </InputContainer>
-        <InputContainer>
-          <Input label="Password" type="password" value={password} onChange={setPassword} onKeyDown={(e) => onInputEnter(e)} />
-        </InputContainer>
         {nodeConnectError && <ErrorText>{nodeConnectError}</ErrorText>}
       </InputsWrapper>
     </Modal>
@@ -100,7 +100,6 @@ const ModalHeader = styled.div`
 `;
 
 const HeaderText = styled.div`
-  margin-left: 1rem;
   margin-top: .5rem;
   font-size: 1.125rem;
   line-height: 1.5rem;
@@ -109,9 +108,7 @@ const HeaderText = styled.div`
 
 const SaveButton = styled.div`
   ${Button};
-  margin-left: 1rem;
-  margin-top: .5rem;
-
+  margin-top: 1.5rem;
 `;
 
 const InputsWrapper = styled.div`

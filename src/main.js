@@ -75,6 +75,9 @@ const setupInitialNodeConfig = async () => {
     const blockchainInfo = await nodeClient.getBlockchainInfo();
     currentNodeConfig = nodeConfig
   } catch (e) {
+    currentNodeConfig = {
+      provider: 'Blockstream'
+    }
     return Promise.reject('setupInitialNodeConfig: Error connecting to Bitcoin Core, using Blockstream')
   }
 }
@@ -155,7 +158,7 @@ ipcMain.on('/account-data', async (event, args) => {
   let addresses, changeAddresses, transactions, unusedAddresses, unusedChangeAddresses, availableUtxos;
   let nodeClient = undefined;
   try {
-    if (currentNodeConfig) {
+    if (currentNodeConfig.provider === 'Bitcoin Core') {
       const nodeClient = new Client({
         username: currentNodeConfig.rpcuser,
         password: currentNodeConfig.rpcpassword,
@@ -348,11 +351,11 @@ ipcMain.handle('/sendpin', async (event, args) => {
 ipcMain.handle('/estimateFee', async (event, args) => {
   if (currentNodeConfig.provider === 'Blockstream') {
     try {
-      feeRates = await (await axios.get('https://mempool.space/api/v1/fees/recommended')).data; // TODO: should catch if URL is down
+      const feeRates = await (await axios.get('https://mempool.space/api/v1/fees/recommended')).data; // TODO: should catch if URL is down
+      return Promise.resolve(feeRates);
     } catch (e) {
       throw new Error('Error retrieving fees from mempool.space. Please try again.')
     }
-    return Promise.resolve(feeRates);
   } else {
     const nodeClient = new Client(currentNodeConfig);
     try {
@@ -433,7 +436,7 @@ ipcMain.handle('/changeNodeConfig', async (event, args) => {
 });
 
 ipcMain.handle('/getNodeConfig', async (event, args) => {
-  if (currentNodeConfig) {
+  if (currentNodeConfig.provider === 'Bitcoin Core') {
     try {
       const blockchainInfo = await getBitcoinCoreBlockchainInfo();
       return Promise.resolve(blockchainInfo);
