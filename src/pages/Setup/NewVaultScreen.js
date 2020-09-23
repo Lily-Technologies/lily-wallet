@@ -12,7 +12,6 @@ import { getMultisigDeriationPathForNetwork } from '../../utils/files';
 
 const NewVaultScreen = ({
   header,
-  config,
   setStep,
   importedDevices,
   setImportedDevices,

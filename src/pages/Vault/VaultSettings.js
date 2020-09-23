@@ -1,12 +1,12 @@
 import React, { useState, Fragment } from 'react';
 import styled, { css } from 'styled-components';
-import { AES } from 'crypto-js';
 import { useHistory } from "react-router-dom";
 import { QRCode } from "react-qr-svg";
+import { ExclamationDiamond } from '@styled-icons/bootstrap'
 
-import { MnemonicWordsDisplayer, Modal } from '../../components';
+import { MnemonicWordsDisplayer, Modal, Input, StyledIcon, Button } from '../../components';
 
-import { black, gray, white, blue, darkGray, darkOffWhite, lightBlue, red, lightGray, darkGreen } from '../../utils/colors';
+import { black, gray, white, blue, darkGray, darkOffWhite, lightBlue, red, lightGray, darkGreen, red100, red500, red600, gray500 } from '../../utils/colors';
 import { mobile } from '../../utils/media';
 import { createColdCardBlob, downloadFile, formatFilename, saveConfig } from '../../utils/files';
 import { getMultisigDeriationPathForNetwork } from '../../utils/files';
@@ -16,7 +16,8 @@ const VaultSettings = ({ config, setConfigFile, password, currentAccount, setVie
   const [viewExportQRCode, setViewExportQRCode] = useState(false);
   const [viewMnemonic, setViewMnemonic] = useState(false);
   const [viewDeleteAccount, setViewDeleteAccount] = useState(false);
-  const [configEncryptionPassword, setConfigEncryptionPassword] = useState('');
+  const [accountNameConfirm, setAccountNameConfirm] = useState(undefined);
+  const [accountNameConfirmError, setAccountNameConfirmError] = useState(false);
   const history = useHistory();
 
   const downloadColdcardMultisigFile = () => {
@@ -87,16 +88,20 @@ const VaultSettings = ({ config, setConfigFile, password, currentAccount, setVie
   }
 
   const removeAccountAndDownloadConfig = () => {
-    const configCopy = { ...config };
-    if (currentAccount.config.quorum.totalSigners === 1) {
-      configCopy.wallets = configCopy.wallets.filter((wallet) => wallet.id !== currentAccount.config.id)
-    } else {
-      configCopy.vaults = configCopy.vaults.filter((vault) => vault.id !== currentAccount.config.id)
-    }
+    if (accountNameConfirm === currentAccount.config.name) {
+      const configCopy = { ...config };
+      if (currentAccount.config.quorum.totalSigners === 1) {
+        configCopy.wallets = configCopy.wallets.filter((wallet) => wallet.id !== currentAccount.config.id)
+      } else {
+        configCopy.vaults = configCopy.vaults.filter((vault) => vault.id !== currentAccount.config.id)
+      }
 
-    saveConfig(configCopy, password);
-    setConfigFile(configCopy);
-    history.push('/');
+      saveConfig(configCopy, password);
+      setConfigFile(configCopy);
+      history.push('/');
+    } else {
+      setAccountNameConfirmError(true);
+    }
   }
 
   return (
@@ -230,20 +235,35 @@ const VaultSettings = ({ config, setConfigFile, password, currentAccount, setVie
           isOpen={viewDeleteAccount}
           onRequestClose={() => setViewDeleteAccount(false)}>
           <ModalContentWrapper>
-            <DangerText>Danger!</DangerText>
-
-            <DangerSubtext>
-              You are about to delete an account from this configuration.
+            <DangerIconContainer>
+              <StyledIconCircle>
+                <StyledIcon style={{ color: red600 }} as={ExclamationDiamond} size={36} />
+              </StyledIconCircle>
+            </DangerIconContainer>
+            <DangerTextContainer>
+              <DangerText>Delete Account</DangerText>
+              <DangerSubtext>
+                You are about to delete an account from this configuration.
              <br />
              If there are any funds remaining in this account, they will be lost forever.
              </DangerSubtext>
-            <EnterPasswordSubtext>If you would like to continue, enter a password to encrypt your updated configuration file.</EnterPasswordSubtext>
+              <Input
+                label="Type in the account's name to delete"
+                autoFocus
+                value={accountNameConfirm}
+                onChange={setAccountNameConfirm}
+                onInputEnter={onInputEnter}
+                error={accountNameConfirmError}
+              />
+              {accountNameConfirmError && <ConfirmError>Account name doesn't match</ConfirmError>}
 
-            <PasswordInput placeholder="password" autoFocus type="password" value={configEncryptionPassword} onChange={(e) => setConfigEncryptionPassword(e.target.value)} onKeyDown={(e) => onInputEnter(e)} />
-
-            <ViewAddressesButton
-              style={{ color: red, border: `1px solid ${red}` }}
-              onClick={() => { removeAccountAndDownloadConfig() }}>Delete Account</ViewAddressesButton>
+              <DeleteAccountButton
+                background={red600}
+                color={white}
+                onClick={() => { removeAccountAndDownloadConfig() }}>
+                Delete Account
+                  </DeleteAccountButton>
+            </DangerTextContainer>
           </ModalContentWrapper>
         </Modal>
 
@@ -252,25 +272,72 @@ const VaultSettings = ({ config, setConfigFile, password, currentAccount, setVie
   )
 }
 
+const DeleteAccountButton = styled.button`
+  ${Button}
+  margin-top: 1rem;
+
+  ${mobile(css`
+  margin-top: 1.25rem;
+  `)};
+`;
+
+const ConfirmError = styled.div`
+  color: ${red500};
+`;
+
+const DangerTextContainer = styled.div`
+  display: flex;
+  flex: 1;
+  align-items: flex-start;
+  flex-direction: column;
+  margin-left: 1rem;
+
+  ${mobile(css`
+    margin-top: 0.75rem;
+    margin-left: 0;
+  `)};
+`;
+
 const ModalContentWrapper = styled.div`
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   width: 100%;
-  min-height: 500px;
+  padding: 1.5em;
+  align-items: flex-start;
+
+  ${mobile(css`
+    flex-direction: column;
+    align-items: center;
+    padding-top: 1.25em;
+    padding-bottom: 1em;
+    padding-left: 1em;
+    padding-right: 1em;
+    margin-left: 0;
+  `)};  
+`;
+
+const DangerIconContainer = styled.div``;
+
+const StyledIconCircle = styled.div`
+  border-radius: 9999px;
+  background: ${red100};
+  width: 3rem;
+  height: 3rem;
+  display: flex;
   justify-content: center;
   align-items: center;
 `;
 
 const DangerText = styled.div`
-  font-size: 1.5em;
+  font-size: 1.125rem;
   text-align: center;
-  font-weight: 800;
-  color: ${red};
+  font-weight: 500;
 `;
 
 const DangerSubtext = styled.div`
   padding-bottom: 2em;
-  text-align: center;
+  margin-top: 0.5rem;
+  color: ${gray500};
 `;
 
 const EnterPasswordSubtext = styled.div`

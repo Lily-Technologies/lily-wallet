@@ -10,7 +10,6 @@ import { getP2shDeriationPathForNetwork } from '../../utils/files';
 
 const NewHardwareWalletScreen = ({
   header,
-  config,
   setStep,
   importedDevices,
   setImportedDevices,

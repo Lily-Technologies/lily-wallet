@@ -16,7 +16,7 @@ import SuccessScreen from './SuccessScreen';
 import NewWalletScreen from './NewWalletScreen';
 import NewHardwareWalletScreen from './NewHardwareWalletScreen';
 
-const Setup = ({ config, setConfigFile, password, currentBitcoinNetwork, setPassword }) => {
+const Setup = ({ config, setConfigFile, password, currentBitcoinNetwork }) => {
   document.title = `Setup - Lily Wallet`;
   const [setupOption, setSetupOption] = useState(0);
   const [step, setStep] = useState(0);
@@ -24,33 +24,44 @@ const Setup = ({ config, setConfigFile, password, currentBitcoinNetwork, setPass
   const [importedDevices, setImportedDevices] = useState([]);
   const [walletMnemonic, setWalletMnemonic] = useState(null);
   const [configRequiredSigners, setConfigRequiredSigners] = useState(1);
-  const [setupPassword, setSetupPassword] = useState(undefined);
+  const [localConfig, setLocalConfig] = useState(config);
 
   useEffect(() => {
     setWalletMnemonic(generateMnemonic(256));
   }, []);
 
+  useEffect(() => {
+    console.log('hits useEffect: ', step)
+    if (step === 3) {
+      exportSetupFiles();
+    }
+
+    return () => {
+      setConfigFile(localConfig)
+    }
+  }, [step]);
+  console.log('importedDevices, configRequiredSigners, accountName, config, currentBitcoinNetwork: ', importedDevices, configRequiredSigners, accountName, config, currentBitcoinNetwork);
+
   const exportSetupFiles = async () => {
+    console.log('hits exportSetupFiles')
     let configObject;
     if (setupOption === 1) {
       configObject = await createMultisigConfigFile(importedDevices, configRequiredSigners, accountName, config, currentBitcoinNetwork);
-      if (containsColdcard(importedDevices)) {
-        const ccFile = createColdCardBlob(configRequiredSigners, importedDevices.length, accountName, importedDevices, currentBitcoinNetwork);
-        await downloadFile(ccFile, `${accountName}-lily-coldcard-file-${moment().format('MMDDYYYY')}.txt`);
-      }
     } else if (setupOption === 2) {
       configObject = await createSinglesigConfigFile(walletMnemonic, accountName, config, currentBitcoinNetwork);
     } else {
       configObject = await createSinglesigHWWConfigFile(importedDevices[0], accountName, config, currentBitcoinNetwork)
     }
-    if (!password) { // if we dont have a global password set, then set it and save config
-      setPassword(setupPassword);
-      saveConfig(configObject, setupPassword);
-    } else {
-      saveConfig(configObject, password);
-    }
-    setConfigFile(configObject);
+    saveConfig(configObject, password);
+    setLocalConfig(configObject);
   };
+
+  const downloadColdcardFile = async () => {
+    if (containsColdcard(importedDevices)) {
+      const ccFile = createColdCardBlob(configRequiredSigners, importedDevices.length, accountName, importedDevices, currentBitcoinNetwork);
+      await downloadFile(ccFile, `${accountName}-lily-coldcard-file-${moment().format('MMDDYYYY')}.txt`);
+    }
+  }
 
   const Header = (
     <PageHeader
@@ -73,7 +84,6 @@ const Setup = ({ config, setConfigFile, password, currentBitcoinNetwork, setPass
     case 1:
       screen = <InputNameScreen
         header={Header}
-        config={config}
         setupOption={setupOption}
         setStep={setStep}
         accountName={accountName}
@@ -83,7 +93,6 @@ const Setup = ({ config, setConfigFile, password, currentBitcoinNetwork, setPass
       if (setupOption === 2) {
         screen = <NewWalletScreen
           header={Header}
-          config={config}
           walletMnemonic={walletMnemonic}
           setWalletMnemonic={setWalletMnemonic}
           setStep={setStep}
@@ -91,7 +100,6 @@ const Setup = ({ config, setConfigFile, password, currentBitcoinNetwork, setPass
       } else if (setupOption === 3) {
         screen = <NewHardwareWalletScreen
           header={Header}
-          config={config}
           setStep={setStep}
           importedDevices={importedDevices}
           setImportedDevices={setImportedDevices}
@@ -100,7 +108,6 @@ const Setup = ({ config, setConfigFile, password, currentBitcoinNetwork, setPass
       } else {
         screen = <NewVaultScreen
           header={Header}
-          config={config}
           setStep={setStep}
           importedDevices={importedDevices}
           setImportedDevices={setImportedDevices}
@@ -113,7 +120,8 @@ const Setup = ({ config, setConfigFile, password, currentBitcoinNetwork, setPass
     case 3:
       screen = <SuccessScreen
         exportSetupFiles={exportSetupFiles}
-        config={config}
+        config={localConfig}
+        downloadColdcardFile={containsColdcard(importedDevices) && importedDevices.length > 1 ? downloadColdcardFile : undefined}
       />;
       break;
     default:

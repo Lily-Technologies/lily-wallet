@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import { useHistory } from "react-router-dom";
 import { CheckCircle } from '@styled-icons/material';
@@ -9,7 +9,7 @@ import { FormContainer, InnerWrapper, BoxedWrapper } from './styles';
 
 import { downloadFile } from '../../utils/files';
 
-const SuccessScreen = ({ exportSetupFiles, config }) => {
+const SuccessScreen = ({ exportSetupFiles, config, downloadColdcardFile, setStep }) => {
   const history = useHistory();
 
   return (
@@ -25,6 +25,14 @@ const SuccessScreen = ({ exportSetupFiles, config }) => {
             You may backup this file to another location for safe keeping now <br /> or later via Settings > Download Backup Configuration.
           </SuccessSubtext>
           <Buttons>
+            {!!downloadColdcardFile && (
+              <SaveBackupButton
+                background={white}
+                color={gray600}
+                onClick={() => { downloadColdcardFile() }}>
+                Download Coldcard File
+              </SaveBackupButton>
+            )}
             <SaveBackupButton
               background={white}
               color={gray600}
@@ -36,8 +44,7 @@ const SuccessScreen = ({ exportSetupFiles, config }) => {
           </SaveBackupButton>
             <DownloadButton
               color={white}
-              onClick={async () => {
-                await exportSetupFiles();
+              onClick={() => {
                 history.push(`/`);
               }}>View Accounts</DownloadButton>
           </Buttons>
