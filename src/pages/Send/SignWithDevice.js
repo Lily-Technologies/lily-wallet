@@ -58,7 +58,7 @@ const SignWithDevice = ({
         deviceActionLoadingText={'Approve on device'}
         setUnconfiguredDevices={setUnsignedDevices}
         errorDevices={errorDevices}
-        configuredThreshold={2}
+        configuredThreshold={signThreshold}
       />
     </TransactionDetailsWrapper>
   )
