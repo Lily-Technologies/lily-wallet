@@ -8,7 +8,8 @@ import { useHistory } from "react-router-dom";
 import {
   blockExplorerAPIURL,
   blockExplorerTransactionURL,
-  satoshisToBitcoins
+  satoshisToBitcoins,
+  MAINNET, TESTNET
 } from "unchained-bitcoin";
 
 import { address, Psbt } from 'bitcoinjs-lib';
@@ -71,7 +72,9 @@ const TransactionDetails = ({
       });
       return data;
     } else {
-      const { data } = await axios.get(blockExplorerAPIURL(`/broadcast?tx=${psbt.extractTransaction().toHex()}`, currentBitcoinNetwork));
+      const txBody = psbt.extractTransaction().toHex();
+      const network = currentBitcoinNetwork.bech32 === 'bc' ? MAINNET : TESTNET;
+      const { data } = await axios.post(blockExplorerAPIURL('/tx', network), txBody);
       return data;
     }
   }
