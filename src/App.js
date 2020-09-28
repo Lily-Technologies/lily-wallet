@@ -119,6 +119,14 @@ function App() {
     setNodeConfig(response)
   }
 
+  const connectToCustomNode = async ({ nodeConfig }) => {
+    setNodeConfig(undefined);
+    const response = await window.ipcRenderer.invoke('/changeNodeConfig', {
+      nodeConfig: nodeConfig
+    });
+    setNodeConfig(response)
+  }
+
   const getNodeConfig = async () => {
     const response = await window.ipcRenderer.invoke('/getNodeConfig');
     setNodeConfig(response)
@@ -206,6 +214,7 @@ function App() {
 
   // fetch/build account data from config file
   useEffect(() => {
+    console.log('useEffect config: ', config)
     if (config.wallets.length || config.vaults.length) {
       const initialAccountMap = new Map();
 
@@ -238,14 +247,14 @@ function App() {
           };
         }
         updateAccountMap(args[0]);
-        accountMap.set(accountInfo.config.id, {
-          ...accountInfo,
-          loading: false
-        });
-        if (currentAccount.loading) { // set the first account that comes in as current account
-          setCurrentAccount(accountMap.get(accountInfo.config.id));
-        }
-        setAccountMap(new Map([...initialAccountMap, ...accountMap]));
+        // accountMap.set(accountInfo.config.id, {
+        //   ...accountInfo,
+        //   loading: false
+        // });
+        // if (currentAccount.loading) { // set the first account that comes in as current account
+        //   setCurrentAccount(accountMap.get(accountInfo.config.id));
+        // }
+        // setAccountMap(new Map([...initialAccountMap]));
       });
 
       setCurrentAccount(initialAccountMap.values().next().value)
@@ -255,7 +264,7 @@ function App() {
 
   return (
     <Router>
-      <TitleBar setNodeConfig={setNodeConfig} nodeConfig={nodeConfig} setMobileNavOpen={setMobileNavOpen} config={config} connectToBlockstream={connectToBlockstream} connectToBitcoinCore={connectToBitcoinCore} getNodeConfig={getNodeConfig} resetConfigFile={resetConfigFile} />
+      <TitleBar setNodeConfig={setNodeConfig} nodeConfig={nodeConfig} setMobileNavOpen={setMobileNavOpen} config={config} connectToBlockstream={connectToBlockstream} connectToBitcoinCore={connectToBitcoinCore} connectToCustomNode={connectToCustomNode} getNodeConfig={getNodeConfig} resetConfigFile={resetConfigFile} />
       <PageWrapper id="page-wrapper">
         <ScrollToTop />
         <ConfigRequired />

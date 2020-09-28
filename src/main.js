@@ -8,7 +8,7 @@ const Client = require('bitcoin-core');
 
 const { enumerate, getXPub, signtx, promptpin, sendpin } = require('./server/commands');
 const { getRpcInfo } = require('./server/utils')
-const { getDataFromMultisig, getDataFromXPub, getMultisigDescriptor } = require('./utils/transactions');
+const { getDataFromMultisig, getDataFromXPub, getMultisigDescriptor, getAddressFromAccount } = require('./utils/transactions');
 
 const path = require('path');
 const fs = require('fs');
@@ -92,7 +92,7 @@ async function getBitcoinCoreConfig() {
         username: rpcInfo.rpcuser,
         password: rpcInfo.rpcpassword,
         port: rpcInfo.rpcport || '8332',
-        version: '0.20.0'
+        version: '0.20.1'
       }
       return Promise.resolve(nodeConfig);
     } catch (e) {
@@ -158,59 +158,70 @@ ipcMain.on('/account-data', async (event, args) => {
   let addresses, changeAddresses, transactions, unusedAddresses, unusedChangeAddresses, availableUtxos;
   let nodeClient = undefined;
   try {
-    if (currentNodeConfig.provider === 'Bitcoin Core') {
+    if (currentNodeConfig.provider !== 'Blockstream') {
+      console.log('currentNodeConfig: ', currentNodeConfig);
       const nodeClient = new Client({
-        username: currentNodeConfig.rpcuser,
-        password: currentNodeConfig.rpcpassword,
-        version: '0.20.0'
+        wallet: config.name,
+        host: currentNodeConfig.host || 'http://localhost:8332',
+        username: currentNodeConfig.rpcuser || currentNodeConfig.username, // TODO: uniform this in the future
+        password: currentNodeConfig.rpcpassword || currentNodeConfig.password,
+        version: '0.20.1'
       });
 
       const walletList = await nodeClient.listWallets();
+      console.log('walletList: ', walletList);
 
       if (!walletList.includes(config.name)) {
         try {
+          console.log('config.name: ', config.name);
           const walletResp = await nodeClient.loadWallet({ filename: config.name });
+          console.log('walletResp: ', walletResp);
         } catch (e) { // if failed to load wallet, then probably doesnt exist so let's create one and import
           await nodeClient.createWallet({ wallet_name: config.name });
           if (config.quorum.totalSigners === 1) {
-            for (let i = 0; i < 1000; i++) {
-              const receiveAddress = getAddressFromAccount(config, `m / 0 / ${i} `, currentBitcoinNetwork)
-              const changeAddress = getAddressFromAccount(config, `m / 1 / ${i} `, currentBitcoinNetwork)
+            const ADDRESS_IMPORT_NUM = 500;
+            for (let i = 0; i < ADDRESS_IMPORT_NUM; i++) {
+              console.log('index: ', i);
+              const receiveAddress = getAddressFromAccount(config, `m/0/${i}`, currentBitcoinNetwork)
+              const changeAddress = getAddressFromAccount(config, `m/1/${i}`, currentBitcoinNetwork)
 
-              await client.importAddress({
-                address: receiveAddress,
+              await nodeClient.importAddress({
+                address: receiveAddress.address,
                 rescan: false
               });
 
-              await client.importAddress({
-                address: changeAddress,
-                rescan: i === 999 ? true : false
+              await nodeClient.importAddress({
+                address: changeAddress.address,
+                rescan: false
               });
 
             }
 
           } else { // multisig
             //  import receive addresses
-            await client.importMulti({
+            await nodeClient.importMulti({
               desc: getMultisigDescriptor(nodeClient, config.quorum.requiredSigners, config.extendedPublicKeys, true),
-              range: [0, 1000]
+              // range: '[0, 1000]'
             });
 
             // import change
-            await client.importMulti({
+            await nodeClient.importMulti({
               desc: getMultisigDescriptor(nodeClient, config.quorum.requiredSigners, config.extendedPublicKeys, false),
-              range: [0, 1000]
+              // range: '[0, 1000]'
             });
           }
         }
       }
     }
+    console.log('after forloop');
 
     if (config.quorum.totalSigners > 1) {
       [addresses, changeAddresses, transactions, unusedAddresses, unusedChangeAddresses, availableUtxos] = await getDataFromMultisig(config, nodeClient, currentBitcoinNetwork);
     } else {
       [addresses, changeAddresses, transactions, unusedAddresses, unusedChangeAddresses, availableUtxos] = await getDataFromXPub(config, nodeClient, currentBitcoinNetwork);
     }
+
+    console.log('after get data');
 
     const currentBalance = availableUtxos.reduce((accum, utxo) => accum.plus(utxo.value), BigNumber(0));
 
@@ -225,6 +236,7 @@ ipcMain.on('/account-data', async (event, args) => {
       currentBalance: currentBalance.toNumber(),
       unusedChangeAddresses
     };
+    console.log('before reply');
 
     event.reply('/account-data', accountData);
 
@@ -393,6 +405,7 @@ ipcMain.handle('/broadcastTx', async (event, args) => {
 
 ipcMain.handle('/changeNodeConfig', async (event, args) => {
   const { nodeConfig } = args;
+  console.log('/changeNodeConfig nodeConfig: ', nodeConfig)
   if (nodeConfig.provider === 'Bitcoin Core') {
     try {
       currentNodeConfig = await getBitcoinCoreConfig();
@@ -421,11 +434,14 @@ ipcMain.handle('/changeNodeConfig', async (event, args) => {
     try {
       const nodeClient = new Client(nodeConfig);
       const blockchainInfo = await nodeClient.getBlockchainInfo();
+      console.log('blockchainInfo: ', blockchainInfo);
+      // TODO: save nodeConfig to file for later
       blockchainInfo.provider = 'Custom Node'
       blockchainInfo.connected = true;
       currentNodeConfig = nodeConfig;
       return Promise.resolve(blockchainInfo);
     } catch (e) {
+      console.log('catch e: ', e);
       const blockchainInfo = {
         connected: false,
         provider: 'Custom Node'

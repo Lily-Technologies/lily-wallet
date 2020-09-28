@@ -97,7 +97,7 @@ const VaultSettings = ({ config, setConfigFile, password, currentAccount, setVie
       }
 
       saveConfig(configCopy, password);
-      setConfigFile(configCopy);
+      setConfigFile({ ...configCopy });
       history.push('/');
     } else {
       setAccountNameConfirmError(true);
