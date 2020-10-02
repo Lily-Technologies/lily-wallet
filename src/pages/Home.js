@@ -10,7 +10,7 @@ import { useSpring, animated } from 'react-spring';
 
 import { PageWrapper, StyledIcon } from '../components';
 
-import { blue, darkGray, white, black, lightBlue, gray, gray400, gray500, gray600 } from '../utils/colors';
+import { blue, darkGray, white, black, lightBlue, gray, gray500 } from '../utils/colors';
 
 var formatter = new Intl.NumberFormat('en-US', {
   style: 'currency',

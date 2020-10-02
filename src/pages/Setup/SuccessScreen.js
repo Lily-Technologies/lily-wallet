@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { useHistory } from "react-router-dom";
 import { CheckCircle } from '@styled-icons/material';

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
-import { ErrorOutline, CheckCircle } from '@styled-icons/material';
+import { CheckCircle } from '@styled-icons/material';
 import { ExclamationDiamond } from '@styled-icons/bootstrap'
 
 import { Button, StyledIcon, PromptPinModal } from '../components';

@@ -1,6 +1,5 @@
-import React, { useEffect } from "react";
+import React from "react";
 import styled from "styled-components";
-import { generateMnemonic } from "bip39";
 
 import { Button, MnemonicWordsDisplayer } from "../../components";
 import {

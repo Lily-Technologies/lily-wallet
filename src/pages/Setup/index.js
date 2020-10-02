@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { AES } from 'crypto-js';
 import moment from 'moment';
 import { generateMnemonic } from "bip39";
 
@@ -140,11 +139,11 @@ const Setup = ({ config, setConfigFile, password, currentBitcoinNetwork }) => {
 const Wrapper = styled.div`
   text-align: left;
   font-family: 'Montserrat', sans-serif;
-  color: ${ black};
+  color: ${black};
   align-items: center;
   display: flex;
   flex: 1;
-  justify-content: ${ p => p.step === 0 ? 'center' : 'flex-start'};
+  justify-content: ${p => p.step === 0 ? 'center' : 'flex-start'};
   flex-direction: column;
   padding: 0 3em;
   `;

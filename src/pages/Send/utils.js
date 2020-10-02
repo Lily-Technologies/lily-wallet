@@ -6,7 +6,7 @@ import {
   blockExplorerAPIURL,
   estimateMultisigTransactionFee
 } from "unchained-bitcoin";
-import { Psbt, address, networks } from 'bitcoinjs-lib';
+import { Psbt, address } from 'bitcoinjs-lib';
 
 import BigNumber from 'bignumber.js';
 import coinSelect from 'coinselect';

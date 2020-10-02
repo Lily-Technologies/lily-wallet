@@ -54,7 +54,6 @@ function App() {
   const [nodeConfig, setNodeConfig] = useState(undefined);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [password, setPassword] = useState('');
-  const history = useHistory();
 
   const ConfigRequired = () => {
     const { pathname } = useLocation();

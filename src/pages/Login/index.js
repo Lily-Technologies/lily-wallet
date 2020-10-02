@@ -184,12 +184,6 @@ const LoadingImage = styled.img`
   opacity: 0.9;
 `;
 
-const CreateAccountText = styled.div`
-  margin-bottom: 1em;
-  font-size: .75em;
-  text-align: left;
-`;
-
 const SignInButton = styled.button`
   ${Button};
   padding-top: .5em;

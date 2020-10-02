@@ -6,7 +6,7 @@ import { ExclamationDiamond } from '@styled-icons/bootstrap'
 
 import { MnemonicWordsDisplayer, Modal, Input, StyledIcon, Button } from '../../components';
 
-import { black, gray, white, blue, darkGray, darkOffWhite, lightBlue, red, lightGray, darkGreen, red100, red500, red600, gray500 } from '../../utils/colors';
+import { black, white, blue, darkGray, darkOffWhite, lightBlue, red, lightGray, darkGreen, red100, red500, red600, gray500 } from '../../utils/colors';
 import { mobile } from '../../utils/media';
 import { createColdCardBlob, downloadFile, formatFilename, saveConfig } from '../../utils/files';
 import { getMultisigDeriationPathForNetwork } from '../../utils/files';
@@ -340,41 +340,11 @@ const DangerSubtext = styled.div`
   color: ${gray500};
 `;
 
-const EnterPasswordSubtext = styled.div`
-  color: ${gray};
-`;
-
 const Wrapper = styled.div`
   background: ${lightBlue};
   padding: 1.5em;
   box-shadow: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06);
   border-top: solid 11px ${blue};
-`;
-
-const PasswordInput = styled.input`
-  position: relative;
-  border: 1px solid ${darkOffWhite};
-  background: ${lightGray};
-  padding: .75em;
-  text-align: center;
-  color: ${darkGray};
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 1em;
-  border-radius: 4px;
-  font-size: 1.5em;
-  z-index: 1;
-  font-family: 'Montserrat', sans-serif;
-
-  ::placeholder {
-    color: ${gray};
-  }
-
-  :active, :focused {
-    outline: 0;
-    border: none;
-  }
 `;
 
 const UCLink = styled.a`
