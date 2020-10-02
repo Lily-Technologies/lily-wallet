@@ -44,7 +44,8 @@ export const TitleBar = ({ setNodeConfig, nodeConfig, setMobileNavOpen, config, 
 
   if (nodeConfig && nodeConfig.provider !== 'Bitcoin Core') {
     dropdownItems.push({ label: 'Connect to Bitcoin Core', onClick: async () => await connectToBitcoinCore() })
-  } else {
+  }
+  if (nodeConfig && nodeConfig.provider !== 'Blockstream') {
     dropdownItems.push({ label: 'Connect to Blockstream', onClick: async () => await connectToBlockstream() })
   }
   dropdownItems.push({ label: 'Connect to Custom Node', onClick: () => setNodeConfigModalOpen(true) })

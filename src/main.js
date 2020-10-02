@@ -21,6 +21,38 @@ let mainWindow;
 
 let currentNodeConfig = undefined;
 
+const saveFile = async (file, filename) => {
+  const userDataPath = (app || remote.app).getPath('userData');
+  const filePath = path.join(userDataPath, filename);
+  fs.writeFile(filePath, file, (err) => {
+    if (err) {
+      return Promise.reject()
+    }
+
+    const fileContents = fs.readFileSync(filePath);
+    if (fileContents) {
+      const stats = fs.statSync(filePath)
+      const mtime = stats.mtime;
+      return Promise.resolve({ file: fileContents.toString(), modifiedTime: mtime })
+    } else {
+      return Promise.reject();
+    }
+  })
+}
+
+const getFile = async (filename) => {
+  const userDataPath = (app || remote.app).getPath('userData');
+  const filePath = path.join(userDataPath, filename);
+  const fileContents = fs.readFileSync(filePath);
+  if (fileContents) {
+    const stats = fs.statSync(filePath)
+    const mtime = stats.mtime;
+    return Promise.resolve({ file: fileContents.toString(), modifiedTime: mtime })
+  } else {
+    return Promise.reject()
+  }
+}
+
 function createWindow() {
   // Create the browser window.
   mainWindow = new BrowserWindow({
@@ -75,8 +107,16 @@ const setupInitialNodeConfig = async () => {
     const blockchainInfo = await nodeClient.getBlockchainInfo();
     currentNodeConfig = nodeConfig
   } catch (e) {
-    currentNodeConfig = {
-      provider: 'Blockstream'
+    try {
+      const nodeConfigFile = await getFile('node-config.json');
+      const nodeConfig = JSON.parse(nodeConfigFile.file);
+      const nodeClient = new Client(nodeConfig);
+      const blockchainInfo = await nodeClient.getBlockchainInfo();
+      currentNodeConfig = nodeConfig
+    } catch (e) {
+      currentNodeConfig = {
+        provider: 'Blockstream'
+      }
     }
     return Promise.reject('setupInitialNodeConfig: Error connecting to Bitcoin Core, using Blockstream')
   }
@@ -84,7 +124,6 @@ const setupInitialNodeConfig = async () => {
 
 async function getBitcoinCoreConfig() {
   const rpcInfo = await getRpcInfo();
-
   // TODO: check for testnet
   if (rpcInfo) {
     try {
@@ -102,12 +141,35 @@ async function getBitcoinCoreConfig() {
   return Promise.reject('getBitcoinCoreConfig: No RPC Info found')
 }
 
+async function getCustomNodeConfig() {
+
+}
+
+
 const getBitcoinCoreBlockchainInfo = async () => {
   try {
     const nodeConfig = await getBitcoinCoreConfig() // this changes currentNodeConfig
     const nodeClient = new Client(nodeConfig);
     const blockchainInfo = await nodeClient.getBlockchainInfo();
     blockchainInfo.provider = 'Bitcoin Core';
+    blockchainInfo.connected = true;
+    return Promise.resolve(blockchainInfo);
+  } catch (e) {
+    return Promise.reject();
+  }
+}
+
+const getCustomNodeBlockchainInfo = async () => {
+  try {
+    const nodeConfig = {
+      host: currentNodeConfig.host,
+      username: currentNodeConfig.username,
+      password: currentNodeConfig.password,
+      version: currentNodeConfig.version
+    }
+    const nodeClient = new Client(nodeConfig);
+    const blockchainInfo = await nodeClient.getBlockchainInfo();
+    blockchainInfo.provider = 'Custom Node';
     blockchainInfo.connected = true;
     return Promise.resolve(blockchainInfo);
   } catch (e) {
@@ -159,7 +221,6 @@ ipcMain.on('/account-data', async (event, args) => {
   let nodeClient = undefined;
   try {
     if (currentNodeConfig.provider !== 'Blockstream') {
-      console.log('currentNodeConfig: ', currentNodeConfig);
       const nodeClient = new Client({
         wallet: config.name,
         host: currentNodeConfig.host || 'http://localhost:8332',
@@ -169,19 +230,15 @@ ipcMain.on('/account-data', async (event, args) => {
       });
 
       const walletList = await nodeClient.listWallets();
-      console.log('walletList: ', walletList);
 
       if (!walletList.includes(config.name)) {
         try {
-          console.log('config.name: ', config.name);
           const walletResp = await nodeClient.loadWallet({ filename: config.name });
-          console.log('walletResp: ', walletResp);
         } catch (e) { // if failed to load wallet, then probably doesnt exist so let's create one and import
           await nodeClient.createWallet({ wallet_name: config.name });
           if (config.quorum.totalSigners === 1) {
             const ADDRESS_IMPORT_NUM = 500;
             for (let i = 0; i < ADDRESS_IMPORT_NUM; i++) {
-              console.log('index: ', i);
               const receiveAddress = getAddressFromAccount(config, `m/0/${i}`, currentBitcoinNetwork)
               const changeAddress = getAddressFromAccount(config, `m/1/${i}`, currentBitcoinNetwork)
 
@@ -213,15 +270,12 @@ ipcMain.on('/account-data', async (event, args) => {
         }
       }
     }
-    console.log('after forloop');
 
     if (config.quorum.totalSigners > 1) {
       [addresses, changeAddresses, transactions, unusedAddresses, unusedChangeAddresses, availableUtxos] = await getDataFromMultisig(config, nodeClient, currentBitcoinNetwork);
     } else {
       [addresses, changeAddresses, transactions, unusedAddresses, unusedChangeAddresses, availableUtxos] = await getDataFromXPub(config, nodeClient, currentBitcoinNetwork);
     }
-
-    console.log('after get data');
 
     const currentBalance = availableUtxos.reduce((accum, utxo) => accum.plus(utxo.value), BigNumber(0));
 
@@ -236,7 +290,6 @@ ipcMain.on('/account-data', async (event, args) => {
       currentBalance: currentBalance.toNumber(),
       unusedChangeAddresses
     };
-    console.log('before reply');
 
     event.reply('/account-data', accountData);
 
@@ -246,32 +299,13 @@ ipcMain.on('/account-data', async (event, args) => {
 });
 
 ipcMain.handle('/get-config', async (event, args) => {
-  const userDataPath = (app || remote.app).getPath('userData');
-  const filePath = path.join(userDataPath, 'lily-config-encrypted.txt');
-  const fileContents = fs.readFileSync(filePath);
-  if (fileContents) {
-    const stats = fs.statSync(filePath)
-    const mtime = stats.mtime;
-    return Promise.resolve({ file: fileContents.toString(), modifiedTime: mtime })
-  } else {
-    return Promise.reject()
-  }
+  const file = await getFile('lily-config-encrypted.txt')
+  return file;
 });
 
 ipcMain.handle('/save-config', async (event, args) => {
   const { encryptedConfigFile } = args;
-  const userDataPath = (app || remote.app).getPath('userData');
-  const filePath = path.join(userDataPath, 'lily-config-encrypted.txt');
-  fs.writeFile(filePath, encryptedConfigFile, (err) => {
-    const fileContents = fs.readFileSync(filePath);
-    if (fileContents) {
-      const stats = fs.statSync(filePath)
-      const mtime = stats.mtime;
-      return Promise.resolve({ file: fileContents.toString(), modifiedTime: mtime })
-    } else {
-      return Promise.reject()
-    }
-  })
+  return saveFile(encryptedConfigFile, 'lily-config-encrypted.txt')
 });
 
 ipcMain.handle('/download-item', async (event, { data, filename }) => {
@@ -405,7 +439,6 @@ ipcMain.handle('/broadcastTx', async (event, args) => {
 
 ipcMain.handle('/changeNodeConfig', async (event, args) => {
   const { nodeConfig } = args;
-  console.log('/changeNodeConfig nodeConfig: ', nodeConfig)
   if (nodeConfig.provider === 'Bitcoin Core') {
     try {
       currentNodeConfig = await getBitcoinCoreConfig();
@@ -420,7 +453,7 @@ ipcMain.handle('/changeNodeConfig', async (event, args) => {
     }
   } else if (nodeConfig.provider === 'Blockstream') {
     try {
-      currentNodeConfig = undefined;
+      currentNodeConfig = nodeConfig;
       const blockchainInfo = await getBlockstreamBlockchainInfo();
       return Promise.resolve(blockchainInfo);
     } catch (e) {
@@ -434,8 +467,8 @@ ipcMain.handle('/changeNodeConfig', async (event, args) => {
     try {
       const nodeClient = new Client(nodeConfig);
       const blockchainInfo = await nodeClient.getBlockchainInfo();
-      console.log('blockchainInfo: ', blockchainInfo);
       // TODO: save nodeConfig to file for later
+      saveFile(JSON.stringify(nodeConfig), 'node-config.json')
       blockchainInfo.provider = 'Custom Node'
       blockchainInfo.connected = true;
       currentNodeConfig = nodeConfig;
@@ -463,7 +496,7 @@ ipcMain.handle('/getNodeConfig', async (event, args) => {
       }
       return Promise.resolve(blockchainInfo);
     }
-  } else {
+  } else if (currentNodeConfig.provider === 'Blockstream') {
     try {
       const blockchainInfo = await getBlockstreamBlockchainInfo();
       return Promise.resolve(blockchainInfo);
@@ -471,6 +504,17 @@ ipcMain.handle('/getNodeConfig', async (event, args) => {
       const blockchainInfo = {
         connected: false,
         provider: 'Blockstream'
+      }
+      return Promise.resolve(blockchainInfo);
+    }
+  } else {
+    try {
+      const blockchainInfo = await getCustomNodeBlockchainInfo();
+      return Promise.resolve(blockchainInfo);
+    } catch (e) {
+      const blockchainInfo = {
+        connected: false,
+        provider: 'Custom Node'
       }
       return Promise.resolve(blockchainInfo);
     }
