@@ -141,11 +141,6 @@ async function getBitcoinCoreConfig() {
   return Promise.reject('getBitcoinCoreConfig: No RPC Info found')
 }
 
-async function getCustomNodeConfig() {
-
-}
-
-
 const getBitcoinCoreBlockchainInfo = async () => {
   try {
     const nodeConfig = await getBitcoinCoreConfig() // this changes currentNodeConfig
