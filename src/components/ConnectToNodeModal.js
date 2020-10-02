@@ -21,19 +21,17 @@ export const ConnectToNodeModal = ({
       setIsLoading(true)
       const response = await window.ipcRenderer.invoke('/changeNodeConfig', {
         nodeConfig: {
-          // host: host,
+          host: host,
           username: username,
           password: password,
-          version: '0.20.0'
+          version: '0.20.1'
         }
       });
 
-      setNodeConfig({
-        host: host,
-        username: username,
-        password: password,
-        version: '0.20.0'
-      });
+      console.log('response: ', response);
+
+      setNodeConfig(response);
+      onRequestClose();
     } catch (e) {
       setNodeConnectError('Error Connecting to Node.')
     }

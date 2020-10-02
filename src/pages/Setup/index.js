@@ -31,13 +31,14 @@ const Setup = ({ config, setConfigFile, password, currentBitcoinNetwork }) => {
   }, []);
 
   useEffect(() => {
-    console.log('hits useEffect: ', step)
     if (step === 3) {
       exportSetupFiles();
     }
 
     return () => {
-      setConfigFile(localConfig)
+      if (step === 3) {
+        setConfigFile({ ...localConfig })
+      }
     }
   }, [step]);
   console.log('importedDevices, configRequiredSigners, accountName, config, currentBitcoinNetwork: ', importedDevices, configRequiredSigners, accountName, config, currentBitcoinNetwork);

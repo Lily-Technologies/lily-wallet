@@ -62,9 +62,9 @@ const getUnchainedNetworkFromBjslibNetwork = (bitcoinJslibNetwork) => {
 }
 
 const getMultisigDescriptor = async (client, reqSigners, xpubs, isChange) => {
-  const descriptor = `wsh(sortedmulti(${reqSigners},${xpubs.map((xpub) => `${xpub}/${isChange ? '1' : '0'}/*`)}))`;
+  const descriptor = `wsh(sortedmulti(${reqSigners},${xpubs.map((xpub) => `${xpub.xpub}/${isChange ? '1' : '0'}/*`)}))`;
   const descriptorWithChecksum = await client.getDescriptorInfo(descriptor);
-  return descriptorWithChecksum;
+  return descriptorWithChecksum.descriptor;
 }
 
 const createAddressMapFromAddressArray = (addressArray) => {
@@ -346,6 +346,7 @@ const getDataFromXPub = async (account, nodeClient, currentBitcoinNetwork) => {
 }
 
 module.exports = {
+  getAddressFromAccount: getAddressFromAccount,
   getMultisigDeriationPathForNetwork: getMultisigDeriationPathForNetwork,
   bitcoinNetworkEqual: bitcoinNetworkEqual,
   getP2shDeriationPathForNetwork: getP2shDeriationPathForNetwork,
