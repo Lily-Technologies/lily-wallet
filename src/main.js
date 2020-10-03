@@ -405,19 +405,17 @@ ipcMain.handle('/estimateFee', async (event, args) => {
         halfHourFee: undefined,
         hourFee: undefined
       }
-      const fastestFeeRate = await nodeClient.estimateSmartFee(1).feerate;
-      feeRates.fastestFee = BigNumber(fastestFeeRate).multipliedBy(100000).integerValue(BigNumber.ROUND_CEIL).toNumber(); // TODO: this probably needs relooked at
-      const halfHourFeeRate = await nodeClient.estimateSmartFee(3).feerate;
-      feeRates.halfHourFee = BigNumber(halfHourFeeRate).multipliedBy(100000).integerValue(BigNumber.ROUND_CEIL).toNumber(); // TODO: this probably needs relooked at
-      const hourFeeRate = await nodeClient.estimateSmartFee(6).feerate;
-      feeRates.hourFee = BigNumber(hourFeeRate).multipliedBy(100000).integerValue(BigNumber.ROUND_CEIL).toNumber(); // TODO: this probably needs relooked at
-
+      const fastestFeeRate = await nodeClient.estimateSmartFee(1);
+      feeRates.fastestFee = BigNumber(fastestFeeRate.feerate).multipliedBy(100000).integerValue(BigNumber.ROUND_CEIL).toNumber(); // TODO: this probably needs relooked at
+      const halfHourFeeRate = await nodeClient.estimateSmartFee(3);
+      feeRates.halfHourFee = BigNumber(halfHourFeeRate.feerate).multipliedBy(100000).integerValue(BigNumber.ROUND_CEIL).toNumber(); // TODO: this probably needs relooked at
+      const hourFeeRate = await nodeClient.estimateSmartFee(6);
+      feeRates.hourFee = BigNumber(hourFeeRate.feerate).multipliedBy(100000).integerValue(BigNumber.ROUND_CEIL).toNumber(); // TODO: this probably needs relooked at
       return Promise.resolve(feeRates);
     } catch (e) {
       return Promise.reject(new Error('Error retrieving fee'));
     }
   }
-
 });
 
 ipcMain.handle('/broadcastTx', async (event, args) => {
