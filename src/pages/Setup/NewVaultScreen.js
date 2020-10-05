@@ -90,7 +90,7 @@ const NewVaultScreen = ({
           <FileUploader
             accept="*"
             id="localConfigFile"
-            onFileLoad={(file) => {
+            onFileLoad={({ file }) => {
               const parsedFile = JSON.parse(file);
               // TODO: should probably have better checking for files to make sure users aren't uploading "weird" files
               if (parsedFile.seed_version) { // is a multisig file

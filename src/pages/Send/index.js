@@ -212,7 +212,7 @@ const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, curren
       <FileUploader
         accept="*"
         id="txFile"
-        onFileLoad={(file) => {
+        onFileLoad={({ file }) => {
           importTxFromFile(file)
         }}
       />

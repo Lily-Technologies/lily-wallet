@@ -65,7 +65,7 @@ const NewHardwareWalletScreen = ({
           <FileUploader
             accept="*"
             id="localConfigFile"
-            onFileLoad={(file) => {
+            onFileLoad={({ file }) => {
               const parsedFile = JSON.parse(file);
               // TODO: should probably have better checking for files to make sure users aren't uploading "weird" files
               importDeviceFromFile(parsedFile)
