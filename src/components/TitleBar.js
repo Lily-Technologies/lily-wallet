@@ -4,24 +4,25 @@ import { mobile } from '../utils/media';
 import { Circle } from '@styled-icons/boxicons-solid';
 import { Menu } from '@styled-icons/boxicons-regular';
 import BigNumber from 'bignumber.js';
+import { QRCode } from "react-qr-svg";
 
-import { blue600, blue800, white, green400, orange400, red500 } from '../utils/colors';
+import { blue600, blue800, white, black, green400, orange400, red500 } from '../utils/colors';
 
-import { ConnectToNodeModal, StyledIcon, Dropdown } from '.';
+import { ConnectToNodeModal, StyledIcon, Dropdown, Modal } from '.';
 
 export const TitleBar = ({ setNodeConfig, nodeConfig, setMobileNavOpen, config, connectToBlockstream, connectToBitcoinCore, getNodeConfig, resetConfigFile }) => {
-  console.log('nodeConfig: ', nodeConfig)
   const [nodeConfigModalOpen, setNodeConfigModalOpen] = useState(false);
   const [moreOptionsDropdownOpen, setMoreOptionsDropdownOpen] = useState(false);
   const [nodeOptionsDropdownOpen, setNodeOptionsDropdownOpen] = useState(false);
+  const [configModalOpen, setConfigModalOpen] = useState(false);
 
   const refreshNodeData = async () => {
     await getNodeConfig();
   }
 
-  const dropdownItems = [];
+  const nodeConfigDropdownItems = [];
 
-  dropdownItems.push({
+  nodeConfigDropdownItems.push({
     label: (
       <Fragment>
         Status: <br />
@@ -33,22 +34,22 @@ export const TitleBar = ({ setNodeConfig, nodeConfig, setMobileNavOpen, config, 
     )
   });
 
-  dropdownItems.push({})
+  nodeConfigDropdownItems.push({})
 
   if (nodeConfig && nodeConfig.blocks) {
-    dropdownItems.push({ label: `Block Height: ${nodeConfig ? nodeConfig.blocks.toLocaleString() : 'Connecting...'}` });
+    nodeConfigDropdownItems.push({ label: `Block Height: ${nodeConfig ? nodeConfig.blocks.toLocaleString() : 'Connecting...'}` });
   }
 
-  dropdownItems.push({ label: 'Refresh Node Info', onClick: () => { refreshNodeData() } });
-  dropdownItems.push({})
+  nodeConfigDropdownItems.push({ label: 'Refresh Node Info', onClick: () => { refreshNodeData() } });
+  nodeConfigDropdownItems.push({})
 
   if (nodeConfig && nodeConfig.provider !== 'Bitcoin Core') {
-    dropdownItems.push({ label: 'Connect to Bitcoin Core', onClick: async () => await connectToBitcoinCore() })
+    nodeConfigDropdownItems.push({ label: 'Connect to Bitcoin Core', onClick: async () => await connectToBitcoinCore() })
   }
   if (nodeConfig && nodeConfig.provider !== 'Blockstream') {
-    dropdownItems.push({ label: 'Connect to Blockstream', onClick: async () => await connectToBlockstream() })
+    nodeConfigDropdownItems.push({ label: 'Connect to Blockstream', onClick: async () => await connectToBlockstream() })
   }
-  dropdownItems.push({ label: 'Connect to Custom Node', onClick: () => setNodeConfigModalOpen(true) })
+  nodeConfigDropdownItems.push({ label: 'Connect to Custom Node', onClick: () => setNodeConfigModalOpen(true) })
 
   return (
     <DraggableTitleBar>
@@ -57,6 +58,17 @@ export const TitleBar = ({ setNodeConfig, nodeConfig, setMobileNavOpen, config, 
         onRequestClose={() => setNodeConfigModalOpen(false)}
         setNodeConfig={setNodeConfig}
       />
+      <Modal
+        isOpen={configModalOpen}
+        onRequestClose={() => setConfigModalOpen(false)}>
+        <QRCode
+          bgColor={white}
+          fgColor={black}
+          level="Q"
+          style={{ width: 256 }}
+          value={JSON.stringify(config)}
+        />
+      </Modal>
       <LeftSection>
         {!config.isEmpty && (
           <MobileMenuOpen onClick={() => setMobileNavOpen(true)} >
@@ -87,7 +99,7 @@ export const TitleBar = ({ setNodeConfig, nodeConfig, setMobileNavOpen, config, 
                     : 'Connecting...'}
               </Fragment>
             }
-            dropdownItems={dropdownItems}
+            dropdownItems={nodeConfigDropdownItems}
           >
           </Dropdown>
         </NodeButtonContainer>
@@ -101,6 +113,7 @@ export const TitleBar = ({ setNodeConfig, nodeConfig, setMobileNavOpen, config, 
             dropdownItems={[
               { label: 'Support', onClick: () => { console.log('foobar') } },
               { label: 'License', onClick: () => { console.log('foobar2') } },
+              { label: 'Connect to Lily Mobile', onClick: () => { console.log('config: ', config); setConfigModalOpen(true) } },
               { label: 'View source code', onClick: () => { console.log('foobar2') } },
               { label: 'Sign out', onClick: async () => { await resetConfigFile() } }
             ]}

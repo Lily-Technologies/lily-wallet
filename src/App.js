@@ -84,6 +84,7 @@ function App() {
   }
 
   const setCurrentAccountFromMap = (accountId) => {
+    console.log('config: ', config)
     const newAccount = accountMap.get(accountId);
     if (newAccount) {
       setCurrentAccount(newAccount);
@@ -213,7 +214,6 @@ function App() {
 
   // fetch/build account data from config file
   useEffect(() => {
-    console.log('useEffect config: ', config)
     if (config.wallets.length || config.vaults.length) {
       const initialAccountMap = new Map();
 
@@ -256,7 +256,7 @@ function App() {
         // setAccountMap(new Map([...initialAccountMap]));
       });
 
-      setCurrentAccount(initialAccountMap.values().next().value)
+      // setCurrentAccount(initialAccountMap.values().next().value)
       setAccountMap(initialAccountMap);
     }
   }, [config, refresh, nodeConfig]);

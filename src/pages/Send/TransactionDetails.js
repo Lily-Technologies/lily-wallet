@@ -4,6 +4,8 @@ import axios from 'axios';
 import { ArrowIosForwardOutline } from '@styled-icons/evaicons-outline';
 import { CheckCircle } from '@styled-icons/material';
 import { useHistory } from "react-router-dom";
+import { QRCode } from "react-qr-svg";
+import BarcodeScannerComponent from "react-webcam-barcode-scanner";
 
 import {
   blockExplorerAPIURL,
@@ -17,7 +19,7 @@ import { address, Psbt } from 'bitcoinjs-lib';
 import { cloneBuffer } from '../../utils/other';
 import { StyledIcon, Button, SidewaysShake, Dropdown, Modal } from '../../components';
 
-import { gray, blue, darkGray, white, darkOffWhite, green, darkGreen, lightGray, red, lightRed, orange, lightOrange } from '../../utils/colors';
+import { gray, blue, darkGray, white, darkOffWhite, green, darkGreen, lightGray, red, lightRed, orange, lightOrange, black } from '../../utils/colors';
 import { downloadFile, formatFilename, combinePsbts } from '../../utils/files';
 import { createUtxoMapFromUtxoArray } from './utils';
 import { FeeSelector } from './FeeSelector';
@@ -33,7 +35,6 @@ const TransactionDetails = ({
   feeRates,
   currentAccount,
   toggleRefresh,
-  fileUploadLabelRef,
   txImportedFromFile,
   signedDevices,
   recipientAddress,
@@ -45,6 +46,7 @@ const TransactionDetails = ({
   currentBitcoinPrice,
   createTransactionAndSetState,
   currentBitcoinNetwork,
+  importTxFromFile
 }) => {
   const [broadcastedTxId, setBroadcastedTxId] = useState('');
   const [txError, setTxError] = useState(null);
@@ -77,6 +79,11 @@ const TransactionDetails = ({
       const { data } = await axios.post(blockExplorerAPIURL('/tx', network), txBody);
       return data;
     }
+  }
+
+  const importTxFromQrCode = (data) => {
+    importTxFromFile(data);
+    setModalIsOpen(false);
   }
 
   const sendTransaction = async () => {
@@ -126,12 +133,16 @@ const TransactionDetails = ({
     const dropdownItems = [
       { label: 'View PSBT', onClick: () => { openInModal(<PsbtDetails />) } },
       { label: 'Download PSBT', onClick: () => { downloadPsbt(); openInModal(<PsbtDownloadDetails />) } },
+      // {
+      //   label: 'Add signature from file',
+      //   onClick: () => {
+      //     const txFileUploadButton = fileUploadLabelRef.current;
+      //     txFileUploadButton.click()
+      //   }
+      // },
       {
-        label: 'Add signature from file',
-        onClick: () => {
-          const txFileUploadButton = fileUploadLabelRef.current;
-          txFileUploadButton.click()
-        }
+        label: 'Add signature from Lily Mobile',
+        onClick: () => { openInModal(<ImportSignatureFromQrCode />) }
       }
     ];
 
@@ -188,11 +199,29 @@ const TransactionDetails = ({
       </ModalHeaderContainer>
       <div style={{ padding: '1.5em' }}>
         <OutputItem style={{ wordBreak: 'break-word' }}>
-          {finalPsbt.toBase64()}
+          <QRCode
+            bgColor={white}
+            fgColor={black}
+            level="Q"
+            style={{ width: 256 }}
+            value={finalPsbt.toBase64()}
+          />
         </OutputItem>
       </div>
     </Fragment>
   )
+
+  const ImportSignatureFromQrCode = () => (
+    <BarcodeScannerComponent
+      width={'100%'}
+      height={'100%'}
+      onUpdate={(err, result) => {
+        console.log('result: ', result);
+        if (result) importTxFromQrCode(result.text)
+        else return;
+      }}
+    />
+  );
 
   const PsbtDownloadDetails = () => (
     <Fragment>
@@ -343,14 +372,15 @@ const ModalSubtext = styled.div`
 
 const ModalHeaderContainer = styled.div`
   border-bottom: 1px solid rgb(229,231,235);
-  padding-top: 1.25rem;
-  padding-bottom: 1.25rem;
+  padding-top: 1.75rem;
+  padding-bottom: 1.75rem;
   padding-left: 1.5rem;
   padding-right: 1.5rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
   font-size: 1.5em;
+  height: 90px;
 `;
 
 const SendingHeader = styled.div`
@@ -378,7 +408,6 @@ const AccountSendContentRight = styled.div`
   display: flex;
   flex: 1;
   flex-direction: column;
-  max-width: 500px;
 `;
 
 const OutputItem = styled.div`

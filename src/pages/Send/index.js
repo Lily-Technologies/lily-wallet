@@ -340,7 +340,6 @@ const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, curren
                   signedPsbts={signedPsbts}
                   signedDevices={signedDevices}
                   txImportedFromFile={txImportedFromFile}
-                  fileUploadLabelRef={fileUploadLabelRef}
                   importTxFromFileError={importTxFromFileError}
                   signThreshold={currentAccount.config.quorum.requiredSigners}
                   currentBitcoinNetwork={currentBitcoinNetwork}
@@ -349,6 +348,7 @@ const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, curren
                   currentAccount={currentAccount}
                   feeRates={feeRates}
                   createTransactionAndSetState={createTransactionAndSetState}
+                  importTxFromFile={importTxFromFile}
                 />
               )}
             </div>
@@ -383,6 +383,7 @@ const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, curren
                   signedDevices={signedDevices}
                   setSignedDevices={setSignedDevices}
                   signThreshold={currentAccount.config.quorum.requiredSigners}
+                  fileUploadLabelRef={fileUploadLabelRef}
                 />
               )}
             </AccountSendContentRight>

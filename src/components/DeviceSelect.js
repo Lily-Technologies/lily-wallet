@@ -64,7 +64,8 @@ export const DeviceSelect = ({ configuredDevices, unconfiguredDevices, errorDevi
               src={
                 device.type === 'coldcard' ? require('../assets/coldcard.png')
                   : device.type === 'ledger' ? require('../assets/ledger.png')
-                    : require('../assets/trezor.png')
+                    : device.type === 'trezor' ? require('../assets/trezor.png')
+                      : require('../assets/iphone.png')
               } />
             <DeviceInfoWrapper>
               <DeviceName>{device.type}</DeviceName>
@@ -168,6 +169,8 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   background: ${white};
+  justify-content: center;
+  height: 100%;
 `;
 
 const NoDevicesContainer = styled.div`
