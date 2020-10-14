@@ -64,6 +64,7 @@ const NewVaultScreen = ({
 
       const updatedImportedDevices = [...importedDevices, newDevice];
       setImportedDevices(updatedImportedDevices);
+      setAvailableDevices([...availableDevices.filter((item) => item.type !== 'phone')]);
       setQrScanModalOpen(false);
     } catch (e) {
 
@@ -173,6 +174,7 @@ const NewVaultScreen = ({
           </XPubHeaderWrapper>
           <DeviceSelect
             deviceAction={importMultisigDevice}
+            phoneAction={() => setQrScanModalOpen(true)}
             deviceActionText={'Click to Configure'}
             deviceActionLoadingText={'Extracting XPub'}
             configuredDevices={importedDevices}

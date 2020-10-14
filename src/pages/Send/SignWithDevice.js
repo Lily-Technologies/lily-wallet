@@ -11,7 +11,8 @@ const SignWithDevice = ({
   signedDevices,
   setSignedDevices,
   signThreshold,
-  fileUploadLabelRef
+  fileUploadLabelRef,
+  phoneAction
 }) => {
   const [unsignedDevices, setUnsignedDevices] = useState([]);
   const [errorDevices, setErrorDevices] = useState([]);
@@ -78,6 +79,7 @@ const SignWithDevice = ({
         setUnconfiguredDevices={setUnsignedDevices}
         errorDevices={errorDevices}
         configuredThreshold={signThreshold}
+        phoneAction={phoneAction}
       />
     </TransactionDetailsWrapper>
   )

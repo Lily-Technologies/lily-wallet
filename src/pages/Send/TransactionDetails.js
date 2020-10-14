@@ -4,8 +4,6 @@ import axios from 'axios';
 import { ArrowIosForwardOutline } from '@styled-icons/evaicons-outline';
 import { CheckCircle } from '@styled-icons/material';
 import { useHistory } from "react-router-dom";
-import { QRCode } from "react-qr-svg";
-import BarcodeScannerComponent from "react-webcam-barcode-scanner";
 
 import {
   blockExplorerAPIURL,
@@ -46,25 +44,15 @@ const TransactionDetails = ({
   currentBitcoinPrice,
   createTransactionAndSetState,
   currentBitcoinNetwork,
-  importTxFromFile
+  importTxFromFile,
+  openInModal,
+  closeModal
 }) => {
   const [broadcastedTxId, setBroadcastedTxId] = useState('');
   const [txError, setTxError] = useState(null);
   const [optionsDropdownOpen, setOptionsDropdownOpen] = useState(false);
-  const [modalIsOpen, setModalIsOpen] = useState(false);
-  const [modalContent, setModalContent] = useState(null);
 
   const history = useHistory();
-
-  const openInModal = (component) => {
-    setModalIsOpen(true);
-    setModalContent(component);
-  }
-
-  const closeModal = () => {
-    setModalIsOpen(false);
-    setModalContent(null);
-  }
 
   const broadcastTransaction = async (currentAccount, psbt, currentBitcoinNetwork) => {
     if (currentAccount.nodeConfig.provider !== 'Blockstream') {
@@ -81,11 +69,6 @@ const TransactionDetails = ({
     }
   }
 
-  const importTxFromQrCode = (data) => {
-    importTxFromFile(data);
-    setModalIsOpen(false);
-  }
-
   const sendTransaction = async () => {
     if (signedDevices.length === signThreshold) {
       try {
@@ -96,8 +79,7 @@ const TransactionDetails = ({
 
           const broadcastId = await broadcastTransaction(currentAccount, combinedPsbt, currentBitcoinNetwork);
           setBroadcastedTxId(broadcastId);
-          setModalIsOpen(true);
-          setModalContent(<TransactionSuccess broadcastedTxId={broadcastId} />);
+          openInModal(<TransactionSuccess broadcastedTxId={broadcastId} />);
 
         } else {
           let broadcastPsbt;
@@ -110,8 +92,7 @@ const TransactionDetails = ({
 
           const broadcastId = await broadcastTransaction(currentAccount, broadcastPsbt, currentBitcoinNetwork);
           setBroadcastedTxId(broadcastId);
-          setModalIsOpen(true);
-          setModalContent(<TransactionSuccess broadcastedTxId={broadcastId} />);
+          openInModal(<TransactionSuccess broadcastedTxId={broadcastId} />);
         }
       } catch (e) {
         if (e.response) {
@@ -123,27 +104,16 @@ const TransactionDetails = ({
     }
   }
 
-  const downloadPsbt = () => {
+  const downloadPsbt = async () => {
     const combinedPsbt = combinePsbts(finalPsbt, signedPsbts);
     const psbtForDownload = combinedPsbt.toBase64();
-    downloadFile(psbtForDownload, formatFilename('tx', currentBitcoinNetwork, 'psbt'));
+    await downloadFile(psbtForDownload, formatFilename('tx', currentBitcoinNetwork, 'psbt'));
+    openInModal(<PsbtDownloadDetails />)
   }
 
   const TransactionOptionsDropdown = () => {
     const dropdownItems = [
-      { label: 'View PSBT', onClick: () => { openInModal(<PsbtDetails />) } },
-      { label: 'Download PSBT', onClick: () => { downloadPsbt(); openInModal(<PsbtDownloadDetails />) } },
-      // {
-      //   label: 'Add signature from file',
-      //   onClick: () => {
-      //     const txFileUploadButton = fileUploadLabelRef.current;
-      //     txFileUploadButton.click()
-      //   }
-      // },
-      {
-        label: 'Add signature from Lily Mobile',
-        onClick: () => { openInModal(<ImportSignatureFromQrCode />) }
-      }
+      { label: 'Download PSBT', onClick: () => { downloadPsbt() } },
     ];
 
     if (!signedDevices.length || currentAccount.config.mnemonic) {
@@ -192,37 +162,6 @@ const TransactionDetails = ({
     )
   }
 
-  const PsbtDetails = () => (
-    <Fragment>
-      <ModalHeaderContainer>
-        Raw PSBT
-      </ModalHeaderContainer>
-      <div style={{ padding: '1.5em' }}>
-        <OutputItem style={{ wordBreak: 'break-word' }}>
-          <QRCode
-            bgColor={white}
-            fgColor={black}
-            level="Q"
-            style={{ width: 256 }}
-            value={finalPsbt.toBase64()}
-          />
-        </OutputItem>
-      </div>
-    </Fragment>
-  )
-
-  const ImportSignatureFromQrCode = () => (
-    <BarcodeScannerComponent
-      width={'100%'}
-      height={'100%'}
-      onUpdate={(err, result) => {
-        console.log('result: ', result);
-        if (result) importTxFromQrCode(result.text)
-        else return;
-      }}
-    />
-  );
-
   const PsbtDownloadDetails = () => (
     <Fragment>
       <ModalHeaderContainer>
@@ -232,7 +171,7 @@ const TransactionDetails = ({
         <IconWrapper style={{ color: green }}>
           <StyledIcon as={CheckCircle} size={100} />
         </IconWrapper>
-        <ModalSubtext>Check your downloads folder for the PSBT file</ModalSubtext>
+        <ModalSubtext>Your PSBT file has been saved successfully.</ModalSubtext>
       </ModalBody>
     </Fragment>
   )
@@ -320,12 +259,10 @@ const TransactionDetails = ({
 
   return (
     <Fragment>
-      <Modal
+      {/* <Modal
         isOpen={modalIsOpen}
         onRequestClose={() => {
-          setModalIsOpen(false);
-          setModalContent(null);
-
+          closeModal();
           if (broadcastedTxId) {
             toggleRefresh();
             history.push(`vault/${currentAccount.config.id}`)
@@ -333,7 +270,7 @@ const TransactionDetails = ({
         }}
       >
         {modalContent}
-      </Modal>
+      </Modal> */}
       <AccountSendContentRight>
         <SendDetailsContainer>
           {screen}

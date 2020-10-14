@@ -6,7 +6,7 @@ import { ExclamationDiamond } from '@styled-icons/bootstrap'
 import { Button, StyledIcon, PromptPinModal } from '../components';
 import { lightGreen, gray, green, blue, white, darkGray, red, lightRed, yellow, lightYellow, gray600, gray900 } from '../utils/colors';
 
-export const DeviceSelect = ({ configuredDevices, unconfiguredDevices, errorDevices, setUnconfiguredDevices, configuredThreshold, deviceAction, deviceActionText, deviceActionLoadingText }) => {
+export const DeviceSelect = ({ configuredDevices, unconfiguredDevices, errorDevices, setUnconfiguredDevices, configuredThreshold, deviceAction, deviceActionText, deviceActionLoadingText, phoneAction }) => {
   const [devicesLoading, setDevicesLoading] = useState(false);
   const [deviceActionLoading, setDeviceActionLoading] = useState(null);
   const [promptPinModalDevice, setPromptPinModalDevice] = useState(null);
@@ -23,11 +23,21 @@ export const DeviceSelect = ({ configuredDevices, unconfiguredDevices, errorDevi
       const response = await window.ipcRenderer.invoke('/enumerate');
       setDevicesLoading(false);
 
+      if (phoneAction) {
+        response.push({
+          type: 'phone',
+          fingerprint: undefined,
+          xpub: undefined
+        })
+      }
+
       // filter out devices that are available but already imported
       const filteredDevices = response.filter((device) => { // eslint-disable-line
         let deviceAlreadyConfigured = false;
         for (let i = 0; i < configuredDevices.length; i++) {
           if (configuredDevices[i].fingerprint === device.fingerprint) {
+            deviceAlreadyConfigured = true;
+          } else if (device.type === 'phone' && configuredDevices[i].type === 'phone') { // there can only be one phone in a config
             deviceAlreadyConfigured = true;
           }
         }
@@ -76,7 +86,7 @@ export const DeviceSelect = ({ configuredDevices, unconfiguredDevices, errorDevi
 
         {unconfiguredDevices.map((device, index) => {
           const deviceError = errorDevices.includes(device.fingerprint);
-          const deviceWarning = !device.fingerprint; // if ledger isn't in the BTC app or trezor is locked, it wont give fingerprint, so show warning
+          const deviceWarning = !device.fingerprint && device.type !== 'phone'; // if ledger isn't in the BTC app or trezor is locked, it wont give fingerprint, so show warning
           return (
             <DeviceWrapper
               key={index}
@@ -89,7 +99,11 @@ export const DeviceSelect = ({ configuredDevices, unconfiguredDevices, errorDevi
                       await enumerate();
                     }
                   } else {
-                    performDeviceAction(device, index)
+                    if (device.type === 'phone') {
+                      phoneAction()
+                    } else {
+                      performDeviceAction(device, index)
+                    }
                   }
                 }
               }}
@@ -108,7 +122,8 @@ export const DeviceSelect = ({ configuredDevices, unconfiguredDevices, errorDevi
                 src={
                   device.type === 'coldcard' ? require('../assets/coldcard.png')
                     : device.type === 'ledger' ? require('../assets/ledger.png')
-                      : require('../assets/trezor.png')
+                      : device.type === 'trezor' ? require('../assets/trezor.png')
+                        : require('../assets/iphone.png')
                 } />
               <DeviceInfoWrapper>
                 <DeviceName>{device.type}</DeviceName>
