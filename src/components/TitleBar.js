@@ -4,11 +4,10 @@ import { mobile } from '../utils/media';
 import { Circle } from '@styled-icons/boxicons-solid';
 import { Menu } from '@styled-icons/boxicons-regular';
 import BigNumber from 'bignumber.js';
-import { QRCode } from "react-qr-svg";
 
 import { blue600, blue800, white, black, green400, orange400, red500 } from '../utils/colors';
 
-import { ConnectToNodeModal, StyledIcon, Dropdown, Modal } from '.';
+import { ConnectToNodeModal, StyledIcon, Dropdown, Modal, AnimatedQrCode } from '.';
 
 export const TitleBar = ({ setNodeConfig, nodeConfig, setMobileNavOpen, config, connectToBlockstream, connectToBitcoinCore, getNodeConfig, resetConfigFile }) => {
   const [nodeConfigModalOpen, setNodeConfigModalOpen] = useState(false);
@@ -61,11 +60,7 @@ export const TitleBar = ({ setNodeConfig, nodeConfig, setMobileNavOpen, config, 
       <Modal
         isOpen={configModalOpen}
         onRequestClose={() => setConfigModalOpen(false)}>
-        <QRCode
-          bgColor={white}
-          fgColor={black}
-          level="Q"
-          style={{ width: 256 }}
+        <AnimatedQrCode
           value={JSON.stringify(config)}
         />
       </Modal>

@@ -19,5 +19,6 @@ export * from './NavLinks';
 export * from './TitleBar';
 export * from './ConnectToNodeModal';
 export * from './OutsideClick';
+export * from './AnimatedQrCode';
 
 export * from './layout';
