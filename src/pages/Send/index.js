@@ -398,11 +398,9 @@ const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, curren
                   signThreshold={currentAccount.config.quorum.requiredSigners}
                   currentBitcoinNetwork={currentBitcoinNetwork}
                   currentBitcoinPrice={currentBitcoinPrice}
-                  toggleRefresh={toggleRefresh}
                   currentAccount={currentAccount}
                   feeRates={feeRates}
                   createTransactionAndSetState={createTransactionAndSetState}
-                  importTxFromFile={importTxFromFile}
                   openInModal={openInModal}
                   closeModal={closeModal}
                 />

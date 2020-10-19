@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import moment from 'moment';
 import { VerticalAlignBottom, ArrowUpward } from '@styled-icons/material';
+import { Transfer } from '@styled-icons/boxicons-regular';
 import { StyledIcon } from '../../components';
 import { satoshisToBitcoins } from "unchained-bitcoin";
 
-import { white, offWhite, green, gray, gray100 } from '../../utils/colors';
+import { white, offWhite, green, gray, gray100, red500 } from '../../utils/colors';
 
 const TransactionRow = ({ transaction, flat }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -15,6 +16,7 @@ const TransactionRow = ({ transaction, flat }) => {
         <TxTypeIcon flat={flat}>
           {transaction.type === 'received' && <StyledIconModified as={VerticalAlignBottom} size={flat ? 36 : 48} receive={true} />}
           {transaction.type === 'sent' && <StyledIconModified as={ArrowUpward} size={flat ? 36 : 48} />}
+          {transaction.type === 'moved' && <StyledIconModified as={Transfer} size={flat ? 36 : 48} moved={true} />}
           <TxTypeTextWrapper flat={flat}>
             <TxTypeText>{transaction.type}</TxTypeText>
             <TxTypeTime>{transaction.status.confirmed ? moment.unix(transaction.status.block_time).format('h:mm A') : 'Unconfirmed'}</TxTypeTime>
@@ -62,7 +64,7 @@ const TransactionMoreInfo = styled.div`
 const StyledIconModified = styled(StyledIcon)`
   padding: .5em;
   margin-right: .75em;
-  background: ${p => p.receive ? green : gray};
+  background: ${p => p.moved ? gray : (p.receive ? green : red500)};
   border-radius: 50%;
 `;
 

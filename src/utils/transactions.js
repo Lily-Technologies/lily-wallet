@@ -67,77 +67,106 @@ const getMultisigDescriptor = async (client, reqSigners, xpubs, isChange) => {
   return descriptorWithChecksum.descriptor;
 }
 
-const createAddressMapFromAddressArray = (addressArray) => {
+const createAddressMapFromAddressArray = (addressArray, isChange) => {
   const addressMap = new Map();
   addressArray.forEach((addr) => {
-    addressMap.set(addr.address, addr)
+    addressMap.set(addr.address, {address: addr, isChange: !!isChange});
   });
   return addressMap
 }
 
-const serializeTransactions = (transactionsFromBlockstream, addresses, changeAddresses) => {
-  const changeAddressesMap = createAddressMapFromAddressArray(changeAddresses);
-  const addressesMap = createAddressMapFromAddressArray(addresses);
+/**
+ * Function used to aggregate values of inputs/outputs with optional
+ * filtering options.
+ *
+ * @param {Array} items - Array of either inputs or outputs.
+ * @param {Boolean} isMine - Whether to restrict sum to our own inputs/outputs.
+ * @param {Boolean} isChange - Whether to restrict sum to change inputs/outputs.
+ */
+const sum = (items, isMine, isChange) => {
+  let filtered = items;
+  if (typeof isMine === 'boolean')
+    filtered = filtered.filter(item => item.isMine === isMine);
+  if (typeof isChange === 'boolean')
+    filtered = filtered.filter(item => item.isChange === isChange);
+  let total = filtered.reduce((accum, item) => {
+    const value = item.value !== undefined ? item.value : item.prevout.value;
+    return accum + value;
+  }, 0);
+  return total;
+}
 
+/**
+ * Function used to add 'isMine' & 'isChange' decoration markers
+ * to inputs & outputs.
+ *
+ * @param {Object} tx - A raw transaction.
+ * @param {Map} externalMap - Map of external addresses.
+ * @param {Map} changeMap - Map of change addresses.
+ */
+const decorateTx = (tx, externalMap, changeMap) => {
+  tx.vin.forEach((vin, index) => {
+    const isChange = !!changeMap.get(vin.prevout.scriptpubkey_address);
+    const isMine = isChange || !!externalMap.get(vin.prevout.scriptpubkey_address);
+    tx.vin[index] = {...vin, isChange: isChange, isMine: isMine};
+  });
+  tx.vout.forEach((vout, index) => {
+    const isChange = !!changeMap.get(vout.scriptpubkey_address);
+    const isMine = isChange || !!externalMap.get(vout.scriptpubkey_address);
+    tx.vout[index] = {...vout, isChange: isChange, isMine: isMine};
+  });
+  return tx;
+}
+
+const serializeTransactions = (transactionsFromBlockstream, addresses, changeAddresses) => {
   transactionsFromBlockstream.sort((a, b) => a.status.block_time - b.status.block_time);
 
-  let currentAccountTotal = BigNumber(0);
-  const transactions = new Map();
-  for (let i = 0; i < transactionsFromBlockstream.length; i++) {
-    // examine outputs and filter out ouputs that are change addresses back to us
-    let transactionPushed = false;
-    let possibleTransactions = new Map();
-    for (let j = 0; j < transactionsFromBlockstream[i].vout.length; j++) {
-      if (addressesMap.get(transactionsFromBlockstream[i].vout[j].scriptpubkey_address)) {
-        // received payment
-        const transactionWithValues = transactionsFromBlockstream[i];
-        transactionWithValues.value = transactionsFromBlockstream[i].vout[j].value;
-        transactionWithValues.address = addressesMap.get(transactionsFromBlockstream[i].vout[j].scriptpubkey_address);
-        transactionWithValues.type = 'received';
-        transactionWithValues.totalValue = currentAccountTotal.plus(transactionsFromBlockstream[i].vout[j].value).toNumber();
-        transactions.set(transactionsFromBlockstream[i].txid, transactionWithValues);
-        transactionPushed = true;
-        currentAccountTotal = currentAccountTotal.plus(transactionsFromBlockstream[i].vout[j].value)
-      } else if (changeAddressesMap.get(transactionsFromBlockstream[i].vout[j].scriptpubkey_address)) {
+  const addressesMap = createAddressMapFromAddressArray(addresses, false);
+  const changeAddressesMap = createAddressMapFromAddressArray(changeAddresses);
+  const txMap = {};
+  const txs = transactionsFromBlockstream
+    .map(tx => decorateTx(tx, addressesMap, changeAddressesMap))
+    .filter(tx => {
+      if (!txMap[tx.txid]) {
+        txMap[tx.txid] = tx;
+        return true;
+      }
+      return false;
+    });
 
-
-
+  let balance = 0;
+  txs.forEach(tx => {
+    let amountIn, amountOut, amountOutChange;
+    amountIn = sum(tx.vin, true);
+    amountOut = sum(tx.vout, true);
+    amountOutChange = sum(tx.vout, true, true);
+    if (amountIn === (amountOut + (amountIn > 0 ? tx.fee : 0))) {
+      tx.type = 'moved';
+      tx.address = '';
+      balance -= tx.fee;
+      tx.totalValue = balance;
+      tx.address = tx.vout.filter(vout => vout.isChange)[0].scriptpubkey_address;
+      tx.value = tx.vout.reduce((accum, item) => accum + item.value, 0);
+    } else {
+      const feeContribution = amountIn > 0 ? tx.fee : 0
+      const netAmount = amountIn - amountOut - feeContribution;
+      tx.type = netAmount > 0 ? 'sent' : 'received';
+      if (tx.type === 'sent') {
+        balance -= ((amountIn - amountOutChange) + feeContribution);
+        tx.totalValue = balance;
+        tx.address = tx.vout.filter(vout => !vout.isMine)[0].scriptpubkey_address;
+        tx.value = tx.vout.filter(vout => !vout.isMine)
+          .reduce((accum, item) => accum + item.value, 0);
       } else {
-        // either outgoing payment or sender change address
-        if (!transactions.get(transactionsFromBlockstream[i].txid)) {
-          const transactionWithValues = transactionsFromBlockstream[i];
-          transactionWithValues.value = transactionsFromBlockstream[i].vout[j].value;
-          transactionWithValues.address = transactionsFromBlockstream[i].vout[j].scriptpubkey_address;
-          transactionWithValues.type = 'sent';
-          transactionWithValues.totalValue = currentAccountTotal.minus(transactionsFromBlockstream[i].vout[j].value + transactionsFromBlockstream[i].fee).toNumber();
-          possibleTransactions.set(transactionsFromBlockstream[i].txid, transactionWithValues)
-        }
+        balance += amountOut;
+        tx.totalValue = balance;
+        tx.address = tx.vout.filter(vout => vout.isMine)[0].scriptpubkey_address;
+        tx.value = tx.vout.filter(vout => vout.isMine)
+          .reduce((accum, item) => accum + item.value, 0);
       }
     }
-
-    if (!transactionPushed) {
-      const possibleTransactionsIterator = possibleTransactions.entries();
-      for (let i = 0; i < possibleTransactions.size; i++) {
-        const possibleTx = possibleTransactionsIterator.next().value;
-        currentAccountTotal = currentAccountTotal.minus(possibleTx[1].vout.reduce((accum, vout) => {
-          if (!changeAddressesMap.get(vout.scriptpubkey_address)) {
-            return accum.plus(vout.value);
-          }
-          return accum;
-        }, BigNumber(0))).minus(possibleTx[1].fee);
-        transactions.set(possibleTx[0], possibleTx[1]);
-      }
-    }
-  }
-
-  const transactionsIterator = transactions.values();
-  const transactionsArray = [];
-  for (let i = 0; i < transactions.size; i++) {
-    transactionsArray.push(transactionsIterator.next().value);
-  }
-
-  transactionsArray.sort((a, b) => b.status.block_time - a.status.block_time);
-  return transactionsArray;
+  });
+  return txs.sort((a, b) => b.status.block_time - a.status.block_time);
 }
 
 const serializeTransactionsFromNode = async (nodeClient, transactions, addresses, changeAddresses) => {
@@ -326,7 +355,7 @@ const getDataFromMultisig = async (account, nodeClient, currentBitcoinNetwork) =
     const addressMap = createAddressMapFromAddressArray(receiveAddresses.concat(changeAddresses));
     for (let i = 0; i < availableUtxos.length; i++) {
       availableUtxos[i].value = bitcoinsToSatoshis(availableUtxos[i].amount).toNumber();
-      availableUtxos[i].address = addressMap.get(availableUtxos[i].address);
+      availableUtxos[i].address = addressMap.get(availableUtxos[i].address).address;
     }
   } else {
     organizedTransactions = serializeTransactions(transactions, receiveAddresses, changeAddresses);
@@ -351,7 +380,6 @@ module.exports = {
   bitcoinNetworkEqual: bitcoinNetworkEqual,
   getP2shDeriationPathForNetwork: getP2shDeriationPathForNetwork,
   getP2wpkhDeriationPathForNetwork: getP2wpkhDeriationPathForNetwork,
-  createAddressMapFromAddressArray: createAddressMapFromAddressArray,
   getDataFromMultisig: getDataFromMultisig,
   getDataFromXPub: getDataFromXPub,
   getUnchainedNetworkFromBjslibNetwork: getUnchainedNetworkFromBjslibNetwork,
