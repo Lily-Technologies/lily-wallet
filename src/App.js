@@ -84,7 +84,6 @@ function App() {
   }
 
   const setCurrentAccountFromMap = (accountId) => {
-    console.log('config: ', config)
     const newAccount = accountMap.get(accountId);
     if (newAccount) {
       setCurrentAccount(newAccount);
@@ -256,7 +255,7 @@ function App() {
         // setAccountMap(new Map([...initialAccountMap]));
       });
 
-      // setCurrentAccount(initialAccountMap.values().next().value)
+      setCurrentAccount(initialAccountMap.values().next().value)
       setAccountMap(initialAccountMap);
     }
   }, [config, refresh, nodeConfig]);

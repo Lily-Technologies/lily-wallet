@@ -20,5 +20,6 @@ export * from './TitleBar';
 export * from './ConnectToNodeModal';
 export * from './OutsideClick';
 export * from './AnimatedQrCode';
+export * from './ConnectToLilyMobileModal';
 
 export * from './layout';

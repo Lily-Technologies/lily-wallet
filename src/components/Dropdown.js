@@ -120,12 +120,14 @@ const MinimalDropdownButtonContainer = styled.button`
   display: flex;
   align-items: center;
   color: rgb(159,166,178);
-  padding: 0;
+  padding: 0.25em;
   cursor: pointer;
   border: none;
+  border-radius: 9999px;
 
   &:hover {
     color: rgb(75,85,99);
+    background: rgba(255,255,255, 0.25)
   }
 
   &:focus {

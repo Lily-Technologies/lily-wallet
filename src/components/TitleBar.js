@@ -5,9 +5,9 @@ import { Circle } from '@styled-icons/boxicons-solid';
 import { Menu } from '@styled-icons/boxicons-regular';
 import BigNumber from 'bignumber.js';
 
-import { blue600, blue800, white, black, green400, orange400, red500 } from '../utils/colors';
+import { blue600, blue800, white, black, green400, orange400, red500, green800 } from '../utils/colors';
 
-import { ConnectToNodeModal, StyledIcon, Dropdown, Modal, AnimatedQrCode } from '.';
+import { ConnectToNodeModal, StyledIcon, Dropdown, ConnectToLilyMobileModal } from '.';
 
 export const TitleBar = ({ setNodeConfig, nodeConfig, setMobileNavOpen, config, connectToBlockstream, connectToBitcoinCore, getNodeConfig, resetConfigFile }) => {
   const [nodeConfigModalOpen, setNodeConfigModalOpen] = useState(false);
@@ -50,6 +50,19 @@ export const TitleBar = ({ setNodeConfig, nodeConfig, setMobileNavOpen, config, 
   }
   nodeConfigDropdownItems.push({ label: 'Connect to Custom Node', onClick: () => setNodeConfigModalOpen(true) })
 
+  const moreOptionsDropdownItems = [
+    { label: 'Support', onClick: () => { console.log('foobar') } },
+    { label: 'License', onClick: () => { console.log('foobar2') } },
+    { label: 'View source code', onClick: () => { console.log('foobar2') } }
+  ];
+
+  if (!config.isEmpty) {
+    moreOptionsDropdownItems.push(
+      { label: 'Connect to Lily Mobile', onClick: () => { setConfigModalOpen(true) } },
+      { label: 'Sign out', onClick: async () => { await resetConfigFile() } }
+    )
+  }
+
   return (
     <DraggableTitleBar>
       <ConnectToNodeModal
@@ -57,13 +70,11 @@ export const TitleBar = ({ setNodeConfig, nodeConfig, setMobileNavOpen, config, 
         onRequestClose={() => setNodeConfigModalOpen(false)}
         setNodeConfig={setNodeConfig}
       />
-      <Modal
+      <ConnectToLilyMobileModal
         isOpen={configModalOpen}
-        onRequestClose={() => setConfigModalOpen(false)}>
-        <AnimatedQrCode
-          value={JSON.stringify(config)}
-        />
-      </Modal>
+        onRequestClose={() => setConfigModalOpen(false)}
+        config={JSON.stringify(config)}
+      />
       <LeftSection>
         {!config.isEmpty && (
           <MobileMenuOpen onClick={() => setMobileNavOpen(true)} >
@@ -105,13 +116,7 @@ export const TitleBar = ({ setNodeConfig, nodeConfig, setMobileNavOpen, config, 
             isOpen={moreOptionsDropdownOpen}
             setIsOpen={setMoreOptionsDropdownOpen}
             minimal={true}
-            dropdownItems={[
-              { label: 'Support', onClick: () => { console.log('foobar') } },
-              { label: 'License', onClick: () => { console.log('foobar2') } },
-              { label: 'Connect to Lily Mobile', onClick: () => { console.log('config: ', config); setConfigModalOpen(true) } },
-              { label: 'View source code', onClick: () => { console.log('foobar2') } },
-              { label: 'Sign out', onClick: async () => { await resetConfigFile() } }
-            ]}
+            dropdownItems={moreOptionsDropdownItems}
           />
         </DotDotDotContainer>
       </RightSection>

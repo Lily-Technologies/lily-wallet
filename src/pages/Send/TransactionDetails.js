@@ -32,7 +32,6 @@ const TransactionDetails = ({
   importTxFromFileError,
   feeRates,
   currentAccount,
-  toggleRefresh,
   txImportedFromFile,
   signedDevices,
   recipientAddress,
@@ -44,7 +43,6 @@ const TransactionDetails = ({
   currentBitcoinPrice,
   createTransactionAndSetState,
   currentBitcoinNetwork,
-  importTxFromFile,
   openInModal,
   closeModal
 }) => {
@@ -259,18 +257,6 @@ const TransactionDetails = ({
 
   return (
     <Fragment>
-      {/* <Modal
-        isOpen={modalIsOpen}
-        onRequestClose={() => {
-          closeModal();
-          if (broadcastedTxId) {
-            toggleRefresh();
-            history.push(`vault/${currentAccount.config.id}`)
-          }
-        }}
-      >
-        {modalContent}
-      </Modal> */}
       <AccountSendContentRight>
         <SendDetailsContainer>
           {screen}
