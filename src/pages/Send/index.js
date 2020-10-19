@@ -5,7 +5,8 @@ import { Wallet } from '@styled-icons/entypo';
 import BigNumber from 'bignumber.js';
 import { mnemonicToSeed } from 'bip39';
 import { satoshisToBitcoins } from "unchained-bitcoin";
-
+import { QRCode } from "react-qr-svg";
+import BarcodeScannerComponent from "react-webcam-barcode-scanner";
 import { Psbt, bip32, networks } from 'bitcoinjs-lib';
 
 import { StyledIcon, Button, PageWrapper, GridArea, PageTitle, Header, HeaderRight, HeaderLeft, Loading, FileUploader, Modal, Dropdown } from '../../components';
@@ -14,14 +15,13 @@ import RecentTransactions from '../../components/transactions/RecentTransactions
 import SignWithDevice from './SignWithDevice'
 import TransactionDetails from './TransactionDetails';
 
-import { red, gray, blue, darkGray, white, darkOffWhite, lightBlue } from '../../utils/colors';
+import { red, gray, blue, darkGray, white, darkOffWhite, lightBlue, black, lightGray } from '../../utils/colors';
 import { mobile } from '../../utils/media';
 import { cloneBuffer, bufferToHex } from '../../utils/other';
-import { combinePsbts } from '../../utils/files';
+import { combinePsbts, bitcoinNetworkEqual } from '../../utils/files';
 
 import { createTransaction, validateAddress, createUtxoMapFromUtxoArray, getFee } from './utils'
 import { AddressDisplayWrapper, Input, InputStaticText } from './styles';
-import { bitcoinNetworkEqual } from '../../utils/files';
 
 const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, currentBitcoinNetwork, currentBitcoinPrice }) => {
   document.title = `Send - Lily Wallet`;
@@ -36,14 +36,29 @@ const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, curren
   const [feeEstimate, setFeeEstimate] = useState(BigNumber(0));
   const [signedPsbts, setSignedPsbts] = useState([]);
   const [signedDevices, setSignedDevices] = useState([]);
-  const [pastePsbtModalOpen, setPastePsbtModalOpen] = useState(false);
   const [pastedPsbtValue, setPastedPsbtValue] = useState(null);
   const [optionsDropdownOpen, setOptionsDropdownOpen] = useState(false);
   const [feeRates, setFeeRates] = useState(null);
   const fileUploadLabelRef = useRef(null);
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [modalContent, setModalContent] = useState(null);
 
   // Get account data
   const { transactions, availableUtxos, unusedChangeAddresses, currentBalance } = currentAccount;
+
+  const openInModal = (component) => {
+    setModalIsOpen(true);
+    setModalContent(component);
+  }
+
+  const closeModal = () => {
+    setModalIsOpen(false);
+    setModalContent(null);
+    if (modalContent === <PastePsbtModalContent />) {
+      setPastedPsbtValue(null);
+      setImportTxFromFileError(false);
+    }
+  }
 
   // TODO: refactor this...ugly
   const createTransactionAndSetState = async (theFee) => {
@@ -72,6 +87,11 @@ const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, curren
       setSignedDevices([currentAccount]) // this could probably have better information in it but
       setSignedPsbts([psbt]);
     }
+  }
+
+  const importTxFromQrCode = (data) => {
+    importTxFromFile(data);
+    closeModal();
   }
 
   const importTxFromFile = (file) => {
@@ -181,6 +201,67 @@ const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, curren
     }
   }
 
+  const PsbtDetails = () => (
+    <Fragment>
+      <ModalHeaderContainer>
+        Raw PSBT
+      </ModalHeaderContainer>
+      <div style={{ padding: '1.5em' }}>
+        <OutputItem style={{ wordBreak: 'break-word' }}>
+          <QRCode
+            bgColor={white}
+            fgColor={black}
+            level="Q"
+            style={{ width: 256 }}
+            value={finalPsbt.toBase64()}
+          />
+        </OutputItem>
+      </div>
+    </Fragment>
+  )
+
+  const ImportSignatureFromQrCode = () => (
+    <BarcodeScannerComponent
+      width={'100%'}
+      height={'100%'}
+      onUpdate={(err, result) => {
+        console.log('result: ', result);
+        if (result) importTxFromQrCode(result.text)
+        else return;
+      }}
+    />
+  );
+
+  const PastePsbtModalContent = () => (
+    <Fragment>
+      <ModalHeaderContainer>
+        Paste PSBT or Transaction Hex Below
+                    </ModalHeaderContainer>
+      <div style={{ padding: '1.5em' }}>
+        <PastePsbtTextArea
+          rows={20}
+          onChange={(e) => {
+            setPastedPsbtValue(e.target.value)
+          }}
+        />
+        {importTxFromFileError && <ErrorText style={{ paddingBottom: '1em' }}>{importTxFromFileError}</ErrorText>}
+        <ImportButtons>
+          <FromFileButton
+            style={{ marginRight: '1em' }}
+            onClick={() => {
+              setPastedPsbtValue(null);
+              setImportTxFromFileError(false);
+              setModalIsOpen(false);
+            }}>Cancel</FromFileButton>
+          <CopyAddressButton
+            onClick={() => {
+              importTxFromFile(pastedPsbtValue)
+            }}>Import Transaction</CopyAddressButton>
+        </ImportButtons>
+      </div>
+    </Fragment>
+  )
+
   const SelectAccountMenu = () => (
     <AccountMenu>
       {config.vaults.map((vault, index) => (
@@ -219,37 +300,9 @@ const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, curren
       <label style={{ display: 'none' }} ref={fileUploadLabelRef} htmlFor="txFile"></label>
 
       <Modal
-        isOpen={pastePsbtModalOpen}
-        onRequestClose={() => {
-          setPastedPsbtValue(null);
-          setImportTxFromFileError(false);
-          setPastePsbtModalOpen(false);
-        }}>
-        <ModalHeaderContainer>
-          Paste PSBT or Transaction Hex Below
-                    </ModalHeaderContainer>
-        <div style={{ padding: '1.5em' }}>
-          <PastePsbtTextArea
-            rows={20}
-            onChange={(e) => {
-              setPastedPsbtValue(e.target.value)
-            }}
-          />
-          {importTxFromFileError && <ErrorText style={{ paddingBottom: '1em' }}>{importTxFromFileError}</ErrorText>}
-          <ImportButtons>
-            <FromFileButton
-              style={{ marginRight: '1em' }}
-              onClick={() => {
-                setPastedPsbtValue(null);
-                setImportTxFromFileError(false);
-                setPastePsbtModalOpen(false);
-              }}>Cancel</FromFileButton>
-            <CopyAddressButton
-              onClick={() => {
-                importTxFromFile(pastedPsbtValue)
-              }}>Import Transaction</CopyAddressButton>
-          </ImportButtons>
-        </div>
+        isOpen={modalIsOpen}
+        onRequestClose={() => closeModal()}>
+        {modalContent}
       </Modal>
 
       <SendWrapper>
@@ -286,7 +339,8 @@ const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, curren
                         label: 'Import from clipboard',
                         onClick: () => {
                           setImportTxFromFileError(false)
-                          setPastePsbtModalOpen(true)
+                          setModalIsOpen(true)
+                          setModalContent(<PastePsbtModalContent />)
                         }
                       }
                     ]}
@@ -324,7 +378,7 @@ const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, curren
                   <SendButtonContainer>
                     {/* <CopyAddressButton background="transparent" color={darkGray}>Advanced Options</CopyAddressButton> */}
                     <CopyAddressButton onClick={() => validateAndCreateTransaction()}>Preview Transaction</CopyAddressButton>
-                    {importTxFromFileError && !pastePsbtModalOpen && <ErrorText style={{ paddingTop: '1em' }}>{importTxFromFileError}</ErrorText>}
+                    {importTxFromFileError && !modalIsOpen && <ErrorText style={{ paddingTop: '1em' }}>{importTxFromFileError}</ErrorText>}
                   </SendButtonContainer>
                 </AccountSendContentLeft>
               )}
@@ -340,15 +394,15 @@ const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, curren
                   signedPsbts={signedPsbts}
                   signedDevices={signedDevices}
                   txImportedFromFile={txImportedFromFile}
-                  fileUploadLabelRef={fileUploadLabelRef}
                   importTxFromFileError={importTxFromFileError}
                   signThreshold={currentAccount.config.quorum.requiredSigners}
                   currentBitcoinNetwork={currentBitcoinNetwork}
                   currentBitcoinPrice={currentBitcoinPrice}
-                  toggleRefresh={toggleRefresh}
                   currentAccount={currentAccount}
                   feeRates={feeRates}
                   createTransactionAndSetState={createTransactionAndSetState}
+                  openInModal={openInModal}
+                  closeModal={closeModal}
                 />
               )}
             </div>
@@ -383,6 +437,8 @@ const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, curren
                   signedDevices={signedDevices}
                   setSignedDevices={setSignedDevices}
                   signThreshold={currentAccount.config.quorum.requiredSigners}
+                  fileUploadLabelRef={fileUploadLabelRef}
+                  phoneAction={currentAccount.config.extendedPublicKeys.filter((item) => item.device && item.device.type === 'phone').length ? () => openInModal(<PsbtDetails />) : undefined}
                 />
               )}
             </AccountSendContentRight>
@@ -552,6 +608,16 @@ const CurrentBalanceValue = styled.div`
   font-size: 2em;
 `;
 
-
+const OutputItem = styled.div`
+  display: flex;
+  justify-content: space-between;
+  padding: 1.5em;
+  margin: 12px 0;
+  background: ${lightGray};
+  border: 1px solid ${darkOffWhite};
+  justify-content: center;
+  align-items: center;
+  border-radius: 4px;
+`;
 
 export default Send;

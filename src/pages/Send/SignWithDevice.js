@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
-import { DeviceSelect } from '../../components';
-import { darkGray } from '../../utils/colors';
+import { DeviceSelect, Dropdown } from '../../components';
+import { darkGray, white } from '../../utils/colors';
 
 const SignWithDevice = ({
   psbt,
@@ -10,10 +10,13 @@ const SignWithDevice = ({
   setSignedPsbts,
   signedDevices,
   setSignedDevices,
-  signThreshold
+  signThreshold,
+  fileUploadLabelRef,
+  phoneAction
 }) => {
   const [unsignedDevices, setUnsignedDevices] = useState([]);
   const [errorDevices, setErrorDevices] = useState([]);
+  const [optionsDropdownOpen, setOptionsDropdownOpen] = useState(false);
 
   const signWithDevice = async (device, index) => {
     try {
@@ -39,16 +42,33 @@ const SignWithDevice = ({
     }
   }
 
+  const dropdownItems = [
+    {
+      label: 'Add signature from file',
+      onClick: () => {
+        const txFileUploadButton = fileUploadLabelRef.current;
+        txFileUploadButton.click()
+      }
+    }
+  ]
+
   return (
     <TransactionDetailsWrapper>
       <SetupHeaderContainer>
         <SetupHeaderWrapper>
-          <SetupHeader>Confirm on Devices</SetupHeader>
-          <SetupSubheader>{signedDevices.length} of {signThreshold} devices confirmed</SetupSubheader>
+          <SetupHeaderLeft>
+            <SetupHeader>Confirm on Devices</SetupHeader>
+            <SetupSubheader>{signedDevices.length} of {signThreshold} devices confirmed</SetupSubheader>
+          </SetupHeaderLeft>
+          <SetupHeaderRight>
+            <Dropdown
+              isOpen={optionsDropdownOpen}
+              setIsOpen={setOptionsDropdownOpen}
+              minimal={true}
+              dropdownItems={dropdownItems}
+            />
+          </SetupHeaderRight>
         </SetupHeaderWrapper>
-        <SetupExplainerText>
-          Click on a device to confirm the transaction. If you don't see your device, click "Scan for New Devices".
-              </SetupExplainerText>
       </SetupHeaderContainer>
       <DeviceSelect
         configuredDevices={signedDevices}
@@ -59,6 +79,7 @@ const SignWithDevice = ({
         setUnconfiguredDevices={setUnsignedDevices}
         errorDevices={errorDevices}
         configuredThreshold={signThreshold}
+        phoneAction={phoneAction}
       />
     </TransactionDetailsWrapper>
   )
@@ -69,9 +90,19 @@ const TransactionDetailsWrapper = styled.div`
   flex-direction: column;
   min-height: 400px;
   justify-content: space-between;
+  box-shadow: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06);
+  border-radius: 0.375rem;
+  background: ${white};
+  height: 100%;
 `;
 
 const SetupHeaderContainer = styled.div`
+  padding-top: 1.25rem;
+  padding-bottom: 1.25rem;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  border-bottom: 1px solid rgb(229,231,235);
+  height: 90px;
 `;
 
 const SetupHeaderWrapper = styled.div`
@@ -81,21 +112,23 @@ const SetupHeaderWrapper = styled.div`
   flex-wrap: wrap;
 `;
 
-const SetupHeader = styled.h3`
+const SetupHeaderLeft = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+const SetupHeaderRight = styled.div``;
+
+const SetupHeader = styled.span`
   font-size: 1.5em;
   display: inline-block;
-  margin: 4px 0;
+  margin-bottom: 4px;
+  font-weight: 100;
 `;
 
 const SetupSubheader = styled.span`
-  font-size: 18px;
+  font-size: 14px;
   color: ${darkGray};
-`;
-
-const SetupExplainerText = styled.div`
-  color: ${darkGray};
-  font-size: .75em;
-  margin: 12px 0;
 `;
 
 export default SignWithDevice;

@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import styled from 'styled-components';
 import bs58check from 'bs58check';
+import BarcodeScannerComponent from "react-webcam-barcode-scanner";
 
-import { Button, DeviceSelect, FileUploader } from '../../components';
+import { Button, DeviceSelect, FileUploader, Dropdown, Modal } from '../../components';
 import { InnerWrapper, XPubHeaderWrapper, SetupHeaderWrapper, SetupExplainerText, FormContainer, BoxedWrapper, SetupHeader } from './styles';
-import { darkGray, white } from '../../utils/colors';
 import { zpubToXpub } from '../../utils/other';
 import RequiredDevicesModal from './RequiredDevicesModal';
 
@@ -22,6 +22,11 @@ const NewVaultScreen = ({
   const [selectNumberRequiredModalOpen, setSelectNumberRequiredModalOpen] = useState(false);
   const [availableDevices, setAvailableDevices] = useState([]);
   const [errorDevices, setErrorDevices] = useState([]);
+  const [otherImportDropdownOpen, setOtherImportDropdownOpen] = useState(false);
+  const [qrScanModalOpen, setQrScanModalOpen] = useState(false);
+  const [scanData, setScanData] = useState(undefined)
+
+  const importDeviceFromFileRef = useRef(null);
 
   const importMultisigDevice = async (device, index) => {
     try {
@@ -44,6 +49,25 @@ const NewVaultScreen = ({
       const errorDevicesCopy = [...errorDevices];
       errorDevicesCopy.push(device.fingerprint);
       setErrorDevices([...errorDevicesCopy])
+    }
+  }
+
+  const importDeviceFromQR = ({ data }) => {
+    try {
+      const [parentFingerprint, xpub] = data.split(':');
+
+      const newDevice = {
+        type: 'phone',
+        fingerprint: parentFingerprint,
+        xpub: xpub
+      }
+
+      const updatedImportedDevices = [...importedDevices, newDevice];
+      setImportedDevices(updatedImportedDevices);
+      setAvailableDevices([...availableDevices.filter((item) => item.type !== 'phone')]);
+      setQrScanModalOpen(false);
+    } catch (e) {
+
     }
   }
 
@@ -100,6 +124,22 @@ const NewVaultScreen = ({
               }
             }}
           />
+          <ImportFromFileLabel htmlFor="localConfigFile" ref={importDeviceFromFileRef}></ImportFromFileLabel>
+
+          <Modal
+            isOpen={qrScanModalOpen}
+            onRequestClose={() => setQrScanModalOpen(false)}
+          >
+            <BarcodeScannerComponent
+              width={'100%'}
+              height={'100%'}
+              onUpdate={(err, result) => {
+                if (result) importDeviceFromQR({ data: result.text })
+                else return;
+              }}
+            />
+            {scanData}
+          </Modal>
 
           <XPubHeaderWrapper>
             <SetupHeaderWrapper>
@@ -110,11 +150,31 @@ const NewVaultScreen = ({
                   You may disconnect a device from your computer after it has been imported.
                   </SetupExplainerText>
               </div>
-              <ImportFromFileButton htmlFor="localConfigFile" background={white} color={darkGray}>Import from File</ImportFromFileButton>
+              <Dropdown
+                isOpen={otherImportDropdownOpen}
+                setIsOpen={setOtherImportDropdownOpen}
+                minimal={true}
+                buttonLabel={'Other Import Options'}
+                dropdownItems={[
+                  {
+                    label: "Import from File",
+                    onClick: () => {
+                      const importDeviceFromFile = importDeviceFromFileRef.current;
+                      importDeviceFromFile.click()
+                    }
+                  },
+                  {
+                    label: "Import from QR Code",
+                    onClick: () => setQrScanModalOpen(true)
+                  }
+                ]}
+              />
+
             </SetupHeaderWrapper>
           </XPubHeaderWrapper>
           <DeviceSelect
             deviceAction={importMultisigDevice}
+            phoneAction={() => setQrScanModalOpen(true)}
             deviceActionText={'Click to Configure'}
             deviceActionLoadingText={'Extracting XPub'}
             configuredDevices={importedDevices}
@@ -152,10 +212,8 @@ const ContinueButton = styled.div`
   border-top-left-radius: 0;
 `;
 
-const ImportFromFileButton = styled.label`
-  ${Button}
-  font-size: 0.75em;
-  border: 1px solid ${darkGray};
+const ImportFromFileLabel = styled.label`
+  display: none;
 `;
 
 export default NewVaultScreen;

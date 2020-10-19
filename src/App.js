@@ -213,7 +213,6 @@ function App() {
 
   // fetch/build account data from config file
   useEffect(() => {
-
     if (config.wallets.length || config.vaults.length) {
       const initialAccountMap = new Map();
 

@@ -17,7 +17,7 @@ import { address, Psbt } from 'bitcoinjs-lib';
 import { cloneBuffer } from '../../utils/other';
 import { StyledIcon, Button, SidewaysShake, Dropdown, Modal } from '../../components';
 
-import { gray, blue, darkGray, white, darkOffWhite, green, darkGreen, lightGray, red, lightRed, orange, lightOrange } from '../../utils/colors';
+import { gray, blue, darkGray, white, darkOffWhite, green, darkGreen, lightGray, red, lightRed, orange, lightOrange, black } from '../../utils/colors';
 import { downloadFile, formatFilename, combinePsbts } from '../../utils/files';
 import { createUtxoMapFromUtxoArray } from './utils';
 import { FeeSelector } from './FeeSelector';
@@ -32,8 +32,6 @@ const TransactionDetails = ({
   importTxFromFileError,
   feeRates,
   currentAccount,
-  toggleRefresh,
-  fileUploadLabelRef,
   txImportedFromFile,
   signedDevices,
   recipientAddress,
@@ -45,24 +43,14 @@ const TransactionDetails = ({
   currentBitcoinPrice,
   createTransactionAndSetState,
   currentBitcoinNetwork,
+  openInModal,
+  closeModal
 }) => {
   const [broadcastedTxId, setBroadcastedTxId] = useState('');
   const [txError, setTxError] = useState(null);
   const [optionsDropdownOpen, setOptionsDropdownOpen] = useState(false);
-  const [modalIsOpen, setModalIsOpen] = useState(false);
-  const [modalContent, setModalContent] = useState(null);
 
   const history = useHistory();
-
-  const openInModal = (component) => {
-    setModalIsOpen(true);
-    setModalContent(component);
-  }
-
-  const closeModal = () => {
-    setModalIsOpen(false);
-    setModalContent(null);
-  }
 
   const broadcastTransaction = async (currentAccount, psbt, currentBitcoinNetwork) => {
     if (currentAccount.nodeConfig.provider !== 'Blockstream') {
@@ -89,8 +77,7 @@ const TransactionDetails = ({
 
           const broadcastId = await broadcastTransaction(currentAccount, combinedPsbt, currentBitcoinNetwork);
           setBroadcastedTxId(broadcastId);
-          setModalIsOpen(true);
-          setModalContent(<TransactionSuccess broadcastedTxId={broadcastId} />);
+          openInModal(<TransactionSuccess broadcastedTxId={broadcastId} />);
 
         } else {
           let broadcastPsbt;
@@ -103,8 +90,7 @@ const TransactionDetails = ({
 
           const broadcastId = await broadcastTransaction(currentAccount, broadcastPsbt, currentBitcoinNetwork);
           setBroadcastedTxId(broadcastId);
-          setModalIsOpen(true);
-          setModalContent(<TransactionSuccess broadcastedTxId={broadcastId} />);
+          openInModal(<TransactionSuccess broadcastedTxId={broadcastId} />);
         }
       } catch (e) {
         if (e.response) {
@@ -116,23 +102,16 @@ const TransactionDetails = ({
     }
   }
 
-  const downloadPsbt = () => {
+  const downloadPsbt = async () => {
     const combinedPsbt = combinePsbts(finalPsbt, signedPsbts);
     const psbtForDownload = combinedPsbt.toBase64();
-    downloadFile(psbtForDownload, formatFilename('tx', currentBitcoinNetwork, 'psbt'));
+    await downloadFile(psbtForDownload, formatFilename('tx', currentBitcoinNetwork, 'psbt'));
+    openInModal(<PsbtDownloadDetails />)
   }
 
   const TransactionOptionsDropdown = () => {
     const dropdownItems = [
-      { label: 'View PSBT', onClick: () => { openInModal(<PsbtDetails />) } },
-      { label: 'Download PSBT', onClick: () => { downloadPsbt(); openInModal(<PsbtDownloadDetails />) } },
-      {
-        label: 'Add signature from file',
-        onClick: () => {
-          const txFileUploadButton = fileUploadLabelRef.current;
-          txFileUploadButton.click()
-        }
-      }
+      { label: 'Download PSBT', onClick: () => { downloadPsbt() } },
     ];
 
     if (!signedDevices.length || currentAccount.config.mnemonic) {
@@ -181,19 +160,6 @@ const TransactionDetails = ({
     )
   }
 
-  const PsbtDetails = () => (
-    <Fragment>
-      <ModalHeaderContainer>
-        Raw PSBT
-      </ModalHeaderContainer>
-      <div style={{ padding: '1.5em' }}>
-        <OutputItem style={{ wordBreak: 'break-word' }}>
-          {finalPsbt.toBase64()}
-        </OutputItem>
-      </div>
-    </Fragment>
-  )
-
   const PsbtDownloadDetails = () => (
     <Fragment>
       <ModalHeaderContainer>
@@ -203,7 +169,7 @@ const TransactionDetails = ({
         <IconWrapper style={{ color: green }}>
           <StyledIcon as={CheckCircle} size={100} />
         </IconWrapper>
-        <ModalSubtext>Check your downloads folder for the PSBT file</ModalSubtext>
+        <ModalSubtext>Your PSBT file has been saved successfully.</ModalSubtext>
       </ModalBody>
     </Fragment>
   )
@@ -291,20 +257,6 @@ const TransactionDetails = ({
 
   return (
     <Fragment>
-      <Modal
-        isOpen={modalIsOpen}
-        onRequestClose={() => {
-          setModalIsOpen(false);
-          setModalContent(null);
-
-          if (broadcastedTxId) {
-            toggleRefresh();
-            history.push(`vault/${currentAccount.config.id}`)
-          }
-        }}
-      >
-        {modalContent}
-      </Modal>
       <AccountSendContentRight>
         <SendDetailsContainer>
           {screen}
@@ -343,14 +295,15 @@ const ModalSubtext = styled.div`
 
 const ModalHeaderContainer = styled.div`
   border-bottom: 1px solid rgb(229,231,235);
-  padding-top: 1.25rem;
-  padding-bottom: 1.25rem;
+  padding-top: 1.75rem;
+  padding-bottom: 1.75rem;
   padding-left: 1.5rem;
   padding-right: 1.5rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
   font-size: 1.5em;
+  height: 90px;
 `;
 
 const SendingHeader = styled.div`
@@ -378,7 +331,6 @@ const AccountSendContentRight = styled.div`
   display: flex;
   flex: 1;
   flex-direction: column;
-  max-width: 500px;
 `;
 
 const OutputItem = styled.div`

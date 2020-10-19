@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { Transition } from '.'
 import OutsideClick from './OutsideClick'
 
-import { white } from '../utils/colors';
+import { white, gray300 } from '../utils/colors';
 
 // https://codesandbox.io/s/outside-alerter-hooks-lmr2y?module=/src/OutsideAlerter.js&file=/src/OutsideAlerter.js
 /* 
@@ -113,18 +113,21 @@ const DropdownButtonContainer = styled.span`
   box-shadow: 0 1px 2px 0 rgba(0,0,0,.05);
   border-radius: .375rem;
   cursor: pointer;
+  border: 1px solid ${gray300};
 `;
 
 const MinimalDropdownButtonContainer = styled.button`
   display: flex;
   align-items: center;
   color: rgb(159,166,178);
-  padding: 0;
+  padding: 0.25em;
   cursor: pointer;
   border: none;
+  border-radius: 9999px;
 
   &:hover {
     color: rgb(75,85,99);
+    background: rgba(255,255,255, 0.25)
   }
 
   &:focus {
