@@ -5,7 +5,7 @@ import { Circle } from '@styled-icons/boxicons-solid';
 import { Menu } from '@styled-icons/boxicons-regular';
 import BigNumber from 'bignumber.js';
 
-import { blue600, blue800, white, black, green400, orange400, red500, green800 } from '../utils/colors';
+import { white, black, green400, orange400, red500, green800, green900 } from '../utils/colors';
 
 import { ConnectToNodeModal, StyledIcon, Dropdown, ConnectToLilyMobileModal } from '.';
 
@@ -87,7 +87,7 @@ export const TitleBar = ({ setNodeConfig, nodeConfig, setMobileNavOpen, config, 
           <Dropdown
             isOpen={nodeOptionsDropdownOpen}
             setIsOpen={setNodeOptionsDropdownOpen}
-            style={{ background: blue800, color: white, padding: '0.35em 1em', border: 'none', fontFamily: 'Montserrat, sans-serif', display: 'flex', alignItems: 'center' }}
+            style={{ background: green900, color: white, padding: '0.35em 1em', border: 'none', fontFamily: 'Montserrat, sans-serif', display: 'flex', alignItems: 'center' }}
             buttonLabel={
               <Fragment>
                 {nodeConfig ? (
@@ -163,7 +163,7 @@ const DotDotDotContainer = styled.div`
 
 const DraggableTitleBar = styled.div`
   position: fixed;
-  background: ${blue600};
+  background: ${green800};
   -webkit-user-select: none;
   -webkit-app-region: drag;
   height: 2.5rem;

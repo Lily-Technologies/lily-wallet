@@ -17,7 +17,7 @@ import { address, Psbt } from 'bitcoinjs-lib';
 import { cloneBuffer } from '../../utils/other';
 import { StyledIcon, Button, SidewaysShake, Dropdown, Modal } from '../../components';
 
-import { gray, blue, darkGray, white, darkOffWhite, green, darkGreen, lightGray, red, lightRed, orange, lightOrange, black } from '../../utils/colors';
+import { gray, green800, darkGray, white, darkOffWhite, green, darkGreen, lightGray, red, lightRed, orange, lightOrange, black } from '../../utils/colors';
 import { downloadFile, formatFilename, combinePsbts } from '../../utils/files';
 import { createUtxoMapFromUtxoArray } from './utils';
 import { FeeSelector } from './FeeSelector';
@@ -346,7 +346,7 @@ const OutputItem = styled.div`
 `;
 
 const OutputAddress = styled.span`
-  color: ${blue};
+  color: ${green800};
   flex: 2;
   word-break: break-word;
 `;

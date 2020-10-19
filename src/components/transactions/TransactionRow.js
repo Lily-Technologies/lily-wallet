@@ -6,7 +6,7 @@ import { Transfer } from '@styled-icons/boxicons-regular';
 import { StyledIcon } from '../../components';
 import { satoshisToBitcoins } from "unchained-bitcoin";
 
-import { white, offWhite, green, gray, red500, lightBlue } from '../../utils/colors';
+import { white, offWhite, green, gray, gray100, red500 } from '../../utils/colors';
 
 const TransactionRow = ({ transaction, flat }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -16,7 +16,7 @@ const TransactionRow = ({ transaction, flat }) => {
         <TxTypeIcon flat={flat}>
           {transaction.type === 'received' && <StyledIconModified as={VerticalAlignBottom} size={flat ? 36 : 48} receive={true} />}
           {transaction.type === 'sent' && <StyledIconModified as={ArrowUpward} size={flat ? 36 : 48} />}
-          {transaction.type === 'moved' && <StyledIconModified as={Transfer} size={flat ? 36 : 48} moved={true}/>}
+          {transaction.type === 'moved' && <StyledIconModified as={Transfer} size={flat ? 36 : 48} moved={true} />}
           <TxTypeTextWrapper flat={flat}>
             <TxTypeText>{transaction.type}</TxTypeText>
             <TxTypeTime>{transaction.status.confirmed ? moment.unix(transaction.status.block_time).format('h:mm A') : 'Unconfirmed'}</TxTypeTime>
@@ -49,7 +49,7 @@ const TransactionRowContainer = styled.div`
 
   &:hover {
     background: ${p => !p.isOpen && !p.flat && offWhite};
-    cursor: ${ p => !p.flat && 'pointer'};
+    cursor: ${p => !p.flat && 'pointer'};
   }
 `;
 
@@ -58,24 +58,24 @@ const TransactionMoreInfo = styled.div`
   display: flex;
   padding: .75em;
   overflow: scroll;
-  background: ${ lightBlue};
+  background: ${gray100};
 `;
 
 const StyledIconModified = styled(StyledIcon)`
   padding: .5em;
   margin-right: .75em;
-  background: ${ p => p.moved ? gray : (p.receive ? green : red500)};
+  background: ${p => p.moved ? gray : (p.receive ? green : red500)};
   border-radius: 50%;
 `;
 
 const TxTypeIcon = styled.div`
   display: flex;
-  flex: ${ p => p.flat ? '0 0' : '0 0 10em'};;
+  flex: ${p => p.flat ? '0 0' : '0 0 10em'};;
   align-items: center;
 `;
 
 const TxTypeTextWrapper = styled.div`
-  display: ${ p => p.flat ? 'none' : 'flex'};
+  display: ${p => p.flat ? 'none' : 'flex'};
   flex-direction: column;
 `;
 
@@ -94,13 +94,13 @@ const AmountWrapper = styled.div`
   display: flex;
   text-align: right;
   justify-content: flex-end;
-  font-size: ${ p => p.flat ? '.75em' : '1em'};
+  font-size: ${p => p.flat ? '.75em' : '1em'};
 `;
 const AddressWrapper = styled.div`
   display: flex;
   flex: 1;
   font-weight: 100;
-  font-size: ${ p => p.flat ? '.75em' : '1em'};
+  font-size: ${p => p.flat ? '.75em' : '1em'};
   word-break: break-all;
   padding: 0 1em;
 `;

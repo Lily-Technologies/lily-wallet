@@ -15,7 +15,7 @@ import RecentTransactions from '../../components/transactions/RecentTransactions
 import SignWithDevice from './SignWithDevice'
 import TransactionDetails from './TransactionDetails';
 
-import { red, gray, blue, darkGray, white, darkOffWhite, lightBlue, black, lightGray } from '../../utils/colors';
+import { red, gray, green800, darkGray, white, darkOffWhite, gray100, black, lightGray } from '../../utils/colors';
 import { mobile } from '../../utils/media';
 import { cloneBuffer, bufferToHex } from '../../utils/other';
 import { combinePsbts, bitcoinNetworkEqual } from '../../utils/files';
@@ -544,12 +544,12 @@ const AccountMenuItemWrapper = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background: ${p => p.active ? lightBlue : white};
+  background: ${p => p.active ? gray100 : white};
   color: ${p => p.active ? darkGray : gray};
   padding: .75em;
   flex: 1;
   cursor: ${p => p.active ? 'auto' : 'pointer'};
-  border-top: ${p => p.active ? `solid 11px ${blue}` : `none`};
+  border-top: ${p => p.active ? `solid 11px ${green800}` : `none`};
   border-bottom: ${p => p.active ? 'none' : `solid 1px ${gray}`};
   border-right: ${p => p.borderRight && `solid 1px ${gray}`};
 `;

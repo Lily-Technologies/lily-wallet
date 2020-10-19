@@ -6,7 +6,7 @@ import { ExclamationDiamond } from '@styled-icons/bootstrap'
 
 import { MnemonicWordsDisplayer, Modal, Input, StyledIcon, Button } from '../../components';
 
-import { black, white, blue, darkGray, darkOffWhite, lightBlue, red, lightGray, darkGreen, red100, red500, red600, gray500 } from '../../utils/colors';
+import { black, white, green800, darkGray, darkOffWhite, gray100, red, lightGray, darkGreen, red100, red500, red600, gray500 } from '../../utils/colors';
 import { mobile } from '../../utils/media';
 import { createColdCardBlob, downloadFile, formatFilename, saveConfig } from '../../utils/files';
 import { getMultisigDeriationPathForNetwork } from '../../utils/files';
@@ -341,10 +341,10 @@ const DangerSubtext = styled.div`
 `;
 
 const Wrapper = styled.div`
-  background: ${lightBlue};
+  background: ${gray100};
   padding: 1.5em;
   box-shadow: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06);
-  border-top: solid 11px ${blue};
+  border-top: solid 11px ${green800};
 `;
 
 const UCLink = styled.a`
@@ -415,7 +415,7 @@ const SettingsHeadingItem = styled.h3`
 `;
 
 const ViewAddressesButton = styled.div`
-  border: 1px solid ${blue};
+  border: 1px solid ${green800};
   padding: 1.5em;
   border-radius: 4px;
   text-align: center;

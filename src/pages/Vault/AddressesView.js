@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import AddressRow from './AddressRow';
 
-import { white, blue, darkGray, lightBlue } from '../../utils/colors';
+import { white, green800, darkGray, gray100 } from '../../utils/colors';
 
 const AddressesView = ({ setViewAddresses, currentAccount }) => {
 
@@ -24,10 +24,10 @@ const AddressesView = ({ setViewAddresses, currentAccount }) => {
 }
 
 const ValueWrapper = styled.div`
-  background: ${lightBlue};
+  background: ${gray100};
   padding: 1.5em;
   box-shadow: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06);
-  border-top: solid 11px ${blue};
+  border-top: solid 11px ${green800};
 `;
 
 const SettingsSection = styled.div`

@@ -8,7 +8,7 @@ import { networks } from 'bitcoinjs-lib';
 
 import { StyledIcon } from '.';
 
-import { blue, white, offWhite, darkGray, darkOffWhite, lightBlue, lightBlack } from '../utils/colors';
+import { white, offWhite, darkGray, darkOffWhite, lightBlack, green100, green700 } from '../utils/colors';
 import { bitcoinNetworkEqual } from '../utils/files';
 
 
@@ -143,13 +143,13 @@ const AccountsContainer = styled.div`
 `;
 
 const SidebarItemStyle = css`
-  background: ${ p => p.active ? lightBlue : white};
-  border: ${ p => p.active ? `solid 0.0625em ${darkOffWhite}` : 'none'};
-  border-left: ${ p => p.active ? `solid 0.6875em ${blue}` : 'none'};
-  margin-left: ${ p => p.active ? `solid 0.6875em ${blue}` : 'none'};
+  background: ${p => p.active ? green100 : white};
+  border: ${p => p.active ? `solid 0.0625em ${darkOffWhite}` : 'none'};
+  border-left: ${p => p.active ? `solid 0.6875em ${green700}` : 'none'};
+  margin-left: ${p => p.active ? `solid 0.6875em ${green700}` : 'none'};
   border-right: none;
-  color: ${ p => p.active ? 'inherit' : darkGray};
-  padding: ${ p => p.active ? `1em 1.2em 1.125em .5em` : '1em 1.2em'};
+  color: ${p => p.active ? 'inherit' : darkGray};
+  padding: ${p => p.active ? `1em 1.2em 1.125em .5em` : '1em 1.2em'};
   text-decoration: none;
   font-size: 0.9em;
   display: flex;

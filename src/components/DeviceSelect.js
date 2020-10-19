@@ -4,7 +4,7 @@ import { CheckCircle } from '@styled-icons/material';
 import { ExclamationDiamond } from '@styled-icons/bootstrap'
 
 import { Button, StyledIcon, PromptPinModal } from '../components';
-import { lightGreen, gray, green, blue, white, darkGray, red, lightRed, yellow, lightYellow, gray600, gray900 } from '../utils/colors';
+import { lightGreen, gray, green, green800, white, darkGray, red, lightRed, yellow, lightYellow, gray600, gray900 } from '../utils/colors';
 
 export const DeviceSelect = ({ configuredDevices, unconfiguredDevices, errorDevices, setUnconfiguredDevices, configuredThreshold, deviceAction, deviceActionText, deviceActionLoadingText, phoneAction }) => {
   const [devicesLoading, setDevicesLoading] = useState(false);
@@ -171,7 +171,7 @@ export const DeviceSelect = ({ configuredDevices, unconfiguredDevices, errorDevi
         )}
       </DevicesWrapper>
 
-      {configuredDevices.length < configuredThreshold && <ScanDevicesButton background={white} color={blue} onClick={enumerate}>{devicesLoading ? 'Updating Device List...' : 'Scan for devices'}</ScanDevicesButton>}
+      {configuredDevices.length < configuredThreshold && <ScanDevicesButton background={white} color={green800} onClick={enumerate}>{devicesLoading ? 'Updating Device List...' : 'Scan for devices'}</ScanDevicesButton>}
     </Wrapper>
   )
 }
@@ -311,7 +311,7 @@ const ScanDevicesButton = styled.button`
   font-size: 1em;
   width: fit-content;
   align-self: center;
-  border: 1px solid ${blue};
+  border: 1px solid ${green800};
   margin-bottom: 1em;
 `;
 

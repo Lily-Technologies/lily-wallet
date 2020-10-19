@@ -5,7 +5,7 @@ import Modal from 'react-modal';
 
 import { PageWrapper, PageTitle, Header, HeaderLeft, Button } from '../../components';
 
-import { blue, darkGray, white, lightBlue, darkOffWhite, lightGray, gray } from '../../utils/colors';
+import { green800, darkGray, white, gray100, darkOffWhite, lightGray, gray } from '../../utils/colors';
 import { downloadFile, formatFilename } from '../../utils/files';
 import { mobile } from '../../utils/media';
 
@@ -85,10 +85,10 @@ const Settings = ({ config, currentBitcoinNetwork }) => {
 
 
 const ValueWrapper = styled.div`
-  background: ${lightBlue};
+  background: ${gray100};
   padding: 1.5em;
   box-shadow: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06);
-  border-top: solid 11px ${blue} !important;
+  border-top: solid 11px ${green800} !important;
   border: 1px solid ${darkGray};
 `;
 
@@ -139,7 +139,7 @@ const SettingsSubheader = styled.div`
 `;
 
 const ViewAddressesButton = styled.div`
-  border: 1px solid ${blue};
+  border: 1px solid ${green800};
   padding: 1.5em;
   border-radius: 4px;
   text-align: center;

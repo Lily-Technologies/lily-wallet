@@ -2,7 +2,7 @@ import React from 'react';
 import styled, { css } from 'styled-components';
 
 import { mobile } from '../utils/media';
-import { black } from '../utils/colors';
+import { black, gray100 } from '../utils/colors';
 
 export const PageWrapper = ({ children }) => {
   return (
@@ -44,7 +44,7 @@ const Content = styled.div`
 
 export const GridArea = styled.div`
   display: grid;
-  background: #f2f7fe;
+  background: ${gray100};
   grid-template-columns: repeat(auto-fit, minmax(25rem, 1fr));
   grid-gap: 1.5em;
   padding: 1.5em;

@@ -3,7 +3,7 @@ import styled from "styled-components";
 
 import { Button, MnemonicWordsDisplayer } from "../../components";
 import {
-  lightBlue,
+  gray100,
   darkOffWhite,
 } from "../../utils/colors";
 import { InnerWrapper, XPubHeaderWrapper, SetupHeaderWrapper, SetupExplainerText, FormContainer, BoxedWrapper, SetupHeader } from './styles';
@@ -58,7 +58,7 @@ const WordContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
   padding: 1.25em;
-  background: ${lightBlue};
+  background: ${gray100};
   justify-content: center;
   border-bottom: 1px solid ${darkOffWhite};
 `;

@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Plus, Minus } from '@styled-icons/boxicons-regular';
 
 import { Modal, StyledIcon, Button } from '../../components';
-import { blue400, blue500, blue600, gray400, gray500, white } from '../../utils/colors';
+import { green400, green500, green600, gray400, gray500, white } from '../../utils/colors';
 
 const RequiredDevicesModal = ({
   selectNumberRequiredModalOpen,
@@ -94,8 +94,8 @@ const CurrentSelection = styled.div`
 
 const StepCircle = styled.div`
   border-radius: 9999px;
-  border: 1px solid ${p => p.disabled ? gray400 : blue500};
-  background: ${p => p.disabled ? 'transparent' : blue400};
+  border: 1px solid ${p => p.disabled ? gray400 : green500};
+  background: ${p => p.disabled ? 'transparent' : green400};
   color: ${p => p.disabled ? gray500 : white};
   width: 2.5rem;
   height: 2.5rem;
@@ -106,11 +106,11 @@ const StepCircle = styled.div`
   pointer-events: ${p => p.disabled ? 'none' : 'auto'};
 
   &:hover {
-    background: ${p => !p.disabled && blue400};
+    background: ${p => !p.disabled && green400};
   }
 
   &:active {
-    background: ${p => !p.disabled && blue600};
+    background: ${p => !p.disabled && green600};
   }
 `;
 

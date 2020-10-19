@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import styled from 'styled-components';
 
-import { blue, white, darkGray } from '../utils/colors';
+import { green800, white, darkGray } from '../utils/colors';
 
 export const MnemonicWordsDisplayer = ({ mnemonicWords }) => {
   const mnemonicWordsArray = mnemonicWords.split(" ");
@@ -53,7 +53,7 @@ const Word = styled.div`
   padding: 1.25em;
   margin: .25em;
   background: ${white};
-  border: 1px solid ${blue};
+  border: 1px solid ${green800};
   border-radius: 4px;
   position: relative;
   text-align: center;

@@ -9,7 +9,7 @@ import { satoshisToBitcoins } from "unchained-bitcoin";
 import { StyledIcon, Button, PageWrapper, GridArea, PageTitle, Header, HeaderRight, HeaderLeft, Loading } from '../../components';
 import RecentTransactions from '../../components/transactions/RecentTransactions';
 
-import { black, gray, blue, darkGray, white, darkOffWhite, darkGreen, lightGray, lightBlue } from '../../utils/colors';
+import { black, gray, darkGray, white, darkOffWhite, lightGray, gray100, green900, green700 } from '../../utils/colors';
 import { mobile } from '../../utils/media';
 
 const Receive = ({ config, currentAccount, setCurrentAccount }) => {
@@ -145,7 +145,7 @@ const AddressDisplayWrapper = styled.div`
   border: 1px solid ${darkOffWhite};
   background: ${lightGray};
   padding: 1.5em;
-  color: ${darkGreen};
+  color: ${green700};
   display: flex;
   justify-content: center;
   align-items: center;
@@ -159,12 +159,12 @@ const AccountMenuItemWrapper = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background: ${p => p.active ? lightBlue : white};
+  background: ${p => p.active ? gray100 : white};
   color: ${p => p.active ? darkGray : gray};
   padding: .75em;
   flex: 1;
   cursor: ${p => p.active ? 'auto' : 'pointer'};
-  border-top: ${p => p.active ? `solid 11px ${blue}` : `none`};
+  border-top: ${p => p.active ? `solid 11px ${green900}` : `none`};
   border-bottom: ${p => p.active ? 'none' : `solid 1px ${gray}`};
   border-right: ${p => p.borderRight && `solid 1px ${gray}`};
 `;

@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { Button } from '../../components';
 import { InnerWrapper, XPubHeaderWrapper, SetupHeaderWrapper, SetupExplainerText, FormContainer, BoxedWrapper, SetupHeader } from './styles';
 
-import { white, darkOffWhite, lightBlue, black, gray } from '../../utils/colors';
+import { white, darkOffWhite, gray100, black, gray } from '../../utils/colors';
 
 
 const InputNameScreen = ({ header, setupOption, setStep, accountName, setAccountName }) => {
@@ -89,7 +89,7 @@ const PasswordWrapper = styled.div`
 const NameInput = styled.input`
   position: relative;
   border: 1px solid ${darkOffWhite};
-  background: ${lightBlue};
+  background: ${gray100};
   padding: .75em;
   text-align: center;
   color: ${black};

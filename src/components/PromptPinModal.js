@@ -4,7 +4,7 @@ import { DotSingle } from '@styled-icons/entypo';
 
 import { Modal, Button, Loading, StyledIcon } from '.';
 
-import { white, blue400, blue500, blue600, gray100, red500 } from '../utils/colors';
+import { white, green400, green500, green600, gray100, red500 } from '../utils/colors';
 
 export const PromptPinModal = ({ device, promptPinModalIsOpen, setPromptPinModalDevice, enumerate }) => {
   const [currentPin, setCurrentPin] = useState('');
@@ -127,18 +127,18 @@ const PinItem = styled.div`
   padding: 1.25em;
   margin: .25em;
   background: ${white};
-  border: 1px solid ${blue500};
+  border: 1px solid ${green500};
   border-radius: 4px;
   position: relative;
   text-align: center;
   cursor: pointer;
 
   &:hover {
-    border: 1px solid ${blue400};
+    border: 1px solid ${green400};
   }
 
   &:active {
-    border: 1px solid ${blue600};
+    border: 1px solid ${green600};
     background: ${gray100};
   }
 `;
