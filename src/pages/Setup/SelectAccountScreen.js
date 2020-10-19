@@ -6,7 +6,7 @@ import { Calculator } from '@styled-icons/heroicons-outline';
 
 import { StyledIcon, Button } from '../../components';
 import { InnerWrapper } from './styles';
-import { blue500, darkGray, white, gray, gray800 } from '../../utils/colors';
+import { green800, darkGray, white, gray, gray800 } from '../../utils/colors';
 
 const SelectAccountScreen = ({ header, setSetupOption, setStep }) => {
   return (
@@ -16,7 +16,7 @@ const SelectAccountScreen = ({ header, setSetupOption, setStep }) => {
         <SignupOptionItem
           background={white}
           color={gray800}
-          style={{ borderTop: `8px solid ${blue500}` }}
+          style={{ borderTop: `8px solid ${green800}` }}
           onClick={() => {
             setSetupOption(2);
             setStep(1);

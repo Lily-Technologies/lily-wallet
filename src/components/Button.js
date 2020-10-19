@@ -1,7 +1,7 @@
 import { css, keyframes } from 'styled-components';
 import darken from 'polished/lib/color/darken';
 import lighten from 'polished/lib/color/lighten';
-import { white, blue400, blue500, blue700, gray600 } from '../utils/colors';
+import { white, green400, green600, green700, gray600 } from '../utils/colors';
 
 export const Button = css`
   display: flex;
@@ -13,7 +13,7 @@ export const Button = css`
   outline: 0;
   font-family: Montserrat, sans-serif;
   color: ${p => p.color ? p.color : white};
-  background: ${p => p.background ? p.background : blue500};
+  background: ${p => p.background ? p.background : green600};
   text-decoration: none;
   text-align: center;
   white-space: nowrap;
@@ -36,13 +36,13 @@ export const Button = css`
 
   &:hover {
     cursor: pointer;
-    background: ${p => p.background ? lighten(0.1, p.background) : blue400};
+    background: ${p => p.background ? lighten(0.1, p.background) : green400};
     color: ${p => p.color && p.background === white ? gray600 : p.color ? lighten(0.1, p.color) : white};
   }
 
   &:active {
     outline: 0;
-    background: ${p => p.background ? darken(0.05, p.background) : blue700};
+    background: ${p => p.background ? darken(0.05, p.background) : green700};
     transform: scale(.99);
   }
 `;

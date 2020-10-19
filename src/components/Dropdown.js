@@ -113,7 +113,6 @@ const DropdownButtonContainer = styled.span`
   box-shadow: 0 1px 2px 0 rgba(0,0,0,.05);
   border-radius: .375rem;
   cursor: pointer;
-  border: 1px solid ${gray300};
 `;
 
 const MinimalDropdownButtonContainer = styled.button`

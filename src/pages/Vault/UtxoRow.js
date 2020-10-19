@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { satoshisToBitcoins } from "unchained-bitcoin";
 
-import { white, offWhite, lightBlue } from '../../utils/colors';
+import { white, offWhite, gray100 } from '../../utils/colors';
 
 const UtxoRow = ({ utxo, flat }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -43,20 +43,20 @@ const TransactionMoreInfo = styled.div`
   display: flex;
   padding: .75em;
   overflow: scroll;
-  background: ${lightBlue};
+  background: ${gray100};
 `;
 
 const AmountWrapper = styled.div`
   display: flex;
   text-align: right;
   justify-content: flex-end;
-  font-size: ${ p => p.flat ? '.75em' : '1em'};
+  font-size: ${p => p.flat ? '.75em' : '1em'};
 `;
 const AddressWrapper = styled.div`
   display: flex;
   flex: 1;
   font-weight: 100;
-  font-size: ${ p => p.flat ? '.75em' : '1em'};
+  font-size: ${p => p.flat ? '.75em' : '1em'};
   word-break: break-all;
 `;
 

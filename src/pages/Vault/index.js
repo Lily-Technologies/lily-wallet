@@ -11,7 +11,7 @@ import AddressesView from './AddressesView';
 import UtxosView from './UtxosView';
 import VaultSettings from './VaultSettings';
 
-import { darkGray, lightBlue, gray400, gray500 } from '../../utils/colors';
+import { darkGray, gray100, gray400, gray500 } from '../../utils/colors';
 
 const Vault = ({ config, setConfigFile, password, toggleRefresh, currentAccount, setCurrentAccount, currentBitcoinNetwork }) => {
   document.title = `Vault - Lily Wallet`;
@@ -139,7 +139,7 @@ const ReceiveButton = styled(Link)`
 
 const SettingsButton = styled.div`
   ${Button}
-  background: ${p => p.active ? lightBlue : 'transparent'};
+  background: ${p => p.active ? gray100 : 'transparent'};
   border-radius: 25%;
 `;
 

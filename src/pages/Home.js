@@ -10,7 +10,7 @@ import { useSpring, animated } from 'react-spring';
 
 import { PageWrapper, StyledIcon } from '../components';
 
-import { blue, darkGray, white, black, lightBlue, gray, gray500 } from '../utils/colors';
+import { green700, darkGray, white, black, lightgreen700, gray, gray500, yellow100, yellow500 } from '../utils/colors';
 
 var formatter = new Intl.NumberFormat('en-US', {
   style: 'currency',
@@ -114,10 +114,10 @@ const Home = ({ config, setCurrentAccount, accountMap, historicalBitcoinPrice, c
                 <Area
                   type="monotone"
                   dataKey="price"
-                  stroke={blue}
+                  stroke={yellow500}
                   strokeWidth={2}
                   isAnimationActive={animateChart}
-                  fill={lightBlue} />
+                  fill={yellow100} />
                 <Tooltip
                   offset={-100}
                   cursor={false}
@@ -224,7 +224,7 @@ const ChartControlsContainer = styled.div`
 `;
 
 const ChartControlItem = styled.div`
-  color: ${p => p.active ? blue : gray};
+  color: ${p => p.active ? green700 : gray};
   padding: 0.25em;
   cursor: pointer;
   margin: 0 0.25em;

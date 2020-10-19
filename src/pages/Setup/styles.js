@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import { darkGray, gray, white, black, blue500 } from '../../utils/colors';
+import { darkGray, gray, white, black, green600 } from '../../utils/colors';
 
 export const HeaderWrapper = styled.div`
 `;
@@ -62,6 +62,6 @@ export const BoxedWrapper = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  border-top: 11px solid ${blue500};
+  border-top: 11px solid ${green600};
   box-shadow: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06);
 `;

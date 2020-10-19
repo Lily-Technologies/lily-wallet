@@ -7,7 +7,7 @@ import { StyledIcon } from '../../components';
 import TransactionRow from './TransactionRow'
 import TransactionRowLoading from './TransactionRowLoading'
 
-import { darkGray, white, blue } from '../../utils/colors';
+import { darkGray, white, green800 } from '../../utils/colors';
 
 const shouldDisplayDate = (transactions, index) => {
   if (index === 0) {
@@ -84,7 +84,7 @@ const NoTransasctionsSection = styled.div`
   background: ${p => p.flat ? 'transparent' : white};
   box-shadow: ${p => p.flat ? 'none' : '0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06);'};
   border: ${p => p.flat ? 'none' : `1px solid ${darkGray}`};
-  border-top: ${p => p.flat ? 'none' : `11px solid ${blue}`};
+  border-top: ${p => p.flat ? 'none' : `11px solid ${green800}`};
 `;
 
 const NoTransactionsHeader = styled.h3`

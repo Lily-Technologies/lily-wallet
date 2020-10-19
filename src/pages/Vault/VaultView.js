@@ -9,7 +9,7 @@ import { Loading } from '../../components';
 
 import RecentTransactions from '../../components/transactions/RecentTransactions';
 
-import { gray, white, darkGray, lightBlue, blue } from '../../utils/colors';
+import { gray, white, darkGray, yellow100, yellow500 } from '../../utils/colors';
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (active) {
@@ -79,10 +79,10 @@ const VaultView = ({ currentAccount }) => {
                 <Area
                   type="monotone"
                   dataKey="totalValue"
-                  stroke={blue}
+                  stroke={yellow500}
                   strokeWidth={2}
                   isAnimationActive={false}
-                  fill={lightBlue} />
+                  fill={yellow100} />
                 <Tooltip
                   offset={-100}
                   cursor={false}

@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import UtxoRow from './UtxoRow';
 
-import { white, blue, darkGray, lightBlue } from '../../utils/colors';
+import { white, green800, darkGray, gray100 } from '../../utils/colors';
 
 const UtxosView = ({ setViewUtxos, currentAccount }) => {
 
@@ -21,10 +21,10 @@ const UtxosView = ({ setViewUtxos, currentAccount }) => {
 }
 
 const ValueWrapper = styled.div`
-  background: ${lightBlue};
+  background: ${gray100};
   padding: 1.5em;
   box-shadow: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06);
-  border-top: solid 11px ${blue};
+  border-top: solid 11px ${green800};
 `;
 
 const SettingsSection = styled.div`
