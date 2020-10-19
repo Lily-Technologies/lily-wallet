@@ -10,6 +10,7 @@
   "scripts": {
     "electron": "electron .",
     "start": "PORT=3001 react-scripts start",
+    "electron-testnet": "TESTNET=true electron .",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
@@ -114,6 +115,8 @@
     "electron-installer-dmg": "^3.0.0",
     "electron-packager": "^14.2.1",
     "electron-winstaller": "^4.0.0",
-    "react-app-rewired": "^2.1.6"
+    "mocha": "^8.1.3",
+    "react-app-rewired": "^2.1.6",
+    "rewire": "^5.0.0"
   }
 }
