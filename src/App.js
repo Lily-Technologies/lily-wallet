@@ -47,7 +47,7 @@ function App() {
   const [config, setConfigFile] = useState(emptyConfig);
   const [encryptedConfigFile, setEncryptedConfigFile] = useState(null);
   const [currentAccount, setCurrentAccount] = useState({ name: 'Loading...', loading: true });
-  const [accountMap, setAccountMap] = useState(new Map());
+  const [accountMap, setAccountMap] = useState({});
   const [currentBitcoinNetwork, setCurrentBitcoinNetwork] = useState(networks.bitcoin);
   const [refresh, setRefresh] = useState(false);
   const [flyInAnimation, setInitialFlyInAnimation] = useState(true);
@@ -84,7 +84,7 @@ function App() {
   }
 
   const setCurrentAccountFromMap = (accountId) => {
-    const newAccount = accountMap.get(accountId);
+    const newAccount = accountMap[accountId];
     if (newAccount) {
       setCurrentAccount(newAccount);
     }
@@ -198,65 +198,46 @@ function App() {
     fetchNodeConfig();
   }, []);
 
-  const updateAccountMap = useCallback(
-    (accountInfo) => {
-      accountMap.set(accountInfo.config.id, {
-        ...accountInfo,
-        loading: false
-      });
-      if (currentAccount.loading) {
-        setCurrentAccount(accountMap.get(accountInfo.config.id));
-      }
-      setAccountMap(accountMap);
-    }, [accountMap, currentAccount]
-  );
-
   // fetch/build account data from config file
   useEffect(() => {
     if (config.wallets.length || config.vaults.length) {
-      const initialAccountMap = new Map();
+      const initialAccountMap = {};
 
       for (let i = 0; i < config.wallets.length; i++) {
-        initialAccountMap.set(config.wallets[i].id, {
+        initialAccountMap[config.wallets[i].id] = {
           name: config.wallets[i].name,
           config: config.wallets[i],
           transactions: [],
           loading: true
-        })
+        }
         window.ipcRenderer.send('/account-data', { config: config.wallets[i], nodeConfig }) // TODO: allow setting nodeConfig to be dynamic later
       }
 
       for (let i = 0; i < config.vaults.length; i++) {
-        initialAccountMap.set(config.vaults[i].id, {
+        initialAccountMap[config.vaults[i].id] = {
           name: config.vaults[i].name,
           config: config.vaults[i],
           transactions: [],
           loading: true
-        })
+        }
         window.ipcRenderer.send('/account-data', { config: config.vaults[i], nodeConfig }) // TODO: allow setting nodeConfig to be dynamic later
       }
 
       window.ipcRenderer.on('/account-data', (event, ...args) => {
         const accountInfo = args[0];
-        if (nodeConfig) {
-          accountInfo.nodeConfig = {
-            ...nodeConfig,
-            wallet: accountInfo.config.name,
-          };
-        }
-        updateAccountMap(args[0]);
-        // accountMap.set(accountInfo.config.id, {
-        //   ...accountInfo,
-        //   loading: false
-        // });
-        // if (currentAccount.loading) { // set the first account that comes in as current account
-        //   setCurrentAccount(accountMap.get(accountInfo.config.id));
-        // }
-        // setAccountMap(new Map([...initialAccountMap]));
+
+        setAccountMap((prevAccountMap) => {
+          return {
+            ...prevAccountMap,
+            [accountInfo.config.id]: {
+              ...accountInfo,
+              loading: false
+            }
+          }
+        });
       });
 
-      setCurrentAccount(initialAccountMap.values().next().value)
-      setAccountMap(initialAccountMap);
+      setAccountMap(initialAccountMap)
     }
   }, [config, refresh, nodeConfig]);
 

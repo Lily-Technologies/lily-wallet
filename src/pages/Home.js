@@ -138,7 +138,7 @@ const Home = ({ config, setCurrentAccount, accountMap, historicalBitcoinPrice, c
         <HomeHeadingItem style={{ marginTop: '2.5em', marginBottom: '1em' }}>Your Accounts</HomeHeadingItem>
 
         <AccountsWrapper>
-          {[...accountMap.values()].map((account) => (
+          {Object.values(accountMap).map((account) => (
             <AccountItem to={`/vault/${account.config.id}`} onClick={() => { setCurrentAccount(account.config.id) }} key={account.config.id}>
               <StyledIcon as={Bitcoin} size={48} />
               <AccountInfoContainer>
