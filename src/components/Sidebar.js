@@ -62,4 +62,6 @@ const SidebarContainer = styled.div`
   height: 100%;
   width: 12em;
   background: ${white};
+  overflow: scroll;
+  padding-bottom: 4em;
 `;

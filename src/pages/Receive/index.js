@@ -9,7 +9,7 @@ import { satoshisToBitcoins } from "unchained-bitcoin";
 import { StyledIcon, Button, PageWrapper, GridArea, PageTitle, Header, HeaderRight, HeaderLeft, Loading } from '../../components';
 import RecentTransactions from '../../components/transactions/RecentTransactions';
 
-import { black, gray, darkGray, white, darkOffWhite, lightGray, gray100, green900, green700 } from '../../utils/colors';
+import { black, gray, darkGray, white, darkOffWhite, lightGray, gray100, gray800, green900, green700 } from '../../utils/colors';
 import { mobile } from '../../utils/media';
 
 const Receive = ({ config, currentAccount, setCurrentAccount }) => {
@@ -62,11 +62,6 @@ const Receive = ({ config, currentAccount, setCurrentAccount }) => {
                 <SendToAddressHeader>
                   Send bitcoin to
                 </SendToAddressHeader>
-
-                <AddressDisplayWrapper>
-                  {unusedAddresses[unusedAddressIndex] && unusedAddresses[unusedAddressIndex].address}
-                </AddressDisplayWrapper>
-
                 <QRCodeWrapper>
                   <QRCode
                     bgColor={white}
@@ -76,7 +71,10 @@ const Receive = ({ config, currentAccount, setCurrentAccount }) => {
                     value={unusedAddresses[unusedAddressIndex] && unusedAddresses[unusedAddressIndex].address}
                   />
                 </QRCodeWrapper>
-
+                <AddressDisplayWrapper>
+                  <BitcoinAddressLabel>Bitcoin address:</BitcoinAddressLabel>
+                  {unusedAddresses[unusedAddressIndex] && unusedAddresses[unusedAddressIndex].address}
+                </AddressDisplayWrapper>
                 <ReceiveButtonContainer>
                   <CopyToClipboard text={unusedAddresses[unusedAddressIndex] && unusedAddresses[unusedAddressIndex].address}><CopyAddressButton>Copy Address</CopyAddressButton></CopyToClipboard>
                   <CopyAddressButton background="transparent" color={darkGray} onClick={() => setUnusedAddressIndex(unusedAddressIndex + 1)}>Generate New Address</CopyAddressButton>
@@ -109,12 +107,18 @@ const Receive = ({ config, currentAccount, setCurrentAccount }) => {
   )
 }
 
+const BitcoinAddressLabel = styled.div`
+  font-size: 0.75em;
+  color: ${gray800};
+  margin-bottom: 0.25em;
+`;
+
 const RecentTransactionContainer = styled.div`
   padding: 0 1em;
 `;
 
 const ReceiveButtonContainer = styled.div`
-  margin: 24px;
+  margin: 0 24px;
 `;
 
 const CopyAddressButton = styled.div`
@@ -138,7 +142,7 @@ const QRCodeWrapper = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 24px;
+  margin: 24px 24px 12px;
 `;
 
 const AddressDisplayWrapper = styled.div`
@@ -152,6 +156,7 @@ const AddressDisplayWrapper = styled.div`
   margin: 1em;
   border-radius: 4px;
   word-break: break-all;
+  flex-direction: column;
 `;
 
 const AccountMenuItemWrapper = styled.div`
