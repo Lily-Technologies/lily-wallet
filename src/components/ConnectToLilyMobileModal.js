@@ -24,7 +24,10 @@ export const ConnectToLilyMobileModal = ({ isOpen, onRequestClose, config }) => 
   return (
     <Modal
       isOpen={isOpen}
-      onRequestClose={onRequestClose}>
+      onRequestClose={() => {
+        setLilyMobileStep(0);
+        onRequestClose()
+      }}>
       <LilyMobileContainer>
         {lilyMobileStep === 0 && (
           <Fragment>
