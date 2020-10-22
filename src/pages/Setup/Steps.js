@@ -4,7 +4,7 @@ import { Check } from '@styled-icons/material';
 
 import { StyledIcon } from '../../components';
 
-import { white, gray100, gray300, gray400, gray500, gray700, blue400, blue500 } from '../../utils/colors';
+import { white, gray100, gray300, gray400, gray500, gray700, green400, green500 } from '../../utils/colors';
 
 const Steps = ({ step, setupOption }) => {
   return (
@@ -48,9 +48,9 @@ const StepItemTextContainer = styled.div`
 
 const StepCircle = styled.div`
   border-radius: 9999px;
-  border: 1px solid ${p => (p.active || p.completed) ? blue500 : gray400};
-  background: ${p => p.completed ? blue400 : 'transparent'};
-  color: ${p => p.completed ? white : p.active ? blue500 : gray500};
+  border: 1px solid ${p => (p.active || p.completed) ? green500 : gray400};
+  background: ${p => p.completed ? green400 : 'transparent'};
+  color: ${p => p.completed ? white : p.active ? green500 : gray500};
   width: 2.5rem;
   height: 2.5rem;
   display: flex;
@@ -73,7 +73,7 @@ const StepItem = styled.div`
   position: relative;
   // flex-direction: column;
   background: ${p => (p.active || p.completed) ? white : gray100};
-  color: ${p => p.active ? blue500 : p.completed ? gray700 : gray400};
+  color: ${p => p.active ? green500 : p.completed ? gray700 : gray400};
   padding: 1em 2em 1em 1em;
   border-right: 1px solid rgba(34,36,38,.15);
 
