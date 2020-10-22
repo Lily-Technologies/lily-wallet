@@ -14,7 +14,7 @@ import { networks } from 'bitcoinjs-lib';
 import { offWhite } from './utils/colors';
 import { mobile } from './utils/media';
 
-import { Sidebar, MobileNavbar, TitleBar } from './components';
+import { Sidebar, MobileNavbar, TitleBar, ScrollToTop } from './components';
 
 // Pages
 import Login from './pages/Login';
@@ -73,14 +73,6 @@ function App() {
     const { file, modifiedTime } = await window.ipcRenderer.invoke('/get-config');
     setEncryptedConfigFile({ file: file.toString(), modifiedTime });
     setInitialFlyInAnimation(true);
-  }
-
-  const ScrollToTop = () => {
-    const { pathname } = useLocation();
-    useEffect(() => {
-      window.scrollTo(0, 0);
-    }, [pathname]);
-    return null;
   }
 
   const setCurrentAccountFromMap = (accountId) => {
@@ -243,9 +235,9 @@ function App() {
 
   return (
     <Router>
+      <ScrollToTop />
       <TitleBar setNodeConfig={setNodeConfig} nodeConfig={nodeConfig} setMobileNavOpen={setMobileNavOpen} config={config} connectToBlockstream={connectToBlockstream} connectToBitcoinCore={connectToBitcoinCore} connectToCustomNode={connectToCustomNode} getNodeConfig={getNodeConfig} resetConfigFile={resetConfigFile} />
       <PageWrapper id="page-wrapper">
-        <ScrollToTop />
         <ConfigRequired />
         {!config.isEmpty && <Sidebar config={config} setCurrentAccount={setCurrentAccountFromMap} flyInAnimation={flyInAnimation} currentBitcoinNetwork={currentBitcoinNetwork} />}
         {!config.isEmpty && <MobileNavbar mobileNavOpen={mobileNavOpen} setMobileNavOpen={setMobileNavOpen} config={config} setCurrentAccount={setCurrentAccountFromMap} currentBitcoinNetwork={currentBitcoinNetwork} />}

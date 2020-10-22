@@ -21,5 +21,6 @@ export * from './ConnectToNodeModal';
 export * from './OutsideClick';
 export * from './AnimatedQrCode';
 export * from './ConnectToLilyMobileModal';
+export * from './ScrollToTop';
 
 export * from './layout';
