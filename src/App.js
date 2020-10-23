@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useEffect, useState, useRef, useReducer, useCallback } from 'react';
 import styled, { css } from 'styled-components';
 import {
   HashRouter as Router,
@@ -13,6 +13,8 @@ import { networks } from 'bitcoinjs-lib';
 
 import { offWhite } from './utils/colors';
 import { mobile } from './utils/media';
+
+import { ACCOUNTMAP_UPDATE, ACCOUNTMAP_SET, accountMapReducer } from './reducers/accountMap';
 
 import { Sidebar, MobileNavbar, TitleBar, ScrollToTop } from './components';
 
@@ -46,8 +48,12 @@ function App() {
   const [historicalBitcoinPrice, setHistoricalBitcoinPrice] = useState({});
   const [config, setConfigFile] = useState(emptyConfig);
   const [encryptedConfigFile, setEncryptedConfigFile] = useState(null);
-  const [currentAccount, setCurrentAccount] = useState({ name: 'Loading...', loading: true });
-  const [accountMap, setAccountMap] = useState({});
+  const [currentAccount, setCurrentAccount] = useState({ name: 'Loading...', loading: true, transactions: [], unusedAddresses: [], currentBalance: 0, config: {} });
+  // const [accountMap, setAccountMap] = useState({});
+  const [accountMap, dispatch] = useReducer(accountMapReducer, {})
+
+
+
   const [currentBitcoinNetwork, setCurrentBitcoinNetwork] = useState(networks.bitcoin);
   const [refresh, setRefresh] = useState(false);
   const [flyInAnimation, setInitialFlyInAnimation] = useState(true);
@@ -190,6 +196,23 @@ function App() {
     fetchNodeConfig();
   }, []);
 
+
+  const updateAccountMap = useCallback(account => {
+    dispatch({
+      type: ACCOUNTMAP_UPDATE,
+      payload: {
+        account
+      }
+    })
+  }, [dispatch])
+
+  const setAccountMap = useCallback(accountMap => {
+    dispatch({
+      type: ACCOUNTMAP_SET,
+      payload: accountMap
+    })
+  }, [dispatch])
+
   // fetch/build account data from config file
   useEffect(() => {
     if (config.wallets.length || config.vaults.length) {
@@ -218,20 +241,19 @@ function App() {
       window.ipcRenderer.on('/account-data', (event, ...args) => {
         const accountInfo = args[0];
 
-        setAccountMap((prevAccountMap) => {
-          return {
-            ...prevAccountMap,
-            [accountInfo.config.id]: {
-              ...accountInfo,
-              loading: false
-            }
-          }
-        });
+        updateAccountMap({
+          ...accountInfo,
+          loading: false
+        })
       });
+
+      console.log('initialAccountMap: ', initialAccountMap);
 
       setAccountMap(initialAccountMap)
     }
   }, [config, refresh, nodeConfig]);
+
+  console.log('app renders')
 
   return (
     <Router>

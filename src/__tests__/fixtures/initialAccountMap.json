@@ -1,0 +1,218 @@
+{
+  "6d4df156-872e-4af0-a91b-aea798f1287d": {
+    "name": "Testing",
+    "config": {
+      "id": "6d4df156-872e-4af0-a91b-aea798f1287d",
+      "created_at": 1602214990562,
+      "name": "Testing",
+      "network": "mainnet",
+      "addressType": "P2WSH",
+      "quorum": {
+        "requiredSigners": 2,
+        "totalSigners": 3
+      },
+      "extendedPublicKeys": [
+        {
+          "id": "85d85777-5e97-4870-946f-c29826a24844",
+          "created_at": 1602214990562,
+          "parentFingerprint": "b050b886",
+          "network": "mainnet",
+          "bip32Path": "m/0",
+          "xpub": "xpub6Bfz6rkvLwSK47MZpn6kQiAHDgGvt7VZa6rtx4QrEgLkNQMbiaPgrUPfYP7oCSSYknmacyUZNviHomDxThynURrcbSWA24qo7weuL9ba7vc",
+          "device": {
+            "type": "coldcard",
+            "fingerprint": "b050b886"
+          }
+        },
+        {
+          "id": "e7b6fb2f-d0b0-4870-87ec-b3169929b2f8",
+          "created_at": 1602214990562,
+          "parentFingerprint": "34ECF56B",
+          "network": "mainnet",
+          "bip32Path": "m/0",
+          "xpub": "xpub6FCzsnvwxusaXu8rxxn1XVKXSKFKjYrynid9ntEJ1Qc18Vi6eqGSkP6MJdEtDXCGqNNCGdytUJdLSucPxnyHdJYJKK6YMcTgULAxvrQYm5J",
+          "device": {
+            "type": "coldcard",
+            "fingerprint": "34ECF56B"
+          }
+        },
+        {
+          "id": "21f5050d-45d5-4631-a7bc-acdcc9736140",
+          "created_at": 1602214990562,
+          "parentFingerprint": "4F60D1C9",
+          "network": "mainnet",
+          "bip32Path": "m/0",
+          "xpub": "xpub6F2wuvSo8gSRjE9JsMgSva9cDZGa2Hh9SEJ9yczCLd1q2SRFV6N4vRUKFoecbatfhgZcG5rNwTxygNLoPrKpjRt94czCzQQPnoVY1RauiL6",
+          "device": {
+            "type": "coldcard",
+            "fingerprint": "4F60D1C9"
+          }
+        }
+      ]
+    },
+    "transactions": [],
+    "loading": true
+  },
+  "b9c4a711-0b95-4293-8c14-8bef77ffe38f": {
+    "name": "Test2",
+    "config": {
+      "id": "b9c4a711-0b95-4293-8c14-8bef77ffe38f",
+      "created_at": 1602218607874,
+      "name": "Test2",
+      "network": "mainnet",
+      "addressType": "P2WSH",
+      "quorum": {
+        "requiredSigners": 2,
+        "totalSigners": 3
+      },
+      "extendedPublicKeys": [
+        {
+          "id": "1d3a5c3d-3282-491c-9e73-7459ea366584",
+          "created_at": 1602218607874,
+          "parentFingerprint": "b652b5b1",
+          "network": "mainnet",
+          "bip32Path": "m/0",
+          "xpub": "xpub6FAwdBcw6NobM2P8UDmMCb8iU1SxQmHDU6ow5RazYaTtoHqNzRRbFMXTFyf92CsHH2Dh1WrXbu2K7Pv1ggw7KTbeyKiKTrUP1v8qqZwN5XT",
+          "device": {
+            "type": "coldcard",
+            "fingerprint": "b652b5b1"
+          }
+        },
+        {
+          "id": "bbbfc2a0-f129-493d-85ff-e12bfb1c972a",
+          "created_at": 1602218607874,
+          "parentFingerprint": "4F60D1C9",
+          "network": "mainnet",
+          "bip32Path": "m/0",
+          "xpub": "xpub6F2wuvSo8gSRjE9JsMgSva9cDZGa2Hh9SEJ9yczCLd1q2SRFV6N4vRUKFoecbatfhgZcG5rNwTxygNLoPrKpjRt94czCzQQPnoVY1RauiL6",
+          "device": {
+            "type": "coldcard",
+            "fingerprint": "4F60D1C9"
+          }
+        },
+        {
+          "id": "db054b92-5b50-4dc3-857b-2b4547c7c827",
+          "created_at": 1602218607874,
+          "parentFingerprint": "34ECF56B",
+          "network": "mainnet",
+          "bip32Path": "m/0",
+          "xpub": "xpub6FCzsnvwxusaXu8rxxn1XVKXSKFKjYrynid9ntEJ1Qc18Vi6eqGSkP6MJdEtDXCGqNNCGdytUJdLSucPxnyHdJYJKK6YMcTgULAxvrQYm5J",
+          "device": {
+            "type": "coldcard",
+            "fingerprint": "34ECF56B"
+          }
+        }
+      ]
+    },
+    "transactions": [],
+    "loading": true
+  },
+  "abf37dd8-c55b-486d-b3ed-11936c8e8667": {
+    "name": "Test3",
+    "config": {
+      "id": "abf37dd8-c55b-486d-b3ed-11936c8e8667",
+      "created_at": 1602220107657,
+      "name": "Test3",
+      "network": "mainnet",
+      "addressType": "P2WSH",
+      "quorum": {
+        "requiredSigners": 2,
+        "totalSigners": 3
+      },
+      "extendedPublicKeys": [
+        {
+          "id": "b3611f98-2802-42b9-8ead-37c237fd83b2",
+          "created_at": 1602220107657,
+          "parentFingerprint": "91ed3b0f",
+          "network": "mainnet",
+          "bip32Path": "m/0",
+          "xpub": "xpub6E7QpoDmPUiYNMCbJPiorygRgj9RERq3ZHB4DPGDDwWdrkjEgzQTB1Xj5UwibGSrxkshkVWYRjZeyTz2NZNQPYot1F49XeVxc14o73oNtmb",
+          "device": {
+            "type": "coldcard",
+            "fingerprint": "91ed3b0f"
+          }
+        },
+        {
+          "id": "a311dbcc-6179-4713-83b5-fbe908981c53",
+          "created_at": 1602220107657,
+          "parentFingerprint": "4F60D1C9",
+          "network": "mainnet",
+          "bip32Path": "m/0",
+          "xpub": "xpub6F2wuvSo8gSRjE9JsMgSva9cDZGa2Hh9SEJ9yczCLd1q2SRFV6N4vRUKFoecbatfhgZcG5rNwTxygNLoPrKpjRt94czCzQQPnoVY1RauiL6",
+          "device": {
+            "type": "coldcard",
+            "fingerprint": "4F60D1C9"
+          }
+        },
+        {
+          "id": "e6484687-efdc-4be6-a4fb-eb3b37290a62",
+          "created_at": 1602220107657,
+          "parentFingerprint": "34ECF56B",
+          "network": "mainnet",
+          "bip32Path": "m/0",
+          "xpub": "xpub6FCzsnvwxusaXu8rxxn1XVKXSKFKjYrynid9ntEJ1Qc18Vi6eqGSkP6MJdEtDXCGqNNCGdytUJdLSucPxnyHdJYJKK6YMcTgULAxvrQYm5J",
+          "device": {
+            "type": "coldcard",
+            "fingerprint": "34ECF56B"
+          }
+        }
+      ]
+    },
+    "transactions": [],
+    "loading": true
+  },
+  "95b80156-3265-4dbd-b7f5-1d0120c7b9e9": {
+    "name": "Test4",
+    "config": {
+      "id": "95b80156-3265-4dbd-b7f5-1d0120c7b9e9",
+      "created_at": 1602477957252,
+      "name": "Test4",
+      "network": "mainnet",
+      "addressType": "P2WSH",
+      "quorum": {
+        "requiredSigners": 2,
+        "totalSigners": 3
+      },
+      "extendedPublicKeys": [
+        {
+          "id": "a831f851-ceb2-4cb9-aac9-0c8a47960628",
+          "created_at": 1602477957252,
+          "parentFingerprint": "e1268e01",
+          "network": "mainnet",
+          "bip32Path": "m/0",
+          "xpub": "xpub6DwHT6WQGKrjGqdfPQFfSUops5uUoKNqxbVozDy2Zo1WMh59uB6QbbPHZ7fQfFUfZEA4fxywdwDNsXQ4AfLnRVM8CHQsYpuWQsY9DVoFGP9",
+          "device": {
+            "type": "phone",
+            "fingerprint": "e1268e01"
+          }
+        },
+        {
+          "id": "202e6c45-fa78-4dbb-b6db-ce91d4727455",
+          "created_at": 1602477957252,
+          "parentFingerprint": "4F60D1C9",
+          "network": "mainnet",
+          "bip32Path": "m/0",
+          "xpub": "xpub6F2wuvSo8gSRjE9JsMgSva9cDZGa2Hh9SEJ9yczCLd1q2SRFV6N4vRUKFoecbatfhgZcG5rNwTxygNLoPrKpjRt94czCzQQPnoVY1RauiL6",
+          "device": {
+            "type": "coldcard",
+            "fingerprint": "4F60D1C9"
+          }
+        },
+        {
+          "id": "817d174d-9f66-453e-998d-134e90c508e0",
+          "created_at": 1602477957252,
+          "parentFingerprint": "34ECF56B",
+          "network": "mainnet",
+          "bip32Path": "m/0",
+          "xpub": "xpub6FCzsnvwxusaXu8rxxn1XVKXSKFKjYrynid9ntEJ1Qc18Vi6eqGSkP6MJdEtDXCGqNNCGdytUJdLSucPxnyHdJYJKK6YMcTgULAxvrQYm5J",
+          "device": {
+            "type": "coldcard",
+            "fingerprint": "34ECF56B"
+          }
+        }
+      ]
+    },
+    "transactions": [],
+    "loading": true
+  }
+}
