@@ -32,7 +32,7 @@ const Login = ({ config, setConfigFile, currentBitcoinNetwork, encryptedConfigFi
       if (encryptedConfigFile) {
         const bytes = AES.decrypt(encryptedConfigFile.file, localPassword);
         const decryptedData = JSON.parse(bytes.toString(enc.Utf8));
-        setPasswordError(false);
+        setPasswordError(undefined);
         setTimeout(() => {
           setConfigFile(decryptedData);
           setPassword(localPassword);
