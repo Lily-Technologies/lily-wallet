@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import moment from 'moment';
 import { satoshisToBitcoins } from "unchained-bitcoin";
@@ -40,7 +40,7 @@ const getLastTransactionTime = (transactions) => {
   }
 }
 
-const Home = ({ config, setCurrentAccount, accountMap, historicalBitcoinPrice, currentBitcoinPrice, flyInAnimation, prevFlyInAnimation }) => {
+const Home = ({ setCurrentAccount, accountMap, historicalBitcoinPrice, currentBitcoinPrice, flyInAnimation, prevFlyInAnimation }) => {
   const [currentDomain, setCurrentDomain] = useState(0);
   const [animateChart, setAnimateChart] = useState(false);
   const [initialLoad, setInitialLoad] = useState(false);
@@ -49,7 +49,14 @@ const Home = ({ config, setCurrentAccount, accountMap, historicalBitcoinPrice, c
     if (flyInAnimation !== prevFlyInAnimation) { // if these values are different, change local
       setInitialLoad(true)
     }
-  }, [flyInAnimation, prevFlyInAnimation])
+  }, [flyInAnimation, prevFlyInAnimation]);
+
+  useEffect(() => {
+    console.log('component mounts');
+    return (
+      console.log('component unmounts')
+    )
+  }, [])
 
   const oneMonthDomain = Object.keys(historicalBitcoinPrice).length - 31;
   const sixMonthDomain = Object.keys(historicalBitcoinPrice).length - (30 * 6);
