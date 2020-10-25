@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "outDir": "./foobar/",
+    "outDir": "./compiled-ts/",
     "sourceMap": true,
     "strictNullChecks": true,
     "module": "esnext",
