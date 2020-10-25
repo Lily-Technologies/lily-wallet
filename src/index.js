@@ -3,4 +3,6 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 
-ReactDOM.render(<App />, document.getElementById('root'));
+import { AccountMapProvider } from './AccountMapContext';
+
+ReactDOM.render(<AccountMapProvider><App /></AccountMapProvider>, document.getElementById('root'));

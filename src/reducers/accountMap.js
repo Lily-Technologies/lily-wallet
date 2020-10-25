@@ -1,4 +1,3 @@
-
 export const ACCOUNTMAP_UPDATE = 'ACCOUNTMAP_UPDATE';
 export const ACCOUNTMAP_SET = 'ACCOUNTMAP_SET';
 
