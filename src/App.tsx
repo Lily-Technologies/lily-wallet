@@ -176,7 +176,12 @@ const App = () => {
 
       for (let i = 0; i < config.wallets.length; i++) {
         initialAccountMap[config.wallets[i].id] = {
+          id: config.wallets[i].id,
           name: config.wallets[i].name,
+          created_at: config.wallets[i].created_at,
+          network: config.wallets[i].network,
+          addressType: config.wallets[i].addressType,
+          quorum: config.wallets[i].quorum,
           config: config.wallets[i],
           transactions: [],
           loading: true
@@ -186,7 +191,12 @@ const App = () => {
 
       for (let i = 0; i < config.vaults.length; i++) {
         initialAccountMap[config.vaults[i].id] = {
+          id: config.vaults[i].id,
           name: config.vaults[i].name,
+          created_at: config.vaults[i].created_at,
+          network: config.vaults[i].network,
+          addressType: config.vaults[i].addressType,
+          quorum: config.vaults[i].quorum,
           config: config.vaults[i],
           transactions: [],
           loading: true

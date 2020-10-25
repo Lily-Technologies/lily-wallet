@@ -93,7 +93,6 @@ export const formatFilename = (fileContents, currentBitcoinNetwork, fileType) =>
 
 export const downloadFile = async (file, filename) => {
   try {
-    console.log('file, filename: ', file, filename);
     await window.ipcRenderer.invoke('/download-item', { data: file, filename: filename })
   } catch (e) {
     console.log('e: ', e);

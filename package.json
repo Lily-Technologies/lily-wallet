@@ -6,6 +6,7 @@
   "version": "1.0.1",
   "private": true,
   "main": "./src/main.js",
+  "type": "module",
   "homepage": "./",
   "scripts": {
     "electron": "electron .",

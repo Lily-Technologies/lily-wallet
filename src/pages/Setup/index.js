@@ -25,8 +25,6 @@ const Setup = ({ config, setConfigFile, password, currentBitcoinNetwork }) => {
   const [configRequiredSigners, setConfigRequiredSigners] = useState(1);
   const [localConfig, setLocalConfig] = useState(config);
 
-  console.log('config: ', config);
-
   const exportSetupFiles = useCallback(async () => {
     let configObject;
     if (setupOption === 1) {
