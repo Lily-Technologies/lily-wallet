@@ -5,7 +5,7 @@ import { Circle } from '@styled-icons/boxicons-solid';
 import { Menu } from '@styled-icons/boxicons-regular';
 import BigNumber from 'bignumber.js';
 
-import { white, black, green400, orange400, red500, green800, green900 } from '../utils/colors';
+import { white, green400, orange400, red500, green800, green900 } from '../utils/colors';
 
 import { ConnectToNodeModal, StyledIcon, Dropdown, ConnectToLilyMobileModal } from '.';
 

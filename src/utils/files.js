@@ -93,6 +93,7 @@ export const formatFilename = (fileContents, currentBitcoinNetwork, fileType) =>
 
 export const downloadFile = async (file, filename) => {
   try {
+    console.log('file, filename: ', file, filename);
     await window.ipcRenderer.invoke('/download-item', { data: file, filename: filename })
   } catch (e) {
     console.log('e: ', e);
@@ -135,8 +136,6 @@ export const createSinglesigConfigFile = async (walletMnemonic, accountName, con
 
   configCopy.wallets.push(newKey);
 
-  configCopy.keys.push(newKey);
-
   return configCopy;
 }
 
@@ -161,8 +160,6 @@ export const createSinglesigHWWConfigFile = async (device, accountName, config, 
   };
 
   configCopy.wallets.push(newKey);
-
-  configCopy.keys.push(newKey);
 
   return configCopy;
 }
@@ -199,8 +196,6 @@ export const createMultisigConfigFile = (importedDevices, requiredSigners, accou
     },
     extendedPublicKeys: newKeys
   })
-
-  configCopy.keys.push(...newKeys);
 
   return configCopy;
 }

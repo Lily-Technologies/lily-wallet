@@ -24,7 +24,6 @@ const NewVaultScreen = ({
   const [errorDevices, setErrorDevices] = useState([]);
   const [otherImportDropdownOpen, setOtherImportDropdownOpen] = useState(false);
   const [qrScanModalOpen, setQrScanModalOpen] = useState(false);
-  const [scanData, setScanData] = useState(undefined)
 
   const importDeviceFromFileRef = useRef(null);
 
@@ -138,7 +137,6 @@ const NewVaultScreen = ({
                 else return;
               }}
             />
-            {scanData}
           </Modal>
 
           <XPubHeaderWrapper>

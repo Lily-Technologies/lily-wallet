@@ -33,13 +33,9 @@ const Settings = ({ config, currentBitcoinNetwork }) => {
   const [downloadConfigModalIsOpen, setDownloadConfigModalIsOpen] = useState(false);
   const [password, setPassword] = useState(null);
 
-
-  // KBC-TODO: think about how this should work
   const downloadCurrentConfig = (password) => {
-    const contentType = "text/plain;charset=utf-8;";
     const encryptedConfigObject = AES.encrypt(JSON.stringify(config), password).toString();
-    var encryptedConfigFile = new Blob([decodeURIComponent(encodeURI(encryptedConfigObject))], { type: contentType });
-    downloadFile(encryptedConfigFile, formatFilename('lily_wallet_config', currentBitcoinNetwork, 'txt'));
+    downloadFile(encryptedConfigObject, formatFilename('lily_wallet_config', currentBitcoinNetwork, 'txt'));
   }
 
   return (

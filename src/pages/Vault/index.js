@@ -1,5 +1,5 @@
 import React, { useState, Fragment, useContext } from 'react';
-import { Link, useParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import styled from 'styled-components';
 import { VerticalAlignBottom, ArrowUpward, Settings, Refresh } from '@styled-icons/material';
 
@@ -19,7 +19,6 @@ const Vault = ({ config, setConfigFile, password, toggleRefresh, currentBitcoinN
   const [viewSettings, setViewSettings] = useState(false);
   const [viewAddresses, setViewAddresses] = useState(false);
   const [viewUtxos, setViewUtxos] = useState(false);
-  const { id } = useParams();
 
   const { currentAccount } = useContext(AccountMapContext);
 

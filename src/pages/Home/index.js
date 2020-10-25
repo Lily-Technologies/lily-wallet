@@ -1,18 +1,14 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import moment from 'moment';
-import { satoshisToBitcoins } from "unchained-bitcoin";
-import { Bitcoin } from '@styled-icons/boxicons-logos';
-import { AddCircleOutline } from '@styled-icons/material';
 import { AreaChart, Area, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts';
-import { Link } from "react-router-dom";
 import { useSpring, animated } from 'react-spring';
 
-import { PageWrapper, StyledIcon } from '../../components';
+import { PageWrapper } from '../../components';
 
 import { AccountsSection } from './AccountsSection';
 
-import { green700, darkGray, white, black, lightgreen700, gray, gray500, yellow100, yellow500 } from '../../utils/colors';
+import { green700, darkGray, white, gray, yellow100, yellow500 } from '../../utils/colors';
 
 var formatter = new Intl.NumberFormat('en-US', {
   style: 'currency',
@@ -31,16 +27,6 @@ const CustomTooltip = ({ active, payload, label }) => {
 
   return null;
 };
-
-const getLastTransactionTime = (transactions) => {
-  if (transactions.length === 0) { // if no transactions yet
-    return `No activity on this account yet`
-  } else if (!transactions[0].status.confirmed) { // if last transaction isn't confirmed yet
-    return `Last transaction was moments ago`
-  } else { // if transaction is confirmed, give moments ago
-    return `Last transaction was ${moment.unix(transactions[0].status.block_time).fromNow()}`
-  }
-}
 
 const Home = ({ historicalBitcoinPrice, currentBitcoinPrice, flyInAnimation, prevFlyInAnimation }) => {
   const [currentDomain, setCurrentDomain] = useState(0);

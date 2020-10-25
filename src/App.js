@@ -135,7 +135,7 @@ const App = () => {
       }
     }
     getConfig()
-  }, [])
+  }, [config.isEmpty])
 
   useEffect(() => {
     async function fetchBitcoinNetwork() {
@@ -221,7 +221,7 @@ const App = () => {
 
       setAccountMap(initialAccountMap)
     }
-  }, [config, refresh, nodeConfig]);
+  }, [config, refresh, nodeConfig, setAccountMap, updateAccountMap]);
 
   return (
     <Router>

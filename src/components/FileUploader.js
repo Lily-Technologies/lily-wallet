@@ -10,10 +10,7 @@ export const FileUploader = ({ accept, id, onFileLoad }) => (
       const filereader = new FileReader();
       const modifiedDate = e.target.files[0].lastModified;
 
-      console.log('e.target: ', e.target)
-      console.log('e.target.files[0]: ', e.target.files[0]);
       filereader.onload = (event) => {
-        console.log('event: ', event);
         onFileLoad({ file: event.target.result, modifiedTime: modifiedDate })
       };
 

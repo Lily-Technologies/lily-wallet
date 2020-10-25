@@ -28,8 +28,6 @@ export const ConnectToNodeModal = ({
         }
       });
 
-      console.log('response: ', response);
-
       setNodeConfig(response);
       onRequestClose();
     } catch (e) {

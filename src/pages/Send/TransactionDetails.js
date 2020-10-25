@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import axios from 'axios';
 import { ArrowIosForwardOutline } from '@styled-icons/evaicons-outline';
 import { CheckCircle } from '@styled-icons/material';
-import { useHistory } from "react-router-dom";
 
 import {
   blockExplorerAPIURL,
@@ -15,9 +14,9 @@ import {
 import { address, Psbt } from 'bitcoinjs-lib';
 
 import { cloneBuffer } from '../../utils/other';
-import { StyledIcon, Button, SidewaysShake, Dropdown, Modal } from '../../components';
+import { StyledIcon, Button, SidewaysShake, Dropdown } from '../../components';
 
-import { gray, green800, darkGray, white, darkOffWhite, green, darkGreen, lightGray, red, lightRed, orange, lightOrange, black } from '../../utils/colors';
+import { gray, green800, darkGray, white, darkOffWhite, green, darkGreen, lightGray, red, lightRed, orange, lightOrange } from '../../utils/colors';
 import { downloadFile, formatFilename, combinePsbts } from '../../utils/files';
 import { createUtxoMapFromUtxoArray } from './utils';
 import { FeeSelector } from './FeeSelector';
@@ -49,8 +48,6 @@ const TransactionDetails = ({
   const [broadcastedTxId, setBroadcastedTxId] = useState('');
   const [txError, setTxError] = useState(null);
   const [optionsDropdownOpen, setOptionsDropdownOpen] = useState(false);
-
-  const history = useHistory();
 
   const broadcastTransaction = async (currentAccount, psbt, currentBitcoinNetwork) => {
     if (currentAccount.nodeConfig.provider !== 'Blockstream') {

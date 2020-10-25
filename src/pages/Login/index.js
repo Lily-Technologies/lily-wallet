@@ -101,7 +101,6 @@ const Login = ({ config, setConfigFile, currentBitcoinNetwork, encryptedConfigFi
           accept="*"
           id="localConfigFile"
           onFileLoad={(file) => {
-            console.log('file: ', file);
             setEncryptedConfigFile(file)
           }}
         />

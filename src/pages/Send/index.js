@@ -6,7 +6,6 @@ import BigNumber from 'bignumber.js';
 import { mnemonicToSeed } from 'bip39';
 import { satoshisToBitcoins } from "unchained-bitcoin";
 import { QRCode } from "react-qr-svg";
-import BarcodeScannerComponent from "react-webcam-barcode-scanner";
 import { Psbt, bip32, networks } from 'bitcoinjs-lib';
 
 import { StyledIcon, Button, PageWrapper, GridArea, PageTitle, Header, HeaderRight, HeaderLeft, Loading, FileUploader, Modal, Dropdown } from '../../components';
@@ -91,11 +90,6 @@ const Send = ({ config, currentBitcoinNetwork, currentBitcoinPrice }) => {
       setSignedDevices([currentAccount]) // this could probably have better information in it but
       setSignedPsbts([psbt]);
     }
-  }
-
-  const importTxFromQrCode = (data) => {
-    importTxFromFile(data);
-    closeModal();
   }
 
   const importTxFromFile = (file) => {
@@ -223,18 +217,6 @@ const Send = ({ config, currentBitcoinNetwork, currentBitcoinPrice }) => {
       </div>
     </Fragment>
   )
-
-  const ImportSignatureFromQrCode = () => (
-    <BarcodeScannerComponent
-      width={'100%'}
-      height={'100%'}
-      onUpdate={(err, result) => {
-        console.log('result: ', result);
-        if (result) importTxFromQrCode(result.text)
-        else return;
-      }}
-    />
-  );
 
   const PastePsbtModalContent = () => (
     <Fragment>

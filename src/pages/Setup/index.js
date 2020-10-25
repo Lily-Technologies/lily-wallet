@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 import moment from 'moment';
 import { generateMnemonic } from "bip39";
@@ -25,6 +25,28 @@ const Setup = ({ config, setConfigFile, password, currentBitcoinNetwork }) => {
   const [configRequiredSigners, setConfigRequiredSigners] = useState(1);
   const [localConfig, setLocalConfig] = useState(config);
 
+  console.log('config: ', config);
+
+  const exportSetupFiles = useCallback(async () => {
+    let configObject;
+    if (setupOption === 1) {
+      configObject = await createMultisigConfigFile(importedDevices, configRequiredSigners, accountName, config, currentBitcoinNetwork);
+    } else if (setupOption === 2) {
+      configObject = await createSinglesigConfigFile(walletMnemonic, accountName, config, currentBitcoinNetwork);
+    } else {
+      configObject = await createSinglesigHWWConfigFile(importedDevices[0], accountName, config, currentBitcoinNetwork)
+    }
+    saveConfig(configObject, password);
+    setLocalConfig(configObject);
+  }, [accountName, config, configRequiredSigners, currentBitcoinNetwork, importedDevices, password, setupOption, walletMnemonic]);
+
+  const downloadColdcardFile = async () => {
+    if (containsColdcard(importedDevices)) {
+      const ccFile = createColdCardBlob(configRequiredSigners, importedDevices.length, accountName, importedDevices, currentBitcoinNetwork);
+      await downloadFile(ccFile, `${accountName}-lily-coldcard-file-${moment().format('MMDDYYYY')}.txt`);
+    }
+  }
+
   useEffect(() => {
     setWalletMnemonic(generateMnemonic(256));
   }, []);
@@ -39,29 +61,8 @@ const Setup = ({ config, setConfigFile, password, currentBitcoinNetwork }) => {
         setConfigFile({ ...localConfig })
       }
     }
-  }, [step]);
-  console.log('importedDevices, configRequiredSigners, accountName, config, currentBitcoinNetwork: ', importedDevices, configRequiredSigners, accountName, config, currentBitcoinNetwork);
+  }, [step]); // eslint-disable-line
 
-  const exportSetupFiles = async () => {
-    console.log('hits exportSetupFiles')
-    let configObject;
-    if (setupOption === 1) {
-      configObject = await createMultisigConfigFile(importedDevices, configRequiredSigners, accountName, config, currentBitcoinNetwork);
-    } else if (setupOption === 2) {
-      configObject = await createSinglesigConfigFile(walletMnemonic, accountName, config, currentBitcoinNetwork);
-    } else {
-      configObject = await createSinglesigHWWConfigFile(importedDevices[0], accountName, config, currentBitcoinNetwork)
-    }
-    saveConfig(configObject, password);
-    setLocalConfig(configObject);
-  };
-
-  const downloadColdcardFile = async () => {
-    if (containsColdcard(importedDevices)) {
-      const ccFile = createColdCardBlob(configRequiredSigners, importedDevices.length, accountName, importedDevices, currentBitcoinNetwork);
-      await downloadFile(ccFile, `${accountName}-lily-coldcard-file-${moment().format('MMDDYYYY')}.txt`);
-    }
-  }
 
   const Header = (
     <PageHeader
