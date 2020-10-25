@@ -22,7 +22,7 @@ const SuccessScreen = ({ exportSetupFiles, config, downloadColdcardFile, setStep
           <SuccessText>Setup Success!</SuccessText>
           <SuccessSubtext>
             Your account configuration has been saved in your Lily app data directory. <br /><br />
-            You may backup this file to another location for safe keeping now <br /> or later via Settings > Download Backup Configuration.
+            You may backup this file to another location for safe keeping now <br /> or later via Settings &gt; Download Backup Configuration.
           </SuccessSubtext>
           <Buttons>
             {!!downloadColdcardFile && (

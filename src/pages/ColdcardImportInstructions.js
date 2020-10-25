@@ -18,7 +18,7 @@ const ColdcardImportInstructions = () => {
 
             <Instructions style={{ marginTop: '1em' }}>1) Drag and drop coldcard_import_file.txt into an SD Card</Instructions>
             <Instructions>2) Put SD Card into Coldcard Wallet</Instructions>
-            <Instructions>3) Import Wallet: Settings > Multisig Wallets > Import from SD</Instructions>
+            <Instructions>3) Import Wallet: Settings &gt; Multisig Wallets &gt; Import from SD</Instructions>
 
             <ScanDevicesButton
               onClick={() => history.push('/vault')}>

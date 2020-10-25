@@ -197,7 +197,7 @@ const VaultSettings = ({ config, setConfigFile, password, currentAccount, setVie
               <SettingsHeader>Download Coldcard File</SettingsHeader>
               <SettingsSubheader>
                 Download the multisig wallet import file for Coldcard and place on microsd card. <br />
-              Import via Settings > Multisig > Import from SD.
+              Import via Settings &gt; Multisig &gt; Import from SD.
             </SettingsSubheader>
             </SettingsSectionLeft>
             <SettingsSectionRight>

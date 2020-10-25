@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import styled from 'styled-components';
-import bs58check from 'bs58check';
+import { decode } from 'bs58check';
 import BarcodeScannerComponent from "react-webcam-barcode-scanner";
 
 import { Button, DeviceSelect, FileUploader, Dropdown, Modal } from '../../components';
@@ -72,7 +72,7 @@ const NewVaultScreen = ({
 
   // TODO: look at the difference between singleSig and multisigExport files
   const importDeviceFromFile = (parsedFile) => {
-    const zpub = bs58check.decode(parsedFile.p2wsh);
+    const zpub = decode(parsedFile.p2wsh);
     const xpub = zpubToXpub(zpub);
 
     const newDevice = {
@@ -90,7 +90,7 @@ const NewVaultScreen = ({
     const devicesFromFile = [];
 
     for (let i = 1; i < numPubKeys + 1; i++) {
-      const zpub = bs58check.decode(parsedFile[`x${i}/`].xpub);
+      const zpub = decode(parsedFile[`x${i}/`].xpub);
       const xpub = zpubToXpub(zpub);
 
       const newDevice = {

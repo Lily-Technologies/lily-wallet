@@ -8,7 +8,7 @@ import { NavLinks } from './NavLinks';
 import { white, darkOffWhite } from '../utils/colors';
 import { mobile } from '../utils/media';
 
-export const Sidebar = ({ config, loading, flyInAnimation, currentBitcoinNetwork }) => {
+export const Sidebar = ({ config, flyInAnimation, currentBitcoinNetwork }) => {
   const { pathname } = useLocation();
 
   const sidebarAnimationProps = useSpring({ transform: flyInAnimation ? 'translateX(-120%)' : 'translateX(0%)' });
@@ -21,7 +21,6 @@ export const Sidebar = ({ config, loading, flyInAnimation, currentBitcoinNetwork
           <SidebarContainer>
             <NavLinks
               config={config}
-              loading={loading}
               currentBitcoinNetwork={currentBitcoinNetwork}
             />
           </SidebarContainer>

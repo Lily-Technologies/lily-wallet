@@ -26,9 +26,9 @@ import Send from './pages/Send';
 import ColdcardImportInstructions from './pages/ColdcardImportInstructions';
 import Home from './pages/Home';
 
-import { bitcoinNetworkEqual } from './utils/files';
-
 import { AccountMapContext } from './AccountMapContext';
+
+import { Config, NodeConfig, File, AccountMap } from './types';
 
 const emptyConfig = {
   name: "",
@@ -41,17 +41,17 @@ const emptyConfig = {
   vaults: [],
   keys: [],
   exchanges: []
-}
+} as Config;
 
 const App = () => {
-  const [currentBitcoinPrice, setCurrentBitcoinPrice] = useState(BigNumber(0));
+  const [currentBitcoinPrice, setCurrentBitcoinPrice] = useState(new BigNumber(0));
   const [historicalBitcoinPrice, setHistoricalBitcoinPrice] = useState({});
-  const [config, setConfigFile] = useState(emptyConfig);
-  const [encryptedConfigFile, setEncryptedConfigFile] = useState(null);
+  const [config, setConfigFile] = useState<Config>(emptyConfig);
+  const [encryptedConfigFile, setEncryptedConfigFile] = useState<File | null>(null);
   const [currentBitcoinNetwork, setCurrentBitcoinNetwork] = useState(networks.bitcoin);
   const [refresh, setRefresh] = useState(false);
   const [flyInAnimation, setInitialFlyInAnimation] = useState(true);
-  const [nodeConfig, setNodeConfig] = useState(undefined);
+  const [nodeConfig, setNodeConfig] = useState<NodeConfig | undefined>(undefined);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [password, setPassword] = useState('');
 
@@ -77,14 +77,6 @@ const App = () => {
     setInitialFlyInAnimation(true);
   }
 
-  const changeCurrentBitcoinNetwork = () => {
-    if (bitcoinNetworkEqual(currentBitcoinNetwork, networks.bitcoin)) {
-      setCurrentBitcoinNetwork(networks.testnet);
-    } else {
-      setCurrentBitcoinNetwork(networks.bitcoin)
-    }
-  }
-
   const connectToBlockstream = async () => {
     setNodeConfig(undefined);
     const response = await window.ipcRenderer.invoke('/changeNodeConfig', {
@@ -105,20 +97,12 @@ const App = () => {
     setNodeConfig(response)
   }
 
-  const connectToCustomNode = async ({ nodeConfig }) => {
-    setNodeConfig(undefined);
-    const response = await window.ipcRenderer.invoke('/changeNodeConfig', {
-      nodeConfig: nodeConfig
-    });
-    setNodeConfig(response)
-  }
-
   const getNodeConfig = async () => {
     const response = await window.ipcRenderer.invoke('/getNodeConfig');
     setNodeConfig(response)
   }
 
-  const prevSetFlyInAnimation = useRef();
+  const prevSetFlyInAnimation = useRef() as { current: boolean };
   useEffect(() => {
     prevSetFlyInAnimation.current = flyInAnimation;
   })
@@ -188,7 +172,7 @@ const App = () => {
   // fetch/build account data from config file
   useEffect(() => {
     if (config.wallets.length || config.vaults.length) {
-      const initialAccountMap = {};
+      const initialAccountMap = {} as AccountMap;
 
       for (let i = 0; i < config.wallets.length; i++) {
         initialAccountMap[config.wallets[i].id] = {
@@ -210,7 +194,7 @@ const App = () => {
         window.ipcRenderer.send('/account-data', { config: config.vaults[i], nodeConfig }) // TODO: allow setting nodeConfig to be dynamic later
       }
 
-      window.ipcRenderer.on('/account-data', (event, ...args) => {
+      window.ipcRenderer.on('/account-data', (_event: any, ...args: Account[]) => {
         const accountInfo = args[0];
 
         updateAccountMap({
@@ -226,7 +210,7 @@ const App = () => {
   return (
     <Router>
       <ScrollToTop />
-      <TitleBar setNodeConfig={setNodeConfig} nodeConfig={nodeConfig} setMobileNavOpen={setMobileNavOpen} config={config} connectToBlockstream={connectToBlockstream} connectToBitcoinCore={connectToBitcoinCore} connectToCustomNode={connectToCustomNode} getNodeConfig={getNodeConfig} resetConfigFile={resetConfigFile} />
+      <TitleBar setNodeConfig={setNodeConfig} nodeConfig={nodeConfig} setMobileNavOpen={setMobileNavOpen} config={config} connectToBlockstream={connectToBlockstream} connectToBitcoinCore={connectToBitcoinCore} getNodeConfig={getNodeConfig} resetConfigFile={resetConfigFile} />
       <PageWrapper id="page-wrapper">
         <ConfigRequired />
         {!config.isEmpty && <Sidebar config={config} flyInAnimation={flyInAnimation} currentBitcoinNetwork={currentBitcoinNetwork} />}
@@ -235,9 +219,9 @@ const App = () => {
           <Route path="/vault/:id" render={() => <Vault config={config} setConfigFile={setConfigFile} password={password} toggleRefresh={toggleRefresh} currentBitcoinNetwork={currentBitcoinNetwork} />} />
           <Route path="/receive" render={() => <Receive config={config} />} />
           <Route path="/send" render={() => <Send config={config} currentBitcoinPrice={currentBitcoinPrice} currentBitcoinNetwork={currentBitcoinNetwork} />} />
-          <Route path="/setup" render={() => <Setup config={config} setConfigFile={setConfigFile} password={password} encryptedConfigFile={encryptedConfigFile} setEncryptedConfigFile={setEncryptedConfigFile} currentBitcoinNetwork={currentBitcoinNetwork} />} />
+          <Route path="/setup" render={() => <Setup config={config} setConfigFile={setConfigFile} password={password} currentBitcoinNetwork={currentBitcoinNetwork} />} />
           <Route path="/login" render={() => <Login config={config} setConfigFile={setConfigFile} setPassword={setPassword} encryptedConfigFile={encryptedConfigFile} setEncryptedConfigFile={setEncryptedConfigFile} currentBitcoinNetwork={currentBitcoinNetwork} />} />
-          <Route path="/settings" render={() => <Settings config={config} currentBitcoinNetwork={currentBitcoinNetwork} changeCurrentBitcoinNetwork={changeCurrentBitcoinNetwork} />} />
+          <Route path="/settings" render={() => <Settings config={config} currentBitcoinNetwork={currentBitcoinNetwork} />} />
           <Route path="/coldcard-import-instructions" render={() => <ColdcardImportInstructions />} />
           <Route path="/" render={() => <Home flyInAnimation={flyInAnimation} prevFlyInAnimation={prevSetFlyInAnimation.current} historicalBitcoinPrice={historicalBitcoinPrice} currentBitcoinPrice={currentBitcoinPrice} />} />
           <Route path="/" render={() => (
@@ -257,8 +241,6 @@ const PageWrapper = styled.div`
   font-family: 'Raleway', sans-serif;
   flex: 1;
   background: ${offWhite};
-  cursor: ${p => p.loading ? 'wait' : 'auto'};
-  pointer-events: ${p => p.loading ? 'none' : 'auto'};
 
   ${mobile(css`
     flex-direction: column;
