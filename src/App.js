@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useContext, memo } from 'react';
+import React, { useEffect, useState, useRef, useContext } from 'react';
 import styled, { css } from 'styled-components';
 import {
   HashRouter as Router,
@@ -48,7 +48,6 @@ const App = () => {
   const [historicalBitcoinPrice, setHistoricalBitcoinPrice] = useState({});
   const [config, setConfigFile] = useState(emptyConfig);
   const [encryptedConfigFile, setEncryptedConfigFile] = useState(null);
-  const [currentAccount, setCurrentAccount] = useState({ name: 'Loading...', loading: true, transactions: [], unusedAddresses: [], currentBalance: 0, config: {} });
   const [currentBitcoinNetwork, setCurrentBitcoinNetwork] = useState(networks.bitcoin);
   const [refresh, setRefresh] = useState(false);
   const [flyInAnimation, setInitialFlyInAnimation] = useState(true);
@@ -56,7 +55,7 @@ const App = () => {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [password, setPassword] = useState('');
 
-  const { accountMap, setAccountMap, updateAccountMap } = useContext(AccountMapContext);
+  const { setAccountMap, updateAccountMap } = useContext(AccountMapContext);
 
   const ConfigRequired = () => {
     const { pathname } = useLocation();
