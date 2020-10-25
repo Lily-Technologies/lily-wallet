@@ -7,7 +7,7 @@ import { NavLinks, Transition, Button, StyledIcon } from '.';
 import { white, gray800 } from '../utils/colors';
 import { mobile } from '../utils/media';
 
-export const MobileNavbar = ({ config, setCurrentAccount, mobileNavOpen, setMobileNavOpen, currentBitcoinNetwork }) => (
+export const MobileNavbar = ({ config, mobileNavOpen, setMobileNavOpen, currentBitcoinNetwork }) => (
   <Wrapper>
     <Transition
       show={mobileNavOpen}
@@ -34,7 +34,7 @@ export const MobileNavbar = ({ config, setCurrentAccount, mobileNavOpen, setMobi
     >
       <SomeContainer>
         <SidebarContainer>
-          <NavLinks config={config} setCurrentAccount={setCurrentAccount} setMobileNavOpen={setMobileNavOpen} currentBitcoinNetwork={currentBitcoinNetwork} />
+          <NavLinks config={config} setMobileNavOpen={setMobileNavOpen} currentBitcoinNetwork={currentBitcoinNetwork} />
           <CloseButtonContainer>
             <CloseButton background="transparent" onClick={() => setMobileNavOpen(false)}>
               <StyledIcon as={CloseOutline} size={36} />

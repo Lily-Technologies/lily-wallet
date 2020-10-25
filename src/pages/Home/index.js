@@ -8,9 +8,11 @@ import { AreaChart, Area, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'rec
 import { Link } from "react-router-dom";
 import { useSpring, animated } from 'react-spring';
 
-import { PageWrapper, StyledIcon } from '../components';
+import { PageWrapper, StyledIcon } from '../../components';
 
-import { green700, darkGray, white, black, lightgreen700, gray, gray500, yellow100, yellow500 } from '../utils/colors';
+import { AccountsSection } from './AccountsSection';
+
+import { green700, darkGray, white, black, lightgreen700, gray, gray500, yellow100, yellow500 } from '../../utils/colors';
 
 var formatter = new Intl.NumberFormat('en-US', {
   style: 'currency',
@@ -40,7 +42,7 @@ const getLastTransactionTime = (transactions) => {
   }
 }
 
-const Home = ({ setCurrentAccount, accountMap, historicalBitcoinPrice, currentBitcoinPrice, flyInAnimation, prevFlyInAnimation }) => {
+const Home = ({ historicalBitcoinPrice, currentBitcoinPrice, flyInAnimation, prevFlyInAnimation }) => {
   const [currentDomain, setCurrentDomain] = useState(0);
   const [animateChart, setAnimateChart] = useState(false);
   const [initialLoad, setInitialLoad] = useState(false);
@@ -50,13 +52,6 @@ const Home = ({ setCurrentAccount, accountMap, historicalBitcoinPrice, currentBi
       setInitialLoad(true)
     }
   }, [flyInAnimation, prevFlyInAnimation]);
-
-  useEffect(() => {
-    console.log('component mounts');
-    return (
-      console.log('component unmounts')
-    )
-  }, [])
 
   const oneMonthDomain = Object.keys(historicalBitcoinPrice).length - 31;
   const sixMonthDomain = Object.keys(historicalBitcoinPrice).length - (30 * 6);
@@ -142,77 +137,11 @@ const Home = ({ setCurrentAccount, accountMap, historicalBitcoinPrice, currentBi
       </animated.div>
 
       <animated.div style={{ ...accountsProps }}>
-        <HomeHeadingItem style={{ marginTop: '2.5em', marginBottom: '1em' }}>Your Accounts</HomeHeadingItem>
-
-        <AccountsWrapper>
-          {Object.values(accountMap).map((account) => (
-            <AccountItem to={`/vault/${account.config.id}`} onClick={() => { setCurrentAccount(account.config.id) }} key={account.config.id}>
-              <StyledIcon as={Bitcoin} size={48} />
-              <AccountInfoContainer>
-                <AccountName>{account.name}</AccountName>
-                {account.loading && 'Loading...'}
-                {!account.loading && <CurrentBalance>Current Balance: {satoshisToBitcoins(account.currentBalance).toFixed(8)} BTC</CurrentBalance>}
-                {!account.loading && <CurrentBalance>{getLastTransactionTime(account.transactions)}</CurrentBalance>}
-              </AccountInfoContainer>
-            </AccountItem>
-          ))}
-          <AccountItem to={`/setup`}>
-            <StyledIcon as={AddCircleOutline} size={48} />
-            <AccountInfoContainer>
-              <AccountName>Add a new account</AccountName>
-              <CurrentBalance>Create a new account to send, receive, and manage bitcoin</CurrentBalance>
-            </AccountInfoContainer>
-          </AccountItem>
-          {!accountMap.size && (
-            <InvisibleItem></InvisibleItem>
-          )}
-        </AccountsWrapper>
+        <AccountsSection />
       </animated.div>
     </PageWrapper >
   )
 };
-
-const InvisibleItem = styled.div`
-  height: 0;
-  width: 0;
-`;
-
-const AccountItem = styled(Link)`
-  background: ${white};
-  padding: 1.5em;
-  cursor: pointer;
-  color: ${darkGray};
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  box-shadow: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06);
-
-  &:hover {
-    color: ${gray500};
-  }
-
-  transition-property: background-color,border-color,color,fill,stroke,opacity,box-shadow,transform;
-  transition-timing-function: cubic-bezier(.4,0,.2,1);
-  transition-duration: .15s;
-
-  &:active {
-    transform: scale(.99);
-    outline: 0;
-  }
-`;
-
-const AccountInfoContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  padding: 1em;
-`;
-
-const AccountsWrapper = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-  grid-gap: 1em;
-`;
 
 const ChartInfo = styled.div`
   display: flex;
@@ -241,21 +170,6 @@ const CurrentBitcoinPriceContainer = styled.div`
   font-size: 2em;
   display: flex;
   flex-direction: column;
-`;
-
-const HomeHeadingItem = styled.h3`
-  font-size: 1.5em;
-  margin: 4em 0 0;
-  font-weight: 400;
-  color: ${black};
-`;
-
-const AccountName = styled.div`
-  font-size: 1.25em;
-`;
-
-const CurrentBalance = styled.div`
-  font-size: 0.65em;
 `;
 
 const ChartContainer = styled.div`

@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useContext } from 'react';
 import styled, { css } from 'styled-components';
 import { Link, useLocation } from "react-router-dom";
 import { VerticalAlignBottom, AddCircleOutline, Settings } from '@styled-icons/material';
@@ -8,12 +8,15 @@ import { networks } from 'bitcoinjs-lib';
 
 import { StyledIcon } from '.';
 
+import { AccountMapContext } from '../AccountMapContext';
+
 import { white, offWhite, darkGray, darkOffWhite, lightBlack, green100, green700 } from '../utils/colors';
 import { bitcoinNetworkEqual } from '../utils/files';
 
 
-export const NavLinks = ({ config, setCurrentAccount, currentBitcoinNetwork }) => {
+export const NavLinks = ({ config, currentBitcoinNetwork }) => {
   const { pathname } = useLocation();
+  const { setCurrentAccountId } = useContext(AccountMapContext);
 
   return (
     <Fragment>
@@ -55,7 +58,7 @@ export const NavLinks = ({ config, setCurrentAccount, currentBitcoinNetwork }) =
               key={wallet.id}
               active={pathname === `/vault/${wallet.id}`}
               onClick={() => {
-                setCurrentAccount(wallet.id);
+                setCurrentAccountId(wallet.id);
               }}
               to={`/vault/${wallet.id}`}
             >
@@ -74,7 +77,7 @@ export const NavLinks = ({ config, setCurrentAccount, currentBitcoinNetwork }) =
               key={vault.id}
               active={pathname === `/vault/${vault.id}`}
               onClick={() => {
-                setCurrentAccount(vault.id);
+                setCurrentAccountId(vault.id);
               }}
               to={`/vault/${vault.id}`}
             >

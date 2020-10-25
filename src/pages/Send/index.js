@@ -1,4 +1,4 @@
-import React, { useState, useRef, Fragment } from 'react';
+import React, { useState, useRef, Fragment, useContext } from 'react';
 import styled, { css } from 'styled-components';
 import { Safe } from '@styled-icons/crypto';
 import { Wallet } from '@styled-icons/entypo';
@@ -15,6 +15,8 @@ import RecentTransactions from '../../components/transactions/RecentTransactions
 import SignWithDevice from './SignWithDevice'
 import TransactionDetails from './TransactionDetails';
 
+import { AccountMapContext } from '../../AccountMapContext';
+
 import { red, gray, green800, darkGray, white, darkOffWhite, gray100, black, lightGray } from '../../utils/colors';
 import { mobile } from '../../utils/media';
 import { cloneBuffer, bufferToHex } from '../../utils/other';
@@ -23,7 +25,7 @@ import { combinePsbts, bitcoinNetworkEqual } from '../../utils/files';
 import { createTransaction, validateAddress, createUtxoMapFromUtxoArray, getFee } from './utils'
 import { AddressDisplayWrapper, Input, InputStaticText } from './styles';
 
-const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, currentBitcoinNetwork, currentBitcoinPrice }) => {
+const Send = ({ config, currentBitcoinNetwork, currentBitcoinPrice }) => {
   document.title = `Send - Lily Wallet`;
   const [sendAmount, setSendAmount] = useState('');
   const [sendAmountError, setSendAmountError] = useState(false);
@@ -42,6 +44,8 @@ const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, curren
   const fileUploadLabelRef = useRef(null);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalContent, setModalContent] = useState(null);
+
+  const { setCurrentAccountId, currentAccount } = useContext(AccountMapContext);
 
   // Get account data
   const { transactions, availableUtxos, unusedChangeAddresses, currentBalance } = currentAccount;
@@ -265,13 +269,20 @@ const Send = ({ config, currentAccount, setCurrentAccount, toggleRefresh, curren
   const SelectAccountMenu = () => (
     <AccountMenu>
       {config.vaults.map((vault, index) => (
-        <AccountMenuItemWrapper active={vault.id === currentAccount.config.id} borderRight={(index < config.vaults.length - 1) || config.wallets.length} onClick={() => setCurrentAccount(vault.id)}>
+        <AccountMenuItemWrapper
+          active={vault.id === currentAccount.config.id}
+          borderRight={(index < config.vaults.length - 1) || config.wallets.length}
+          onClick={() => setCurrentAccountId(vault.id)}>
           <StyledIcon as={Safe} size={48} />
           <AccountMenuItemName>{vault.name}</AccountMenuItemName>
         </AccountMenuItemWrapper>
       ))}
       {config.wallets.map((wallet, index) => (
-        <AccountMenuItemWrapper key={index} active={wallet.id === currentAccount.config.id} borderRight={(index < config.wallets.length - 1)} onClick={() => setCurrentAccount(wallet.id)}>
+        <AccountMenuItemWrapper
+          key={index}
+          active={wallet.id === currentAccount.config.id}
+          borderRight={(index < config.wallets.length - 1)}
+          onClick={() => setCurrentAccountId(wallet.id)}>
           <StyledIcon as={Wallet} size={48} />
           <AccountMenuItemName>{wallet.name}</AccountMenuItemName>
         </AccountMenuItemWrapper>

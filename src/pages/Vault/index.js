@@ -1,8 +1,9 @@
-import React, { useState, useEffect, Fragment } from 'react';
+import React, { useState, Fragment, useContext } from 'react';
 import { Link, useParams } from "react-router-dom";
 import styled from 'styled-components';
 import { VerticalAlignBottom, ArrowUpward, Settings, Refresh } from '@styled-icons/material';
 
+import { AccountMapContext } from '../../AccountMapContext';
 
 import { StyledIcon, Button, PageWrapper, PageTitle, Header, HeaderRight, HeaderLeft } from '../../components';
 
@@ -13,16 +14,14 @@ import VaultSettings from './VaultSettings';
 
 import { darkGray, gray100, gray400, gray500 } from '../../utils/colors';
 
-const Vault = ({ config, setConfigFile, password, toggleRefresh, currentAccount, setCurrentAccount, currentBitcoinNetwork }) => {
+const Vault = ({ config, setConfigFile, password, toggleRefresh, currentBitcoinNetwork }) => {
   document.title = `Vault - Lily Wallet`;
   const [viewSettings, setViewSettings] = useState(false);
   const [viewAddresses, setViewAddresses] = useState(false);
   const [viewUtxos, setViewUtxos] = useState(false);
   const { id } = useParams();
 
-  useEffect(() => {
-    setCurrentAccount(id)
-  }, [id, currentAccount, setCurrentAccount])
+  const { currentAccount } = useContext(AccountMapContext);
 
   const toggleViewSettings = () => {
     setViewSettings(!viewSettings);

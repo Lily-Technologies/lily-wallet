@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import styled, { css } from 'styled-components';
 import { Safe } from '@styled-icons/crypto';
 import { Wallet } from '@styled-icons/entypo';
@@ -9,13 +9,15 @@ import { satoshisToBitcoins } from "unchained-bitcoin";
 import { StyledIcon, Button, PageWrapper, GridArea, PageTitle, Header, HeaderRight, HeaderLeft, Loading } from '../../components';
 import RecentTransactions from '../../components/transactions/RecentTransactions';
 
+import { AccountMapContext } from '../../AccountMapContext';
+
 import { black, gray, darkGray, white, darkOffWhite, lightGray, gray100, gray800, green900, green700 } from '../../utils/colors';
 import { mobile } from '../../utils/media';
 
-const Receive = ({ config, currentAccount, setCurrentAccount }) => {
+const Receive = ({ config }) => {
   document.title = `Receive - Lily Wallet`;
   const [unusedAddressIndex, setUnusedAddressIndex] = useState(0);
-
+  const { setCurrentAccountId, currentAccount } = useContext(AccountMapContext);
   const { transactions, unusedAddresses, currentBalance } = currentAccount;
 
   return (
@@ -31,13 +33,21 @@ const Receive = ({ config, currentAccount, setCurrentAccount }) => {
       <ReceiveWrapper>
         <AccountMenu>
           {config.vaults.map((vault, index) => (
-            <AccountMenuItemWrapper key={index} active={vault.id === currentAccount.config.id} borderRight={(index < config.vaults.length - 1) || config.wallets.length} onClick={() => setCurrentAccount(vault.id)}>
+            <AccountMenuItemWrapper
+              key={index}
+              active={vault.id === currentAccount.config.id}
+              borderRight={(index < config.vaults.length - 1) || config.wallets.length}
+              onClick={() => setCurrentAccountId(vault.id)}>
               <StyledIcon as={Safe} size={48} />
               <AccountMenuItemName>{vault.name}</AccountMenuItemName>
             </AccountMenuItemWrapper>
           ))}
           {config.wallets.map((wallet, index) => (
-            <AccountMenuItemWrapper key={index} active={wallet.id === currentAccount.config.id} borderRight={(index < config.wallets.length - 1)} onClick={() => setCurrentAccount(wallet.id)}>
+            <AccountMenuItemWrapper
+              key={index}
+              active={wallet.id === currentAccount.config.id}
+              borderRight={(index < config.wallets.length - 1)}
+              onClick={() => setCurrentAccountId(wallet.id)}>
               <StyledIcon as={Wallet} size={48} />
               <AccountMenuItemName>{wallet.name}</AccountMenuItemName>
             </AccountMenuItemWrapper>
