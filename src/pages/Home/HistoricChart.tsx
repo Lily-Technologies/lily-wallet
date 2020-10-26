@@ -11,7 +11,13 @@ var formatter = new Intl.NumberFormat('en-US', {
   currency: 'USD',
 });
 
-const CustomTooltip = ({ active, payload, label }: { active: boolean, payload: TooltipPayload[], label: string }) => {
+interface Props {
+  active: boolean,
+  payload: TooltipPayload[],
+  label: string
+}
+
+const CustomTooltip = ({ active, payload, label }: Props) => {
   if (active) {
     return (
       <TooltipContainer>

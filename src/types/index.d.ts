@@ -16,12 +16,40 @@ export interface FormInput {
   placeholder?: string
   type: string
   autoFocus?: boolean
-  onKeyDown(e: KeyboardEvent): void
+  onKeyDown?: (e: KeyboardEvent<Element>) => void
 }
 
 export interface File {
   file: string
   modifiedTime: number
+}
+
+export interface CaravanConfig {
+  client: any, // KBC-TODO: allow private connection to node
+  id: string
+  created_at: number
+  name: string
+  network: 'mainnet' | 'testnet'
+  addressType: AddressType
+  quorum: {
+    requiredSigners: number
+    totalSigners: number
+  },
+  extendedPublicKeys?: {
+    id: string,
+    name: string
+    method: string
+    created_at: number,
+    parentFingerprint: string,
+    network: 'mainnet' | 'testnet',
+    bip32Path: string,
+    xpub: string,
+    device: Device
+  }[],
+  device?: Device
+  xpub?: string
+  mnemonic?: string
+  parentFingerprint?: string
 }
 
 export interface NodeConfig {
@@ -122,12 +150,12 @@ export interface UTXO {
 export interface LilyAccount {
   name: string
   config: AccountConfig
-  addresses?: Address[]
-  changeAddresses?: Address[]
-  availableUtxos?: UTXO[]
+  addresses: Address[]
+  changeAddresses: Address[]
+  availableUtxos: UTXO[]
   transactions: Transaction[]
   unusedAddresses: Address[]
-  unusedChangeAddresses?: Address[]
+  unusedChangeAddresses: Address[]
   currentBalance: number
   loading: boolean
 }
@@ -189,6 +217,7 @@ export interface AccountConfig {
   extendedPublicKeys?: ExtendedPublicKey[]
   device?: Device
   xpub?: string
+  mnemonic?: string
   parentFingerprint?: string
 }
 

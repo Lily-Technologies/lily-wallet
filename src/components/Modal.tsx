@@ -7,7 +7,14 @@ import { StyledIcon } from '.';
 
 import { white, gray400, gray600 } from '../utils/colors';
 
-export const Modal = ({ isOpen, onAfterOpen, onRequestClose, style, children }) => {
+interface Props {
+  isOpen: boolean,
+  onAfterOpen?: () => void,
+  onRequestClose(): void,
+  children: React.ReactChild
+}
+
+export const Modal = ({ isOpen, onAfterOpen, onRequestClose, children }: Props) => {
   const [localOpen, setLocalOpen] = useState(false);
 
   const afterOpen = () => {
@@ -42,9 +49,9 @@ export const Modal = ({ isOpen, onAfterOpen, onRequestClose, style, children }) 
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',
-      zIndex: '1000'
+      zIndex: 1000
     }
-  }
+  } as ReactModal.Styles;
 
 
   return (

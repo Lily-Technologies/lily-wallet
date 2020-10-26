@@ -5,7 +5,13 @@ import UtxoRow from './UtxoRow';
 
 import { white, green800, darkGray, gray100 } from '../../utils/colors';
 
-const UtxosView = ({ setViewUtxos, currentAccount }) => {
+import { LilyAccount } from '../../types';
+interface Props {
+  setViewUtxos: React.Dispatch<React.SetStateAction<boolean>>,
+  currentAccount: LilyAccount
+}
+
+const UtxosView = ({ setViewUtxos, currentAccount }: Props) => {
 
   return (
     <ValueWrapper>

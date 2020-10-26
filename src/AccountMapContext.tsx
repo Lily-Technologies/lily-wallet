@@ -22,7 +22,7 @@ export const AccountMapProvider = ({ children }: { children: ReactChild }) => {
 
   const currentAccount = accountMap[currentAccountId!] || { name: 'Loading...', loading: true, transactions: [], unusedAddresses: [], currentBalance: 0, config: {} };
 
-  const updateAccountMap = useCallback(account => {
+  const updateAccountMap = useCallback((account: LilyAccount) => {
     dispatch({
       type: ACCOUNTMAP_UPDATE,
       payload: {
@@ -31,7 +31,7 @@ export const AccountMapProvider = ({ children }: { children: ReactChild }) => {
     })
   }, [dispatch])
 
-  const setAccountMap = useCallback(accountMap => {
+  const setAccountMap = useCallback((accountMap: AccountMap) => {
     dispatch({
       type: ACCOUNTMAP_SET,
       payload: accountMap

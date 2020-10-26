@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
 import styled from 'styled-components';
-import { AreaChart, Area, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts';
+import { AreaChart, Area, ResponsiveContainer, XAxis, YAxis, Tooltip, TooltipPayload } from 'recharts';
 import { satoshisToBitcoins } from "unchained-bitcoin";
 import moment from 'moment';
 import BigNumber from 'bignumber.js';
@@ -10,12 +10,20 @@ import { Loading } from '../../components';
 import RecentTransactions from '../../components/transactions/RecentTransactions';
 
 import { gray, white, darkGray, yellow100, yellow500 } from '../../utils/colors';
+import { LilyAccount } from '../../types';
 
-const CustomTooltip = ({ active, payload, label }) => {
+
+interface TooltipProps {
+  active: boolean,
+  payload: TooltipPayload[],
+  label: number
+}
+
+const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
   if (active) {
     return (
       <TooltipContainer>
-        <PriceTooltip>{`${payload[0].value ? satoshisToBitcoins(payload[0].value) : 0} BTC`}</PriceTooltip>
+        <PriceTooltip>{`${payload[0].value ? satoshisToBitcoins(payload[0].value as number) : 0} BTC`}</PriceTooltip>
         <DateTooltip>{moment.unix(label).format('MMMM DD, YYYY')}</DateTooltip>
       </TooltipContainer>
     );
@@ -24,7 +32,7 @@ const CustomTooltip = ({ active, payload, label }) => {
   return null;
 };
 
-const VaultView = ({ currentAccount }) => {
+const VaultView = ({ currentAccount }: { currentAccount: LilyAccount }) => {
   const { currentBalance, transactions } = currentAccount;
   const transactionsCopyForChart = [...transactions];
   const transactionsCopyForRecentTransactions = [...transactions];
@@ -90,7 +98,7 @@ const VaultView = ({ currentAccount }) => {
                   wrapperStyle={{
                     marginLeft: -10
                   }}
-                  content={<CustomTooltip />} />
+                  content={CustomTooltip} />
               </AreaChart>
             </ResponsiveContainer>
           </ChartContainer>

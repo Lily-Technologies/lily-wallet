@@ -180,6 +180,10 @@ const App = () => {
           config: config.wallets[i],
           transactions: [],
           unusedAddresses: [],
+          addresses: [],
+          changeAddresses: [],
+          availableUtxos: [],
+          unusedChangeAddresses: [],
           currentBalance: 0,
           loading: true
         }
@@ -192,6 +196,10 @@ const App = () => {
           config: config.vaults[i],
           transactions: [],
           unusedAddresses: [],
+          addresses: [],
+          changeAddresses: [],
+          availableUtxos: [],
+          unusedChangeAddresses: [],
           currentBalance: 0,
           loading: true
         }

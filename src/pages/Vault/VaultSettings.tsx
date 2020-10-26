@@ -11,12 +11,24 @@ import { mobile } from '../../utils/media';
 import { createColdCardBlob, downloadFile, formatFilename, saveConfig } from '../../utils/files';
 import { getMultisigDeriationPathForNetwork } from '../../utils/files';
 
-const VaultSettings = ({ config, setConfigFile, password, currentAccount, setViewAddresses, setViewUtxos, currentBitcoinNetwork }) => {
+import { LilyConfig, LilyAccount, CaravanConfig } from '../../types';
+import { Network } from 'bitcoinjs-lib';
+interface Props {
+  config: LilyConfig,
+  setConfigFile: React.Dispatch<React.SetStateAction<LilyConfig>>,
+  password: string,
+  currentAccount: LilyAccount,
+  setViewAddresses: React.Dispatch<React.SetStateAction<boolean>>,
+  setViewUtxos: React.Dispatch<React.SetStateAction<boolean>>,
+  currentBitcoinNetwork: Network
+}
+
+const VaultSettings = ({ config, setConfigFile, password, currentAccount, setViewAddresses, setViewUtxos, currentBitcoinNetwork }: Props) => {
   const [viewXpub, setViewXpub] = useState(false);
   const [viewExportQRCode, setViewExportQRCode] = useState(false);
   const [viewMnemonic, setViewMnemonic] = useState(false);
   const [viewDeleteAccount, setViewDeleteAccount] = useState(false);
-  const [accountNameConfirm, setAccountNameConfirm] = useState(undefined);
+  const [accountNameConfirm, setAccountNameConfirm] = useState('');
   const [accountNameConfirmError, setAccountNameConfirmError] = useState(false);
   const history = useHistory();
 
@@ -27,18 +39,20 @@ const VaultSettings = ({ config, setConfigFile, password, currentAccount, setVie
 
   const downloadCaravanFile = () => {
     // need to add some properties to our config to use with Caravan
-    const configCopy = { ...currentAccount.config };
+    const configCopy = { ...currentAccount.config } as CaravanConfig;
     configCopy.client = { type: 'public' };
     // need to have a name for each pubkey, so just use parentFingerprint
-    for (let i = 0; i < configCopy.extendedPublicKeys.length; i++) {
-      configCopy.extendedPublicKeys[i].name = configCopy.extendedPublicKeys[i].parentFingerprint;
+    if (configCopy.extendedPublicKeys !== undefined) {
+      for (let i = 0; i < configCopy.extendedPublicKeys.length; i++) {
+        configCopy.extendedPublicKeys[i].name = configCopy.extendedPublicKeys[i].parentFingerprint;
 
-      // we need to populate the method field for caravan. if the device is of type trezor or ledger, put that in. else just put xpub.
-      if (configCopy.extendedPublicKeys[i].device && (configCopy.extendedPublicKeys[i].device.type === 'trezor' || configCopy.extendedPublicKeys[i].device.type === 'ledger')) {
-        configCopy.extendedPublicKeys[i].method = configCopy.extendedPublicKeys[i].device.type;
-        configCopy.extendedPublicKeys[i].bip32Path = getMultisigDeriationPathForNetwork(currentBitcoinNetwork);
-      } else {
-        configCopy.extendedPublicKeys[i].method = 'xpub';
+        // we need to populate the method field for caravan. if the device is of type trezor or ledger, put that in. else just put xpub.
+        if (configCopy.extendedPublicKeys[i].device && (configCopy.extendedPublicKeys[i].device.type === 'trezor' || configCopy.extendedPublicKeys[i].device.type === 'ledger')) {
+          configCopy.extendedPublicKeys[i].method = configCopy.extendedPublicKeys[i].device.type;
+          configCopy.extendedPublicKeys[i].bip32Path = getMultisigDeriationPathForNetwork(currentBitcoinNetwork);
+        } else {
+          configCopy.extendedPublicKeys[i].method = 'xpub';
+        }
       }
     }
     const caravanFile = JSON.stringify(configCopy);
@@ -53,7 +67,7 @@ const VaultSettings = ({ config, setConfigFile, password, currentAccount, setVie
           fgColor={black}
           level="Q"
           style={{ width: 256 }}
-          value={currentAccount.config.mnemonic}
+          value={currentAccount.config.mnemonic as string}
         />
       </div>
     )
@@ -67,7 +81,7 @@ const VaultSettings = ({ config, setConfigFile, password, currentAccount, setVie
           fgColor={black}
           level="Q"
           style={{ width: 256 }}
-          value={currentAccount.config.xpub}
+          value={currentAccount.config.xpub as string}
         />
       </div>
     )
@@ -81,7 +95,7 @@ const VaultSettings = ({ config, setConfigFile, password, currentAccount, setVie
     )
   }
 
-  const onInputEnter = (e) => {
+  const onInputEnter = (e: React.KeyboardEvent<Element>) => {
     if (e.key === 'Enter') {
       removeAccountAndDownloadConfig();
     }
@@ -250,9 +264,10 @@ const VaultSettings = ({ config, setConfigFile, password, currentAccount, setVie
               <Input
                 label="Type in the account's name to delete"
                 autoFocus
+                type="text"
                 value={accountNameConfirm}
                 onChange={setAccountNameConfirm}
-                onInputEnter={onInputEnter}
+                onKeyDown={(e) => onInputEnter(e)}
                 error={accountNameConfirmError}
               />
               {accountNameConfirmError && <ConfirmError>Account name doesn't match</ConfirmError>}

@@ -5,7 +5,14 @@ import AddressRow from './AddressRow';
 
 import { white, green800, darkGray, gray100 } from '../../utils/colors';
 
-const AddressesView = ({ setViewAddresses, currentAccount }) => {
+import { LilyAccount } from '../../types';
+
+interface Props {
+  setViewAddresses: React.Dispatch<React.SetStateAction<boolean>>,
+  currentAccount: LilyAccount
+}
+
+const AddressesView = ({ setViewAddresses, currentAccount }: Props) => {
 
   return (
     <ValueWrapper>

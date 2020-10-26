@@ -2,6 +2,7 @@ import React, { useState, Fragment, useContext } from 'react';
 import { Link } from "react-router-dom";
 import styled from 'styled-components';
 import { VerticalAlignBottom, ArrowUpward, Settings, Refresh } from '@styled-icons/material';
+import { Network } from 'bitcoinjs-lib';
 
 import { AccountMapContext } from '../../AccountMapContext';
 
@@ -12,9 +13,19 @@ import AddressesView from './AddressesView';
 import UtxosView from './UtxosView';
 import VaultSettings from './VaultSettings';
 
-import { darkGray, gray100, gray400, gray500 } from '../../utils/colors';
+import { white, gray400, gray500, gray700, green600 } from '../../utils/colors';
 
-const Vault = ({ config, setConfigFile, password, toggleRefresh, currentBitcoinNetwork }) => {
+import { LilyConfig } from '../../types'
+
+interface Props {
+  config: LilyConfig
+  setConfigFile: React.Dispatch<React.SetStateAction<LilyConfig>>,
+  password: string
+  toggleRefresh(): void,
+  currentBitcoinNetwork: Network
+}
+
+const Vault = ({ config, setConfigFile, password, toggleRefresh, currentBitcoinNetwork }: Props) => {
   document.title = `Vault - Lily Wallet`;
   const [viewSettings, setViewSettings] = useState(false);
   const [viewAddresses, setViewAddresses] = useState(false);
@@ -50,7 +61,7 @@ const Vault = ({ config, setConfigFile, password, toggleRefresh, currentBitcoinN
             )}
             {currentAccount.config.quorum.totalSigners === 1 && currentAccount.config.device && (
               <Fragment>
-                <IconSvg viewBox="0 0 20 20" fill="currentColor" class="calculator w-6 h-6"><path fillRule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V4a2 2 0 00-2-2H6zm1 2a1 1 0 000 2h6a1 1 0 100-2H7zm6 7a1 1 0 011 1v3a1 1 0 11-2 0v-3a1 1 0 011-1zm-3 3a1 1 0 100 2h.01a1 1 0 100-2H10zm-4 1a1 1 0 011-1h.01a1 1 0 110 2H7a1 1 0 01-1-1zm1-4a1 1 0 100 2h.01a1 1 0 100-2H7zm2 1a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1zm4-4a1 1 0 100 2h.01a1 1 0 100-2H13zM9 9a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1zM7 8a1 1 0 000 2h.01a1 1 0 000-2H7z" clipRule="evenodd"></path></IconSvg>
+                <IconSvg viewBox="0 0 20 20" fill="currentColor" className="calculator w-6 h-6"><path fillRule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V4a2 2 0 00-2-2H6zm1 2a1 1 0 000 2h6a1 1 0 100-2H7zm6 7a1 1 0 011 1v3a1 1 0 11-2 0v-3a1 1 0 011-1zm-3 3a1 1 0 100 2h.01a1 1 0 100-2H10zm-4 1a1 1 0 011-1h.01a1 1 0 110 2H7a1 1 0 01-1-1zm1-4a1 1 0 100 2h.01a1 1 0 100-2H7zm2 1a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1zm4-4a1 1 0 100 2h.01a1 1 0 100-2H13zM9 9a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1zM7 8a1 1 0 000 2h.01a1 1 0 000-2H7z" clipRule="evenodd"></path></IconSvg>
                 <span>
                   Hardware Wallet
               </span>
@@ -59,19 +70,19 @@ const Vault = ({ config, setConfigFile, password, toggleRefresh, currentBitcoinN
           </VaultExplainerText>
         </HeaderLeft>
         <HeaderRight>
-          <SendButton to="/send"><StyledIcon as={ArrowUpward} size={24} style={{ marginRight: '.5rem', marginLeft: '-0.25rem' }} />Send</SendButton>
-          <ReceiveButton to="/receive"><StyledIcon as={VerticalAlignBottom} size={24} style={{ marginRight: '.5rem', marginLeft: '-0.25rem' }} />Receive</ReceiveButton>
+          <SendButton to="/send" color={white} background={green600}><StyledIcon as={ArrowUpward} size={24} style={{ marginRight: '.5rem', marginLeft: '-0.25rem' }} />Send</SendButton>
+          <ReceiveButton to="/receive" color={white} background={green600}><StyledIcon as={VerticalAlignBottom} size={24} style={{ marginRight: '.5rem', marginLeft: '-0.25rem' }} />Receive</ReceiveButton>
           <SettingsButton
             onClick={() => toggleRefresh()}
-            color={darkGray}
+            color={gray700}
             style={{ padding: '1em 1em 1em 0' }}
             background={'transparent'}>
             <StyledIcon as={Refresh} size={36} />
           </SettingsButton>
           <SettingsButton
             onClick={() => toggleViewSettings()}
-            active={viewSettings}
-            color={darkGray}
+            // active={viewSettings} // KBC-TODO: reimplement active on SettingsButton
+            color={gray700}
             background={'transparent'}
             style={{ padding: 0 }}
           >
@@ -135,9 +146,10 @@ const ReceiveButton = styled(Link)`
   padding-right: 1em;
 `;
 
-const SettingsButton = styled.div`
+// KBC-TODO: reimplement background on SettingsButton
+// background: ${p => p.active ? gray100 : 'transparent'};
+const SettingsButton = styled.button`
   ${Button}
-  background: ${p => p.active ? gray100 : 'transparent'};
   border-radius: 25%;
 `;
 
