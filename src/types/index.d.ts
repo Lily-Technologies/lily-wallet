@@ -86,7 +86,7 @@ export interface TxStatus {
 
 export interface Address {
   network: Network,
-  address?: string,
+  address: string,
   hash?: Buffer,
   output: any
   redeem: any
@@ -113,7 +113,7 @@ export interface LilyAccount {
   changeAddresses?: Address[]
   availableUtxos?: UTXO[]
   transactions: Transaction[]
-  unusedAddresses?: Address[]
+  unusedAddresses: Address[]
   unusedChangeAddresses?: Address[]
   currentBalance: number
   loading: boolean

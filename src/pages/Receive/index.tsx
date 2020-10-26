@@ -3,7 +3,7 @@ import styled, { css } from 'styled-components';
 import { Safe } from '@styled-icons/crypto';
 import { Wallet } from '@styled-icons/entypo';
 import { QRCode } from "react-qr-svg";
-import { CopyToClipboard } from 'react-copy-to-clipboard';
+import CopyToClipboard from 'react-copy-to-clipboard';
 import { satoshisToBitcoins } from "unchained-bitcoin";
 
 import { StyledIcon, Button, PageWrapper, GridArea, PageTitle, Header, HeaderRight, HeaderLeft, Loading } from '../../components';
@@ -11,10 +11,12 @@ import RecentTransactions from '../../components/transactions/RecentTransactions
 
 import { AccountMapContext } from '../../AccountMapContext';
 
-import { black, gray, darkGray, white, darkOffWhite, lightGray, gray100, gray800, green900, green700 } from '../../utils/colors';
+import { black, gray, darkGray, white, darkOffWhite, lightGray, gray100, green600, gray800, green900, green700 } from '../../utils/colors';
 import { mobile } from '../../utils/media';
 
-const Receive = ({ config }) => {
+import { LilyConfig } from '../../types'
+
+const Receive = ({ config }: { config: LilyConfig }) => {
   document.title = `Receive - Lily Wallet`;
   const [unusedAddressIndex, setUnusedAddressIndex] = useState(0);
   const { setCurrentAccountId, currentAccount } = useContext(AccountMapContext);
@@ -36,7 +38,7 @@ const Receive = ({ config }) => {
             <AccountMenuItemWrapper
               key={index}
               active={vault.id === currentAccount.config.id}
-              borderRight={(index < config.vaults.length - 1) || config.wallets.length}
+              borderRight={(index < config.vaults.length - 1)}
               onClick={() => setCurrentAccountId(vault.id)}>
               <StyledIcon as={Safe} size={48} />
               <AccountMenuItemName>{vault.name}</AccountMenuItemName>
@@ -78,15 +80,17 @@ const Receive = ({ config }) => {
                     fgColor={black}
                     level="Q"
                     style={{ width: 256 }}
-                    value={unusedAddresses[unusedAddressIndex] && unusedAddresses[unusedAddressIndex].address}
+                    value={unusedAddresses[unusedAddressIndex].address}
                   />
                 </QRCodeWrapper>
                 <AddressDisplayWrapper>
                   <BitcoinAddressLabel>Bitcoin address:</BitcoinAddressLabel>
-                  {unusedAddresses[unusedAddressIndex] && unusedAddresses[unusedAddressIndex].address}
+                  {unusedAddresses[unusedAddressIndex].address}
                 </AddressDisplayWrapper>
                 <ReceiveButtonContainer>
-                  <CopyToClipboard text={unusedAddresses[unusedAddressIndex] && unusedAddresses[unusedAddressIndex].address}><CopyAddressButton>Copy Address</CopyAddressButton></CopyToClipboard>
+                  <CopyToClipboard text={unusedAddresses[unusedAddressIndex].address}>
+                    <CopyAddressButton color={white} background={green600}>Copy Address</CopyAddressButton>
+                  </CopyToClipboard>
                   <CopyAddressButton background="transparent" color={darkGray} onClick={() => setUnusedAddressIndex(unusedAddressIndex + 1)}>Generate New Address</CopyAddressButton>
                 </ReceiveButtonContainer>
 
@@ -169,7 +173,7 @@ const AddressDisplayWrapper = styled.div`
   flex-direction: column;
 `;
 
-const AccountMenuItemWrapper = styled.div`
+const AccountMenuItemWrapper = styled.div<{ active: boolean, borderRight: boolean }>`
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -214,7 +218,7 @@ const AccountReceiveContentRight = styled.div`
   width: 100%;
 `;
 
-const CurrentBalanceWrapper = styled.div`
+const CurrentBalanceWrapper = styled.div<{ displayDesktop: boolean, displayMobile: boolean }>`
   padding: 1.5em;
   display: ${p => p.displayDesktop ? 'flex' : 'none'};
   flex-direction: column;
@@ -223,7 +227,7 @@ const CurrentBalanceWrapper = styled.div`
   background: ${white};
   text-align: right;
 
-  ${mobile(css`
+  ${mobile(css<{ displayMobile: boolean }>`
     display: ${p => p.displayMobile ? 'flex' : 'none'}
   `)};
 

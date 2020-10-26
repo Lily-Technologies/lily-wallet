@@ -3,7 +3,7 @@ import darken from 'polished/lib/color/darken';
 import lighten from 'polished/lib/color/lighten';
 import { white, green400, green600, green700, gray600 } from '../utils/colors';
 
-export const Button = css`
+export const Button = css<{ color: string, background: string }>`
   display: flex;
   justify-content: center;
   align-items: center;

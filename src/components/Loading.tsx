@@ -2,10 +2,8 @@ import React from 'react';
 
 import styled, { keyframes } from 'styled-components';
 import { lightGreen, darkGray } from '../utils/colors';
-// Loading State
 
-// TODO: refactor, doesn't need itemText and message...im lazy
-export const Loading = ({ itemText, style = {}, message }) => (
+export const Loading = ({ itemText, style = {}, message }: { itemText: string, style?: any, message?: string }) => (
   <LoadingWrapper style={style}>
     <img alt="loading placeholder" src={require('../assets/flower-loading.svg')} style={{ maxWidth: '6.25em' }} />
     {!message && <LoadingText>Loading {itemText}</LoadingText>}

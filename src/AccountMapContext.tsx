@@ -12,7 +12,8 @@ export const AccountMapContext = createContext({
   setAccountMap: (accountMap: AccountMap) => { },
   updateAccountMap: (account: LilyAccount) => { },
   setCurrentAccountId: (id: string) => { },
-  accountMap: {} as AccountMap
+  accountMap: {} as AccountMap,
+  currentAccount: {} as LilyAccount
 });
 
 export const AccountMapProvider = ({ children }: { children: ReactChild }) => {
