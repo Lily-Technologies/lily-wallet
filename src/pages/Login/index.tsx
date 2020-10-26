@@ -1,7 +1,7 @@
-import React, { useState, Fragment } from 'react';
+import React, { useState, Fragment, KeyboardEvent } from 'react';
 import { useHistory } from "react-router-dom";
 import styled, { css } from 'styled-components';
-import { networks } from 'bitcoinjs-lib';
+import { networks, Network } from 'bitcoinjs-lib';
 import moment from 'moment';
 import { AES, enc } from 'crypto-js';
 import { ArrowIosForwardOutline } from '@styled-icons/evaicons-outline';
@@ -13,20 +13,21 @@ import { bitcoinNetworkEqual } from '../../utils/files';
 import { mobile } from '../../utils/media';
 import { saveConfig } from '../../utils/files';
 
+import { LilyConfig, File } from '../../types';
+
 const MIN_PASSWORD_LENGTH = 8;
 
-const Login = ({ config, setConfigFile, currentBitcoinNetwork, encryptedConfigFile, setEncryptedConfigFile, setPassword }) => {
+const Login = ({ config, setConfigFile, currentBitcoinNetwork, encryptedConfigFile, setEncryptedConfigFile, setPassword }: { config: LilyConfig, setConfigFile: React.Dispatch<React.SetStateAction<LilyConfig>>, currentBitcoinNetwork: Network, encryptedConfigFile: File | null, setEncryptedConfigFile: React.Dispatch<React.SetStateAction<File | null>>, setPassword: React.Dispatch<React.SetStateAction<string>> }) => {
   document.title = `Login - Lily Wallet`;
-  const [localPassword, setLocalPassword] = useState(undefined);
-  const [passwordError, setPasswordError] = useState(undefined);
-  const [confirmation, setConfirmation] = useState(undefined);
-  const [confirmationError, setConfirmationError] = useState(undefined);
+  const [localPassword, setLocalPassword] = useState('');
+  const [passwordError, setPasswordError] = useState<string | undefined>(undefined);
+  const [confirmation, setConfirmation] = useState('');
+  const [confirmationError, setConfirmationError] = useState<string | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
   const [step, setStep] = useState(0);
   const history = useHistory();
 
   const unlockFile = () => {
-    // KBC-TODO: probably need error handling for wrong password
     try {
       setIsLoading(true);
       if (encryptedConfigFile) {
@@ -52,12 +53,12 @@ const Login = ({ config, setConfigFile, currentBitcoinNetwork, encryptedConfigFi
         }, 2000)
       }
     } catch (e) {
-      setPasswordError(true);
+      setPasswordError('Incorrect Password');
       setIsLoading(false);
     }
   }
 
-  const onInputEnter = (e) => {
+  const onInputEnter = (e: KeyboardEvent) => {
     if (encryptedConfigFile && e.key === 'Enter') {
       unlockFile();
     }
@@ -89,7 +90,7 @@ const Login = ({ config, setConfigFile, currentBitcoinNetwork, encryptedConfigFi
             <div>{encryptedConfigFile ? 'Unlock your account' : 'Welcome to Lily Wallet'}</div>
             <Subtext>
               {encryptedConfigFile ? (
-                <Fragment>or <SubTextLink onClick={() => setEncryptedConfigFile(undefined)}>create a new one</SubTextLink></Fragment>
+                <Fragment>or <SubTextLink onClick={() => setEncryptedConfigFile(null)}>create a new one</SubTextLink></Fragment>
               ) : (
                   "The best way to secure your bitcoin"
                 )}
@@ -100,7 +101,7 @@ const Login = ({ config, setConfigFile, currentBitcoinNetwork, encryptedConfigFi
         <FileUploader
           accept="*"
           id="localConfigFile"
-          onFileLoad={(file) => {
+          onFileLoad={(file: File) => {
             setEncryptedConfigFile(file)
           }}
         />
@@ -119,8 +120,9 @@ const Login = ({ config, setConfigFile, currentBitcoinNetwork, encryptedConfigFi
                   autoFocus
                   label="Password"
                   value={localPassword}
-                  onKeyDown={(e) => onInputEnter(e)}
+                  onKeyDown={(e: KeyboardEvent) => onInputEnter(e)}
                   onChange={setLocalPassword}
+                  error={!!passwordError}
                   type="password" />
                 {passwordError !== undefined && <PasswordError>{passwordError}</PasswordError>}
               </InputContainer>
@@ -129,8 +131,9 @@ const Login = ({ config, setConfigFile, currentBitcoinNetwork, encryptedConfigFi
                   <Input
                     label="Confirm Password"
                     value={confirmation}
-                    onKeyDown={(e) => onInputEnter(e)}
+                    onKeyDown={(e: KeyboardEvent) => onInputEnter(e)}
                     onChange={setConfirmation}
+                    error={!!confirmationError}
                     type="password" />
                   {confirmationError !== undefined && <PasswordError>{confirmationError}</PasswordError>}
                 </InputContainer>
@@ -151,7 +154,7 @@ const Login = ({ config, setConfigFile, currentBitcoinNetwork, encryptedConfigFi
                 {isLoading && !encryptedConfigFile ? 'Loading' : isLoading ? 'Unlocking' : encryptedConfigFile ? 'Unlock' : 'Continue'}
                 {isLoading ? <LoadingImage alt="loading placeholder" src={require('../../assets/flower-loading.svg')} /> : <StyledIcon as={ArrowIosForwardOutline} size={24} />}
               </SignInButton>
-              {encryptedConfigFile && passwordError && <PasswordError>Incorrect Password</PasswordError>}
+              {encryptedConfigFile && passwordError && <PasswordError>{passwordError}</PasswordError>}
               {encryptedConfigFile && <SignupOptionSubtext>Last accessed on {encryptedConfigFile && moment(encryptedConfigFile.modifiedTime).format('MM/DD/YYYY')}</SignupOptionSubtext>}
             </SignupOptionItem>
           ) : (

@@ -3,7 +3,9 @@ import styled from 'styled-components';
 
 import { white, gray300, gray600, red400 } from '../utils/colors';
 
-export const Input = ({ value, onChange, error, label, id, placeholder, type, autoFocus, onKeyDown }) => (
+import { FormInput } from '../types'
+
+export const Input = ({ value, onChange, error, label, id, placeholder, type, autoFocus, onKeyDown }: FormInput) => (
   <Fragment>
     {label && <Label htmlFor={id}>{label}</Label>}
     <InputWrapper>
@@ -41,7 +43,7 @@ const InputWrapper = styled.div`
   }
 `;
 
-const StyledInput = styled.input`
+const StyledInput = styled.input<{ error: boolean }>`
   line-height: 1.25em;
   width: 100%;
   font-size: 0.875em;

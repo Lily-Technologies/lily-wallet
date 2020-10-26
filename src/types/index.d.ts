@@ -1,3 +1,4 @@
+import { KeyboardEvent } from 'react';
 import { ACCOUNTMAP_SET, ACCOUNTMAP_UPDATE } from '../reducers/accountMap'
 
 declare global {
@@ -6,17 +7,29 @@ declare global {
   }
 }
 
+export interface FormInput {
+  value: string
+  onChange(value: string): void
+  error: boolean
+  label: string
+  id?: string
+  placeholder?: string
+  type: string
+  autoFocus?: boolean
+  onKeyDown(e: KeyboardEvent): void
+}
+
 export interface File {
-  file: string,
+  file: string
   modifiedTime: number
 }
 
 export interface NodeConfig {
-  provider: string,
-  connected: boolean,
-  username: string,
-  password: string,
-  port: string,
+  provider: string
+  connected: boolean
+  username: string
+  password: string
+  port: string
   version: string
 }
 
