@@ -28,7 +28,7 @@ import Home from './pages/Home';
 
 import { AccountMapContext } from './AccountMapContext';
 
-import { Config, NodeConfig, File, AccountMap } from './types';
+import { LilyConfig, NodeConfig, File, AccountMap, LilyAccount } from './types';
 
 const emptyConfig = {
   name: "",
@@ -41,12 +41,12 @@ const emptyConfig = {
   vaults: [],
   keys: [],
   exchanges: []
-} as Config;
+} as LilyConfig;
 
 const App = () => {
   const [currentBitcoinPrice, setCurrentBitcoinPrice] = useState(new BigNumber(0));
   const [historicalBitcoinPrice, setHistoricalBitcoinPrice] = useState({});
-  const [config, setConfigFile] = useState<Config>(emptyConfig);
+  const [config, setConfigFile] = useState<LilyConfig>(emptyConfig);
   const [encryptedConfigFile, setEncryptedConfigFile] = useState<File | null>(null);
   const [currentBitcoinNetwork, setCurrentBitcoinNetwork] = useState(networks.bitcoin);
   const [refresh, setRefresh] = useState(false);
@@ -176,14 +176,10 @@ const App = () => {
 
       for (let i = 0; i < config.wallets.length; i++) {
         initialAccountMap[config.wallets[i].id] = {
-          id: config.wallets[i].id,
           name: config.wallets[i].name,
-          created_at: config.wallets[i].created_at,
-          network: config.wallets[i].network,
-          addressType: config.wallets[i].addressType,
-          quorum: config.wallets[i].quorum,
           config: config.wallets[i],
           transactions: [],
+          currentBalance: 0,
           loading: true
         }
         window.ipcRenderer.send('/account-data', { config: config.wallets[i], nodeConfig }) // TODO: allow setting nodeConfig to be dynamic later
@@ -191,21 +187,17 @@ const App = () => {
 
       for (let i = 0; i < config.vaults.length; i++) {
         initialAccountMap[config.vaults[i].id] = {
-          id: config.vaults[i].id,
           name: config.vaults[i].name,
-          created_at: config.vaults[i].created_at,
-          network: config.vaults[i].network,
-          addressType: config.vaults[i].addressType,
-          quorum: config.vaults[i].quorum,
           config: config.vaults[i],
           transactions: [],
+          currentBalance: 0,
           loading: true
         }
         window.ipcRenderer.send('/account-data', { config: config.vaults[i], nodeConfig }) // TODO: allow setting nodeConfig to be dynamic later
       }
 
-      window.ipcRenderer.on('/account-data', (_event: any, ...args: Account[]) => {
-        const accountInfo = args[0];
+      window.ipcRenderer.on('/account-data', (_event: any, ...args: any) => {
+        const accountInfo = args[0] as LilyAccount;
 
         updateAccountMap({
           ...accountInfo,

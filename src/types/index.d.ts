@@ -1,3 +1,5 @@
+import { ACCOUNTMAP_SET, ACCOUNTMAP_UPDATE } from '../reducers/accountMap'
+
 declare global {
   interface Window {
     ipcRenderer: any;
@@ -104,32 +106,36 @@ export interface UTXO {
   amount?: number // comes from bitcoin-core node
 }
 
-export interface Account {
+export interface LilyAccount {
   name: string
-  config: {
-    name: string
-  }
+  config: AccountConfig
+  addresses?: Address[]
+  changeAddresses?: Address[]
+  availableUtxos?: UTXO[]
   transactions: Transaction[]
+  unusedAddresses?: Address[]
+  unusedChangeAddresses?: Address[]
+  currentBalance: number
   loading: boolean
 }
 
 export interface AccountMap {
-  [id: string]: Account
+  [id: string]: LilyAccount
 }
 
 export interface AddressMap {
   [id: string]: Address
 }
 
-export interface Config {
+export interface LilyConfig {
   name: string,
   version: string,
   isEmpty: boolean,
   backup_options: {
     gDrive: boolean
   },
-  wallets: any[], // TODO: change
-  vaults: any[], // TODO: change
+  wallets: AccountConfig[],
+  vaults: AccountConfig[],
   keys: any[], // TODO: change
   exchanges: any[] // TODO: change
 }
@@ -157,7 +163,7 @@ export enum AddressType {
   multisig = 'multisig'
 }
 
-export interface Account {
+export interface AccountConfig {
   id: string
   created_at: number
   name: string
@@ -181,3 +187,7 @@ export interface PubKey {
     path: string
   }
 }
+
+export type AccountMapAction =
+  | { type: ACCOUNTMAP_UPDATE, payload: { account: LilyAccount } }
+  | { type: ACCOUNTMAP_SET, payload: AccountMap };

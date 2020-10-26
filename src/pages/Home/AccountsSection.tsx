@@ -12,7 +12,9 @@ import { StyledIcon } from '../../components';
 
 import { darkGray, white, gray500, black } from '../../utils/colors';
 
-const getLastTransactionTime = (transactions) => {
+import { Transaction } from '../../types';
+
+const getLastTransactionTime = (transactions: Transaction[]) => {
   if (transactions.length === 0) { // if no transactions yet
     return `No activity on this account yet`
   } else if (!transactions[0].status.confirmed) { // if last transaction isn't confirmed yet

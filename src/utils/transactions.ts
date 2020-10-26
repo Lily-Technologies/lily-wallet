@@ -8,7 +8,7 @@ const {
   bitcoinsToSatoshis
 } = require("unchained-bitcoin");
 
-import { Account, Address, AddressType, AddressMap, UTXO, Vin, Vout, Transaction, TransactionType, TransactionMap, PubKey, ExtendedPublicKey } from '../types';
+import { AccountConfig, Address, AddressType, AddressMap, UTXO, Vin, Vout, Transaction, TransactionType, TransactionMap, PubKey, ExtendedPublicKey } from '../types';
 
 const bitcoinNetworkEqual = (a: Network, b: Network): boolean => {
   return a.bech32 === b.bech32;
@@ -217,7 +217,7 @@ const serializeTransactionsFromNode = async (nodeClient: any, transactions: Tran
   return transactionsArray;
 }
 
-const getChildPubKeyFromXpub = (xpub: ExtendedPublicKey | Account, bip32Path: string, addressType: AddressType, currentBitcoinNetwork: Network) => {
+const getChildPubKeyFromXpub = (xpub: ExtendedPublicKey | AccountConfig, bip32Path: string, addressType: AddressType, currentBitcoinNetwork: Network) => {
   const childPubKeysBip32Path = bip32Path;
   let bip32derivationPath = getDerivationPath(addressType, bip32Path, currentBitcoinNetwork);
 
@@ -231,7 +231,7 @@ const getChildPubKeyFromXpub = (xpub: ExtendedPublicKey | Account, bip32Path: st
   }
 }
 
-const getMultisigAddressFromPubKeys = (pubkeys: PubKey[], config: Account, currentBitcoinNetwork: Network) => {
+const getMultisigAddressFromPubKeys = (pubkeys: PubKey[], config: AccountConfig, currentBitcoinNetwork: Network) => {
   const rawPubkeys = pubkeys.map((publicKey) => publicKey.childPubKey);
   rawPubkeys.sort();
   const address = generateMultisigFromPublicKeys(getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork), config.addressType, config.quorum.requiredSigners, ...rawPubkeys);
@@ -299,7 +299,7 @@ const getTransactionsFromAddress = async (address: Address, nodeClient: any, cur
   }
 }
 
-const getAddressFromAccount = (account: Account, path: string, currentBitcoinNetwork: Network) => {
+const getAddressFromAccount = (account: AccountConfig, path: string, currentBitcoinNetwork: Network) => {
   if (account.quorum.totalSigners > 1) { // multisig
     if (account.extendedPublicKeys) { // should always be true
       const childPubKeys = account.extendedPublicKeys.map((extendedPublicKey) => {
@@ -320,7 +320,7 @@ const getAddressFromAccount = (account: Account, path: string, currentBitcoinNet
 
 
 
-const scanForAddressesAndTransactions = async (account: Account, nodeClient: any, currentBitcoinNetwork: Network, limitGap: number) => {
+const scanForAddressesAndTransactions = async (account: AccountConfig, nodeClient: any, currentBitcoinNetwork: Network, limitGap: number) => {
   const receiveAddresses = [];
   const changeAddresses = [];
   let transactions: Transaction[] = [];
@@ -371,7 +371,7 @@ const getTransactionsFromNode = async (nodeClient: any) => {
   return await nodeClient.listTransactions({ count: 100 });
 }
 
-const getDataFromMultisig = async (account: Account, nodeClient: any, currentBitcoinNetwork: Network) => {
+const getDataFromMultisig = async (account: AccountConfig, nodeClient: any, currentBitcoinNetwork: Network) => {
   const { receiveAddresses, changeAddresses, unusedReceiveAddresses, unusedChangeAddresses, transactions } = await scanForAddressesAndTransactions(account, nodeClient, currentBitcoinNetwork, 10)
 
   let organizedTransactions: Transaction[];
@@ -394,7 +394,7 @@ const getDataFromMultisig = async (account: Account, nodeClient: any, currentBit
   return [receiveAddresses, changeAddresses, organizedTransactions, unusedReceiveAddresses, unusedChangeAddresses, availableUtxos];
 }
 
-const getDataFromXPub = async (account: Account, nodeClient: any, currentBitcoinNetwork: Network) => {
+const getDataFromXPub = async (account: AccountConfig, nodeClient: any, currentBitcoinNetwork: Network) => {
   const { receiveAddresses, changeAddresses, unusedReceiveAddresses, unusedChangeAddresses, transactions } = await scanForAddressesAndTransactions(account, nodeClient, currentBitcoinNetwork, 10)
 
   const availableUtxos = await getUtxosForAddresses(receiveAddresses.concat(changeAddresses), currentBitcoinNetwork);
