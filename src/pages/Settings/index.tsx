@@ -2,12 +2,15 @@ import React, { useState } from 'react';
 import styled, { css } from 'styled-components';
 import { AES } from 'crypto-js';
 import Modal from 'react-modal';
+import { Network } from 'bitcoinjs-lib';
 
 import { PageWrapper, PageTitle, Header, HeaderLeft, Button } from '../../components';
 
-import { green800, darkGray, white, gray100, darkOffWhite, lightGray, gray } from '../../utils/colors';
+import { green600, green800, darkGray, white, gray100, darkOffWhite, lightGray, gray } from '../../utils/colors';
 import { downloadFile, formatFilename } from '../../utils/files';
 import { mobile } from '../../utils/media';
+
+import { LilyConfig } from '../../types';
 
 const modalStyles = {
   overlay: {
@@ -22,18 +25,17 @@ const modalStyles = {
     right: 'auto',
     bottom: 'auto',
     display: 'flex',
-    flexDirection: 'column',
     maxWidth: '500px',
     width: '100%',
     minHeight: '500px'
   }
 }
 
-const Settings = ({ config, currentBitcoinNetwork }) => {
+const Settings = ({ config, currentBitcoinNetwork }: { config: LilyConfig, currentBitcoinNetwork: Network }) => {
   const [downloadConfigModalIsOpen, setDownloadConfigModalIsOpen] = useState(false);
-  const [password, setPassword] = useState(null);
+  const [password, setPassword] = useState('');
 
-  const downloadCurrentConfig = (password) => {
+  const downloadCurrentConfig = (password: string) => {
     const encryptedConfigObject = AES.encrypt(JSON.stringify(config), password).toString();
     downloadFile(encryptedConfigObject, formatFilename('lily_wallet_config', currentBitcoinNetwork, 'txt'));
   }
@@ -68,7 +70,7 @@ const Settings = ({ config, currentBitcoinNetwork }) => {
               <PasswordInput placeholder="password" value={password} onChange={(e) => setPassword(e.target.value)} type="password" />
             </PasswordWrapper>
             <WordContainer>
-              <SaveWalletButton onClick={() => downloadCurrentConfig(password)}>
+              <SaveWalletButton background={green600} color={white} onClick={() => downloadCurrentConfig(password)}>
                 Download Encrypted Configuration File
               </SaveWalletButton>
             </WordContainer>

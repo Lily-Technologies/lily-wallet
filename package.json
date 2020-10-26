@@ -114,7 +114,9 @@
     ]
   },
   "devDependencies": {
+    "@types/crypto-js": "^4.0.1",
     "@types/react-copy-to-clipboard": "^4.3.0",
+    "@types/react-modal": "^3.10.6",
     "@types/styled-components": "^5.1.4",
     "electron": "^9.0.0",
     "electron-builder": "^22.7.0",
