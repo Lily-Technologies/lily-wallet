@@ -13,7 +13,6 @@ export const FileUploader = ({ accept, id, onFileLoad }) => (
       filereader.onload = (event) => {
         onFileLoad({ file: event.target.result, modifiedTime: modifiedDate })
       };
-
       filereader.readAsText(e.target.files[0]);
     }}
   />

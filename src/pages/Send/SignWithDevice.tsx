@@ -1,8 +1,22 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { Psbt } from 'bitcoinjs-lib';
 
 import { DeviceSelect, Dropdown } from '../../components';
 import { darkGray, white } from '../../utils/colors';
+
+import { Device, HwiResponseEnumerate } from '../../types';
+
+interface Props {
+  psbt: Psbt,
+  signedPsbts: string[],
+  setSignedPsbts: React.Dispatch<React.SetStateAction<string[]>>,
+  signedDevices: Device[],
+  setSignedDevices: React.Dispatch<React.SetStateAction<Device[]>>,
+  signThreshold: number,
+  fileUploadLabelRef: React.RefObject<HTMLLabelElement>,
+  phoneAction?: () => void
+}
 
 const SignWithDevice = ({
   psbt,
@@ -13,12 +27,12 @@ const SignWithDevice = ({
   signThreshold,
   fileUploadLabelRef,
   phoneAction
-}) => {
-  const [unsignedDevices, setUnsignedDevices] = useState([]);
-  const [errorDevices, setErrorDevices] = useState([]);
+}: Props) => {
+  const [unsignedDevices, setUnsignedDevices] = useState<HwiResponseEnumerate[]>([]);
+  const [errorDevices, setErrorDevices] = useState<string[]>([]); // stores fingerprint of error devices
   const [optionsDropdownOpen, setOptionsDropdownOpen] = useState(false);
 
-  const signWithDevice = async (device, index) => {
+  const signWithDevice = async (device: HwiResponseEnumerate, index: number) => {
     try {
       const response = await window.ipcRenderer.invoke('/sign', {
         deviceType: device.type,
@@ -47,7 +61,9 @@ const SignWithDevice = ({
       label: 'Add signature from file',
       onClick: () => {
         const txFileUploadButton = fileUploadLabelRef.current;
-        txFileUploadButton.click()
+        if (txFileUploadButton !== null) {
+          txFileUploadButton.click()
+        }
       }
     }
   ]

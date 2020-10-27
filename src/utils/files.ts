@@ -1,15 +1,19 @@
 import moment from 'moment';
 import { v4 as uuidv4 } from 'uuid';
-import { networks, Psbt } from 'bitcoinjs-lib';
+import { networks, Network } from 'bitcoinjs-lib';
 import { bip32 } from "bitcoinjs-lib";
 import { mnemonicToSeed } from "bip39";
 import { AES } from 'crypto-js';
 
-export const bitcoinNetworkEqual = (a, b) => {
+import { bufferToHex } from '../utils/other';
+
+import { LilyConfig, AccountConfig, AddressType, Device, ExtendedPublicKey, HwiResponseEnumerate } from '../types';
+
+export const bitcoinNetworkEqual = (a: Network, b: Network) => {
   return a.bech32 === b.bech32;
 }
 
-export const getDerivationPath = (addressType, bip32Path, currentBitcoinNetwork) => {
+export const getDerivationPath = (addressType: AddressType, bip32Path: string, currentBitcoinNetwork: Network) => {
   const childPubKeysBip32Path = bip32Path;
   if (addressType === 'multisig') {
     return `${getMultisigDeriationPathForNetwork(currentBitcoinNetwork)}/${childPubKeysBip32Path.replace('m/', '')}`;
@@ -20,7 +24,7 @@ export const getDerivationPath = (addressType, bip32Path, currentBitcoinNetwork)
   }
 }
 
-export const getMultisigDeriationPathForNetwork = (network) => {
+export const getMultisigDeriationPathForNetwork = (network: Network) => {
   if (bitcoinNetworkEqual(network, networks.bitcoin)) {
     return "m/48'/0'/0'/2'"
   } else if (bitcoinNetworkEqual(network, networks.testnet)) {
@@ -30,7 +34,7 @@ export const getMultisigDeriationPathForNetwork = (network) => {
   }
 }
 
-export const getP2shDeriationPathForNetwork = (network) => {
+export const getP2shDeriationPathForNetwork = (network: Network) => {
   if (bitcoinNetworkEqual(network, networks.bitcoin)) {
     return "m/49'/0'/0'"
   } else if (bitcoinNetworkEqual(network, networks.testnet)) {
@@ -40,7 +44,7 @@ export const getP2shDeriationPathForNetwork = (network) => {
   }
 }
 
-export const getP2wpkhDeriationPathForNetwork = (network) => {
+export const getP2wpkhDeriationPathForNetwork = (network: Network) => {
   if (bitcoinNetworkEqual(network, networks.bitcoin)) {
     return "m/84'/0'/0'"
   } else if (bitcoinNetworkEqual(network, networks.testnet)) {
@@ -50,7 +54,7 @@ export const getP2wpkhDeriationPathForNetwork = (network) => {
   }
 }
 
-export const getUnchainedNetworkFromBjslibNetwork = (bitcoinJslibNetwork) => {
+export const getUnchainedNetworkFromBjslibNetwork = (bitcoinJslibNetwork: Network) => {
   if (bitcoinNetworkEqual(bitcoinJslibNetwork, networks.bitcoin)) {
     return 'mainnet';
   } else {
@@ -58,7 +62,7 @@ export const getUnchainedNetworkFromBjslibNetwork = (bitcoinJslibNetwork) => {
   }
 }
 
-export const containsColdcard = (devices) => {
+export const containsColdcard = (devices: Device[]) => {
   for (let i = 0; i < devices.length; i++) {
     if (devices[i].type === 'coldcard') {
       return true
@@ -67,31 +71,15 @@ export const containsColdcard = (devices) => {
   return false;
 }
 
-// TODO: move this somewhere more logical
-export const combinePsbts = (finalPsbt, signedPsbts) => {
-  const psbt = finalPsbt;
-  const base64SignedPsbts = signedPsbts.map((psbt) => {
-    if (typeof psbt === 'object') {
-      return psbt;
-    } else {
-      return Psbt.fromBase64(psbt);
-    }
-  })
-  if (base64SignedPsbts.length) { // if there are signed psbts, combine them
-    psbt.combine(...base64SignedPsbts);
-  }
-  return psbt;
-}
-
-export const formatFilename = (fileContents, currentBitcoinNetwork, fileType) => {
+export const formatFilename = (fileName: string, currentBitcoinNetwork: Network, fileType: string) => {
   if (bitcoinNetworkEqual(currentBitcoinNetwork, networks.bitcoin)) {
-    return `${fileContents}-bitcoin-${moment().format('MMDDYY-hhmmss')}.${fileType}`;
+    return `${fileName}-bitcoin-${moment().format('MMDDYY-hhmmss')}.${fileType}`;
   } else {
-    return `${fileContents}-testnet-${moment().format('MMDDYY-hhmmss')}.${fileType}`;
+    return `${fileName}-testnet-${moment().format('MMDDYY-hhmmss')}.${fileType}`;
   }
 }
 
-export const downloadFile = async (file, filename) => {
+export const downloadFile = async (file: string, filename: string) => {
   try {
     await window.ipcRenderer.invoke('/download-item', { data: file, filename: filename })
   } catch (e) {
@@ -99,7 +87,7 @@ export const downloadFile = async (file, filename) => {
   }
 }
 
-export const saveConfig = async (configFile, password) => {
+export const saveConfig = async (configFile: LilyConfig, password: string) => {
   const encryptedConfigObject = AES.encrypt(JSON.stringify(configFile), password).toString();
   try {
     await window.ipcRenderer.invoke('/save-config', { encryptedConfigFile: encryptedConfigObject })
@@ -108,7 +96,7 @@ export const saveConfig = async (configFile, password) => {
   }
 }
 
-export const createSinglesigConfigFile = async (walletMnemonic, accountName, config, currentBitcoinNetwork) => {
+export const createSinglesigConfigFile = async (walletMnemonic: string, accountName: string, config: LilyConfig, currentBitcoinNetwork: Network) => {
   const configCopy = { ...config };
   configCopy.isEmpty = false;
 
@@ -130,15 +118,15 @@ export const createSinglesigConfigFile = async (walletMnemonic, accountName, con
     xpub: xpubString,
     xprv: xprvString,
     mnemonic: walletMnemonic,
-    parentFingerprint: root.fingerprint,
-  };
+    parentFingerprint: bufferToHex(root.fingerprint),
+  } as AccountConfig;
 
   configCopy.wallets.push(newKey);
 
   return configCopy;
 }
 
-export const createSinglesigHWWConfigFile = async (device, accountName, config, currentBitcoinNetwork) => {
+export const createSinglesigHWWConfigFile = async (device: HwiResponseEnumerate, accountName: string, config: LilyConfig, currentBitcoinNetwork: Network) => {
   const configCopy = { ...config };
   configCopy.isEmpty = false;
 
@@ -156,14 +144,14 @@ export const createSinglesigHWWConfigFile = async (device, accountName, config, 
       model: device.model,
       fingerprint: device.fingerprint
     }
-  };
+  } as AccountConfig;
 
   configCopy.wallets.push(newKey);
 
   return configCopy;
 }
 
-export const createMultisigConfigFile = (importedDevices, requiredSigners, accountName, config, currentBitcoinNetwork) => {
+export const createMultisigConfigFile = (importedDevices: HwiResponseEnumerate[], requiredSigners: number, accountName: string, config: LilyConfig, currentBitcoinNetwork: Network) => {
   const configCopy = { ...config };
   configCopy.isEmpty = false;
 
@@ -180,7 +168,7 @@ export const createMultisigConfigFile = (importedDevices, requiredSigners, accou
         model: device.model,
         fingerprint: device.fingerprint
       }
-    }
+    } as ExtendedPublicKey
   });
 
   configCopy.vaults.push({
@@ -188,7 +176,7 @@ export const createMultisigConfigFile = (importedDevices, requiredSigners, accou
     created_at: Date.now(),
     name: accountName,
     network: getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork),
-    addressType: "P2WSH",
+    addressType: AddressType.P2WSH,
     quorum: {
       requiredSigners: requiredSigners,
       totalSigners: importedDevices.length
@@ -199,7 +187,7 @@ export const createMultisigConfigFile = (importedDevices, requiredSigners, accou
   return configCopy;
 }
 
-export const createColdCardBlob = (requiredSigners, totalSigners, accountName, importedDevices, currentBitcoinNetwork) => {
+export const createColdCardBlob = (requiredSigners: number, totalSigners: number, accountName: string, importedDevices: ExtendedPublicKey[], currentBitcoinNetwork: Network) => {
   let derivationPath = getMultisigDeriationPathForNetwork(currentBitcoinNetwork);
   return `# Coldcard Multisig setup file (created by Lily Wallet on ${moment(Date.now()).format('MM/DD/YYYY')})
 #
@@ -208,7 +196,7 @@ Policy: ${requiredSigners} of ${totalSigners}
 Derivation: ${derivationPath}
 Format: P2WSH
 ${importedDevices.map((device) => (
-    `\n${device.fingerprint || device.parentFingerprint}: ${device.xpub}`
+    `\n${device.parentFingerprint || device.parentFingerprint}: ${device.xpub}`
   ))}
 `;
 }

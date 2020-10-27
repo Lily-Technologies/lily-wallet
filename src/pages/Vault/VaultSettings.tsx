@@ -33,8 +33,10 @@ const VaultSettings = ({ config, setConfigFile, password, currentAccount, setVie
   const history = useHistory();
 
   const downloadColdcardMultisigFile = () => {
-    const ccFile = createColdCardBlob(currentAccount.config.quorum.requiredSigners, currentAccount.config.quorum.totalSigners, currentAccount.config.name, currentAccount.config.extendedPublicKeys, currentBitcoinNetwork);
-    downloadFile(ccFile, formatFilename(`${currentAccount.config.name}-lily-coldcard-file`, currentBitcoinNetwork, 'txt'));
+    if (currentAccount.config.extendedPublicKeys) {
+      const ccFile = createColdCardBlob(currentAccount.config.quorum.requiredSigners, currentAccount.config.quorum.totalSigners, currentAccount.config.name, currentAccount.config.extendedPublicKeys, currentBitcoinNetwork);
+      downloadFile(ccFile, formatFilename(`${currentAccount.config.name}-lily-coldcard-file`, currentBitcoinNetwork, 'txt'));
+    }
   }
 
   const downloadCaravanFile = () => {

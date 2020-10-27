@@ -384,7 +384,7 @@ const getDataFromMultisig = async (account: AccountConfig, nodeClient: any, curr
     const addressMap = { ...receiveAddressMap, ...changeAddressMap };
     for (let i = 0; i < availableUtxos.length; i++) {
       availableUtxos[i].value = bitcoinsToSatoshis(availableUtxos[i].amount).toNumber();
-      availableUtxos[i].address = addressMap[availableUtxos[i].address as string].address as string; // TODO: this needs reworked
+      availableUtxos[i].address = addressMap[availableUtxos[i].address.address];
     }
   } else {
     organizedTransactions = serializeTransactions(transactions, receiveAddresses, changeAddresses);

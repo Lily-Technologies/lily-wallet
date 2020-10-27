@@ -11,22 +11,47 @@ import {
   MAINNET, TESTNET
 } from "unchained-bitcoin";
 
-import { address, Psbt } from 'bitcoinjs-lib';
+import { address, Psbt, Network } from 'bitcoinjs-lib';
 
 import { cloneBuffer } from '../../utils/other';
 import { StyledIcon, Button, SidewaysShake, Dropdown } from '../../components';
 
 import { gray, green800, darkGray, white, darkOffWhite, green, darkGreen, lightGray, red, lightRed, orange, lightOrange } from '../../utils/colors';
-import { downloadFile, formatFilename, combinePsbts } from '../../utils/files';
-import { createUtxoMapFromUtxoArray } from './utils';
+import { downloadFile, formatFilename } from '../../utils/files';
+import { createUtxoMapFromUtxoArray, combinePsbts } from './utils';
 import { FeeSelector } from './FeeSelector';
 
 import { getUnchainedNetworkFromBjslibNetwork } from '../../utils/files';
+import { LilyAccount, UTXO, UtxoMap, Device, FeeRates, NodeConfig } from '../../types';
 
 const ABSURD_FEE = 1000000; // 0.01 BTC
 
+
+interface Props {
+  finalPsbt: Psbt,
+  nodeConfig: NodeConfig,
+  feeEstimate: number,
+  importTxFromFileError: string,
+  feeRates: FeeRates,
+  currentAccount: LilyAccount,
+  txImportedFromFile: boolean,
+  signedDevices: Device[],
+  recipientAddress: string,
+  sendAmount: string,
+  setStep: React.Dispatch<React.SetStateAction<number>>,
+  availableUtxos: UTXO[],
+  signedPsbts: string[],
+  signThreshold: number,
+  currentBitcoinPrice: any // KBC-TODO: change to be more specific
+  createTransactionAndSetState: (theFee: string | undefined) => Promise<Psbt>,
+  currentBitcoinNetwork: Network,
+  openInModal: (component: JSX.Element) => void,
+  closeModal: () => void
+}
+
 const TransactionDetails = ({
   finalPsbt,
+  nodeConfig,
   feeEstimate,
   importTxFromFileError,
   feeRates,
@@ -44,13 +69,13 @@ const TransactionDetails = ({
   currentBitcoinNetwork,
   openInModal,
   closeModal
-}) => {
+}: Props) => {
   const [broadcastedTxId, setBroadcastedTxId] = useState('');
   const [txError, setTxError] = useState(null);
   const [optionsDropdownOpen, setOptionsDropdownOpen] = useState(false);
 
-  const broadcastTransaction = async (currentAccount, psbt, currentBitcoinNetwork) => {
-    if (currentAccount.nodeConfig.provider !== 'Blockstream') {
+  const broadcastTransaction = async (currentAccount: LilyAccount, psbt: Psbt, currentBitcoinNetwork: Network) => {
+    if (nodeConfig.provider !== 'Blockstream') {
       const data = await window.ipcRenderer.invoke('/broadcastTx', {
         walletName: currentAccount.name,
         txHex: psbt.extractTransaction().toHex()
@@ -189,7 +214,7 @@ const TransactionDetails = ({
     </Fragment>
   )
 
-  const TransactionSuccess = ({ broadcastedTxId }) => (
+  const TransactionSuccess = ({ broadcastedTxId }: { broadcastedTxId: string }) => (
     <Fragment>
       <ModalHeaderContainer>
         Transaction Success
@@ -205,7 +230,7 @@ const TransactionDetails = ({
   )
 
   const TransactionDetails = () => {
-    let utxosMap;
+    let utxosMap: UtxoMap;
     if (availableUtxos) {
       utxosMap = createUtxoMapFromUtxoArray(availableUtxos);
     }
@@ -218,9 +243,9 @@ const TransactionDetails = ({
         <MoreDetailsContainer>
           <MoreDetailsSection>
             <MoreDetailsHeader>Inputs</MoreDetailsHeader>
-            {finalPsbt.__CACHE.__TX.ins.map(input => {
+            {finalPsbt.txInputs.map(input => {
               const inputBuffer = cloneBuffer(input.hash);
-              const utxo = utxosMap.get(`${inputBuffer.reverse().toString('hex')}:${input.index}`);
+              const utxo = utxosMap[`${inputBuffer.reverse().toString('hex')}:${input.index}`];
               return (
                 <OutputItem>
                   <OutputAddress>{utxo.address.address}</OutputAddress>
@@ -231,9 +256,9 @@ const TransactionDetails = ({
           </MoreDetailsSection>
           <MoreDetailsSection>
             <MoreDetailsHeader style={{ marginTop: '1em' }}>Outputs</MoreDetailsHeader>
-            {finalPsbt.__CACHE.__TX.outs.map(output => (
+            {finalPsbt.txOutputs.map(output => (
               <OutputItem>
-                <OutputAddress>{address.fromOutputScript(output.script, finalPsbt.opts.network)}</OutputAddress> <OutputAmount>{satoshisToBitcoins(output.value).toNumber()} BTC</OutputAmount>
+                <OutputAddress>{address.fromOutputScript(output.script, currentBitcoinNetwork)}</OutputAddress> <OutputAmount>{satoshisToBitcoins(output.value).toNumber()} BTC</OutputAmount>
               </OutputItem>
             ))}
 
@@ -259,10 +284,10 @@ const TransactionDetails = ({
           {screen}
           {txError && <ErrorBox>{txError}</ErrorBox>}
           {importTxFromFileError && <ErrorBox>{importTxFromFileError}</ErrorBox>}
-          {!broadcastedTxId && <SendButton background={green} color={white} loaded={signedDevices.length === signThreshold} onClick={sendTransaction}>
+          {!broadcastedTxId && <SendButton background={green} color={white} onClick={sendTransaction}>
             {signedDevices.length < signThreshold ? `Confirm on Devices (${signedDevices.length}/${signThreshold})` : 'Send Transaction'}
             {signedDevices.length < signThreshold ? null : (
-              <SendButtonCheckmark loaded={signedDevices.length}>
+              <SendButtonCheckmark>
                 <StyledIcon as={ArrowIosForwardOutline} size={16} />
               </SendButtonCheckmark>
             )}
@@ -394,8 +419,6 @@ const TransactionFeeField = styled.div`
 
 const SendButton = styled.div`
   ${Button};
-  pointer-events: ${p => p.loaded ? 'auto' : 'none'};
-  box-shadow: ${p => p.loaded ? `inset 500px 0 0 0 ${darkGreen}` : `inset 0 0 0 0 ${darkGreen}`};
   transition: ease-out 0.4s;
   position: relative;
   font-size: 1.5em;

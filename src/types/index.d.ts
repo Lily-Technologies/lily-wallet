@@ -1,4 +1,3 @@
-import { KeyboardEvent } from 'react';
 import { ACCOUNTMAP_SET, ACCOUNTMAP_UPDATE } from '../reducers/accountMap'
 
 declare global {
@@ -7,23 +6,16 @@ declare global {
   }
 }
 
-export interface FormInput {
-  value: string
-  onChange(value: string): void
-  error: boolean
-  label: string
-  id?: string
-  placeholder?: string
-  type: string
-  autoFocus?: boolean
-  onKeyDown?: (e: KeyboardEvent<Element>) => void
-}
-
 export interface File {
   file: string
   modifiedTime: number
 }
 
+export interface FeeRates {
+  fastestFee: number,
+  halfHourFee: number,
+  hourFee: number
+}
 export interface CaravanConfig {
   client: any, // KBC-TODO: allow private connection to node
   id: string
@@ -135,7 +127,7 @@ export interface Address {
   witness: any
   isChange?: boolean
   isMine?: boolean
-  bip32derivation: any[] // TODO: change
+  bip32derivation: Bip32Derivation[]
 }
 
 export interface UTXO {
@@ -143,7 +135,7 @@ export interface UTXO {
   vout: number,
   status: TxStatus,
   value: number,
-  address: Address | string // string if from bitcoin-core
+  address: Address
   amount?: number // comes from bitcoin-core node
 }
 
@@ -168,6 +160,10 @@ export interface AddressMap {
   [id: string]: Address
 }
 
+export interface UtxoMap {
+  [id: string]: UTXO
+}
+
 export interface LilyConfig {
   name: string,
   version: string,
@@ -182,9 +178,17 @@ export interface LilyConfig {
 }
 
 export interface Device {
-  type: 'coldcard' | 'trezor' | 'ledger' | 'phone'
+  type: 'coldcard' | 'trezor' | 'ledger' | 'phone' | 'lily'
   fingerprint: string
-  model: string
+  model: string // KBC-TODO: get more specific with this
+}
+
+export interface HwiResponseEnumerate { // device responses from HWI
+  type: Device.type
+  model: string // KBC-TODO: get more specific with this
+  path: string
+  fingerprint: string
+  xpub: string
 }
 
 export interface ExtendedPublicKey {
@@ -221,13 +225,15 @@ export interface AccountConfig {
   parentFingerprint?: string
 }
 
+export interface Bip32Derivation {
+  masterFingerprint: Buffer
+  pubkey: Buffer
+  path: string
+}
+
 export interface PubKey {
   childPubKey: string
-  bip32derivation: {
-    masterFingerprint: Buffer
-    pubkey: Buffer
-    path: string
-  }
+  bip32derivation: Bip32Derivation
 }
 
 export type AccountMapAction =

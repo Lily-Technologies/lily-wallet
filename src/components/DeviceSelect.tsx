@@ -6,10 +6,34 @@ import { ExclamationDiamond } from '@styled-icons/bootstrap'
 import { Button, StyledIcon, PromptPinModal } from '../components';
 import { lightGreen, gray, green, green800, white, darkGray, red, lightRed, yellow, lightYellow, gray600, gray900 } from '../utils/colors';
 
-export const DeviceSelect = ({ configuredDevices, unconfiguredDevices, errorDevices, setUnconfiguredDevices, configuredThreshold, deviceAction, deviceActionText, deviceActionLoadingText, phoneAction }) => {
+import { Device, HwiResponseEnumerate } from '../types';
+
+interface Props {
+  configuredDevices: Device[],
+  unconfiguredDevices: HwiResponseEnumerate[],
+  errorDevices: string[], // fingerprints of error devices
+  setUnconfiguredDevices: React.Dispatch<React.SetStateAction<HwiResponseEnumerate[]>>,
+  configuredThreshold: number,
+  deviceAction: (device: HwiResponseEnumerate, index: number) => void,
+  deviceActionText: string,
+  deviceActionLoadingText: string,
+  phoneAction?: () => void
+}
+
+export const DeviceSelect = ({
+  configuredDevices,
+  unconfiguredDevices,
+  errorDevices,
+  setUnconfiguredDevices,
+  configuredThreshold,
+  deviceAction,
+  deviceActionText,
+  deviceActionLoadingText,
+  phoneAction
+}: Props) => {
   const [devicesLoading, setDevicesLoading] = useState(false);
-  const [deviceActionLoading, setDeviceActionLoading] = useState(null);
-  const [promptPinModalDevice, setPromptPinModalDevice] = useState(null);
+  const [deviceActionLoading, setDeviceActionLoading] = useState<number | null>(null);
+  const [promptPinModalDevice, setPromptPinModalDevice] = useState<HwiResponseEnumerate | null>(null);
 
 
   useEffect(() => {
@@ -20,14 +44,16 @@ export const DeviceSelect = ({ configuredDevices, unconfiguredDevices, errorDevi
     setDevicesLoading(true);
     // what?
     try {
-      const response = await window.ipcRenderer.invoke('/enumerate');
+      const response: HwiResponseEnumerate[] = await window.ipcRenderer.invoke('/enumerate');
       setDevicesLoading(false);
 
       if (phoneAction) {
         response.push({
           type: 'phone',
-          fingerprint: undefined,
-          xpub: undefined
+          fingerprint: 'unknown',
+          xpub: 'unknown',
+          model: 'unknown',
+          path: 'unknown'
         })
       }
 
@@ -52,7 +78,7 @@ export const DeviceSelect = ({ configuredDevices, unconfiguredDevices, errorDevi
     }
   }
 
-  const performDeviceAction = async (device, index) => {
+  const performDeviceAction = async (device: HwiResponseEnumerate, index: number) => {
     setDeviceActionLoading(index)
     await deviceAction(device, index);
     setDeviceActionLoading(null);
@@ -90,6 +116,7 @@ export const DeviceSelect = ({ configuredDevices, unconfiguredDevices, errorDevi
           return (
             <DeviceWrapper
               key={index}
+              loading={deviceActionLoading !== null && deviceActionLoading === index}
               onClick={async () => {
                 if (deviceActionLoading === null) {
                   if (deviceWarning) {
@@ -99,7 +126,7 @@ export const DeviceSelect = ({ configuredDevices, unconfiguredDevices, errorDevi
                       await enumerate();
                     }
                   } else {
-                    if (device.type === 'phone') {
+                    if (device.type === 'phone' && phoneAction !== undefined) {
                       phoneAction()
                     } else {
                       performDeviceAction(device, index)
@@ -107,7 +134,6 @@ export const DeviceSelect = ({ configuredDevices, unconfiguredDevices, errorDevi
                   }
                 }
               }}
-              loading={deviceActionLoading === index}
               warning={deviceWarning}
               error={deviceError}
               displayLoadingCursor={deviceActionLoading !== null}
@@ -118,7 +144,6 @@ export const DeviceSelect = ({ configuredDevices, unconfiguredDevices, errorDevi
                 </IconWrapper>
               )}
               <DeviceImage
-                loading={deviceActionLoading === index}
                 src={
                   device.type === 'coldcard' ? require('../assets/coldcard.png')
                     : device.type === 'ledger' ? require('../assets/ledger.png')
@@ -127,7 +152,7 @@ export const DeviceSelect = ({ configuredDevices, unconfiguredDevices, errorDevi
                 } />
               <DeviceInfoWrapper>
                 <DeviceName>{device.type}</DeviceName>
-                <DeviceFingerprint>{device.fingerprint}</DeviceFingerprint>
+                <DeviceFingerprint imported={false}>{device.fingerprint}</DeviceFingerprint>
                 <ImportedWrapper>
                   {deviceActionLoading === index ? (
                     <ConfiguringText error={deviceError} style={{ textAlign: 'center' }}>
@@ -223,7 +248,7 @@ const NoDevicesSubheader = styled.h4`
   font-weight: 100;
 `;
 
-const ConfiguringText = styled.div`
+const ConfiguringText = styled.div<{ error?: boolean, warning?: boolean }>`
   color: ${p => p.error ? gray600 : darkGray};
   font-size: ${p => p.warning ? '0.75em' : '1em'};
   text-align: center;
@@ -250,7 +275,7 @@ const IconWrapper = styled.div`
   top: 0.65em;
 `;
 
-const DeviceWrapper = styled.div`
+const DeviceWrapper = styled.div<{ loading?: boolean, imported?: boolean, error?: boolean, warning?: boolean, displayLoadingCursor?: boolean }>`
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -261,6 +286,10 @@ const DeviceWrapper = styled.div`
   flex: 0 1 15.625em;
   border-radius: 4px;
   position: relative;
+  animation-name: ${p => p.loading ? blinking : 'none'};
+  animation-duration: 1.4s;
+  animation-iteration-count: infinite;
+  animation-fill-mode: both;
 
   background: ${p => p.imported ? lightGreen : p.error ? lightRed : p.warning ? lightYellow : 'none'};
   border: ${p => p.imported ? `1px solid ${green}` : p.error ? `1px solid ${red}` : p.warning ? `1px solid ${yellow}` : '1px solid transparent'};
@@ -275,11 +304,6 @@ const DeviceImage = styled.img`
   height: auto;
   max-height: 250px;
   max-width: 6.25em;
-
-  animation-name: ${p => p.loading ? blinking : 'none'};
-  animation-duration: 1.4s;
-  animation-iteration-count: infinite;
-  animation-fill-mode: both;
 `;
 
 const DeviceName = styled.h4`
@@ -288,7 +312,7 @@ const DeviceName = styled.h4`
   font-weight: 500;
 `;
 
-const DeviceFingerprint = styled.h5`
+const DeviceFingerprint = styled.h5<{ imported: boolean }>`
   color: ${p => p.imported ? darkGray : gray};
   margin: 0;
   font-weight: 100;

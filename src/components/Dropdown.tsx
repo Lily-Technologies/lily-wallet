@@ -24,7 +24,19 @@ import { white } from '../utils/colors';
 
 */
 
-export const Dropdown = ({ isOpen, setIsOpen, buttonLabel, dropdownItems, minimal, style }) => {
+interface Props {
+  isOpen: Boolean,
+  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>,
+  buttonLabel?: string,
+  dropdownItems: {
+    label: string
+    onClick(): void
+  }[],
+  minimal: boolean,
+  style?: {}
+}
+
+export const Dropdown = ({ isOpen, setIsOpen, buttonLabel, dropdownItems, minimal, style }: Props) => {
   return (
     <DropdownWrapper>
       <ButtonContainer>
@@ -32,8 +44,7 @@ export const Dropdown = ({ isOpen, setIsOpen, buttonLabel, dropdownItems, minima
           <MinimalDropdownButtonContainer
             style={style}
             onClick={() => setIsOpen(!isOpen)}
-            aria-label="Options" id="options-menu"
-            aria-haspopup="true" aria-expanded={isOpen}>
+            aria-label="Options" id="options-menu">
             <DotDotDotImage fill="currentColor" viewBox="0 0 20 20">
               <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path>
             </DotDotDotImage>
@@ -45,9 +56,7 @@ export const Dropdown = ({ isOpen, setIsOpen, buttonLabel, dropdownItems, minima
                 onClick={() => setIsOpen(!isOpen)}
                 type="button"
                 id="options-menu"
-                aria-haspopup="true"
-                fill="currentColor"
-                aria-expanded={isOpen}>
+                aria-haspopup="true">
                 {buttonLabel}
                 {/* <DownArrowIcon style={style} fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
@@ -64,6 +73,7 @@ export const Dropdown = ({ isOpen, setIsOpen, buttonLabel, dropdownItems, minima
         leave="transition ease-in duration-75"
         leaveFrom="transform opacity-100 scale-100"
         leaveTo="transform opacity-0 scale-95"
+        appear={undefined} // KBC-TODO: does this need to be here?
       >
         <OutsideClick onOutsideClick={() => setIsOpen(false)}>
           <DropdownItemsWrapper>
@@ -205,7 +215,7 @@ const Divider = styled.div`
   height: 1px;
 `;
 
-const DropdownItem = styled.a`
+const DropdownItem = styled.a<{ clickable: boolean }>`
   padding-left: 1rem;
   padding-right: 1rem;
   padding-top: .5rem;

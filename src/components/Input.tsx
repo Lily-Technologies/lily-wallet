@@ -1,11 +1,22 @@
 import React, { Fragment } from 'react';
 import styled from 'styled-components';
 
-import { white, gray300, gray600, red400 } from '../utils/colors';
+import { white, gray300, gray500, gray600, red400 } from '../utils/colors';
 
-import { FormInput } from '../types'
+export interface Props {
+  value: string
+  onChange(e: string): void
+  error: boolean
+  label: string
+  id?: string
+  placeholder?: string
+  type: string
+  autoFocus?: boolean
+  onKeyDown?: (e: React.KeyboardEvent<Element>) => void
+  inputStaticText?: string
+}
 
-export const Input = ({ value, onChange, error, label, id, placeholder, type, autoFocus, onKeyDown }: FormInput) => (
+export const Input = ({ value, onChange, error, label, id, placeholder, type, autoFocus, onKeyDown, inputStaticText }: Props) => (
   <Fragment>
     {label && <Label htmlFor={id}>{label}</Label>}
     <InputWrapper>
@@ -13,12 +24,13 @@ export const Input = ({ value, onChange, error, label, id, placeholder, type, au
         type={type || 'text'}
         id={id}
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange(e.target.value)}
         onKeyDown={onKeyDown}
         error={error}
         autoFocus={autoFocus}
         placeholder={placeholder}
       />
+      {inputStaticText && <InputStaticText disabled text={inputStaticText}></InputStaticText>}
     </InputWrapper>
   </Fragment>
 )
@@ -63,5 +75,23 @@ const StyledInput = styled.input<{ error: boolean }>`
     outline: none;
     box-shadow: 0 0 0 3px rgba(164,202,254,.45);
     border-color: #a4cafe;
+  }
+`;
+
+export const InputStaticText = styled.label<{ text: string, disabled: boolean }>`
+  top: 0;
+  right: 0;
+  position: absolute;
+
+  &::after {
+    content: "${p => p.text}";
+    position: absolute;
+    top: 0.65em;
+    right: 0.75em;
+    font-family: arial,helvetica,sans-serif;
+    font-size: 1em;
+    display: block;
+    color: ${gray500};
+    font-weight: bold;
   }
 `;

@@ -6,9 +6,9 @@ import BigNumber from 'bignumber.js';
 import { mnemonicToSeed } from 'bip39';
 import { satoshisToBitcoins } from "unchained-bitcoin";
 import { QRCode } from "react-qr-svg";
-import { Psbt, bip32, networks } from 'bitcoinjs-lib';
+import { Psbt, bip32, networks, Network } from 'bitcoinjs-lib';
 
-import { StyledIcon, Button, PageWrapper, GridArea, PageTitle, Header, HeaderRight, HeaderLeft, Loading, FileUploader, Modal, Dropdown } from '../../components';
+import { StyledIcon, Button, PageWrapper, GridArea, PageTitle, Header, HeaderRight, HeaderLeft, Loading, FileUploader, Modal, Dropdown, Input } from '../../components';
 import RecentTransactions from '../../components/transactions/RecentTransactions';
 
 import SignWithDevice from './SignWithDevice'
@@ -16,40 +16,48 @@ import TransactionDetails from './TransactionDetails';
 
 import { AccountMapContext } from '../../AccountMapContext';
 
-import { red, gray, green800, darkGray, white, darkOffWhite, gray100, black, lightGray } from '../../utils/colors';
+import { red, gray, green600, green800, darkGray, white, darkOffWhite, gray100, black, lightGray } from '../../utils/colors';
 import { mobile } from '../../utils/media';
 import { cloneBuffer, bufferToHex } from '../../utils/other';
-import { combinePsbts, bitcoinNetworkEqual } from '../../utils/files';
+import { bitcoinNetworkEqual } from '../../utils/files';
 
-import { createTransaction, validateAddress, createUtxoMapFromUtxoArray, getFee } from './utils'
-import { AddressDisplayWrapper, Input, InputStaticText } from './styles';
+import { createTransaction, validateAddress, createUtxoMapFromUtxoArray, getFee, combinePsbts } from './utils'
 
-const Send = ({ config, currentBitcoinNetwork, currentBitcoinPrice }) => {
+import { LilyConfig, File, Device, NodeConfig, FeeRates } from '../../types';
+
+interface Props {
+  config: LilyConfig,
+  currentBitcoinNetwork: Network,
+  nodeConfig: NodeConfig,
+  currentBitcoinPrice: any // KBC-TODO: more specific type
+}
+
+const Send = ({ config, currentBitcoinNetwork, nodeConfig, currentBitcoinPrice }: Props) => {
   document.title = `Send - Lily Wallet`;
   const [sendAmount, setSendAmount] = useState('');
   const [sendAmountError, setSendAmountError] = useState(false);
   const [txImportedFromFile, setTxImportedFromFile] = useState(false);
-  const [importTxFromFileError, setImportTxFromFileError] = useState(false);
+  const [importTxFromFileError, setImportTxFromFileError] = useState('');
   const [recipientAddress, setRecipientAddress] = useState('');
   const [recipientAddressError, setRecipientAddressError] = useState(false);
   const [step, setStep] = useState(0);
-  const [finalPsbt, setFinalPsbt] = useState(null);
-  const [feeEstimate, setFeeEstimate] = useState(BigNumber(0));
-  const [signedPsbts, setSignedPsbts] = useState([]);
-  const [signedDevices, setSignedDevices] = useState([]);
-  const [pastedPsbtValue, setPastedPsbtValue] = useState(null);
+  const [finalPsbt, setFinalPsbt] = useState<Psbt | null>(null);
+  const [feeEstimate, setFeeEstimate] = useState(new BigNumber(0));
+  const [signedPsbts, setSignedPsbts] = useState<string[]>([]);
+  const [signedDevices, setSignedDevices] = useState<Device[]>([]);
+  const [pastedPsbtValue, setPastedPsbtValue] = useState('');
   const [optionsDropdownOpen, setOptionsDropdownOpen] = useState(false);
-  const [feeRates, setFeeRates] = useState(null);
-  const fileUploadLabelRef = useRef(null);
+  const [feeRates, setFeeRates] = useState<FeeRates>({ fastestFee: 0, halfHourFee: 0, hourFee: 0 });
   const [modalIsOpen, setModalIsOpen] = useState(false);
-  const [modalContent, setModalContent] = useState(null);
+  const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
+  const fileUploadLabelRef = useRef<HTMLLabelElement>(null);
 
   const { setCurrentAccountId, currentAccount } = useContext(AccountMapContext);
 
   // Get account data
   const { transactions, availableUtxos, unusedChangeAddresses, currentBalance } = currentAccount;
 
-  const openInModal = (component) => {
+  const openInModal = (component: JSX.Element) => {
     setModalIsOpen(true);
     setModalContent(component);
   }
@@ -58,13 +66,13 @@ const Send = ({ config, currentBitcoinNetwork, currentBitcoinPrice }) => {
     setModalIsOpen(false);
     setModalContent(null);
     if (modalContent === <PastePsbtModalContent />) {
-      setPastedPsbtValue(null);
-      setImportTxFromFileError(false);
+      setPastedPsbtValue('');
+      setImportTxFromFileError('');
     }
   }
 
   // TODO: refactor this...ugly
-  const createTransactionAndSetState = async (theFee) => {
+  const createTransactionAndSetState = async (theFee: string | undefined) => {
     try {
       const { psbt, fee, feeRates } = await createTransaction(currentAccount, sendAmount, recipientAddress, theFee, availableUtxos, unusedChangeAddresses, currentBitcoinNetwork);
       setFinalPsbt(psbt);
@@ -77,7 +85,7 @@ const Send = ({ config, currentBitcoinNetwork, currentBitcoinPrice }) => {
     }
   }
 
-  const signTransactionIfSingleSigner = async (psbt) => {
+  const signTransactionIfSingleSigner = async (psbt: Psbt) => {
     // if only single sign, then sign tx right away
     if (currentAccount.config.mnemonic) {
       const seed = await mnemonicToSeed(currentAccount.config.mnemonic);
@@ -87,16 +95,20 @@ const Send = ({ config, currentBitcoinNetwork, currentBitcoinPrice }) => {
       psbt.validateSignaturesOfAllInputs();
       psbt.finalizeAllInputs();
 
-      setSignedDevices([currentAccount]) // this could probably have better information in it but
-      setSignedPsbts([psbt]);
+      setSignedDevices([{ // we need to set a signed device for flow to continue, so set it as lily
+        model: 'lily',
+        type: 'lily',
+        fingerprint: 'whatever'
+      }]) // this could probably have better information in it but
+      setSignedPsbts([psbt.toBase64()]);
     }
   }
 
-  const importTxFromFile = (file) => {
+  const importTxFromFile = (file: string) => {
     if (importTxFromFileError) {
-      setImportTxFromFileError(null)
+      setImportTxFromFileError('')
     }
-    let tx;
+    let tx: Psbt | undefined = undefined;
     // try seeing if we are getting base64 encoded tx
     try {
       tx = Psbt.fromBase64(file);
@@ -109,13 +121,13 @@ const Send = ({ config, currentBitcoinNetwork, currentBitcoinPrice }) => {
     }
 
     // if valid transaction, then continue parsing
-    if (tx) { // transaction will be undefined if not created above
+    if (tx !== undefined) { // transaction will be undefined if not created above
       try {
         if (!finalPsbt) {
           setFinalPsbt(tx);
         } else {
           try {
-            tx = combinePsbts(finalPsbt, [...signedPsbts, tx])
+            tx = combinePsbts(finalPsbt, [...signedPsbts, tx.toBase64()])
           } catch (e) {
             console.log('error: ', e)
             throw new Error('Signature is for a different transaction')
@@ -123,37 +135,35 @@ const Send = ({ config, currentBitcoinNetwork, currentBitcoinPrice }) => {
         }
         // validate psbt and make sure it belongs to the current account
         let sumInputs = new BigNumber(0);
-        let utxosMap;
-        if (availableUtxos) {
-          utxosMap = createUtxoMapFromUtxoArray(availableUtxos);
-        }
-        for (let i = 0; i < tx.__CACHE.__TX.ins.length; i++) {
-          const currentInput = tx.__CACHE.__TX.ins[i];
+        let utxosMap = createUtxoMapFromUtxoArray(availableUtxos)
+        for (let i = 0; i < tx.txInputs.length; i++) {
+          const currentInput = tx.txInputs[i];
           const inputBuffer = cloneBuffer(currentInput.hash);
-          const currentUtxo = utxosMap.get(`${inputBuffer.reverse().toString('hex')}:${currentInput.index}`);
+          const currentUtxo = utxosMap[`${inputBuffer.reverse().toString('hex')}:${currentInput.index}`];
           if (!currentUtxo) {
             throw new Error('This transaction isn\'t associated with this wallet')
           };
           sumInputs = sumInputs.plus(currentUtxo.value);
         }
-        const sumOutputs = tx.__CACHE.__TX.outs.reduce((accum, curr) => accum + curr.value, 0);
+        const sumOutputs = tx.txOutputs.reduce((accum, curr) => accum + curr.value, 0);
         setFeeEstimate(sumInputs.minus(sumOutputs).integerValue(BigNumber.ROUND_CEIL));
 
         // check if any partial signatures already
-        const signedFingerprints = [];
-        const signedDevicesObjects = [];
+        const signedFingerprints: string[] = [];
+        const signedDevicesObjects: Device[] = [];
         for (let i = 0; i < tx.data.inputs.length; i++) {
           const currentInput = tx.data.inputs[i];
           // if there is, figure out what device it belongs to
-          if (currentInput.partialSig) {
+          if (currentInput !== undefined && currentInput.partialSig) {
             for (let j = 0; j < currentInput.partialSig.length; j++) {
-              currentInput.bip32Derivation.forEach((bipItem) => {
+              currentInput.bip32Derivation!.forEach((bipItem) => {
                 // and add device to list if it isn't already
-                if (Buffer.compare(currentInput.partialSig[j].pubkey, bipItem.pubkey) === 0 && !signedFingerprints.includes(bufferToHex(bipItem.masterFingerprint))) {
+                // KBC-TODO: reexamine this block of code...I think it can be more efficient and precise
+                if (Buffer.compare(currentInput.partialSig![j].pubkey, bipItem.pubkey) === 0 && !signedFingerprints.includes(bufferToHex(bipItem.masterFingerprint))) {
                   signedFingerprints.push(bufferToHex(bipItem.masterFingerprint));
-                  for (let k = 0; k < currentAccount.config.extendedPublicKeys.length; k++) {
-                    if (currentAccount.config.extendedPublicKeys[k].device.fingerprint.toLowerCase() === bufferToHex(bipItem.masterFingerprint).toLowerCase()) {
-                      signedDevicesObjects.push(currentAccount.config.extendedPublicKeys[k].device);
+                  for (let k = 0; k < currentAccount.config.extendedPublicKeys!.length; k++) {
+                    if (currentAccount.config.extendedPublicKeys![k].device.fingerprint.toLowerCase() === bufferToHex(bipItem.masterFingerprint).toLowerCase()) {
+                      signedDevicesObjects.push(currentAccount.config.extendedPublicKeys![k].device);
                     }
                   }
                 }
@@ -185,44 +195,46 @@ const Send = ({ config, currentBitcoinNetwork, currentBitcoinPrice }) => {
       setRecipientAddressError(false);
     }
 
-    if (!satoshisToBitcoins(BigNumber(feeEstimate).plus(currentBalance)).isGreaterThan(sendAmount)) {
+    if (!satoshisToBitcoins(feeEstimate.plus(currentBalance)).isGreaterThan(sendAmount)) {
       setSendAmountError(true)
     }
 
-    if (satoshisToBitcoins(BigNumber(feeEstimate).plus(currentBalance)).isGreaterThan(sendAmount) && sendAmountError) {
+    if (satoshisToBitcoins(feeEstimate.plus(currentBalance)).isGreaterThan(sendAmount) && sendAmountError) {
       setSendAmountError(false)
     }
 
-    if (validateAddress(recipientAddress, currentBitcoinNetwork) && sendAmount && satoshisToBitcoins(BigNumber(feeEstimate).plus(currentBalance)).isGreaterThan(sendAmount)) {
+    if (validateAddress(recipientAddress, currentBitcoinNetwork) && sendAmount && satoshisToBitcoins(new BigNumber(feeEstimate).plus(currentBalance)).isGreaterThan(sendAmount)) {
       await createTransactionAndSetState(undefined);
       setStep(1);
     }
   }
 
-  const PsbtDetails = () => (
-    <Fragment>
-      <ModalHeaderContainer>
-        Raw PSBT
-      </ModalHeaderContainer>
-      <div style={{ padding: '1.5em' }}>
-        <OutputItem style={{ wordBreak: 'break-word' }}>
-          <QRCode
-            bgColor={white}
-            fgColor={black}
-            level="Q"
-            style={{ width: 256 }}
-            value={finalPsbt.toBase64()}
-          />
-        </OutputItem>
-      </div>
-    </Fragment>
-  )
+  const PsbtDetails = () => {
+    return (
+      <Fragment>
+        <ModalHeaderContainer>
+          Raw PSBT
+          </ModalHeaderContainer>
+        <div style={{ padding: '1.5em' }}>
+          <OutputItem style={{ wordBreak: 'break-word' }}>
+            <QRCode
+              bgColor={white}
+              fgColor={black}
+              level="Q"
+              style={{ width: 256 }}
+              value={(finalPsbt as Psbt).toBase64()} // KBC-TODO: rexamine to avoid explicit type declaration
+            />
+          </OutputItem>
+        </div>
+      </Fragment>
+    )
+  }
 
   const PastePsbtModalContent = () => (
     <Fragment>
       <ModalHeaderContainer>
         Paste PSBT or Transaction Hex Below
-                    </ModalHeaderContainer>
+      </ModalHeaderContainer>
       <div style={{ padding: '1.5em' }}>
         <PastePsbtTextArea
           rows={20}
@@ -235,11 +247,13 @@ const Send = ({ config, currentBitcoinNetwork, currentBitcoinPrice }) => {
           <FromFileButton
             style={{ marginRight: '1em' }}
             onClick={() => {
-              setPastedPsbtValue(null);
-              setImportTxFromFileError(false);
+              setPastedPsbtValue('');
+              setImportTxFromFileError('');
               setModalIsOpen(false);
             }}>Cancel</FromFileButton>
           <CopyAddressButton
+            background={green600}
+            color={white}
             onClick={() => {
               importTxFromFile(pastedPsbtValue)
             }}>Import Transaction</CopyAddressButton>
@@ -253,7 +267,7 @@ const Send = ({ config, currentBitcoinNetwork, currentBitcoinPrice }) => {
       {config.vaults.map((vault, index) => (
         <AccountMenuItemWrapper
           active={vault.id === currentAccount.config.id}
-          borderRight={(index < config.vaults.length - 1) || config.wallets.length}
+          borderRight={!!(index < config.vaults.length - 1) || !!config.wallets.length}
           onClick={() => setCurrentAccountId(vault.id)}>
           <StyledIcon as={Safe} size={48} />
           <AccountMenuItemName>{vault.name}</AccountMenuItemName>
@@ -286,7 +300,7 @@ const Send = ({ config, currentBitcoinNetwork, currentBitcoinPrice }) => {
       <FileUploader
         accept="*"
         id="txFile"
-        onFileLoad={({ file }) => {
+        onFileLoad={({ file }: File) => {
           importTxFromFile(file)
         }}
       />
@@ -295,7 +309,7 @@ const Send = ({ config, currentBitcoinNetwork, currentBitcoinPrice }) => {
       <Modal
         isOpen={modalIsOpen}
         onRequestClose={() => closeModal()}>
-        {modalContent}
+        {modalContent as React.ReactChild}
       </Modal>
 
       <SendWrapper>
@@ -325,61 +339,58 @@ const Send = ({ config, currentBitcoinNetwork, currentBitcoinPrice }) => {
                         label: 'Import from file',
                         onClick: () => {
                           const txFileUploadButton = fileUploadLabelRef.current;
-                          txFileUploadButton.click()
+                          if (txFileUploadButton !== null) {
+                            txFileUploadButton.click()
+                          }
                         }
                       },
                       {
                         label: 'Import from clipboard',
                         onClick: () => {
-                          setImportTxFromFileError(false)
+                          setImportTxFromFileError('')
                           setModalIsOpen(true)
                           setModalContent(<PastePsbtModalContent />)
                         }
                       }
                     ]}
                   />
-
-                  {/* Visible in form */}
-                  <SendToAddressHeader style={{ marginTop: 0 }}>
-                    Send bitcoin to
-                  </SendToAddressHeader>
-
-                  <Input
-                    onChange={(e) => setRecipientAddress(e.target.value)}
-                    value={recipientAddress}
-                    placeholder={bitcoinNetworkEqual(currentBitcoinNetwork, networks.testnet) ?
-                      "tb1q4h5xd5wsalmes2496y8dtphc609rt0un3gl69r" :
-                      "bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4"}
-                    style={{ marginBottom: 36 }}
-                    error={recipientAddressError}
-                  />
-
-                  <SendToAddressHeader>
-                    Amount of bitcoin to send
-                  </SendToAddressHeader>
-                  <AddressDisplayWrapper>
+                  <InputContainer>
                     <Input
-                      value={sendAmount}
-                      onChange={(e) => setSendAmount(e.target.value)}
-                      placeholder="0.0025"
-                      style={{ paddingRight: 80, color: darkGray, flex: 1 }}
-                      error={sendAmountError}
+                      label="Send bitcoin to"
+                      type="text"
+                      onChange={setRecipientAddress}
+                      value={recipientAddress}
+                      placeholder={bitcoinNetworkEqual(currentBitcoinNetwork, networks.testnet) ?
+                        "tb1q4h5xd5wsalmes2496y8dtphc609rt0un3gl69r" :
+                        "bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4"}
+                      error={recipientAddressError}
                     />
-                    <InputStaticText disabled text="BTC">BTC</InputStaticText>
-                  </AddressDisplayWrapper>
+                  </InputContainer>
+                  <InputContainer>
+                    <Input
+                      label="Amount of bitcoin to send"
+                      type="text"
+                      value={sendAmount}
+                      onChange={setSendAmount}
+                      placeholder="0.0025"
+                      error={sendAmountError}
+                      inputStaticText="BTC"
+                    />
+                  </InputContainer>
                   {sendAmountError && <SendAmountError>Not enough funds</SendAmountError>}
                   <SendButtonContainer>
                     {/* <CopyAddressButton background="transparent" color={darkGray}>Advanced Options</CopyAddressButton> */}
-                    <CopyAddressButton onClick={() => validateAndCreateTransaction()}>Preview Transaction</CopyAddressButton>
+                    <CopyAddressButton background={green600} color={white} onClick={() => validateAndCreateTransaction()}>Preview Transaction</CopyAddressButton>
                     {importTxFromFileError && !modalIsOpen && <ErrorText style={{ paddingTop: '1em' }}>{importTxFromFileError}</ErrorText>}
                   </SendButtonContainer>
                 </AccountSendContentLeft>
               )}
 
-              {step === 1 && (
+              {step === 1 && finalPsbt !== null && (
                 <TransactionDetails
                   finalPsbt={finalPsbt}
-                  feeEstimate={getFee(finalPsbt, transactions)}
+                  nodeConfig={nodeConfig}
+                  feeEstimate={getFee(finalPsbt as Psbt, transactions)} // KBC-TODO: rexamine to avoid explicit type declaration
                   recipientAddress={recipientAddress}
                   setStep={setStep}
                   sendAmount={sendAmount}
@@ -422,7 +433,7 @@ const Send = ({ config, currentBitcoinNetwork, currentBitcoinPrice }) => {
                   </RecentTransactionContainer>
                 </Fragment>
               )}
-              {step === 1 && !currentAccount.config.mnemonic && (
+              {step === 1 && !currentAccount.config.mnemonic && finalPsbt && (
                 <SignWithDevice
                   psbt={finalPsbt}
                   setSignedPsbts={setSignedPsbts}
@@ -431,7 +442,7 @@ const Send = ({ config, currentBitcoinNetwork, currentBitcoinPrice }) => {
                   setSignedDevices={setSignedDevices}
                   signThreshold={currentAccount.config.quorum.requiredSigners}
                   fileUploadLabelRef={fileUploadLabelRef}
-                  phoneAction={currentAccount.config.extendedPublicKeys.filter((item) => item.device && item.device.type === 'phone').length ? () => openInModal(<PsbtDetails />) : undefined}
+                  phoneAction={currentAccount.config.extendedPublicKeys && currentAccount.config.extendedPublicKeys.filter((item) => item.device && item.device.type === 'phone').length ? () => openInModal(<PsbtDetails />) : undefined}
                 />
               )}
             </AccountSendContentRight>
@@ -441,6 +452,12 @@ const Send = ({ config, currentBitcoinNetwork, currentBitcoinPrice }) => {
     </PageWrapper >
   )
 }
+
+const InputContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1em;
+`;
 
 const RecentTransactionContainer = styled.div`
   padding: 0 1em;
@@ -486,7 +503,7 @@ const ImportButtons = styled.div`
   display: flex;
 `;
 
-const FromFileButton = styled.div`
+const FromFileButton = styled.button`
   padding: 1em 1.25rem;
   border: 1px solid ${gray};
   border-radius: .375rem;
@@ -507,7 +524,7 @@ const SendButtonContainer = styled.div`
   flex-direction: column;
 `;
 
-const CopyAddressButton = styled.div`
+const CopyAddressButton = styled.button`
   ${Button};
   flex: 1;
 `;
@@ -519,20 +536,13 @@ const SendWrapper = styled.div`
   border: 1px solid ${gray};
 `;
 
-const SendToAddressHeader = styled.div`
-  font-size: 1em;
-  color: ${darkGray};
-  margin: 12px;
-  margin-bottom: 0px;
-`;
-
 const SendAmountError = styled.div`
   font-size: 0.5em;
   color: ${red};
   text-align: right;
 `;
 
-const AccountMenuItemWrapper = styled.div`
+const AccountMenuItemWrapper = styled.div<{ active: boolean, borderRight: boolean }>`
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -575,7 +585,7 @@ const AccountSendContentRight = styled.div`
   width: 100%;
 `;
 
-const CurrentBalanceWrapper = styled.div`
+const CurrentBalanceWrapper = styled.div<{ displayDesktop: boolean, displayMobile: boolean }>`
   padding: 1.5em;
   display: ${p => p.displayDesktop ? 'flex' : 'none'};
   flex-direction: column;
@@ -584,9 +594,9 @@ const CurrentBalanceWrapper = styled.div`
   background: ${white};
   text-align: right;
 
-  ${mobile(css`
+  ${mobile(css<{ displayMobile: boolean }>`
     display: ${p => p.displayMobile ? 'flex' : 'none'}
-  `)};
+`)};
 
 `;
 
@@ -611,6 +621,32 @@ const OutputItem = styled.div`
   justify-content: center;
   align-items: center;
   border-radius: 4px;
+`;
+
+export const InputStaticText = styled.label<{ text: string, disabled: boolean }>`
+  position: relative;
+  display: flex;
+  flex: 0 0;
+  justify-self: center;
+  align-self: center;
+  margin-left: -87px;
+  z-index: 1;
+  margin-right: 40px;
+  font-size: 1.5em;
+  font-weight: 100;
+  color: ${gray};
+
+  &::after {
+    content: ${p => p.text};
+    position: absolute;
+    top: 4px;
+    left: 94px;
+    font-family: arial, helvetica, sans-serif;
+    font-size: .75em;
+    display: block;
+    color: rgba(0, 0, 0, 0.6);
+    font-weight: bold;
+  }
 `;
 
 export default Send;

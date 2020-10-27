@@ -6,20 +6,33 @@ import {
   blockExplorerAPIURL,
   estimateMultisigTransactionFee
 } from "unchained-bitcoin";
-import { Psbt, address } from 'bitcoinjs-lib';
+import { Psbt, address, Network } from 'bitcoinjs-lib';
 
 import BigNumber from 'bignumber.js';
-import coinSelect from 'coinselect';
+import { coinSelect } from 'coinselect';
 
 import { cloneBuffer } from '../../utils/other';
 import { getUnchainedNetworkFromBjslibNetwork } from '../../utils/files';
 
-const getTxHex = async (txid, currentBitcoinNetwork) => {
+import { LilyAccount, UTXO, UtxoMap, AddressType, Transaction, Address } from '../../types'
+
+const getTxHex = async (txid: string, currentBitcoinNetwork: Network) => {
   const txHex = await (await axios.get(blockExplorerAPIURL(`/tx/${txid}/hex`, getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)))).data;
   return txHex;
 }
 
-export const validateAddress = (recipientAddress, currentBitcoinNetwork) => {
+export const combinePsbts = (finalPsbt: Psbt, signedPsbts: string[]) => {
+  const psbt = finalPsbt;
+  const base64SignedPsbts = signedPsbts.map((psbt) => {
+    return Psbt.fromBase64(psbt);
+  })
+  if (base64SignedPsbts.length) { // if there are signed psbts, combine them
+    psbt.combine(...base64SignedPsbts);
+  }
+  return psbt;
+}
+
+export const validateAddress = (recipientAddress: string, currentBitcoinNetwork: Network) => {
   try {
     address.toOutputScript(recipientAddress, currentBitcoinNetwork)
     return true
@@ -28,15 +41,15 @@ export const validateAddress = (recipientAddress, currentBitcoinNetwork) => {
   }
 }
 
-export const createUtxoMapFromUtxoArray = (utxosArray) => {
-  const utxoMap = new Map();
+export const createUtxoMapFromUtxoArray = (utxosArray: UTXO[]) => {
+  const utxoMap: UtxoMap = {};
   utxosArray.forEach((utxo) => {
-    utxoMap.set(`${utxo.txid}:${utxo.vout}`, utxo)
+    utxoMap[`${utxo.txid}:${utxo.vout}`] = utxo
   });
   return utxoMap
 }
 
-export const getFeeForMultisig = (feeRate, addressType, numInputs, numOutputs, requiredSigners, totalSigners) => {
+export const getFeeForMultisig = (feeRate: number, addressType: AddressType, numInputs: number, numOutputs: number, requiredSigners: number, totalSigners: number) => {
   const feeRateString = feeRate.toString();
   return estimateMultisigTransactionFee({
     addressType: addressType,
@@ -48,7 +61,7 @@ export const getFeeForMultisig = (feeRate, addressType, numInputs, numOutputs, r
   })
 }
 
-export const getFee = (psbt, transactions) => {
+export const getFee = (psbt: Psbt, transactions: Transaction[]) => {
   const outputSum = psbt.txOutputs.reduce((acc, cur) => acc + cur.value, 0);
   const txMap = createTransactionMapFromTransactionArray(transactions);
   const inputSum = psbt.txInputs.reduce((acc, cur) => {
@@ -59,7 +72,7 @@ export const getFee = (psbt, transactions) => {
   return inputSum - outputSum;
 }
 
-const createTransactionMapFromTransactionArray = (transactionsArray) => {
+const createTransactionMapFromTransactionArray = (transactionsArray: Transaction[]) => {
   const transactionMap = new Map();
   transactionsArray.forEach((tx) => {
     transactionMap.set(tx.txid, tx)
@@ -67,9 +80,9 @@ const createTransactionMapFromTransactionArray = (transactionsArray) => {
   return transactionMap
 }
 
-const coinSelection = (amountInSats, availableUtxos) => {
+const coinSelection = (amountInSats: number, availableUtxos: UTXO[]) => {
   availableUtxos.sort((a, b) => b.value - a.value); // sort available utxos from largest size to smallest size to minimize inputs
-  let currentTotal = BigNumber(0);
+  let currentTotal = new BigNumber(0);
   const spendingUtxos = [];
   let index = 0;
   while (currentTotal.isLessThan(amountInSats) && index < availableUtxos.length) {
@@ -77,13 +90,13 @@ const coinSelection = (amountInSats, availableUtxos) => {
     spendingUtxos.push(availableUtxos[index]);
     index++;
   }
-  return [spendingUtxos, currentTotal];
+  return { spendingUtxos, currentTotal };
 }
 
-export const createTransaction = async (currentAccount, amountInBitcoins, recipientAddress, desiredFee, availableUtxos, unusedChangeAddresses, currentBitcoinNetwork) => {
+export const createTransaction = async (currentAccount: LilyAccount, amountInBitcoins: string, recipientAddress: string, desiredFee: string | undefined, availableUtxos: UTXO[], unusedChangeAddresses: Address[], currentBitcoinNetwork: Network) => {
   let fee;
   const feeRates = await window.ipcRenderer.invoke('/estimateFee');
-  if (desiredFee) { // if no fee specified, pick halfhour
+  if (desiredFee !== undefined) { // if no fee specified, pick halfhour
     fee = desiredFee;
   } else if (currentAccount.config.quorum.totalSigners > 1) {
     fee = await getFeeForMultisig(feeRates.halfHourFee, currentAccount.config.addressType, 1, 2, currentAccount.config.quorum.requiredSigners, currentAccount.config.quorum.totalSigners).integerValue(BigNumber.ROUND_CEIL);
@@ -92,13 +105,13 @@ export const createTransaction = async (currentAccount, amountInBitcoins, recipi
     fee = coinSelectResult.fee;
   }
 
-  let outputTotal = BigNumber(bitcoinsToSatoshis(amountInBitcoins)).plus(BigNumber(fee).toNumber());
-  let [spendingUtxos, spendingUtxosTotal] = coinSelection(outputTotal, availableUtxos);
+  let outputTotal = new BigNumber(bitcoinsToSatoshis(amountInBitcoins)).plus(fee).toNumber();
+  let { spendingUtxos, currentTotal: spendingUtxosTotal } = coinSelection(outputTotal, availableUtxos);
 
   if (spendingUtxos.length > 1 && !desiredFee && currentAccount.config.quorum.totalSigners > 1) { // we assumed 1 input utxo when first calculating fee, if more inputs then readjust fee
     fee = await getFeeForMultisig(feeRates.halfHourFee, currentAccount.config.addressType, spendingUtxos.length, 2, currentAccount.config.quorum.requiredSigners, currentAccount.config.quorum.totalSigners).integerValue(BigNumber.ROUND_CEIL);
-    outputTotal = BigNumber(bitcoinsToSatoshis(amountInBitcoins)).plus(fee.toNumber());
-    [spendingUtxos, spendingUtxosTotal] = coinSelection(outputTotal, availableUtxos);
+    outputTotal = new BigNumber(bitcoinsToSatoshis(amountInBitcoins)).plus(fee).toNumber();
+    ({ spendingUtxos, currentTotal: spendingUtxosTotal } = coinSelection(outputTotal, availableUtxos));
   }
 
   const psbt = new Psbt({ network: currentBitcoinNetwork });
