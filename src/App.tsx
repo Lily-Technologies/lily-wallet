@@ -23,12 +23,11 @@ import Settings from './pages/Settings';
 import Vault from './pages/Vault';
 import Receive from './pages/Receive';
 import Send from './pages/Send';
-import ColdcardImportInstructions from './pages/ColdcardImportInstructions';
 import Home from './pages/Home';
 
 import { AccountMapContext } from './AccountMapContext';
 
-import { Config, NodeConfig, File, AccountMap } from './types';
+import { LilyConfig, NodeConfig, File, AccountMap, LilyAccount } from './types';
 
 const emptyConfig = {
   name: "",
@@ -41,12 +40,12 @@ const emptyConfig = {
   vaults: [],
   keys: [],
   exchanges: []
-} as Config;
+} as LilyConfig;
 
 const App = () => {
   const [currentBitcoinPrice, setCurrentBitcoinPrice] = useState(new BigNumber(0));
   const [historicalBitcoinPrice, setHistoricalBitcoinPrice] = useState({});
-  const [config, setConfigFile] = useState<Config>(emptyConfig);
+  const [config, setConfigFile] = useState<LilyConfig>(emptyConfig);
   const [encryptedConfigFile, setEncryptedConfigFile] = useState<File | null>(null);
   const [currentBitcoinNetwork, setCurrentBitcoinNetwork] = useState(networks.bitcoin);
   const [refresh, setRefresh] = useState(false);
@@ -179,6 +178,12 @@ const App = () => {
           name: config.wallets[i].name,
           config: config.wallets[i],
           transactions: [],
+          unusedAddresses: [],
+          addresses: [],
+          changeAddresses: [],
+          availableUtxos: [],
+          unusedChangeAddresses: [],
+          currentBalance: 0,
           loading: true
         }
         window.ipcRenderer.send('/account-data', { config: config.wallets[i], nodeConfig }) // TODO: allow setting nodeConfig to be dynamic later
@@ -189,13 +194,19 @@ const App = () => {
           name: config.vaults[i].name,
           config: config.vaults[i],
           transactions: [],
+          unusedAddresses: [],
+          addresses: [],
+          changeAddresses: [],
+          availableUtxos: [],
+          unusedChangeAddresses: [],
+          currentBalance: 0,
           loading: true
         }
         window.ipcRenderer.send('/account-data', { config: config.vaults[i], nodeConfig }) // TODO: allow setting nodeConfig to be dynamic later
       }
 
-      window.ipcRenderer.on('/account-data', (_event: any, ...args: Account[]) => {
-        const accountInfo = args[0];
+      window.ipcRenderer.on('/account-data', (_event: any, ...args: any) => {
+        const accountInfo = args[0] as LilyAccount;
 
         updateAccountMap({
           ...accountInfo,
@@ -217,12 +228,11 @@ const App = () => {
         {!config.isEmpty && <MobileNavbar mobileNavOpen={mobileNavOpen} setMobileNavOpen={setMobileNavOpen} config={config} currentBitcoinNetwork={currentBitcoinNetwork} />}
         <Switch>
           <Route path="/vault/:id" render={() => <Vault config={config} setConfigFile={setConfigFile} password={password} toggleRefresh={toggleRefresh} currentBitcoinNetwork={currentBitcoinNetwork} />} />
-          <Route path="/receive" render={() => <Receive config={config} />} />
-          <Route path="/send" render={() => <Send config={config} currentBitcoinPrice={currentBitcoinPrice} currentBitcoinNetwork={currentBitcoinNetwork} />} />
+          <Route path="/receive" component={() => <Receive config={config} />} />
+          {nodeConfig && <Route path="/send" component={() => <Send config={config} currentBitcoinPrice={currentBitcoinPrice} nodeConfig={nodeConfig} currentBitcoinNetwork={currentBitcoinNetwork} />} />}
           <Route path="/setup" render={() => <Setup config={config} setConfigFile={setConfigFile} password={password} currentBitcoinNetwork={currentBitcoinNetwork} />} />
           <Route path="/login" render={() => <Login config={config} setConfigFile={setConfigFile} setPassword={setPassword} encryptedConfigFile={encryptedConfigFile} setEncryptedConfigFile={setEncryptedConfigFile} currentBitcoinNetwork={currentBitcoinNetwork} />} />
           <Route path="/settings" render={() => <Settings config={config} currentBitcoinNetwork={currentBitcoinNetwork} />} />
-          <Route path="/coldcard-import-instructions" render={() => <ColdcardImportInstructions />} />
           <Route path="/" render={() => <Home flyInAnimation={flyInAnimation} prevFlyInAnimation={prevSetFlyInAnimation.current} historicalBitcoinPrice={historicalBitcoinPrice} currentBitcoinPrice={currentBitcoinPrice} />} />
           <Route path="/" render={() => (
             <div>Not Found</div>
