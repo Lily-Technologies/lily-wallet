@@ -6,6 +6,8 @@ declare module 'unchained-bitcoin' {
   declare function estimateMultisigTransactionFee(config: MultisigConfig): BigNumber
   declare function blockExplorerAPIURL(path: string, network: string): string
   declare function blockExplorerTransactionURL(txid: string, network: 'mainnet' | 'testnet'): string
+  declare function deriveChildPublicKey(xpub: string, path: string, network: 'mainnet' | 'testnet'): string
+  declare function generateMultisigFromPublicKeys(network: 'mainnet' | 'testnet', addressType: string, requiredSigners: number, ...publicKeys: string[])
 
   declare const MAINNET = "mainnet"
   declare const TESTNET = "testnet"

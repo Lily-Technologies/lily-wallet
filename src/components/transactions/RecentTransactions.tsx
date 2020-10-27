@@ -26,7 +26,7 @@ interface Props {
   transactions: Transaction[]
   loading: boolean
   flat: boolean,
-  maxItems: number
+  maxItems?: number
 }
 
 const RecentTransactions = ({ transactions, loading, flat = false, maxItems = Infinity }: Props) => {

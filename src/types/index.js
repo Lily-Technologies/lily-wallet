@@ -2,7 +2,7 @@
 
 var TransactionType = {
   sent: 'sent',
-  received: 'recieved',
+  received: 'received',
   moved: 'moved'
 }
 

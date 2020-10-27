@@ -1,12 +1,12 @@
-const axios = require('axios');
-const BigNumber = require('bignumber.js');
+import axios from 'axios';
+import BigNumber from 'bignumber.js';
 import { payments, networks, Network } from 'bitcoinjs-lib';
-const {
+import {
   deriveChildPublicKey,
   blockExplorerAPIURL,
   generateMultisigFromPublicKeys,
   bitcoinsToSatoshis
-} = require("unchained-bitcoin");
+} from "unchained-bitcoin";
 
 import { AccountConfig, Address, AddressType, AddressMap, UTXO, Vin, Vout, Transaction, TransactionType, TransactionMap, PubKey, ExtendedPublicKey } from '../types';
 
@@ -89,7 +89,7 @@ const createAddressMapFromAddressArray = (addressArray: Address[], isChange: boo
  * @param {Boolean} isMine - Whether to restrict sum to our own inputs/outputs.
  * @param {Boolean} isChange - Whether to restrict sum to change inputs/outputs.
  */
-const sum = (items: (Vin | Vout)[], isMine: boolean, isChange: boolean) => {
+const sum = (items: (Vin | Vout)[], isMine: boolean, isChange?: boolean) => {
   let filtered = items;
   if (typeof isMine === 'boolean')
     filtered = filtered.filter(item => item.isMine === isMine);
@@ -146,8 +146,8 @@ const serializeTransactions = (transactionsFromBlockstream: Transaction[], addre
   let balance = 0;
   txs.forEach(tx => {
     let amountIn, amountOut, amountOutChange;
-    amountIn = sum(tx.vin, true, false);
-    amountOut = sum(tx.vout, true, false);
+    amountIn = sum(tx.vin, true);
+    amountOut = sum(tx.vout, true);
     amountOutChange = sum(tx.vout, true, true);
     if (amountIn === (amountOut + (amountIn > 0 ? tx.fee : 0))) {
       tx.type = TransactionType.moved;
@@ -181,7 +181,7 @@ const serializeTransactions = (transactionsFromBlockstream: Transaction[], addre
 const serializeTransactionsFromNode = async (nodeClient: any, transactions: Transaction[], addresses: Address[], changeAddresses: Address[]) => {
   transactions.sort((a, b) => a.blockheight as number - b.blockheight as number); // bitcoin-core returns value as blockheight
 
-  let currentAccountTotal = BigNumber(0);
+  let currentAccountTotal = new BigNumber(0);
   const transactionsMap = new Map();
   for (let i = 0; i < transactions.length; i++) {
     const currentTransaction = await nodeClient.getTransaction({ txid: transactions[i].txid, verbose: true });
@@ -222,10 +222,10 @@ const getChildPubKeyFromXpub = (xpub: ExtendedPublicKey | AccountConfig, bip32Pa
   let bip32derivationPath = getDerivationPath(addressType, bip32Path, currentBitcoinNetwork);
 
   return {
-    childPubKey: deriveChildPublicKey(xpub.xpub, childPubKeysBip32Path, getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)),
+    childPubKey: deriveChildPublicKey(xpub.xpub!, childPubKeysBip32Path, getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)),
     bip32derivation: {
       masterFingerprint: Buffer.from(xpub.parentFingerprint as string, 'hex'),
-      pubkey: Buffer.from(deriveChildPublicKey(xpub.xpub, childPubKeysBip32Path, getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)), 'hex'),
+      pubkey: Buffer.from(deriveChildPublicKey(xpub.xpub!, childPubKeysBip32Path, getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)), 'hex'),
       path: bip32derivationPath
     }
   }

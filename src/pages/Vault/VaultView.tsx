@@ -115,7 +115,9 @@ const VaultView = ({ currentAccount }: { currentAccount: LilyAccount }) => {
           }
           return b.status.block_time - a.status.block_time
         })}
-        loading={currentAccount.loading} />
+        loading={currentAccount.loading}
+        flat={false}
+      />
     </Fragment>
   )
 }
