@@ -239,3 +239,27 @@ export interface PubKey {
 export type AccountMapAction =
   | { type: ACCOUNTMAP_UPDATE, payload: { account: LilyAccount } }
   | { type: ACCOUNTMAP_SET, payload: AccountMap };
+
+export interface ColdcardDeviceMultisigExportFile {
+  p2sh_deriv: string // m/45'
+  p2sh: string // xpub68ULYdfaSbytWGGNnutbcDLVyk3hyi3Tv5A8eftKDumTwTbRcT8u4QvZAWHRtqKMPb8serYEokayLLbicvwrar6TF1afmn3637v1Q6T2ZD
+  p2wsh_p2sh_deriv: string // m/48'/0'/0'/1'
+  p2wsh_p2sh: string // Ypub6kmiukr9rKYGxbifxWJpJP3LALmaFHuxjokuucps9daff1xXysKDaAduo3lkiDsUZf9VjEGPrvHUSz1fJJ4QWRnNjDcjxdsUG9qeQXG9Xiz
+  p2wsh_deriv: string // m/48'/0'/0'/2'
+  p2wsh: string // Zpub7kiyeVX5115krPgvUjigApgRHHbj7tMjaizGTg3WUQbzkpcckp5UFfeX6klo9qRQkRsCdd3ck14aa7Bh8UJoUPN1dmVTZdWNDythNZXJ5dY
+  xfp: string // 4F60D1C
+}
+
+export interface ColdcardMultisigExportFile {
+  seed_version: number
+  use_encryption: boolean
+  wallet_type: string  // "2of3"
+  [index: string]: {
+    xpub: string // Zpub75sdfasdtbXgj2YXAq6KUpQddsuQ9777w7pjlknbndP6UoseZNLHy1B561vHNmKQ5SqJ24HmoFCNrTRV4dfasdfadfGt3NF5TyR2ZCfeCZcT7HSHUN
+    hw_type: string // "coldcard",
+    ckcc_xfp: number // 3618723177,
+    label: string // "Coldcard 919dxC3D6",
+    derivation: string // "m/48'/0'/0'/2'",
+    type: string //"hardware"
+  }
+}

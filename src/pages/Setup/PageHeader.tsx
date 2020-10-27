@@ -4,7 +4,16 @@ import { useHistory } from "react-router-dom";
 import { HeaderWrapper, CancelButton, PageTitleSubtext } from './styles';
 import { Header, HeaderLeft, HeaderRight, PageTitle } from '../../components/layout';
 
-const PageHeader = ({ headerText, setStep, step, config }) => {
+import { LilyConfig } from '../../types';
+
+interface Props {
+  headerText: string
+  setStep: React.Dispatch<React.SetStateAction<number>>
+  step: number
+  config: LilyConfig
+}
+
+const PageHeader = ({ headerText, setStep, step, config }: Props) => {
   const history = useHistory();
 
   return (

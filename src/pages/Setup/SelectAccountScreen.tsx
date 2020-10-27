@@ -8,7 +8,13 @@ import { StyledIcon, Button } from '../../components';
 import { InnerWrapper } from './styles';
 import { green800, darkGray, white, gray, gray800 } from '../../utils/colors';
 
-const SelectAccountScreen = ({ header, setSetupOption, setStep }) => {
+interface Props {
+  header: JSX.Element
+  setSetupOption: React.Dispatch<React.SetStateAction<number>>
+  setStep: React.Dispatch<React.SetStateAction<number>>
+}
+
+const SelectAccountScreen = ({ header, setSetupOption, setStep }: Props) => {
   return (
     <InnerWrapper>
       {header}

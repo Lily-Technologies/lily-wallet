@@ -4,12 +4,19 @@ import { useHistory } from "react-router-dom";
 import { CheckCircle } from '@styled-icons/material';
 
 import { StyledIcon, Button } from '../../components';
-import { white, darkGray, green, gray500, gray600, gray700 } from '../../utils/colors';
+import { white, darkGray, green, green600, gray500, gray600, gray700 } from '../../utils/colors';
 import { FormContainer, InnerWrapper, BoxedWrapper } from './styles';
 
 import { downloadFile } from '../../utils/files';
 
-const SuccessScreen = ({ exportSetupFiles, config, downloadColdcardFile, setStep }) => {
+import { LilyConfig } from '../../types'
+
+interface Props {
+  config: LilyConfig
+  downloadColdcardFile?: () => Promise<void>
+}
+
+const SuccessScreen = ({ config, downloadColdcardFile }: Props) => {
   const history = useHistory();
 
   return (
@@ -43,6 +50,7 @@ const SuccessScreen = ({ exportSetupFiles, config, downloadColdcardFile, setStep
               Backup Config File
           </SaveBackupButton>
             <DownloadButton
+              background={green600}
               color={white}
               onClick={() => {
                 history.push(`/`);

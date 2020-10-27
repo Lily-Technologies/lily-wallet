@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import bs58check from 'bs58check';
+import { Network } from 'bitcoinjs-lib';
 
 import { Button, DeviceSelect, FileUploader } from '../../components';
 import { InnerWrapper, XPubHeaderWrapper, SetupHeaderWrapper, SetupExplainerText, FormContainer, BoxedWrapper, SetupHeader } from './styles';
@@ -8,23 +9,35 @@ import { darkGray, white } from '../../utils/colors';
 import { zpubToXpub } from '../../utils/other';
 import { getP2shDeriationPathForNetwork } from '../../utils/files';
 
+import { green600 } from '../../utils/colors';
+
+import { HwiResponseEnumerate, ColdcardDeviceMultisigExportFile, File } from '../../types';
+
+interface Props {
+  header: JSX.Element
+  setStep: React.Dispatch<React.SetStateAction<number>>
+  importedDevices: HwiResponseEnumerate[]
+  setImportedDevices: React.Dispatch<React.SetStateAction<HwiResponseEnumerate[]>>
+  currentBitcoinNetwork: Network
+}
+
 const NewHardwareWalletScreen = ({
   header,
   setStep,
   importedDevices,
   setImportedDevices,
   currentBitcoinNetwork
-}) => {
-  const [availableDevices, setAvailableDevices] = useState([]);
-  const [errorDevices, setErrorDevices] = useState([]);
+}: Props) => {
+  const [availableDevices, setAvailableDevices] = useState<HwiResponseEnumerate[]>([]);
+  const [errorDevices, setErrorDevices] = useState<string[]>([]);
 
-  const importSingleSigDevice = async (device, index) => {
+  const importSingleSigDevice = async (device: HwiResponseEnumerate, index: number) => {
     try {
       const response = await window.ipcRenderer.invoke('/xpub', {
         deviceType: device.type,
         devicePath: device.path,
         path: getP2shDeriationPathForNetwork(currentBitcoinNetwork) // we are assuming BIP48 P2WSH wallet
-      });
+      }); // KBC-TODO: hwi xpub response type
 
       setImportedDevices([...importedDevices, { ...device, ...response }]);
       availableDevices.splice(index, 1);
@@ -43,14 +56,16 @@ const NewHardwareWalletScreen = ({
     }
   }
 
-  const importDeviceFromFile = (parsedFile) => {
+  const importDeviceFromFile = (parsedFile: ColdcardDeviceMultisigExportFile) => {
     const zpub = bs58check.decode(parsedFile.p2wsh);
     const xpub = zpubToXpub(zpub);
 
     const newDevice = {
       type: 'coldcard',
       fingerprint: parsedFile.xfp,
-      xpub: xpub
+      xpub: xpub,
+      model: 'unknown',
+      path: 'unknown'
     }
 
     const updatedImportedDevices = [...importedDevices, newDevice];
@@ -65,7 +80,7 @@ const NewHardwareWalletScreen = ({
           <FileUploader
             accept="*"
             id="localConfigFile"
-            onFileLoad={({ file }) => {
+            onFileLoad={({ file }: File) => {
               const parsedFile = JSON.parse(file);
               // TODO: should probably have better checking for files to make sure users aren't uploading "weird" files
               importDeviceFromFile(parsedFile)
@@ -96,6 +111,8 @@ const NewHardwareWalletScreen = ({
           />
         </BoxedWrapper>
         {importedDevices.length > 1 && <ContinueButton
+          background={green600}
+          color={white}
           onClick={() => {
             setStep(3);
           }}>Continue</ContinueButton>}
@@ -104,7 +121,7 @@ const NewHardwareWalletScreen = ({
   )
 }
 
-const ContinueButton = styled.div`
+const ContinueButton = styled.button`
   ${Button};
   border-top-right-radius: 0;
   border-top-left-radius: 0;

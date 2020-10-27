@@ -1,13 +1,20 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Button } from '../../components';
+import { Button, Input } from '../../components';
 import { InnerWrapper, XPubHeaderWrapper, SetupHeaderWrapper, SetupExplainerText, FormContainer, BoxedWrapper, SetupHeader } from './styles';
 
-import { white, darkOffWhite, gray100, black, gray } from '../../utils/colors';
+import { white, green600 } from '../../utils/colors';
 
+interface Props {
+  header: JSX.Element
+  setupOption: number
+  setStep: React.Dispatch<React.SetStateAction<number>>
+  accountName: string
+  setAccountName: React.Dispatch<React.SetStateAction<string>>
+}
 
-const InputNameScreen = ({ header, setupOption, setStep, accountName, setAccountName }) => {
+const InputNameScreen = ({ header, setupOption, setStep, accountName, setAccountName }: Props) => {
 
   const nextScreenAction = () => {
     if (accountName.length > 3) {
@@ -15,13 +22,13 @@ const InputNameScreen = ({ header, setupOption, setStep, accountName, setAccount
     }
   }
 
-  const onInputEnter = (e) => {
+  const onInputEnter = (e: React.KeyboardEvent<Element>) => {
     if (e.key === 'Enter') {
       nextScreenAction();
     }
   }
 
-  const getAccountType = (setupOption, capitalize) => {
+  const getAccountType = (setupOption: number, capitalize?: 'all' | 'first' | 'none') => {
     let option;
     if (setupOption === 1) {
       option = 'vault'
@@ -61,17 +68,22 @@ const InputNameScreen = ({ header, setupOption, setStep, accountName, setAccount
             </SetupHeaderWrapper>
           </XPubHeaderWrapper>
           <PasswordWrapper>
-            <NameInput
+            <Input
               autoFocus
+              error={false}
+              label="Account Name"
+              type="text"
               placeholder={`${getAccountType(setupOption, 'all')} Name`}
               value={accountName}
-              onChange={(e) => setAccountName(e.target.value)}
+              onChange={setAccountName}
               onKeyDown={(e) => onInputEnter(e)}
             />
           </PasswordWrapper>
 
           <ExportFilesButton
-            active={accountName.length > 3}
+            background={green600}
+            color={white}
+            // active={accountName.length > 3}
             onClick={() => nextScreenAction()}>{`Continue`}</ExportFilesButton>
         </BoxedWrapper>
       </FormContainer>
@@ -86,37 +98,8 @@ const PasswordWrapper = styled.div`
   background: ${white};
 `;
 
-const NameInput = styled.input`
-  position: relative;
-  border: 1px solid ${darkOffWhite};
-  background: ${gray100};
-  padding: .75em;
-  text-align: center;
-  color: ${black};
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 1em;
-  border-radius: 4px;
-  font-size: 1.5em;
-  z-index: 1;
-  flex: 1;
-  font-family: 'Montserrat', sans-serif;
-
-  ::placeholder {
-    color: ${gray};
-  }
-
-  :active, :focused {
-    outline: 0;
-    border: none;
-  }
-`;
-
 const ExportFilesButton = styled.button`
   ${Button};
-  click-events: ${p => p.active ? 'auto' : 'none'};
-  opacity: ${p => p.active ? '1' : '0.5'};
   padding: 1em;
   font-size: 1em;
   font-weight: 700;

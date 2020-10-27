@@ -6,7 +6,12 @@ import { StyledIcon } from '../../components';
 
 import { white, gray100, gray300, gray400, gray500, gray700, green400, green500 } from '../../utils/colors';
 
-const Steps = ({ step, setupOption }) => {
+interface Props {
+  step: number
+  setupOption: number
+}
+
+const Steps = ({ step, setupOption }: Props) => {
   return (
     <StepsGroup>
       <StepItem arrow={true} completed={step > 1} active={step === 1}>
@@ -46,7 +51,7 @@ const StepItemTextContainer = styled.div`
   justify-content: center;
 `;
 
-const StepCircle = styled.div`
+const StepCircle = styled.div<{ active: boolean, completed: boolean }>`
   border-radius: 9999px;
   border: 1px solid ${p => (p.active || p.completed) ? green500 : gray400};
   background: ${p => p.completed ? green400 : 'transparent'};
@@ -67,7 +72,7 @@ const StepsGroup = styled.div`
 `;
 
 
-const StepItem = styled.div`
+const StepItem = styled.div<{ active: boolean, completed: boolean, arrow: boolean }>`
   display: flex;
   align-items: center;
   position: relative;

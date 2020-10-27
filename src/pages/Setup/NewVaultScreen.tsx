@@ -2,13 +2,28 @@ import React, { useState, useRef } from 'react';
 import styled from 'styled-components';
 import { decode } from 'bs58check';
 import BarcodeScannerComponent from "react-webcam-barcode-scanner";
+import { Network } from 'bitcoinjs-lib';
 
 import { Button, DeviceSelect, FileUploader, Dropdown, Modal } from '../../components';
 import { InnerWrapper, XPubHeaderWrapper, SetupHeaderWrapper, SetupExplainerText, FormContainer, BoxedWrapper, SetupHeader } from './styles';
 import { zpubToXpub } from '../../utils/other';
 import RequiredDevicesModal from './RequiredDevicesModal';
 
+import { white, green600 } from '../../utils/colors'
+
 import { getMultisigDeriationPathForNetwork } from '../../utils/files';
+
+import { HwiResponseEnumerate, File, ColdcardDeviceMultisigExportFile, ColdcardMultisigExportFile } from '../../types';
+
+interface Props {
+  header: JSX.Element
+  setStep: React.Dispatch<React.SetStateAction<number>>
+  importedDevices: HwiResponseEnumerate[]
+  setImportedDevices: React.Dispatch<React.SetStateAction<HwiResponseEnumerate[]>>
+  setConfigRequiredSigners: React.Dispatch<React.SetStateAction<number>>
+  configRequiredSigners: number
+  currentBitcoinNetwork: Network
+}
 
 const NewVaultScreen = ({
   header,
@@ -18,22 +33,22 @@ const NewVaultScreen = ({
   setConfigRequiredSigners,
   configRequiredSigners,
   currentBitcoinNetwork
-}) => {
+}: Props) => {
   const [selectNumberRequiredModalOpen, setSelectNumberRequiredModalOpen] = useState(false);
-  const [availableDevices, setAvailableDevices] = useState([]);
-  const [errorDevices, setErrorDevices] = useState([]);
+  const [availableDevices, setAvailableDevices] = useState<HwiResponseEnumerate[]>([]);
+  const [errorDevices, setErrorDevices] = useState<string[]>([]);
   const [otherImportDropdownOpen, setOtherImportDropdownOpen] = useState(false);
   const [qrScanModalOpen, setQrScanModalOpen] = useState(false);
 
-  const importDeviceFromFileRef = useRef(null);
+  const importDeviceFromFileRef = useRef<HTMLLabelElement>(null);
 
-  const importMultisigDevice = async (device, index) => {
+  const importMultisigDevice = async (device: HwiResponseEnumerate, index: number) => {
     try {
       const response = await window.ipcRenderer.invoke('/xpub', {
         deviceType: device.type,
         devicePath: device.path,
         path: getMultisigDeriationPathForNetwork(currentBitcoinNetwork) // we are assuming BIP48 P2WSH wallet
-      });
+      }); // KBC-TODO: add type for HwiXpubResponse
 
       setImportedDevices([...importedDevices, { ...device, ...response }]);
       availableDevices.splice(index, 1);
@@ -51,14 +66,17 @@ const NewVaultScreen = ({
     }
   }
 
-  const importDeviceFromQR = ({ data }) => {
+  // data comes in as (n/m):somedata1wq42rsdsa
+  const importDeviceFromQR = ({ data }: { data: string }) => {
     try {
       const [parentFingerprint, xpub] = data.split(':');
 
       const newDevice = {
         type: 'phone',
         fingerprint: parentFingerprint,
-        xpub: xpub
+        xpub: xpub,
+        model: 'unknown',
+        path: 'unknown'
       }
 
       const updatedImportedDevices = [...importedDevices, newDevice];
@@ -71,21 +89,23 @@ const NewVaultScreen = ({
   }
 
   // TODO: look at the difference between singleSig and multisigExport files
-  const importDeviceFromFile = (parsedFile) => {
+  const importDeviceFromFile = (parsedFile: ColdcardDeviceMultisigExportFile) => {
     const zpub = decode(parsedFile.p2wsh);
     const xpub = zpubToXpub(zpub);
 
     const newDevice = {
       type: 'coldcard',
       fingerprint: parsedFile.xfp,
-      xpub: xpub
+      xpub: xpub,
+      path: 'unknown',
+      model: 'unknown'
     }
 
     const updatedImportedDevices = [...importedDevices, newDevice];
     setImportedDevices(updatedImportedDevices)
   }
 
-  const importMultisigWalletFromFile = (parsedFile) => {
+  const importMultisigWalletFromFile = (parsedFile: ColdcardMultisigExportFile) => {
     const numPubKeys = Object.keys(parsedFile).filter((key) => key.startsWith('x')).length // all exports start with x
     const devicesFromFile = [];
 
@@ -96,7 +116,9 @@ const NewVaultScreen = ({
       const newDevice = {
         type: parsedFile[`x${i}/`].hw_type,
         fingerprint: parsedFile[`x${i}/`].label.substring(parsedFile[`x${i}/`].label.indexOf('Coldcard ') + 'Coldcard '.length),
-        xpub: xpub
+        xpub: xpub,
+        model: 'unknown',
+        path: 'none'
       };
 
       devicesFromFile.push(newDevice);
@@ -113,7 +135,7 @@ const NewVaultScreen = ({
           <FileUploader
             accept="*"
             id="localConfigFile"
-            onFileLoad={({ file }) => {
+            onFileLoad={({ file }: File) => {
               const parsedFile = JSON.parse(file);
               // TODO: should probably have better checking for files to make sure users aren't uploading "weird" files
               if (parsedFile.seed_version) { // is a multisig file
@@ -130,10 +152,10 @@ const NewVaultScreen = ({
             onRequestClose={() => setQrScanModalOpen(false)}
           >
             <BarcodeScannerComponent
-              width={'100%'}
-              height={'100%'}
+              width={500}
+              height={500}
               onUpdate={(err, result) => {
-                if (result) importDeviceFromQR({ data: result.text })
+                if (result) importDeviceFromQR({ data: result.getText() })
                 else return;
               }}
             />
@@ -158,7 +180,9 @@ const NewVaultScreen = ({
                     label: "Import from File",
                     onClick: () => {
                       const importDeviceFromFile = importDeviceFromFileRef.current;
-                      importDeviceFromFile.click()
+                      if (importDeviceFromFile) {
+                        importDeviceFromFile.click()
+                      }
                     }
                   },
                   {
@@ -183,12 +207,10 @@ const NewVaultScreen = ({
           />
         </BoxedWrapper>
         {importedDevices.length > 1 && <ContinueButton
+          background={green600}
+          color={white}
           onClick={() => {
-            // if (importedDevices.length === 1) {
-            //   setStep(3);
-            // } else {
             setSelectNumberRequiredModalOpen(true)
-            // }
           }}>Finish Adding Devices</ContinueButton>}
       </FormContainer>
 
@@ -204,10 +226,11 @@ const NewVaultScreen = ({
   )
 }
 
-const ContinueButton = styled.div`
+const ContinueButton = styled.button`
   ${Button};
   border-top-right-radius: 0;
   border-top-left-radius: 0;
+  width: 100%;
 `;
 
 const ImportFromFileLabel = styled.label`

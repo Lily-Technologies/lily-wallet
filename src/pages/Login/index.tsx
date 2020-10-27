@@ -120,7 +120,7 @@ const Login = ({ config, setConfigFile, currentBitcoinNetwork, encryptedConfigFi
                   autoFocus
                   label="Password"
                   value={localPassword}
-                  onKeyDown={(e: KeyboardEvent) => onInputEnter(e)}
+                  onKeyDown={(e) => onInputEnter(e)}
                   onChange={setLocalPassword}
                   error={!!passwordError}
                   type="password" />
@@ -131,7 +131,7 @@ const Login = ({ config, setConfigFile, currentBitcoinNetwork, encryptedConfigFi
                   <Input
                     label="Confirm Password"
                     value={confirmation}
-                    onKeyDown={(e: KeyboardEvent) => onInputEnter(e)}
+                    onKeyDown={(e) => onInputEnter(e)}
                     onChange={setConfirmation}
                     error={!!confirmationError}
                     type="password" />

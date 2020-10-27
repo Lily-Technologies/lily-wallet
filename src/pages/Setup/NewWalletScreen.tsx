@@ -3,17 +3,24 @@ import styled from "styled-components";
 
 import { Button, MnemonicWordsDisplayer } from "../../components";
 import {
+  white,
+  green600,
   gray100,
   darkOffWhite,
 } from "../../utils/colors";
 import { InnerWrapper, XPubHeaderWrapper, SetupHeaderWrapper, SetupExplainerText, FormContainer, BoxedWrapper, SetupHeader } from './styles';
 
+interface Props {
+  header: JSX.Element
+  walletMnemonic: string
+  setStep: React.Dispatch<React.SetStateAction<number>>
+}
+
 const CreateWallet = ({
   header,
   walletMnemonic,
-  setWalletMnemonic,
   setStep,
-}) => {
+}: Props) => {
 
   return (
     <InnerWrapper style={{ marginBottom: '2em' }}>
@@ -36,6 +43,8 @@ const CreateWallet = ({
             <MnemonicWordsDisplayer mnemonicWords={walletMnemonic} />
           </WordContainer>
           <SaveWalletButton
+            background={green600}
+            color={white}
             onClick={() => {
               setStep(3);
             }}>
@@ -47,7 +56,7 @@ const CreateWallet = ({
   )
 };
 
-const SaveWalletButton = styled.div`
+const SaveWalletButton = styled.button`
   ${Button};
   flex: 1;
   border-top-left-radius: 0;

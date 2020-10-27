@@ -1,9 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, Fragment } from 'react';
 import styled from 'styled-components';
 import { Plus, Minus } from '@styled-icons/boxicons-regular';
 
 import { Modal, StyledIcon, Button } from '../../components';
 import { green400, green500, green600, gray400, gray500, white } from '../../utils/colors';
+
+interface Props {
+  selectNumberRequiredModalOpen: boolean,
+  setSelectNumberRequiredModalOpen: React.Dispatch<React.SetStateAction<boolean>>,
+  numberOfImportedDevices: number,
+  setConfigRequiredSigners: React.Dispatch<React.SetStateAction<number>>,
+  configRequiredSigners: number,
+  setStep: React.Dispatch<React.SetStateAction<number>>
+}
 
 const RequiredDevicesModal = ({
   selectNumberRequiredModalOpen,
@@ -12,46 +21,50 @@ const RequiredDevicesModal = ({
   setConfigRequiredSigners,
   configRequiredSigners,
   setStep
-}) => {
+}: Props) => {
   const [requiredSigners, setRequiredSigners] = useState(configRequiredSigners)
 
   return (
     <Modal
       isOpen={selectNumberRequiredModalOpen}
       onRequestClose={() => setSelectNumberRequiredModalOpen(false)}>
-      <ModalHeaderContainer>
-        How many devices are required to approve transactions?
-      </ModalHeaderContainer>
-      <SelectionContainer>
-        <SelectionWrapper>
-          <StepCircle
-            onClick={() => setRequiredSigners(requiredSigners - 1)}
-            disabled={requiredSigners - 1 === 0}>
-            <StyledIcon
-              as={Minus}
-              size={25} />
-          </StepCircle>
-          <CurrentSelection>
-            {requiredSigners}
-          </CurrentSelection>
-          <StepCircle
-            onClick={() => setRequiredSigners(requiredSigners + 1)}
-            disabled={requiredSigners + 1 > numberOfImportedDevices}>
-            <StyledIcon
-              as={Plus}
-              size={25} />
-          </StepCircle>
-        </SelectionWrapper>
-        <ContinueButton
-          onClick={() => {
-            setConfigRequiredSigners(requiredSigners);
-            setSelectNumberRequiredModalOpen(false);
-            setStep(3);
-          }}
-        >
-          Confirm
+      <Fragment>
+        <ModalHeaderContainer>
+          How many devices are required to approve transactions?
+        </ModalHeaderContainer>
+        <SelectionContainer>
+          <SelectionWrapper>
+            <IncrementButton
+              onClick={() => setRequiredSigners(requiredSigners - 1)}
+              disabled={requiredSigners - 1 === 0}>
+              <StyledIcon
+                as={Minus}
+                size={25} />
+            </IncrementButton>
+            <CurrentSelection>
+              {requiredSigners}
+            </CurrentSelection>
+            <IncrementButton
+              onClick={() => setRequiredSigners(requiredSigners + 1)}
+              disabled={requiredSigners + 1 > numberOfImportedDevices}>
+              <StyledIcon
+                as={Plus}
+                size={25} />
+            </IncrementButton>
+          </SelectionWrapper>
+          <ContinueButton
+            background={green600}
+            color={white}
+            onClick={() => {
+              setConfigRequiredSigners(requiredSigners);
+              setSelectNumberRequiredModalOpen(false);
+              setStep(3);
+            }}
+          >
+            Confirm
           </ContinueButton>
-      </SelectionContainer>
+        </SelectionContainer>
+      </Fragment>
     </Modal>
   )
 }
@@ -73,7 +86,7 @@ const SelectionContainer = styled.div`
   flex-direction: column;
 `;
 
-const ContinueButton = styled.div`
+const ContinueButton = styled.button`
   ${Button};
   border-top-right-radius: 0;
   border-top-left-radius: 0;
@@ -92,7 +105,7 @@ const CurrentSelection = styled.div`
   font-size: 2.5em;
 `;
 
-const StepCircle = styled.div`
+const IncrementButton = styled.button<{ disabled: boolean }>`
   border-radius: 9999px;
   border: 1px solid ${p => p.disabled ? gray400 : green500};
   background: ${p => p.disabled ? 'transparent' : green400};

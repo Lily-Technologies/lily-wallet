@@ -34,7 +34,9 @@ export const MobileNavbar = ({ config, mobileNavOpen, setMobileNavOpen, currentB
     >
       <SomeContainer>
         <SidebarContainer>
-          <NavLinks config={config} setMobileNavOpen={setMobileNavOpen} currentBitcoinNetwork={currentBitcoinNetwork} />
+          <NavLinksContainer>
+            <NavLinks config={config} setMobileNavOpen={setMobileNavOpen} currentBitcoinNetwork={currentBitcoinNetwork} />
+          </NavLinksContainer>
           <CloseButtonContainer>
             <CloseButton background="transparent" onClick={() => setMobileNavOpen(false)}>
               <StyledIcon as={CloseOutline} size={36} />
@@ -51,6 +53,10 @@ const Wrapper = styled.div`
   ${mobile(css`
     display: flex;
   `)}
+`;
+
+const NavLinksContainer = styled.div`
+  overflow: scroll;
 `;
 
 const SidebarContainer = styled.div`

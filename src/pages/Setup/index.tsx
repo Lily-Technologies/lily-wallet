@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 import moment from 'moment';
 import { generateMnemonic } from "bip39";
+import { Network } from 'bitcoinjs-lib';
 
 import { createMultisigConfigFile, createSinglesigConfigFile, createSinglesigHWWConfigFile, createColdCardBlob, downloadFile, saveConfig, containsColdcard } from '../../utils/files';
 import { black } from '../../utils/colors';
@@ -15,13 +16,22 @@ import SuccessScreen from './SuccessScreen';
 import NewWalletScreen from './NewWalletScreen';
 import NewHardwareWalletScreen from './NewHardwareWalletScreen';
 
-const Setup = ({ config, setConfigFile, password, currentBitcoinNetwork }) => {
+import { LilyConfig, HwiResponseEnumerate, ExtendedPublicKey } from '../../types';
+
+interface Props {
+  config: LilyConfig
+  setConfigFile: React.Dispatch<React.SetStateAction<LilyConfig>>
+  password: string
+  currentBitcoinNetwork: Network
+}
+
+const Setup = ({ config, setConfigFile, password, currentBitcoinNetwork }: Props) => {
   document.title = `Setup - Lily Wallet`;
   const [setupOption, setSetupOption] = useState(0);
   const [step, setStep] = useState(0);
   const [accountName, setAccountName] = useState('');
-  const [importedDevices, setImportedDevices] = useState([]);
-  const [walletMnemonic, setWalletMnemonic] = useState(null);
+  const [importedDevices, setImportedDevices] = useState<HwiResponseEnumerate[]>([]);
+  const [walletMnemonic, setWalletMnemonic] = useState('');
   const [configRequiredSigners, setConfigRequiredSigners] = useState(1);
   const [localConfig, setLocalConfig] = useState(config);
 
@@ -40,7 +50,20 @@ const Setup = ({ config, setConfigFile, password, currentBitcoinNetwork }) => {
 
   const downloadColdcardFile = async () => {
     if (containsColdcard(importedDevices)) {
-      const ccFile = createColdCardBlob(configRequiredSigners, importedDevices.length, accountName, importedDevices, currentBitcoinNetwork);
+      const devicesForCCFile = importedDevices.map((device) => { // KBC-TODO: this is a hack to get the cc function to work
+        return {
+          id: 'abc123',
+          created_at: 1231006505,
+          parentFingerprint: 'abc123',
+          network: 'mainnet',
+          bip32Path: 'abc123',
+          xpub: 'abcs123',
+          device: device
+        } as ExtendedPublicKey
+      })
+
+
+      const ccFile = createColdCardBlob(configRequiredSigners, importedDevices.length, accountName, devicesForCCFile, currentBitcoinNetwork);
       await downloadFile(ccFile, `${accountName}-lily-coldcard-file-${moment().format('MMDDYYYY')}.txt`);
     }
   }
@@ -93,7 +116,6 @@ const Setup = ({ config, setConfigFile, password, currentBitcoinNetwork }) => {
         screen = <NewWalletScreen
           header={Header}
           walletMnemonic={walletMnemonic}
-          setWalletMnemonic={setWalletMnemonic}
           setStep={setStep}
         />;
       } else if (setupOption === 3) {
@@ -118,7 +140,6 @@ const Setup = ({ config, setConfigFile, password, currentBitcoinNetwork }) => {
       break;
     case 3:
       screen = <SuccessScreen
-        exportSetupFiles={exportSetupFiles}
         config={localConfig}
         downloadColdcardFile={containsColdcard(importedDevices) && importedDevices.length > 1 ? downloadColdcardFile : undefined}
       />;
@@ -135,7 +156,7 @@ const Setup = ({ config, setConfigFile, password, currentBitcoinNetwork }) => {
   )
 }
 
-const Wrapper = styled.div`
+const Wrapper = styled.div<{ step: number }>`
   text-align: left;
   font-family: 'Montserrat', sans-serif;
   color: ${black};

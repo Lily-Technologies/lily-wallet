@@ -196,7 +196,7 @@ Policy: ${requiredSigners} of ${totalSigners}
 Derivation: ${derivationPath}
 Format: P2WSH
 ${importedDevices.map((device) => (
-    `\n${device.parentFingerprint || device.parentFingerprint}: ${device.xpub}`
+    `\n${device.parentFingerprint}: ${device.xpub}`
   ))}
 `;
 }
