@@ -24,15 +24,16 @@ import { white } from '../utils/colors';
 
 */
 
+type DropdownItem = {
+  label: string
+  onClick(): void
+}
 interface Props {
-  isOpen: Boolean,
-  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>,
-  buttonLabel?: string,
-  dropdownItems: {
-    label: string
-    onClick(): void
-  }[],
-  minimal: boolean,
+  isOpen: boolean
+  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>
+  buttonLabel?: string | React.ReactNode
+  dropdownItems: (DropdownItem | {})[]
+  minimal: boolean
   style?: {}
 }
 
@@ -80,7 +81,7 @@ export const Dropdown = ({ isOpen, setIsOpen, buttonLabel, dropdownItems, minima
             <DropdownItemsContainer>
               <DropdownItems role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
                 {dropdownItems.map((item) => {
-                  if (item.label) {
+                  if ("label" in item) {
                     return (
                       <DropdownItem
                         clickable={!!item.onClick}

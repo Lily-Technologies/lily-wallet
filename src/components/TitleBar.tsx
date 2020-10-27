@@ -9,7 +9,29 @@ import { white, green400, orange400, red500, green800, green900 } from '../utils
 
 import { ConnectToNodeModal, StyledIcon, Dropdown, ConnectToLilyMobileModal } from '.';
 
-export const TitleBar = ({ setNodeConfig, nodeConfig, setMobileNavOpen, config, connectToBlockstream, connectToBitcoinCore, getNodeConfig, resetConfigFile }) => {
+import { NodeConfig, LilyConfig } from '../types';
+
+interface Props {
+  setNodeConfig: React.Dispatch<React.SetStateAction<NodeConfig | undefined>>, // KBC-TODO: NodeConfig should be defined, even if we are connected to blockstream, yeah? No?
+  nodeConfig: NodeConfig | undefined // KBC-TODO: NodeConfig should be defined, even if we are connected to blockstream, yeah? No?
+  setMobileNavOpen: React.Dispatch<React.SetStateAction<boolean>>,
+  config: LilyConfig,
+  connectToBlockstream: () => void,
+  connectToBitcoinCore: () => void,
+  getNodeConfig: () => void,
+  resetConfigFile: () => void
+}
+
+export const TitleBar = ({
+  setNodeConfig,
+  nodeConfig,
+  setMobileNavOpen,
+  config,
+  connectToBlockstream,
+  connectToBitcoinCore,
+  getNodeConfig,
+  resetConfigFile
+}: Props) => {
   const [nodeConfigModalOpen, setNodeConfigModalOpen] = useState(false);
   const [moreOptionsDropdownOpen, setMoreOptionsDropdownOpen] = useState(false);
   const [nodeOptionsDropdownOpen, setNodeOptionsDropdownOpen] = useState(false);
@@ -25,7 +47,7 @@ export const TitleBar = ({ setNodeConfig, nodeConfig, setMobileNavOpen, config, 
     label: (
       <Fragment>
         Status: <br />
-        {nodeConfig && nodeConfig.initialblockdownload ? `Initializing (${BigNumber(nodeConfig.verificationprogress).multipliedBy(100).toFixed(2)}%)`
+        {nodeConfig && nodeConfig.initialblockdownload && nodeConfig.verificationprogress ? `Initializing (${new BigNumber(nodeConfig.verificationprogress).multipliedBy(100).toFixed(2)}%)`
           : nodeConfig && nodeConfig.connected ? 'Connected'
             : nodeConfig && !nodeConfig.connected ? 'Disconnected'
               : 'Connecting...'}
@@ -73,7 +95,7 @@ export const TitleBar = ({ setNodeConfig, nodeConfig, setMobileNavOpen, config, 
       <ConnectToLilyMobileModal
         isOpen={configModalOpen}
         onRequestClose={() => setConfigModalOpen(false)}
-        config={JSON.stringify(config)}
+        config={config}
       />
       <LeftSection>
         {!config.isEmpty && (
@@ -87,6 +109,7 @@ export const TitleBar = ({ setNodeConfig, nodeConfig, setMobileNavOpen, config, 
           <Dropdown
             isOpen={nodeOptionsDropdownOpen}
             setIsOpen={setNodeOptionsDropdownOpen}
+            minimal={false}
             style={{ background: green900, color: white, padding: '0.35em 1em', border: 'none', fontFamily: 'Montserrat, sans-serif', display: 'flex', alignItems: 'center' }}
             buttonLabel={
               <Fragment>
@@ -106,8 +129,7 @@ export const TitleBar = ({ setNodeConfig, nodeConfig, setMobileNavOpen, config, 
               </Fragment>
             }
             dropdownItems={nodeConfigDropdownItems}
-          >
-          </Dropdown>
+          />
         </NodeButtonContainer>
 
         <DotDotDotContainer>

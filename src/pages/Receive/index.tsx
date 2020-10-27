@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { Fragment, useState, useContext } from 'react';
 import styled, { css } from 'styled-components';
 import { Safe } from '@styled-icons/crypto';
 import { Wallet } from '@styled-icons/entypo';
@@ -24,99 +24,101 @@ const Receive = ({ config }: { config: LilyConfig }) => {
 
   return (
     <PageWrapper>
-      <Header>
-        <HeaderLeft>
-          <PageTitle>Receive to</PageTitle>
-        </HeaderLeft>
-        <HeaderRight>
-        </HeaderRight>
-      </Header>
+      <Fragment>
+        <Header>
+          <HeaderLeft>
+            <PageTitle>Receive to</PageTitle>
+          </HeaderLeft>
+          <HeaderRight>
+          </HeaderRight>
+        </Header>
 
-      <ReceiveWrapper>
-        <AccountMenu>
-          {config.vaults.map((vault, index) => (
-            <AccountMenuItemWrapper
-              key={index}
-              active={vault.id === currentAccount.config.id}
-              borderRight={(index < config.vaults.length - 1)}
-              onClick={() => setCurrentAccountId(vault.id)}>
-              <StyledIcon as={Safe} size={48} />
-              <AccountMenuItemName>{vault.name}</AccountMenuItemName>
-            </AccountMenuItemWrapper>
-          ))}
-          {config.wallets.map((wallet, index) => (
-            <AccountMenuItemWrapper
-              key={index}
-              active={wallet.id === currentAccount.config.id}
-              borderRight={(index < config.wallets.length - 1)}
-              onClick={() => setCurrentAccountId(wallet.id)}>
-              <StyledIcon as={Wallet} size={48} />
-              <AccountMenuItemName>{wallet.name}</AccountMenuItemName>
-            </AccountMenuItemWrapper>
-          ))}
-        </AccountMenu>
+        <ReceiveWrapper>
+          <AccountMenu>
+            {config.vaults.map((vault, index) => (
+              <AccountMenuItemWrapper
+                key={index}
+                active={vault.id === currentAccount.config.id}
+                borderRight={(index < config.vaults.length - 1)}
+                onClick={() => setCurrentAccountId(vault.id)}>
+                <StyledIcon as={Safe} size={48} />
+                <AccountMenuItemName>{vault.name}</AccountMenuItemName>
+              </AccountMenuItemWrapper>
+            ))}
+            {config.wallets.map((wallet, index) => (
+              <AccountMenuItemWrapper
+                key={index}
+                active={wallet.id === currentAccount.config.id}
+                borderRight={(index < config.wallets.length - 1)}
+                onClick={() => setCurrentAccountId(wallet.id)}>
+                <StyledIcon as={Wallet} size={48} />
+                <AccountMenuItemName>{wallet.name}</AccountMenuItemName>
+              </AccountMenuItemWrapper>
+            ))}
+          </AccountMenu>
 
 
-        {currentAccount.loading && <Loading itemText={'Receive Information'} />}
-        {!currentAccount.loading && (
-          <GridArea>
-            <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
-              <CurrentBalanceWrapper displayDesktop={false} displayMobile={true} style={{ marginBottom: '1em' }}>
-                <CurrentBalanceText>
-                  Current Balance:
+          {currentAccount.loading && <Loading itemText={'Receive Information'} />}
+          {!currentAccount.loading && (
+            <GridArea>
+              <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+                <CurrentBalanceWrapper displayDesktop={false} displayMobile={true} style={{ marginBottom: '1em' }}>
+                  <CurrentBalanceText>
+                    Current Balance:
               </CurrentBalanceText>
-                <CurrentBalanceValue>
-                  {satoshisToBitcoins(currentBalance).toNumber()} BTC
+                  <CurrentBalanceValue>
+                    {satoshisToBitcoins(currentBalance).toNumber()} BTC
                 </CurrentBalanceValue>
-              </CurrentBalanceWrapper>
+                </CurrentBalanceWrapper>
 
-              <AccountReceiveContentLeft>
-                <SendToAddressHeader>
-                  Send bitcoin to
+                <AccountReceiveContentLeft>
+                  <SendToAddressHeader>
+                    Send bitcoin to
                 </SendToAddressHeader>
-                <QRCodeWrapper>
-                  <QRCode
-                    bgColor={white}
-                    fgColor={black}
-                    level="Q"
-                    style={{ width: 256 }}
-                    value={unusedAddresses[unusedAddressIndex].address}
-                  />
-                </QRCodeWrapper>
-                <AddressDisplayWrapper>
-                  <BitcoinAddressLabel>Bitcoin address:</BitcoinAddressLabel>
-                  {unusedAddresses[unusedAddressIndex].address}
-                </AddressDisplayWrapper>
-                <ReceiveButtonContainer>
-                  <CopyToClipboard text={unusedAddresses[unusedAddressIndex].address}>
-                    <CopyAddressButton color={white} background={green600}>Copy Address</CopyAddressButton>
-                  </CopyToClipboard>
-                  <CopyAddressButton background="transparent" color={darkGray} onClick={() => setUnusedAddressIndex(unusedAddressIndex + 1)}>Generate New Address</CopyAddressButton>
-                </ReceiveButtonContainer>
+                  <QRCodeWrapper>
+                    <QRCode
+                      bgColor={white}
+                      fgColor={black}
+                      level="Q"
+                      style={{ width: 256 }}
+                      value={unusedAddresses[unusedAddressIndex].address}
+                    />
+                  </QRCodeWrapper>
+                  <AddressDisplayWrapper>
+                    <BitcoinAddressLabel>Bitcoin address:</BitcoinAddressLabel>
+                    {unusedAddresses[unusedAddressIndex].address}
+                  </AddressDisplayWrapper>
+                  <ReceiveButtonContainer>
+                    <CopyToClipboard text={unusedAddresses[unusedAddressIndex].address}>
+                      <CopyAddressButton color={white} background={green600}>Copy Address</CopyAddressButton>
+                    </CopyToClipboard>
+                    <CopyAddressButton background="transparent" color={darkGray} onClick={() => setUnusedAddressIndex(unusedAddressIndex + 1)}>Generate New Address</CopyAddressButton>
+                  </ReceiveButtonContainer>
 
-              </AccountReceiveContentLeft>
-            </div>
+                </AccountReceiveContentLeft>
+              </div>
 
-            <AccountReceiveContentRight>
-              <CurrentBalanceWrapper displayDesktop={true} displayMobile={false}>
-                <CurrentBalanceText>
-                  Current Balance:
+              <AccountReceiveContentRight>
+                <CurrentBalanceWrapper displayDesktop={true} displayMobile={false}>
+                  <CurrentBalanceText>
+                    Current Balance:
               </CurrentBalanceText>
-                <CurrentBalanceValue>
-                  {satoshisToBitcoins(currentBalance).toNumber()} BTC
+                  <CurrentBalanceValue>
+                    {satoshisToBitcoins(currentBalance).toNumber()} BTC
                 </CurrentBalanceValue>
-              </CurrentBalanceWrapper>
-              <RecentTransactionContainer>
-                <RecentTransactions
-                  transactions={transactions}
-                  flat={true}
-                  loading={currentAccount.loading}
-                  maxItems={3} />
-              </RecentTransactionContainer>
-            </AccountReceiveContentRight>
-          </GridArea>
-        )}
-      </ReceiveWrapper>
+                </CurrentBalanceWrapper>
+                <RecentTransactionContainer>
+                  <RecentTransactions
+                    transactions={transactions}
+                    flat={true}
+                    loading={currentAccount.loading}
+                    maxItems={3} />
+                </RecentTransactionContainer>
+              </AccountReceiveContentRight>
+            </GridArea>
+          )}
+        </ReceiveWrapper>
+      </Fragment>
     </PageWrapper >
   )
 }

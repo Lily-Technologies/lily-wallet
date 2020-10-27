@@ -1,4 +1,4 @@
-import React, { useState, useRef, Fragment, useContext } from 'react';
+import React, { Fragment, useState, useRef, useContext } from 'react';
 import styled, { css } from 'styled-components';
 import { Safe } from '@styled-icons/crypto';
 import { Wallet } from '@styled-icons/entypo';
@@ -288,167 +288,170 @@ const Send = ({ config, currentBitcoinNetwork, nodeConfig, currentBitcoinPrice }
 
   return (
     <PageWrapper>
-      <Header>
-        <HeaderLeft>
-          <PageTitle>Send from</PageTitle>
-        </HeaderLeft>
-        <HeaderRight>
-        </HeaderRight>
-      </Header>
+      <Fragment>
 
-      {/* Stuff hidden in dropdown */}
-      <FileUploader
-        accept="*"
-        id="txFile"
-        onFileLoad={({ file }: File) => {
-          importTxFromFile(file)
-        }}
-      />
-      <label style={{ display: 'none' }} ref={fileUploadLabelRef} htmlFor="txFile"></label>
+        <Header>
+          <HeaderLeft>
+            <PageTitle>Send from</PageTitle>
+          </HeaderLeft>
+          <HeaderRight>
+          </HeaderRight>
+        </Header>
 
-      <Modal
-        isOpen={modalIsOpen}
-        onRequestClose={() => closeModal()}>
-        {modalContent as React.ReactChild}
-      </Modal>
+        {/* Stuff hidden in dropdown */}
+        <FileUploader
+          accept="*"
+          id="txFile"
+          onFileLoad={({ file }: File) => {
+            importTxFromFile(file)
+          }}
+        />
+        <label style={{ display: 'none' }} ref={fileUploadLabelRef} htmlFor="txFile"></label>
 
-      <SendWrapper>
-        <SelectAccountMenu />
+        <Modal
+          isOpen={modalIsOpen}
+          onRequestClose={() => closeModal()}>
+          {modalContent as React.ReactChild}
+        </Modal>
 
-        {currentAccount.loading && <Loading itemText={'Send Information'} />}
-        {!currentAccount.loading && (
-          <GridArea>
-            <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
-              <CurrentBalanceWrapper displayDesktop={false} displayMobile={true} style={{ marginBottom: '1em' }}>
-                <CurrentBalanceText>
-                  Current Balance:
+        <SendWrapper>
+          <SelectAccountMenu />
+
+          {currentAccount.loading && <Loading itemText={'Send Information'} />}
+          {!currentAccount.loading && (
+            <GridArea>
+              <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+                <CurrentBalanceWrapper displayDesktop={false} displayMobile={true} style={{ marginBottom: '1em' }}>
+                  <CurrentBalanceText>
+                    Current Balance:
                   </CurrentBalanceText>
-                <CurrentBalanceValue>
-                  {satoshisToBitcoins(currentBalance).toNumber()} BTC
+                  <CurrentBalanceValue>
+                    {satoshisToBitcoins(currentBalance).toNumber()} BTC
                   </CurrentBalanceValue>
-              </CurrentBalanceWrapper>
-              {step === 0 && (
-                <AccountSendContentLeft>
-                  <Dropdown
-                    isOpen={optionsDropdownOpen}
-                    setIsOpen={setOptionsDropdownOpen}
-                    minimal={true}
-                    style={{ alignSelf: 'flex-end' }}
-                    dropdownItems={[
-                      {
-                        label: 'Import from file',
-                        onClick: () => {
-                          const txFileUploadButton = fileUploadLabelRef.current;
-                          if (txFileUploadButton !== null) {
-                            txFileUploadButton.click()
+                </CurrentBalanceWrapper>
+                {step === 0 && (
+                  <AccountSendContentLeft>
+                    <Dropdown
+                      isOpen={optionsDropdownOpen}
+                      setIsOpen={setOptionsDropdownOpen}
+                      minimal={true}
+                      style={{ alignSelf: 'flex-end' }}
+                      dropdownItems={[
+                        {
+                          label: 'Import from file',
+                          onClick: () => {
+                            const txFileUploadButton = fileUploadLabelRef.current;
+                            if (txFileUploadButton !== null) {
+                              txFileUploadButton.click()
+                            }
+                          }
+                        },
+                        {
+                          label: 'Import from clipboard',
+                          onClick: () => {
+                            setImportTxFromFileError('')
+                            setModalIsOpen(true)
+                            setModalContent(<PastePsbtModalContent />)
                           }
                         }
-                      },
-                      {
-                        label: 'Import from clipboard',
-                        onClick: () => {
-                          setImportTxFromFileError('')
-                          setModalIsOpen(true)
-                          setModalContent(<PastePsbtModalContent />)
-                        }
-                      }
-                    ]}
+                      ]}
+                    />
+                    <InputContainer>
+                      <Input
+                        label="Send bitcoin to"
+                        type="text"
+                        onChange={setRecipientAddress}
+                        value={recipientAddress}
+                        placeholder={bitcoinNetworkEqual(currentBitcoinNetwork, networks.testnet) ?
+                          "tb1q4h5xd5wsalmes2496y8dtphc609rt0un3gl69r" :
+                          "bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4"}
+                        error={recipientAddressError}
+                      />
+                    </InputContainer>
+                    <InputContainer>
+                      <Input
+                        label="Amount of bitcoin to send"
+                        type="text"
+                        value={sendAmount}
+                        onChange={setSendAmount}
+                        placeholder="0.0025"
+                        error={sendAmountError}
+                        inputStaticText="BTC"
+                      />
+                    </InputContainer>
+                    {sendAmountError && <SendAmountError>Not enough funds</SendAmountError>}
+                    <SendButtonContainer>
+                      {/* <CopyAddressButton background="transparent" color={darkGray}>Advanced Options</CopyAddressButton> */}
+                      <CopyAddressButton background={green600} color={white} onClick={() => validateAndCreateTransaction()}>Preview Transaction</CopyAddressButton>
+                      {importTxFromFileError && !modalIsOpen && <ErrorText style={{ paddingTop: '1em' }}>{importTxFromFileError}</ErrorText>}
+                    </SendButtonContainer>
+                  </AccountSendContentLeft>
+                )}
+
+                {step === 1 && finalPsbt !== null && (
+                  <TransactionDetails
+                    finalPsbt={finalPsbt}
+                    nodeConfig={nodeConfig}
+                    feeEstimate={getFee(finalPsbt as Psbt, transactions)} // KBC-TODO: rexamine to avoid explicit type declaration
+                    recipientAddress={recipientAddress}
+                    setStep={setStep}
+                    sendAmount={sendAmount}
+                    availableUtxos={availableUtxos}
+                    signedPsbts={signedPsbts}
+                    signedDevices={signedDevices}
+                    txImportedFromFile={txImportedFromFile}
+                    importTxFromFileError={importTxFromFileError}
+                    signThreshold={currentAccount.config.quorum.requiredSigners}
+                    currentBitcoinNetwork={currentBitcoinNetwork}
+                    currentBitcoinPrice={currentBitcoinPrice}
+                    currentAccount={currentAccount}
+                    feeRates={feeRates}
+                    createTransactionAndSetState={createTransactionAndSetState}
+                    openInModal={openInModal}
+                    closeModal={closeModal}
                   />
-                  <InputContainer>
-                    <Input
-                      label="Send bitcoin to"
-                      type="text"
-                      onChange={setRecipientAddress}
-                      value={recipientAddress}
-                      placeholder={bitcoinNetworkEqual(currentBitcoinNetwork, networks.testnet) ?
-                        "tb1q4h5xd5wsalmes2496y8dtphc609rt0un3gl69r" :
-                        "bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4"}
-                      error={recipientAddressError}
-                    />
-                  </InputContainer>
-                  <InputContainer>
-                    <Input
-                      label="Amount of bitcoin to send"
-                      type="text"
-                      value={sendAmount}
-                      onChange={setSendAmount}
-                      placeholder="0.0025"
-                      error={sendAmountError}
-                      inputStaticText="BTC"
-                    />
-                  </InputContainer>
-                  {sendAmountError && <SendAmountError>Not enough funds</SendAmountError>}
-                  <SendButtonContainer>
-                    {/* <CopyAddressButton background="transparent" color={darkGray}>Advanced Options</CopyAddressButton> */}
-                    <CopyAddressButton background={green600} color={white} onClick={() => validateAndCreateTransaction()}>Preview Transaction</CopyAddressButton>
-                    {importTxFromFileError && !modalIsOpen && <ErrorText style={{ paddingTop: '1em' }}>{importTxFromFileError}</ErrorText>}
-                  </SendButtonContainer>
-                </AccountSendContentLeft>
-              )}
-
-              {step === 1 && finalPsbt !== null && (
-                <TransactionDetails
-                  finalPsbt={finalPsbt}
-                  nodeConfig={nodeConfig}
-                  feeEstimate={getFee(finalPsbt as Psbt, transactions)} // KBC-TODO: rexamine to avoid explicit type declaration
-                  recipientAddress={recipientAddress}
-                  setStep={setStep}
-                  sendAmount={sendAmount}
-                  availableUtxos={availableUtxos}
-                  signedPsbts={signedPsbts}
-                  signedDevices={signedDevices}
-                  txImportedFromFile={txImportedFromFile}
-                  importTxFromFileError={importTxFromFileError}
-                  signThreshold={currentAccount.config.quorum.requiredSigners}
-                  currentBitcoinNetwork={currentBitcoinNetwork}
-                  currentBitcoinPrice={currentBitcoinPrice}
-                  currentAccount={currentAccount}
-                  feeRates={feeRates}
-                  createTransactionAndSetState={createTransactionAndSetState}
-                  openInModal={openInModal}
-                  closeModal={closeModal}
-                />
-              )}
-            </div>
+                )}
+              </div>
 
 
 
-            <AccountSendContentRight>
-              {(step === 0 || (step === 1 && currentAccount.config.mnemonic)) && (
-                <Fragment>
-                  <CurrentBalanceWrapper displayDesktop={true} displayMobile={false}>
-                    <CurrentBalanceText>
-                      Current Balance:
+              <AccountSendContentRight>
+                {(step === 0 || (step === 1 && currentAccount.config.mnemonic)) && (
+                  <Fragment>
+                    <CurrentBalanceWrapper displayDesktop={true} displayMobile={false}>
+                      <CurrentBalanceText>
+                        Current Balance:
                     </CurrentBalanceText>
-                    <CurrentBalanceValue>
-                      {satoshisToBitcoins(currentBalance).toNumber()} BTC
+                      <CurrentBalanceValue>
+                        {satoshisToBitcoins(currentBalance).toNumber()} BTC
                   </CurrentBalanceValue>
-                  </CurrentBalanceWrapper>
-                  <RecentTransactionContainer>
-                    <RecentTransactions
-                      transactions={transactions}
-                      flat={true}
-                      loading={currentAccount.loading}
-                      maxItems={3} />
-                  </RecentTransactionContainer>
-                </Fragment>
-              )}
-              {step === 1 && !currentAccount.config.mnemonic && finalPsbt && (
-                <SignWithDevice
-                  psbt={finalPsbt}
-                  setSignedPsbts={setSignedPsbts}
-                  signedPsbts={signedPsbts}
-                  signedDevices={signedDevices}
-                  setSignedDevices={setSignedDevices}
-                  signThreshold={currentAccount.config.quorum.requiredSigners}
-                  fileUploadLabelRef={fileUploadLabelRef}
-                  phoneAction={currentAccount.config.extendedPublicKeys && currentAccount.config.extendedPublicKeys.filter((item) => item.device && item.device.type === 'phone').length ? () => openInModal(<PsbtDetails />) : undefined}
-                />
-              )}
-            </AccountSendContentRight>
-          </GridArea>
-        )}
-      </SendWrapper>
+                    </CurrentBalanceWrapper>
+                    <RecentTransactionContainer>
+                      <RecentTransactions
+                        transactions={transactions}
+                        flat={true}
+                        loading={currentAccount.loading}
+                        maxItems={3} />
+                    </RecentTransactionContainer>
+                  </Fragment>
+                )}
+                {step === 1 && !currentAccount.config.mnemonic && finalPsbt && (
+                  <SignWithDevice
+                    psbt={finalPsbt}
+                    setSignedPsbts={setSignedPsbts}
+                    signedPsbts={signedPsbts}
+                    signedDevices={signedDevices}
+                    setSignedDevices={setSignedDevices}
+                    signThreshold={currentAccount.config.quorum.requiredSigners}
+                    fileUploadLabelRef={fileUploadLabelRef}
+                    phoneAction={currentAccount.config.extendedPublicKeys && currentAccount.config.extendedPublicKeys.filter((item) => item.device && item.device.type === 'phone').length ? () => openInModal(<PsbtDetails />) : undefined}
+                  />
+                )}
+              </AccountSendContentRight>
+            </GridArea>
+          )}
+        </SendWrapper>
+      </Fragment>
     </PageWrapper >
   )
 }

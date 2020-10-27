@@ -6,15 +6,24 @@ import { Modal, Button, Loading, StyledIcon } from '.';
 
 import { white, green400, green500, green600, gray100, red500 } from '../utils/colors';
 
-export const PromptPinModal = ({ device, promptPinModalIsOpen, setPromptPinModalDevice, enumerate }) => {
+import { HwiResponseEnumerate } from '../types';
+
+interface Props {
+  device: HwiResponseEnumerate
+  promptPinModalIsOpen: boolean
+  setPromptPinModalDevice: React.Dispatch<React.SetStateAction<HwiResponseEnumerate | null>>
+  enumerate: () => void
+}
+
+export const PromptPinModal = ({ device, promptPinModalIsOpen, setPromptPinModalDevice, enumerate }: Props) => {
   const [currentPin, setCurrentPin] = useState('');
-  const [loadingMessage, setLoadingMessage] = useState(false);
-  const [promptPinError, setPromptPinError] = useState(undefined);
+  const [loadingMessage, setLoadingMessage] = useState('');
+  const [promptPinError, setPromptPinError] = useState('');
 
   const closeModal = useCallback(
     () => {
       setPromptPinModalDevice(null);
-      setPromptPinError(undefined);
+      setPromptPinError('');
     }, [setPromptPinModalDevice]
   );
 
@@ -32,7 +41,7 @@ export const PromptPinModal = ({ device, promptPinModalIsOpen, setPromptPinModal
         setTimeout(() => { closeModal() }, 10000)
       }
 
-      setLoadingMessage(null);
+      setLoadingMessage('');
     }
 
     if (device) {
@@ -40,11 +49,11 @@ export const PromptPinModal = ({ device, promptPinModalIsOpen, setPromptPinModal
     }
   }, [device, closeModal]);
 
-  const addToPin = (number) => {
+  const addToPin = (number: number) => {
     if (promptPinError) {
-      setPromptPinError(undefined);
+      setPromptPinError('');
     }
-    setCurrentPin(currentPin.concat(number));
+    setCurrentPin(currentPin.concat(number.toString()));
   }
 
   const sendPin = async () => {
@@ -66,11 +75,11 @@ export const PromptPinModal = ({ device, promptPinModalIsOpen, setPromptPinModal
         deviceType: device.type,
         devicePath: device.path
       });
-      setLoadingMessage(null);
+      setLoadingMessage('');
     }
   }
 
-  const pinItems = [];
+  const pinItems: any[] = []; // KBC-TODO: give this a correct type
   pinItems.push(<PinItem onClick={() => addToPin(7)}><StyledIcon as={DotSingle} size={25} /></PinItem>)
   pinItems.push(<PinItem onClick={() => addToPin(8)}><StyledIcon as={DotSingle} size={25} /></PinItem>)
   pinItems.push(<PinItem onClick={() => addToPin(9)}><StyledIcon as={DotSingle} size={25} /></PinItem>)
@@ -87,7 +96,10 @@ export const PromptPinModal = ({ device, promptPinModalIsOpen, setPromptPinModal
         {pinItems}
       </PinItemsWrapper>
       {promptPinError && <ErrorText>{promptPinError}</ErrorText>}
-      <UnlockButton onClick={() => sendPin()}>Unlock Device</UnlockButton>
+      <UnlockButton
+        background={green600}
+        color={white}
+        onClick={() => sendPin()}>Unlock Device</UnlockButton>
     </Fragment>
   )
 
@@ -95,11 +107,13 @@ export const PromptPinModal = ({ device, promptPinModalIsOpen, setPromptPinModal
     <Modal
       isOpen={promptPinModalIsOpen}
       onRequestClose={() => closeModal()}>
-      <ModalHeaderContainer>
-        Enter PIN
+      <Fragment>
+        <ModalHeaderContainer>
+          Enter PIN
       </ModalHeaderContainer>
-      {!!loadingMessage && <Loading message={loadingMessage} />}
-      {!!!loadingMessage && <PinInput />}
+        {!!loadingMessage && <Loading itemText="Pinpad" message={loadingMessage} />}
+        {!!!loadingMessage && <PinInput />}
+      </Fragment>
     </Modal>
   )
 }
@@ -150,7 +164,7 @@ const ErrorText = styled.div`
   margin-top: -2em;
 `;
 
-const UnlockButton = styled.div`
+const UnlockButton = styled.button`
   ${Button};
   border-top-right-radius: 0;
   border-top-left-radius: 0;

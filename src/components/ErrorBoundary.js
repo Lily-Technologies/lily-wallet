@@ -1,3 +1,5 @@
+// KBC-TODO: Figure out why this wasnt working before
+// KBC-TODO: reimplement this component in App.tsx
 import React from 'react';
 import styled from 'styled-components';
 

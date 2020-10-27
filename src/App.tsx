@@ -23,7 +23,6 @@ import Settings from './pages/Settings';
 import Vault from './pages/Vault';
 import Receive from './pages/Receive';
 import Send from './pages/Send';
-import ColdcardImportInstructions from './pages/ColdcardImportInstructions';
 import Home from './pages/Home';
 
 import { AccountMapContext } from './AccountMapContext';
@@ -234,7 +233,6 @@ const App = () => {
           <Route path="/setup" render={() => <Setup config={config} setConfigFile={setConfigFile} password={password} currentBitcoinNetwork={currentBitcoinNetwork} />} />
           <Route path="/login" render={() => <Login config={config} setConfigFile={setConfigFile} setPassword={setPassword} encryptedConfigFile={encryptedConfigFile} setEncryptedConfigFile={setEncryptedConfigFile} currentBitcoinNetwork={currentBitcoinNetwork} />} />
           <Route path="/settings" render={() => <Settings config={config} currentBitcoinNetwork={currentBitcoinNetwork} />} />
-          <Route path="/coldcard-import-instructions" render={() => <ColdcardImportInstructions />} />
           <Route path="/" render={() => <Home flyInAnimation={flyInAnimation} prevFlyInAnimation={prevSetFlyInAnimation.current} historicalBitcoinPrice={historicalBitcoinPrice} currentBitcoinPrice={currentBitcoinPrice} />} />
           <Route path="/" render={() => (
             <div>Not Found</div>

@@ -86,7 +86,11 @@ export const DeviceSelect = ({
 
   return (
     <Wrapper>
-      <PromptPinModal promptPinModalIsOpen={!!promptPinModalDevice} setPromptPinModalDevice={setPromptPinModalDevice} device={promptPinModalDevice} enumerate={enumerate} />
+      <PromptPinModal
+        promptPinModalIsOpen={!!promptPinModalDevice}
+        setPromptPinModalDevice={setPromptPinModalDevice}
+        device={promptPinModalDevice!}
+        enumerate={enumerate} />
       <DevicesWrapper>
         {configuredDevices.map((device, index) => (
           <DeviceWrapper

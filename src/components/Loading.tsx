@@ -3,7 +3,13 @@ import React from 'react';
 import styled, { keyframes } from 'styled-components';
 import { lightGreen, darkGray } from '../utils/colors';
 
-export const Loading = ({ itemText, style = {}, message }: { itemText: string, style?: any, message?: string }) => (
+interface Props {
+  itemText: string,
+  style?: any,
+  message?: string
+}
+
+export const Loading = ({ itemText, style = {}, message }: Props) => (
   <LoadingWrapper style={style}>
     <img alt="loading placeholder" src={require('../assets/flower-loading.svg')} style={{ maxWidth: '6.25em' }} />
     {!message && <LoadingText>Loading {itemText}</LoadingText>}

@@ -1,4 +1,4 @@
-import React, { useState, Fragment, KeyboardEvent } from 'react';
+import React, { useState, Fragment } from 'react';
 import { useHistory } from "react-router-dom";
 import styled, { css } from 'styled-components';
 import { networks, Network } from 'bitcoinjs-lib';
@@ -17,7 +17,16 @@ import { LilyConfig, File } from '../../types';
 
 const MIN_PASSWORD_LENGTH = 8;
 
-const Login = ({ config, setConfigFile, currentBitcoinNetwork, encryptedConfigFile, setEncryptedConfigFile, setPassword }: { config: LilyConfig, setConfigFile: React.Dispatch<React.SetStateAction<LilyConfig>>, currentBitcoinNetwork: Network, encryptedConfigFile: File | null, setEncryptedConfigFile: React.Dispatch<React.SetStateAction<File | null>>, setPassword: React.Dispatch<React.SetStateAction<string>> }) => {
+interface Props {
+  config: LilyConfig
+  setConfigFile: React.Dispatch<React.SetStateAction<LilyConfig>>
+  currentBitcoinNetwork: Network
+  encryptedConfigFile: File | null
+  setEncryptedConfigFile: React.Dispatch<React.SetStateAction<File | null>>
+  setPassword: React.Dispatch<React.SetStateAction<string>>
+}
+
+const Login = ({ config, setConfigFile, currentBitcoinNetwork, encryptedConfigFile, setEncryptedConfigFile, setPassword }: Props) => {
   document.title = `Login - Lily Wallet`;
   const [localPassword, setLocalPassword] = useState('');
   const [passwordError, setPasswordError] = useState<string | undefined>(undefined);
@@ -58,7 +67,7 @@ const Login = ({ config, setConfigFile, currentBitcoinNetwork, encryptedConfigFi
     }
   }
 
-  const onInputEnter = (e: KeyboardEvent) => {
+  const onInputEnter = (e: React.KeyboardEvent) => {
     if (encryptedConfigFile && e.key === 'Enter') {
       unlockFile();
     }

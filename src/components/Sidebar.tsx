@@ -1,35 +1,37 @@
 import React, { Fragment } from 'react';
 import styled, { css } from 'styled-components';
-import { useLocation } from "react-router-dom";
 import { useSpring, animated } from 'react-spring';
+import { Network } from 'bitcoinjs-lib';
 
 import { NavLinks } from './NavLinks';
 
 import { white, darkOffWhite } from '../utils/colors';
 import { mobile } from '../utils/media';
 
-export const Sidebar = ({ config, flyInAnimation, currentBitcoinNetwork }) => {
-  const { pathname } = useLocation();
+import { LilyConfig } from '../types'
 
+interface Props {
+  config: LilyConfig
+  flyInAnimation: boolean
+  currentBitcoinNetwork: Network
+}
+
+export const Sidebar = ({ config, flyInAnimation, currentBitcoinNetwork }: Props) => {
   const sidebarAnimationProps = useSpring({ transform: flyInAnimation ? 'translateX(-120%)' : 'translateX(0%)' });
 
-  if (pathname !== '/coldcard-import-instructions') {
-    return (
-      <Fragment>
-        <SidebarPlaceholder></SidebarPlaceholder>
-        <SidebarWrapperAnimated style={{ ...sidebarAnimationProps }}>
-          <SidebarContainer>
-            <NavLinks
-              config={config}
-              currentBitcoinNetwork={currentBitcoinNetwork}
-            />
-          </SidebarContainer>
-        </SidebarWrapperAnimated>
-      </Fragment>
-    );
-  } else {
-    return null;
-  }
+  return (
+    <Fragment>
+      <SidebarPlaceholder></SidebarPlaceholder>
+      <SidebarWrapperAnimated style={{ ...sidebarAnimationProps }}>
+        <SidebarContainer>
+          <NavLinks
+            config={config}
+            currentBitcoinNetwork={currentBitcoinNetwork}
+          />
+        </SidebarContainer>
+      </SidebarWrapperAnimated>
+    </Fragment>
+  );
 }
 
 const SidebarPlaceholder = styled.div`

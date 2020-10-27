@@ -90,11 +90,13 @@ const VaultSettings = ({ config, setConfigFile, password, currentAccount, setVie
   }
 
   const getMnemonic = () => {
-    return (
-      <WordsContainer>
-        <MnemonicWordsDisplayer mnemonicWords={currentAccount.config.mnemonic} />
-      </WordsContainer>
-    )
+    if (currentAccount.config.mnemonic) {
+      return (
+        <WordsContainer>
+          <MnemonicWordsDisplayer mnemonicWords={currentAccount.config.mnemonic} />
+        </WordsContainer>
+      )
+    }
   }
 
   const onInputEnter = (e: React.KeyboardEvent<Element>) => {
@@ -121,7 +123,6 @@ const VaultSettings = ({ config, setConfigFile, password, currentAccount, setVie
   }
 
   return (
-
     <Wrapper>
       <TotalValueHeader>Settings</TotalValueHeader>
       <SettingsHeadingItem>Vault Data</SettingsHeadingItem>

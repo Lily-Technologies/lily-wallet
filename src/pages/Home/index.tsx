@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { Fragment, useState, useEffect } from 'react';
 import { useSpring, animated } from 'react-spring';
 import BigNumber from 'bignumber.js';
 
@@ -21,13 +21,15 @@ const Home = ({ historicalBitcoinPrice, currentBitcoinPrice, flyInAnimation, pre
 
   return (
     <PageWrapper>
-      <animated.div style={{ ...chartProps }}>
-        <HistoricChart historicalBitcoinPrice={historicalBitcoinPrice} currentBitcoinPrice={currentBitcoinPrice} />
-      </animated.div>
+      <Fragment>
+        <animated.div style={{ ...chartProps }}>
+          <HistoricChart historicalBitcoinPrice={historicalBitcoinPrice} currentBitcoinPrice={currentBitcoinPrice} />
+        </animated.div>
 
-      <animated.div style={{ ...accountsProps }}>
-        <AccountsSection />
-      </animated.div>
+        <animated.div style={{ ...accountsProps }}>
+          <AccountsSection />
+        </animated.div>
+      </Fragment>
     </PageWrapper >
   )
 };

@@ -4,13 +4,13 @@ import PropTypes from "prop-types";
 /**
  * Hook that alerts clicks outside of the passed ref
  */
-function useOutsideAlerter(ref, onOutsideClick) {
+function useOutsideAlerter(ref: React.MutableRefObject<null>, onOutsideClick: () => void) {
   useEffect(() => {
     /**
      * Alert if clicked on outside of element
      */
-    function handleClickOutside(event) {
-      if (ref.current && !ref.current.contains(event.target)) {
+    function handleClickOutside(event: MouseEvent) {
+      if (ref.current && !(ref.current as any).contains(event.target)) {
         onOutsideClick()
       }
     }
@@ -26,7 +26,7 @@ function useOutsideAlerter(ref, onOutsideClick) {
 /**
  * Component that alerts if you click outside of it
  */
-function OutsideAlerter({ onOutsideClick, children }) {
+function OutsideAlerter({ onOutsideClick, children }: { onOutsideClick: () => void, children: React.ReactChild }) {
   const wrapperRef = useRef(null);
   useOutsideAlerter(wrapperRef, onOutsideClick);
 

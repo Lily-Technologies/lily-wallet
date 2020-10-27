@@ -4,7 +4,7 @@ import { Link, useLocation } from "react-router-dom";
 import { VerticalAlignBottom, AddCircleOutline, Settings } from '@styled-icons/material';
 import { Home } from '@styled-icons/fa-solid'
 import { SendPlane } from '@styled-icons/remix-fill';
-import { networks } from 'bitcoinjs-lib';
+import { networks, Network } from 'bitcoinjs-lib';
 
 import { StyledIcon } from '.';
 
@@ -13,8 +13,14 @@ import { AccountMapContext } from '../AccountMapContext';
 import { white, offWhite, darkGray, darkOffWhite, lightBlack, green100, green700 } from '../utils/colors';
 import { bitcoinNetworkEqual } from '../utils/files';
 
+import { LilyConfig } from '../types'
 
-export const NavLinks = ({ config, currentBitcoinNetwork }) => {
+interface Props {
+  config: LilyConfig
+  currentBitcoinNetwork: Network
+}
+
+export const NavLinks = ({ config, currentBitcoinNetwork }: Props) => {
   const { pathname } = useLocation();
   const { setCurrentAccountId } = useContext(AccountMapContext);
 
@@ -65,7 +71,7 @@ export const NavLinks = ({ config, currentBitcoinNetwork }) => {
               {wallet.mnemonic ? (
                 <IconSvg fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 1118 8zm-6-4a1 1 0 100 2 2 2 0 012 2 1 1 0 102 0 4 4 0 00-4-4z" clipRule="evenodd"></path></IconSvg>
               ) : (
-                  <IconSvg viewBox="0 0 20 20" fill="currentColor" class="calculator w-6 h-6"><path fillRule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V4a2 2 0 00-2-2H6zm1 2a1 1 0 000 2h6a1 1 0 100-2H7zm6 7a1 1 0 011 1v3a1 1 0 11-2 0v-3a1 1 0 011-1zm-3 3a1 1 0 100 2h.01a1 1 0 100-2H10zm-4 1a1 1 0 011-1h.01a1 1 0 110 2H7a1 1 0 01-1-1zm1-4a1 1 0 100 2h.01a1 1 0 100-2H7zm2 1a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1zm4-4a1 1 0 100 2h.01a1 1 0 100-2H13zM9 9a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1zM7 8a1 1 0 000 2h.01a1 1 0 000-2H7z" clipRule="evenodd"></path></IconSvg>
+                  <IconSvg viewBox="0 0 20 20" fill="currentColor" className="calculator w-6 h-6"><path fillRule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V4a2 2 0 00-2-2H6zm1 2a1 1 0 000 2h6a1 1 0 100-2H7zm6 7a1 1 0 011 1v3a1 1 0 11-2 0v-3a1 1 0 011-1zm-3 3a1 1 0 100 2h.01a1 1 0 100-2H10zm-4 1a1 1 0 011-1h.01a1 1 0 110 2H7a1 1 0 01-1-1zm1-4a1 1 0 100 2h.01a1 1 0 100-2H7zm2 1a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1zm4-4a1 1 0 100 2h.01a1 1 0 100-2H13zM9 9a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1zM7 8a1 1 0 000 2h.01a1 1 0 000-2H7z" clipRule="evenodd"></path></IconSvg>
                 )}
               {wallet.name}</SidebarItemLink>
           ))
@@ -145,7 +151,7 @@ const AccountsContainer = styled.div`
   height: auto;
 `;
 
-const SidebarItemStyle = css`
+const SidebarItemStyle = css<{ active: boolean }>`
   background: ${p => p.active ? green100 : white};
   border: ${p => p.active ? `solid 0.0625em ${darkOffWhite}` : 'none'};
   border-left: ${p => p.active ? `solid 0.6875em ${green700}` : 'none'};

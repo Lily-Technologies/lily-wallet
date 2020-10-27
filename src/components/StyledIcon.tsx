@@ -6,7 +6,7 @@ const spinning = keyframes`
   to {transform:rotate(360deg);
 `;
 
-export const StyledIcon = styled.div`
+export const StyledIcon = styled.div<{ size?: number }>`
   && {
     width: ${p => rem(p.size || 20)};
     height: ${p => rem(p.size || 20)};

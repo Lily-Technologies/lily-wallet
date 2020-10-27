@@ -4,9 +4,11 @@ import styled from 'styled-components';
 import { AnimatedQrCode } from './AnimatedQrCode' // can't import from index https://github.com/styled-components/styled-components/issues/1449
 import { Modal, Button } from '.';
 
-import { white, green800 } from '../utils/colors'
+import { white, green600, green800 } from '../utils/colors'
 
-const getChunks = (value, parts) => {
+import { LilyConfig } from '../types'
+
+const getChunks = (value: string, parts: number) => {
   const chunkLength = Math.ceil(value.length / parts);
   const result = []
   for (let i = 1; i <= parts; i++) {
@@ -15,11 +17,17 @@ const getChunks = (value, parts) => {
   return result;
 }
 
-export const ConnectToLilyMobileModal = ({ isOpen, onRequestClose, config }) => {
-  const [lilyMobileStep, setLilyMobileStep] = useState(0);
+interface Props {
+  isOpen: boolean
+  onRequestClose: () => void
+  config: LilyConfig
+}
 
-  const numChunks = Math.ceil(config.length / 1000);
-  const splitValueArray = getChunks(config, numChunks);
+export const ConnectToLilyMobileModal = ({ isOpen, onRequestClose, config }: Props) => {
+  const [lilyMobileStep, setLilyMobileStep] = useState(0);
+  const configStringified = JSON.stringify(config);
+  const numChunks = Math.ceil(configStringified.length / 1000);
+  const splitValueArray = getChunks(configStringified, numChunks);
 
   return (
     <Modal
@@ -34,7 +42,10 @@ export const ConnectToLilyMobileModal = ({ isOpen, onRequestClose, config }) => 
             <LilyMobileHeader>Connect to Lily Mobile</LilyMobileHeader>
             <LilyMobileContent>You can use your phone as a transaction approver and monitor your account balances on your phone using Lily Mobile.</LilyMobileContent>
             <LilyMobileContent style={{ marginTop: '1em' }}>Download it from the app store by clicking here. Once you have it loaded on your phone, click continue below to view your config QR code.</LilyMobileContent>
-            <LilyMobileContinueButton onClick={() => setLilyMobileStep(1)}>Continue</LilyMobileContinueButton>
+            <LilyMobileContinueButton
+              background={green600}
+              color={white}
+              onClick={() => setLilyMobileStep(1)}>Continue</LilyMobileContinueButton>
           </Fragment>
         )}
         {lilyMobileStep === 1 && (

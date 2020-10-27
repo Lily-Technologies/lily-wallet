@@ -1,13 +1,23 @@
 import React from 'react';
 import styled, { css } from 'styled-components';
 import { CloseOutline } from '@styled-icons/evaicons-outline';
+import { Network } from 'bitcoinjs-lib';
 
 import { NavLinks, Transition, Button, StyledIcon } from '.';
 
 import { white, gray800 } from '../utils/colors';
 import { mobile } from '../utils/media';
 
-export const MobileNavbar = ({ config, mobileNavOpen, setMobileNavOpen, currentBitcoinNetwork }) => (
+import { LilyConfig } from '../types'
+
+interface Props {
+  config: LilyConfig
+  mobileNavOpen: boolean
+  setMobileNavOpen: React.Dispatch<React.SetStateAction<boolean>>
+  currentBitcoinNetwork: Network
+}
+
+export const MobileNavbar = ({ config, mobileNavOpen, setMobileNavOpen, currentBitcoinNetwork }: Props) => (
   <Wrapper>
     <Transition
       show={mobileNavOpen}
@@ -17,6 +27,7 @@ export const MobileNavbar = ({ config, mobileNavOpen, setMobileNavOpen, currentB
       leave="transition ease-linear duration-300"
       leaveFrom="transform opacity-100"
       leaveTo="transform opacity-0"
+      appear={undefined} // KBC-TODO: does this need to be here?
     >
       <BackgroundContainer onClick={() => setMobileNavOpen(false)}>
         <BackgroundOverlay></BackgroundOverlay>
@@ -31,14 +42,15 @@ export const MobileNavbar = ({ config, mobileNavOpen, setMobileNavOpen, currentB
       leave="transition ease-in-out duration-300 transform"
       leaveFrom="translate-x-0"
       leaveTo="-translate-x-full"
+      appear={undefined} // KBC-TODO: does this need to be here?
     >
       <SomeContainer>
         <SidebarContainer>
           <NavLinksContainer>
-            <NavLinks config={config} setMobileNavOpen={setMobileNavOpen} currentBitcoinNetwork={currentBitcoinNetwork} />
+            <NavLinks config={config} currentBitcoinNetwork={currentBitcoinNetwork} />
           </NavLinksContainer>
           <CloseButtonContainer>
-            <CloseButton background="transparent" onClick={() => setMobileNavOpen(false)}>
+            <CloseButton background="transparent" color={white} onClick={() => setMobileNavOpen(false)}>
               <StyledIcon as={CloseOutline} size={36} />
             </CloseButton>
           </CloseButtonContainer>
@@ -57,6 +69,7 @@ const Wrapper = styled.div`
 
 const NavLinksContainer = styled.div`
   overflow: scroll;
+  height: 100vh;
 `;
 
 const SidebarContainer = styled.div`

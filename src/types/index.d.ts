@@ -51,6 +51,9 @@ export interface NodeConfig {
   password: string
   port: string
   version: string
+  initialblockdownload?: boolean
+  verificationprogress?: number
+  blocks: number
 }
 
 export type InputOrOutput = Vin | Vout;

@@ -1,10 +1,16 @@
+// KBC-TODO: either apply throughout entire project or remove
+// There are some components that implement this in their own files
 import React from 'react';
 import styled, { css } from 'styled-components';
 
 import { mobile } from '../utils/media';
 import { black, gray100 } from '../utils/colors';
 
-export const PageWrapper = ({ children }) => {
+interface Props {
+  children: React.ReactChild
+}
+
+export const PageWrapper = ({ children }: Props) => {
   return (
     <Wrapper>
       <Content>

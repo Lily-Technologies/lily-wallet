@@ -6,7 +6,7 @@ import { white, gray300, gray500, gray600, red400 } from '../utils/colors';
 export interface Props {
   value: string
   onChange(e: string): void
-  error: boolean
+  error?: boolean
   label: string
   id?: string
   placeholder?: string
@@ -55,7 +55,7 @@ const InputWrapper = styled.div`
   }
 `;
 
-const StyledInput = styled.input<{ error: boolean }>`
+const StyledInput = styled.input<{ error: boolean | undefined }>`
   line-height: 1.25em;
   width: 100%;
   font-size: 0.875em;

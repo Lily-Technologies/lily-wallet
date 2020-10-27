@@ -3,7 +3,11 @@ import styled from 'styled-components';
 
 import { green800, white, darkGray } from '../utils/colors';
 
-export const MnemonicWordsDisplayer = ({ mnemonicWords }) => {
+interface Props {
+  mnemonicWords: string
+}
+
+export const MnemonicWordsDisplayer = ({ mnemonicWords }: Props) => {
   const mnemonicWordsArray = mnemonicWords.split(" ");
 
   return (

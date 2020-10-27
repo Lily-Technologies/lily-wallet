@@ -3,7 +3,11 @@ import { QRCode } from "react-qr-svg";
 
 import { white, black } from '../utils/colors';
 
-export const AnimatedQrCode = ({ valueArray }) => {
+interface Props {
+  valueArray: string[]
+}
+
+export const AnimatedQrCode = ({ valueArray }: Props) => {
   const [step, setStep] = useState(0);
 
   setTimeout(() => {

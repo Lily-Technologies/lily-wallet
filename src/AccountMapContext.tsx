@@ -1,4 +1,4 @@
-import React, { createContext, useReducer, useCallback, useState, ReactChild } from 'react';
+import React, { createContext, useReducer, useCallback, useState } from 'react';
 
 import {
   accountMapReducer,
@@ -16,7 +16,7 @@ export const AccountMapContext = createContext({
   currentAccount: {} as LilyAccount
 });
 
-export const AccountMapProvider = ({ children }: { children: ReactChild }) => {
+export const AccountMapProvider = ({ children }: { children: React.ReactChild }) => {
   const [accountMap, dispatch] = useReducer(accountMapReducer, {});
   const [currentAccountId, setCurrentAccountId] = useState('satoshi');
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, Fragment } from 'react';
 import styled, { css } from 'styled-components';
 import { AES } from 'crypto-js';
 import Modal from 'react-modal';
@@ -42,41 +42,43 @@ const Settings = ({ config, currentBitcoinNetwork }: { config: LilyConfig, curre
 
   return (
     <PageWrapper>
-      <Header>
-        <HeaderLeft>
-          <PageTitle>Settings</PageTitle>
-        </HeaderLeft>
-      </Header>
-      <ValueWrapper>
-        <SettingsHeadingItem style={{ marginTop: '0.5em' }}>Data and Backups</SettingsHeadingItem>
-        <SettingsSection>
-          <SettingsSectionLeft>
-            <SettingsHeader>Export Current Configuration</SettingsHeader>
-            <SettingsSubheader>Download your current vault configuration. This allows you to import your current configuration on a different machine running Lily.</SettingsSubheader>
-          </SettingsSectionLeft>
-          <SettingsSectionRight>
-            <ViewAddressesButton
-              onClick={() => setDownloadConfigModalIsOpen(true)}>
-              Download Current Config
+      <Fragment>
+        <Header>
+          <HeaderLeft>
+            <PageTitle>Settings</PageTitle>
+          </HeaderLeft>
+        </Header>
+        <ValueWrapper>
+          <SettingsHeadingItem style={{ marginTop: '0.5em' }}>Data and Backups</SettingsHeadingItem>
+          <SettingsSection>
+            <SettingsSectionLeft>
+              <SettingsHeader>Export Current Configuration</SettingsHeader>
+              <SettingsSubheader>Download your current vault configuration. This allows you to import your current configuration on a different machine running Lily.</SettingsSubheader>
+            </SettingsSectionLeft>
+            <SettingsSectionRight>
+              <ViewAddressesButton
+                onClick={() => setDownloadConfigModalIsOpen(true)}>
+                Download Current Config
               </ViewAddressesButton>
-          </SettingsSectionRight>
-          <Modal
-            isOpen={downloadConfigModalIsOpen}
-            onRequestClose={() => setDownloadConfigModalIsOpen(false)}
-            style={modalStyles}>
+            </SettingsSectionRight>
+            <Modal
+              isOpen={downloadConfigModalIsOpen}
+              onRequestClose={() => setDownloadConfigModalIsOpen(false)}
+              style={modalStyles}>
 
-            <PasswordWrapper>
-              <PasswordText>Almost done, just set a password to encrypt your setup file:</PasswordText>
-              <PasswordInput placeholder="password" value={password} onChange={(e) => setPassword(e.target.value)} type="password" />
-            </PasswordWrapper>
-            <WordContainer>
-              <SaveWalletButton background={green600} color={white} onClick={() => downloadCurrentConfig(password)}>
-                Download Encrypted Configuration File
+              <PasswordWrapper>
+                <PasswordText>Almost done, just set a password to encrypt your setup file:</PasswordText>
+                <PasswordInput placeholder="password" value={password} onChange={(e) => setPassword(e.target.value)} type="password" />
+              </PasswordWrapper>
+              <WordContainer>
+                <SaveWalletButton background={green600} color={white} onClick={() => downloadCurrentConfig(password)}>
+                  Download Encrypted Configuration File
               </SaveWalletButton>
-            </WordContainer>
-          </Modal>
-        </SettingsSection>
-      </ValueWrapper>
+              </WordContainer>
+            </Modal>
+          </SettingsSection>
+        </ValueWrapper>
+      </Fragment>
     </PageWrapper >
   )
 };
