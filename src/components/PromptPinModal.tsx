@@ -166,6 +166,7 @@ const ErrorText = styled.div`
 
 const UnlockButton = styled.button`
   ${Button};
+  width: 100%;
   border-top-right-radius: 0;
   border-top-left-radius: 0;
 `;
