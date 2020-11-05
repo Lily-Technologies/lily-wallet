@@ -412,5 +412,6 @@ module.exports = {
   getDataFromMultisig: getDataFromMultisig,
   getDataFromXPub: getDataFromXPub,
   getUnchainedNetworkFromBjslibNetwork: getUnchainedNetworkFromBjslibNetwork,
-  getMultisigDescriptor: getMultisigDescriptor
+  getMultisigDescriptor: getMultisigDescriptor,
+  scanForAddressesAndTransactions: scanForAddressesAndTransactions
 }

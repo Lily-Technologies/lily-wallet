@@ -5,7 +5,7 @@ import {
   bitcoinsToSatoshis
 } from "unchained-bitcoin";
 import BigNumber from 'bignumber.js';
-import { coinSelect } from 'coinselect';
+import coinSelect from 'coinselect';
 import { Psbt } from 'bitcoinjs-lib';
 
 import { Button, Input } from '../../components';

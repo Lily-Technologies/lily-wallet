@@ -85,6 +85,7 @@ const Send = ({ config, currentBitcoinNetwork, nodeConfig, currentBitcoinPrice }
     }
   }
 
+  // KBC-TODO: add test
   const signTransactionIfSingleSigner = async (psbt: Psbt) => {
     // if only single sign, then sign tx right away
     if (currentAccount.config.mnemonic) {
@@ -104,6 +105,7 @@ const Send = ({ config, currentBitcoinNetwork, nodeConfig, currentBitcoinPrice }
     }
   }
 
+  // KBC-TODO: add test
   const importTxFromFile = (file: string) => {
     if (importTxFromFileError) {
       setImportTxFromFileError('')
@@ -255,6 +257,7 @@ const Send = ({ config, currentBitcoinNetwork, nodeConfig, currentBitcoinPrice }
             background={green600}
             color={white}
             onClick={() => {
+              console.log('pastedPsbtValue: ', pastedPsbtValue);
               importTxFromFile(pastedPsbtValue)
             }}>Import Transaction</CopyAddressButton>
         </ImportButtons>

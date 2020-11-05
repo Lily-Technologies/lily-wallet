@@ -16,7 +16,6 @@ interface Props {
 }
 
 const TransactionRow = ({ transaction, flat }: Props) => {
-  console.log('transaction: ', transaction);
   const [isOpen, setIsOpen] = useState(false);
   return (
     <TransactionRowWrapper flat={flat}>

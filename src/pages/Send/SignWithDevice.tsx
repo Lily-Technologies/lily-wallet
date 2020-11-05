@@ -32,6 +32,7 @@ const SignWithDevice = ({
   const [errorDevices, setErrorDevices] = useState<string[]>([]); // stores fingerprint of error devices
   const [optionsDropdownOpen, setOptionsDropdownOpen] = useState(false);
 
+  // KBC-TODO: add a test
   const signWithDevice = async (device: HwiResponseEnumerate, index: number) => {
     try {
       const response = await window.ipcRenderer.invoke('/sign', {
