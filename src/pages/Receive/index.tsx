@@ -75,6 +75,10 @@ const Receive = ({ config }: { config: LilyConfig }) => {
                   <SendToAddressHeader>
                     Send bitcoin to
                 </SendToAddressHeader>
+                  <AddressDisplayWrapper>
+                    <BitcoinAddressLabel>Bitcoin address:</BitcoinAddressLabel>
+                    {unusedAddresses[unusedAddressIndex].address}
+                  </AddressDisplayWrapper>
                   <QRCodeWrapper>
                     <QRCode
                       bgColor={white}
@@ -84,10 +88,6 @@ const Receive = ({ config }: { config: LilyConfig }) => {
                       value={unusedAddresses[unusedAddressIndex].address}
                     />
                   </QRCodeWrapper>
-                  <AddressDisplayWrapper>
-                    <BitcoinAddressLabel>Bitcoin address:</BitcoinAddressLabel>
-                    {unusedAddresses[unusedAddressIndex].address}
-                  </AddressDisplayWrapper>
                   <ReceiveButtonContainer>
                     <CopyToClipboard text={unusedAddresses[unusedAddressIndex].address}>
                       <CopyAddressButton color={white} background={green600}>Copy Address</CopyAddressButton>
@@ -146,6 +146,7 @@ const ReceiveWrapper = styled.div`
   flex-direction: column;
   box-shadow: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06);
   border: 1px solid ${gray};
+  background: ${gray100};
 `;
 
 const SendToAddressHeader = styled.div`

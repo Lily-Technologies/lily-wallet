@@ -11,7 +11,7 @@ import axios from 'axios';
 import BigNumber from 'bignumber.js';
 import { networks } from 'bitcoinjs-lib';
 
-import { offWhite } from './utils/colors';
+import { offWhite, green700 } from './utils/colors';
 import { mobile } from './utils/media';
 
 import { Sidebar, MobileNavbar, TitleBar, ScrollToTop } from './components';
@@ -61,6 +61,14 @@ const App = () => {
     const history = useHistory();
     if (config.isEmpty && (pathname !== '/login')) {
       history.push('/login');
+    }
+    return null;
+  }
+
+  const Overlay = () => {
+    const { pathname } = useLocation();
+    if (!config.isEmpty && (pathname !== '/setup')) {
+      return <ColorOverlap />
     }
     return null;
   }
@@ -224,6 +232,7 @@ const App = () => {
       <TitleBar setNodeConfig={setNodeConfig} nodeConfig={nodeConfig} setMobileNavOpen={setMobileNavOpen} config={config} connectToBlockstream={connectToBlockstream} connectToBitcoinCore={connectToBitcoinCore} getNodeConfig={getNodeConfig} resetConfigFile={resetConfigFile} />
       <PageWrapper id="page-wrapper">
         <ConfigRequired />
+        <Overlay />
         {!config.isEmpty && <Sidebar config={config} flyInAnimation={flyInAnimation} currentBitcoinNetwork={currentBitcoinNetwork} />}
         {!config.isEmpty && <MobileNavbar mobileNavOpen={mobileNavOpen} setMobileNavOpen={setMobileNavOpen} config={config} currentBitcoinNetwork={currentBitcoinNetwork} />}
         <Switch>
@@ -243,6 +252,16 @@ const App = () => {
     </Router>
   );
 }
+
+const ColorOverlap = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 25vh;
+  background: ${green700};
+  box-shadow: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06);
+`;
 
 const PageWrapper = styled.div`
   height: 100%;

@@ -77,7 +77,7 @@ const NewVaultScreen = ({
         xpub: xpub,
         model: 'unknown',
         path: 'unknown'
-      }
+      } as HwiResponseEnumerate;
 
       const updatedImportedDevices = [...importedDevices, newDevice];
       setImportedDevices(updatedImportedDevices);
@@ -99,7 +99,7 @@ const NewVaultScreen = ({
       xpub: xpub,
       path: 'unknown',
       model: 'unknown'
-    }
+    } as HwiResponseEnumerate;
 
     const updatedImportedDevices = [...importedDevices, newDevice];
     setImportedDevices(updatedImportedDevices)
@@ -119,7 +119,7 @@ const NewVaultScreen = ({
         xpub: xpub,
         model: 'unknown',
         path: 'none'
-      };
+      } as HwiResponseEnumerate;
 
       devicesFromFile.push(newDevice);
     }

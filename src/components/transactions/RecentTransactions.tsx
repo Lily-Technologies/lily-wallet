@@ -92,8 +92,7 @@ const NoTransasctionsSection = styled.div<{ flat: boolean }>`
   font-weight: 100;
   background: ${p => p.flat ? 'transparent' : white};
   box-shadow: ${p => p.flat ? 'none' : '0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06);'};
-  border: ${p => p.flat ? 'none' : `1px solid ${darkGray}`};
-  border-top: ${p => p.flat ? 'none' : `11px solid ${green800}`};
+  border-radius: 0.385em;
 `;
 
 const NoTransactionsHeader = styled.h3`

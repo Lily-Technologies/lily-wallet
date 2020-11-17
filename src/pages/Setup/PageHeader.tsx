@@ -4,6 +4,8 @@ import { useHistory } from "react-router-dom";
 import { HeaderWrapper, CancelButton, PageTitleSubtext } from './styles';
 import { Header, HeaderLeft, HeaderRight, PageTitle } from '../../components/layout';
 
+import { black } from '../../utils/colors';
+
 import { LilyConfig } from '../../types';
 
 interface Props {
@@ -21,7 +23,7 @@ const PageHeader = ({ headerText, setStep, step, config }: Props) => {
       <Header>
         <HeaderLeft>
           <PageTitleSubtext>New Account</PageTitleSubtext>
-          <PageTitle>{headerText}</PageTitle>
+          <PageTitle style={{ color: black }}>{headerText}</PageTitle>
         </HeaderLeft>
         <HeaderRight>
           {config.isEmpty && <CancelButton onClick={() => { history.push('login') }}>Return to Main Menu</CancelButton>}

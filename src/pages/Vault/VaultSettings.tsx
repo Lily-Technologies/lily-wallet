@@ -124,11 +124,11 @@ const VaultSettings = ({ config, setConfigFile, password, currentAccount, setVie
 
   return (
     <Wrapper>
-      <TotalValueHeader>Settings</TotalValueHeader>
+      <SettingsHeader>Settings</SettingsHeader>
       <SettingsHeadingItem>Vault Data</SettingsHeadingItem>
       <SettingsSection>
         <SettingsSectionLeft>
-          <SettingsHeader>Addresses</SettingsHeader>
+          <SettingsItemHeader>Addresses</SettingsItemHeader>
           <SettingsSubheader>View the addresses associated with this vault</SettingsSubheader>
         </SettingsSectionLeft>
         <SettingsSectionRight>
@@ -137,7 +137,7 @@ const VaultSettings = ({ config, setConfigFile, password, currentAccount, setVie
       </SettingsSection>
       <SettingsSection>
         <SettingsSectionLeft>
-          <SettingsHeader>UTXOs</SettingsHeader>
+          <SettingsItemHeader>UTXOs</SettingsItemHeader>
           <SettingsSubheader>View the UTXOs associated with this vault</SettingsSubheader>
         </SettingsSectionLeft>
         <SettingsSectionRight>
@@ -148,7 +148,7 @@ const VaultSettings = ({ config, setConfigFile, password, currentAccount, setVie
       {currentAccount.config.quorum.totalSigners === 1 && (
         <SettingsSection>
           <SettingsSectionLeft>
-            <SettingsHeader>View XPub</SettingsHeader>
+            <SettingsItemHeader>View XPub</SettingsItemHeader>
             <SettingsSubheader>View the xpub associated with this vault. This can be given to other services to deposit money into your account or create a read-only wallet.</SettingsSubheader>
           </SettingsSectionLeft>
           <SettingsSectionRight>
@@ -171,7 +171,7 @@ const VaultSettings = ({ config, setConfigFile, password, currentAccount, setVie
           <SettingsHeadingItem>Export Wallet</SettingsHeadingItem>
           <SettingsSection>
             <SettingsSectionLeft>
-              <SettingsHeader>Connect to BlueWallet</SettingsHeader>
+              <SettingsItemHeader>Connect to BlueWallet</SettingsItemHeader>
               <SettingsSubheader>View a QR code to import this wallet into BlueWallet</SettingsSubheader>
             </SettingsSectionLeft>
             <SettingsSectionRight>
@@ -189,7 +189,7 @@ const VaultSettings = ({ config, setConfigFile, password, currentAccount, setVie
           </SettingsSection>
           <SettingsSection>
             <SettingsSectionLeft>
-              <SettingsHeader>View Mnemonic Seed</SettingsHeader>
+              <SettingsItemHeader>View Mnemonic Seed</SettingsItemHeader>
               <SettingsSubheader>View the mnemonic phrase for this wallet. This can be used to import this wallet data into another application.</SettingsSubheader>
             </SettingsSectionLeft>
             <SettingsSectionRight>
@@ -211,7 +211,7 @@ const VaultSettings = ({ config, setConfigFile, password, currentAccount, setVie
           <SettingsHeadingItem>Export Wallet</SettingsHeadingItem>
           <SettingsSection>
             <SettingsSectionLeft>
-              <SettingsHeader>Download Coldcard File</SettingsHeader>
+              <SettingsItemHeader>Download Coldcard File</SettingsItemHeader>
               <SettingsSubheader>
                 Download the multisig wallet import file for Coldcard and place on microsd card. <br />
               Import via Settings &gt; Multisig &gt; Import from SD.
@@ -223,7 +223,7 @@ const VaultSettings = ({ config, setConfigFile, password, currentAccount, setVie
           </SettingsSection>
           <SettingsSection>
             <SettingsSectionLeft>
-              <SettingsHeader>Download Caravan File</SettingsHeader>
+              <SettingsItemHeader>Download Caravan File</SettingsItemHeader>
               <SettingsSubheader>
                 <span>Download this vault's configuration file to use in <UCLink href="https://unchained-capital.com/" target="_blank" rel="noopener noreferrer">Unchained Capital's</UCLink> <UCLink href="https://unchained-capital.github.io/caravan/#/" target="_blank" rel="noopener noreferrer">Caravan</UCLink> multisig coordination software.</span>
               </SettingsSubheader>
@@ -237,7 +237,7 @@ const VaultSettings = ({ config, setConfigFile, password, currentAccount, setVie
       <SettingsHeadingItem>Danger Zone</SettingsHeadingItem>
       <SettingsSection>
         <SettingsSectionLeft>
-          <SettingsHeader>Delete Account</SettingsHeader>
+          <SettingsItemHeader>Delete Account</SettingsItemHeader>
           <SettingsSubheader>Remove this account from your list of accounts.</SettingsSubheader>
         </SettingsSectionLeft>
         <SettingsSectionRight>
@@ -359,10 +359,6 @@ const DangerSubtext = styled.div`
 `;
 
 const Wrapper = styled.div`
-  background: ${gray100};
-  padding: 1.5em;
-  box-shadow: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06);
-  border-top: solid 11px ${green800};
 `;
 
 const UCLink = styled.a`
@@ -383,8 +379,10 @@ const SettingsSection = styled.div`
   justify-content: space-between;
   padding: 1.5em;
   background: ${white};
-  border: 1px solid ${darkGray};
   align-items: center;
+  padding: 2.5em 2em;
+  box-shadow: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06);
+  border-radius: 0.375em;
 
   ${mobile(css`
     grid-gap: 2em;
@@ -420,7 +418,7 @@ const SettingsSubheader = styled.div`
   margin: 8px 0;
 `;
 
-const SettingsHeader = styled.div`
+const SettingsItemHeader = styled.div`
   display: flex;
   font-size: 1.125em;
 `;
@@ -440,8 +438,12 @@ const ViewAddressesButton = styled.div`
   cursor: pointer;
 `;
 
-const TotalValueHeader = styled.div`
-  font-size: 36px;
+const SettingsHeader = styled.div`
+  font-size: 2.25em;
+  background: ${white};
+  padding: 1em;
+  box-shadow: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06);
+  border-radius: 0.375em;
 `;
 
 const XpubWellWrapper = styled.div`

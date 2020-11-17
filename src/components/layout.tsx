@@ -4,7 +4,7 @@ import React from 'react';
 import styled, { css } from 'styled-components';
 
 import { mobile } from '../utils/media';
-import { black, gray100 } from '../utils/colors';
+import { white, black, gray100 } from '../utils/colors';
 
 interface Props {
   children: React.ReactChild
@@ -32,6 +32,7 @@ const Wrapper = styled.div`
   align-items: center;
   padding: 0em 3em;
   overflow: hidden;
+  z-index: 1;
 
   ${mobile(css`
     padding: 0em 1em;
@@ -59,6 +60,7 @@ export const GridArea = styled.div`
 
 export const PageTitle = styled.div`
   font-size: 2em;
+  color: ${white};
 `;
 
 export const Header = styled.div`
@@ -67,6 +69,7 @@ export const Header = styled.div`
   align-items: center;
   margin-bottom: 1em;
   flex-wrap: wrap;
+  color: ${white};
 `;
 export const HeaderLeft = styled.div`
   display: flex;

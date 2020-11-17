@@ -1,3 +1,4 @@
+import { Network } from 'bitcoinjs-lib'
 import { ACCOUNTMAP_SET, ACCOUNTMAP_UPDATE } from '../reducers/accountMap'
 
 declare global {
@@ -187,10 +188,6 @@ export interface UtxoMap {
   [id: string]: UTXO
 }
 
-export interface TransactionMap {
-  [id: string]: Transaction
-}
-
 export interface LilyConfig {
   name: string,
   version: string,
@@ -211,7 +208,7 @@ export interface Device {
 }
 
 export interface HwiResponseEnumerate { // device responses from HWI
-  type: Device.type
+  type: Device["type"]
   model: string // KBC-TODO: get more specific with this
   path: string
   fingerprint: string
