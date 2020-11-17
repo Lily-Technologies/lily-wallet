@@ -1,0 +1,37 @@
+{
+  "name": "Coldcard HWW",
+  "config": {
+    "id": "af46ea03-226f-4f76-961d-65de559f5df3",
+    "created_at": 1603900550961,
+    "name": "Coldcard",
+    "network": "mainnet",
+    "addressType": "P2WPKH",
+    "quorum": {
+      "requiredSigners": 1,
+      "totalSigners": 1
+    },
+    "extendedPublicKeys": [
+      {
+        "id": "5376cf19-5b44-442a-be76-5c137eda0078",
+        "created_at": 1603900550960,
+        "parentFingerprint": "4F60D1C9",
+        "network": "mainnet",
+        "bip32Path": "m/0",
+        "xpub": "xpub6F2wuvSo8gSRjE9JsMgSva9cDZGa2Hh9SEJ9yczCLd1q2SRFV6N4vRUKFoecbatfhgZcG5rNwTxygNLoPrKpjRt94czCzQQPnoVY1RauiL6",
+        "device": {
+          "type": "coldcard",
+          "model": "unknown",
+          "fingerprint": "4F60D1C9"
+        }
+      }
+    ]
+  },
+  "transactions": [],
+  "unusedAddresses": [],
+  "addresses": [],
+  "changeAddresses": [],
+  "availableUtxos": [],
+  "unusedChangeAddresses": [],
+  "currentBalance": 0,
+  "loading": true
+}

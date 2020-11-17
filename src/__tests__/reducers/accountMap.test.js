@@ -1,10 +1,7 @@
-import assert from 'assert';
-
-import initialAccountMap from '../fixtures/initialAccountMap.json';
-import loadedAccount from '../fixtures/loadedAccount.json';
-
 import { accountMapReducer, ACCOUNTMAP_SET, ACCOUNTMAP_UPDATE } from '../../reducers/accountMap';
 
+import initialAccountMap from '../fixtures/initialAccountMap.json';
+import loadedAccount from '../fixtures/Multisig-Account.json';
 
 describe('Account Map Reducer', () => {
   test('setAccountMap sets initial state', () => {

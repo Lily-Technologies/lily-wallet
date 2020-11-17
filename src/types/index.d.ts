@@ -1,6 +1,16 @@
 import { ACCOUNTMAP_SET, ACCOUNTMAP_UPDATE } from '../reducers/accountMap'
 
 declare global {
+
+  namespace NodeJS {
+    interface Global {
+      document: Document;
+      window: Window;
+      navigator: Navigator;
+      ipcRenderer: any;
+      ipcMain: any;
+    }
+  }
   interface Window {
     ipcRenderer: any;
   }
@@ -81,6 +91,16 @@ export interface Vout {
   isMine: boolean
 }
 
+export interface PsbtInput {
+  hash: string,
+  index: number,
+  sequence: number,
+  nonWitnessUtxo: Buffer
+  witnessScript?: Buffer
+  redeemScript?: Buffer
+  bip32Derivation: Bip32Derivation[]
+}
+
 export enum TransactionType {
   sent = 'sent',
   received = 'received',
@@ -126,8 +146,8 @@ export interface Address {
   hash?: Buffer,
   output: any
   redeem: any
-  input: any
-  witness: any
+  input?: any
+  witness?: any
   isChange?: boolean
   isMine?: boolean
   bip32derivation: Bip32Derivation[]
@@ -165,6 +185,10 @@ export interface AddressMap {
 
 export interface UtxoMap {
   [id: string]: UTXO
+}
+
+export interface TransactionMap {
+  [id: string]: Transaction
 }
 
 export interface LilyConfig {

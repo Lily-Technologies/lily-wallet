@@ -9,12 +9,12 @@ import {
 import { Psbt, address, Network } from 'bitcoinjs-lib';
 
 import BigNumber from 'bignumber.js';
-import { coinSelect } from 'coinselect';
+import coinSelect from 'coinselect';
 
 import { cloneBuffer } from '../../utils/other';
 import { getUnchainedNetworkFromBjslibNetwork } from '../../utils/files';
 
-import { LilyAccount, UTXO, UtxoMap, AddressType, Transaction, Address } from '../../types'
+import { LilyAccount, UTXO, UtxoMap, AddressType, PsbtInput, Transaction, TransactionMap, Address, FeeRates } from '../../types'
 
 const getTxHex = async (txid: string, currentBitcoinNetwork: Network) => {
   const txHex = await (await axios.get(blockExplorerAPIURL(`/tx/${txid}/hex`, getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)))).data;
@@ -25,7 +25,8 @@ export const combinePsbts = (finalPsbt: Psbt, signedPsbts: string[]) => {
   const psbt = finalPsbt;
   const base64SignedPsbts = signedPsbts.map((psbt) => {
     return Psbt.fromBase64(psbt);
-  })
+  });
+
   if (base64SignedPsbts.length) { // if there are signed psbts, combine them
     psbt.combine(...base64SignedPsbts);
   }
@@ -49,8 +50,17 @@ export const createUtxoMapFromUtxoArray = (utxosArray: UTXO[]) => {
   return utxoMap
 }
 
-export const getFeeForMultisig = (feeRate: number, addressType: AddressType, numInputs: number, numOutputs: number, requiredSigners: number, totalSigners: number) => {
-  const feeRateString = feeRate.toString();
+export const createTransactionMapFromTransactionArray = (transactionsArray: Transaction[]) => {
+  const transactionMap: TransactionMap = {}
+  transactionsArray.forEach((tx) => {
+    transactionMap[tx.txid] = tx
+  });
+  return transactionMap
+}
+
+// freeRate is in sats/byte
+export const getFeeForMultisig = (feesPerByteInSatoshis: number, addressType: AddressType, numInputs: number, numOutputs: number, requiredSigners: number, totalSigners: number) => {
+  const feeRateString = feesPerByteInSatoshis.toString();
   return estimateMultisigTransactionFee({
     addressType: addressType,
     numInputs: numInputs,
@@ -66,21 +76,13 @@ export const getFee = (psbt: Psbt, transactions: Transaction[]) => {
   const txMap = createTransactionMapFromTransactionArray(transactions);
   const inputSum = psbt.txInputs.reduce((acc, cur) => {
     const inputBuffer = cloneBuffer(cur.hash);
-    const currentUtxo = txMap.get(inputBuffer.reverse().toString('hex'));
+    const currentUtxo = txMap[inputBuffer.reverse().toString('hex')];
     return Math.abs(currentUtxo.vout[cur.index].value) + acc
   }, 0);
   return inputSum - outputSum;
 }
 
-const createTransactionMapFromTransactionArray = (transactionsArray: Transaction[]) => {
-  const transactionMap = new Map();
-  transactionsArray.forEach((tx) => {
-    transactionMap.set(tx.txid, tx)
-  });
-  return transactionMap
-}
-
-const coinSelection = (amountInSats: number, availableUtxos: UTXO[]) => {
+export const coinSelection = (amountInSats: number, availableUtxos: UTXO[]) => {
   availableUtxos.sort((a, b) => b.value - a.value); // sort available utxos from largest size to smallest size to minimize inputs
   let currentTotal = new BigNumber(0);
   const spendingUtxos = [];
@@ -94,10 +96,10 @@ const coinSelection = (amountInSats: number, availableUtxos: UTXO[]) => {
 }
 
 export const createTransaction = async (currentAccount: LilyAccount, amountInBitcoins: string, recipientAddress: string, desiredFee: string | undefined, availableUtxos: UTXO[], unusedChangeAddresses: Address[], currentBitcoinNetwork: Network) => {
-  let fee;
-  const feeRates = await window.ipcRenderer.invoke('/estimateFee');
+  let fee: BigNumber;
+  const feeRates: FeeRates = await window.ipcRenderer.invoke('/estimateFee');
   if (desiredFee !== undefined) { // if no fee specified, pick halfhour
-    fee = desiredFee;
+    fee = new BigNumber(desiredFee);
   } else if (currentAccount.config.quorum.totalSigners > 1) {
     fee = await getFeeForMultisig(feeRates.halfHourFee, currentAccount.config.addressType, 1, 2, currentAccount.config.quorum.requiredSigners, currentAccount.config.quorum.totalSigners).integerValue(BigNumber.ROUND_CEIL);
   } else {
@@ -120,53 +122,28 @@ export const createTransaction = async (currentAccount: LilyAccount, amountInBit
 
   for (let i = 0; i < spendingUtxos.length; i++) {
     const utxo = spendingUtxos[i];
-    if (currentAccount.config.quorum.totalSigners > 1) {
 
-      // need to construct prevTx b/c of segwit fee vulnerability requires on trezor
-      const prevTxHex = await getTxHex(utxo.txid, currentBitcoinNetwork);
+    const prevTxHex = await getTxHex(utxo.txid, currentBitcoinNetwork);
+    const currentInput = {
+      hash: utxo.txid,
+      index: utxo.vout,
+      sequence: 0xffffffff,
+      nonWitnessUtxo: Buffer.from(prevTxHex, 'hex'),
+      bip32Derivation: utxo.address.bip32derivation.map((derivation) => ({
+        masterFingerprint: Buffer.from(Object.values(derivation.masterFingerprint)),
+        pubkey: Buffer.from(Object.values(derivation.pubkey)),
+        path: derivation.path
 
-      // KBC-TODO: eventually break this up into different functions depending on if Trezor or not, leave for now...I guess
-      psbt.addInput({
-        hash: utxo.txid,
-        index: utxo.vout,
-        sequence: 0xffffffff,
-        nonWitnessUtxo: Buffer.from(prevTxHex, 'hex'),
-        witnessScript: Buffer.from(multisigWitnessScript(utxo.address).output),
-        bip32Derivation: utxo.address.bip32derivation.map((derivation) => ({
-          masterFingerprint: Buffer.from(derivation.masterFingerprint.buffer, derivation.masterFingerprint.byteOffset, derivation.masterFingerprint.byteLength),
-          pubkey: Buffer.from(derivation.pubkey.buffer, derivation.pubkey.byteOffset, derivation.pubkey.byteLength),
-          path: derivation.path
-        }))
-      })
-    } else if (currentAccount.config.mnemonic) {
-      const prevTxHex = await getTxHex(utxo.txid, currentBitcoinNetwork);
-      // KBC-TODO: eventually break this up into different functions depending on if Trezor or not, leave for now...I guess
-      psbt.addInput({
-        hash: utxo.txid,
-        index: utxo.vout,
-        sequence: 0xffffffff,
-        nonWitnessUtxo: Buffer.from(prevTxHex, 'hex'),
-        bip32Derivation: [{
-          masterFingerprint: Buffer.from(utxo.address.bip32derivation[0].masterFingerprint.buffer, utxo.address.bip32derivation[0].masterFingerprint.byteOffset, utxo.address.bip32derivation[0].masterFingerprint.byteLength),
-          pubkey: Buffer.from(utxo.address.bip32derivation[0].pubkey.buffer, utxo.address.bip32derivation[0].pubkey.byteOffset, utxo.address.bip32derivation[0].pubkey.byteLength),
-          path: utxo.address.bip32derivation[0].path
-        }]
-      })
-    } else {
-      const prevTxHex = await getTxHex(utxo.txid, currentBitcoinNetwork);
-      psbt.addInput({
-        hash: utxo.txid,
-        index: utxo.vout,
-        sequence: 0xffffffff,
-        redeemScript: Buffer.from(utxo.address.redeem.output.buffer, utxo.address.redeem.output.byteOffset, utxo.address.redeem.output.byteLength),
-        nonWitnessUtxo: Buffer.from(prevTxHex, 'hex'),
-        bip32Derivation: [{
-          masterFingerprint: Buffer.from(utxo.address.bip32derivation[0].masterFingerprint.buffer, utxo.address.bip32derivation[0].masterFingerprint.byteOffset, utxo.address.bip32derivation[0].masterFingerprint.byteLength),
-          pubkey: Buffer.from(utxo.address.bip32derivation[0].pubkey.buffer, utxo.address.bip32derivation[0].pubkey.byteOffset, utxo.address.bip32derivation[0].pubkey.byteLength),
-          path: utxo.address.bip32derivation[0].path
-        }]
-      })
+      }))
+    } as PsbtInput;
+
+    if (currentAccount.config.quorum.totalSigners > 1) { // multisig p2wsh requires witnessScript
+      currentInput.witnessScript = Buffer.from(Object.values(multisigWitnessScript(utxo.address).output))
+    } else if (currentAccount.config.mnemonic === undefined) { // hardware wallet, add redeemScript
+      currentInput.redeemScript = Buffer.from(Object.values(utxo.address.redeem.output))
     }
+
+    psbt.addInput(currentInput)
   }
 
   psbt.addOutput({
