@@ -56,7 +56,24 @@ const NewHardwareWalletScreen = ({
     }
   }
 
+  // KBC-TODO: this doesn't work...we need to accept a singlesig coldcard file as input
+  // Example Input:
+  // {
+  //   "keystore": {
+  //     "ckcc_xpub": "xpub661MyMwAqRbcFY3rSS8qE89xuc8g3ZkKbfVT7t3DPpomRASfjeWMbYSTTnxUTXcTdu73MEZCXmzv8ravVjvq8aC9jM4ZaM1BiD46",
+  //     "xpub": "ypub6X1iLoC66mvtA1zigXwTSbLrFpBp9iFcDcgb9GBcPryy3vn52QtumoJwA9ykpJy5oAQEuPCuRYvxz9qjymDiucZ5fgEwNAeBMB",
+  //     "label": "Coldcard Import 4F60D1C9",
+  //     "ckcc_xfp": 3385942095,
+  //     "type": "hardware",
+  //     "hw_type": "coldcard",
+  //     "derivation": "m/49'/0'/0'"
+  //   },
+  //   "wallet_type": "standard",
+  //   "use_encryption": false,
+  //   "seed_version": 17
+  // }
   const importDeviceFromFile = (parsedFile: ColdcardDeviceMultisigExportFile) => {
+    console.log('parsedFile: ', parsedFile);
     const zpub = bs58check.decode(parsedFile.p2wsh);
     const xpub = zpubToXpub(zpub);
 
@@ -66,7 +83,7 @@ const NewHardwareWalletScreen = ({
       xpub: xpub,
       model: 'unknown',
       path: 'unknown'
-    }
+    } as HwiResponseEnumerate;
 
     const updatedImportedDevices = [...importedDevices, newDevice];
     setImportedDevices(updatedImportedDevices)

@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { AnimatedQrCode } from './AnimatedQrCode' // can't import from index https://github.com/styled-components/styled-components/issues/1449
 import { Modal, Button } from '.';
 
-import { white, green600, green800 } from '../utils/colors'
+import { white, black, green600 } from '../utils/colors'
 
 import { LilyConfig } from '../types'
 
@@ -66,8 +66,7 @@ export const ConnectToLilyMobileModal = ({ isOpen, onRequestClose, config }: Pro
 const LilyMobileContainer = styled.div`
   display: flex;
   flex-direction: column;
-  background: ${green800};
-  color: ${white};
+  color: ${black};
   padding: 1.5em;
 `;
 

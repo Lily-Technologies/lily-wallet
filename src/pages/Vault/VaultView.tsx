@@ -124,7 +124,7 @@ const VaultView = ({ currentAccount }: { currentAccount: LilyAccount }) => {
 
 const ValueWrapper = styled.div`
   background: ${white};
-  border: 1px solid ${gray};
+  border-radius: 0.385em;
   box-shadow: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06);
 `;
 

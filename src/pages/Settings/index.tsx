@@ -1,35 +1,15 @@
 import React, { useState, Fragment } from 'react';
 import styled, { css } from 'styled-components';
 import { AES } from 'crypto-js';
-import Modal from 'react-modal';
 import { Network } from 'bitcoinjs-lib';
 
-import { PageWrapper, PageTitle, Header, HeaderLeft, Button } from '../../components';
+import { PageWrapper, PageTitle, Header, HeaderLeft, Button, Modal, Input } from '../../components';
 
 import { green600, green800, darkGray, white, gray100, darkOffWhite, lightGray, gray } from '../../utils/colors';
 import { downloadFile, formatFilename } from '../../utils/files';
 import { mobile } from '../../utils/media';
 
 import { LilyConfig } from '../../types';
-
-const modalStyles = {
-  overlay: {
-    backgroundColor: 'rgba(0, 0, 0, 0.75)',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  content: {
-    top: 'auto',
-    left: 'auto',
-    right: 'auto',
-    bottom: 'auto',
-    display: 'flex',
-    maxWidth: '500px',
-    width: '100%',
-    minHeight: '500px'
-  }
-}
 
 const Settings = ({ config, currentBitcoinNetwork }: { config: LilyConfig, currentBitcoinNetwork: Network }) => {
   const [downloadConfigModalIsOpen, setDownloadConfigModalIsOpen] = useState(false);
@@ -61,28 +41,37 @@ const Settings = ({ config, currentBitcoinNetwork }: { config: LilyConfig, curre
                 Download Current Config
               </ViewAddressesButton>
             </SettingsSectionRight>
-            <Modal
-              isOpen={downloadConfigModalIsOpen}
-              onRequestClose={() => setDownloadConfigModalIsOpen(false)}
-              style={modalStyles}>
-
-              <PasswordWrapper>
-                <PasswordText>Almost done, just set a password to encrypt your setup file:</PasswordText>
-                <PasswordInput placeholder="password" value={password} onChange={(e) => setPassword(e.target.value)} type="password" />
-              </PasswordWrapper>
-              <WordContainer>
-                <SaveWalletButton background={green600} color={white} onClick={() => downloadCurrentConfig(password)}>
-                  Download Encrypted Configuration File
-              </SaveWalletButton>
-              </WordContainer>
-            </Modal>
           </SettingsSection>
         </ValueWrapper>
+        <Modal
+          isOpen={downloadConfigModalIsOpen}
+          onRequestClose={() => setDownloadConfigModalIsOpen(false)}>
+          <ModalContentContainer>
+            <PasswordWrapper>
+              <PasswordText>Almost done, just set a password to encrypt your setup file:</PasswordText>
+              <Input
+                label="Password"
+                placeholder="password"
+                value={password}
+                onChange={setPassword}
+                type="password" />
+            </PasswordWrapper>
+            <WordContainer>
+              <SaveWalletButton background={green600} color={white} onClick={() => downloadCurrentConfig(password)}>
+                Download Encrypted Configuration File
+              </SaveWalletButton>
+            </WordContainer>
+          </ModalContentContainer>
+        </Modal>
       </Fragment>
-    </PageWrapper >
+    </PageWrapper>
   )
 };
 
+const ModalContentContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
 
 const ValueWrapper = styled.div`
   background: ${gray100};

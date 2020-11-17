@@ -148,6 +148,7 @@ const ChartContainer = styled.div`
   // border: 1px solid ${gray};
   background: ${white};
   box-shadow: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06);
+  border-radius: 0.385em;
 `;
 
 const TooltipContainer = styled.div`

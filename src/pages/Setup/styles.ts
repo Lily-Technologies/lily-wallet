@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { darkGray, gray, white, black, green600 } from '../../utils/colors';
 
 export const HeaderWrapper = styled.div`
+  color: ${black}
 `;
 
 export const InnerWrapper = styled.div`

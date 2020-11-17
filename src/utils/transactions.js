@@ -1,3 +1,4 @@
+"use strict";
 var __assign = (this && this.__assign) || function () {
   __assign = Object.assign || function (t) {
     for (var s, i = 1, n = arguments.length; i < n; i++) {
@@ -52,11 +53,15 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
       r[k] = a[j];
   return r;
 };
-import axios from 'axios';
-import BigNumber from 'bignumber.js';
-import { payments, networks } from 'bitcoinjs-lib';
-import { deriveChildPublicKey, blockExplorerAPIURL, generateMultisigFromPublicKeys, bitcoinsToSatoshis } from "unchained-bitcoin";
-import { AddressType, TransactionType } from '../types';
+var __importDefault = (this && this.__importDefault) || function (mod) {
+  return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var axios_1 = __importDefault(require("axios"));
+var bignumber_js_1 = __importDefault(require("bignumber.js"));
+var bitcoinjs_lib_1 = require("bitcoinjs-lib");
+var unchained_bitcoin_1 = require("unchained-bitcoin");
+var types_1 = require("../types");
 var bitcoinNetworkEqual = function (a, b) {
   return a.bech32 === b.bech32;
 };
@@ -76,10 +81,10 @@ var getDerivationPath = function (addressType, bip32Path, currentBitcoinNetwork)
   }
 };
 var getMultisigDeriationPathForNetwork = function (network) {
-  if (bitcoinNetworkEqual(network, networks.bitcoin)) {
+  if (bitcoinNetworkEqual(network, bitcoinjs_lib_1.networks.bitcoin)) {
     return "m/48'/0'/0'/2'";
   }
-  else if (bitcoinNetworkEqual(network, networks.testnet)) {
+  else if (bitcoinNetworkEqual(network, bitcoinjs_lib_1.networks.testnet)) {
     return "m/48'/1'/0'/2'";
   }
   else { // return mainnet by default...this should never run though
@@ -87,10 +92,10 @@ var getMultisigDeriationPathForNetwork = function (network) {
   }
 };
 var getP2shDeriationPathForNetwork = function (network) {
-  if (bitcoinNetworkEqual(network, networks.bitcoin)) {
+  if (bitcoinNetworkEqual(network, bitcoinjs_lib_1.networks.bitcoin)) {
     return "m/49'/0'/0'";
   }
-  else if (bitcoinNetworkEqual(network, networks.testnet)) {
+  else if (bitcoinNetworkEqual(network, bitcoinjs_lib_1.networks.testnet)) {
     return "m/49'/1'/0'";
   }
   else { // return mainnet by default...this should never run though
@@ -98,10 +103,10 @@ var getP2shDeriationPathForNetwork = function (network) {
   }
 };
 var getP2wpkhDeriationPathForNetwork = function (network) {
-  if (bitcoinNetworkEqual(network, networks.bitcoin)) {
+  if (bitcoinNetworkEqual(network, bitcoinjs_lib_1.networks.bitcoin)) {
     return "m/84'/0'/0'";
   }
-  else if (bitcoinNetworkEqual(network, networks.testnet)) {
+  else if (bitcoinNetworkEqual(network, bitcoinjs_lib_1.networks.testnet)) {
     return "m/84'/1'/0'";
   }
   else { // return mainnet by default...this should never run though
@@ -109,7 +114,7 @@ var getP2wpkhDeriationPathForNetwork = function (network) {
   }
 };
 var getUnchainedNetworkFromBjslibNetwork = function (bitcoinJslibNetwork) {
-  if (bitcoinNetworkEqual(bitcoinJslibNetwork, networks.bitcoin)) {
+  if (bitcoinNetworkEqual(bitcoinJslibNetwork, bitcoinjs_lib_1.networks.bitcoin)) {
     return 'mainnet';
   }
   else {
@@ -139,13 +144,13 @@ var createAddressMapFromAddressArray = function (addressArray, isChange) {
   return addressMap;
 };
 /**
-* Function used to aggregate values of inputs/outputs with optional
-* filtering options.
-*
-* @param {Array} items - Array of either inputs or outputs.
-* @param {Boolean} isMine - Whether to restrict sum to our own inputs/outputs.
-* @param {Boolean} isChange - Whether to restrict sum to change inputs/outputs.
-*/
+ * Function used to aggregate values of inputs/outputs with optional
+ * filtering options.
+ *
+ * @param {Array} items - Array of either inputs or outputs.
+ * @param {Boolean} isMine - Whether to restrict sum to our own inputs/outputs.
+ * @param {Boolean} isChange - Whether to restrict sum to change inputs/outputs.
+ */
 var sum = function (items, isMine, isChange) {
   var filtered = items;
   if (typeof isMine === 'boolean')
@@ -163,13 +168,13 @@ var sum = function (items, isMine, isChange) {
   return total;
 };
 /**
-* Function used to add 'isMine' & 'isChange' decoration markers
-* to inputs & outputs.
-*
-* @param {Object} tx - A raw transaction.
-* @param {Map} externalMap - Map of external addresses.
-* @param {Map} changeMap - Map of change addresses.
-*/
+ * Function used to add 'isMine' & 'isChange' decoration markers
+ * to inputs & outputs.
+ *
+ * @param {Object} tx - A raw transaction.
+ * @param {Map} externalMap - Map of external addresses.
+ * @param {Map} changeMap - Map of change addresses.
+ */
 var decorateTx = function (tx, externalMap, changeMap) {
   tx.vin.forEach(function (vin, index) {
     var isChange = !!changeMap[vin.prevout.scriptpubkey_address];
@@ -204,7 +209,7 @@ var serializeTransactions = function (transactionsFromBlockstream, addresses, ch
     amountOut = sum(tx.vout, true);
     amountOutChange = sum(tx.vout, true, true);
     if (amountIn === (amountOut + (amountIn > 0 ? tx.fee : 0))) {
-      tx.type = TransactionType.moved;
+      tx.type = types_1.TransactionType.moved;
       tx.address = '';
       balance -= tx.fee;
       tx.totalValue = balance;
@@ -214,7 +219,7 @@ var serializeTransactions = function (transactionsFromBlockstream, addresses, ch
     else {
       var feeContribution = amountIn > 0 ? tx.fee : 0;
       var netAmount = amountIn - amountOut - feeContribution;
-      tx.type = netAmount > 0 ? TransactionType.sent : TransactionType.received;
+      tx.type = netAmount > 0 ? types_1.TransactionType.sent : types_1.TransactionType.received;
       if (tx.type === 'sent') {
         balance -= ((amountIn - amountOutChange) + feeContribution);
         tx.totalValue = balance;
@@ -240,7 +245,7 @@ var serializeTransactionsFromNode = function (nodeClient, transactions, addresse
       switch (_a.label) {
         case 0:
           transactions.sort(function (a, b) { return a.blockheight - b.blockheight; }); // bitcoin-core returns value as blockheight
-          currentAccountTotal = new BigNumber(0);
+          currentAccountTotal = new bignumber_js_1.default(0);
           transactionsMap = new Map();
           i = 0;
           _a.label = 1;
@@ -249,18 +254,18 @@ var serializeTransactionsFromNode = function (nodeClient, transactions, addresse
           return [4 /*yield*/, nodeClient.getTransaction({ txid: transactions[i].txid, verbose: true })];
         case 2:
           currentTransaction = _a.sent();
-          currentAccountTotal = currentAccountTotal.plus(bitcoinsToSatoshis(currentTransaction.details[0].amount));
+          currentAccountTotal = currentAccountTotal.plus(unchained_bitcoin_1.bitcoinsToSatoshis(currentTransaction.details[0].amount));
           transactionWithValues = currentTransaction;
-          transactionWithValues.value = bitcoinsToSatoshis(currentTransaction.details[0].amount).abs().toNumber();
+          transactionWithValues.value = unchained_bitcoin_1.bitcoinsToSatoshis(currentTransaction.details[0].amount).abs().toNumber();
           transactionWithValues.address = currentTransaction.details[0].address;
           transactionWithValues.type = currentTransaction.details[0].category === 'receive' ? 'received' : 'sent';
           transactionWithValues.totalValue = currentAccountTotal.toNumber();
           transactionWithValues.vout = currentTransaction.decoded.vout.map(function (vout) {
-            vout.value = bitcoinsToSatoshis(vout.value).abs().toNumber();
+            vout.value = unchained_bitcoin_1.bitcoinsToSatoshis(vout.value).abs().toNumber();
             return vout;
           });
           transactionWithValues.vin = currentTransaction.decoded.vin.map(function (vin) {
-            vin.value = bitcoinsToSatoshis(vin.value).abs().toNumber();
+            vin.value = unchained_bitcoin_1.bitcoinsToSatoshis(vin.value).abs().toNumber();
             return vin;
           });
           transactionWithValues.status = {
@@ -289,10 +294,10 @@ var getChildPubKeyFromXpub = function (xpub, bip32Path, addressType, currentBitc
   var childPubKeysBip32Path = bip32Path;
   var bip32derivationPath = getDerivationPath(addressType, bip32Path, currentBitcoinNetwork);
   return {
-    childPubKey: deriveChildPublicKey(xpub.xpub, childPubKeysBip32Path, getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)),
+    childPubKey: unchained_bitcoin_1.deriveChildPublicKey(xpub.xpub, childPubKeysBip32Path, getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)),
     bip32derivation: {
       masterFingerprint: Buffer.from(xpub.parentFingerprint, 'hex'),
-      pubkey: Buffer.from(deriveChildPublicKey(xpub.xpub, childPubKeysBip32Path, getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)), 'hex'),
+      pubkey: Buffer.from(unchained_bitcoin_1.deriveChildPublicKey(xpub.xpub, childPubKeysBip32Path, getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)), 'hex'),
       path: bip32derivationPath
     }
   };
@@ -300,7 +305,7 @@ var getChildPubKeyFromXpub = function (xpub, bip32Path, addressType, currentBitc
 var getMultisigAddressFromPubKeys = function (pubkeys, config, currentBitcoinNetwork) {
   var rawPubkeys = pubkeys.map(function (publicKey) { return publicKey.childPubKey; });
   rawPubkeys.sort();
-  var address = generateMultisigFromPublicKeys.apply(void 0, __spreadArrays([getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork), config.addressType, config.quorum.requiredSigners], rawPubkeys));
+  var address = unchained_bitcoin_1.generateMultisigFromPublicKeys.apply(void 0, __spreadArrays([getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork), config.addressType, config.quorum.requiredSigners], rawPubkeys));
   address.bip32derivation = pubkeys.map(function (publicKey) { return publicKey.bip32derivation; });
   return address;
 };
@@ -315,7 +320,7 @@ var getUtxosForAddresses = function (addresses, currentBitcoinNetwork) {
           _a.label = 1;
         case 1:
           if (!(i < addresses.length)) return [3 /*break*/, 5];
-          return [4 /*yield*/, axios.get(blockExplorerAPIURL("/address/" + addresses[i].address + "/utxo", getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)))];
+          return [4 /*yield*/, axios_1.default.get(unchained_bitcoin_1.blockExplorerAPIURL("/address/" + addresses[i].address + "/utxo", getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)))];
         case 2: return [4 /*yield*/, (_a.sent()).data];
         case 3:
           utxosFromBlockstream = _a.sent();
@@ -335,8 +340,8 @@ var getUtxosForAddresses = function (addresses, currentBitcoinNetwork) {
 };
 var getAddressFromPubKey = function (childPubKey, addressType, currentBitcoinNetwork) {
   if (addressType === 'p2sh') {
-    var _a = payments.p2sh({
-      redeem: payments.p2wpkh({ pubkey: Buffer.from(childPubKey.childPubKey, 'hex'), network: currentBitcoinNetwork }),
+    var _a = bitcoinjs_lib_1.payments.p2sh({
+      redeem: bitcoinjs_lib_1.payments.p2wpkh({ pubkey: Buffer.from(childPubKey.childPubKey, 'hex'), network: currentBitcoinNetwork }),
       network: currentBitcoinNetwork
     }), network = _a.network, _address = _a.address, hash = _a.hash, output = _a.output, redeem = _a.redeem, input = _a.input, witness = _a.witness;
     return {
@@ -351,7 +356,7 @@ var getAddressFromPubKey = function (childPubKey, addressType, currentBitcoinNet
     };
   }
   else { // p2wpkh
-    var _b = payments.p2wpkh({ pubkey: Buffer.from(childPubKey.childPubKey, 'hex'), network: currentBitcoinNetwork }), network = _b.network, _address = _b.address, hash = _b.hash, output = _b.output, redeem = _b.redeem, input = _b.input, witness = _b.witness;
+    var _b = bitcoinjs_lib_1.payments.p2wpkh({ pubkey: Buffer.from(childPubKey.childPubKey, 'hex'), network: currentBitcoinNetwork }), network = _b.network, _address = _b.address, hash = _b.hash, output = _b.output, redeem = _b.redeem, input = _b.input, witness = _b.witness;
     return {
       network: network,
       address: _address,
@@ -381,7 +386,7 @@ var getTransactionsFromAddress = function (address, nodeClient, currentBitcoinNe
             }
           }
           return [2 /*return*/, addressTxs];
-        case 2: return [4 /*yield*/, axios.get(blockExplorerAPIURL("/address/" + address + "/txs", getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)))];
+        case 2: return [4 /*yield*/, axios_1.default.get(unchained_bitcoin_1.blockExplorerAPIURL("/address/" + address + "/txs", getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)))];
         case 3: return [4 /*yield*/, (_a.sent()).data];
         case 4: return [2 /*return*/, _a.sent()];
       }
@@ -392,19 +397,19 @@ var getAddressFromAccount = function (account, path, currentBitcoinNetwork) {
   if (account.quorum.totalSigners > 1) { // multisig
     if (account.extendedPublicKeys) { // should always be true
       var childPubKeys = account.extendedPublicKeys.map(function (extendedPublicKey) {
-        return getChildPubKeyFromXpub(extendedPublicKey, path, AddressType.multisig, currentBitcoinNetwork);
+        return getChildPubKeyFromXpub(extendedPublicKey, path, types_1.AddressType.multisig, currentBitcoinNetwork);
       });
       return getMultisigAddressFromPubKeys(childPubKeys, account, currentBitcoinNetwork);
     }
   }
   else { // single sig
     if (account.device) {
-      var receivePubKey = getChildPubKeyFromXpub(account, path, AddressType.p2sh, currentBitcoinNetwork);
-      return getAddressFromPubKey(receivePubKey, AddressType.p2sh, currentBitcoinNetwork);
+      var receivePubKey = getChildPubKeyFromXpub(account, path, types_1.AddressType.p2sh, currentBitcoinNetwork);
+      return getAddressFromPubKey(receivePubKey, types_1.AddressType.p2sh, currentBitcoinNetwork);
     }
     else {
-      var receivePubKey = getChildPubKeyFromXpub(account, path, AddressType.P2WPKH, currentBitcoinNetwork);
-      return getAddressFromPubKey(receivePubKey, AddressType.P2WPKH, currentBitcoinNetwork);
+      var receivePubKey = getChildPubKeyFromXpub(account, path, types_1.AddressType.P2WPKH, currentBitcoinNetwork);
+      return getAddressFromPubKey(receivePubKey, types_1.AddressType.P2WPKH, currentBitcoinNetwork);
     }
   }
 };
@@ -494,7 +499,7 @@ var getDataFromMultisig = function (account, nodeClient, currentBitcoinNetwork) 
           changeAddressMap = createAddressMapFromAddressArray(changeAddresses, true);
           addressMap = __assign(__assign({}, receiveAddressMap), changeAddressMap);
           for (i = 0; i < availableUtxos.length; i++) {
-            availableUtxos[i].value = bitcoinsToSatoshis(availableUtxos[i].amount).toNumber();
+            availableUtxos[i].value = unchained_bitcoin_1.bitcoinsToSatoshis(availableUtxos[i].amount).toNumber();
             availableUtxos[i].address = addressMap[availableUtxos[i].address.address];
           }
           return [3 /*break*/, 6];

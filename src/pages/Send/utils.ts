@@ -104,7 +104,7 @@ export const createTransaction = async (currentAccount: LilyAccount, amountInBit
     fee = await getFeeForMultisig(feeRates.halfHourFee, currentAccount.config.addressType, 1, 2, currentAccount.config.quorum.requiredSigners, currentAccount.config.quorum.totalSigners).integerValue(BigNumber.ROUND_CEIL);
   } else {
     const coinSelectResult = coinSelect(availableUtxos, [{ address: recipientAddress, value: bitcoinsToSatoshis(amountInBitcoins).toNumber() }], feeRates.halfHourFee);
-    fee = coinSelectResult.fee;
+    fee = new BigNumber(coinSelectResult.fee);
   }
 
   let outputTotal = new BigNumber(bitcoinsToSatoshis(amountInBitcoins)).plus(fee).toNumber();

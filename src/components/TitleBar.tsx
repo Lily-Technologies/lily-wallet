@@ -48,8 +48,8 @@ export const TitleBar = ({
       <Fragment>
         Status: <br />
         {nodeConfig && nodeConfig.initialblockdownload && nodeConfig.verificationprogress ? `Initializing (${new BigNumber(nodeConfig.verificationprogress).multipliedBy(100).toFixed(2)}%)`
-          : nodeConfig && nodeConfig.connected ? 'Connected'
-            : nodeConfig && !nodeConfig.connected ? 'Disconnected'
+          : nodeConfig && nodeConfig.connected ? `Connected via ${nodeConfig.provider}`
+            : nodeConfig && !nodeConfig.connected ? `Disconnected from ${nodeConfig.provider}`
               : 'Connecting...'}
       </Fragment>
     )
@@ -118,13 +118,13 @@ export const TitleBar = ({
                     color: (nodeConfig.initialblockdownload) ? orange400
                       : (nodeConfig.connected) ? green400
                         : red500, // !nodeConfig.connected
-                    marginRight: '.5em'
+                    // marginRight: '.5em'
                   }} />
                 ) : (
                     <LoadingImage alt="loading placeholder" src={require('../assets/flower-loading.svg')} />
                   )}
-                {nodeConfig && nodeConfig.connected ? `Connected: ${nodeConfig.provider}`
-                  : nodeConfig && !nodeConfig.connected ? `Disconnected: ${nodeConfig.provider}`
+                {nodeConfig && nodeConfig.connected ? null
+                  : nodeConfig && !nodeConfig.connected ? null
                     : 'Connecting...'}
               </Fragment>
             }
@@ -198,6 +198,6 @@ const DraggableTitleBar = styled.div`
 `;
 
 const NodeButtonContainer = styled.div`
-  margin: 0 1em;
+  margin: 0 0.25em;
   -webkit-app-region: no-drag;
 `;

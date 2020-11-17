@@ -13,7 +13,7 @@ import AddressesView from './AddressesView';
 import UtxosView from './UtxosView';
 import VaultSettings from './VaultSettings';
 
-import { white, gray400, gray500, gray700, green600 } from '../../utils/colors';
+import { white, gray300, green900 } from '../../utils/colors';
 
 import { LilyConfig } from '../../types'
 
@@ -72,11 +72,11 @@ const Vault = ({ config, setConfigFile, password, toggleRefresh, currentBitcoinN
             </VaultExplainerText>
           </HeaderLeft>
           <HeaderRight>
-            <SendButton to="/send" color={white} background={green600}><StyledIcon as={ArrowUpward} size={24} style={{ marginRight: '.5rem', marginLeft: '-0.25rem' }} />Send</SendButton>
-            <ReceiveButton to="/receive" color={white} background={green600}><StyledIcon as={VerticalAlignBottom} size={24} style={{ marginRight: '.5rem', marginLeft: '-0.25rem' }} />Receive</ReceiveButton>
+            <SendButton to="/send" color={white} background={green900}><StyledIcon as={ArrowUpward} size={24} style={{ marginRight: '.5rem', marginLeft: '-0.25rem' }} />Send</SendButton>
+            <ReceiveButton to="/receive" color={white} background={green900}><StyledIcon as={VerticalAlignBottom} size={24} style={{ marginRight: '.5rem', marginLeft: '-0.25rem' }} />Receive</ReceiveButton>
             <SettingsButton
               onClick={() => toggleRefresh()}
-              color={gray700}
+              color={white}
               style={{ padding: '1em 1em 1em 0' }}
               background={'transparent'}>
               <StyledIcon as={Refresh} size={36} />
@@ -84,7 +84,7 @@ const Vault = ({ config, setConfigFile, password, toggleRefresh, currentBitcoinN
             <SettingsButton
               onClick={() => toggleViewSettings()}
               // active={viewSettings} // KBC-TODO: reimplement active on SettingsButton
-              color={gray700}
+              color={white}
               background={'transparent'}
               style={{ padding: 0 }}
             >
@@ -124,7 +124,7 @@ const Vault = ({ config, setConfigFile, password, toggleRefresh, currentBitcoinN
 }
 
 const IconSvg = styled.svg`
-  color: ${gray400};
+  color: ${gray300};
   width: 1.25rem;
   margin-right: .375rem;
   height: 1.25rem;
@@ -157,7 +157,7 @@ const SettingsButton = styled.button`
 `;
 
 const VaultExplainerText = styled.div`
-  color: ${gray500};
+  color: ${gray300};
   font-size: .75em;
   display: flex;
   align-items: center;

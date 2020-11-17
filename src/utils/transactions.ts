@@ -260,7 +260,7 @@ const getAddressFromPubKey = (childPubKey: PubKey, addressType: AddressType, cur
       network: currentBitcoinNetwork
     });
     return {
-      network,
+      network: currentBitcoinNetwork,
       address: _address as string,
       hash,
       output,
@@ -272,7 +272,7 @@ const getAddressFromPubKey = (childPubKey: PubKey, addressType: AddressType, cur
   } else { // p2wpkh
     const { network, address: _address, hash, output, redeem, input, witness } = payments.p2wpkh({ pubkey: Buffer.from(childPubKey.childPubKey, 'hex'), network: currentBitcoinNetwork });
     return {
-      network,
+      network: currentBitcoinNetwork,
       address: _address as string,
       hash,
       output,

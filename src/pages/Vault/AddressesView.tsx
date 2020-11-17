@@ -31,10 +31,10 @@ const AddressesView = ({ setViewAddresses, currentAccount }: Props) => {
 }
 
 const ValueWrapper = styled.div`
-  background: ${gray100};
+  background: ${white};
   padding: 1.5em;
   box-shadow: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06);
-  border-top: solid 11px ${green800};
+  border-radius: 0.385em;
 `;
 
 const SettingsSection = styled.div`
@@ -43,8 +43,6 @@ const SettingsSection = styled.div`
   margin: 1em 0;
   justify-content: space-between;
   padding: 0.5em;
-  background: ${white};
-  border: 1px solid ${darkGray};
 `;
 
 const TotalValueHeader = styled.div`
