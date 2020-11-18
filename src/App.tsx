@@ -14,7 +14,7 @@ import { networks } from 'bitcoinjs-lib';
 import { offWhite, green700 } from './utils/colors';
 import { mobile } from './utils/media';
 
-import { Sidebar, MobileNavbar, TitleBar, ScrollToTop } from './components';
+import { Sidebar, MobileNavbar, TitleBar, ScrollToTop, PurchaseLicenseModal } from './components';
 
 // Pages
 import Login from './pages/Login';
@@ -53,6 +53,7 @@ const App = () => {
   const [nodeConfig, setNodeConfig] = useState<NodeConfig | undefined>(undefined);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [password, setPassword] = useState('');
+  const [purchaseLicenseModalOpen, setPurchaseLicenseModalOpen] = useState(false);
 
   const { setAccountMap, updateAccountMap } = useContext(AccountMapContext);
 
@@ -229,7 +230,8 @@ const App = () => {
   return (
     <Router>
       <ScrollToTop />
-      <TitleBar setNodeConfig={setNodeConfig} nodeConfig={nodeConfig} setMobileNavOpen={setMobileNavOpen} config={config} connectToBlockstream={connectToBlockstream} connectToBitcoinCore={connectToBitcoinCore} getNodeConfig={getNodeConfig} resetConfigFile={resetConfigFile} />
+      <PurchaseLicenseModal isOpen={purchaseLicenseModalOpen} onRequestClose={() => setPurchaseLicenseModalOpen(false)} />
+      <TitleBar setNodeConfig={setNodeConfig} nodeConfig={nodeConfig} setMobileNavOpen={setMobileNavOpen} config={config} setPurchaseLicenseModalOpen={setPurchaseLicenseModalOpen} connectToBlockstream={connectToBlockstream} connectToBitcoinCore={connectToBitcoinCore} getNodeConfig={getNodeConfig} resetConfigFile={resetConfigFile} />
       <PageWrapper id="page-wrapper">
         <ConfigRequired />
         <Overlay />

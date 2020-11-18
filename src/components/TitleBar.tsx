@@ -7,7 +7,7 @@ import BigNumber from 'bignumber.js';
 
 import { white, green400, orange400, red500, green800, green900 } from '../utils/colors';
 
-import { ConnectToNodeModal, StyledIcon, Dropdown, ConnectToLilyMobileModal } from '.';
+import { ConnectToNodeModal, StyledIcon, Dropdown, ConnectToLilyMobileModal, LicenseModal } from '.';
 
 import { NodeConfig, LilyConfig } from '../types';
 
@@ -19,7 +19,8 @@ interface Props {
   connectToBlockstream: () => void,
   connectToBitcoinCore: () => void,
   getNodeConfig: () => void,
-  resetConfigFile: () => void
+  resetConfigFile: () => void,
+  setPurchaseLicenseModalOpen: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 export const TitleBar = ({
@@ -30,12 +31,14 @@ export const TitleBar = ({
   connectToBlockstream,
   connectToBitcoinCore,
   getNodeConfig,
-  resetConfigFile
+  resetConfigFile,
+  setPurchaseLicenseModalOpen
 }: Props) => {
   const [nodeConfigModalOpen, setNodeConfigModalOpen] = useState(false);
   const [moreOptionsDropdownOpen, setMoreOptionsDropdownOpen] = useState(false);
   const [nodeOptionsDropdownOpen, setNodeOptionsDropdownOpen] = useState(false);
   const [configModalOpen, setConfigModalOpen] = useState(false);
+  const [licenseModalOpen, setLicenseModalOpen] = useState(false);
 
   const refreshNodeData = async () => {
     await getNodeConfig();
@@ -74,7 +77,8 @@ export const TitleBar = ({
 
   const moreOptionsDropdownItems = [
     { label: 'Support', onClick: () => { console.log('foobar') } },
-    { label: 'License', onClick: () => { console.log('foobar2') } },
+    { label: 'License', onClick: () => { setLicenseModalOpen(true) } },
+    { label: 'Purchase License', onClick: () => { setPurchaseLicenseModalOpen(true) } },
     { label: 'View source code', onClick: () => { console.log('foobar2') } }
   ];
 
@@ -96,6 +100,10 @@ export const TitleBar = ({
         isOpen={configModalOpen}
         onRequestClose={() => setConfigModalOpen(false)}
         config={config}
+      />
+      <LicenseModal
+        isOpen={licenseModalOpen}
+        onRequestClose={() => setLicenseModalOpen(false)}
       />
       <LeftSection>
         {!config.isEmpty && (

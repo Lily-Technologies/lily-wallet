@@ -20,5 +20,8 @@ export * from './OutsideClick';
 export * from './AnimatedQrCode';
 export * from './ConnectToLilyMobileModal';
 export * from './ScrollToTop';
+export * from './LicenseModal';
+export * from './PurchaseLicenseModal';
+export * from './PricingPlanTable';
 
 export * from './layout';
