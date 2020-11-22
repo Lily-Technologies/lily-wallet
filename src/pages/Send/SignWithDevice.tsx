@@ -8,22 +8,18 @@ import { darkGray, white } from '../../utils/colors';
 import { Device, HwiResponseEnumerate } from '../../types';
 
 interface Props {
-  psbt: Psbt,
-  signedPsbts: string[],
-  setSignedPsbts: React.Dispatch<React.SetStateAction<string[]>>,
-  signedDevices: Device[],
-  setSignedDevices: React.Dispatch<React.SetStateAction<Device[]>>,
-  signThreshold: number,
-  fileUploadLabelRef: React.RefObject<HTMLLabelElement>,
+  finalPsbt: Psbt
+  setFinalPsbt: React.Dispatch<React.SetStateAction<Psbt>>
+  signedDevices: Device[]
+  signThreshold: number
+  fileUploadLabelRef: React.RefObject<HTMLLabelElement>
   phoneAction?: () => void
 }
 
 const SignWithDevice = ({
-  psbt,
-  signedPsbts,
-  setSignedPsbts,
+  finalPsbt,
+  setFinalPsbt,
   signedDevices,
-  setSignedDevices,
   signThreshold,
   fileUploadLabelRef,
   phoneAction
@@ -38,11 +34,10 @@ const SignWithDevice = ({
       const response = await window.ipcRenderer.invoke('/sign', {
         deviceType: device.type,
         devicePath: device.path,
-        psbt: psbt.toBase64()
+        psbt: finalPsbt.toBase64()
       });
 
-      setSignedPsbts([...signedPsbts, response.psbt]);
-      setSignedDevices([...signedDevices, device]);
+      setFinalPsbt(Psbt.fromBase64(response.psbt));
       if (errorDevices.includes(device.fingerprint)) {
         const errorDevicesCopy = [...errorDevices];
         errorDevicesCopy.splice(errorDevices.indexOf(device.fingerprint), 1);
@@ -111,6 +106,8 @@ const TransactionDetailsWrapper = styled.div`
   border-radius: 0.375rem;
   background: ${white};
   height: 100%;
+  width: 100%;
+  overflow: hidden;
 `;
 
 const SetupHeaderContainer = styled.div`

@@ -1,172 +1,110 @@
 import React, { useState, Fragment } from 'react';
 import styled from 'styled-components';
-import axios from 'axios';
+import BigNumber from 'bignumber.js';
 import { ArrowIosForwardOutline } from '@styled-icons/evaicons-outline';
 import { CheckCircle } from '@styled-icons/material';
 
-import {
-  blockExplorerAPIURL,
-  blockExplorerTransactionURL,
-  satoshisToBitcoins,
-  MAINNET, TESTNET
-} from "unchained-bitcoin";
+import { satoshisToBitcoins } from "unchained-bitcoin";
 
 import { address, Psbt, Network } from 'bitcoinjs-lib';
 
 import { cloneBuffer } from '../../utils/other';
-import { StyledIcon, Button, SidewaysShake, Dropdown } from '../../components';
+import { StyledIcon, Button, SidewaysShake, Dropdown, Modal } from '../../components';
 
 import { gray, green800, darkGray, white, darkOffWhite, green, darkGreen, lightGray, red, lightRed, orange, lightOrange } from '../../utils/colors';
 import { downloadFile, formatFilename } from '../../utils/files';
-import { createUtxoMapFromUtxoArray, combinePsbts } from './utils';
+import { createUtxoMapFromUtxoArray, getFee } from './utils';
 import { FeeSelector } from './FeeSelector';
 
-import { getUnchainedNetworkFromBjslibNetwork } from '../../utils/files';
-import { LilyAccount, UTXO, UtxoMap, Device, FeeRates, NodeConfig } from '../../types';
+import { LilyAccount, UtxoMap, Device, FeeRates } from '../../types';
 
 const ABSURD_FEE = 1000000; // 0.01 BTC
 
-
 interface Props {
   finalPsbt: Psbt,
-  nodeConfig: NodeConfig,
-  feeEstimate: number,
-  importTxFromFileError: string,
+  sendTransaction: () => void
   feeRates: FeeRates,
   currentAccount: LilyAccount,
-  txImportedFromFile: boolean,
   signedDevices: Device[],
-  recipientAddress: string,
-  sendAmount: string,
-  setStep: React.Dispatch<React.SetStateAction<number>>,
-  availableUtxos: UTXO[],
-  signedPsbts: string[],
-  signThreshold: number,
+  setStep?: React.Dispatch<React.SetStateAction<number>>,
   currentBitcoinPrice: any // KBC-TODO: change to be more specific
-  createTransactionAndSetState: (theFee: string | undefined) => Promise<Psbt>,
-  currentBitcoinNetwork: Network,
-  openInModal: (component: JSX.Element) => void,
-  closeModal: () => void
+  createTransactionAndSetState: (_recipientAddress: string, _sendAmount: string, _fee: BigNumber) => Promise<Psbt>,
+  currentBitcoinNetwork: Network
 }
 
 const TransactionDetails = ({
   finalPsbt,
-  nodeConfig,
-  feeEstimate,
-  importTxFromFileError,
+  sendTransaction,
   feeRates,
   currentAccount,
-  txImportedFromFile,
   signedDevices,
-  recipientAddress,
-  sendAmount,
   setStep,
-  availableUtxos,
-  signedPsbts,
-  signThreshold,
   currentBitcoinPrice,
   createTransactionAndSetState,
   currentBitcoinNetwork,
-  openInModal,
-  closeModal
 }: Props) => {
-  const [broadcastedTxId, setBroadcastedTxId] = useState('');
-  const [txError, setTxError] = useState(null);
   const [optionsDropdownOpen, setOptionsDropdownOpen] = useState(false);
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
+  const signThreshold = currentAccount.config.quorum.requiredSigners;
+  const { availableUtxos } = currentAccount;
 
-  const broadcastTransaction = async (currentAccount: LilyAccount, psbt: Psbt, currentBitcoinNetwork: Network) => {
-    if (nodeConfig.provider !== 'Blockstream') {
-      const data = await window.ipcRenderer.invoke('/broadcastTx', {
-        walletName: currentAccount.name,
-        txHex: psbt.extractTransaction().toHex()
-      });
-      return data;
-    } else {
-      const txBody = psbt.extractTransaction().toHex();
-      const network = currentBitcoinNetwork.bech32 === 'bc' ? MAINNET : TESTNET;
-      const { data } = await axios.post(blockExplorerAPIURL('/tx', network), txBody);
-      return data;
-    }
+  console.log('finalPsbt: ', finalPsbt);
+  const _fee = getFee(finalPsbt, currentAccount.transactions);
+
+  const openInModal = (component: JSX.Element) => {
+    setModalIsOpen(true);
+    setModalContent(component);
   }
 
-  const sendTransaction = async () => {
-    if (signedDevices.length === signThreshold) {
-      try {
-        if (signThreshold > 1) {
-          const combinedPsbt = combinePsbts(finalPsbt, signedPsbts)
-
-          combinedPsbt.finalizeAllInputs();
-
-          const broadcastId = await broadcastTransaction(currentAccount, combinedPsbt, currentBitcoinNetwork);
-          setBroadcastedTxId(broadcastId);
-          openInModal(<TransactionSuccess broadcastedTxId={broadcastId} />);
-
-        } else {
-          let broadcastPsbt;
-          if (typeof signedPsbts[0] === 'string') { // if hww signs, then signedPsbt[0] is a string and we need to turn it into a hex to broadcast
-            broadcastPsbt = Psbt.fromBase64(signedPsbts[0]);
-            broadcastPsbt.finalizeAllInputs();
-          } else {
-            broadcastPsbt = signedPsbts[0];
-          }
-
-          const broadcastId = await broadcastTransaction(currentAccount, broadcastPsbt, currentBitcoinNetwork);
-          setBroadcastedTxId(broadcastId);
-          openInModal(<TransactionSuccess broadcastedTxId={broadcastId} />);
-        }
-      } catch (e) {
-        if (e.response) {
-          setTxError(e.response.data);
-        } else {
-          setTxError(e.message);
-        }
-      }
-    }
+  const closeModal = () => {
+    setModalIsOpen(false);
+    setModalContent(null);
   }
 
   const downloadPsbt = async () => {
-    const combinedPsbt = combinePsbts(finalPsbt, signedPsbts);
-    const psbtForDownload = combinedPsbt.toBase64();
+    const psbtForDownload = finalPsbt.toBase64();
     await downloadFile(psbtForDownload, formatFilename('tx', currentBitcoinNetwork, 'psbt'));
     openInModal(<PsbtDownloadDetails />)
   }
 
   const TransactionOptionsDropdown = () => {
     const dropdownItems = [
-      { label: 'Download PSBT', onClick: () => { downloadPsbt() } },
+      { label: 'Save transaction to file', onClick: () => { downloadPsbt() } },
     ];
 
-    if (!signedDevices.length || currentAccount.config.mnemonic) {
+    if (setStep !== undefined && (!signedDevices.length || currentAccount.config.mnemonic)) {
       dropdownItems.unshift(
         {
           label: 'Adjust Fee', onClick: () => {
-            openInModal(<FeeSelector
-              currentAccount={currentAccount}
-              feeEstimate={feeEstimate}
-              finalPsbt={finalPsbt}
-              feeRates={feeRates}
-              availableUtxos={availableUtxos}
-              recipientAddress={recipientAddress}
-              sendAmount={sendAmount}
-              closeModal={closeModal}
-              createTransactionAndSetState={createTransactionAndSetState}
-              currentBitcoinPrice={currentBitcoinPrice}
-            />)
+            openInModal(
+              <FeeSelector
+                currentAccount={currentAccount}
+                finalPsbt={finalPsbt}
+                feeRates={feeRates}
+                availableUtxos={availableUtxos}
+                recipientAddress={finalPsbt.txOutputs[0].address!}
+                sendAmount={satoshisToBitcoins(finalPsbt.txOutputs[0].value).toString()}
+                closeModal={closeModal}
+                createTransactionAndSetState={createTransactionAndSetState}
+                currentBitcoinPrice={currentBitcoinPrice}
+              />
+            )
           }
         }
       )
     }
 
     // if we are creating the transaction ourselves, give options for adjustment
-    if (!txImportedFromFile) {
+    if (setStep !== undefined) {
       dropdownItems.unshift(
-        { label: 'View more details', onClick: () => { openInModal(<TransactionDetails />); } }
+        { label: 'View more details', onClick: () => { openInModal(<TransactionUtxoDetails />); } }
       );
     }
 
-    if (!signedDevices.length || currentAccount.config.mnemonic) {
+    if (setStep !== undefined && !signedDevices.length || currentAccount.config.mnemonic) {
       dropdownItems.unshift(
-        { label: 'Edit Transaction', onClick: () => setStep(0) }
+        { label: 'Edit Transaction', onClick: () => setStep && setStep(0) }
       )
     }
 
@@ -196,40 +134,7 @@ const TransactionDetails = ({
     </Fragment>
   )
 
-  const TransactionSummary = () => (
-    <Fragment>
-      <ModalHeaderContainer>
-        <span>Transaction Summary</span>
-        <TransactionOptionsDropdown />
-      </ModalHeaderContainer>
-      <MainTxData>
-        <SendingHeader style={{ padding: 0 }}>{`Sending ${sendAmount} BTC`}</SendingHeader>
-        <ToField>to</ToField>
-        <RecipientAddressRow style={{ paddingTop: 0, textAlign: 'right' }}>{recipientAddress}</RecipientAddressRow>
-      </MainTxData>
-      <div>
-        <TransactionFeeField>Transaction Fee: <span>{satoshisToBitcoins(feeEstimate).toNumber()} BTC (${satoshisToBitcoins(feeEstimate).multipliedBy(currentBitcoinPrice).toFixed(2)})</span></TransactionFeeField>
-        {feeEstimate >= ABSURD_FEE && <WarningBox>Warning: transaction fee is very high</WarningBox>}
-      </div>
-    </Fragment>
-  )
-
-  const TransactionSuccess = ({ broadcastedTxId }: { broadcastedTxId: string }) => (
-    <Fragment>
-      <ModalHeaderContainer>
-        Transaction Success
-      </ModalHeaderContainer>
-      <ModalBody>
-        <IconWrapper style={{ color: green }}>
-          <StyledIcon as={CheckCircle} size={100} />
-        </IconWrapper>
-        <ModalSubtext>Your transaction has been broadcast.</ModalSubtext>
-        <ViewTransactionButton color={white} background={green} href={blockExplorerTransactionURL(broadcastedTxId, getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork))} target="_blank">View Transaction</ViewTransactionButton>
-      </ModalBody>
-    </Fragment>
-  )
-
-  const TransactionDetails = () => {
+  const TransactionUtxoDetails = () => {
     let utxosMap: UtxoMap;
     if (availableUtxos) {
       utxosMap = createUtxoMapFromUtxoArray(availableUtxos);
@@ -238,7 +143,6 @@ const TransactionDetails = ({
       <Fragment>
         <ModalHeaderContainer>
           <span>Transaction Details</span>
-          {txImportedFromFile && <TransactionOptionsDropdown />}
         </ModalHeaderContainer>
         <MoreDetailsContainer>
           <MoreDetailsSection>
@@ -262,36 +166,43 @@ const TransactionDetails = ({
               </OutputItem>
             ))}
 
-            <MoreDetailsHeader style={{ display: 'flex', justifyContent: 'space-between', marginTop: '2em' }}>Fees: {<span>{satoshisToBitcoins(feeEstimate).toNumber()} BTC (${satoshisToBitcoins(feeEstimate).multipliedBy(currentBitcoinPrice).toFixed(2)})</span>}</MoreDetailsHeader>
+            <MoreDetailsHeader style={{ display: 'flex', justifyContent: 'space-between', marginTop: '2em' }}>Fees: {<span>{satoshisToBitcoins(_fee).toNumber()} BTC (${satoshisToBitcoins(_fee).multipliedBy(currentBitcoinPrice).toFixed(2)})</span>}</MoreDetailsHeader>
           </MoreDetailsSection>
         </MoreDetailsContainer>
       </Fragment>
     )
   };
 
-  let screen = null;
-
-  if (!txImportedFromFile) {
-    screen = TransactionSummary()
-  } else {
-    screen = TransactionDetails()
-  }
-
   return (
     <Fragment>
       <AccountSendContentRight>
+        <Modal
+          isOpen={modalIsOpen}
+          onRequestClose={() => closeModal()}>
+          {modalContent as React.ReactChild}
+        </Modal>
         <SendDetailsContainer>
-          {screen}
-          {txError && <ErrorBox>{txError}</ErrorBox>}
-          {importTxFromFileError && <ErrorBox>{importTxFromFileError}</ErrorBox>}
-          {!broadcastedTxId && <SendButton background={green} color={white} onClick={sendTransaction}>
-            {signedDevices.length < signThreshold ? `Confirm on Devices (${signedDevices.length}/${signThreshold})` : 'Send Transaction'}
+          <ModalHeaderContainer>
+            <span>Transaction Summary</span>
+            <TransactionOptionsDropdown />
+          </ModalHeaderContainer>
+          <MainTxData>
+            <SendingHeader style={{ padding: 0 }}>{`Sending ${satoshisToBitcoins(finalPsbt.txOutputs[0].value)} BTC`}</SendingHeader>
+            <ToField>to</ToField>
+            <RecipientAddressRow style={{ paddingTop: 0, textAlign: 'right' }}>{finalPsbt.txOutputs[0].address}</RecipientAddressRow>
+          </MainTxData>
+          <div>
+            <TransactionFeeField>Transaction Fee: <span>{satoshisToBitcoins(_fee).toNumber()} BTC (${satoshisToBitcoins(_fee).multipliedBy(currentBitcoinPrice).toFixed(2)})</span></TransactionFeeField>
+            {_fee >= ABSURD_FEE && <WarningBox>Warning: transaction fee is very high</WarningBox>}
+          </div>
+          <SendButton sendable={signedDevices.length === signThreshold} background={green} color={white} onClick={() => sendTransaction()}>
+            {signedDevices.length < signThreshold ? `Confirm on Devices (${signedDevices.length}/${signThreshold})` : 'Broadcast Transaction'}
             {signedDevices.length < signThreshold ? null : (
               <SendButtonCheckmark>
                 <StyledIcon as={ArrowIosForwardOutline} size={16} />
               </SendButtonCheckmark>
             )}
-          </SendButton>}
+          </SendButton>
         </SendDetailsContainer>
       </AccountSendContentRight>
     </Fragment>
@@ -417,7 +328,7 @@ const TransactionFeeField = styled.div`
   align-items: center;
 `;
 
-const SendButton = styled.div`
+const SendButton = styled.div<{ sendable: boolean, background: string, color: string }>`
   ${Button};
   transition: ease-out 0.4s;
   position: relative;
@@ -428,22 +339,11 @@ const SendButton = styled.div`
   padding-right: 2.5rem;
   padding-top: 1.75rem;
   padding-bottom: 1.75rem;
-
-  &:hover {
-    box-shadow: inset 500px 0 0 0 ${darkGreen};
-  }
+  box-shadow: ${p => p.sendable ? `inset 1000px 0 0 0 ${darkGreen}` : 'none'};
 `;
 
 const SendButtonCheckmark = styled.div`
   animation: 1s ease infinite ${SidewaysShake};
-`;
-
-const ErrorBox = styled.div`
-  padding: 1.5em;
-  background: ${lightRed};
-  color: ${red};
-  border: 1px solid ${red};
-  margin: 1.5em 0;
 `;
 
 const WarningBox = styled.div`
@@ -452,11 +352,6 @@ const WarningBox = styled.div`
   color: ${orange};
   border: 1px solid ${orange};
   margin: 1.5em 0;
-`;
-
-const ViewTransactionButton = styled.a`
-  ${Button}
-  margin-top: 1em;
 `;
 
 export default TransactionDetails;

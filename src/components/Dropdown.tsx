@@ -80,10 +80,11 @@ export const Dropdown = ({ isOpen, setIsOpen, buttonLabel, dropdownItems, minima
           <DropdownItemsWrapper>
             <DropdownItemsContainer>
               <DropdownItems role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
-                {dropdownItems.map((item) => {
+                {dropdownItems.map((item, index) => {
                   if ("label" in item) {
                     return (
                       <DropdownItem
+                        key={index}
                         clickable={!!item.onClick}
                         onClick={() => {
                           if (item.onClick) {
@@ -95,7 +96,7 @@ export const Dropdown = ({ isOpen, setIsOpen, buttonLabel, dropdownItems, minima
                     )
                   } else {
                     return (
-                      <Divider />
+                      <Divider key={index} />
                     )
                   }
                 })}

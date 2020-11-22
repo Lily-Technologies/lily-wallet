@@ -24,9 +24,10 @@ interface Props {
   encryptedConfigFile: File | null
   setEncryptedConfigFile: React.Dispatch<React.SetStateAction<File | null>>
   setPassword: React.Dispatch<React.SetStateAction<string>>
+  currentBlockHeight: number | undefined
 }
 
-const Login = ({ config, setConfigFile, currentBitcoinNetwork, encryptedConfigFile, setEncryptedConfigFile, setPassword }: Props) => {
+const Login = ({ config, setConfigFile, currentBitcoinNetwork, encryptedConfigFile, setEncryptedConfigFile, setPassword, currentBlockHeight }: Props) => {
   document.title = `Login - Lily Wallet`;
   const [localPassword, setLocalPassword] = useState('');
   const [passwordError, setPasswordError] = useState<string | undefined>(undefined);
@@ -37,9 +38,9 @@ const Login = ({ config, setConfigFile, currentBitcoinNetwork, encryptedConfigFi
   const history = useHistory();
 
   const unlockFile = () => {
-    try {
-      setIsLoading(true);
-      if (encryptedConfigFile) {
+    setIsLoading(true);
+    if (encryptedConfigFile) {
+      try {
         const bytes = AES.decrypt(encryptedConfigFile.file, localPassword);
         const decryptedData = JSON.parse(bytes.toString(enc.Utf8));
         setPasswordError(undefined);
@@ -50,20 +51,32 @@ const Login = ({ config, setConfigFile, currentBitcoinNetwork, encryptedConfigFi
           setIsLoading(false);
           history.replace(`/`);
         }, 2000)
-      } else {
-        const configCopy = { ...config };
-        configCopy.isEmpty = false;
-        setTimeout(() => {
-          setConfigFile(configCopy);
-          saveConfig(configCopy, localPassword); // we save a blank config file
-          setPassword(localPassword);
-          setIsLoading(false);
-          history.replace(`/`);
-        }, 2000)
+      } catch (e) {
+        setPasswordError('Incorrect Password');
+        setIsLoading(false);
       }
-    } catch (e) {
-      setPasswordError('Incorrect Password');
-      setIsLoading(false);
+    } else {
+      if (currentBlockHeight) {
+        try {
+          const configCopy = { ...config };
+          configCopy.isEmpty = false;
+          configCopy.license.trial = true;
+          configCopy.license.expires = currentBlockHeight + 4320; // one month free trial (6 * 24 * 30)
+          setTimeout(() => {
+            setConfigFile(configCopy);
+            saveConfig(configCopy, localPassword); // we save a blank config file
+            setPassword(localPassword);
+            setIsLoading(false);
+            history.replace(`/`);
+          }, 2000)
+        } catch (e) {
+          setPasswordError('Error. Try again.');
+          setIsLoading(false);
+        }
+      } else {
+        setPasswordError('Server error. Please try restarting.');
+        setIsLoading(false);
+      }
     }
   }
 

@@ -1,4 +1,4 @@
-import { Network } from 'bitcoinjs-lib'
+import { Network, Psbt } from 'bitcoinjs-lib'
 import { ACCOUNTMAP_SET, ACCOUNTMAP_UPDATE } from '../reducers/accountMap'
 
 declare global {
@@ -16,6 +16,12 @@ declare global {
     ipcRenderer: any;
   }
 }
+
+// React Types
+export type SetStateBoolean = React.Dispatch<React.SetStateAction<boolean>>
+export type SetStateString = React.Dispatch<React.SetStateAction<string>>
+export type SetStateNumber = React.Dispatch<React.SetStateAction<number>>
+export type SetStatePsbt = React.Dispatch<React.SetStateAction<Psbt>>
 
 export interface File {
   file: string
@@ -108,6 +114,12 @@ export enum TransactionType {
   moved = 'moved'
 }
 
+export enum LicenseLevels {
+  basic = 'basic',
+  essential = 'essential',
+  premium = 'premium'
+}
+
 export interface Transaction {
   txid: string
   version: number,
@@ -187,10 +199,17 @@ export interface AddressMap {
 export interface UtxoMap {
   [id: string]: UTXO
 }
-
+export interface LilyLicense {
+  trial: boolean
+  expires: number
+  license?: string
+  signature?: string
+  txId?: string
+}
 export interface LilyConfig {
   name: string,
   version: string,
+  license: LilyLicense
   isEmpty: boolean,
   backup_options: {
     gDrive: boolean

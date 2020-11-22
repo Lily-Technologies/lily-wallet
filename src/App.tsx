@@ -33,6 +33,10 @@ const emptyConfig = {
   name: "",
   version: "0.0.2",
   isEmpty: true,
+  license: {
+    trial: true,
+    expires: 0
+  },
   backup_options: {
     gDrive: false
   },
@@ -230,7 +234,7 @@ const App = () => {
   return (
     <Router>
       <ScrollToTop />
-      <PurchaseLicenseModal isOpen={purchaseLicenseModalOpen} onRequestClose={() => setPurchaseLicenseModalOpen(false)} />
+      <PurchaseLicenseModal isOpen={purchaseLicenseModalOpen} onRequestClose={() => setPurchaseLicenseModalOpen(false)} currentBitcoinPrice={currentBitcoinPrice} password={password} config={config} setConfig={setConfigFile} nodeConfig={nodeConfig!} currentBitcoinNetwork={currentBitcoinNetwork} />
       <TitleBar setNodeConfig={setNodeConfig} nodeConfig={nodeConfig} setMobileNavOpen={setMobileNavOpen} config={config} setPurchaseLicenseModalOpen={setPurchaseLicenseModalOpen} connectToBlockstream={connectToBlockstream} connectToBitcoinCore={connectToBitcoinCore} getNodeConfig={getNodeConfig} resetConfigFile={resetConfigFile} />
       <PageWrapper id="page-wrapper">
         <ConfigRequired />
@@ -239,10 +243,10 @@ const App = () => {
         {!config.isEmpty && <MobileNavbar mobileNavOpen={mobileNavOpen} setMobileNavOpen={setMobileNavOpen} config={config} currentBitcoinNetwork={currentBitcoinNetwork} />}
         <Switch>
           <Route path="/vault/:id" render={() => <Vault config={config} setConfigFile={setConfigFile} password={password} toggleRefresh={toggleRefresh} currentBitcoinNetwork={currentBitcoinNetwork} />} />
-          <Route path="/receive" component={() => <Receive config={config} />} />
-          {nodeConfig && <Route path="/send" component={() => <Send config={config} currentBitcoinPrice={currentBitcoinPrice} nodeConfig={nodeConfig} currentBitcoinNetwork={currentBitcoinNetwork} />} />}
+          <Route path="/receive" render={() => <Receive config={config} />} />
+          {nodeConfig && <Route path="/send" render={() => <Send config={config} currentBitcoinPrice={currentBitcoinPrice} nodeConfig={nodeConfig} currentBitcoinNetwork={currentBitcoinNetwork} />} />}
           <Route path="/setup" render={() => <Setup config={config} setConfigFile={setConfigFile} password={password} currentBitcoinNetwork={currentBitcoinNetwork} />} />
-          <Route path="/login" render={() => <Login config={config} setConfigFile={setConfigFile} setPassword={setPassword} encryptedConfigFile={encryptedConfigFile} setEncryptedConfigFile={setEncryptedConfigFile} currentBitcoinNetwork={currentBitcoinNetwork} />} />
+          <Route path="/login" render={() => <Login config={config} setConfigFile={setConfigFile} setPassword={setPassword} encryptedConfigFile={encryptedConfigFile} setEncryptedConfigFile={setEncryptedConfigFile} currentBlockHeight={nodeConfig && nodeConfig.blocks} currentBitcoinNetwork={currentBitcoinNetwork} />} />
           <Route path="/settings" render={() => <Settings config={config} currentBitcoinNetwork={currentBitcoinNetwork} />} />
           <Route path="/" render={() => <Home flyInAnimation={flyInAnimation} prevFlyInAnimation={prevSetFlyInAnimation.current} historicalBitcoinPrice={historicalBitcoinPrice} currentBitcoinPrice={currentBitcoinPrice} />} />
           <Route path="/" render={() => (

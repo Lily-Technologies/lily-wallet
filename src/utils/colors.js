@@ -21,6 +21,7 @@ export const red600 = '#e53e3e';
 export const red700 = '#c53030';
 export const red800 = '#9b2c2c';
 export const red900 = '#742a2a';
+
 export const orange100 = '#fffaf0';
 export const orange200 = '#feebc8';
 export const orange300 = '#fbd38d';

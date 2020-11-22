@@ -11,10 +11,11 @@ interface Props {
   isOpen: boolean,
   onAfterOpen?: () => void,
   onRequestClose(): void,
+  style?: { content?: any, overlay?: any }
   children: React.ReactChild
 }
 
-export const Modal = ({ isOpen, onAfterOpen, onRequestClose, children }: Props) => {
+export const Modal = ({ isOpen, onAfterOpen, onRequestClose, style = { content: {}, overlay: {} }, children }: Props) => {
   const [localOpen, setLocalOpen] = useState(false);
 
   const afterOpen = () => {
@@ -42,6 +43,7 @@ export const Modal = ({ isOpen, onAfterOpen, onRequestClose, children }: Props) 
       width: '100%',
       transform: localOpen ? 'scale(1)' : 'scale(0.9)',
       transition: 'transform 0.25s',
+      ...style.content
     },
     overlay: {
       background: localOpen ? 'rgba(31, 31, 31, 0.75)' : 'rgba(31, 31, 31, 0)',
@@ -49,7 +51,8 @@ export const Modal = ({ isOpen, onAfterOpen, onRequestClose, children }: Props) 
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',
-      zIndex: 1000
+      zIndex: 1000,
+      ...style.overlay
     }
   } as ReactModal.Styles;
 

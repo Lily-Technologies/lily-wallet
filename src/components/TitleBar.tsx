@@ -102,7 +102,9 @@ export const TitleBar = ({
         config={config}
       />
       <LicenseModal
+        config={config}
         isOpen={licenseModalOpen}
+        nodeConfig={nodeConfig!}
         onRequestClose={() => setLicenseModalOpen(false)}
       />
       <LeftSection>

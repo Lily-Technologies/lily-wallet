@@ -13,7 +13,14 @@ var AddressType = {
   multisig: 'multisig'
 }
 
+var LicenseLevels = {
+  basic: 'basic',
+  essential: 'essential',
+  premium: 'premium'
+}
+
 module.exports = {
   TransactionType,
-  AddressType
+  AddressType,
+  LicenseLevels
 }

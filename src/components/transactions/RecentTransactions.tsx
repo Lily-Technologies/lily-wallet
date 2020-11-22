@@ -7,7 +7,7 @@ import { StyledIcon } from '../../components';
 import TransactionRow from './TransactionRow'
 import TransactionRowLoading from './TransactionRowLoading'
 
-import { darkGray, white, green800 } from '../../utils/colors';
+import { darkGray, white } from '../../utils/colors';
 
 import { Transaction } from '../../types'
 

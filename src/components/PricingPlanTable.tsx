@@ -1,6 +1,5 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import styled from 'styled-components';
-import axios from 'axios';
 import { Check } from '@styled-icons/boxicons-regular';
 import { Dash } from '@styled-icons/octicons';
 
@@ -8,91 +7,101 @@ import { Button } from '.';
 
 import { white, gray100, gray400, gray600, gray900, green400, green700 } from '../utils/colors';
 
+import { LicenseLevels } from '../types';
 interface Props {
+  clickRenewLicense: (level: LicenseLevels) => void
 }
 
-export const PricingPlanTable = () => {
-
-  const clickRenewLicense = async () => {
-    const { data } = await axios.get(`${process.env.REACT_APP_LILY_ENDPOINT}/payment-address`);
-    console.log('data: ', data);
-  }
-
+export const PricingPlanTable = ({ clickRenewLicense }: Props) => {
   return (
-    <Table>
-      <TableHeader>
-        <TableColumn></TableColumn>
-        <TableColumn>Basic</TableColumn>
-        <TableColumn>Essential</TableColumn>
-        <TableColumn>Premium</TableColumn>
-      </TableHeader>
-      <TableRow>
-        <BoldTableColumn>Pricing</BoldTableColumn>
-        <TableColumn>
-          <PriceText>$100</PriceText>
-          <PriceSubtext>/year</PriceSubtext>
-        </TableColumn>
-        <TableColumn>
-          <PriceText>$200</PriceText>
-          <PriceSubtext>/year</PriceSubtext>
-        </TableColumn>
-        <TableColumn>
-          <PriceText>$500</PriceText>
-          <PriceSubtext>/year</PriceSubtext>
-        </TableColumn>
-      </TableRow>
-      <FeatureRow>
-        <BoldTableColumn>Features</BoldTableColumn>
-        <TableColumn />
-        <TableColumn />
-        <TableColumn />
-      </FeatureRow>
-      <TableRow>
-        <TableColumn>Multisig Wallets</TableColumn>
-        <TableColumn><CheckMark /></TableColumn>
-        <TableColumn><CheckMark /></TableColumn>
-        <TableColumn><CheckMark /></TableColumn>
-      </TableRow>
-      <TableRow>
-        <TableColumn>Mobile App</TableColumn>
-        <TableColumn><DashIcon /></TableColumn>
-        <TableColumn><CheckMark /></TableColumn>
-        <TableColumn><CheckMark /></TableColumn>
-      </TableRow>
-      <TableRow>
-        <TableColumn>Phone / Chat / Zoom Support</TableColumn>
-        <TableColumn><DashIcon /></TableColumn>
-        <TableColumn><DashIcon /></TableColumn>
-        <TableColumn><CheckMark /></TableColumn>
-      </TableRow>
-      <TableRow>
-        <PurchaseColumn />
-        <PurchaseColumn>
-          <PurchaseButton
-            onClick={() => clickRenewLicense()}
-            background={green700}
-            color={white}>
-            Buy Basic
+    <Fragment>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableColumn></TableColumn>
+            <TableColumn>Basic</TableColumn>
+            <TableColumn>Essential</TableColumn>
+            <TableColumn>Premium</TableColumn>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+
+          <TableRow>
+            <BoldTableColumn>Pricing</BoldTableColumn>
+            <TableColumn>
+              <PriceText>$100</PriceText>
+              <PriceSubtext>/year</PriceSubtext>
+            </TableColumn>
+            <TableColumn>
+              <PriceText>$200</PriceText>
+              <PriceSubtext>/year</PriceSubtext>
+            </TableColumn>
+            <TableColumn>
+              <PriceText>$500</PriceText>
+              <PriceSubtext>/year</PriceSubtext>
+            </TableColumn>
+          </TableRow>
+          <FeatureRow>
+            <BoldTableColumn>Features</BoldTableColumn>
+            <TableColumn />
+            <TableColumn />
+            <TableColumn />
+          </FeatureRow>
+          <TableRow>
+            <TableColumn>Multisig Wallets</TableColumn>
+            <TableColumn><CheckMark /></TableColumn>
+            <TableColumn><CheckMark /></TableColumn>
+            <TableColumn><CheckMark /></TableColumn>
+          </TableRow>
+          <TableRow>
+            <TableColumn>Mobile App</TableColumn>
+            <TableColumn><DashIcon /></TableColumn>
+            <TableColumn><CheckMark /></TableColumn>
+            <TableColumn><CheckMark /></TableColumn>
+          </TableRow>
+          <TableRow>
+            <TableColumn>Phone / Chat / Zoom Support</TableColumn>
+            <TableColumn><DashIcon /></TableColumn>
+            <TableColumn><DashIcon /></TableColumn>
+            <TableColumn><CheckMark /></TableColumn>
+          </TableRow>
+          <TableRow>
+            <PurchaseColumn />
+            <PurchaseColumn>
+              <PurchaseButton
+                onClick={() => clickRenewLicense(LicenseLevels.basic)}
+                background={green700}
+                color={white}>
+                Buy Basic
           </PurchaseButton>
-        </PurchaseColumn>
-        <PurchaseColumn>
-          <PurchaseButton
-            onClick={() => clickRenewLicense()}
-            background={green700}
-            color={white}>
-            Buy Essential
+            </PurchaseColumn>
+            <PurchaseColumn>
+              <PurchaseButton
+                onClick={() => clickRenewLicense(LicenseLevels.essential)}
+                background={green700}
+                color={white}>
+                Buy Essential
           </PurchaseButton>
-        </PurchaseColumn>
-        <PurchaseColumn>
-          <PurchaseButton
-            onClick={() => clickRenewLicense()}
-            background={green700}
-            color={white}>
-            Buy Premium
+            </PurchaseColumn>
+            <PurchaseColumn>
+              <PurchaseButton
+                onClick={() => clickRenewLicense(LicenseLevels.premium)}
+                background={green700}
+                color={white}>
+                Buy Premium
           </PurchaseButton>
-        </PurchaseColumn>
-      </TableRow>
-    </Table>
+            </PurchaseColumn>
+          </TableRow>
+        </TableBody>
+      </Table>
+      <Buttons>
+        <RenewButton
+          color={gray900}
+          background={white}>
+          Questions? Call (970) 425-0282
+          </RenewButton>
+      </Buttons>
+    </Fragment>
   )
 }
 
@@ -105,9 +114,12 @@ const Table = styled.table`
   width: 100%;
   height: 1px;
   border: none;
+  background: ${white};
 `;
 
 const TableHeader = styled.thead``;
+
+const TableBody = styled.tbody``;
 
 const TableRow = styled.tr`
   border: 1px solid ${gray100};
@@ -159,4 +171,17 @@ const PriceSubtext = styled.span`
   line-height: 1.5rem;
   font-size: 1rem;
   font-weight: 500;
+`;
+
+const Buttons = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1em;
+`;
+
+const RenewButton = styled.button`
+  ${Button};
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  border: 1px solid ${gray400};
+  marginRight: 1em;
 `;
