@@ -19,7 +19,7 @@ export const LicenseInformation = ({ config, nodeConfig }: Props) => {
     blockDiff = config.license.expires;
   }
   const blockDiffTimeEst = blockDiff * 10;
-  const expireAsDate = moment().add(blockDiffTimeEst, "minutes").format('MMMM Do YYYY, h:mm:ssa');
+  const expireAsDate = moment().add(blockDiffTimeEst, "minutes").format('MMMM Do YYYY, h:mma');
 
   return (
     <Wrapper>

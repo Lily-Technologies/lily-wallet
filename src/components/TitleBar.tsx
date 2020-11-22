@@ -9,18 +9,18 @@ import { white, green400, orange400, red500, green800, green900 } from '../utils
 
 import { ConnectToNodeModal, StyledIcon, Dropdown, ConnectToLilyMobileModal, LicenseModal } from '.';
 
-import { NodeConfig, LilyConfig } from '../types';
+import { NodeConfig, LilyConfig, SetStateBoolean } from '../types';
 
 interface Props {
   setNodeConfig: React.Dispatch<React.SetStateAction<NodeConfig | undefined>>, // KBC-TODO: NodeConfig should be defined, even if we are connected to blockstream, yeah? No?
   nodeConfig: NodeConfig | undefined // KBC-TODO: NodeConfig should be defined, even if we are connected to blockstream, yeah? No?
-  setMobileNavOpen: React.Dispatch<React.SetStateAction<boolean>>,
+  setMobileNavOpen: SetStateBoolean,
   config: LilyConfig,
   connectToBlockstream: () => void,
   connectToBitcoinCore: () => void,
   getNodeConfig: () => void,
   resetConfigFile: () => void,
-  setPurchaseLicenseModalOpen: React.Dispatch<React.SetStateAction<boolean>>
+  setPurchaseLicenseModalOpen: SetStateBoolean
 }
 
 export const TitleBar = ({
@@ -90,71 +90,73 @@ export const TitleBar = ({
   }
 
   return (
-    <DraggableTitleBar>
-      <ConnectToNodeModal
-        isOpen={nodeConfigModalOpen}
-        onRequestClose={() => setNodeConfigModalOpen(false)}
-        setNodeConfig={setNodeConfig}
-      />
-      <ConnectToLilyMobileModal
-        isOpen={configModalOpen}
-        onRequestClose={() => setConfigModalOpen(false)}
-        config={config}
-      />
-      <LicenseModal
-        config={config}
-        isOpen={licenseModalOpen}
-        nodeConfig={nodeConfig!}
-        onRequestClose={() => setLicenseModalOpen(false)}
-      />
-      <LeftSection>
-        {!config.isEmpty && (
-          <MobileMenuOpen onClick={() => setMobileNavOpen(true)} >
-            <StyledIcon as={Menu} size={36} /> Menu
-          </MobileMenuOpen>
-        )}
-      </LeftSection>
-      <RightSection>
-        <NodeButtonContainer>
-          <Dropdown
-            isOpen={nodeOptionsDropdownOpen}
-            setIsOpen={setNodeOptionsDropdownOpen}
-            minimal={false}
-            style={{ background: green900, color: white, padding: '0.35em 1em', border: 'none', fontFamily: 'Montserrat, sans-serif', display: 'flex', alignItems: 'center' }}
-            buttonLabel={
-              <Fragment>
-                {nodeConfig ? (
-                  <StyledIcon as={Circle} style={{
-                    color: (nodeConfig.initialblockdownload) ? orange400
-                      : (nodeConfig.connected) ? green400
-                        : red500, // !nodeConfig.connected
-                    // marginRight: '.5em'
-                  }} />
-                ) : (
-                    <LoadingImage alt="loading placeholder" src={require('../assets/flower-loading.svg')} />
-                  )}
-                {nodeConfig && nodeConfig.connected ? null
-                  : nodeConfig && !nodeConfig.connected ? null
-                    : 'Connecting...'}
-              </Fragment>
-            }
-            dropdownItems={nodeConfigDropdownItems}
-          />
-        </NodeButtonContainer>
+    <Fragment>
+      <HeightHolder />
+      <DraggableTitleBar>
+        <ConnectToNodeModal
+          isOpen={nodeConfigModalOpen}
+          onRequestClose={() => setNodeConfigModalOpen(false)}
+          setNodeConfig={setNodeConfig}
+        />
+        <ConnectToLilyMobileModal
+          isOpen={configModalOpen}
+          onRequestClose={() => setConfigModalOpen(false)}
+          config={config}
+        />
+        <LicenseModal
+          config={config}
+          isOpen={licenseModalOpen}
+          nodeConfig={nodeConfig!}
+          onRequestClose={() => setLicenseModalOpen(false)}
+        />
+        <LeftSection>
+          {!config.isEmpty && (
+            <MobileMenuOpen onClick={() => setMobileNavOpen(true)} >
+              <StyledIcon as={Menu} size={36} /> Menu
+            </MobileMenuOpen>
+          )}
+        </LeftSection>
+        <RightSection>
+          <NodeButtonContainer>
+            <Dropdown
+              isOpen={nodeOptionsDropdownOpen}
+              setIsOpen={setNodeOptionsDropdownOpen}
+              minimal={false}
+              style={{ background: green900, color: white, padding: '0.35em 1em', border: 'none', fontFamily: 'Montserrat, sans-serif', display: 'flex', alignItems: 'center' }}
+              buttonLabel={
+                <Fragment>
+                  {nodeConfig ? (
+                    <StyledIcon as={Circle} style={{
+                      color: (nodeConfig.initialblockdownload) ? orange400
+                        : (nodeConfig.connected) ? green400
+                          : red500, // !nodeConfig.connected
+                      // marginRight: '.5em'
+                    }} />
+                  ) : (
+                      <LoadingImage alt="loading placeholder" src={require('../assets/flower-loading.svg')} />
+                    )}
+                  {nodeConfig && nodeConfig.connected ? null
+                    : nodeConfig && !nodeConfig.connected ? null
+                      : 'Connecting...'}
+                </Fragment>
+              }
+              dropdownItems={nodeConfigDropdownItems}
+            />
+          </NodeButtonContainer>
 
-        <DotDotDotContainer>
-          <Dropdown
-            style={{ color: white }}
-            isOpen={moreOptionsDropdownOpen}
-            setIsOpen={setMoreOptionsDropdownOpen}
-            minimal={true}
-            dropdownItems={moreOptionsDropdownItems}
-          />
-        </DotDotDotContainer>
-      </RightSection>
-    </DraggableTitleBar >
+          <DotDotDotContainer>
+            <Dropdown
+              style={{ color: white }}
+              isOpen={moreOptionsDropdownOpen}
+              setIsOpen={setMoreOptionsDropdownOpen}
+              minimal={true}
+              dropdownItems={moreOptionsDropdownItems}
+            />
+          </DotDotDotContainer>
+        </RightSection>
+      </DraggableTitleBar >
+    </Fragment>
   )
-
 }
 
 const LoadingImage = styled.img`
@@ -205,6 +207,12 @@ const DraggableTitleBar = styled.div`
   align-items: center;
   justify-content: space-between;
   font-family: Montserrat, sans-serif;
+`;
+
+const HeightHolder = styled.div`
+  height: 2.5rem;
+  z-index: 0;
+  background: transparent;
 `;
 
 const NodeButtonContainer = styled.div`

@@ -14,7 +14,7 @@ import { networks } from 'bitcoinjs-lib';
 import { offWhite, green700 } from './utils/colors';
 import { mobile } from './utils/media';
 
-import { Sidebar, MobileNavbar, TitleBar, ScrollToTop, PurchaseLicenseModal } from './components';
+import { Sidebar, MobileNavbar, TitleBar, ScrollToTop, PurchaseLicenseModal, AlertBar } from './components';
 
 // Pages
 import Login from './pages/Login';
@@ -235,7 +235,8 @@ const App = () => {
     <Router>
       <ScrollToTop />
       <PurchaseLicenseModal isOpen={purchaseLicenseModalOpen} onRequestClose={() => setPurchaseLicenseModalOpen(false)} currentBitcoinPrice={currentBitcoinPrice} password={password} config={config} setConfig={setConfigFile} nodeConfig={nodeConfig!} currentBitcoinNetwork={currentBitcoinNetwork} />
-      <TitleBar setNodeConfig={setNodeConfig} nodeConfig={nodeConfig} setMobileNavOpen={setMobileNavOpen} config={config} setPurchaseLicenseModalOpen={setPurchaseLicenseModalOpen} connectToBlockstream={connectToBlockstream} connectToBitcoinCore={connectToBitcoinCore} getNodeConfig={getNodeConfig} resetConfigFile={resetConfigFile} />
+      <TitleBar setNodeConfig={setNodeConfig} nodeConfig={nodeConfig} setMobileNavOpen={setMobileNavOpen} config={config} connectToBlockstream={connectToBlockstream} connectToBitcoinCore={connectToBitcoinCore} setPurchaseLicenseModalOpen={setPurchaseLicenseModalOpen} getNodeConfig={getNodeConfig} resetConfigFile={resetConfigFile} />
+      {!config.isEmpty && nodeConfig && (config.license.expires - nodeConfig.blocks < 840) && <AlertBar config={config} nodeConfig={nodeConfig!} setPurchaseLicenseModalOpen={setPurchaseLicenseModalOpen} />}
       <PageWrapper id="page-wrapper">
         <ConfigRequired />
         <Overlay />
@@ -272,7 +273,6 @@ const ColorOverlap = styled.div`
 const PageWrapper = styled.div`
   height: 100%;
   display: flex;
-  margin-top: 2.5rem;;
   font-family: 'Raleway', sans-serif;
   flex: 1;
   background: ${offWhite};

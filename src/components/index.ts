@@ -26,5 +26,6 @@ export * from './PurchaseLicenseSuccess';
 export * from './PricingPlanTable';
 export * from './SelectAccountMenu';
 export * from './LicenseInformation';
+export * from './AlertBar';
 
 export * from './layout';
