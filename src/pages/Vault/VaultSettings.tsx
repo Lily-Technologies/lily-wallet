@@ -1,29 +1,29 @@
 import React, { useState, Fragment } from 'react';
 import styled, { css } from 'styled-components';
 import { useHistory } from "react-router-dom";
+import { Network } from 'bitcoinjs-lib';
 import { QRCode } from "react-qr-svg";
 import { ExclamationDiamond } from '@styled-icons/bootstrap'
 
-import { MnemonicWordsDisplayer, Modal, Input, StyledIcon, Button } from '../../components';
+import { MnemonicWordsDisplayer, Modal, Input, StyledIcon, Button, Breadcrumbs } from '../../components';
 
-import { black, white, green800, darkGray, darkOffWhite, gray100, red, lightGray, darkGreen, red100, red500, red600, gray500 } from '../../utils/colors';
+import { black, white, red, red100, red500, red600, green500, green800, gray200, gray300, gray500, gray700, gray900 } from '../../utils/colors';
 import { mobile } from '../../utils/media';
-import { createColdCardBlob, downloadFile, formatFilename, saveConfig } from '../../utils/files';
-import { getMultisigDeriationPathForNetwork } from '../../utils/files';
+import { createColdCardBlob, downloadFile, formatFilename, saveConfig, getMultisigDeriationPathForNetwork } from '../../utils/files';
 
-import { LilyConfig, LilyAccount, CaravanConfig } from '../../types';
-import { Network } from 'bitcoinjs-lib';
+import { LilyConfig, LilyAccount, CaravanConfig, SetStateBoolean } from '../../types';
 interface Props {
   config: LilyConfig,
   setConfigFile: React.Dispatch<React.SetStateAction<LilyConfig>>,
   password: string,
   currentAccount: LilyAccount,
-  setViewAddresses: React.Dispatch<React.SetStateAction<boolean>>,
-  setViewUtxos: React.Dispatch<React.SetStateAction<boolean>>,
+  setViewAddresses: SetStateBoolean,
+  setViewUtxos: SetStateBoolean,
   currentBitcoinNetwork: Network
+  toggleViewSettings: () => void
 }
 
-const VaultSettings = ({ config, setConfigFile, password, currentAccount, setViewAddresses, setViewUtxos, currentBitcoinNetwork }: Props) => {
+const VaultSettings = ({ config, setConfigFile, password, currentAccount, setViewAddresses, setViewUtxos, currentBitcoinNetwork, toggleViewSettings }: Props) => {
   const [viewXpub, setViewXpub] = useState(false);
   const [viewExportQRCode, setViewExportQRCode] = useState(false);
   const [viewMnemonic, setViewMnemonic] = useState(false);
@@ -124,7 +124,26 @@ const VaultSettings = ({ config, setConfigFile, password, currentAccount, setVie
 
   return (
     <Wrapper>
+      <Breadcrumbs
+        onHomeClick={toggleViewSettings}
+        items={[
+          { text: 'Settings', onClick: () => { } }
+        ]} />
       <SettingsHeader>Settings</SettingsHeader>
+      <SettingsTabs>
+        <TabItem active={true}>
+          Data
+        </TabItem>
+        <TabItem active={false}>
+          Keys
+        </TabItem>
+        <TabItem active={false}>
+          Backups
+        </TabItem>
+        <TabItem active={false}>
+          License
+        </TabItem>
+      </SettingsTabs>
       <SettingsHeadingItem>Vault Data</SettingsHeadingItem>
       <SettingsSection>
         <SettingsSectionLeft>
@@ -145,95 +164,101 @@ const VaultSettings = ({ config, setConfigFile, password, currentAccount, setVie
         </SettingsSectionRight>
       </SettingsSection>
       {/* KBC-TODO: design a good way to display xpubs and fingerprint data here */}
-      {currentAccount.config.quorum.totalSigners === 1 && (
-        <SettingsSection>
-          <SettingsSectionLeft>
-            <SettingsItemHeader>View XPub</SettingsItemHeader>
-            <SettingsSubheader>View the xpub associated with this vault. This can be given to other services to deposit money into your account or create a read-only wallet.</SettingsSubheader>
-          </SettingsSectionLeft>
-          <SettingsSectionRight>
-            <ViewAddressesButton onClick={() => { setViewXpub(true); }}>View XPub</ViewAddressesButton>
-          </SettingsSectionRight>
-
-          <Modal
-            isOpen={viewXpub}
-            onRequestClose={() => setViewXpub(false)}>
-            <ModalContentWrapper>
-              {getXpubQrCode()}
-              <XpubWellWrapper>{currentAccount.config.xpub}</XpubWellWrapper>
-            </ModalContentWrapper>
-          </Modal>
-        </SettingsSection>
-      )}
-
-      {currentAccount.config.mnemonic && (
-        <Fragment>
-          <SettingsHeadingItem>Export Wallet</SettingsHeadingItem>
+      {
+        currentAccount.config.quorum.totalSigners === 1 && (
           <SettingsSection>
             <SettingsSectionLeft>
-              <SettingsItemHeader>Connect to BlueWallet</SettingsItemHeader>
-              <SettingsSubheader>View a QR code to import this wallet into BlueWallet</SettingsSubheader>
+              <SettingsItemHeader>View XPub</SettingsItemHeader>
+              <SettingsSubheader>View the xpub associated with this vault. This can be given to other services to deposit money into your account or create a read-only wallet.</SettingsSubheader>
             </SettingsSectionLeft>
             <SettingsSectionRight>
-              <ViewAddressesButton onClick={() => { setViewExportQRCode(true); }}>View QR Code</ViewAddressesButton>
+              <ViewAddressesButton onClick={() => { setViewXpub(true); }}>View XPub</ViewAddressesButton>
             </SettingsSectionRight>
 
             <Modal
-              isOpen={viewExportQRCode}
-              onRequestClose={() => setViewExportQRCode(false)}>
+              isOpen={viewXpub}
+              onRequestClose={() => setViewXpub(false)}>
               <ModalContentWrapper>
-                {getMnemonicQrCode()}
-                <ScanInstructions>Scan this QR code to import this wallet into BlueWallet</ScanInstructions>
+                {getXpubQrCode()}
+                <XpubWellWrapper>{currentAccount.config.xpub}</XpubWellWrapper>
               </ModalContentWrapper>
             </Modal>
           </SettingsSection>
-          <SettingsSection>
-            <SettingsSectionLeft>
-              <SettingsItemHeader>View Mnemonic Seed</SettingsItemHeader>
-              <SettingsSubheader>View the mnemonic phrase for this wallet. This can be used to import this wallet data into another application.</SettingsSubheader>
-            </SettingsSectionLeft>
-            <SettingsSectionRight>
-              <ViewAddressesButton onClick={() => { setViewMnemonic(true); }}>View Wallet Mnemonic</ViewAddressesButton>
-            </SettingsSectionRight>
+        )
+      }
 
-            <Modal
-              isOpen={viewMnemonic}
-              onRequestClose={() => setViewMnemonic(false)}>
-              <ModalContentWrapper>
-                {getMnemonic()}
-              </ModalContentWrapper>
-            </Modal>
-          </SettingsSection>
-        </Fragment>
-      )}
-      {currentAccount.config.quorum.totalSigners > 1 && (
-        <Fragment>
-          <SettingsHeadingItem>Export Wallet</SettingsHeadingItem>
-          <SettingsSection>
-            <SettingsSectionLeft>
-              <SettingsItemHeader>Download Coldcard File</SettingsItemHeader>
-              <SettingsSubheader>
-                Download the multisig wallet import file for Coldcard and place on microsd card. <br />
+      {
+        currentAccount.config.mnemonic && (
+          <Fragment>
+            <SettingsHeadingItem>Export Wallet</SettingsHeadingItem>
+            <SettingsSection>
+              <SettingsSectionLeft>
+                <SettingsItemHeader>Connect to BlueWallet</SettingsItemHeader>
+                <SettingsSubheader>View a QR code to import this wallet into BlueWallet</SettingsSubheader>
+              </SettingsSectionLeft>
+              <SettingsSectionRight>
+                <ViewAddressesButton onClick={() => { setViewExportQRCode(true); }}>View QR Code</ViewAddressesButton>
+              </SettingsSectionRight>
+
+              <Modal
+                isOpen={viewExportQRCode}
+                onRequestClose={() => setViewExportQRCode(false)}>
+                <ModalContentWrapper>
+                  {getMnemonicQrCode()}
+                  <ScanInstructions>Scan this QR code to import this wallet into BlueWallet</ScanInstructions>
+                </ModalContentWrapper>
+              </Modal>
+            </SettingsSection>
+            <SettingsSection>
+              <SettingsSectionLeft>
+                <SettingsItemHeader>View Mnemonic Seed</SettingsItemHeader>
+                <SettingsSubheader>View the mnemonic phrase for this wallet. This can be used to import this wallet data into another application.</SettingsSubheader>
+              </SettingsSectionLeft>
+              <SettingsSectionRight>
+                <ViewAddressesButton onClick={() => { setViewMnemonic(true); }}>View Wallet Mnemonic</ViewAddressesButton>
+              </SettingsSectionRight>
+
+              <Modal
+                isOpen={viewMnemonic}
+                onRequestClose={() => setViewMnemonic(false)}>
+                <ModalContentWrapper>
+                  {getMnemonic()}
+                </ModalContentWrapper>
+              </Modal>
+            </SettingsSection>
+          </Fragment>
+        )
+      }
+      {
+        currentAccount.config.quorum.totalSigners > 1 && (
+          <Fragment>
+            <SettingsHeadingItem>Export Wallet</SettingsHeadingItem>
+            <SettingsSection>
+              <SettingsSectionLeft>
+                <SettingsItemHeader>Download Coldcard File</SettingsItemHeader>
+                <SettingsSubheader>
+                  Download the multisig wallet import file for Coldcard and place on microsd card. <br />
               Import via Settings &gt; Multisig &gt; Import from SD.
             </SettingsSubheader>
-            </SettingsSectionLeft>
-            <SettingsSectionRight>
-              <ViewAddressesButton onClick={() => { downloadColdcardMultisigFile(); }}>Download Coldcard File</ViewAddressesButton>
-            </SettingsSectionRight>
-          </SettingsSection>
-          <SettingsSection>
-            <SettingsSectionLeft>
-              <SettingsItemHeader>Download Caravan File</SettingsItemHeader>
-              <SettingsSubheader>
-                <span>Download this vault's configuration file to use in <UCLink href="https://unchained-capital.com/" target="_blank" rel="noopener noreferrer">Unchained Capital's</UCLink> <UCLink href="https://unchained-capital.github.io/caravan/#/" target="_blank" rel="noopener noreferrer">Caravan</UCLink> multisig coordination software.</span>
-              </SettingsSubheader>
-            </SettingsSectionLeft>
-            <SettingsSectionRight>
-              <ViewAddressesButton onClick={() => { downloadCaravanFile(); }}>Download Caravan File</ViewAddressesButton>
-            </SettingsSectionRight>
-          </SettingsSection>
-        </Fragment>
-      )}
+              </SettingsSectionLeft>
+              <SettingsSectionRight>
+                <ViewAddressesButton onClick={() => { downloadColdcardMultisigFile(); }}>Download Coldcard File</ViewAddressesButton>
+              </SettingsSectionRight>
+            </SettingsSection>
+            <SettingsSection>
+              <SettingsSectionLeft>
+                <SettingsItemHeader>Download Caravan File</SettingsItemHeader>
+                <SettingsSubheader>
+                  <span>Download this vault's configuration file to use in <UCLink href="https://unchained-capital.com/" target="_blank" rel="noopener noreferrer">Unchained Capital's</UCLink> <UCLink href="https://unchained-capital.github.io/caravan/#/" target="_blank" rel="noopener noreferrer">Caravan</UCLink> multisig coordination software.</span>
+                </SettingsSubheader>
+              </SettingsSectionLeft>
+              <SettingsSectionRight>
+                <ViewAddressesButton onClick={() => { downloadCaravanFile(); }}>Download Caravan File</ViewAddressesButton>
+              </SettingsSectionRight>
+            </SettingsSection>
+          </Fragment>
+        )
+      }
       <SettingsHeadingItem>Danger Zone</SettingsHeadingItem>
       <SettingsSection>
         <SettingsSectionLeft>
@@ -286,9 +311,38 @@ const VaultSettings = ({ config, setConfigFile, password, currentAccount, setVie
         </Modal>
 
       </SettingsSection>
-    </Wrapper>
+    </Wrapper >
   )
 }
+
+const SettingsTabs = styled.div`
+  display: flex;
+  border-bottom: 1px solid ${gray200};
+`;
+
+const TabItem = styled.div<{ active: boolean }>`
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 500;
+  border-bottom: 2px solid ${p => p.active ? green500 : 'none'};
+  margin-left: 2rem;
+  cursor: pointer;
+  color: ${p => p.active ? green500 : gray500};
+  font-weight: 600;
+
+  &:nth-child(1) {
+    margin-left: 0;
+  }
+
+  &:hover {
+    border-bottom: 2px solid ${p => p.active ? 'none' : gray300};
+    color: ${p => p.active ? 'inherit' : gray700};
+  }
+`;
 
 const DeleteAccountButton = styled.button`
   ${Button}
@@ -359,15 +413,20 @@ const DangerSubtext = styled.div`
 `;
 
 const Wrapper = styled.div`
+  background: ${white};
+  border-radius: 0.385em;
+  box-shadow: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06);
+  overflow: hidden;
+  padding: 0 2rem;
 `;
 
 const UCLink = styled.a`
-  color: ${darkGray};
+  color: ${gray900};
   font-weight: 400;
   text-decoration: none;
 
   &:visited {
-    color: ${darkGray};
+    color: ${gray900};
   }
 `;
 
@@ -381,8 +440,8 @@ const SettingsSection = styled.div`
   background: ${white};
   align-items: center;
   padding: 2.5em 2em;
-  box-shadow: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06);
-  border-radius: 0.375em;
+  // box-shadow: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06);
+  // border-radius: 0.375em;
 
   ${mobile(css`
     grid-gap: 2em;
@@ -414,7 +473,7 @@ const SettingsSectionRight = styled.div``;
 const SettingsSubheader = styled.div`
   display: flex;
   font-size: 0.875em;
-  color: ${darkGray};
+  color: ${gray500};
   margin: 8px 0;
 `;
 
@@ -427,7 +486,7 @@ const SettingsHeadingItem = styled.h3`
   font-size: 1.5em;
   margin: 64px 0 0;
   font-weight: 400;
-  color: ${darkGray};
+  color: ${gray900};
 `;
 
 const ViewAddressesButton = styled.div`
@@ -441,16 +500,14 @@ const ViewAddressesButton = styled.div`
 const SettingsHeader = styled.div`
   font-size: 2.25em;
   background: ${white};
-  padding: 1em;
-  box-shadow: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06);
-  border-radius: 0.375em;
+  padding: 1em 0;
 `;
 
 const XpubWellWrapper = styled.div`
-  border: 1px solid ${darkOffWhite};
-  background: ${lightGray};
+  border: 1px solid ${gray500};
+  background: ${gray300};
   padding: 1.5em;
-  color: ${darkGreen};
+  color: ${green800};
   display: flex;
   justify-content: center;
   align-items: center;

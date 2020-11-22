@@ -97,11 +97,13 @@ const Vault = ({ config, setConfigFile, password, toggleRefresh, currentBitcoinN
           <AddressesView
             setViewAddresses={setViewAddresses}
             currentAccount={currentAccount}
+            toggleViewSettings={toggleViewSettings}
           />
         ) : (viewSettings && viewUtxos) ? (
           <UtxosView
             setViewUtxos={setViewUtxos}
             currentAccount={currentAccount}
+            toggleViewSettings={toggleViewSettings}
           />
         ) : viewSettings ? (
           <VaultSettings
@@ -112,6 +114,7 @@ const Vault = ({ config, setConfigFile, password, toggleRefresh, currentBitcoinN
             setViewUtxos={setViewUtxos}
             currentBitcoinNetwork={currentBitcoinNetwork}
             password={password}
+            toggleViewSettings={toggleViewSettings}
           />
         ) : (
                 <VaultView
