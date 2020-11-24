@@ -1,5 +1,6 @@
 import React, { Fragment } from 'react';
 import styled from 'styled-components';
+import { useHistory } from "react-router-dom";
 import moment from 'moment';
 import { Alert } from '@styled-icons/ionicons-outline'
 
@@ -12,10 +13,10 @@ import { LilyConfig, NodeConfig, SetStateBoolean } from '../types';
 interface Props {
   config: LilyConfig
   nodeConfig: NodeConfig
-  setPurchaseLicenseModalOpen: SetStateBoolean
 }
 
-export const AlertBar = ({ config, nodeConfig, setPurchaseLicenseModalOpen }: Props) => {
+export const AlertBar = ({ config, nodeConfig }: Props) => {
+  const history = useHistory();
   let blockDiff;
   if (nodeConfig) {
     blockDiff = config.license.expires - nodeConfig.blocks;
@@ -41,7 +42,7 @@ export const AlertBar = ({ config, nodeConfig, setPurchaseLicenseModalOpen }: Pr
           <BuyButton
             background={white}
             color={yellow500}
-            onClick={() => setPurchaseLicenseModalOpen(true)}>
+            onClick={() => history.push('purchase')}>
             Buy a License
         </BuyButton>
         </Container>

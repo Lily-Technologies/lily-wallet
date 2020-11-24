@@ -27,9 +27,12 @@
     ]
   },
   "files": [
-    "./src/utils/transactions.ts"
+    "./src/utils/accountMap.ts"
   ],
   "include": [
     "src"
+  ],
+  "exclude": [
+    "src/__tests__/*"
   ]
 }

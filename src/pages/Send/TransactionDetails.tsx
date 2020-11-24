@@ -13,7 +13,7 @@ import { StyledIcon, Button, SidewaysShake, Dropdown, Modal } from '../../compon
 
 import { gray, green800, darkGray, white, darkOffWhite, green, darkGreen, lightGray, red, lightRed, orange, lightOrange } from '../../utils/colors';
 import { downloadFile, formatFilename } from '../../utils/files';
-import { createUtxoMapFromUtxoArray, getFee } from './utils';
+import { createUtxoMapFromUtxoArray, getFee } from '../../utils/send';
 import { FeeSelector } from './FeeSelector';
 
 import { LilyAccount, UtxoMap, Device, FeeRates } from '../../types';

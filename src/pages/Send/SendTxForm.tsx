@@ -12,7 +12,7 @@ import PastePsbtModalContent from './PastePsbtModalContent';
 
 import { bitcoinNetworkEqual } from '../../utils/files';
 import { white, gray400, red, green600 } from '../../utils/colors';
-import { validateAddress, validateSendAmount, getPsbtFromText } from './utils'
+import { validateAddress, validateSendAmount, getPsbtFromText } from '../../utils/send';
 
 import { SetStateNumber, File } from '../../types';
 

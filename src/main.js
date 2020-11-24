@@ -8,7 +8,7 @@ const Client = require('bitcoin-core');
 
 const { enumerate, getXPub, signtx, promptpin, sendpin } = require('./server/commands');
 const { getRpcInfo } = require('./server/utils')
-const { getDataFromMultisig, getDataFromXPub, getMultisigDescriptor, getAddressFromAccount } = require('./utils/transactions');
+const { getDataFromMultisig, getDataFromXPub, getMultisigDescriptor, getAddressFromAccount } = require('./utils/accountMap.js');
 
 const path = require('path');
 const fs = require('fs');

@@ -19,8 +19,7 @@ interface Props {
   connectToBlockstream: () => void,
   connectToBitcoinCore: () => void,
   getNodeConfig: () => void,
-  resetConfigFile: () => void,
-  setPurchaseLicenseModalOpen: SetStateBoolean
+  resetConfigFile: () => void
 }
 
 export const TitleBar = ({
@@ -31,8 +30,7 @@ export const TitleBar = ({
   connectToBlockstream,
   connectToBitcoinCore,
   getNodeConfig,
-  resetConfigFile,
-  setPurchaseLicenseModalOpen
+  resetConfigFile
 }: Props) => {
   const [nodeConfigModalOpen, setNodeConfigModalOpen] = useState(false);
   const [moreOptionsDropdownOpen, setMoreOptionsDropdownOpen] = useState(false);
@@ -78,7 +76,6 @@ export const TitleBar = ({
   const moreOptionsDropdownItems = [
     { label: 'Support', onClick: () => { console.log('foobar') } },
     { label: 'License', onClick: () => { setLicenseModalOpen(true) } },
-    { label: 'Purchase License', onClick: () => { setPurchaseLicenseModalOpen(true) } },
     { label: 'View source code', onClick: () => { console.log('foobar2') } }
   ];
 

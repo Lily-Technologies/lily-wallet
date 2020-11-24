@@ -10,9 +10,9 @@ import ConfirmTxPage from '../../pages/Send/ConfirmTxPage';
 
 import { AccountMapContext } from '../../AccountMapContext';
 
-import { broadcastTransaction, createTransaction } from '../../pages/Send/utils';
+import { broadcastTransaction, createTransaction } from '../../utils/send';
 import { saveConfig } from '../../utils/files';
-import { black, white, gray100, gray400, gray900 } from '../../utils/colors';
+import { white, gray400, gray900 } from '../../utils/colors';
 
 import { SetStatePsbt, FeeRates, LicenseLevels, LilyConfig, NodeConfig } from '../../types'
 

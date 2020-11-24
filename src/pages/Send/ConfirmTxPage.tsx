@@ -11,9 +11,9 @@ import { AccountMapContext } from '../../AccountMapContext';
 
 import { GridArea, Modal, FileUploader } from '../../components';
 
-import { SetStateNumber, SetStatePsbt, Device, NodeConfig, File, FeeRates } from '../../types';
+import { SetStateNumber, SetStatePsbt, Device, File, FeeRates } from '../../types';
 
-import { getPsbtFromText, getSignedDevicesFromPsbt, combinePsbts, validateTxForAccount } from './utils';
+import { getPsbtFromText, getSignedDevicesFromPsbt, combinePsbts, validateTxForAccount } from '../../utils/send';
 
 interface Props {
   finalPsbt: Psbt

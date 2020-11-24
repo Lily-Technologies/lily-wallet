@@ -9,7 +9,7 @@ import coinSelect from 'coinselect';
 import { Psbt } from 'bitcoinjs-lib';
 
 import { Button, Input } from '../../components';
-import { getFeeForMultisig, getFee } from './utils';
+import { getFeeForMultisig, getFee } from '../../utils/send';
 
 import { gray, blue, darkGray, lightGray, lightBlue, offWhite, green600, white } from '../../utils/colors';
 

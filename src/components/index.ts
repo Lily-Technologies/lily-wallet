@@ -21,7 +21,6 @@ export * from './AnimatedQrCode';
 export * from './ConnectToLilyMobileModal';
 export * from './ScrollToTop';
 export * from './LicenseModal';
-export * from './PurchaseLicenseModal';
 export * from './PurchaseLicenseSuccess';
 export * from './PricingPlanTable';
 export * from './SelectAccountMenu';
