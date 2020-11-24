@@ -1,17 +1,17 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useContext } from 'react';
 import styled from 'styled-components';
 import { AreaChart, Area, ResponsiveContainer, XAxis, YAxis, Tooltip, TooltipPayload } from 'recharts';
 import { satoshisToBitcoins } from "unchained-bitcoin";
 import moment from 'moment';
 import BigNumber from 'bignumber.js';
 
+import { AccountMapContext } from '../../AccountMapContext';
+
 import { Loading } from '../../components';
 
 import RecentTransactions from '../../components/transactions/RecentTransactions';
 
 import { gray, white, darkGray, yellow100, yellow500 } from '../../utils/colors';
-import { LilyAccount } from '../../types';
-
 
 interface TooltipProps {
   active: boolean,
@@ -32,7 +32,8 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
   return null;
 };
 
-const VaultView = ({ currentAccount }: { currentAccount: LilyAccount }) => {
+const VaultView = () => {
+  const { currentAccount } = useContext(AccountMapContext);
   const { currentBalance, transactions } = currentAccount;
   const transactionsCopyForChart = [...transactions];
   const transactionsCopyForRecentTransactions = [...transactions];

@@ -61,6 +61,7 @@ export const GridArea = styled.div`
 export const PageTitle = styled.div`
   font-size: 2em;
   color: ${white};
+  font-weight: 600;
 `;
 
 export const Header = styled.div`

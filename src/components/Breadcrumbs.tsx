@@ -6,22 +6,25 @@ import { Home } from '@styled-icons/heroicons-solid';
 import { gray400, gray500, gray700 } from '../utils/colors';
 
 interface Props {
-  onHomeClick: () => void
+  homeLink: string
   items: {
     text: string
-    onClick: () => void
+    link: string
   }[]
+  className?: string
 }
 
-export const Breadcrumbs = ({ items, onHomeClick }: Props) => {
+export const Breadcrumbs = ({ items, homeLink, className }: Props) => {
   return (
-    <Wrapper>
+    <Wrapper className={className}>
       <ItemsWrapper>
-        <HomeIcon onClick={() => onHomeClick()} />
+        <HomeLinkContainer to={homeLink}>
+          <HomeIcon />
+        </HomeLinkContainer>
         {items.map((item) => (
           <Item>
             <ItemIcon />
-            <ItemLink onClick={() => item.onClick()}>
+            <ItemLink to={item.link}>
               {item.text}
             </ItemLink>
           </Item>
@@ -53,6 +56,8 @@ const ItemIcon = styled(ChevronRight)`
   color: ${gray400};
 `;
 
+const HomeLinkContainer = styled(Link)``;
+
 const HomeIcon = styled(Home)`
   width: 1.25rem;
   height: 1.25rem;
@@ -64,13 +69,14 @@ const HomeIcon = styled(Home)`
   }
 `;
 
-const ItemLink = styled.span`
+const ItemLink = styled(Link)`
   font-size: 0.875rem;
   line-height: 1.25rem;
   font-weight: 500;
   color: ${gray500};
   cursor: pointer;
   margin-left: 1rem;
+  text-decoration: none;
 
   &:hover {
     color: ${gray700};

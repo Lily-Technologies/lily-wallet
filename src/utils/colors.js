@@ -2,6 +2,7 @@ import lighten from 'polished/lib/color/lighten';
 import darken from 'polished/lib/color/darken';
 // import shade from 'polished/lib/color/shade';
 
+export const gray50 = '#f9fafb';
 export const gray100 = '#f7fafc';
 export const gray200 = '#edf2f7';
 export const gray300 = '#e2e8f0';

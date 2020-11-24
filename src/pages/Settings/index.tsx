@@ -3,9 +3,15 @@ import styled, { css } from 'styled-components';
 import { AES } from 'crypto-js';
 import { Network } from 'bitcoinjs-lib';
 
-import { PageWrapper, PageTitle, Header, HeaderLeft, Button, Modal, Input } from '../../components';
+import { PageWrapper, PageTitle, Header, HeaderLeft, HeaderRight, Button, Modal, Input } from '../../components';
 
-import { green600, green800, darkGray, white, gray100, darkOffWhite, lightGray, gray } from '../../utils/colors';
+import {
+  green600, green800, darkGray, white, gray100, darkOffWhite, lightGray, gray, green500,
+  gray500,
+  gray200,
+  gray300,
+  gray700
+} from '../../utils/colors';
 import { downloadFile, formatFilename } from '../../utils/files';
 import { mobile } from '../../utils/media';
 
@@ -29,6 +35,20 @@ const Settings = ({ config, currentBitcoinNetwork }: { config: LilyConfig, curre
           </HeaderLeft>
         </Header>
         <ValueWrapper>
+          <SettingsTabs>
+            <TabItem active={true}>
+              Configuration
+            </TabItem>
+            <TabItem active={false}>
+              Mobile App
+            </TabItem>
+            <TabItem active={false}>
+              Backups
+            </TabItem>
+            <TabItem active={false}>
+              License
+            </TabItem>
+          </SettingsTabs>
           <SettingsHeadingItem style={{ marginTop: '0.5em' }}>Data and Backups</SettingsHeadingItem>
           <SettingsSection>
             <SettingsSectionLeft>
@@ -64,9 +84,38 @@ const Settings = ({ config, currentBitcoinNetwork }: { config: LilyConfig, curre
           </ModalContentContainer>
         </Modal>
       </Fragment>
-    </PageWrapper>
+    </PageWrapper >
   )
 };
+
+const SettingsTabs = styled.div`
+  display: flex;
+  border-bottom: 1px solid ${gray200};
+`;
+
+const TabItem = styled.div<{ active: boolean }>`
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 500;
+  border-bottom: 2px solid ${p => p.active ? green500 : 'none'};
+  margin-left: 2rem;
+  cursor: pointer;
+  color: ${p => p.active ? green500 : gray500};
+  font-weight: 600;
+
+  &:nth-child(1) {
+    margin-left: 0;
+  }
+
+  &:hover {
+    border-bottom: 2px solid ${p => p.active ? 'none' : gray300};
+    color: ${p => p.active ? 'inherit' : gray700};
+  }
+`;
 
 const ModalContentContainer = styled.div`
   display: flex;

@@ -41,6 +41,33 @@ export const PricingPlanTable = ({ clickRenewLicense }: Props) => {
               <PriceSubtext>/year</PriceSubtext>
             </TableColumn>
           </TableRow>
+          <TableRow>
+            <PurchaseColumn />
+            <PurchaseColumn>
+              <PurchaseButton
+                onClick={() => clickRenewLicense(LicenseLevels.basic)}
+                background={green700}
+                color={white}>
+                Buy Basic
+          </PurchaseButton>
+            </PurchaseColumn>
+            <PurchaseColumn>
+              <PurchaseButton
+                onClick={() => clickRenewLicense(LicenseLevels.essential)}
+                background={green700}
+                color={white}>
+                Buy Essential
+          </PurchaseButton>
+            </PurchaseColumn>
+            <PurchaseColumn>
+              <PurchaseButton
+                onClick={() => clickRenewLicense(LicenseLevels.premium)}
+                background={green700}
+                color={white}>
+                Buy Premium
+          </PurchaseButton>
+            </PurchaseColumn>
+          </TableRow>
           <FeatureRow>
             <BoldTableColumn>Features</BoldTableColumn>
             <TableColumn />
@@ -48,8 +75,20 @@ export const PricingPlanTable = ({ clickRenewLicense }: Props) => {
             <TableColumn />
           </FeatureRow>
           <TableRow>
-            <TableColumn>Multisig Wallets</TableColumn>
+            <TableColumn>Single Signature Hardware Wallets</TableColumn>
             <TableColumn><CheckMark /></TableColumn>
+            <TableColumn><CheckMark /></TableColumn>
+            <TableColumn><CheckMark /></TableColumn>
+          </TableRow>
+          <TableRow>
+            <TableColumn>2-of-3 Multisig Vaults</TableColumn>
+            <TableColumn><CheckMark /></TableColumn>
+            <TableColumn><CheckMark /></TableColumn>
+            <TableColumn><CheckMark /></TableColumn>
+          </TableRow>
+          <TableRow>
+            <TableColumn>3-of-5 Multisig Vaults</TableColumn>
+            <TableColumn><DashIcon /></TableColumn>
             <TableColumn><CheckMark /></TableColumn>
             <TableColumn><CheckMark /></TableColumn>
           </TableRow>
@@ -59,8 +98,20 @@ export const PricingPlanTable = ({ clickRenewLicense }: Props) => {
             <TableColumn><CheckMark /></TableColumn>
             <TableColumn><CheckMark /></TableColumn>
           </TableRow>
+          <FeatureRow>
+            <BoldTableColumn>Support</BoldTableColumn>
+            <TableColumn />
+            <TableColumn />
+            <TableColumn />
+          </FeatureRow>
           <TableRow>
-            <TableColumn>Phone / Chat / Zoom Support</TableColumn>
+            <TableColumn>Email Support</TableColumn>
+            <TableColumn><CheckMark /></TableColumn>
+            <TableColumn><CheckMark /></TableColumn>
+            <TableColumn><CheckMark /></TableColumn>
+          </TableRow>
+          <TableRow>
+            <TableColumn>Phone / Zoom Support</TableColumn>
             <TableColumn><DashIcon /></TableColumn>
             <TableColumn><DashIcon /></TableColumn>
             <TableColumn><CheckMark /></TableColumn>
@@ -94,13 +145,6 @@ export const PricingPlanTable = ({ clickRenewLicense }: Props) => {
           </TableRow>
         </TableBody>
       </Table>
-      <Buttons>
-        <RenewButton
-          color={gray900}
-          background={white}>
-          Questions? Call (970) 425-0282
-          </RenewButton>
-      </Buttons>
     </Fragment>
   )
 }
@@ -115,6 +159,7 @@ const Table = styled.table`
   height: 1px;
   border: none;
   background: ${white};
+  border-collapse: collapse;
 `;
 
 const TableHeader = styled.thead``;
@@ -171,17 +216,4 @@ const PriceSubtext = styled.span`
   line-height: 1.5rem;
   font-size: 1rem;
   font-weight: 500;
-`;
-
-const Buttons = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 1em;
-`;
-
-const RenewButton = styled.button`
-  ${Button};
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  border: 1px solid ${gray400};
-  marginRight: 1em;
 `;
