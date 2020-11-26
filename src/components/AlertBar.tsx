@@ -8,7 +8,7 @@ import { Button } from '.';
 
 import { white, yellow500, yellow600 } from '../utils/colors';
 
-import { LilyConfig, NodeConfig, SetStateBoolean } from '../types';
+import { LilyConfig, NodeConfig } from '../types';
 
 interface Props {
   config: LilyConfig

@@ -1,5 +1,4 @@
-import React, { Fragment, useContext } from 'react';
-import styled from 'styled-components';
+import React, { useContext } from 'react';
 
 import { AccountMapContext } from '../../../AccountMapContext';
 

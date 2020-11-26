@@ -4,7 +4,7 @@ import { CheckCircle } from '@styled-icons/material';
 
 import { LicenseInformation, StyledIcon } from '.';
 
-import { green500, gray700 } from '../utils/colors';
+import { white, green500, gray700 } from '../utils/colors';
 
 import { LilyConfig, NodeConfig } from '../types'
 
@@ -33,6 +33,9 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  background: ${white};
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  border-radius: 0.875em;
 `;
 
 const IconWrapper = styled.div``;

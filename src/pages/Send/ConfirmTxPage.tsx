@@ -1,5 +1,4 @@
 import React, { useState, useContext, useEffect, useRef } from 'react';
-import styled from 'styled-components';
 import { Psbt, Network } from 'bitcoinjs-lib';
 import BigNumber from 'bignumber.js';
 
@@ -9,7 +8,7 @@ import PsbtQrCode from './PsbtQrCode';
 
 import { AccountMapContext } from '../../AccountMapContext';
 
-import { GridArea, Modal, FileUploader } from '../../components';
+import { GridArea, Modal, FileUploader, ErrorModal } from '../../components';
 
 import { SetStateNumber, SetStatePsbt, Device, File, FeeRates } from '../../types';
 
@@ -23,7 +22,7 @@ interface Props {
   setStep?: SetStateNumber
   currentBitcoinPrice: any
   currentBitcoinNetwork: Network
-  createTransactionAndSetState: (_recipientAddress: string, _sendAmount: string, _fee: BigNumber) => Promise<Psbt>
+  createTransactionAndSetState?: (_recipientAddress: string, _sendAmount: string, _fee: BigNumber) => Promise<Psbt> // if not passed in, then no adjusting fee
 }
 
 const ConfirmTxPage = ({
@@ -41,7 +40,6 @@ const ConfirmTxPage = ({
   const fileUploadLabelRef = useRef<HTMLLabelElement>(null);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
-  const [importSignatureFromFileError, setImportSignatureFromFileError] = useState('');
 
   // if the finalPsbt has signatures on it already, update signed device view
   useEffect(() => {
@@ -50,7 +48,7 @@ const ConfirmTxPage = ({
       setSignedDevices(signedDevicesObjects);
     }
     // signTransactionIfSingleSigner(finalPsbt);
-  }, [finalPsbt])
+  }, [finalPsbt, currentAccount.config.extendedPublicKeys, currentAccount.config.quorum.requiredSigners])
 
   const openInModal = (component: JSX.Element) => {
     setModalIsOpen(true);
@@ -92,7 +90,7 @@ const ConfirmTxPage = ({
       setFinalPsbt(combinedPsbt);
     } catch (e) {
       console.log('e: ', e);
-      setImportSignatureFromFileError(e.message);
+      openInModal(<ErrorModal message={e.message} />)
     }
   }
 
@@ -138,14 +136,5 @@ const ConfirmTxPage = ({
     </GridArea>
   )
 }
-
-const AccountSendContentRight = styled.div`
-  min-height: 400px;
-  padding: 0;
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  width: 100%;
-`;
 
 export default ConfirmTxPage;

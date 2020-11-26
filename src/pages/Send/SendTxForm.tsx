@@ -31,8 +31,8 @@ const SendTxForm = ({
   createTransactionAndSetState,
   currentBitcoinNetwork,
 }: Props) => {
-  const [recipientAddress, setRecipientAddress] = useState(finalPsbt && finalPsbt.txOutputs[0].address || '');
-  const [sendAmount, setSendAmount] = useState(finalPsbt && satoshisToBitcoins(finalPsbt.txOutputs[0].value).toString() || '');
+  const [recipientAddress, setRecipientAddress] = useState(finalPsbt && finalPsbt.txOutputs[0].address || ''); // eslint-disable-line
+  const [sendAmount, setSendAmount] = useState(finalPsbt && satoshisToBitcoins(finalPsbt.txOutputs[0].value).toString() || ''); // eslint-disable-line
   const [optionsDropdownOpen, setOptionsDropdownOpen] = useState(false);
   const [sendAmountError, setSendAmountError] = useState(false);
   const [recipientAddressError, setRecipientAddressError] = useState(false);

@@ -1,6 +1,6 @@
 import React, { useContext, Fragment } from 'react';
 import styled from 'styled-components';
-import { Link, useRouteMatch } from "react-router-dom";
+import { Link, useRouteMatch, useHistory } from "react-router-dom";
 import { VerticalAlignBottom, ArrowUpward, Settings, Refresh } from '@styled-icons/material';
 
 import { AccountMapContext } from '../../AccountMapContext';
@@ -15,13 +15,14 @@ interface Props {
 
 const SettingsHeader = ({ toggleRefresh }: Props) => {
   const { currentAccount } = useContext(AccountMapContext);
+  const history = useHistory();
   let { url } = useRouteMatch();
   console.log(`${url}/settings`)
 
   return (
     <Header>
       <HeaderLeft>
-        <PageTitle>{currentAccount.name}</PageTitle>
+        <PageTitle style={{ cursor: 'pointer' }} onClick={() => history.push(url)}>{currentAccount.name}</PageTitle>
         <VaultExplainerText>
           {currentAccount.config.quorum.totalSigners > 1 && (
             <Fragment>
@@ -106,11 +107,11 @@ const RefreshButton = styled.button`
 
 const VaultExplainerText = styled.div`
   color: ${gray300};
-  font-size: .75em;
   display: flex;
   align-items: center;
-  font-size: 1em;
-    margin-top: .5em;
+  margin-top: .5em;
+  font-weight: 600;
+  font-size: 0.85em;
 `;
 
 export default SettingsHeader;

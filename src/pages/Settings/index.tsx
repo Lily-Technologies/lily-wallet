@@ -3,10 +3,10 @@ import styled, { css } from 'styled-components';
 import { AES } from 'crypto-js';
 import { Network } from 'bitcoinjs-lib';
 
-import { PageWrapper, PageTitle, Header, HeaderLeft, HeaderRight, Button, Modal, Input } from '../../components';
+import { PageWrapper, PageTitle, Header, HeaderLeft, Button, Modal, Input } from '../../components';
 
 import {
-  green600, green800, darkGray, white, gray100, darkOffWhite, lightGray, gray, green500,
+  green600, green800, darkGray, white, gray100, green500,
   gray500,
   gray200,
   gray300,
@@ -195,33 +195,6 @@ const PasswordWrapper = styled.div`
 
 const PasswordText = styled.h3`
   font-weight: 400;
-`;
-
-const PasswordInput = styled.input`
-  position: relative;
-  border: 1px solid ${darkOffWhite};
-  background: ${lightGray};
-  padding: .75em;
-  text-align: center;
-  color: ${darkGray};
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 1em;
-  border-radius: 4px;
-  font-size: 1.5em;
-  z-index: 1;
-  flex: 1;
-  font-family: 'Montserrat', sans-serif;
-
-  ::placeholder {
-    color: ${gray};
-  }
-
-  :active, :focused {
-    outline: 0;
-    border: none;
-  }
 `;
 
 const SaveWalletButton = styled.div`

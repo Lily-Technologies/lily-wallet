@@ -11,7 +11,7 @@ import { address, Psbt, Network } from 'bitcoinjs-lib';
 import { cloneBuffer } from '../../utils/other';
 import { StyledIcon, Button, SidewaysShake, Dropdown, Modal } from '../../components';
 
-import { gray, green800, darkGray, white, darkOffWhite, green, darkGreen, lightGray, red, lightRed, orange, lightOrange } from '../../utils/colors';
+import { gray, green800, darkGray, white, darkOffWhite, green, darkGreen, lightGray, orange, lightOrange } from '../../utils/colors';
 import { downloadFile, formatFilename } from '../../utils/files';
 import { createUtxoMapFromUtxoArray, getFee } from '../../utils/send';
 import { FeeSelector } from './FeeSelector';
@@ -28,7 +28,7 @@ interface Props {
   signedDevices: Device[],
   setStep?: React.Dispatch<React.SetStateAction<number>>,
   currentBitcoinPrice: any // KBC-TODO: change to be more specific
-  createTransactionAndSetState: (_recipientAddress: string, _sendAmount: string, _fee: BigNumber) => Promise<Psbt>,
+  createTransactionAndSetState?: (_recipientAddress: string, _sendAmount: string, _fee: BigNumber) => Promise<Psbt>,
   currentBitcoinNetwork: Network
 }
 
@@ -73,7 +73,7 @@ const TransactionDetails = ({
       { label: 'Save transaction to file', onClick: () => { downloadPsbt() } },
     ];
 
-    if (setStep !== undefined && (!signedDevices.length || currentAccount.config.mnemonic)) {
+    if (setStep !== undefined && createTransactionAndSetState && (!signedDevices.length || currentAccount.config.mnemonic)) {
       dropdownItems.unshift(
         {
           label: 'Adjust Fee', onClick: () => {
@@ -102,7 +102,7 @@ const TransactionDetails = ({
       );
     }
 
-    if (setStep !== undefined && !signedDevices.length || currentAccount.config.mnemonic) {
+    if (setStep !== undefined && !signedDevices.length || currentAccount.config.mnemonic) { // eslint-disable-line
       dropdownItems.unshift(
         { label: 'Edit Transaction', onClick: () => setStep && setStep(0) }
       )

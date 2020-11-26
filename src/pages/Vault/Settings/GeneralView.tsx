@@ -1,141 +1,190 @@
-import React, { Fragment, useContext, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import styled, { css } from 'styled-components';
-import { ExclamationDiamond } from '@styled-icons/bootstrap'
-import { useHistory } from "react-router-dom";
+import moment from 'moment';
+import { Network } from 'bitcoinjs-lib';
 
-import { Modal, Input, StyledIcon, Button } from '../../../components';
+import { Modal, Button } from '../../../components';
+
+import DeleteAccountModal from './DeleteAccountModal';
+import EditAccountNameModal from './EditAccountNameModal';
+import DeviceDetailsModal from './DeviceDetailsModal';
 
 import { AccountMapContext } from '../../../AccountMapContext';
 import { LilyConfig } from '../../../types';
 
 import { mobile } from '../../../utils/media';
-import { saveConfig } from '../../../utils/files';
-import { white, red, red100, red500, red600, green800, gray500, gray900 } from '../../../utils/colors';
+import { white, red500, green500, gray200, gray500, gray900 } from '../../../utils/colors';
 
 interface Props {
   config: LilyConfig,
   setConfigFile: React.Dispatch<React.SetStateAction<LilyConfig>>,
   password: string
+  currentBitcoinNetwork: Network
 }
 
-const GeneralView = ({ config, setConfigFile, password }: Props) => {
-  const [viewDeleteAccount, setViewDeleteAccount] = useState(false);
-  const [accountNameConfirm, setAccountNameConfirm] = useState('');
-  const [accountNameConfirmError, setAccountNameConfirmError] = useState(false);
+const GeneralView = ({ config, setConfigFile, password, currentBitcoinNetwork }: Props) => {
   const { currentAccount } = useContext(AccountMapContext);
-  const history = useHistory();
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
 
-  const onInputEnter = (e: React.KeyboardEvent<Element>) => {
-    if (e.key === 'Enter') {
-      removeAccountAndDownloadConfig();
-    }
+  const openInModal = (component: JSX.Element) => {
+    setModalIsOpen(true);
+    setModalContent(component);
   }
 
-  const removeAccountAndDownloadConfig = () => {
-    if (accountNameConfirm === currentAccount.config.name) {
-      const configCopy = { ...config };
-      if (currentAccount.config.quorum.totalSigners === 1) {
-        configCopy.wallets = configCopy.wallets.filter((wallet) => wallet.id !== currentAccount.config.id)
-      } else {
-        configCopy.vaults = configCopy.vaults.filter((vault) => vault.id !== currentAccount.config.id)
-      }
-
-      saveConfig(configCopy, password);
-      setConfigFile({ ...configCopy });
-      history.push('/');
-    } else {
-      setAccountNameConfirmError(true);
-    }
+  const closeModal = () => {
+    setModalIsOpen(false);
+    setModalContent(null);
   }
 
   return (
-    <Fragment>
-      <SettingsHeadingItem>Danger Zone</SettingsHeadingItem>
-      <SettingsSection>
-        <SettingsSectionLeft>
-          <SettingsItemHeader>Delete Account</SettingsItemHeader>
-          <SettingsSubheader>Remove this account from your list of accounts.</SettingsSubheader>
-        </SettingsSectionLeft>
-        <SettingsSectionRight>
-          <ViewAddressesButton
-            style={{ color: red, border: `1px solid ${red}` }}
-            onClick={() => {
-              setViewDeleteAccount(true)
-            }}>Delete Account</ViewAddressesButton>
-        </SettingsSectionRight>
+    <GeneralSection>
+      <HeaderSection>
+        <HeaderTitle>Account Information</HeaderTitle>
+        <HeaderSubtitle>This information is private and only seen by you.</HeaderSubtitle>
+      </HeaderSection>
 
-        <Modal
-          isOpen={viewDeleteAccount}
-          onRequestClose={() => setViewDeleteAccount(false)}>
-          <ModalContentWrapper>
-            <DangerIconContainer>
-              <StyledIconCircle>
-                <StyledIcon style={{ color: red600 }} as={ExclamationDiamond} size={36} />
-              </StyledIconCircle>
-            </DangerIconContainer>
-            <DangerTextContainer>
-              <DangerText>Delete Account</DangerText>
-              <DangerSubtext>
-                You are about to delete an account from this configuration.
-             <br />
-             If there are any funds remaining in this account, they will be lost forever.
-             </DangerSubtext>
-              <Input
-                label="Type in the account's name to delete"
-                autoFocus
-                type="text"
-                value={accountNameConfirm}
-                onChange={setAccountNameConfirm}
-                onKeyDown={(e) => onInputEnter(e)}
-                error={accountNameConfirmError}
-              />
-              {accountNameConfirmError && <ConfirmError>Account name doesn't match</ConfirmError>}
+      <ProfileRow>
+        <ProfileKeyColumn>Name</ProfileKeyColumn>
+        <ProfileValueColumn>
+          <ProfileValueText>{currentAccount.config.name}</ProfileValueText>
+          <ProfileValueAction>
+            <ActionButton
+              background={white}
+              color={green500}
+              onClick={() => openInModal(<EditAccountNameModal config={config} setConfigFile={setConfigFile} password={password} closeModal={closeModal} />)}
+            >Edit</ActionButton>
+          </ProfileValueAction>
+        </ProfileValueColumn>
+      </ProfileRow>
+      <ProfileRow>
+        <ProfileKeyColumn>Created</ProfileKeyColumn>
+        <ProfileValueColumn>
+          <ProfileValueText>{moment(currentAccount.config.created_at).format('MMMM Do YYYY')}</ProfileValueText>
+          <ProfileValueAction>
+          </ProfileValueAction>
+        </ProfileValueColumn>
+      </ProfileRow>
 
-              <DeleteAccountButton
-                background={red600}
-                color={white}
-                onClick={() => { removeAccountAndDownloadConfig() }}>
-                Delete Account
-              </DeleteAccountButton>
-            </DangerTextContainer>
-          </ModalContentWrapper>
-        </Modal>
-      </SettingsSection>
-    </Fragment>
+      <HeaderSection>
+        <HeaderTitle>Device Information</HeaderTitle>
+        <HeaderSubtitle>Information about the devices that approve transactions for this account.</HeaderSubtitle>
+      </HeaderSection>
+      {currentAccount.config.extendedPublicKeys?.map((item) => (
+        <ProfileRow>
+          <ProfileKeyColumn>{item.device.fingerprint}</ProfileKeyColumn>
+          <ProfileValueColumn>
+            <ProfileValueText>{item.device.type.charAt(0).toUpperCase() + item.device.type.slice(1)}</ProfileValueText>
+            <ProfileValueAction>
+              <ActionButton
+                background={white}
+                color={green500}
+                onClick={() => openInModal(<DeviceDetailsModal item={item} currentBitcoinNetwork={currentBitcoinNetwork} />)}
+              >
+                View Details
+              </ActionButton>
+            </ProfileValueAction>
+          </ProfileValueColumn>
+        </ProfileRow>
+      ))}
+
+      <HeaderSection>
+        <HeaderTitle>Danger Zone</HeaderTitle>
+        <HeaderSubtitle>Remove this account from Lily Wallet.</HeaderSubtitle>
+      </HeaderSection>
+      <ProfileRow>
+        <ProfileKeyColumn>Delete Account</ProfileKeyColumn>
+        <ProfileValueColumn>
+          <ProfileValueText></ProfileValueText>
+          <ProfileValueAction>
+            <ActionButton
+              background={white}
+              color={red500}
+              onClick={() => openInModal(<DeleteAccountModal config={config} setConfigFile={setConfigFile} password={password} />)}>
+              Delete
+            </ActionButton>
+          </ProfileValueAction>
+        </ProfileValueColumn>
+      </ProfileRow>
+      <Modal
+        isOpen={modalIsOpen}
+        onRequestClose={() => closeModal()}>
+        <ModalContentWrapper>
+          {modalContent}
+        </ModalContentWrapper>
+      </Modal>
+    </GeneralSection>
   )
 }
 
-const SettingsSection = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin: 1em 0;
-  justify-content: space-between;
+const HeaderSection = styled.div`
+  margin-top: 2.5rem;
+  margin-bottom: 1em;
 `;
 
-const DeleteAccountButton = styled.button`
-  ${Button}
-  margin-top: 1rem;
+const HeaderTitle = styled.h3`
+  color: ${gray900};
+  line-height: 1.5rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0;
+  margin-bottom: 0.5em;
+`;
+
+const HeaderSubtitle = styled.span`
+  color: ${gray500};
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 500;
+  max-width: 42rem;
+`;
+
+const GeneralSection = styled.div`
+  padding: 0.5em 1.5em;
+`;
+
+const ProfileRow = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  padding-top: 1.25rem;
+  padding-bottom: 1.25rem;
+  border-top: 1px solid ${gray200};
 
   ${mobile(css`
-  margin-top: 1.25rem;
-  `)};
+    display: block;
+  `)}
 `;
 
-const ConfirmError = styled.div`
-  color: ${red500};
-`;
-
-const DangerTextContainer = styled.div`
+const ProfileKeyColumn = styled.div`
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: ${gray500};
+  font-weight: 600;
+  align-items: center;
   display: flex;
+`;
+
+const ProfileValueColumn = styled.div`
+  grid-column: span 2 / span 2;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: ${gray900};
+  display: flex;
+  align-items: center;
+`;
+
+const ProfileValueText = styled.span`
   flex: 1;
-  align-items: flex-start;
-  flex-direction: column;
-  margin-left: 1rem;
+`;
 
-  ${mobile(css`
-    margin-top: 0.75rem;
-    margin-left: 0;
-  `)};
+const ProfileValueAction = styled.span`
+  margin-left: 1rem;
+`;
+
+const ActionButton = styled.button`
+  ${Button};
+  font-weight: 600;
 `;
 
 const ModalContentWrapper = styled.div`
@@ -154,67 +203,6 @@ const ModalContentWrapper = styled.div`
     padding-right: 1em;
     margin-left: 0;
   `)};  
-`;
-
-const DangerIconContainer = styled.div``;
-
-const StyledIconCircle = styled.div`
-  border-radius: 9999px;
-  background: ${red100};
-  width: 3rem;
-  height: 3rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`;
-
-const DangerText = styled.div`
-  font-size: 1.125rem;
-  text-align: center;
-  font-weight: 500;
-`;
-
-const DangerSubtext = styled.div`
-  padding-bottom: 2em;
-  margin-top: 0.5rem;
-  color: ${gray500};
-`;
-
-const SettingsSectionLeft = styled.div`
-  grid-column: span 2;
-
-  ${mobile(css`
-    grid-column: span 1;
-  `)};
-`;
-
-const SettingsSectionRight = styled.div``;
-
-const SettingsSubheader = styled.div`
-  display: flex;
-  font-size: 0.875em;
-  color: ${gray500};
-  margin: 8px 0;
-`;
-
-const SettingsItemHeader = styled.div`
-  display: flex;
-  font-size: 1.125em;
-`;
-
-const SettingsHeadingItem = styled.h3`
-  font-size: 1.5em;
-  margin: 64px 0 0;
-  font-weight: 400;
-  color: ${gray900};
-`;
-
-const ViewAddressesButton = styled.div`
-  border: 1px solid ${green800};
-  padding: 1.5em;
-  border-radius: 4px;
-  text-align: center;
-  cursor: pointer;
 `;
 
 export default GeneralView;

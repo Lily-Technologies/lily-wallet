@@ -58,7 +58,6 @@ const App = () => {
   const [nodeConfig, setNodeConfig] = useState<NodeConfig | undefined>(undefined);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [password, setPassword] = useState('');
-  const [purchaseLicenseModalOpen, setPurchaseLicenseModalOpen] = useState(false);
 
   const { setAccountMap, updateAccountMap, accountMap } = useContext(AccountMapContext);
   console.log('accountMap: ', accountMap);

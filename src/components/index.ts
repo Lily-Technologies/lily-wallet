@@ -27,5 +27,6 @@ export * from './SelectAccountMenu';
 export * from './LicenseInformation';
 export * from './AlertBar';
 export * from './Breadcrumbs';
+export * from './ErrorModal';
 
 export * from './layout';

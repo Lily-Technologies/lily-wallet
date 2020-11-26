@@ -1,4 +1,3 @@
-import React from 'react';
 import styled from 'styled-components';
 
 import { gray50, gray100, gray300, gray600, gray700 } from '../utils/colors';

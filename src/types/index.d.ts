@@ -199,6 +199,18 @@ export interface AddressMap {
 export interface UtxoMap {
   [id: string]: UTXO
 }
+
+export interface PaymentAddressResponse {
+  childPath: string
+  address: string
+  basic: number
+  essential: number
+  premium: number
+}
+export interface LicenseResponse {
+  license: string
+  signature: string
+}
 export interface LilyLicense {
   trial: boolean
   expires: number

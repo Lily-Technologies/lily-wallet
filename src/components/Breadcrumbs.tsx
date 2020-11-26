@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { ChevronRight } from '@styled-icons/boxicons-regular'
 import { Home } from '@styled-icons/heroicons-solid';
 import { gray400, gray500, gray700 } from '../utils/colors';

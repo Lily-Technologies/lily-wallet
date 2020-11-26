@@ -5,13 +5,13 @@ import { QRCode } from "react-qr-svg";
 
 import { AccountMapContext } from '../../../AccountMapContext';
 
-import { MnemonicWordsDisplayer, Modal } from '../../../components';
-import { white, black, gray500, gray900, green800 } from '../../../utils/colors';
+import { MnemonicWordsDisplayer, Modal, Button } from '../../../components';
+import { white, black, gray200, gray500, gray900, green500 } from '../../../utils/colors';
 
 import { CaravanConfig } from '../../../types';
 
 import { mobile } from '../../../utils/media';
-import { createColdCardBlob, downloadFile, formatFilename, saveConfig, getMultisigDeriationPathForNetwork } from '../../../utils/files';
+import { createColdCardBlob, downloadFile, formatFilename, getMultisigDeriationPathForNetwork } from '../../../utils/files';
 
 interface Props {
   currentBitcoinNetwork: Network
@@ -91,94 +91,153 @@ const ExportView = ({ currentBitcoinNetwork }: Props) => {
         onRequestClose={() => closeModal()}>
         {modalContent as React.ReactChild}
       </Modal>
-      {currentAccount.config.mnemonic && (
-        <Fragment>
-          <SettingsHeadingItem>Export Wallet</SettingsHeadingItem>
-          <SettingsSection>
-            <SettingsSectionLeft>
-              <SettingsItemHeader>Connect to BlueWallet</SettingsItemHeader>
-              <SettingsSubheader>View a QR code to import this wallet into BlueWallet</SettingsSubheader>
-            </SettingsSectionLeft>
-            <SettingsSectionRight>
-              <ViewAddressesButton onClick={() => { openInModal(<MnemonicQrCode />); }}>View QR Code</ViewAddressesButton>
-            </SettingsSectionRight>
-          </SettingsSection>
-          <SettingsSection>
-            <SettingsSectionLeft>
-              <SettingsItemHeader>View Mnemonic Seed</SettingsItemHeader>
-              <SettingsSubheader>View the mnemonic phrase for this wallet. This can be used to import this wallet data into another application.</SettingsSubheader>
-            </SettingsSectionLeft>
-            <SettingsSectionRight>
-              <ViewAddressesButton onClick={() => {
-                openInModal(
-                  <WordsContainer>
-                    <MnemonicWordsDisplayer mnemonicWords={currentAccount.config.mnemonic!} />
-                  </WordsContainer>
-                );
-              }}>View Wallet Mnemonic</ViewAddressesButton>
-            </SettingsSectionRight>
-          </SettingsSection>
-        </Fragment>
-      )}
-      {currentAccount.config.quorum.totalSigners > 1 && (
-        <Fragment>
-          <SettingsHeadingItem>Export Wallet</SettingsHeadingItem>
-          <SettingsSection>
-            <SettingsSectionLeft>
-              <SettingsItemHeader>Download Coldcard File</SettingsItemHeader>
-              <SettingsSubheader>
-                Download the multisig wallet import file for Coldcard and place on microsd card. <br />
-              Import via Settings &gt; Multisig &gt; Import from SD.
-            </SettingsSubheader>
-            </SettingsSectionLeft>
-            <SettingsSectionRight>
-              <ViewAddressesButton onClick={() => { downloadColdcardMultisigFile(); }}>Download Coldcard File</ViewAddressesButton>
-            </SettingsSectionRight>
-          </SettingsSection>
-          <SettingsSection>
-            <SettingsSectionLeft>
-              <SettingsItemHeader>Download Caravan File</SettingsItemHeader>
-              <SettingsSubheader>
-                <span>Download this vault's configuration file to use in <UnchainedCapitalLink href="https://unchained-capital.com/" target="_blank" rel="noopener noreferrer">Unchained Capital's</UnchainedCapitalLink> <UnchainedCapitalLink href="https://unchained-capital.github.io/caravan/#/" target="_blank" rel="noopener noreferrer">Caravan</UnchainedCapitalLink> multisig coordination software.</span>
-              </SettingsSubheader>
-            </SettingsSectionLeft>
-            <SettingsSectionRight>
-              <ViewAddressesButton onClick={() => { downloadCaravanFile(); }}>Download Caravan File</ViewAddressesButton>
-            </SettingsSectionRight>
-          </SettingsSection>
-        </Fragment>
-      )}
-      {currentAccount.config.quorum.totalSigners === 1 && (
-        <SettingsSection>
-          <SettingsSectionLeft>
-            <SettingsItemHeader>View XPub</SettingsItemHeader>
-            <SettingsSubheader>View the xpub associated with this vault. This can be given to other services to deposit money into your account or create a read-only wallet.</SettingsSubheader>
-          </SettingsSectionLeft>
-          <SettingsSectionRight>
-            <ViewAddressesButton onClick={() => { openInModal(<XpubQrCode />); }}>View XPub</ViewAddressesButton>
-          </SettingsSectionRight>
-        </SettingsSection>
-      )}
-    </Fragment>
+      <GeneralSection>
+        <HeaderSection>
+          <HeaderTitle>Export Account</HeaderTitle>
+          <HeaderSubtitle>Some users wish to verify the information in Lily with other software. Use the options below to use other software to verify the information in Lily.</HeaderSubtitle>
+        </HeaderSection>
+        {currentAccount.config.mnemonic && (
+          <ProfileRow>
+            <ProfileKeyColumn>Mnemonic Words</ProfileKeyColumn>
+            <ProfileValueColumn>
+              <ProfileValueText></ProfileValueText>
+              <ProfileValueAction>
+                <ActionButton
+                  background={white}
+                  color={green500}
+                  onClick={() => { openInModal(<MnemonicQrCode />); }}
+                >QR Code</ActionButton>
+                <ActionButton
+                  background={white}
+                  color={green500}
+                  onClick={() => openInModal(
+                    <WordsContainer>
+                      <MnemonicWordsDisplayer mnemonicWords={currentAccount.config.mnemonic!} />
+                    </WordsContainer>
+                  )}>View</ActionButton>
+              </ProfileValueAction>
+            </ProfileValueColumn>
+          </ProfileRow>
+        )}
+        {currentAccount.config.quorum.totalSigners > 1 && (
+          <Fragment>
+            <ProfileRow>
+              <ProfileKeyColumn>Coldcard Export File</ProfileKeyColumn>
+              <ProfileValueColumn>
+                <ProfileValueText></ProfileValueText>
+                <ProfileValueAction>
+                  <ActionButton
+                    background={white}
+                    color={green500}
+                    onClick={() => { downloadColdcardMultisigFile(); }}
+                  >Download</ActionButton>
+                </ProfileValueAction>
+              </ProfileValueColumn>
+            </ProfileRow>
+            <ProfileRow>
+              <ProfileKeyColumn>Caravan File</ProfileKeyColumn>
+              <ProfileValueColumn>
+                <ProfileValueText></ProfileValueText>
+                <ProfileValueAction>
+                  <ActionButton
+                    background={white}
+                    color={green500}
+                    onClick={() => { downloadCaravanFile(); }}
+                  >Download</ActionButton>
+                </ProfileValueAction>
+              </ProfileValueColumn>
+            </ProfileRow>
+          </Fragment>
+        )}
+        {currentAccount.config.quorum.totalSigners === 1 && (
+          <ProfileRow>
+            <ProfileKeyColumn>Extended Public Key (XPub)</ProfileKeyColumn>
+            <ProfileValueColumn>
+              <ProfileValueText></ProfileValueText>
+              <ProfileValueAction>
+                <ActionButton
+                  background={white}
+                  color={green500}
+                  onClick={() => { openInModal(<XpubQrCode />); }}
+                >Download</ActionButton>
+              </ProfileValueAction>
+            </ProfileValueColumn>
+          </ProfileRow>
+        )}
+      </GeneralSection>
+    </Fragment >
   )
 }
 
-const SettingsSection = styled.div`
+const HeaderSection = styled.div`
+  margin-top: 2.5rem;
+  margin-bottom: 1em;
+`;
+
+const HeaderTitle = styled.h3`
+  color: ${gray900};
+  line-height: 1.5rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0;
+  margin-bottom: 0.5em;
+`;
+
+const HeaderSubtitle = styled.span`
+  color: ${gray500};
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 500;
+  max-width: 42rem;
+`;
+
+const GeneralSection = styled.div`
+  padding: 0.5em 1.5em;
+`;
+
+const ProfileRow = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(15em, 1fr));
-  grid-gap: 5em;
-  margin: 1em 0;
-  justify-content: space-between;
-  padding: 1.5em;
-  background: ${white};
-  align-items: center;
-  padding: 2.5em 2em;
-  // box-shadow: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06);
-  // border-radius: 0.375em;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  padding-top: 1.25rem;
+  padding-bottom: 1.25rem;
+  border-top: 1px solid ${gray200};
 
   ${mobile(css`
-    grid-gap: 2em;
-  `)};
+    display: block;
+  `)}
+`;
+
+const ProfileKeyColumn = styled.div`
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: ${gray500};
+  font-weight: 600;
+  align-items: center;
+  display: flex;
+`;
+
+const ProfileValueColumn = styled.div`
+  grid-column: span 2 / span 2;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: ${gray900};
+  display: flex;
+  align-items: center;
+`;
+
+const ProfileValueText = styled.span`
+  flex: 1;
+`;
+
+const ProfileValueAction = styled.span`
+  margin-left: 1rem;
+  display: flex;
+`;
+
+const ActionButton = styled.button`
+  ${Button};
+  font-weight: 600;
 `;
 
 const ModalContentWrapper = styled.div`
@@ -204,53 +263,6 @@ const WordsContainer = styled.div`
   flex-wrap: wrap;
   padding: 1.25em;
   justify-content: center;
-`;
-
-const SettingsSectionLeft = styled.div`
-  grid-column: span 2;
-
-  ${mobile(css`
-    grid-column: span 1;
-  `)};
-`;
-
-const UnchainedCapitalLink = styled.a`
-  color: ${gray900};
-  font-weight: 400;
-  text-decoration: none;
-
-  &:visited {
-    color: ${gray900};
-  }
-`;
-
-const SettingsSectionRight = styled.div``;
-
-const SettingsSubheader = styled.div`
-  display: flex;
-  font-size: 0.875em;
-  color: ${gray500};
-  margin: 8px 0;
-`;
-
-const SettingsItemHeader = styled.div`
-  display: flex;
-  font-size: 1.125em;
-`;
-
-const SettingsHeadingItem = styled.h3`
-  font-size: 1.5em;
-  margin: 64px 0 0;
-  font-weight: 400;
-  color: ${gray900};
-`;
-
-const ViewAddressesButton = styled.div`
-  border: 1px solid ${green800};
-  padding: 1.5em;
-  border-radius: 4px;
-  text-align: center;
-  cursor: pointer;
 `;
 
 const ScanInstructions = styled.div`
