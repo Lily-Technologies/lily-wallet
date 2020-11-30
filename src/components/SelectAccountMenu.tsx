@@ -4,7 +4,7 @@ import { Safe } from '@styled-icons/crypto';
 import { Wallet } from '@styled-icons/entypo';
 
 import { StyledIcon } from '.';
-import { white, gray300, gray400, gray700, gray800, orange600 } from '../utils/colors';
+import { white, gray100, gray300, gray400, gray700, gray800, orange600 } from '../utils/colors';
 
 import { LilyConfig } from '../types';
 
@@ -81,7 +81,7 @@ const AccountMenuItemName = styled.div`
 const AccountMenu = styled.div`
   display: flex;
   justify-content: space-around;
-  background: ${white};
+  background: ${gray100};
   margin-bottom: 1em;
   overflow: scroll;
   padding: 0.75em;

@@ -233,7 +233,7 @@ export interface LilyConfig {
 }
 
 export interface Device {
-  type: 'coldcard' | 'trezor' | 'ledger' | 'phone' | 'lily'
+  type: 'coldcard' | 'trezor' | 'ledger' | 'phone' | 'lily' | 'cobo'
   fingerprint: string
   model: string // KBC-TODO: get more specific with this
 }

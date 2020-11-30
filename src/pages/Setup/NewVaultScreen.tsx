@@ -69,14 +69,15 @@ const NewVaultScreen = ({
   // data comes in as (n/m):somedata1wq42rsdsa
   const importDeviceFromQR = ({ data }: { data: string }) => {
     try {
-      const [parentFingerprint, xpub] = data.split(':');
+      const { xfp, xpub, path } = JSON.parse(data);
+      const xpubFromZpub = zpubToXpub(decode(xpub));
 
       const newDevice = {
-        type: 'phone',
-        fingerprint: parentFingerprint,
-        xpub: xpub,
+        type: 'cobo',
+        fingerprint: xfp,
+        xpub: xpubFromZpub,
         model: 'unknown',
-        path: 'unknown'
+        path: path
       } as HwiResponseEnumerate;
 
       const updatedImportedDevices = [...importedDevices, newDevice];

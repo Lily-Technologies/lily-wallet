@@ -4,7 +4,7 @@ import BigNumber from 'bignumber.js';
 
 import SignWithDevice from './SignWithDevice'
 import TransactionDetails from './TransactionDetails';
-import PsbtQrCode from './PsbtQrCode';
+import AddSignatureFromQrCode from './AddSignatureFromQrCode';
 
 import { AccountMapContext } from '../../AccountMapContext';
 
@@ -88,13 +88,14 @@ const ConfirmTxPage = ({
       const signedDevicesObjects = getSignedDevicesFromPsbt(finalPsbt, currentAccount.config.extendedPublicKeys!);
       setSignedDevices(signedDevicesObjects);
       setFinalPsbt(combinedPsbt);
+      closeModal();
     } catch (e) {
       console.log('e: ', e);
       openInModal(<ErrorModal message={e.message} />)
     }
   }
 
-  const phoneAction = currentAccount.config.extendedPublicKeys && currentAccount.config.extendedPublicKeys.filter((item) => item.device && item.device.type === 'phone').length ? () => openInModal(<PsbtQrCode psbt={finalPsbt.toBase64()} />) : undefined;
+  const phoneAction = currentAccount.config.extendedPublicKeys && currentAccount.config.extendedPublicKeys.filter((item) => item.device && item.device.type === 'phone' || item.device.type === 'cobo').length ? () => openInModal(<AddSignatureFromQrCode importSignatureFromFile={importSignatureFromFile} psbt={finalPsbt} currentBitcoinPrice={currentBitcoinPrice} currentBitcoinNetwork={currentBitcoinNetwork} />) : undefined;
 
   return (
     <GridArea>

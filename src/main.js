@@ -3,7 +3,6 @@ const moment = require('moment');
 const { app, BrowserWindow, ipcMain, remote, dialog } = require('electron');
 const { networks } = require('bitcoinjs-lib');
 const BigNumber = require('bignumber.js');
-const { download } = require('electron-dl');
 const Client = require('bitcoin-core');
 
 const { enumerate, getXPub, signtx, promptpin, sendpin } = require('./server/commands');

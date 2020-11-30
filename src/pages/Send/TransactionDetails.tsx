@@ -3,18 +3,17 @@ import styled from 'styled-components';
 import BigNumber from 'bignumber.js';
 import { ArrowIosForwardOutline } from '@styled-icons/evaicons-outline';
 import { CheckCircle } from '@styled-icons/material';
-
 import { satoshisToBitcoins } from "unchained-bitcoin";
+import { Psbt, Network } from 'bitcoinjs-lib';
 
-import { address, Psbt, Network } from 'bitcoinjs-lib';
-
-import { cloneBuffer } from '../../utils/other';
 import { StyledIcon, Button, SidewaysShake, Dropdown, Modal } from '../../components';
 
-import { gray, green800, darkGray, white, darkOffWhite, green, darkGreen, lightGray, orange, lightOrange } from '../../utils/colors';
+import { gray, darkGray, white, green, darkGreen, orange, lightOrange } from '../../utils/colors';
 import { downloadFile, formatFilename } from '../../utils/files';
-import { createUtxoMapFromUtxoArray, getFee } from '../../utils/send';
+import { getFee } from '../../utils/send';
 import { FeeSelector } from './FeeSelector';
+import AddSignatureFromQrCode from './AddSignatureFromQrCode';
+import TransactionUtxoDetails from './TxUtxoDetails';
 
 import { LilyAccount, UtxoMap, Device, FeeRates } from '../../types';
 
@@ -47,10 +46,9 @@ const TransactionDetails = ({
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
   const signThreshold = currentAccount.config.quorum.requiredSigners;
-  const { availableUtxos } = currentAccount;
+  const { availableUtxos, transactions } = currentAccount;
 
-  console.log('finalPsbt: ', finalPsbt);
-  const _fee = getFee(finalPsbt, currentAccount.transactions);
+  const _fee = getFee(finalPsbt, transactions);
 
   const openInModal = (component: JSX.Element) => {
     setModalIsOpen(true);
@@ -68,9 +66,14 @@ const TransactionDetails = ({
     openInModal(<PsbtDownloadDetails />)
   }
 
+  const viewTxQrCode = () => {
+    openInModal(<AddSignatureFromQrCode importSignatureFromFile={() => { }} psbt={finalPsbt} currentBitcoinPrice={currentBitcoinPrice} currentBitcoinNetwork={currentBitcoinNetwork} />)
+  }
+
   const TransactionOptionsDropdown = () => {
     const dropdownItems = [
       { label: 'Save transaction to file', onClick: () => { downloadPsbt() } },
+      { label: 'View transaction as QR Code', onClick: () => { viewTxQrCode() } },
     ];
 
     if (setStep !== undefined && createTransactionAndSetState && (!signedDevices.length || currentAccount.config.mnemonic)) {
@@ -98,7 +101,7 @@ const TransactionDetails = ({
     // if we are creating the transaction ourselves, give options for adjustment
     if (setStep !== undefined) {
       dropdownItems.unshift(
-        { label: 'View more details', onClick: () => { openInModal(<TransactionUtxoDetails />); } }
+        { label: 'View more details', onClick: () => { openInModal(<TransactionUtxoDetails psbt={finalPsbt} currentBitcoinPrice={currentBitcoinPrice} currentBitcoinNetwork={currentBitcoinPrice} />); } }
       );
     }
 
@@ -133,45 +136,6 @@ const TransactionDetails = ({
       </ModalBody>
     </Fragment>
   )
-
-  const TransactionUtxoDetails = () => {
-    let utxosMap: UtxoMap;
-    if (availableUtxos) {
-      utxosMap = createUtxoMapFromUtxoArray(availableUtxos);
-    }
-    return (
-      <Fragment>
-        <ModalHeaderContainer>
-          <span>Transaction Details</span>
-        </ModalHeaderContainer>
-        <MoreDetailsContainer>
-          <MoreDetailsSection>
-            <MoreDetailsHeader>Inputs</MoreDetailsHeader>
-            {finalPsbt.txInputs.map(input => {
-              const inputBuffer = cloneBuffer(input.hash);
-              const utxo = utxosMap[`${inputBuffer.reverse().toString('hex')}:${input.index}`];
-              return (
-                <OutputItem>
-                  <OutputAddress>{utxo.address.address}</OutputAddress>
-                  <OutputAmount>{satoshisToBitcoins(utxo.value).toNumber()} BTC</OutputAmount>
-                </OutputItem>
-              )
-            })}
-          </MoreDetailsSection>
-          <MoreDetailsSection>
-            <MoreDetailsHeader style={{ marginTop: '1em' }}>Outputs</MoreDetailsHeader>
-            {finalPsbt.txOutputs.map(output => (
-              <OutputItem>
-                <OutputAddress>{address.fromOutputScript(output.script, currentBitcoinNetwork)}</OutputAddress> <OutputAmount>{satoshisToBitcoins(output.value).toNumber()} BTC</OutputAmount>
-              </OutputItem>
-            ))}
-
-            <MoreDetailsHeader style={{ display: 'flex', justifyContent: 'space-between', marginTop: '2em' }}>Fees: {<span>{satoshisToBitcoins(_fee).toNumber()} BTC (${satoshisToBitcoins(_fee).multipliedBy(currentBitcoinPrice).toFixed(2)})</span>}</MoreDetailsHeader>
-          </MoreDetailsSection>
-        </MoreDetailsContainer>
-      </Fragment>
-    )
-  };
 
   return (
     <Fragment>
@@ -265,41 +229,6 @@ const AccountSendContentRight = styled.div`
   flex: 1;
   flex-direction: column;
 `;
-
-const OutputItem = styled.div`
-  display: flex;
-  justify-content: space-between;
-  padding: 1.5em;
-  margin: 12px 0;
-  background: ${lightGray};
-  border: 1px solid ${darkOffWhite};
-  justify-content: center;
-  align-items: center;
-  border-radius: 4px;
-`;
-
-const OutputAddress = styled.span`
-  color: ${green800};
-  flex: 2;
-  word-break: break-word;
-`;
-
-const OutputAmount = styled.span`
-  flex: 1;
-  text-align: right;
-`;
-
-const MoreDetailsSection = styled.div``;
-
-const MoreDetailsContainer = styled.div`
-  padding: 1.5rem;
-`;
-
-const MoreDetailsHeader = styled.div`
-  color: ${darkGray};
-  font-size: 1.5em;
-`;
-
 
 const SendDetailsContainer = styled.div`
   background: ${white};
