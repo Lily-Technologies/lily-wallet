@@ -1,6 +1,5 @@
 import React, { useState, Fragment } from 'react'
 import styled, { css } from 'styled-components';
-import { shell } from 'electron';
 import { mobile } from '../utils/media';
 import { Circle } from '@styled-icons/boxicons-solid';
 import { Menu } from '@styled-icons/boxicons-regular';

@@ -15,7 +15,7 @@ import { FeeSelector } from './FeeSelector';
 import AddSignatureFromQrCode from './AddSignatureFromQrCode';
 import TransactionUtxoDetails from './TxUtxoDetails';
 
-import { LilyAccount, UtxoMap, Device, FeeRates } from '../../types';
+import { LilyAccount, Device, FeeRates } from '../../types';
 
 const ABSURD_FEE = 1000000; // 0.01 BTC
 

@@ -61,6 +61,7 @@ const Buttons = styled.div`
 
 const NextButton = styled.button`
   ${Button};
+  margin-left: 1em;
 `;
 
 export default AddSignatureFromQrCode;

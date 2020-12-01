@@ -1,6 +1,7 @@
 import React, { useState, useContext, useEffect, useRef } from 'react';
-import { Psbt, Network } from 'bitcoinjs-lib';
+import { Psbt, Network, bip32 } from 'bitcoinjs-lib';
 import BigNumber from 'bignumber.js';
+import { mnemonicToSeed } from "bip39";
 
 import SignWithDevice from './SignWithDevice'
 import TransactionDetails from './TransactionDetails';
@@ -43,11 +44,8 @@ const ConfirmTxPage = ({
 
   // if the finalPsbt has signatures on it already, update signed device view
   useEffect(() => {
-    if (currentAccount.config.quorum.requiredSigners > 1) { // KBC-TODO: this needs to handle the single hww case
-      const signedDevicesObjects = getSignedDevicesFromPsbt(finalPsbt, currentAccount.config.extendedPublicKeys!);
-      setSignedDevices(signedDevicesObjects);
-    }
-    // signTransactionIfSingleSigner(finalPsbt);
+    setPreSignedDevices()
+    signTransactionIfSingleSigner(finalPsbt);
   }, [finalPsbt, currentAccount.config.extendedPublicKeys, currentAccount.config.quorum.requiredSigners])
 
   const openInModal = (component: JSX.Element) => {
@@ -60,25 +58,32 @@ const ConfirmTxPage = ({
     setModalContent(null);
   }
 
+  const setPreSignedDevices = () => {
+    if (currentAccount.config.quorum.requiredSigners > 1) { // KBC-TODO: this needs to handle the single hww case
+      const signedDevicesObjects = getSignedDevicesFromPsbt(finalPsbt, currentAccount.config.extendedPublicKeys!);
+      setSignedDevices(signedDevicesObjects);
+    }
+  }
+
   // KBC-TODO: add test
-  // const signTransactionIfSingleSigner = async (psbt: Psbt) => {
-  //   // if only single sign, then sign tx right away
-  //   if (currentAccount.config.mnemonic) {
-  //     const seed = await mnemonicToSeed(currentAccount.config.mnemonic);
-  //     const root = bip32.fromSeed(seed, currentBitcoinNetwork);
+  const signTransactionIfSingleSigner = async (psbt: Psbt) => {
+    // if only single sign, then sign tx right away
+    if (currentAccount.config.mnemonic) {
+      const seed = await mnemonicToSeed(currentAccount.config.mnemonic);
+      const root = bip32.fromSeed(seed, currentBitcoinNetwork);
 
-  //     psbt.signAllInputsHD(root);
-  //     psbt.validateSignaturesOfAllInputs();
-  //     psbt.finalizeAllInputs();
+      psbt.signAllInputsHD(root);
+      psbt.validateSignaturesOfAllInputs();
+      psbt.finalizeAllInputs();
 
-  //     setSignedDevices([{ // we need to set a signed device for flow to continue, so set it as lily
-  //       model: 'lily',
-  //       type: 'lily',
-  //       fingerprint: 'whatever'
-  //     }]) // this could probably have better information in it but
-  //     setSignedPsbts([psbt.toBase64()]);
-  //   }
-  // }
+      setSignedDevices([{ // we need to set a signed device for flow to continue, so set it as lily
+        model: 'lily',
+        type: 'lily',
+        fingerprint: 'whatever'
+      }]) // this could probably have better information in it but...
+      setFinalPsbt(psbt);
+    }
+  }
 
   const importSignatureFromFile = (file: string) => {
     try {
