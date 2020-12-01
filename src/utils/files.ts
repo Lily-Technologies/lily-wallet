@@ -106,7 +106,6 @@ export const createSinglesigConfigFile = async (walletMnemonic: string, accountN
   const path = getP2wpkhDeriationPathForNetwork(currentBitcoinNetwork);
   const child = root.derivePath(path).neutered();
   const xpubString = child.toBase58();
-  const xprvString = root.derivePath(path).toBase58();
 
   const newKey = {
     id: uuidv4(),
@@ -115,10 +114,22 @@ export const createSinglesigConfigFile = async (walletMnemonic: string, accountN
     network: getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork),
     addressType: "P2WPKH",
     quorum: { requiredSigners: 1, totalSigners: 1 },
-    xpub: xpubString,
-    xprv: xprvString,
+    extendedPublicKeys: [
+      {
+        id: uuidv4(),
+        created_at: Date.now(),
+        network: getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork),
+        bip32Path: 'm/0',
+        xpub: xpubString,
+        parentFingerprint: bufferToHex(root.fingerprint),
+        device: {
+          type: 'lily',
+          model: 'lily',
+          fingerprint: bufferToHex(root.fingerprint)
+        }
+      }
+    ],
     mnemonic: walletMnemonic,
-    parentFingerprint: bufferToHex(root.fingerprint),
   } as AccountConfig;
 
   configCopy.wallets.push(newKey);
@@ -137,13 +148,21 @@ export const createSinglesigHWWConfigFile = async (device: HwiResponseEnumerate,
     network: getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork),
     addressType: "P2WPKH",
     quorum: { requiredSigners: 1, totalSigners: 1 },
-    xpub: device.xpub,
-    parentFingerprint: device.fingerprint,
-    device: {
-      type: device.type,
-      model: device.model,
-      fingerprint: device.fingerprint
-    }
+    extendedPublicKeys: [
+      {
+        id: uuidv4(),
+        created_at: Date.now(),
+        network: getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork),
+        bip32Path: 'm/0',
+        xpub: device.xpub,
+        parentFingerprint: device.fingerprint,
+        device: {
+          type: device.type,
+          model: device.model,
+          fingerprint: device.fingerprint
+        }
+      }
+    ]
   } as AccountConfig;
 
   configCopy.wallets.push(newKey);
