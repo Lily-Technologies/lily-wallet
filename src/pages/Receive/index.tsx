@@ -54,7 +54,7 @@ const Receive = ({ config }: { config: LilyConfig }) => {
                 <CopyToClipboard text={unusedAddresses[unusedAddressIndex].address}>
                   <CopyAddressButton color={white} background={green600}>Copy Address</CopyAddressButton>
                 </CopyToClipboard>
-                <CopyAddressButton background="transparent" color={darkGray} onClick={() => setUnusedAddressIndex(unusedAddressIndex + 1)}>Generate New Address</CopyAddressButton>
+                <NewAddressButton background="transparent" color={darkGray} onClick={() => setUnusedAddressIndex(unusedAddressIndex + 1)}>Generate New Address</NewAddressButton>
               </ReceiveButtonContainer>
 
             </AccountReceiveContentLeft>
@@ -86,6 +86,11 @@ const ReceiveButtonContainer = styled.div`
 `;
 
 const CopyAddressButton = styled.div`
+  ${Button};
+  font-weight: 600;
+`;
+
+const NewAddressButton = styled.div`
   ${Button};
 `;
 

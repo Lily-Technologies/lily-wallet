@@ -14,11 +14,13 @@ export interface Props {
   autoFocus?: boolean
   onKeyDown?: (e: React.KeyboardEvent<Element>) => void
   inputStaticText?: string
+  largeText?: boolean
+  style?: object
 }
 
-export const Input = ({ value, onChange, error, label, id, placeholder, type, autoFocus, onKeyDown, inputStaticText }: Props) => (
+export const Input = ({ value, onChange, error, label, id, placeholder, type, autoFocus, onKeyDown, inputStaticText, style, largeText = false }: Props) => (
   <Fragment>
-    {label && <Label htmlFor={id}>{label}</Label>}
+    {label && <Label htmlFor={id} largeText={largeText}>{label}</Label>}
     <InputWrapper>
       <StyledInput
         type={type || 'text'}
@@ -29,15 +31,18 @@ export const Input = ({ value, onChange, error, label, id, placeholder, type, au
         error={error}
         autoFocus={autoFocus}
         placeholder={placeholder}
+        largeText={largeText}
+        staticText={!!inputStaticText}
+        style={style}
       />
-      {inputStaticText && <InputStaticText disabled text={inputStaticText}></InputStaticText>}
+      {inputStaticText && <InputStaticText disabled text={inputStaticText} largeText={largeText}></InputStaticText>}
     </InputWrapper>
   </Fragment>
 )
 
-const Label = styled.label`
-  font-size: .875rem;
-  line-height: 1.25em;
+const Label = styled.label<{ largeText: boolean }>`
+  font-size: ${p => p.largeText ? '1.15rem' : '.875rem'};
+  line-height: ${p => p.largeText ? '2.25em' : '1.25em'};
   font-weight: 500;
   color: ${gray600};
 `;
@@ -55,16 +60,18 @@ const InputWrapper = styled.div`
   }
 `;
 
-const StyledInput = styled.input<{ error: boolean | undefined }>`
-  line-height: 1.25em;
+const StyledInput = styled.input<{ error: boolean | undefined, largeText: boolean, staticText: boolean }>`
+  font-size: ${p => p.largeText ? '1rem' : '.875rem'};
+  line-height: ${p => p.largeText ? '3em' : '1.25em'};
   width: 100%;
-  font-size: 0.875em;
   display: block;
   background-color: ${white};
   border-color: ${p => p.error ? red400 : gray300};
   border-width: 1px;
   border-radius: 0.375rem;
   padding: 0.5rem 0.75rem;
+  padding-right: ${p => p.staticText ? '3em' : '0.75em'};
+  text-align: ${p => p.staticText ? 'right' : 'left'};
 
   *, &:after, &:before {
     box-sizing: border-box;
@@ -78,15 +85,12 @@ const StyledInput = styled.input<{ error: boolean | undefined }>`
   }
 `;
 
-export const InputStaticText = styled.label<{ text: string, disabled: boolean }>`
-  top: 0;
-  right: 0;
-  position: absolute;
+export const InputStaticText = styled.label<{ text: string, disabled: boolean, largeText: boolean }>`
 
   &::after {
     content: "${p => p.text}";
     position: absolute;
-    top: 0.65em;
+    top: 1.5em;
     right: 0.75em;
     font-family: arial,helvetica,sans-serif;
     font-size: 1em;

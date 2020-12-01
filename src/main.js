@@ -1,6 +1,6 @@
 const axios = require('axios');
 const moment = require('moment');
-const { app, BrowserWindow, ipcMain, remote, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, remote, dialog, shell } = require('electron');
 const { networks } = require('bitcoinjs-lib');
 const BigNumber = require('bignumber.js');
 const Client = require('bitcoin-core');
@@ -89,6 +89,23 @@ function createWindow() {
   // mainWindow.once('ready-to-show', () => {
   //   mainWindow.show()
   // })
+
+  mainWindow.webContents.on('new-window', (event, url, frameName, disposition, options, additionalFeatures) => {
+    console.log('event, url, frameName, disposition, options, additionalFeatures: ', event, url, frameName, disposition, options, additionalFeatures);
+    event.preventDefault()
+
+    shell.openExternal(url);
+    if (frameName === 'modal') {
+      // open window as modal
+      Object.assign(options, {
+        modal: true,
+        parent: mainWindow,
+        width: 100,
+        height: 100
+      })
+      event.newGuest = new BrowserWindow(options)
+    }
+  })
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {

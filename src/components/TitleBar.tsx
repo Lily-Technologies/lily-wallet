@@ -1,5 +1,6 @@
 import React, { useState, Fragment } from 'react'
 import styled, { css } from 'styled-components';
+import { shell } from 'electron';
 import { mobile } from '../utils/media';
 import { Circle } from '@styled-icons/boxicons-solid';
 import { Menu } from '@styled-icons/boxicons-regular';
@@ -76,7 +77,7 @@ export const TitleBar = ({
   const moreOptionsDropdownItems = [
     { label: 'Support', onClick: () => { console.log('foobar') } },
     { label: 'License', onClick: () => { setLicenseModalOpen(true) } },
-    { label: 'View source code', onClick: () => { console.log('foobar2') } }
+    { label: 'View source code', onClick: () => { window.open('https://github.com/KayBeSee/lily-wallet', '_blank', 'nodeIntegration=no') } }
   ];
 
   if (!config.isEmpty) {
@@ -127,7 +128,6 @@ export const TitleBar = ({
                       color: (nodeConfig.initialblockdownload) ? orange400
                         : (nodeConfig.connected) ? green400
                           : red500, // !nodeConfig.connected
-                      // marginRight: '.5em'
                     }} />
                   ) : (
                       <LoadingImage alt="loading placeholder" src={require('../assets/flower-loading.svg')} />

@@ -144,6 +144,8 @@ const SendTxForm = ({
             "tb1q4h5xd5wsalmes2496y8dtphc609rt0un3gl69r" :
             "bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4"}
           error={recipientAddressError}
+          largeText={true}
+          style={{ textAlign: 'right', fontSize: '0.85rem' }}
         />
       </InputContainer>
       <InputContainer>
@@ -155,6 +157,7 @@ const SendTxForm = ({
           placeholder="0.0025"
           error={sendAmountError}
           inputStaticText="BTC"
+          largeText={true}
         />
       </InputContainer>
       {sendAmountError && <SendAmountError>Not enough funds</SendAmountError>}
@@ -183,6 +186,7 @@ const SentTxFormContainer = styled.div`
   border-radius: 0.385em;
   justify-content: center;
   width: 100%;
+  position: relative;
 `;
 
 const SendAmountError = styled.div`
@@ -201,12 +205,13 @@ const SendButtonContainer = styled.div`
 const InputContainer = styled.div`
   display: flex;
   flex-direction: column;
-  margin-bottom: 1em;
+  margin-bottom: 2em;
 `;
 
 const CopyAddressButton = styled.button`
   ${Button};
   flex: 1;
+  font-weight: 600;
 `;
 
 const ErrorText = styled.div`
