@@ -197,7 +197,6 @@ const NewVaultScreen = ({
           </XPubHeaderWrapper>
           <DeviceSelect
             deviceAction={importMultisigDevice}
-            phoneAction={() => setQrScanModalOpen(true)}
             deviceActionText={'Click to Configure'}
             deviceActionLoadingText={'Extracting XPub'}
             configuredDevices={importedDevices}
