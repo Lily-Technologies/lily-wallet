@@ -1,10 +1,10 @@
-import React, { Fragment, useState, useContext } from 'react';
+import React, { Fragment, useState, useEffect, useContext } from 'react';
 import styled from 'styled-components';
 import { QRCode } from "react-qr-svg";
 import CopyToClipboard from 'react-copy-to-clipboard';
 import { satoshisToBitcoins } from "unchained-bitcoin";
 
-import { Button, PageWrapper, GridArea, PageTitle, Header, HeaderRight, HeaderLeft, Loading, SelectAccountMenu } from '../../components';
+import { Button, PageWrapper, GridArea, PageTitle, Header, HeaderRight, HeaderLeft, Loading, SelectAccountMenu, NoAccountsEmptyState } from '../../components';
 
 import { AccountMapContext } from '../../AccountMapContext';
 
@@ -15,8 +15,15 @@ import { LilyConfig } from '../../types'
 const Receive = ({ config }: { config: LilyConfig }) => {
   document.title = `Receive - Lily Wallet`;
   const [unusedAddressIndex, setUnusedAddressIndex] = useState(0);
-  const { currentAccount } = useContext(AccountMapContext);
+  const { currentAccount, accountMap, setCurrentAccountId } = useContext(AccountMapContext);
   const { unusedAddresses, currentBalance } = currentAccount;
+
+  console.log('currentAccount: ', currentAccount);
+  useEffect(() => {
+    if (!currentAccount.config.id && Object.keys(accountMap).length > 0) {
+      setCurrentAccountId(Object.values(accountMap)[0].config.id);
+    }
+  })
 
   return (
     <PageWrapper>
@@ -29,8 +36,9 @@ const Receive = ({ config }: { config: LilyConfig }) => {
           </HeaderRight>
         </Header>
 
-        <SelectAccountMenu config={config} />
-        {currentAccount.loading && <Loading itemText={'Receive Information'} />}
+        {Object.keys(accountMap).length > 0 && <SelectAccountMenu config={config} />}
+        {Object.keys(accountMap).length === 0 && <NoAccountsEmptyState />}
+        {Object.keys(accountMap).length > 0 && currentAccount.loading && <Loading itemText={'Receive Information'} />}
         {!currentAccount.loading && (
           <GridArea>
             <AccountReceiveContentLeft>

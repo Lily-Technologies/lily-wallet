@@ -1,10 +1,12 @@
 import React, { Fragment, useEffect, useState, useCallback } from 'react';
 import styled from 'styled-components';
 import { DotSingle } from '@styled-icons/entypo';
+import { StarOfLife } from '@styled-icons/fa-solid';
+import { Backspace } from '@styled-icons/ionicons-solid'
 
 import { Modal, Button, Loading, StyledIcon } from '.';
 
-import { white, green400, green500, green600, gray100, red500 } from '../utils/colors';
+import { white, green400, green500, green600, gray100, gray200, gray300, gray900, red500 } from '../utils/colors';
 
 import { HwiResponseEnumerate } from '../types';
 
@@ -56,6 +58,13 @@ export const PromptPinModal = ({ device, promptPinModalIsOpen, setPromptPinModal
     setCurrentPin(currentPin.concat(number.toString()));
   }
 
+  const backspacePin = () => {
+    if (promptPinError) {
+      setPromptPinError('');
+    }
+    setCurrentPin(currentPin.substring(0, currentPin.length - 1));
+  }
+
   const sendPin = async () => {
     setLoadingMessage('Unlocking Device')
     // TODO: this needs a try/catch.
@@ -92,6 +101,10 @@ export const PromptPinModal = ({ device, promptPinModalIsOpen, setPromptPinModal
 
   const PinInput = () => (
     <Fragment>
+      <PinInputWrapper>
+        <CurrentInput>{currentPin.split('').map(item => <StyledIcon as={StarOfLife} size={25} />)}</CurrentInput>
+        {currentPin.length > 0 && <BackspaceWrapper onClick={() => backspacePin()}><StyledIcon style={{ cursor: 'pointer' }} as={Backspace} size={25} /></BackspaceWrapper>}
+      </PinInputWrapper>
       <PinItemsWrapper>
         {pinItems}
       </PinItemsWrapper>
@@ -130,11 +143,48 @@ const ModalHeaderContainer = styled.div`
   font-size: 1.5em;
 `;
 
+const PinInputWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0em 3em;
+  background: ${gray100};
+  color: ${gray900};
+  margin: 1.5em 3em 0.5em;
+  border-radius: 0.385em;
+  height: 4.3333em;
+  box-shadow: inset 0 2px 4px 0 rgba(0,0,0,0.06);
+  padding-top: 1.25rem;
+  padding-bottom: 1.25rem;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+`;
+
+const CurrentInput = styled.div`
+  flex: 1;
+  justify-content: center;
+  display: flex;
+  margin-left: 1em;
+`;
+
+const BackspaceWrapper = styled.div`
+  border-radius: 9999999px;
+  padding: 0.5em;
+
+  &:hover {
+    background: ${gray200};
+  }
+
+  &:active {
+    background: ${gray300};
+  }
+`;
+
 const PinItemsWrapper = styled.div`
   display: grid;
   grid-gap: 1px;
   grid-template-columns: repeat(3, 1fr);
-  padding: 3em;
+  padding: 1em 3em;
 `;
 
 const PinItem = styled.div`
@@ -169,4 +219,8 @@ const UnlockButton = styled.button`
   width: 100%;
   border-top-right-radius: 0;
   border-top-left-radius: 0;
+  padding-top: 1.25rem;
+  padding-bottom: 1.25rem;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
 `;

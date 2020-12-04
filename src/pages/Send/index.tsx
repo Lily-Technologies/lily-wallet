@@ -6,9 +6,9 @@ import { Psbt, Network } from 'bitcoinjs-lib';
 import { CheckCircle, RemoveCircle } from '@styled-icons/material';
 
 import { PageWrapper, PageTitle, Header, HeaderRight, HeaderLeft, Loading, GridArea } from '../../components';
+import { SelectAccountMenu, StyledIcon, Modal, Button, NoAccountsEmptyState } from '../../components';
 
 import SendTxForm from './SendTxForm';
-import { SelectAccountMenu, StyledIcon, Modal, Button } from '../../components';
 import ConfirmTxPage from './ConfirmTxPage';
 
 import { AccountMapContext } from '../../AccountMapContext';
@@ -35,7 +35,7 @@ const Send = ({ config, currentBitcoinNetwork, nodeConfig, currentBitcoinPrice }
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
 
-  const { currentAccount } = useContext(AccountMapContext);
+  const { currentAccount, accountMap } = useContext(AccountMapContext);
   const { currentBalance } = currentAccount;
 
   const openInModal = (component: JSX.Element) => {
@@ -110,8 +110,9 @@ const Send = ({ config, currentBitcoinNetwork, nodeConfig, currentBitcoinPrice }
           <HeaderRight>
           </HeaderRight>
         </Header>
-        <SelectAccountMenu config={config} />
-        {currentAccount.loading && <Loading itemText={'Send Information'} />}
+        {Object.keys(accountMap).length > 0 && <SelectAccountMenu config={config} />}
+        {Object.keys(accountMap).length === 0 && <NoAccountsEmptyState />}
+        {Object.keys(accountMap).length > 0 && currentAccount.loading && <Loading itemText={'Send Information'} />}
         {!currentAccount.loading && step === 0 && (
           <GridArea>
             <SendTxForm

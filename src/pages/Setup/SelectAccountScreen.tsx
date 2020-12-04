@@ -19,7 +19,7 @@ const SelectAccountScreen = ({ header, setSetupOption, setStep }: Props) => {
     <InnerWrapper>
       {header}
       <SignupOptionMenu>
-        <SignupOptionItem
+        {/* <SignupOptionItem
           background={white}
           color={gray800}
           style={{ borderTop: `8px solid ${green800}` }}
@@ -32,10 +32,11 @@ const SelectAccountScreen = ({ header, setSetupOption, setStep }: Props) => {
             <SignupOptionMainText>Wallet</SignupOptionMainText>
             <SignupOptionSubtext>Create a new Bitcoin wallet with its own mnemonic</SignupOptionSubtext>
           </SignupOptionTextContainer>
-        </SignupOptionItem>
+        </SignupOptionItem> */}
         <SignupOptionItem
           background={white}
           color={gray800}
+          style={{ borderTop: `8px solid ${green800}` }}
           onClick={() => {
             setSetupOption(3);
             setStep(1);

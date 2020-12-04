@@ -13,15 +13,6 @@ interface Props {
 }
 
 const PsbtQrCode = ({ psbt }: Props) => {
-  // const sdk = new CoboVaultSDK();
-  // const v2verz = V2.constructQRCode(finalPsbt.toHex())
-  // // console.log('v2verz: ', v2verz);
-  // // const data = sdk.encodeDataForQR(finalPsbt.toHex().toUpperCase())
-  // // console.log('finalPsbt.toBase64(): ', finalPsbt.toHex());
-  // // console.log('xxx', data)
-  // // const foo = sdk.decodeQRData(data);
-  // // console.log('foo: ', foo);
-
   const psbtEncoded = V2.constructQRCode(psbt.toHex())
   return (
     <Fragment>

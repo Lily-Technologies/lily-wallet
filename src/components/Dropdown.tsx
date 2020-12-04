@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { Transition } from '.'
 import OutsideClick from './OutsideClick'
 
-import { white } from '../utils/colors';
+import { white, gray900 } from '../utils/colors';
 
 // https://codesandbox.io/s/outside-alerter-hooks-lmr2y?module=/src/OutsideAlerter.js&file=/src/OutsideAlerter.js
 /* 
@@ -228,6 +228,7 @@ const DropdownItem = styled.a<{ clickable: boolean }>`
   background-color: transparent;
   text-decoration: none;
   cursor: ${p => p.clickable ? 'pointer' : 'default'};
+  color: ${gray900};
 
   &:hover {
     background: rgb(244,245,247);

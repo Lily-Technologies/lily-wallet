@@ -60,7 +60,6 @@ const App = () => {
   const [password, setPassword] = useState('');
 
   const { setAccountMap, updateAccountMap, accountMap } = useContext(AccountMapContext);
-  console.log('accountMap: ', accountMap);
 
   const ConfigRequired = () => {
     const { pathname } = useLocation();

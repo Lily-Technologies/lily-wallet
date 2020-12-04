@@ -5,3 +5,4 @@ LilyWallet-darwin-x64
 dist/
 LilyWallet-*
 .env
+compiled-ts/

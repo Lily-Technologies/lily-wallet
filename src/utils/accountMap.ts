@@ -67,7 +67,7 @@ const getUnchainedNetworkFromBjslibNetwork = (bitcoinJslibNetwork: Network) => {
   }
 }
 
-const getMultisigDescriptor = async (client: any, reqSigners: number, xpubs: ExtendedPublicKey[], isChange: boolean) => {
+export const getMultisigDescriptor = async (client: any, reqSigners: number, xpubs: ExtendedPublicKey[], isChange: boolean) => {
   const descriptor = `wsh(sortedmulti(${reqSigners},${xpubs.map((xpub) => `${xpub.xpub}/${isChange ? '1' : '0'}/*`)}))`;
   const descriptorWithChecksum = await client.getDescriptorInfo(descriptor);
   return descriptorWithChecksum.descriptor;
@@ -368,12 +368,12 @@ const scanForAddressesAndTransactions = async (account: AccountConfig, nodeClien
 }
 
 const getTransactionsFromNode = async (nodeClient: any) => {
-  return await nodeClient.listTransactions({ count: 100 });
+  const transactions = await nodeClient.listTransactions({ count: 100 });
+  return transactions
 }
 
 export const getDataFromMultisig = async (account: AccountConfig, nodeClient: any, currentBitcoinNetwork: Network) => {
   const { receiveAddresses, changeAddresses, unusedReceiveAddresses, unusedChangeAddresses, transactions } = await scanForAddressesAndTransactions(account, nodeClient, currentBitcoinNetwork, 10)
-
   let organizedTransactions: Transaction[];
   let availableUtxos: UTXO[];
   if (nodeClient) {
@@ -397,8 +397,23 @@ export const getDataFromMultisig = async (account: AccountConfig, nodeClient: an
 export const getDataFromXPub = async (account: AccountConfig, nodeClient: any, currentBitcoinNetwork: Network) => {
   const { receiveAddresses, changeAddresses, unusedReceiveAddresses, unusedChangeAddresses, transactions } = await scanForAddressesAndTransactions(account, nodeClient, currentBitcoinNetwork, 10)
 
-  const availableUtxos = await getUtxosForAddresses(receiveAddresses.concat(changeAddresses), currentBitcoinNetwork);
-  const organizedTransactions = serializeTransactions(transactions, receiveAddresses, changeAddresses);
+  let organizedTransactions: Transaction[];
+  let availableUtxos: UTXO[];
+  if (nodeClient) {
+    organizedTransactions = await serializeTransactionsFromNode(nodeClient, transactions, receiveAddresses, changeAddresses);
+    availableUtxos = await nodeClient.listUnspent();
+    const receiveAddressMap = createAddressMapFromAddressArray(receiveAddresses, false);
+    const changeAddressMap = createAddressMapFromAddressArray(changeAddresses, true);
+    const addressMap = { ...receiveAddressMap, ...changeAddressMap };
+    for (let i = 0; i < availableUtxos.length; i++) {
+      availableUtxos[i].value = bitcoinsToSatoshis(availableUtxos[i].amount).toNumber();
+      availableUtxos[i].address = addressMap[availableUtxos[i].address.address];
+    }
+  } else {
+    availableUtxos = await getUtxosForAddresses(receiveAddresses.concat(changeAddresses), currentBitcoinNetwork);
+    organizedTransactions = serializeTransactions(transactions, receiveAddresses, changeAddresses);
+  }
+
 
   return [receiveAddresses, changeAddresses, organizedTransactions, unusedReceiveAddresses, unusedChangeAddresses, availableUtxos];
 }

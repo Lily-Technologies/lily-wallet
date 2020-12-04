@@ -91,7 +91,6 @@ function createWindow() {
   // })
 
   mainWindow.webContents.on('new-window', (event, url, frameName, disposition, options, additionalFeatures) => {
-    console.log('event, url, frameName, disposition, options, additionalFeatures: ', event, url, frameName, disposition, options, additionalFeatures);
     event.preventDefault()
 
     shell.openExternal(url);
@@ -232,7 +231,7 @@ ipcMain.on('/account-data', async (event, args) => {
   let nodeClient = undefined;
   try {
     if (currentNodeConfig.provider !== 'Blockstream') {
-      const nodeClient = new Client({
+      nodeClient = new Client({
         wallet: config.name,
         host: currentNodeConfig.host || 'http://localhost:8332',
         username: currentNodeConfig.rpcuser || currentNodeConfig.username, // TODO: uniform this in the future

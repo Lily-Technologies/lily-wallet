@@ -59,8 +59,6 @@ const SendTxForm = ({
       setImportTxFromFileError('');
       setStep(1);
     } catch (e) {
-      console.log('catch: ', e);
-      console.log('xxxcatch: ', e.message);
       setImportTxFromFileError(e.message);
     }
   }

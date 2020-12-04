@@ -472,10 +472,17 @@ var scanForAddressesAndTransactions = function (account, nodeClient, currentBitc
 };
 var getTransactionsFromNode = function (nodeClient) {
   return __awaiter(void 0, void 0, void 0, function () {
+    var transactions;
     return __generator(this, function (_a) {
       switch (_a.label) {
-        case 0: return [4 /*yield*/, nodeClient.listTransactions({ count: 100 })];
-        case 1: return [2 /*return*/, _a.sent()];
+        case 0:
+          nodeClient.wallet = 'specterdd4efa276cfa1560/cc_vault';
+          console.log('nodeClient: ', nodeClient.wallet);
+          return [4 /*yield*/, nodeClient.listTransactions({ count: 100 })];
+        case 1:
+          transactions = _a.sent();
+          console.log('transactions: ', transactions);
+          return [2 /*return*/, transactions];
       }
     });
   });
@@ -516,17 +523,33 @@ exports.getDataFromMultisig = function (account, nodeClient, currentBitcoinNetwo
 };
 exports.getDataFromXPub = function (account, nodeClient, currentBitcoinNetwork) {
   return __awaiter(void 0, void 0, void 0, function () {
-    var _a, receiveAddresses, changeAddresses, unusedReceiveAddresses, unusedChangeAddresses, transactions, availableUtxos, organizedTransactions;
+    var _a, receiveAddresses, changeAddresses, unusedReceiveAddresses, unusedChangeAddresses, transactions, organizedTransactions, availableUtxos, receiveAddressMap, changeAddressMap, addressMap, i;
     return __generator(this, function (_b) {
       switch (_b.label) {
         case 0: return [4 /*yield*/, scanForAddressesAndTransactions(account, nodeClient, currentBitcoinNetwork, 10)];
         case 1:
           _a = _b.sent(), receiveAddresses = _a.receiveAddresses, changeAddresses = _a.changeAddresses, unusedReceiveAddresses = _a.unusedReceiveAddresses, unusedChangeAddresses = _a.unusedChangeAddresses, transactions = _a.transactions;
-          return [4 /*yield*/, getUtxosForAddresses(receiveAddresses.concat(changeAddresses), currentBitcoinNetwork)];
+          if (!nodeClient) return [3 /*break*/, 4];
+          return [4 /*yield*/, serializeTransactionsFromNode(nodeClient, transactions, receiveAddresses, changeAddresses)];
         case 2:
+          organizedTransactions = _b.sent();
+          return [4 /*yield*/, nodeClient.listUnspent()];
+        case 3:
+          availableUtxos = _b.sent();
+          receiveAddressMap = createAddressMapFromAddressArray(receiveAddresses, false);
+          changeAddressMap = createAddressMapFromAddressArray(changeAddresses, true);
+          addressMap = __assign(__assign({}, receiveAddressMap), changeAddressMap);
+          for (i = 0; i < availableUtxos.length; i++) {
+            availableUtxos[i].value = unchained_bitcoin_1.bitcoinsToSatoshis(availableUtxos[i].amount).toNumber();
+            availableUtxos[i].address = addressMap[availableUtxos[i].address.address];
+          }
+          return [3 /*break*/, 6];
+        case 4: return [4 /*yield*/, getUtxosForAddresses(receiveAddresses.concat(changeAddresses), currentBitcoinNetwork)];
+        case 5:
           availableUtxos = _b.sent();
           organizedTransactions = exports.serializeTransactions(transactions, receiveAddresses, changeAddresses);
-          return [2 /*return*/, [receiveAddresses, changeAddresses, organizedTransactions, unusedReceiveAddresses, unusedChangeAddresses, availableUtxos]];
+          _b.label = 6;
+        case 6: return [2 /*return*/, [receiveAddresses, changeAddresses, organizedTransactions, unusedReceiveAddresses, unusedChangeAddresses, availableUtxos]];
       }
     });
   });

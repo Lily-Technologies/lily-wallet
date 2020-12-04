@@ -28,5 +28,6 @@ export * from './LicenseInformation';
 export * from './AlertBar';
 export * from './Breadcrumbs';
 export * from './ErrorModal';
+export * from './NoAccountsEmptyState';
 
 export * from './layout';
