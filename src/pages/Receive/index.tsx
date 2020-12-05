@@ -18,7 +18,6 @@ const Receive = ({ config }: { config: LilyConfig }) => {
   const { currentAccount, accountMap, setCurrentAccountId } = useContext(AccountMapContext);
   const { unusedAddresses, currentBalance } = currentAccount;
 
-  console.log('currentAccount: ', currentAccount);
   useEffect(() => {
     if (!currentAccount.config.id && Object.keys(accountMap).length > 0) {
       setCurrentAccountId(Object.values(accountMap)[0].config.id);

@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useContext } from 'react';
+import React, { Fragment, useState, useEffect, useContext } from 'react';
 import styled from 'styled-components';
 import BigNumber from 'bignumber.js';
 import { satoshisToBitcoins, blockExplorerTransactionURL } from "unchained-bitcoin";
@@ -35,8 +35,14 @@ const Send = ({ config, currentBitcoinNetwork, nodeConfig, currentBitcoinPrice }
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
 
-  const { currentAccount, accountMap } = useContext(AccountMapContext);
+  const { currentAccount, accountMap, setCurrentAccountId } = useContext(AccountMapContext);
   const { currentBalance } = currentAccount;
+
+  useEffect(() => {
+    if (!currentAccount.config.id && Object.keys(accountMap).length > 0) {
+      setCurrentAccountId(Object.values(accountMap)[0].config.id);
+    }
+  })
 
   const openInModal = (component: JSX.Element) => {
     setModalIsOpen(true);

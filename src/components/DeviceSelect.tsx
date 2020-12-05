@@ -35,7 +35,6 @@ export const DeviceSelect = ({
   const [deviceActionLoading, setDeviceActionLoading] = useState<number | null>(null);
   const [promptPinModalDevice, setPromptPinModalDevice] = useState<HwiResponseEnumerate | null>(null);
 
-
   useEffect(() => {
     enumerate();
   }, []); // eslint-disable-line

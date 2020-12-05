@@ -112,7 +112,7 @@ export const createSinglesigConfigFile = async (walletMnemonic: string, accountN
     created_at: Date.now(),
     name: accountName,
     network: getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork),
-    addressType: "P2WPKH",
+    addressType: AddressType.P2WPKH,
     quorum: { requiredSigners: 1, totalSigners: 1 },
     extendedPublicKeys: [
       {
@@ -146,7 +146,7 @@ export const createSinglesigHWWConfigFile = async (device: HwiResponseEnumerate,
     created_at: Date.now(),
     name: accountName,
     network: getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork),
-    addressType: "P2WPKH",
+    addressType: AddressType.p2sh,
     quorum: { requiredSigners: 1, totalSigners: 1 },
     extendedPublicKeys: [
       {

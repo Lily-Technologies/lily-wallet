@@ -35,7 +35,6 @@ const DecodePsbtQrCode = ({ importSignatureFromFile }: Props) => {
         <BarcodeScannerComponentStyled
           // @ts-ignore
           width={'100%'}
-          // height={500}
           onUpdate={(err, result) => {
             if (result) readQrData(result.getText())
             else return;

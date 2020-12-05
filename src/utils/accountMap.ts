@@ -217,7 +217,7 @@ const serializeTransactionsFromNode = async (nodeClient: any, transactions: Tran
   return transactionsArray;
 }
 
-const getChildPubKeyFromXpub = (xpub: ExtendedPublicKey | AccountConfig, bip32Path: string, addressType: AddressType, currentBitcoinNetwork: Network) => {
+const getChildPubKeyFromXpub = (xpub: ExtendedPublicKey, bip32Path: string, addressType: AddressType, currentBitcoinNetwork: Network) => {
   const childPubKeysBip32Path = bip32Path;
   let bip32derivationPath = getDerivationPath(addressType, bip32Path, currentBitcoinNetwork);
 
@@ -308,11 +308,11 @@ export const getAddressFromAccount = (account: AccountConfig, path: string, curr
       return getMultisigAddressFromPubKeys(childPubKeys, account, currentBitcoinNetwork)
     }
   } else { // single sig
-    if (account.device) {
-      const receivePubKey = getChildPubKeyFromXpub(account, path, AddressType.p2sh, currentBitcoinNetwork);
+    if (account.addressType === AddressType.p2sh) { // hww
+      const receivePubKey = getChildPubKeyFromXpub(account.extendedPublicKeys[0], path, AddressType.p2sh, currentBitcoinNetwork);
       return getAddressFromPubKey(receivePubKey, AddressType.p2sh, currentBitcoinNetwork);
-    } else {
-      const receivePubKey = getChildPubKeyFromXpub(account, path, AddressType.P2WPKH, currentBitcoinNetwork);
+    } else { // software wallet
+      const receivePubKey = getChildPubKeyFromXpub(account.extendedPublicKeys[0], path, AddressType.P2WPKH, currentBitcoinNetwork);
       return getAddressFromPubKey(receivePubKey, AddressType.P2WPKH, currentBitcoinNetwork);
     }
   }

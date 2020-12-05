@@ -14,7 +14,7 @@ import BigNumber from 'bignumber.js';
 import coinSelect from 'coinselect';
 
 import { cloneBuffer, bufferToHex } from './other';
-import { getUnchainedNetworkFromBjslibNetwork } from './files';
+import { getUnchainedNetworkFromBjslibNetwork, getDerivationPath } from './files';
 
 import {
   LilyAccount,
@@ -240,8 +240,8 @@ export const createTransaction = async (currentAccount: LilyAccount, amountInBit
 
   if (spendingUtxosTotal.isGreaterThan(outputTotal)) {
     psbt.addOutput({
-      script: address.toOutputScript(unusedChangeAddresses[0].address, currentBitcoinNetwork),
-      value: spendingUtxosTotal.minus(outputTotal).toNumber()
+      ...unusedChangeAddresses[0],
+      value: spendingUtxosTotal.minus(outputTotal).toNumber(),
     })
   }
 

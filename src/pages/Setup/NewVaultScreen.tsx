@@ -66,7 +66,6 @@ const NewVaultScreen = ({
     }
   }
 
-  // data comes in as (n/m):somedata1wq42rsdsa
   const importDeviceFromQR = ({ data }: { data: string }) => {
     try {
       const { xfp, xpub, path } = JSON.parse(data);
@@ -89,7 +88,6 @@ const NewVaultScreen = ({
     }
   }
 
-  // TODO: look at the difference between singleSig and multisigExport files
   const importDeviceFromFile = (parsedFile: ColdcardDeviceMultisigExportFile) => {
     const zpub = decode(parsedFile.p2wsh);
     const xpub = zpubToXpub(zpub);
@@ -153,8 +151,8 @@ const NewVaultScreen = ({
             onRequestClose={() => setQrScanModalOpen(false)}
           >
             <BarcodeScannerComponent
-              width={500}
-              height={500}
+              // @ts-ignore
+              width={'100%'}
               onUpdate={(err, result) => {
                 if (result) importDeviceFromQR({ data: result.getText() })
                 else return;
@@ -175,7 +173,6 @@ const NewVaultScreen = ({
                 isOpen={otherImportDropdownOpen}
                 setIsOpen={setOtherImportDropdownOpen}
                 minimal={true}
-                buttonLabel={'Other Import Options'}
                 dropdownItems={[
                   {
                     label: "Import from File",

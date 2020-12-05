@@ -121,7 +121,7 @@ var getUnchainedNetworkFromBjslibNetwork = function (bitcoinJslibNetwork) {
     return 'testnet';
   }
 };
-var getMultisigDescriptor = function (client, reqSigners, xpubs, isChange) {
+exports.getMultisigDescriptor = function (client, reqSigners, xpubs, isChange) {
   return __awaiter(void 0, void 0, void 0, function () {
     var descriptor, descriptorWithChecksum;
     return __generator(this, function (_a) {
@@ -403,12 +403,13 @@ exports.getAddressFromAccount = function (account, path, currentBitcoinNetwork) 
     }
   }
   else { // single sig
-    if (account.device) {
-      var receivePubKey = getChildPubKeyFromXpub(account, path, types_1.AddressType.p2sh, currentBitcoinNetwork);
+    console.log('account: ', account);
+    if (account.addressType === types_1.AddressType.p2sh) { // hww
+      var receivePubKey = getChildPubKeyFromXpub(account.extendedPublicKeys[0], path, types_1.AddressType.p2sh, currentBitcoinNetwork);
       return getAddressFromPubKey(receivePubKey, types_1.AddressType.p2sh, currentBitcoinNetwork);
     }
-    else {
-      var receivePubKey = getChildPubKeyFromXpub(account, path, types_1.AddressType.P2WPKH, currentBitcoinNetwork);
+    else { // software wallet
+      var receivePubKey = getChildPubKeyFromXpub(account.extendedPublicKeys[0], path, types_1.AddressType.P2WPKH, currentBitcoinNetwork);
       return getAddressFromPubKey(receivePubKey, types_1.AddressType.P2WPKH, currentBitcoinNetwork);
     }
   }
@@ -475,13 +476,9 @@ var getTransactionsFromNode = function (nodeClient) {
     var transactions;
     return __generator(this, function (_a) {
       switch (_a.label) {
-        case 0:
-          nodeClient.wallet = 'specterdd4efa276cfa1560/cc_vault';
-          console.log('nodeClient: ', nodeClient.wallet);
-          return [4 /*yield*/, nodeClient.listTransactions({ count: 100 })];
+        case 0: return [4 /*yield*/, nodeClient.listTransactions({ count: 100 })];
         case 1:
           transactions = _a.sent();
-          console.log('transactions: ', transactions);
           return [2 /*return*/, transactions];
       }
     });

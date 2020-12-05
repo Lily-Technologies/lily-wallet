@@ -11,7 +11,7 @@ import { AccountMapContext } from '../../AccountMapContext';
 
 import { GridArea, Modal, FileUploader, ErrorModal } from '../../components';
 
-import { SetStateNumber, SetStatePsbt, Device, File, FeeRates } from '../../types';
+import { SetStateNumber, SetStatePsbt, Device, File, FeeRates, AddressType } from '../../types';
 
 import { getPsbtFromText, getSignedDevicesFromPsbt, combinePsbts, validateTxForAccount } from '../../utils/send';
 
@@ -59,7 +59,7 @@ const ConfirmTxPage = ({
   }
 
   const setPreSignedDevices = () => {
-    if (currentAccount.config.quorum.requiredSigners > 1) { // KBC-TODO: this needs to handle the single hww case
+    if (currentAccount.config.addressType !== AddressType.P2WPKH) { // KBC-TODO: this needs to handle the single hww case
       const signedDevicesObjects = getSignedDevicesFromPsbt(finalPsbt, currentAccount.config.extendedPublicKeys!);
       setSignedDevices(signedDevicesObjects);
     }

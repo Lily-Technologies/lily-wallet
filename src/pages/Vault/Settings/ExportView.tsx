@@ -67,7 +67,7 @@ const ExportView = ({ currentBitcoinNetwork }: Props) => {
       fgColor={black}
       level="Q"
       style={{ width: 256 }}
-      value={currentAccount.config.xpub as string}
+      value={currentAccount.config.extendedPublicKeys[0].xpub as string}
     />
   )
 

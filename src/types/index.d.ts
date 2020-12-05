@@ -273,9 +273,7 @@ export interface AccountConfig {
     requiredSigners: number
     totalSigners: number
   },
-  extendedPublicKeys?: ExtendedPublicKey[]
-  device?: Device
-  xpub?: string
+  extendedPublicKeys: ExtendedPublicKey[]
   mnemonic?: string
   parentFingerprint?: string
 }
@@ -294,6 +292,21 @@ export interface PubKey {
 export type AccountMapAction =
   | { type: ACCOUNTMAP_UPDATE, payload: { account: LilyAccount } }
   | { type: ACCOUNTMAP_SET, payload: AccountMap };
+
+export interface ColdcardElectrumExport {
+  keystore: {
+    ckcc_xpub: string // xpub661MyMwAqRbcFY3rShdoE89xuc8g3ZkKbfVT7t3DPpomRASfjeWMbYSTTnxUTXcTdu73MEZCXmzv8ravVjvq8aC9jM4ZaM1BiD46
+    xpub: string // ypub6X1iLoC66mvtA1zigXwTSbLrFpBp9idkscgb9GBcPryy3vn52QtumoJwA9ykpJy5oAQEuPCuRYvxz9qjymDiucZ5fgEwNAeBMB
+    label: string // Coldcard Import 4F60D1C9
+    ckcc_xfp: number // 3385942095
+    type: string // hardware
+    hw_type: string // coldcard
+    derivation: string // m/49'/0'/0'
+  },
+  wallet_type: string // standard
+  use_encryption: boolean // false
+  seed_version: number // 17
+}
 
 export interface ColdcardDeviceMultisigExportFile {
   p2sh_deriv: string // m/45'
