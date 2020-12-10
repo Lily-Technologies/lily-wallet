@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Bank } from '@styled-icons/remix-line';
-import { Wallet } from '@styled-icons/ionicons-outline';
 import { Calculator } from '@styled-icons/heroicons-outline';
 
 import { StyledIcon, Button } from '../../components';

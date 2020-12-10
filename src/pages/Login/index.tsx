@@ -176,7 +176,6 @@ const Login = ({ config, setConfigFile, currentBitcoinNetwork, encryptedConfigFi
                 {isLoading && !encryptedConfigFile ? 'Loading' : isLoading ? 'Unlocking' : encryptedConfigFile ? 'Unlock' : 'Continue'}
                 {isLoading ? <LoadingImage alt="loading placeholder" src={require('../../assets/flower-loading.svg')} /> : <StyledIcon as={ArrowIosForwardOutline} size={24} />}
               </SignInButton>
-              {encryptedConfigFile && passwordError && <PasswordError>{passwordError}</PasswordError>}
               {encryptedConfigFile && <SignupOptionSubtext>Last accessed on {encryptedConfigFile && moment(encryptedConfigFile.modifiedTime).format('MM/DD/YYYY')}</SignupOptionSubtext>}
             </SignupOptionItem>
           ) : (

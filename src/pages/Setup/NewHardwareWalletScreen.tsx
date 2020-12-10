@@ -6,7 +6,7 @@ import { Network } from 'bitcoinjs-lib';
 
 import { Button, DeviceSelect, FileUploader, Modal, Dropdown, ErrorModal } from '../../components';
 import { InnerWrapper, XPubHeaderWrapper, SetupHeaderWrapper, SetupExplainerText, FormContainer, BoxedWrapper, SetupHeader } from './styles';
-import { darkGray, white } from '../../utils/colors';
+import { white } from '../../utils/colors';
 import { zpubToXpub } from '../../utils/other';
 import { getP2shDeriationPathForNetwork } from '../../utils/files';
 
@@ -209,12 +209,6 @@ const ContinueButton = styled.button`
   ${Button};
   border-top-right-radius: 0;
   border-top-left-radius: 0;
-`;
-
-const ImportFromFileButton = styled.label`
-  ${Button}
-  font-size: 0.75em;
-  border: 1px solid ${darkGray};
 `;
 
 const ImportFromFileLabel = styled.label`

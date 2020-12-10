@@ -33,7 +33,7 @@ const PageHeader = ({ headerText, setStep, step, setSetupOption }: Props) => {
               { label: 'New Software Wallet', onClick: () => { setSetupOption(2); setStep(1) } },
             ]}
           />}
-          {step > 1 && <CancelButton onClick={() => { setStep(0) }}>Cancel</CancelButton>}
+          {step > 0 && <CancelButton onClick={() => { setStep(0) }}>Cancel</CancelButton>}
         </HeaderRight>
       </Header>
     </HeaderWrapper>

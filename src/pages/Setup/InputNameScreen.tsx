@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 
 import { Button, Input } from '../../components';
 import { InnerWrapper, XPubHeaderWrapper, SetupHeaderWrapper, SetupExplainerText, FormContainer, BoxedWrapper, SetupHeader } from './styles';
 
-import { white, green600 } from '../../utils/colors';
+import { white, red, green600 } from '../../utils/colors';
 
 interface Props {
   header: JSX.Element
@@ -15,10 +15,13 @@ interface Props {
 }
 
 const InputNameScreen = ({ header, setupOption, setStep, accountName, setAccountName }: Props) => {
+  const [nameError, setNameError] = useState('');
 
   const nextScreenAction = () => {
     if (accountName.length > 3) {
       setStep(2);
+    } else {
+      setNameError('Not enough characters')
     }
   }
 
@@ -78,6 +81,7 @@ const InputNameScreen = ({ header, setupOption, setStep, accountName, setAccount
               onChange={setAccountName}
               onKeyDown={(e) => onInputEnter(e)}
             />
+            {nameError !== undefined && <Error>{nameError}</Error>}
           </PasswordWrapper>
 
           <ExportFilesButton
@@ -106,6 +110,12 @@ const ExportFilesButton = styled.button`
   border-top-left-radius: 0;
   border-top-right-radius: 0;
   width: 100%;
+`;
+
+const Error = styled.div`
+  color: ${red};
+  font-size: 0.75em;
+  margin-top: .5em;
 `;
 
 export default InputNameScreen;

@@ -59,7 +59,7 @@ const App = () => {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [password, setPassword] = useState('');
 
-  const { setAccountMap, updateAccountMap, accountMap } = useContext(AccountMapContext);
+  const { setAccountMap, updateAccountMap } = useContext(AccountMapContext);
 
   const ConfigRequired = () => {
     const { pathname } = useLocation();

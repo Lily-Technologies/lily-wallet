@@ -33,12 +33,11 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
 };
 
 const VaultView = () => {
-  const { currentAccount, accountMap } = useContext(AccountMapContext);
+  const { currentAccount } = useContext(AccountMapContext);
   const { currentBalance, transactions } = currentAccount;
   const transactionsCopyForChart = [...transactions];
   const transactionsCopyForRecentTransactions = [...transactions];
   const sortedTransactions = transactionsCopyForChart.sort((a, b) => a.status.block_time - b.status.block_time);
-  console.log('accountMap: ', accountMap);
 
   let dataForChart;
 
@@ -81,7 +80,8 @@ const VaultView = () => {
                 <XAxis
                   dataKey="block_time"
                   height={50}
-                  interval={1}
+                  interval={'preserveStartEnd'}
+                  tickCount={transactions.length > 10 ? 5 : transactions.length}
                   tickFormatter={(blocktime) => {
                     return moment.unix(blocktime).format('MMM D')
                   }}

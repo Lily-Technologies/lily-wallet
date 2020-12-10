@@ -1,29 +1,26 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import moment from 'moment';
-import { VerticalAlignBottom, ArrowUpward } from '@styled-icons/material';
-import { Transfer } from '@styled-icons/boxicons-regular';
-import { StyledIcon } from '../../components';
 import { satoshisToBitcoins } from "unchained-bitcoin";
 
-import { white, offWhite, green, gray, gray100, red500 } from '../../utils/colors';
+import { white, offWhite } from '../../utils/colors';
+
+import TransactionTypeIcon from './TransactionTypeIcon'
 
 import { Transaction } from '../../types'
 
 interface Props {
   transaction: Transaction
   flat: boolean
+  onClick: () => void
 }
 
-const TransactionRow = ({ transaction, flat }: Props) => {
-  const [isOpen, setIsOpen] = useState(false);
+const TransactionRow = ({ onClick, transaction, flat }: Props) => {
   return (
-    <TransactionRowWrapper flat={flat}>
-      <TransactionRowContainer flat={flat} isOpen={isOpen} onClick={() => { !flat && setIsOpen(!isOpen) }}>
+    <TransactionRowWrapper onClick={() => onClick()} flat={flat}>
+      <TransactionRowContainer flat={flat}>
         <TxTypeIcon flat={flat}>
-          {transaction.type === 'received' && <StyledIconModified as={VerticalAlignBottom} size={flat ? 36 : 48} receive={true} />}
-          {transaction.type === 'sent' && <StyledIconModified as={ArrowUpward} size={flat ? 36 : 48} />}
-          {transaction.type === 'moved' && <StyledIconModified as={Transfer} size={flat ? 36 : 48} moved={true} />}
+          <TransactionTypeIcon transaction={transaction} flat={flat} />
           <TxTypeTextWrapper flat={flat}>
             <TxTypeText>{transaction.type}</TxTypeText>
             <TxTypeTime>{transaction.status.confirmed ? moment.unix(transaction.status.block_time).format('h:mm A') : 'Unconfirmed'}</TxTypeTime>
@@ -32,11 +29,6 @@ const TransactionRow = ({ transaction, flat }: Props) => {
         <AddressWrapper flat={flat}>{transaction.address}</AddressWrapper>
         <AmountWrapper flat={flat}>{satoshisToBitcoins(transaction.value).toNumber()} BTC</AmountWrapper>
       </TransactionRowContainer>
-      {isOpen && (
-        <TransactionMoreInfo>
-          <pre>{JSON.stringify(transaction, null, 2)}</pre>
-        </TransactionMoreInfo>
-      )}
     </TransactionRowWrapper>
   )
 }
@@ -49,30 +41,15 @@ const TransactionRowWrapper = styled.div<{ flat: boolean }>`
   flex-direction: column;
 `;
 
-const TransactionRowContainer = styled.div<{ flat: boolean, isOpen: boolean }>`
+const TransactionRowContainer = styled.div<{ flat: boolean }>`
   display: flex;
   align-items: center;
   padding: ${p => p.flat ? '.75em' : '1.5em'};
 
   &:hover {
-    background: ${p => !p.isOpen && !p.flat && offWhite};
+    background: ${p => !p.flat && offWhite};
     cursor: ${p => !p.flat && 'pointer'};
   }
-`;
-
-
-const TransactionMoreInfo = styled.div`
-  display: flex;
-  padding: .75em;
-  overflow: scroll;
-  background: ${gray100};
-`;
-
-const StyledIconModified = styled(StyledIcon) <{ receive?: boolean, moved?: boolean }>`
-  padding: .5em;
-  margin-right: .75em;
-  background: ${p => p.moved ? gray : (p.receive ? green : red500)};
-  border-radius: 50%;
 `;
 
 const TxTypeIcon = styled.div<{ flat: boolean }>`
@@ -94,8 +71,6 @@ const TxTypeText = styled.div`
 const TxTypeTime = styled.div`
   font-size: 0.75em;
 `;
-
-
 
 const AmountWrapper = styled.div<{ flat: boolean }>`
   display: flex;

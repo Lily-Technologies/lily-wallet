@@ -1,6 +1,6 @@
 import React, { Fragment, useContext } from 'react';
 import styled from 'styled-components';
-import { Psbt, Network, address } from 'bitcoinjs-lib';
+import { Psbt, Network } from 'bitcoinjs-lib';
 import { satoshisToBitcoins } from "unchained-bitcoin";
 
 import { createUtxoMapFromUtxoArray, getFee } from '../../utils/send';
@@ -24,6 +24,7 @@ const TransactionUtxoDetails = ({ psbt, currentBitcoinPrice, currentBitcoinNetwo
   if (availableUtxos) {
     utxosMap = createUtxoMapFromUtxoArray(availableUtxos);
   }
+
   return (
     <Fragment>
       <ModalHeaderContainer>
@@ -47,7 +48,7 @@ const TransactionUtxoDetails = ({ psbt, currentBitcoinPrice, currentBitcoinNetwo
           <MoreDetailsHeader style={{ marginTop: '1em' }}>Outputs</MoreDetailsHeader>
           {psbt.txOutputs.map(output => (
             <OutputItem>
-              <OutputAddress>{address.fromOutputScript(output.script, currentBitcoinNetwork)}</OutputAddress> <OutputAmount>{satoshisToBitcoins(output.value).toNumber()} BTC</OutputAmount>
+              <OutputAddress>{output.address}</OutputAddress> <OutputAmount>{satoshisToBitcoins(output.value).toNumber()} BTC</OutputAmount>
             </OutputItem>
           ))}
 
