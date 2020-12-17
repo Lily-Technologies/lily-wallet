@@ -1,4 +1,4 @@
-import { Network } from 'bitcoinjs-lib'
+import { Network, Psbt } from 'bitcoinjs-lib'
 import { ACCOUNTMAP_SET, ACCOUNTMAP_UPDATE } from '../reducers/accountMap'
 
 declare global {
@@ -16,6 +16,12 @@ declare global {
     ipcRenderer: any;
   }
 }
+
+// React Types
+export type SetStateBoolean = React.Dispatch<React.SetStateAction<boolean>>
+export type SetStateString = React.Dispatch<React.SetStateAction<string>>
+export type SetStateNumber = React.Dispatch<React.SetStateAction<number>>
+export type SetStatePsbt = React.Dispatch<React.SetStateAction<Psbt>>
 
 export interface File {
   file: string
@@ -108,6 +114,12 @@ export enum TransactionType {
   moved = 'moved'
 }
 
+export enum LicenseLevels {
+  basic = 'basic',
+  essential = 'essential',
+  premium = 'premium'
+}
+
 export interface Transaction {
   txid: string
   version: number,
@@ -188,9 +200,28 @@ export interface UtxoMap {
   [id: string]: UTXO
 }
 
+export interface PaymentAddressResponse {
+  childPath: string
+  address: string
+  basic: number
+  essential: number
+  premium: number
+}
+export interface LicenseResponse {
+  license: string
+  signature: string
+}
+export interface LilyLicense {
+  trial: boolean
+  expires: number
+  license?: string
+  signature?: string
+  txId?: string
+}
 export interface LilyConfig {
   name: string,
   version: string,
+  license: LilyLicense
   isEmpty: boolean,
   backup_options: {
     gDrive: boolean
@@ -202,7 +233,7 @@ export interface LilyConfig {
 }
 
 export interface Device {
-  type: 'coldcard' | 'trezor' | 'ledger' | 'phone' | 'lily'
+  type: 'coldcard' | 'trezor' | 'ledger' | 'phone' | 'lily' | 'cobo'
   fingerprint: string
   model: string // KBC-TODO: get more specific with this
 }
@@ -242,9 +273,7 @@ export interface AccountConfig {
     requiredSigners: number
     totalSigners: number
   },
-  extendedPublicKeys?: ExtendedPublicKey[]
-  device?: Device
-  xpub?: string
+  extendedPublicKeys: ExtendedPublicKey[]
   mnemonic?: string
   parentFingerprint?: string
 }
@@ -263,6 +292,21 @@ export interface PubKey {
 export type AccountMapAction =
   | { type: ACCOUNTMAP_UPDATE, payload: { account: LilyAccount } }
   | { type: ACCOUNTMAP_SET, payload: AccountMap };
+
+export interface ColdcardElectrumExport {
+  keystore: {
+    ckcc_xpub: string // xpub661MyMwAqRbcFY3rShdoE89xuc8g3ZkKbfVT7t3DPpomRASfjeWMbYSTTnxUTXcTdu73MEZCXmzv8ravVjvq8aC9jM4ZaM1BiD46
+    xpub: string // ypub6X1iLoC66mvtA1zigXwTSbLrFpBp9idkscgb9GBcPryy3vn52QtumoJwA9ykpJy5oAQEuPCuRYvxz9qjymDiucZ5fgEwNAeBMB
+    label: string // Coldcard Import 4F60D1C9
+    ckcc_xfp: number // 3385942095
+    type: string // hardware
+    hw_type: string // coldcard
+    derivation: string // m/49'/0'/0'
+  },
+  wallet_type: string // standard
+  use_encryption: boolean // false
+  seed_version: number // 17
+}
 
 export interface ColdcardDeviceMultisigExportFile {
   p2sh_deriv: string // m/45'

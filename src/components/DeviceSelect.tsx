@@ -35,7 +35,6 @@ export const DeviceSelect = ({
   const [deviceActionLoading, setDeviceActionLoading] = useState<number | null>(null);
   const [promptPinModalDevice, setPromptPinModalDevice] = useState<HwiResponseEnumerate | null>(null);
 
-
   useEffect(() => {
     enumerate();
   }, []); // eslint-disable-line
@@ -49,7 +48,7 @@ export const DeviceSelect = ({
 
       if (phoneAction) {
         response.push({
-          type: 'phone',
+          type: 'cobo',
           fingerprint: 'unknown',
           xpub: 'unknown',
           model: 'unknown',
@@ -105,7 +104,8 @@ export const DeviceSelect = ({
                 device.type === 'coldcard' ? require('../assets/coldcard.png')
                   : device.type === 'ledger' ? require('../assets/ledger.png')
                     : device.type === 'trezor' ? require('../assets/trezor.png')
-                      : require('../assets/iphone.png')
+                      : device.type === 'cobo' ? require('../assets/cobo.png')
+                        : require('../assets/iphone.png')
               } />
             <DeviceInfoWrapper>
               <DeviceName>{device.type}</DeviceName>
@@ -130,7 +130,7 @@ export const DeviceSelect = ({
                       await enumerate();
                     }
                   } else {
-                    if (device.type === 'phone' && phoneAction !== undefined) {
+                    if ((device.type === 'cobo' || device.type === 'phone') && phoneAction !== undefined) {
                       phoneAction()
                     } else {
                       performDeviceAction(device, index)
@@ -152,7 +152,8 @@ export const DeviceSelect = ({
                   device.type === 'coldcard' ? require('../assets/coldcard.png')
                     : device.type === 'ledger' ? require('../assets/ledger.png')
                       : device.type === 'trezor' ? require('../assets/trezor.png')
-                        : require('../assets/iphone.png')
+                        : device.type === 'cobo' ? require('../assets/cobo.png')
+                          : require('../assets/iphone.png')
                 } />
               <DeviceInfoWrapper>
                 <DeviceName>{device.type}</DeviceName>

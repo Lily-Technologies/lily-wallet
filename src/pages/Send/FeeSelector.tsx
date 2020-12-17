@@ -9,7 +9,7 @@ import coinSelect from 'coinselect';
 import { Psbt } from 'bitcoinjs-lib';
 
 import { Button, Input } from '../../components';
-import { getFeeForMultisig } from './utils';
+import { getFeeForMultisig, getFee } from '../../utils/send';
 
 import { gray, blue, darkGray, lightGray, lightBlue, offWhite, green600, white } from '../../utils/colors';
 
@@ -17,20 +17,18 @@ import { LilyAccount, UTXO, FeeRates } from '../../types';
 
 interface Props {
   currentAccount: LilyAccount,
-  feeEstimate: number
   finalPsbt: Psbt
   feeRates: FeeRates,
   availableUtxos: UTXO[],
   recipientAddress: string,
   sendAmount: string,
   closeModal(): void,
-  createTransactionAndSetState(fee: string): void
+  createTransactionAndSetState(_recipientAddress: string, _sendAmount: string, _fee: BigNumber): void
   currentBitcoinPrice: any // KBC-TODO: change to be more specific
 }
 
 export const FeeSelector = ({
   currentAccount,
-  feeEstimate,
   finalPsbt,
   feeRates,
   availableUtxos,
@@ -40,9 +38,10 @@ export const FeeSelector = ({
   createTransactionAndSetState,
   currentBitcoinPrice
 }: Props) => {
-  const [customFee, setCustomFee] = useState(feeEstimate);
+  const fee = getFee(finalPsbt, currentAccount.transactions);
+  const [customFee, setCustomFee] = useState(fee);
   const [customFeeError, setCustomFeeError] = useState(false);
-  const [customFeeBtc, setCustomFeeBtc] = useState(satoshisToBitcoins(feeEstimate));
+  const [customFeeBtc, setCustomFeeBtc] = useState(bitcoinsToSatoshis(fee));
   const [showEditCustomFee, setShowEditCustomFee] = useState(false);
 
   let fastestFee: number;
@@ -69,6 +68,11 @@ export const FeeSelector = ({
     return true;
   }
 
+  const selectFee = (fee: number) => {
+    createTransactionAndSetState(recipientAddress, sendAmount, new BigNumber(fee));
+    closeModal();
+  }
+
   return (
     <Fragment>
       <ModalHeaderContainer>
@@ -77,32 +81,23 @@ export const FeeSelector = ({
       {!showEditCustomFee ? (
         <div style={{ padding: '1.5em' }}>
           <FeeItem
-            onClick={() => {
-              createTransactionAndSetState(fastestFee.toString());
-              closeModal();
-            }}
-            selected={fastestFee === feeEstimate}>
+            onClick={() => selectFee(fastestFee)}
+            selected={fastestFee === fee}>
             <FeeMainText>Fast: ~10 minutes</FeeMainText>
             <FeeSubtext>${satoshisToBitcoins(fastestFee).multipliedBy(currentBitcoinPrice).toFixed(2)}, {satoshisToBitcoins(fastestFee).toNumber()} BTC</FeeSubtext>
           </FeeItem>
           {normalFee !== fastestFee && (
             <FeeItem
-              onClick={() => {
-                createTransactionAndSetState(normalFee.toString());
-                closeModal();
-              }}
-              selected={normalFee === feeEstimate}>
+              onClick={() => selectFee(normalFee)}
+              selected={normalFee === fee}>
               <FeeMainText>Normal: ~30 minutes</FeeMainText>
               <FeeSubtext>${satoshisToBitcoins(normalFee).multipliedBy(currentBitcoinPrice).toFixed(2)}, {satoshisToBitcoins(normalFee).toNumber()} BTC</FeeSubtext>
             </FeeItem>
           )}
           {slowFee !== normalFee && ( //  remove slow option if same as normal (mempool isnt very full)
             <FeeItem
-              onClick={() => {
-                createTransactionAndSetState(slowFee.toString());
-                closeModal();
-              }}
-              selected={slowFee === feeEstimate}>
+              onClick={() => selectFee(slowFee)}
+              selected={slowFee === fee}>
               <FeeMainText>Slow: ~1 hour</FeeMainText>
               <FeeSubtext>${satoshisToBitcoins(slowFee).multipliedBy(currentBitcoinPrice).toFixed(2)}, {satoshisToBitcoins(slowFee).toNumber()} BTC</FeeSubtext>
             </FeeItem>
@@ -111,10 +106,10 @@ export const FeeSelector = ({
             onClick={() => {
               setShowEditCustomFee(true);
             }}
-            selected={slowFee !== feeEstimate && normalFee !== feeEstimate && fastestFee !== feeEstimate}>
+            selected={slowFee !== fee && normalFee !== fee && fastestFee !== fee}>
             <FeeMainText>Custom Fee</FeeMainText>
             <FeeSubtext>
-              {slowFee !== feeEstimate && normalFee !== feeEstimate && fastestFee !== feeEstimate &&
+              {slowFee !== fee && normalFee !== fee && fastestFee !== fee &&
                 `$${satoshisToBitcoins(customFee).multipliedBy(currentBitcoinPrice).toFixed(2)}, ${satoshisToBitcoins(customFee).toNumber()} BTC`
               }
             </FeeSubtext>
@@ -151,7 +146,7 @@ export const FeeSelector = ({
                 color={white}
                 onClick={() => {
                   if (validateCustomFee()) {
-                    createTransactionAndSetState(customFee.toString());
+                    createTransactionAndSetState(recipientAddress, sendAmount, new BigNumber(customFee));
                     closeModal();
                   }
                 }}>

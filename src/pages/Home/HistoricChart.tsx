@@ -128,6 +128,7 @@ const CurrentPriceText = styled.div`
 
 const ChartControlsContainer = styled.div`
   display: flex;
+  font-weight: 600;
 `;
 
 const ChartControlItem = styled.div<{ active: boolean }>`

@@ -87,10 +87,10 @@ const Setup = ({ config, setConfigFile, password, currentBitcoinNetwork }: Props
 
   const Header = (
     <PageHeader
-      config={config}
       headerText={(step === 0) ? 'Select account type' : `${setupOption === 2 ? 'Create new wallet' : setupOption === 3 ? 'Manage hardware wallet' : 'Create new vault'}`}
       setStep={setStep}
       step={step}
+      setSetupOption={setSetupOption}
     />
   )
 

@@ -1,13 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import moment from 'moment';
-import { RestaurantMenu } from '@styled-icons/material';
-import { StyledIcon } from '../../components';
+import { Modal } from '../../components';
 
+import TxDetailsModal from './TxDetailsModal';
 import TransactionRow from './TransactionRow'
 import TransactionRowLoading from './TransactionRowLoading'
 
-import { darkGray, white, green800 } from '../../utils/colors';
+import { darkGray, white } from '../../utils/colors';
 
 import { Transaction } from '../../types'
 
@@ -30,8 +30,25 @@ interface Props {
 }
 
 const RecentTransactions = ({ transactions, loading, flat = false, maxItems = Infinity }: Props) => {
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
+
+  const openInModal = (component: JSX.Element) => {
+    setModalIsOpen(true);
+    setModalContent(component);
+  }
+
+  const closeModal = () => {
+    setModalIsOpen(false);
+    setModalContent(null);
+  }
   return (
     <RecentTransactionsWrapper>
+      <Modal
+        isOpen={modalIsOpen}
+        onRequestClose={() => closeModal()}>
+        {modalContent as React.ReactChild}
+      </Modal>
       {(loading || transactions.length > 0) && <RecentTransactionsHeader>Recent Activity</RecentTransactionsHeader>}
       {loading && (<TransactionRowLoading flat={flat} />)}
       <TransactionsWrapper>
@@ -40,7 +57,7 @@ const RecentTransactions = ({ transactions, loading, flat = false, maxItems = In
             return (
               <TransactionRowWrapper key={index}>
                 {shouldDisplayDate(transactions, index) && <DateWrapper>{transaction.status.confirmed ? moment.unix(transaction.status.block_time).format('MMMM DD, YYYY') : 'Waiting for confirmation...'}</DateWrapper>}
-                <TransactionRow transaction={transaction} flat={flat} />
+                <TransactionRow onClick={() => openInModal(<TxDetailsModal transaction={transaction} />)} transaction={transaction} flat={flat} />
               </TransactionRowWrapper>
             )
           }
@@ -48,7 +65,7 @@ const RecentTransactions = ({ transactions, loading, flat = false, maxItems = In
         {!loading && transactions.length === 0 && (
           <NoTransasctionsSection flat={flat}>
             <NoTransactionsHeader>No Transactions</NoTransactionsHeader>
-            <StyledIcon as={RestaurantMenu} size={96} style={{ color: darkGray }} />
+            <DeadFlower src={require('../../assets/dead-flower.svg')} />
             <NoTransactionsSubtext>No activity has been detected on this account yet.</NoTransactionsSubtext>
           </NoTransasctionsSection>
         )}
@@ -99,6 +116,11 @@ const NoTransactionsHeader = styled.h3`
   color: ${darkGray};
 `;
 const NoTransactionsSubtext = styled.h4`
+  color: ${darkGray};
+`;
+
+const DeadFlower = styled.img`
+  width: 6.25em;
   color: ${darkGray};
 `;
 

@@ -66,17 +66,17 @@ const NewVaultScreen = ({
     }
   }
 
-  // data comes in as (n/m):somedata1wq42rsdsa
   const importDeviceFromQR = ({ data }: { data: string }) => {
     try {
-      const [parentFingerprint, xpub] = data.split(':');
+      const { xfp, xpub, path } = JSON.parse(data);
+      const xpubFromZpub = zpubToXpub(decode(xpub));
 
       const newDevice = {
-        type: 'phone',
-        fingerprint: parentFingerprint,
-        xpub: xpub,
+        type: 'cobo',
+        fingerprint: xfp,
+        xpub: xpubFromZpub,
         model: 'unknown',
-        path: 'unknown'
+        path: path
       } as HwiResponseEnumerate;
 
       const updatedImportedDevices = [...importedDevices, newDevice];
@@ -88,7 +88,6 @@ const NewVaultScreen = ({
     }
   }
 
-  // TODO: look at the difference between singleSig and multisigExport files
   const importDeviceFromFile = (parsedFile: ColdcardDeviceMultisigExportFile) => {
     const zpub = decode(parsedFile.p2wsh);
     const xpub = zpubToXpub(zpub);
@@ -152,8 +151,8 @@ const NewVaultScreen = ({
             onRequestClose={() => setQrScanModalOpen(false)}
           >
             <BarcodeScannerComponent
-              width={500}
-              height={500}
+              // @ts-ignore
+              width={'100%'}
               onUpdate={(err, result) => {
                 if (result) importDeviceFromQR({ data: result.getText() })
                 else return;
@@ -174,7 +173,6 @@ const NewVaultScreen = ({
                 isOpen={otherImportDropdownOpen}
                 setIsOpen={setOtherImportDropdownOpen}
                 minimal={true}
-                buttonLabel={'Other Import Options'}
                 dropdownItems={[
                   {
                     label: "Import from File",
@@ -196,7 +194,6 @@ const NewVaultScreen = ({
           </XPubHeaderWrapper>
           <DeviceSelect
             deviceAction={importMultisigDevice}
-            phoneAction={() => setQrScanModalOpen(true)}
             deviceActionText={'Click to Configure'}
             deviceActionLoadingText={'Extracting XPub'}
             configuredDevices={importedDevices}

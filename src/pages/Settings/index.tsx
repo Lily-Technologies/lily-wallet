@@ -1,24 +1,35 @@
 import React, { useState, Fragment } from 'react';
 import styled, { css } from 'styled-components';
-import { AES } from 'crypto-js';
 import { Network } from 'bitcoinjs-lib';
 
 import { PageWrapper, PageTitle, Header, HeaderLeft, Button, Modal, Input } from '../../components';
 
-import { green600, green800, darkGray, white, gray100, darkOffWhite, lightGray, gray } from '../../utils/colors';
-import { downloadFile, formatFilename } from '../../utils/files';
+import Tabs from './Tabs';
+import ConfigurationSettings from './ConfigurationSettings';
+import License from './License';
+import About from './About';
+
+import {
+  green600, green800, darkGray, white, gray100, green500,
+  gray500,
+  gray200,
+  gray300,
+  gray700
+} from '../../utils/colors';
 import { mobile } from '../../utils/media';
 
-import { LilyConfig } from '../../types';
+import { LilyConfig, NodeConfig } from '../../types';
 
-const Settings = ({ config, currentBitcoinNetwork }: { config: LilyConfig, currentBitcoinNetwork: Network }) => {
+interface Props {
+  config: LilyConfig,
+  nodeConfig: NodeConfig,
+  currentBitcoinNetwork: Network
+}
+
+const Settings = ({ config, nodeConfig, currentBitcoinNetwork }: Props) => {
+  const [currentTab, setCurrentTab] = useState('config');
   const [downloadConfigModalIsOpen, setDownloadConfigModalIsOpen] = useState(false);
   const [password, setPassword] = useState('');
-
-  const downloadCurrentConfig = (password: string) => {
-    const encryptedConfigObject = AES.encrypt(JSON.stringify(config), password).toString();
-    downloadFile(encryptedConfigObject, formatFilename('lily_wallet_config', currentBitcoinNetwork, 'txt'));
-  }
 
   return (
     <PageWrapper>
@@ -28,45 +39,53 @@ const Settings = ({ config, currentBitcoinNetwork }: { config: LilyConfig, curre
             <PageTitle>Settings</PageTitle>
           </HeaderLeft>
         </Header>
-        <ValueWrapper>
-          <SettingsHeadingItem style={{ marginTop: '0.5em' }}>Data and Backups</SettingsHeadingItem>
-          <SettingsSection>
-            <SettingsSectionLeft>
-              <SettingsHeader>Export Current Configuration</SettingsHeader>
-              <SettingsSubheader>Download your current vault configuration. This allows you to import your current configuration on a different machine running Lily.</SettingsSubheader>
-            </SettingsSectionLeft>
-            <SettingsSectionRight>
-              <ViewAddressesButton
-                onClick={() => setDownloadConfigModalIsOpen(true)}>
-                Download Current Config
-              </ViewAddressesButton>
-            </SettingsSectionRight>
-          </SettingsSection>
-        </ValueWrapper>
-        <Modal
-          isOpen={downloadConfigModalIsOpen}
-          onRequestClose={() => setDownloadConfigModalIsOpen(false)}>
-          <ModalContentContainer>
-            <PasswordWrapper>
-              <PasswordText>Almost done, just set a password to encrypt your setup file:</PasswordText>
-              <Input
-                label="Password"
-                placeholder="password"
-                value={password}
-                onChange={setPassword}
-                type="password" />
-            </PasswordWrapper>
-            <WordContainer>
-              <SaveWalletButton background={green600} color={white} onClick={() => downloadCurrentConfig(password)}>
-                Download Encrypted Configuration File
-              </SaveWalletButton>
-            </WordContainer>
-          </ModalContentContainer>
-        </Modal>
+        <Wrapper>
+          <Tabs currentTab={currentTab} setCurrentTab={setCurrentTab} />
+          {currentTab === 'config' && <ConfigurationSettings config={config} nodeConfig={nodeConfig} currentBitcoinNetwork={currentBitcoinNetwork} />}
+          {currentTab === 'license' && <License config={config} nodeConfig={nodeConfig} currentBitcoinNetwork={currentBitcoinNetwork} />}
+          {currentTab === 'about' && <About config={config} />}
+        </Wrapper>
       </Fragment>
-    </PageWrapper>
+    </PageWrapper >
   )
 };
+
+const Wrapper = styled.div`
+  background: ${white};
+  border-radius: 0.385em;
+  box-shadow: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06);
+  overflow: hidden;
+  padding: 1.5rem;
+`;
+
+const SettingsTabs = styled.div`
+  display: flex;
+  border-bottom: 1px solid ${gray200};
+`;
+
+const TabItem = styled.div<{ active: boolean }>`
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 500;
+  border-bottom: 2px solid ${p => p.active ? green500 : 'none'};
+  margin-left: 2rem;
+  cursor: pointer;
+  color: ${p => p.active ? green500 : gray500};
+  font-weight: 600;
+
+  &:nth-child(1) {
+    margin-left: 0;
+  }
+
+  &:hover {
+    border-bottom: 2px solid ${p => p.active ? 'none' : gray300};
+    color: ${p => p.active ? 'inherit' : gray700};
+  }
+`;
 
 const ModalContentContainer = styled.div`
   display: flex;
@@ -146,33 +165,6 @@ const PasswordWrapper = styled.div`
 
 const PasswordText = styled.h3`
   font-weight: 400;
-`;
-
-const PasswordInput = styled.input`
-  position: relative;
-  border: 1px solid ${darkOffWhite};
-  background: ${lightGray};
-  padding: .75em;
-  text-align: center;
-  color: ${darkGray};
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 1em;
-  border-radius: 4px;
-  font-size: 1.5em;
-  z-index: 1;
-  flex: 1;
-  font-family: 'Montserrat', sans-serif;
-
-  ::placeholder {
-    color: ${gray};
-  }
-
-  :active, :focused {
-    outline: 0;
-    border: none;
-  }
 `;
 
 const SaveWalletButton = styled.div`

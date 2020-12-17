@@ -1,22 +1,21 @@
-import React from 'react';
-import { useHistory } from "react-router-dom";
+import React, { useState } from 'react';
 
 import { HeaderWrapper, CancelButton, PageTitleSubtext } from './styles';
-import { Header, HeaderLeft, HeaderRight, PageTitle } from '../../components/layout';
+import { Header, HeaderLeft, HeaderRight, PageTitle, Dropdown } from '../../components/';
 
 import { black } from '../../utils/colors';
 
-import { LilyConfig } from '../../types';
+import { SetStateNumber } from '../../types';
 
 interface Props {
   headerText: string
-  setStep: React.Dispatch<React.SetStateAction<number>>
+  setStep: SetStateNumber
   step: number
-  config: LilyConfig
+  setSetupOption: SetStateNumber
 }
 
-const PageHeader = ({ headerText, setStep, step, config }: Props) => {
-  const history = useHistory();
+const PageHeader = ({ headerText, setStep, step, setSetupOption }: Props) => {
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   return (
     <HeaderWrapper>
@@ -26,8 +25,15 @@ const PageHeader = ({ headerText, setStep, step, config }: Props) => {
           <PageTitle style={{ color: black }}>{headerText}</PageTitle>
         </HeaderLeft>
         <HeaderRight>
-          {config.isEmpty && <CancelButton onClick={() => { history.push('login') }}>Return to Main Menu</CancelButton>}
-          {!config.isEmpty && step > 1 && <CancelButton onClick={() => { setStep(0) }}>Cancel</CancelButton>}
+          {step === 0 && <Dropdown
+            isOpen={dropdownOpen}
+            setIsOpen={setDropdownOpen}
+            minimal={true}
+            dropdownItems={[
+              { label: 'New Software Wallet', onClick: () => { setSetupOption(2); setStep(1) } },
+            ]}
+          />}
+          {step > 0 && <CancelButton onClick={() => { setStep(0) }}>Cancel</CancelButton>}
         </HeaderRight>
       </Header>
     </HeaderWrapper>

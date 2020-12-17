@@ -4,7 +4,7 @@ import React from 'react';
 import styled, { css } from 'styled-components';
 
 import { mobile } from '../utils/media';
-import { white, black, gray100 } from '../utils/colors';
+import { white, black } from '../utils/colors';
 
 interface Props {
   children: React.ReactChild
@@ -51,7 +51,7 @@ const Content = styled.div`
 
 export const GridArea = styled.div`
   display: grid;
-  background: ${gray100};
+  background: transparent;
   grid-template-columns: repeat(auto-fit, minmax(25rem, 1fr));
   grid-gap: 1.5em;
   padding: 1.5em;
@@ -61,6 +61,7 @@ export const GridArea = styled.div`
 export const PageTitle = styled.div`
   font-size: 2em;
   color: ${white};
+  font-weight: 600;
 `;
 
 export const Header = styled.div`

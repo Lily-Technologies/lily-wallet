@@ -14,7 +14,7 @@ import { networks } from 'bitcoinjs-lib';
 import { offWhite, green700 } from './utils/colors';
 import { mobile } from './utils/media';
 
-import { Sidebar, MobileNavbar, TitleBar, ScrollToTop } from './components';
+import { Sidebar, MobileNavbar, TitleBar, ScrollToTop, AlertBar } from './components';
 
 // Pages
 import Login from './pages/Login';
@@ -24,6 +24,7 @@ import Vault from './pages/Vault';
 import Receive from './pages/Receive';
 import Send from './pages/Send';
 import Home from './pages/Home';
+import Purchase from './pages/Purchase';
 
 import { AccountMapContext } from './AccountMapContext';
 
@@ -33,6 +34,10 @@ const emptyConfig = {
   name: "",
   version: "0.0.2",
   isEmpty: true,
+  license: {
+    trial: true,
+    expires: 0
+  },
   backup_options: {
     gDrive: false
   },
@@ -230,6 +235,7 @@ const App = () => {
     <Router>
       <ScrollToTop />
       <TitleBar setNodeConfig={setNodeConfig} nodeConfig={nodeConfig} setMobileNavOpen={setMobileNavOpen} config={config} connectToBlockstream={connectToBlockstream} connectToBitcoinCore={connectToBitcoinCore} getNodeConfig={getNodeConfig} resetConfigFile={resetConfigFile} />
+      {!config.isEmpty && nodeConfig && (config.license.expires - nodeConfig.blocks < 840) && <AlertBar config={config} nodeConfig={nodeConfig!} />}
       <PageWrapper id="page-wrapper">
         <ConfigRequired />
         <Overlay />
@@ -237,11 +243,12 @@ const App = () => {
         {!config.isEmpty && <MobileNavbar mobileNavOpen={mobileNavOpen} setMobileNavOpen={setMobileNavOpen} config={config} currentBitcoinNetwork={currentBitcoinNetwork} />}
         <Switch>
           <Route path="/vault/:id" render={() => <Vault config={config} setConfigFile={setConfigFile} password={password} toggleRefresh={toggleRefresh} currentBitcoinNetwork={currentBitcoinNetwork} />} />
-          <Route path="/receive" component={() => <Receive config={config} />} />
-          {nodeConfig && <Route path="/send" component={() => <Send config={config} currentBitcoinPrice={currentBitcoinPrice} nodeConfig={nodeConfig} currentBitcoinNetwork={currentBitcoinNetwork} />} />}
+          <Route path="/receive" render={() => <Receive config={config} />} />
+          {nodeConfig && <Route path="/send" render={() => <Send config={config} currentBitcoinPrice={currentBitcoinPrice} nodeConfig={nodeConfig} currentBitcoinNetwork={currentBitcoinNetwork} />} />}
           <Route path="/setup" render={() => <Setup config={config} setConfigFile={setConfigFile} password={password} currentBitcoinNetwork={currentBitcoinNetwork} />} />
-          <Route path="/login" render={() => <Login config={config} setConfigFile={setConfigFile} setPassword={setPassword} encryptedConfigFile={encryptedConfigFile} setEncryptedConfigFile={setEncryptedConfigFile} currentBitcoinNetwork={currentBitcoinNetwork} />} />
-          <Route path="/settings" render={() => <Settings config={config} currentBitcoinNetwork={currentBitcoinNetwork} />} />
+          <Route path="/login" render={() => <Login config={config} setConfigFile={setConfigFile} setPassword={setPassword} encryptedConfigFile={encryptedConfigFile} setEncryptedConfigFile={setEncryptedConfigFile} currentBlockHeight={nodeConfig && nodeConfig.blocks} currentBitcoinNetwork={currentBitcoinNetwork} />} />
+          <Route path="/settings" render={() => <Settings config={config} nodeConfig={nodeConfig!} currentBitcoinNetwork={currentBitcoinNetwork} />} />
+          <Route path="/purchase" render={() => <Purchase currentBitcoinPrice={currentBitcoinPrice} password={password} config={config} setConfig={setConfigFile} nodeConfig={nodeConfig!} currentBitcoinNetwork={currentBitcoinNetwork} />} />
           <Route path="/" render={() => <Home flyInAnimation={flyInAnimation} prevFlyInAnimation={prevSetFlyInAnimation.current} historicalBitcoinPrice={historicalBitcoinPrice} currentBitcoinPrice={currentBitcoinPrice} />} />
           <Route path="/" render={() => (
             <div>Not Found</div>
@@ -254,19 +261,19 @@ const App = () => {
 }
 
 const ColorOverlap = styled.div`
+  background-image: ${`url("data:image/svg+xml,%3Csvg width='100' height='20' viewBox='0 0 100 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M21.184 20c.357-.13.72-.264 1.088-.402l1.768-.661C33.64 15.347 39.647 14 50 14c10.271 0 15.362 1.222 24.629 4.928.955.383 1.869.74 2.75 1.072h6.225c-2.51-.73-5.139-1.691-8.233-2.928C65.888 13.278 60.562 12 50 12c-10.626 0-16.855 1.397-26.66 5.063l-1.767.662c-2.475.923-4.66 1.674-6.724 2.275h6.335zm0-20C13.258 2.892 8.077 4 0 4V2c5.744 0 9.951-.574 14.85-2h6.334zM77.38 0C85.239 2.966 90.502 4 100 4V2c-6.842 0-11.386-.542-16.396-2h-6.225zM0 14c8.44 0 13.718-1.21 22.272-4.402l1.768-.661C33.64 5.347 39.647 4 50 4c10.271 0 15.362 1.222 24.629 4.928C84.112 12.722 89.438 14 100 14v-2c-10.271 0-15.362-1.222-24.629-4.928C65.888 3.278 60.562 2 50 2 39.374 2 33.145 3.397 23.34 7.063l-1.767.662C13.223 10.84 8.163 12 0 12v2z' fill='%2338a169' fill-opacity='0.09' fill-rule='evenodd'/%3E%3C/svg%3E")`};
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  height: 25vh;
-  background: ${green700};
+  height: 13em;
+  background-color: ${green700};
   box-shadow: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06);
 `;
 
 const PageWrapper = styled.div`
   height: 100%;
   display: flex;
-  margin-top: 2.5rem;;
   font-family: 'Raleway', sans-serif;
   flex: 1;
   background: ${offWhite};

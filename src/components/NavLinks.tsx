@@ -4,6 +4,7 @@ import { Link, useLocation } from "react-router-dom";
 import { VerticalAlignBottom, AddCircleOutline, Settings } from '@styled-icons/material';
 import { Home } from '@styled-icons/fa-solid'
 import { SendPlane } from '@styled-icons/remix-fill';
+import { Newspaper } from '@styled-icons/remix-line'
 import { networks, Network } from 'bitcoinjs-lib';
 
 import { StyledIcon } from '.';
@@ -39,6 +40,10 @@ export const NavLinks = ({ config, currentBitcoinNetwork }: Props) => {
         </WalletTitleText>
 
       </WalletTitle>
+      <SidebarItemLink active={pathname === '/purchase'} to="/purchase">
+        <StyledIcon as={Newspaper} size={24} style={{ marginRight: '.65rem' }} />
+          Buy License
+        </SidebarItemLink>
       <SidebarItem active={pathname === '/'} to="/" loading={false}>
         <StyledIcon as={Home} size={24} style={{ marginRight: '.65rem' }} />
           Home
@@ -62,7 +67,7 @@ export const NavLinks = ({ config, currentBitcoinNetwork }: Props) => {
           config.wallets.map((wallet) => (
             <SidebarItemLink
               key={wallet.id}
-              active={pathname === `/vault/${wallet.id}`}
+              active={pathname.includes(`/vault/${wallet.id}`)}
               onClick={() => {
                 setCurrentAccountId(wallet.id);
               }}
@@ -81,7 +86,7 @@ export const NavLinks = ({ config, currentBitcoinNetwork }: Props) => {
           config.vaults.map((vault) => (
             <SidebarItemLink
               key={vault.id}
-              active={pathname === `/vault/${vault.id}`}
+              active={pathname.includes(`/vault/${vault.id}`)}
               onClick={() => {
                 setCurrentAccountId(vault.id);
               }}
@@ -99,7 +104,7 @@ export const NavLinks = ({ config, currentBitcoinNetwork }: Props) => {
         loading={false}>
         <StyledIcon as={AddCircleOutline} size={24} style={{ marginRight: '.65rem' }} />
           New Account
-          </SidebarItemLink>
+      </SidebarItemLink>
     </Fragment >
   )
 }
