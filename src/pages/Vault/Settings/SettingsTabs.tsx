@@ -15,7 +15,7 @@ const SettingsTabs = ({ currentTab, setCurrentTab }: Props) => {
     <TabsContainer>
       <TabItem active={currentTab === 'general'} onClick={() => setCurrentTab('general')}>
         General
-      </TabItem>
+        </TabItem>
       <TabItem active={currentTab === 'addresses'} onClick={() => setCurrentTab('addresses')} >
         Addresses
       </TabItem>

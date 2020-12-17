@@ -1,85 +1,150 @@
-import axios from 'axios';
-import BigNumber from 'bignumber.js';
-import { payments, networks, Network } from 'bitcoinjs-lib';
+import axios from "axios";
+import BigNumber from "bignumber.js";
+import { payments, networks, Network } from "bitcoinjs-lib";
 import {
   deriveChildPublicKey,
   blockExplorerAPIURL,
   generateMultisigFromPublicKeys,
-  bitcoinsToSatoshis
+  bitcoinsToSatoshis,
 } from "unchained-bitcoin";
 
-import { AccountConfig, Address, AddressType, AddressMap, UTXO, Vin, Vout, Transaction, TransactionType, TransactionMap, PubKey, ExtendedPublicKey } from '../types';
+import {
+  AccountConfig,
+  Address,
+  AddressType,
+  AddressMap,
+  UTXO,
+  Vin,
+  Vout,
+  Transaction,
+  TransactionType,
+  TransactionMap,
+  PubKey,
+  ExtendedPublicKey,
+} from "../types";
 
 export const bitcoinNetworkEqual = (a: Network, b: Network): boolean => {
   return a.bech32 === b.bech32;
-}
+};
 
 function isVout(item: Vin | Vout): item is Vout {
   return (item as Vout).value !== undefined;
 }
 
-export const getDerivationPath = (addressType: AddressType, bip32Path: string, currentBitcoinNetwork: Network) => {
+export const getDerivationPath = (
+  addressType: AddressType,
+  bip32Path: string,
+  currentBitcoinNetwork: Network
+) => {
   const childPubKeysBip32Path = bip32Path;
-  if (addressType === 'multisig') {
-    return `${getMultisigDeriationPathForNetwork(currentBitcoinNetwork)}/${childPubKeysBip32Path.replace('m/', '')}`;
-  } else if (addressType === 'p2sh') {
-    return `${getP2shDeriationPathForNetwork(currentBitcoinNetwork)}/${childPubKeysBip32Path.replace('m/', '')}`;
-  } else { // p2wpkh
-    return `${getP2wpkhDeriationPathForNetwork(currentBitcoinNetwork)}/${childPubKeysBip32Path.replace('m/', '')}`;
+  if (addressType === "multisig") {
+    return `${getMultisigDeriationPathForNetwork(
+      currentBitcoinNetwork
+    )}/${childPubKeysBip32Path.replace("m/", "")}`;
+  } else if (addressType === "p2sh") {
+    return `${getP2shDeriationPathForNetwork(
+      currentBitcoinNetwork
+    )}/${childPubKeysBip32Path.replace("m/", "")}`;
+  } else {
+    // p2wpkh
+    return `${getP2wpkhDeriationPathForNetwork(
+      currentBitcoinNetwork
+    )}/${childPubKeysBip32Path.replace("m/", "")}`;
   }
-}
+};
 
 const getMultisigDeriationPathForNetwork = (network: Network) => {
   if (bitcoinNetworkEqual(network, networks.bitcoin)) {
-    return "m/48'/0'/0'/2'"
+    return "m/48'/0'/0'/2'";
   } else if (bitcoinNetworkEqual(network, networks.testnet)) {
-    return "m/48'/1'/0'/2'"
-  } else { // return mainnet by default...this should never run though
-    return "m/48'/0'/0'/2'"
+    return "m/48'/1'/0'/2'";
+  } else {
+    // return mainnet by default...this should never run though
+    return "m/48'/0'/0'/2'";
   }
-}
+};
 
 const getP2shDeriationPathForNetwork = (network: Network) => {
   if (bitcoinNetworkEqual(network, networks.bitcoin)) {
-    return "m/49'/0'/0'"
+    return "m/49'/0'/0'";
   } else if (bitcoinNetworkEqual(network, networks.testnet)) {
-    return "m/49'/1'/0'"
-  } else { // return mainnet by default...this should never run though
-    return "m/49'/0'/0'"
+    return "m/49'/1'/0'";
+  } else {
+    // return mainnet by default...this should never run though
+    return "m/49'/0'/0'";
   }
-}
+};
 
 const getP2wpkhDeriationPathForNetwork = (network: Network) => {
   if (bitcoinNetworkEqual(network, networks.bitcoin)) {
-    return "m/84'/0'/0'"
+    return "m/84'/0'/0'";
   } else if (bitcoinNetworkEqual(network, networks.testnet)) {
-    return "m/84'/1'/0'"
-  } else { // return mainnet by default...this should never run though
-    return "m/84'/0'/0'"
+    return "m/84'/1'/0'";
+  } else {
+    // return mainnet by default...this should never run though
+    return "m/84'/0'/0'";
   }
-}
+};
 
 const getUnchainedNetworkFromBjslibNetwork = (bitcoinJslibNetwork: Network) => {
   if (bitcoinNetworkEqual(bitcoinJslibNetwork, networks.bitcoin)) {
-    return 'mainnet';
+    return "mainnet";
   } else {
-    return 'testnet';
+    return "testnet";
   }
-}
+};
 
-export const getMultisigDescriptor = async (client: any, reqSigners: number, xpubs: ExtendedPublicKey[], isChange: boolean) => {
-  const descriptor = `wsh(sortedmulti(${reqSigners},${xpubs.map((xpub) => `${xpub.xpub}/${isChange ? '1' : '0'}/*`)}))`;
+export const getMultisigDescriptor = async (
+  client: any,
+  config: AccountConfig,
+  isChange: boolean
+) => {
+  const descriptor = `wsh(sortedmulti(${
+    config.quorum.requiredSigners
+  },${config.extendedPublicKeys.map(
+    (xpub) =>
+      `[${xpub.device.fingerprint}/48h/0h/0h/2h]${xpub.xpub}/${
+        isChange ? "1" : "0"
+      }/*`
+  )}))`;
   const descriptorWithChecksum = await client.getDescriptorInfo(descriptor);
   return descriptorWithChecksum.descriptor;
-}
+};
 
-const createAddressMapFromAddressArray = (addressArray: Address[], isChange: boolean) => {
+export const getWrappedDescriptor = async (
+  client: any,
+  config: AccountConfig,
+  isChange: boolean
+) => {
+  const descriptor = `sh(wpkh([${
+    config.extendedPublicKeys[0].device.fingerprint
+  }/49h/0h/0h]${config.extendedPublicKeys[0].xpub}/${isChange ? "1" : "0"}/*))`;
+  const descriptorWithChecksum = await client.getDescriptorInfo(descriptor);
+  return descriptorWithChecksum.descriptor;
+};
+
+export const getSegwitDescriptor = async (
+  client: any,
+  config: AccountConfig,
+  isChange: boolean
+) => {
+  const descriptor = `wpkh([${
+    config.extendedPublicKeys[0].device.fingerprint
+  }/84h/0h/0h]${config.extendedPublicKeys[0].xpub}/${isChange ? "1" : "0"}/*)`;
+  const descriptorWithChecksum = await client.getDescriptorInfo(descriptor);
+  return descriptorWithChecksum.descriptor;
+};
+
+const createAddressMapFromAddressArray = (
+  addressArray: Address[],
+  isChange: boolean
+) => {
   const addressMap: AddressMap = {};
   addressArray.forEach((addr) => {
     addressMap[addr.address!] = { ...addr, isChange: !!isChange };
   });
-  return addressMap
-}
+  return addressMap;
+};
 
 /**
  * Function used to aggregate values of inputs/outputs with optional
@@ -91,10 +156,10 @@ const createAddressMapFromAddressArray = (addressArray: Address[], isChange: boo
  */
 const sum = (items: (Vin | Vout)[], isMine: boolean, isChange?: boolean) => {
   let filtered = items;
-  if (typeof isMine === 'boolean')
-    filtered = filtered.filter(item => item.isMine === isMine);
-  if (typeof isChange === 'boolean')
-    filtered = filtered.filter(item => item.isChange === isChange);
+  if (typeof isMine === "boolean")
+    filtered = filtered.filter((item) => item.isMine === isMine);
+  if (typeof isChange === "boolean")
+    filtered = filtered.filter((item) => item.isChange === isChange);
   let total = filtered.reduce((accum: number, item: Vin | Vout) => {
     if (isVout(item)) {
       return accum + item.value;
@@ -103,7 +168,7 @@ const sum = (items: (Vin | Vout)[], isMine: boolean, isChange?: boolean) => {
     }
   }, 0);
   return total;
-}
+};
 
 /**
  * Function used to add 'isMine' & 'isChange' decoration markers
@@ -113,7 +178,11 @@ const sum = (items: (Vin | Vout)[], isMine: boolean, isChange?: boolean) => {
  * @param {Map} externalMap - Map of external addresses.
  * @param {Map} changeMap - Map of change addresses.
  */
-const decorateTx = (tx: Transaction, externalMap: AddressMap, changeMap: AddressMap) => {
+const decorateTx = (
+  tx: Transaction,
+  externalMap: AddressMap,
+  changeMap: AddressMap
+) => {
   tx.vin.forEach((vin, index) => {
     const isChange = !!changeMap[vin.prevout.scriptpubkey_address];
     const isMine = isChange || !!externalMap[vin.prevout.scriptpubkey_address];
@@ -125,17 +194,26 @@ const decorateTx = (tx: Transaction, externalMap: AddressMap, changeMap: Address
     tx.vout[index] = { ...vout, isChange: isChange, isMine: isMine };
   });
   return tx;
-}
+};
 
-export const serializeTransactions = (transactionsFromBlockstream: Transaction[], addresses: Address[], changeAddresses: Address[]): Transaction[] => {
-  transactionsFromBlockstream.sort((a, b) => a.status.block_time - b.status.block_time);
+export const serializeTransactions = (
+  transactionsFromBlockstream: Transaction[],
+  addresses: Address[],
+  changeAddresses: Address[]
+): Transaction[] => {
+  transactionsFromBlockstream.sort(
+    (a, b) => a.status.block_time - b.status.block_time
+  );
 
   const addressesMap = createAddressMapFromAddressArray(addresses, false);
-  const changeAddressesMap = createAddressMapFromAddressArray(changeAddresses, true);
+  const changeAddressesMap = createAddressMapFromAddressArray(
+    changeAddresses,
+    true
+  );
   const txMap: TransactionMap = {};
   const txs = transactionsFromBlockstream
-    .map(tx => decorateTx(tx, addressesMap, changeAddressesMap))
-    .filter(tx => {
+    .map((tx) => decorateTx(tx, addressesMap, changeAddressesMap))
+    .filter((tx) => {
       if (!txMap[tx.txid]) {
         txMap[tx.txid] = tx;
         return true;
@@ -144,66 +222,98 @@ export const serializeTransactions = (transactionsFromBlockstream: Transaction[]
     });
 
   let balance = 0;
-  txs.forEach(tx => {
+  txs.forEach((tx) => {
     let amountIn, amountOut, amountOutChange;
     amountIn = sum(tx.vin, true);
     amountOut = sum(tx.vout, true);
     amountOutChange = sum(tx.vout, true, true);
-    if (amountIn === (amountOut + (amountIn > 0 ? tx.fee : 0))) {
+    if (amountIn === amountOut + (amountIn > 0 ? tx.fee : 0)) {
       tx.type = TransactionType.moved;
-      tx.address = '';
+      tx.address = "";
       balance -= tx.fee;
       tx.totalValue = balance;
-      tx.address = tx.vout.filter(vout => vout.isChange)[0].scriptpubkey_address;
+      tx.address = tx.vout.filter(
+        (vout) => vout.isChange
+      )[0].scriptpubkey_address;
       tx.value = tx.vout.reduce((accum, item) => accum + item.value, 0);
     } else {
-      const feeContribution = amountIn > 0 ? tx.fee : 0
+      const feeContribution = amountIn > 0 ? tx.fee : 0;
       const netAmount = amountIn - amountOut - feeContribution;
       tx.type = netAmount > 0 ? TransactionType.sent : TransactionType.received;
-      if (tx.type === 'sent') {
-        balance -= ((amountIn - amountOutChange) + feeContribution);
+      if (tx.type === "sent") {
+        balance -= amountIn - amountOutChange + feeContribution;
         tx.totalValue = balance;
-        tx.address = tx.vout.filter(vout => !vout.isMine)[0].scriptpubkey_address;
-        tx.value = tx.vout.filter(vout => !vout.isMine)
+        tx.address = tx.vout.filter(
+          (vout) => !vout.isMine
+        )[0].scriptpubkey_address;
+        tx.value = tx.vout
+          .filter((vout) => !vout.isMine)
           .reduce((accum, item) => accum + item.value, 0);
       } else {
         balance += amountOut;
         tx.totalValue = balance;
-        tx.address = tx.vout.filter(vout => vout.isMine)[0].scriptpubkey_address;
-        tx.value = tx.vout.filter(vout => vout.isMine)
+        tx.address = tx.vout.filter(
+          (vout) => vout.isMine
+        )[0].scriptpubkey_address;
+        tx.value = tx.vout
+          .filter((vout) => vout.isMine)
           .reduce((accum, item) => accum + item.value, 0);
       }
     }
   });
   return txs.sort((a, b) => b.status.block_time - a.status.block_time);
-}
+};
 
-const serializeTransactionsFromNode = async (nodeClient: any, transactions: Transaction[], addresses: Address[], changeAddresses: Address[]) => {
-  transactions.sort((a, b) => a.blockheight as number - b.blockheight as number); // bitcoin-core returns value as blockheight
+const serializeTransactionsFromNode = async (
+  nodeClient: any,
+  transactions: Transaction[],
+  addresses: Address[],
+  changeAddresses: Address[]
+) => {
+  transactions.sort(
+    (a, b) => ((a.blockheight as number) - b.blockheight) as number
+  ); // bitcoin-core returns value as blockheight
 
   let currentAccountTotal = new BigNumber(0);
   const transactionsMap = new Map();
   for (let i = 0; i < transactions.length; i++) {
-    const currentTransaction = await nodeClient.getTransaction({ txid: transactions[i].txid, verbose: true });
-    currentAccountTotal = currentAccountTotal.plus(bitcoinsToSatoshis(currentTransaction.details[0].amount));
+    const currentTransaction = await nodeClient.getTransaction({
+      txid: transactions[i].txid,
+      verbose: true,
+    });
+    currentAccountTotal = currentAccountTotal.plus(
+      bitcoinsToSatoshis(currentTransaction.details[0].amount)
+    );
     const transactionWithValues = currentTransaction;
-    transactionWithValues.value = bitcoinsToSatoshis(currentTransaction.details[0].amount).abs().toNumber();
+    transactionWithValues.value = bitcoinsToSatoshis(
+      currentTransaction.details[0].amount
+    )
+      .abs()
+      .toNumber();
     transactionWithValues.address = currentTransaction.details[0].address;
-    transactionWithValues.type = currentTransaction.details[0].category === 'receive' ? 'received' : 'sent';
+    transactionWithValues.type =
+      currentTransaction.details[0].category === "receive"
+        ? "received"
+        : "sent";
     transactionWithValues.totalValue = currentAccountTotal.toNumber();
-    transactionWithValues.vout = currentTransaction.decoded.vout.map((vout: Vout) => {
-      vout.value = bitcoinsToSatoshis(vout.value).abs().toNumber();
-      return vout;
-    });
-    transactionWithValues.vin = currentTransaction.decoded.vin.map((vin: Vout) => { // TODO: change...should be type Vin but bitcoin-core returns a value on it
-      vin.value = bitcoinsToSatoshis(vin.value).abs().toNumber();
-      return vin;
-    });
+    transactionWithValues.vout = currentTransaction.decoded.vout.map(
+      (vout: Vout) => {
+        vout.value = bitcoinsToSatoshis(vout.value).abs().toNumber();
+        return vout;
+      }
+    );
+    transactionWithValues.vin = currentTransaction.decoded.vin.map(
+      (vin: Vout) => {
+        // TODO: change...should be type Vin but bitcoin-core returns a value on it
+        vin.value = bitcoinsToSatoshis(vin.value).abs().toNumber();
+        return vin;
+      }
+    );
     transactionWithValues.status = {
       block_time: currentTransaction.blocktime,
       block_height: currentTransaction.blockheight,
-      confirmed: true // TODO: change later
-    }
+      confirmed: true, // TODO: change later
+    };
     transactionsMap.set(currentTransaction.txid, transactionWithValues);
   }
 
@@ -215,49 +325,105 @@ const serializeTransactionsFromNode = async (nodeClient: any, transactions: Tran
 
   transactionsArray.sort((a, b) => b.status.block_time - a.status.block_time);
   return transactionsArray;
-}
+};
 
-const getChildPubKeyFromXpub = (xpub: ExtendedPublicKey, bip32Path: string, addressType: AddressType, currentBitcoinNetwork: Network) => {
+const getChildPubKeyFromXpub = (
+  xpub: ExtendedPublicKey,
+  bip32Path: string,
+  addressType: AddressType,
+  currentBitcoinNetwork: Network
+) => {
   const childPubKeysBip32Path = bip32Path;
-  let bip32derivationPath = getDerivationPath(addressType, bip32Path, currentBitcoinNetwork);
+  let bip32derivationPath = getDerivationPath(
+    addressType,
+    bip32Path,
+    currentBitcoinNetwork
+  );
 
   return {
-    childPubKey: deriveChildPublicKey(xpub.xpub!, childPubKeysBip32Path, getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)),
+    childPubKey: deriveChildPublicKey(
+      xpub.xpub!,
+      childPubKeysBip32Path,
+      getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)
+    ),
     bip32derivation: {
-      masterFingerprint: Buffer.from(xpub.parentFingerprint as string, 'hex'),
-      pubkey: Buffer.from(deriveChildPublicKey(xpub.xpub!, childPubKeysBip32Path, getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)), 'hex'),
-      path: bip32derivationPath
-    }
-  }
-}
+      masterFingerprint: Buffer.from(xpub.parentFingerprint as string, "hex"),
+      pubkey: Buffer.from(
+        deriveChildPublicKey(
+          xpub.xpub!,
+          childPubKeysBip32Path,
+          getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)
+        ),
+        "hex"
+      ),
+      path: bip32derivationPath,
+    },
+  };
+};
 
-const getMultisigAddressFromPubKeys = (pubkeys: PubKey[], config: AccountConfig, currentBitcoinNetwork: Network) => {
+const getMultisigAddressFromPubKeys = (
+  pubkeys: PubKey[],
+  config: AccountConfig,
+  currentBitcoinNetwork: Network
+) => {
   const rawPubkeys = pubkeys.map((publicKey) => publicKey.childPubKey);
   rawPubkeys.sort();
-  const address = generateMultisigFromPublicKeys(getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork), config.addressType, config.quorum.requiredSigners, ...rawPubkeys);
-  address.bip32derivation = pubkeys.map((publicKey) => publicKey.bip32derivation)
+  const address = generateMultisigFromPublicKeys(
+    getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork),
+    config.addressType,
+    config.quorum.requiredSigners,
+    ...rawPubkeys
+  );
+  address.bip32derivation = pubkeys.map(
+    (publicKey) => publicKey.bip32derivation
+  );
   return address;
-}
+};
 
-const getUtxosForAddresses = async (addresses: Address[], currentBitcoinNetwork: Network) => {
+const getUtxosForAddresses = async (
+  addresses: Address[],
+  currentBitcoinNetwork: Network
+) => {
   const availableUtxos = [];
   for (let i = 0; i < addresses.length; i++) {
-    const utxosFromBlockstream = await (await axios.get(blockExplorerAPIURL(`/address/${addresses[i].address}/utxo`, getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)))).data;
+    const utxosFromBlockstream = await (
+      await axios.get(
+        blockExplorerAPIURL(
+          `/address/${addresses[i].address}/utxo`,
+          getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)
+        )
+      )
+    ).data;
     for (let j = 0; j < utxosFromBlockstream.length; j++) {
       const utxo = utxosFromBlockstream[j];
       utxo.address = addresses[i];
-      availableUtxos.push(utxo)
+      availableUtxos.push(utxo);
     }
   }
 
   return availableUtxos;
-}
+};
 
-const getAddressFromPubKey = (childPubKey: PubKey, addressType: AddressType, currentBitcoinNetwork: Network): Address => {
-  if (addressType === 'p2sh') {
-    const { network, address: _address, hash, output, redeem, input, witness } = payments.p2sh({
-      redeem: payments.p2wpkh({ pubkey: Buffer.from(childPubKey.childPubKey, 'hex'), network: currentBitcoinNetwork }),
-      network: currentBitcoinNetwork
+const getAddressFromPubKey = (
+  childPubKey: PubKey,
+  addressType: AddressType,
+  currentBitcoinNetwork: Network
+): Address => {
+  if (addressType === "p2sh") {
+    const {
+      network,
+      address: _address,
+      hash,
+      output,
+      redeem,
+      input,
+      witness,
+    } = payments.p2sh({
+      redeem: payments.p2wpkh({
+        pubkey: Buffer.from(childPubKey.childPubKey, "hex"),
+        network: currentBitcoinNetwork,
+      }),
+      network: currentBitcoinNetwork,
     });
     return {
       network: currentBitcoinNetwork,
@@ -267,10 +433,22 @@ const getAddressFromPubKey = (childPubKey: PubKey, addressType: AddressType, cur
       redeem,
       input,
       witness,
-      bip32derivation: [childPubKey.bip32derivation]
+      bip32derivation: [childPubKey.bip32derivation],
     };
-  } else { // p2wpkh
-    const { network, address: _address, hash, output, redeem, input, witness } = payments.p2wpkh({ pubkey: Buffer.from(childPubKey.childPubKey, 'hex'), network: currentBitcoinNetwork });
+  } else {
+    // p2wpkh
+    const {
+      network,
+      address: _address,
+      hash,
+      output,
+      redeem,
+      input,
+      witness,
+    } = payments.p2wpkh({
+      pubkey: Buffer.from(childPubKey.childPubKey, "hex"),
+      network: currentBitcoinNetwork,
+    });
     return {
       network: currentBitcoinNetwork,
       address: _address as string,
@@ -279,12 +457,16 @@ const getAddressFromPubKey = (childPubKey: PubKey, addressType: AddressType, cur
       redeem,
       input,
       witness,
-      bip32derivation: [childPubKey.bip32derivation]
+      bip32derivation: [childPubKey.bip32derivation],
     };
   }
-}
+};
 
-const getTransactionsFromAddress = async (address: Address, nodeClient: any, currentBitcoinNetwork: Network) => {
+const getTransactionsFromAddress = async (
+  address: Address,
+  nodeClient: any,
+  currentBitcoinNetwork: Network
+) => {
   if (nodeClient) {
     let addressTxs = [];
     const transactions = await getTransactionsFromNode(nodeClient);
@@ -295,32 +477,80 @@ const getTransactionsFromAddress = async (address: Address, nodeClient: any, cur
     }
     return addressTxs;
   } else {
-    return await (await axios.get(blockExplorerAPIURL(`/address/${address}/txs`, getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)))).data
+    return await (
+      await axios.get(
+        blockExplorerAPIURL(
+          `/address/${address}/txs`,
+          getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)
+        )
+      )
+    ).data;
   }
-}
+};
 
-export const getAddressFromAccount = (account: AccountConfig, path: string, currentBitcoinNetwork: Network) => {
-  if (account.quorum.totalSigners > 1) { // multisig
-    if (account.extendedPublicKeys) { // should always be true
-      const childPubKeys = account.extendedPublicKeys.map((extendedPublicKey) => {
-        return getChildPubKeyFromXpub(extendedPublicKey, path, AddressType.multisig, currentBitcoinNetwork)
-      })
-      return getMultisigAddressFromPubKeys(childPubKeys, account, currentBitcoinNetwork)
+export const getAddressFromAccount = (
+  account: AccountConfig,
+  path: string,
+  currentBitcoinNetwork: Network
+) => {
+  if (account.quorum.totalSigners > 1) {
+    // multisig
+    if (account.extendedPublicKeys) {
+      // should always be true
+      const childPubKeys = account.extendedPublicKeys.map(
+        (extendedPublicKey) => {
+          return getChildPubKeyFromXpub(
+            extendedPublicKey,
+            path,
+            AddressType.multisig,
+            currentBitcoinNetwork
+          );
+        }
+      );
+      return getMultisigAddressFromPubKeys(
+        childPubKeys,
+        account,
+        currentBitcoinNetwork
+      );
     }
-  } else { // single sig
-    if (account.addressType === AddressType.p2sh) { // hww
-      const receivePubKey = getChildPubKeyFromXpub(account.extendedPublicKeys[0], path, AddressType.p2sh, currentBitcoinNetwork);
-      return getAddressFromPubKey(receivePubKey, AddressType.p2sh, currentBitcoinNetwork);
-    } else { // software wallet
-      const receivePubKey = getChildPubKeyFromXpub(account.extendedPublicKeys[0], path, AddressType.P2WPKH, currentBitcoinNetwork);
-      return getAddressFromPubKey(receivePubKey, AddressType.P2WPKH, currentBitcoinNetwork);
+  } else {
+    // single sig
+    if (account.addressType === AddressType.p2sh) {
+      // hww
+      const receivePubKey = getChildPubKeyFromXpub(
+        account.extendedPublicKeys[0],
+        path,
+        AddressType.p2sh,
+        currentBitcoinNetwork
+      );
+      return getAddressFromPubKey(
+        receivePubKey,
+        AddressType.p2sh,
+        currentBitcoinNetwork
+      );
+    } else {
+      // software wallet
+      const receivePubKey = getChildPubKeyFromXpub(
+        account.extendedPublicKeys[0],
+        path,
+        AddressType.P2WPKH,
+        currentBitcoinNetwork
+      );
+      return getAddressFromPubKey(
+        receivePubKey,
+        AddressType.P2WPKH,
+        currentBitcoinNetwork
+      );
     }
   }
-}
+};
 
-
-
-const scanForAddressesAndTransactions = async (account: AccountConfig, nodeClient: any, currentBitcoinNetwork: Network, limitGap: number) => {
+const scanForAddressesAndTransactions = async (
+  account: AccountConfig,
+  nodeClient: any,
+  currentBitcoinNetwork: Network,
+  limitGap: number
+) => {
   const receiveAddresses = [];
   const changeAddresses = [];
   let transactions: Transaction[] = [];
@@ -332,88 +562,194 @@ const scanForAddressesAndTransactions = async (account: AccountConfig, nodeClien
   let i = 0;
 
   while (gap < limitGap) {
-    const receiveAddress = getAddressFromAccount(account, `m/0/${i}`, currentBitcoinNetwork)
+    const receiveAddress = getAddressFromAccount(
+      account,
+      `m/0/${i}`,
+      currentBitcoinNetwork
+    );
 
     receiveAddresses.push(receiveAddress);
-    const receiveTxs = await getTransactionsFromAddress(receiveAddress.address, nodeClient, currentBitcoinNetwork);
+    const receiveTxs = await getTransactionsFromAddress(
+      receiveAddress.address,
+      nodeClient,
+      currentBitcoinNetwork
+    );
     if (!receiveTxs.length) {
-      unusedReceiveAddresses.push(receiveAddress)
+      unusedReceiveAddresses.push(receiveAddress);
     } else {
-      transactions = [...transactions, ...receiveTxs]
+      transactions = [...transactions, ...receiveTxs];
     }
 
-    const changeAddress = getAddressFromAccount(account, `m/1/${i}`, currentBitcoinNetwork)
+    const changeAddress = getAddressFromAccount(
+      account,
+      `m/1/${i}`,
+      currentBitcoinNetwork
+    );
     changeAddresses.push(changeAddress);
-    const changeTxs = await getTransactionsFromAddress(changeAddress.address, nodeClient, currentBitcoinNetwork)
+    const changeTxs = await getTransactionsFromAddress(
+      changeAddress.address,
+      nodeClient,
+      currentBitcoinNetwork
+    );
     if (!changeTxs.length) {
-      unusedChangeAddresses.push(changeAddress)
+      unusedChangeAddresses.push(changeAddress);
     } else {
-      transactions = [...transactions, ...changeTxs]
+      transactions = [...transactions, ...changeTxs];
     }
 
     if (!!!receiveTxs.length && !!!changeTxs.length) {
       gap = gap + 1;
     } else {
-      gap = 0
+      gap = 0;
     }
 
     i = i + 1;
   }
 
-  if (nodeClient) { // if we are using a node, its better to just get all txs from it.
+  if (nodeClient) {
+    // if we are using a node, its better to just get all txs from it.
     transactions = await getTransactionsFromNode(nodeClient);
   }
 
-  return { receiveAddresses, changeAddresses, unusedReceiveAddresses, unusedChangeAddresses, transactions }
-}
+  return {
+    receiveAddresses,
+    changeAddresses,
+    unusedReceiveAddresses,
+    unusedChangeAddresses,
+    transactions,
+  };
+};
 
 const getTransactionsFromNode = async (nodeClient: any) => {
   const transactions = await nodeClient.listTransactions({ count: 100 });
-  return transactions
-}
+  return transactions;
+};
 
-export const getDataFromMultisig = async (account: AccountConfig, nodeClient: any, currentBitcoinNetwork: Network) => {
-  const { receiveAddresses, changeAddresses, unusedReceiveAddresses, unusedChangeAddresses, transactions } = await scanForAddressesAndTransactions(account, nodeClient, currentBitcoinNetwork, 10)
+export const getDataFromMultisig = async (
+  account: AccountConfig,
+  nodeClient: any,
+  currentBitcoinNetwork: Network
+) => {
+  const {
+    receiveAddresses,
+    changeAddresses,
+    unusedReceiveAddresses,
+    unusedChangeAddresses,
+    transactions,
+  } = await scanForAddressesAndTransactions(
+    account,
+    nodeClient,
+    currentBitcoinNetwork,
+    10
+  );
   let organizedTransactions: Transaction[];
   let availableUtxos: UTXO[];
   if (nodeClient) {
-    organizedTransactions = await serializeTransactionsFromNode(nodeClient, transactions, receiveAddresses, changeAddresses);
+    organizedTransactions = await serializeTransactionsFromNode(
+      nodeClient,
+      transactions,
+      receiveAddresses,
+      changeAddresses
+    );
     availableUtxos = await nodeClient.listUnspent();
-    const receiveAddressMap = createAddressMapFromAddressArray(receiveAddresses, false);
-    const changeAddressMap = createAddressMapFromAddressArray(changeAddresses, true);
+    const receiveAddressMap = createAddressMapFromAddressArray(
+      receiveAddresses,
+      false
+    );
+    const changeAddressMap = createAddressMapFromAddressArray(
+      changeAddresses,
+      true
+    );
     const addressMap = { ...receiveAddressMap, ...changeAddressMap };
     for (let i = 0; i < availableUtxos.length; i++) {
-      availableUtxos[i].value = bitcoinsToSatoshis(availableUtxos[i].amount).toNumber();
+      availableUtxos[i].value = bitcoinsToSatoshis(
+        availableUtxos[i].amount
+      ).toNumber();
       availableUtxos[i].address = addressMap[availableUtxos[i].address.address];
     }
   } else {
-    organizedTransactions = serializeTransactions(transactions, receiveAddresses, changeAddresses);
-    availableUtxos = await getUtxosForAddresses(receiveAddresses.concat(changeAddresses), currentBitcoinNetwork);
+    organizedTransactions = serializeTransactions(
+      transactions,
+      receiveAddresses,
+      changeAddresses
+    );
+    availableUtxos = await getUtxosForAddresses(
+      receiveAddresses.concat(changeAddresses),
+      currentBitcoinNetwork
+    );
   }
 
-  return [receiveAddresses, changeAddresses, organizedTransactions, unusedReceiveAddresses, unusedChangeAddresses, availableUtxos];
-}
+  return [
+    receiveAddresses,
+    changeAddresses,
+    organizedTransactions,
+    unusedReceiveAddresses,
+    unusedChangeAddresses,
+    availableUtxos,
+  ];
+};
 
-export const getDataFromXPub = async (account: AccountConfig, nodeClient: any, currentBitcoinNetwork: Network) => {
-  const { receiveAddresses, changeAddresses, unusedReceiveAddresses, unusedChangeAddresses, transactions } = await scanForAddressesAndTransactions(account, nodeClient, currentBitcoinNetwork, 10)
+export const getDataFromXPub = async (
+  account: AccountConfig,
+  nodeClient: any,
+  currentBitcoinNetwork: Network
+) => {
+  const {
+    receiveAddresses,
+    changeAddresses,
+    unusedReceiveAddresses,
+    unusedChangeAddresses,
+    transactions,
+  } = await scanForAddressesAndTransactions(
+    account,
+    nodeClient,
+    currentBitcoinNetwork,
+    10
+  );
 
   let organizedTransactions: Transaction[];
   let availableUtxos: UTXO[];
   if (nodeClient) {
-    organizedTransactions = await serializeTransactionsFromNode(nodeClient, transactions, receiveAddresses, changeAddresses);
+    organizedTransactions = await serializeTransactionsFromNode(
+      nodeClient,
+      transactions,
+      receiveAddresses,
+      changeAddresses
+    );
     availableUtxos = await nodeClient.listUnspent();
-    const receiveAddressMap = createAddressMapFromAddressArray(receiveAddresses, false);
-    const changeAddressMap = createAddressMapFromAddressArray(changeAddresses, true);
+    const receiveAddressMap = createAddressMapFromAddressArray(
+      receiveAddresses,
+      false
+    );
+    const changeAddressMap = createAddressMapFromAddressArray(
+      changeAddresses,
+      true
+    );
     const addressMap = { ...receiveAddressMap, ...changeAddressMap };
     for (let i = 0; i < availableUtxos.length; i++) {
-      availableUtxos[i].value = bitcoinsToSatoshis(availableUtxos[i].amount).toNumber();
+      availableUtxos[i].value = bitcoinsToSatoshis(
+        availableUtxos[i].amount
+      ).toNumber();
       availableUtxos[i].address = addressMap[availableUtxos[i].address.address];
     }
   } else {
-    availableUtxos = await getUtxosForAddresses(receiveAddresses.concat(changeAddresses), currentBitcoinNetwork);
-    organizedTransactions = serializeTransactions(transactions, receiveAddresses, changeAddresses);
+    availableUtxos = await getUtxosForAddresses(
+      receiveAddresses.concat(changeAddresses),
+      currentBitcoinNetwork
+    );
+    organizedTransactions = serializeTransactions(
+      transactions,
+      receiveAddresses,
+      changeAddresses
+    );
   }
 
-
-  return [receiveAddresses, changeAddresses, organizedTransactions, unusedReceiveAddresses, unusedChangeAddresses, availableUtxos];
-}
+  return [
+    receiveAddresses,
+    changeAddresses,
+    organizedTransactions,
+    unusedReceiveAddresses,
+    unusedChangeAddresses,
+    availableUtxos,
+  ];
+};

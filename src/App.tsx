@@ -247,7 +247,7 @@ const App = () => {
           {nodeConfig && <Route path="/send" render={() => <Send config={config} currentBitcoinPrice={currentBitcoinPrice} nodeConfig={nodeConfig} currentBitcoinNetwork={currentBitcoinNetwork} />} />}
           <Route path="/setup" render={() => <Setup config={config} setConfigFile={setConfigFile} password={password} currentBitcoinNetwork={currentBitcoinNetwork} />} />
           <Route path="/login" render={() => <Login config={config} setConfigFile={setConfigFile} setPassword={setPassword} encryptedConfigFile={encryptedConfigFile} setEncryptedConfigFile={setEncryptedConfigFile} currentBlockHeight={nodeConfig && nodeConfig.blocks} currentBitcoinNetwork={currentBitcoinNetwork} />} />
-          <Route path="/settings" render={() => <Settings config={config} currentBitcoinNetwork={currentBitcoinNetwork} />} />
+          <Route path="/settings" render={() => <Settings config={config} nodeConfig={nodeConfig!} currentBitcoinNetwork={currentBitcoinNetwork} />} />
           <Route path="/purchase" render={() => <Purchase currentBitcoinPrice={currentBitcoinPrice} password={password} config={config} setConfig={setConfigFile} nodeConfig={nodeConfig!} currentBitcoinNetwork={currentBitcoinNetwork} />} />
           <Route path="/" render={() => <Home flyInAnimation={flyInAnimation} prevFlyInAnimation={prevSetFlyInAnimation.current} historicalBitcoinPrice={historicalBitcoinPrice} currentBitcoinPrice={currentBitcoinPrice} />} />
           <Route path="/" render={() => (

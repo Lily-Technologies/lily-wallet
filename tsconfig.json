@@ -7,11 +7,7 @@
     "jsx": "react",
     "target": "es5",
     "allowJs": true,
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
@@ -21,18 +17,9 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": false,
-    "types": [
-      "react",
-      "jest"
-    ]
+    "types": ["react", "jest"]
   },
-  "files": [
-    "./src/utils/accountMap.ts"
-  ],
-  "include": [
-    "src"
-  ],
-  "exclude": [
-    "src/__tests__/*"
-  ]
+  "files": ["./src/utils/accountMap.ts"],
+  "include": ["src"],
+  "exclude": ["src/__tests__/*"]
 }

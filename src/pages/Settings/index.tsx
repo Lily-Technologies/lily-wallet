@@ -1,9 +1,13 @@
 import React, { useState, Fragment } from 'react';
 import styled, { css } from 'styled-components';
-import { AES } from 'crypto-js';
 import { Network } from 'bitcoinjs-lib';
 
 import { PageWrapper, PageTitle, Header, HeaderLeft, Button, Modal, Input } from '../../components';
+
+import Tabs from './Tabs';
+import ConfigurationSettings from './ConfigurationSettings';
+import License from './License';
+import About from './About';
 
 import {
   green600, green800, darkGray, white, gray100, green500,
@@ -12,19 +16,20 @@ import {
   gray300,
   gray700
 } from '../../utils/colors';
-import { downloadFile, formatFilename } from '../../utils/files';
 import { mobile } from '../../utils/media';
 
-import { LilyConfig } from '../../types';
+import { LilyConfig, NodeConfig } from '../../types';
 
-const Settings = ({ config, currentBitcoinNetwork }: { config: LilyConfig, currentBitcoinNetwork: Network }) => {
+interface Props {
+  config: LilyConfig,
+  nodeConfig: NodeConfig,
+  currentBitcoinNetwork: Network
+}
+
+const Settings = ({ config, nodeConfig, currentBitcoinNetwork }: Props) => {
+  const [currentTab, setCurrentTab] = useState('config');
   const [downloadConfigModalIsOpen, setDownloadConfigModalIsOpen] = useState(false);
   const [password, setPassword] = useState('');
-
-  const downloadCurrentConfig = (password: string) => {
-    const encryptedConfigObject = AES.encrypt(JSON.stringify(config), password).toString();
-    downloadFile(encryptedConfigObject, formatFilename('lily_wallet_config', currentBitcoinNetwork, 'txt'));
-  }
 
   return (
     <PageWrapper>
@@ -34,59 +39,24 @@ const Settings = ({ config, currentBitcoinNetwork }: { config: LilyConfig, curre
             <PageTitle>Settings</PageTitle>
           </HeaderLeft>
         </Header>
-        <ValueWrapper>
-          <SettingsTabs>
-            <TabItem active={true}>
-              Configuration
-            </TabItem>
-            <TabItem active={false}>
-              Mobile App
-            </TabItem>
-            <TabItem active={false}>
-              Backups
-            </TabItem>
-            <TabItem active={false}>
-              License
-            </TabItem>
-          </SettingsTabs>
-          <SettingsHeadingItem style={{ marginTop: '0.5em' }}>Data and Backups</SettingsHeadingItem>
-          <SettingsSection>
-            <SettingsSectionLeft>
-              <SettingsHeader>Export Current Configuration</SettingsHeader>
-              <SettingsSubheader>Download your current vault configuration. This allows you to import your current configuration on a different machine running Lily.</SettingsSubheader>
-            </SettingsSectionLeft>
-            <SettingsSectionRight>
-              <ViewAddressesButton
-                onClick={() => setDownloadConfigModalIsOpen(true)}>
-                Download Current Config
-              </ViewAddressesButton>
-            </SettingsSectionRight>
-          </SettingsSection>
-        </ValueWrapper>
-        <Modal
-          isOpen={downloadConfigModalIsOpen}
-          onRequestClose={() => setDownloadConfigModalIsOpen(false)}>
-          <ModalContentContainer>
-            <PasswordWrapper>
-              <PasswordText>Almost done, just set a password to encrypt your setup file:</PasswordText>
-              <Input
-                label="Password"
-                placeholder="password"
-                value={password}
-                onChange={setPassword}
-                type="password" />
-            </PasswordWrapper>
-            <WordContainer>
-              <SaveWalletButton background={green600} color={white} onClick={() => downloadCurrentConfig(password)}>
-                Download Encrypted Configuration File
-              </SaveWalletButton>
-            </WordContainer>
-          </ModalContentContainer>
-        </Modal>
+        <Wrapper>
+          <Tabs currentTab={currentTab} setCurrentTab={setCurrentTab} />
+          {currentTab === 'config' && <ConfigurationSettings config={config} nodeConfig={nodeConfig} currentBitcoinNetwork={currentBitcoinNetwork} />}
+          {currentTab === 'license' && <License config={config} nodeConfig={nodeConfig} currentBitcoinNetwork={currentBitcoinNetwork} />}
+          {currentTab === 'about' && <About config={config} />}
+        </Wrapper>
       </Fragment>
     </PageWrapper >
   )
 };
+
+const Wrapper = styled.div`
+  background: ${white};
+  border-radius: 0.385em;
+  box-shadow: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06);
+  overflow: hidden;
+  padding: 1.5rem;
+`;
 
 const SettingsTabs = styled.div`
   display: flex;

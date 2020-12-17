@@ -96,7 +96,7 @@ const Header = styled.h1`
   margin: 0;
 `;
 
-const TransactionId = styled.h3`
+const TransactionId = styled.h5`
   color: ${gray700};
   margin: 0;
   font-weight: 500;
