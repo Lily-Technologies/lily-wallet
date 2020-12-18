@@ -273,7 +273,7 @@ ipcMain.on("/account-data", async (event, args) => {
   try {
     if (currentNodeConfig.provider !== "Blockstream") {
       nodeClient = new Client({
-        wallet: config.name,
+        wallet: `lily${config.id}`,
         host: currentNodeConfig.host || "http://localhost:8332",
         username: currentNodeConfig.rpcuser || currentNodeConfig.username, // TODO: uniform this in the future
         password: currentNodeConfig.rpcpassword || currentNodeConfig.password,
