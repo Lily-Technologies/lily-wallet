@@ -476,89 +476,168 @@ var serializeTransactionsFromNode = function (
 ) {
   return __awaiter(void 0, void 0, void 0, function () {
     var currentAccountTotal,
-      transactionsMap,
+      decoratedTxArray,
       i,
       currentTransaction,
-      transactionWithValues,
-      transactionsIterator,
-      transactionsArray,
-      i;
-    return __generator(this, function (_a) {
-      switch (_a.label) {
+      decoratedTx,
+      _a,
+      e_1;
+    return __generator(this, function (_b) {
+      switch (_b.label) {
         case 0:
           transactions.sort(function (a, b) {
-            return a.blockheight - b.blockheight;
+            var _a, _b;
+            return (
+              ((_a = a.status) === null || _a === void 0
+                ? void 0
+                : _a.block_height) -
+              ((_b = b.status) === null || _b === void 0
+                ? void 0
+                : _b.block_height)
+            );
           }); // bitcoin-core returns value as blockheight
           currentAccountTotal = new bignumber_js_1.default(0);
-          transactionsMap = new Map();
+          decoratedTxArray = [];
           i = 0;
-          _a.label = 1;
+          _b.label = 1;
         case 1:
-          if (!(i < transactions.length)) return [3 /*break*/, 4];
+          if (!(i < transactions.length)) return [3 /*break*/, 7];
+          _b.label = 2;
+        case 2:
+          _b.trys.push([2, 5, , 6]);
           return [
             4 /*yield*/,
             nodeClient.getTransaction({
               txid: transactions[i].txid,
+              include_watchonly: true,
               verbose: true,
             }),
           ];
-        case 2:
-          currentTransaction = _a.sent();
+        case 3:
+          currentTransaction = _b.sent();
           currentAccountTotal = currentAccountTotal.plus(
             unchained_bitcoin_1.bitcoinsToSatoshis(
               currentTransaction.details[0].amount
             )
           );
-          transactionWithValues = currentTransaction;
-          transactionWithValues.value = unchained_bitcoin_1
-            .bitcoinsToSatoshis(currentTransaction.details[0].amount)
-            .abs()
-            .toNumber();
-          transactionWithValues.address = currentTransaction.details[0].address;
-          transactionWithValues.type =
-            currentTransaction.details[0].category === "receive"
-              ? "received"
-              : "sent";
-          transactionWithValues.totalValue = currentAccountTotal.toNumber();
-          transactionWithValues.vout = currentTransaction.decoded.vout.map(
-            function (vout) {
-              vout.value = unchained_bitcoin_1
-                .bitcoinsToSatoshis(vout.value)
-                .abs()
-                .toNumber();
-              return vout;
-            }
-          );
-          transactionWithValues.vin = currentTransaction.decoded.vin.map(
-            function (vin) {
-              // TODO: change...should be type Vin but bitcoin-core returns a value on it
-              vin.value = unchained_bitcoin_1
-                .bitcoinsToSatoshis(vin.value)
-                .abs()
-                .toNumber();
-              return vin;
-            }
-          );
-          transactionWithValues.status = {
-            block_time: currentTransaction.blocktime,
-            block_height: currentTransaction.blockheight,
-            confirmed: true,
+          _a = {
+            txid: currentTransaction.txid,
+            version: currentTransaction.decoded.version,
+            locktime: currentTransaction.decoded.locktime,
+            value: unchained_bitcoin_1
+              .bitcoinsToSatoshis(currentTransaction.details[0].amount)
+              .abs()
+              .toNumber(),
+            address: currentTransaction.details[0].address,
+            type:
+              currentTransaction.details[0].category === "receive"
+                ? "received"
+                : "sent",
+            totalValue: currentAccountTotal.toNumber(),
           };
-          transactionsMap.set(currentTransaction.txid, transactionWithValues);
-          _a.label = 3;
-        case 3:
+          return [
+            4 /*yield*/,
+            Promise.all(
+              currentTransaction.decoded.vin.map(function (item) {
+                return __awaiter(void 0, void 0, void 0, function () {
+                  var prevoutTx;
+                  return __generator(this, function (_a) {
+                    switch (_a.label) {
+                      case 0:
+                        return [
+                          4 /*yield*/,
+                          nodeClient.getTransaction({
+                            txid: item.txid,
+                            include_watchonly: true,
+                            verbose: true,
+                          }),
+                        ];
+                      case 1:
+                        prevoutTx = _a.sent();
+                        return [
+                          2 /*return*/,
+                          {
+                            txid: item.txid,
+                            vout: item.vout,
+                            prevout: {
+                              scriptpubkey:
+                                prevoutTx.decoded.vout[item.vout].scriptPubKey
+                                  .hex,
+                              scriptpubkey_asm:
+                                prevoutTx.decoded.vout[item.vout].scriptPubKey
+                                  .asm,
+                              scriptpubkey_type:
+                                prevoutTx.decoded.vout[item.vout].scriptPubKey
+                                  .type,
+                              scriptpubkey_address:
+                                prevoutTx.decoded.vout[item.vout].scriptPubKey
+                                  .addresses[0],
+                              value: prevoutTx.decoded.vout[item.vout].value,
+                            },
+                            scriptsig: item.scriptSig.hex,
+                            scriptsig_asm: item.scriptSig.asm,
+                            witness: item.txinwitness,
+                            sequence: item.sequence,
+                          },
+                        ];
+                    }
+                  });
+                });
+              })
+            ),
+          ];
+        case 4:
+          decoratedTx =
+            ((_a.vin = _b.sent()),
+            (_a.vout = currentTransaction.decoded.vout.map(function (item) {
+              return {
+                scriptpubkey: item.scriptPubKey.hex,
+                scriptpubkey_address: item.scriptPubKey.addresses[0],
+                scriptpubkey_asm: item.scriptPubKey.asm,
+                scriptpubkey_type: item.scriptPubKey.type,
+                value: unchained_bitcoin_1.bitcoinsToSatoshis(item.value),
+              };
+            })),
+            (_a.size = currentTransaction.decoded.size),
+            (_a.weight = currentTransaction.decoded.weight),
+            (_a.fee = Math.abs(currentTransaction.fee)),
+            (_a.status = {
+              confirmed: currentTransaction.blockheight ? true : false,
+              block_time: currentTransaction.blocktime,
+              block_hash: currentTransaction.blockhash,
+              block_height: currentTransaction.blockheight,
+            }),
+            _a);
+          // transactionWithValues.value = bitcoinsToSatoshis(
+          //   currentTransaction.details[0].amount
+          // )
+          //   .abs()
+          //   .toNumber();
+          // transactionWithValues.address = currentTransaction.details[0].address;
+          // transactionWithValues.type =
+          //   currentTransaction.details[0].category === "receive"
+          //     ? "received"
+          //     : "sent";
+          // transactionWithValues.totalValue = currentAccountTotal.toNumber();
+          // transactionWithValues.status = {
+          //   block_time: currentTransaction.blocktime,
+          //   block_height: currentTransaction.blockheight,
+          //   confirmed: true, // TODO: change later
+          // };
+          decoratedTxArray.push(decoratedTx);
+          return [3 /*break*/, 6];
+        case 5:
+          e_1 = _b.sent();
+          console.log("e: ", e_1);
+          return [3 /*break*/, 6];
+        case 6:
           i++;
           return [3 /*break*/, 1];
-        case 4:
-          transactionsIterator = transactionsMap.values();
-          transactionsArray = [];
-          for (i = 0; i < transactionsMap.size; i++) {
-            transactionsArray.push(transactionsIterator.next().value);
-          }
-          transactionsArray.sort(function (a, b) {
+        case 7:
+          decoratedTxArray.sort(function (a, b) {
             return b.status.block_time - a.status.block_time;
           });
-          return [2 /*return*/, transactionsArray];
+          return [2 /*return*/, decoratedTxArray];
       }
     });
   });
@@ -890,13 +969,6 @@ var scanForAddressesAndTransactions = function (
           i = i + 1;
           return [3 /*break*/, 1];
         case 4:
-          if (!nodeClient) return [3 /*break*/, 6];
-          return [4 /*yield*/, getTransactionsFromNode(nodeClient)];
-        case 5:
-          // if we are using a node, its better to just get all txs from it.
-          transactions = _a.sent();
-          _a.label = 6;
-        case 6:
           return [
             2 /*return*/,
             {
@@ -974,6 +1046,7 @@ exports.getDataFromMultisig = function (
           ];
         case 2:
           organizedTransactions = _b.sent();
+          console.log(account.name + ": ", organizedTransactions);
           return [4 /*yield*/, nodeClient.listUnspent()];
         case 3:
           availableUtxos = _b.sent();
@@ -989,12 +1062,12 @@ exports.getDataFromMultisig = function (
             __assign({}, receiveAddressMap),
             changeAddressMap
           );
+          console.log("availableUtxos: ", availableUtxos);
           for (i = 0; i < availableUtxos.length; i++) {
             availableUtxos[i].value = unchained_bitcoin_1
               .bitcoinsToSatoshis(availableUtxos[i].amount)
               .toNumber();
-            availableUtxos[i].address =
-              addressMap[availableUtxos[i].address.address];
+            availableUtxos[i].address = addressMap[availableUtxos[i].address];
           }
           return [3 /*break*/, 6];
         case 4:

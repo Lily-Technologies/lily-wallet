@@ -1,4 +1,5 @@
-html, body {
+html,
+body {
   height: 100%;
   font-size: 100%;
 }
@@ -9,16 +10,23 @@ html, body {
   flex-direction: column;
 }
 
-*, :before, :after {
+*,
+:before,
+:after {
   box-sizing: border-box;
   border: 0 solid #d2d6dc;
+}
+
+*:focus:not(.focus-visible) {
+  outline: 0 !important;
+  box-shadow: none !important;
 }
 
 /* sofia-pro, "Helvetica Neue", Helvetica, Arial, sans-serif ? */
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -30,13 +38,13 @@ button {
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
 
 table {
   width: 100%;
-  border: 1px solid rgba(66,66,66,.95);
+  border: 1px solid rgba(66, 66, 66, 0.95);
 }
 
 tr {
@@ -44,13 +52,13 @@ tr {
 }
 
 td {
-  padding: .75em;
-  border-bottom: 1px solid rgba(66,66,66,.95);
+  padding: 0.75em;
+  border-bottom: 1px solid rgba(66, 66, 66, 0.95);
 }
 
 th {
-  border-bottom: 1px solid rgba(66,66,66,.95);
-  padding: .75em;
+  border-bottom: 1px solid rgba(66, 66, 66, 0.95);
+  padding: 0.75em;
 }
 
 .ReactModal__Body--open {
@@ -66,24 +74,25 @@ th {
 }
 
 .ReactModal__Content {
-  font-family: 'Montserrat', sans-serif;
+  font-family: "Montserrat", sans-serif;
 }
 
 /* tailwind transition classes */
 .ease-in-out {
-  transition-timing-function: cubic-bezier(.4,0,.2,1);
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .duration-150 {
-  transition-duration: .15s;
+  transition-duration: 0.15s;
 }
 
 .transition {
-  transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
+  transition-property: background-color, border-color, color, fill, stroke,
+    opacity, box-shadow, transform;
 }
 
 .scale-95 {
-  transform: scale(.95);
+  transform: scale(0.95);
 }
 
 .scale-100 {
@@ -114,7 +123,10 @@ th {
   --transform-skew-y: 0 !important;
   --transform-scale-x: 1 !important;
   --transform-scale-y: 1 !important;
-  transform: translateX(var(--transform-translate-x)) translateY(var(--transform-translate-y)) rotate(var(--transform-rotate)) skewX(var(--transform-skew-x)) skewY(var(--transform-skew-y)) scaleX(var(--transform-scale-x)) scaleY(var(--transform-scale-y)) !important;
+  transform: translateX(var(--transform-translate-x))
+    translateY(var(--transform-translate-y)) rotate(var(--transform-rotate))
+    skewX(var(--transform-skew-x)) skewY(var(--transform-skew-y))
+    scaleX(var(--transform-scale-x)) scaleY(var(--transform-scale-y)) !important;
 }
 
 .opacity-0 {

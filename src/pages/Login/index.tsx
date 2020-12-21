@@ -244,15 +244,13 @@ const Login = ({
               )}
             </SignupOptionItem>
           ) : (
-            <SignupOptionItem>
-              <CreateNewAccountButton
-                background={green500}
-                color={white}
-                onClick={() => setStep(1)}
-              >
-                Get Started
-              </CreateNewAccountButton>
-            </SignupOptionItem>
+            <CreateNewAccountButton
+              background={green500}
+              color={white}
+              onClick={() => setStep(1)}
+            >
+              Get Started
+            </CreateNewAccountButton>
           )}
 
           <LoadFromFile>

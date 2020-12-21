@@ -1,20 +1,39 @@
-import React, { Fragment, useContext, useState } from 'react';
-import styled, { css } from 'styled-components';
-import { Network } from 'bitcoinjs-lib';
+import React, { Fragment, useContext, useState } from "react";
+import styled, { css } from "styled-components";
+import { Network } from "bitcoinjs-lib";
 import { QRCode } from "react-qr-svg";
+import { encodeUR } from "@cvbb/bc-ur";
 
-import { AccountMapContext } from '../../../AccountMapContext';
+import { AccountMapContext } from "../../../AccountMapContext";
 
-import { MnemonicWordsDisplayer, Modal, Button } from '../../../components';
-import { white, black, gray200, gray500, gray900, green500 } from '../../../utils/colors';
+import {
+  MnemonicWordsDisplayer,
+  Modal,
+  Button,
+  AnimatedQrCode,
+} from "../../../components";
+import {
+  white,
+  black,
+  lightGray,
+  gray200,
+  gray500,
+  gray900,
+  green500,
+} from "../../../utils/colors";
 
-import { CaravanConfig } from '../../../types';
+import { CaravanConfig } from "../../../types";
 
-import { mobile } from '../../../utils/media';
-import { createColdCardBlob, downloadFile, formatFilename, getMultisigDeriationPathForNetwork } from '../../../utils/files';
+import { mobile } from "../../../utils/media";
+import {
+  createColdCardBlob,
+  downloadFile,
+  formatFilename,
+  getMultisigDeriationPathForNetwork,
+} from "../../../utils/files";
 
 interface Props {
-  currentBitcoinNetwork: Network
+  currentBitcoinNetwork: Network;
 }
 
 const ExportView = ({ currentBitcoinNetwork }: Props) => {
@@ -25,41 +44,91 @@ const ExportView = ({ currentBitcoinNetwork }: Props) => {
   const openInModal = (component: JSX.Element) => {
     setModalIsOpen(true);
     setModalContent(component);
-  }
+  };
 
   const closeModal = () => {
     setModalIsOpen(false);
     setModalContent(null);
-  }
+  };
 
   const downloadColdcardMultisigFile = () => {
     if (currentAccount.config.extendedPublicKeys) {
-      const ccFile = createColdCardBlob(currentAccount.config.quorum.requiredSigners, currentAccount.config.quorum.totalSigners, currentAccount.config.name, currentAccount.config.extendedPublicKeys, currentBitcoinNetwork);
-      downloadFile(ccFile, formatFilename(`${currentAccount.config.name}-lily-coldcard-file`, currentBitcoinNetwork, 'txt'));
+      const ccFile = createColdCardBlob(
+        currentAccount.config.quorum.requiredSigners,
+        currentAccount.config.quorum.totalSigners,
+        currentAccount.config.name,
+        currentAccount.config.extendedPublicKeys,
+        currentBitcoinNetwork
+      );
+      downloadFile(
+        ccFile,
+        formatFilename(
+          `${currentAccount.config.name}-lily-coldcard-file`,
+          currentBitcoinNetwork,
+          "txt"
+        )
+      );
     }
-  }
+  };
 
   const downloadCaravanFile = () => {
     // need to add some properties to our config to use with Caravan
     const configCopy = { ...currentAccount.config } as CaravanConfig;
-    configCopy.client = { type: 'public' };
+    configCopy.client = { type: "public" };
     // need to have a name for each pubkey, so just use parentFingerprint
     if (configCopy.extendedPublicKeys !== undefined) {
       for (let i = 0; i < configCopy.extendedPublicKeys.length; i++) {
-        configCopy.extendedPublicKeys[i].name = configCopy.extendedPublicKeys[i].parentFingerprint;
+        configCopy.extendedPublicKeys[i].name =
+          configCopy.extendedPublicKeys[i].parentFingerprint;
 
         // we need to populate the method field for caravan. if the device is of type trezor or ledger, put that in. else just put xpub.
-        if (configCopy.extendedPublicKeys[i].device && (configCopy.extendedPublicKeys[i].device.type === 'trezor' || configCopy.extendedPublicKeys[i].device.type === 'ledger')) {
-          configCopy.extendedPublicKeys[i].method = configCopy.extendedPublicKeys[i].device.type;
-          configCopy.extendedPublicKeys[i].bip32Path = getMultisigDeriationPathForNetwork(currentBitcoinNetwork);
+        if (
+          configCopy.extendedPublicKeys[i].device &&
+          (configCopy.extendedPublicKeys[i].device.type === "trezor" ||
+            configCopy.extendedPublicKeys[i].device.type === "ledger")
+        ) {
+          configCopy.extendedPublicKeys[i].method =
+            configCopy.extendedPublicKeys[i].device.type;
+          configCopy.extendedPublicKeys[
+            i
+          ].bip32Path = getMultisigDeriationPathForNetwork(
+            currentBitcoinNetwork
+          );
         } else {
-          configCopy.extendedPublicKeys[i].method = 'xpub';
+          configCopy.extendedPublicKeys[i].method = "xpub";
         }
       }
     }
     const caravanFile = JSON.stringify(configCopy);
-    downloadFile(caravanFile, formatFilename('lily-caravan-file', currentBitcoinNetwork, 'json'));
-  }
+    downloadFile(
+      caravanFile,
+      formatFilename("lily-caravan-file", currentBitcoinNetwork, "json")
+    );
+  };
+
+  const CoboVaultQrCode = () => {
+    const ccFile = createColdCardBlob(
+      currentAccount.config.quorum.requiredSigners,
+      currentAccount.config.quorum.totalSigners,
+      currentAccount.config.name,
+      currentAccount.config.extendedPublicKeys,
+      currentBitcoinNetwork
+    );
+    console.log("ccFile: ", ccFile);
+
+    const ccFileEncoded = encodeUR(ccFile);
+
+    return (
+      <Fragment>
+        <ModalHeaderContainer>Scan this with your device</ModalHeaderContainer>
+        <ModalContent>
+          <OutputItem style={{ wordBreak: "break-word" }}>
+            <AnimatedQrCode valueArray={ccFileEncoded} />
+          </OutputItem>
+        </ModalContent>
+      </Fragment>
+    );
+  };
 
   const XpubQrCode = () => (
     <QRCode
@@ -69,7 +138,7 @@ const ExportView = ({ currentBitcoinNetwork }: Props) => {
       style={{ width: 256 }}
       value={currentAccount.config.extendedPublicKeys[0].xpub as string}
     />
-  )
+  );
 
   const MnemonicQrCode = () => (
     <ModalContentWrapper>
@@ -80,21 +149,25 @@ const ExportView = ({ currentBitcoinNetwork }: Props) => {
         style={{ width: 256 }}
         value={currentAccount.config.mnemonic as string}
       />
-      <ScanInstructions>Scan this QR code to import this wallet into BlueWallet</ScanInstructions>
+      <ScanInstructions>
+        Scan this QR code to import this wallet into BlueWallet
+      </ScanInstructions>
     </ModalContentWrapper>
-  )
+  );
 
   return (
     <Fragment>
-      <Modal
-        isOpen={modalIsOpen}
-        onRequestClose={() => closeModal()}>
+      <Modal isOpen={modalIsOpen} onRequestClose={() => closeModal()}>
         {modalContent as React.ReactChild}
       </Modal>
       <GeneralSection>
         <HeaderSection>
           <HeaderTitle>Export Account</HeaderTitle>
-          <HeaderSubtitle>Some users wish to verify the information in Lily with other software. Use the options below to use other software to verify the information in Lily.</HeaderSubtitle>
+          <HeaderSubtitle>
+            Some users wish to verify the information in Lily with other
+            software. Use the options below to use other software to verify the
+            information in Lily.
+          </HeaderSubtitle>
         </HeaderSection>
         {currentAccount.config.mnemonic && (
           <ProfileRow>
@@ -105,16 +178,27 @@ const ExportView = ({ currentBitcoinNetwork }: Props) => {
                 <ActionButton
                   background={white}
                   color={green500}
-                  onClick={() => { openInModal(<MnemonicQrCode />); }}
-                >QR Code</ActionButton>
+                  onClick={() => {
+                    openInModal(<MnemonicQrCode />);
+                  }}
+                >
+                  QR Code
+                </ActionButton>
                 <ActionButton
                   background={white}
                   color={green500}
-                  onClick={() => openInModal(
-                    <WordsContainer>
-                      <MnemonicWordsDisplayer mnemonicWords={currentAccount.config.mnemonic!} />
-                    </WordsContainer>
-                  )}>View</ActionButton>
+                  onClick={() =>
+                    openInModal(
+                      <WordsContainer>
+                        <MnemonicWordsDisplayer
+                          mnemonicWords={currentAccount.config.mnemonic!}
+                        />
+                      </WordsContainer>
+                    )
+                  }
+                >
+                  View
+                </ActionButton>
               </ProfileValueAction>
             </ProfileValueColumn>
           </ProfileRow>
@@ -129,11 +213,33 @@ const ExportView = ({ currentBitcoinNetwork }: Props) => {
                   <ActionButton
                     background={white}
                     color={green500}
-                    onClick={() => { downloadColdcardMultisigFile(); }}
-                  >Download</ActionButton>
+                    onClick={() => {
+                      downloadColdcardMultisigFile();
+                    }}
+                  >
+                    Download
+                  </ActionButton>
                 </ProfileValueAction>
               </ProfileValueColumn>
             </ProfileRow>
+            <ProfileRow>
+              <ProfileKeyColumn>Cobo Vault File</ProfileKeyColumn>
+              <ProfileValueColumn>
+                <ProfileValueText></ProfileValueText>
+                <ProfileValueAction>
+                  <ActionButton
+                    background={white}
+                    color={green500}
+                    onClick={() => {
+                      openInModal(<CoboVaultQrCode />);
+                    }}
+                  >
+                    View QR Code
+                  </ActionButton>
+                </ProfileValueAction>
+              </ProfileValueColumn>
+            </ProfileRow>
+            <ProfileRow></ProfileRow>
             <ProfileRow>
               <ProfileKeyColumn>Caravan File</ProfileKeyColumn>
               <ProfileValueColumn>
@@ -142,8 +248,12 @@ const ExportView = ({ currentBitcoinNetwork }: Props) => {
                   <ActionButton
                     background={white}
                     color={green500}
-                    onClick={() => { downloadCaravanFile(); }}
-                  >Download</ActionButton>
+                    onClick={() => {
+                      downloadCaravanFile();
+                    }}
+                  >
+                    Download
+                  </ActionButton>
                 </ProfileValueAction>
               </ProfileValueColumn>
             </ProfileRow>
@@ -158,16 +268,20 @@ const ExportView = ({ currentBitcoinNetwork }: Props) => {
                 <ActionButton
                   background={white}
                   color={green500}
-                  onClick={() => { openInModal(<XpubQrCode />); }}
-                >Download</ActionButton>
+                  onClick={() => {
+                    openInModal(<XpubQrCode />);
+                  }}
+                >
+                  Download
+                </ActionButton>
               </ProfileValueAction>
             </ProfileValueColumn>
           </ProfileRow>
         )}
       </GeneralSection>
-    </Fragment >
-  )
-}
+    </Fragment>
+  );
+};
 
 const HeaderSection = styled.div`
   margin-top: 2.5rem;
@@ -255,7 +369,7 @@ const ModalContentWrapper = styled.div`
     padding-left: 1em;
     padding-right: 1em;
     margin-left: 0;
-  `)};  
+  `)};
 `;
 
 const WordsContainer = styled.div`
@@ -268,6 +382,30 @@ const WordsContainer = styled.div`
 const ScanInstructions = styled.div`
   font-size: 0.5em;
   padding: 1.5em 0;
-`
+`;
+
+const ModalHeaderContainer = styled.div`
+  border-bottom: 1px solid rgb(229, 231, 235);
+  padding-top: 1.25rem;
+  padding-bottom: 1.25rem;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 1.5em;
+`;
+
+const OutputItem = styled.div`
+  display: flex;
+  justify-content: space-between;
+  padding: 1.5em;
+  background: ${lightGray};
+  justify-content: center;
+  align-items: center;
+  border-radius: 4px;
+`;
+
+const ModalContent = styled.div``;
 
 export default ExportView;

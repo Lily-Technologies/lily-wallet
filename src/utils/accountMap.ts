@@ -21,6 +21,7 @@ import {
   TransactionMap,
   PubKey,
   ExtendedPublicKey,
+  BitcoinCoreGetTransactionResponse,
 } from "../types";
 
 export const bitcoinNetworkEqual = (a: Network, b: Network): boolean => {
@@ -271,60 +272,111 @@ const serializeTransactionsFromNode = async (
   changeAddresses: Address[]
 ) => {
   transactions.sort(
-    (a, b) => ((a.blockheight as number) - b.blockheight) as number
+    (a, b) => a.status?.block_height! - b.status?.block_height!
   ); // bitcoin-core returns value as blockheight
 
   let currentAccountTotal = new BigNumber(0);
-  const transactionsMap = new Map();
+  const decoratedTxArray = [];
   for (let i = 0; i < transactions.length; i++) {
-    const currentTransaction = await nodeClient.getTransaction({
-      txid: transactions[i].txid,
-      verbose: true,
-    });
-    currentAccountTotal = currentAccountTotal.plus(
-      bitcoinsToSatoshis(currentTransaction.details[0].amount)
-    );
-    const transactionWithValues = currentTransaction;
-    transactionWithValues.value = bitcoinsToSatoshis(
-      currentTransaction.details[0].amount
-    )
-      .abs()
-      .toNumber();
-    transactionWithValues.address = currentTransaction.details[0].address;
-    transactionWithValues.type =
-      currentTransaction.details[0].category === "receive"
-        ? "received"
-        : "sent";
-    transactionWithValues.totalValue = currentAccountTotal.toNumber();
-    transactionWithValues.vout = currentTransaction.decoded.vout.map(
-      (vout: Vout) => {
-        vout.value = bitcoinsToSatoshis(vout.value).abs().toNumber();
-        return vout;
-      }
-    );
-    transactionWithValues.vin = currentTransaction.decoded.vin.map(
-      (vin: Vout) => {
-        // TODO: change...should be type Vin but bitcoin-core returns a value on it
-        vin.value = bitcoinsToSatoshis(vin.value).abs().toNumber();
-        return vin;
-      }
-    );
-    transactionWithValues.status = {
-      block_time: currentTransaction.blocktime,
-      block_height: currentTransaction.blockheight,
-      confirmed: true, // TODO: change later
-    };
-    transactionsMap.set(currentTransaction.txid, transactionWithValues);
+    try {
+      const currentTransaction = (await nodeClient.getTransaction({
+        txid: transactions[i].txid,
+        include_watchonly: true,
+        verbose: true,
+      })) as BitcoinCoreGetTransactionResponse;
+
+      currentAccountTotal = currentAccountTotal.plus(
+        bitcoinsToSatoshis(currentTransaction.details[0].amount)
+      );
+
+      // KBC-TODO: here
+      const decoratedTx = {
+        txid: currentTransaction.txid,
+        version: currentTransaction.decoded.version,
+        locktime: currentTransaction.decoded.locktime,
+        value: bitcoinsToSatoshis(currentTransaction.details[0].amount)
+          .abs()
+          .toNumber(),
+        address: currentTransaction.details[0].address, // KBC-TODO: this should probably be a bitcoinjs-lib object
+        type:
+          currentTransaction.details[0].category === "receive"
+            ? "received"
+            : "sent",
+        totalValue: currentAccountTotal.toNumber(),
+        vin: await Promise.all(
+          currentTransaction.decoded.vin.map(async (item) => {
+            const prevoutTx = (await nodeClient.getTransaction({
+              txid: item.txid,
+              include_watchonly: true,
+              verbose: true,
+            })) as BitcoinCoreGetTransactionResponse;
+            return {
+              txid: item.txid,
+              vout: item.vout,
+              prevout: {
+                scriptpubkey:
+                  prevoutTx.decoded.vout[item.vout].scriptPubKey.hex,
+                scriptpubkey_asm:
+                  prevoutTx.decoded.vout[item.vout].scriptPubKey.asm,
+                scriptpubkey_type:
+                  prevoutTx.decoded.vout[item.vout].scriptPubKey.type,
+                scriptpubkey_address:
+                  prevoutTx.decoded.vout[item.vout].scriptPubKey.addresses[0],
+                value: prevoutTx.decoded.vout[item.vout].value,
+              },
+              scriptsig: item.scriptSig.hex,
+              scriptsig_asm: item.scriptSig.asm,
+              witness: item.txinwitness,
+              sequence: item.sequence,
+            } as Vin;
+          })
+        ),
+        vout: currentTransaction.decoded.vout.map(
+          (item) =>
+            ({
+              scriptpubkey: item.scriptPubKey.hex,
+              scriptpubkey_address: item.scriptPubKey.addresses[0],
+              scriptpubkey_asm: item.scriptPubKey.asm,
+              scriptpubkey_type: item.scriptPubKey.type,
+              value: bitcoinsToSatoshis(item.value),
+            } as Vout)
+        ),
+        size: currentTransaction.decoded.size,
+        weight: currentTransaction.decoded.weight,
+        fee: Math.abs(currentTransaction.fee),
+        status: {
+          confirmed: currentTransaction.blockheight ? true : false,
+          block_time: currentTransaction.blocktime,
+          block_hash: currentTransaction.blockhash,
+          block_height: currentTransaction.blockheight,
+        },
+      };
+
+      // transactionWithValues.value = bitcoinsToSatoshis(
+      //   currentTransaction.details[0].amount
+      // )
+      //   .abs()
+      //   .toNumber();
+      // transactionWithValues.address = currentTransaction.details[0].address;
+      // transactionWithValues.type =
+      //   currentTransaction.details[0].category === "receive"
+      //     ? "received"
+      //     : "sent";
+      // transactionWithValues.totalValue = currentAccountTotal.toNumber();
+
+      // transactionWithValues.status = {
+      //   block_time: currentTransaction.blocktime,
+      //   block_height: currentTransaction.blockheight,
+      //   confirmed: true, // TODO: change later
+      // };
+      decoratedTxArray.push(decoratedTx);
+    } catch (e) {
+      console.log("e: ", e);
+    }
   }
 
-  const transactionsIterator = transactionsMap.values();
-  const transactionsArray = [];
-  for (let i = 0; i < transactionsMap.size; i++) {
-    transactionsArray.push(transactionsIterator.next().value);
-  }
-
-  transactionsArray.sort((a, b) => b.status.block_time - a.status.block_time);
-  return transactionsArray;
+  decoratedTxArray.sort((a, b) => b.status.block_time - a.status.block_time);
+  return decoratedTxArray;
 };
 
 const getChildPubKeyFromXpub = (
@@ -606,11 +658,6 @@ const scanForAddressesAndTransactions = async (
     i = i + 1;
   }
 
-  if (nodeClient) {
-    // if we are using a node, its better to just get all txs from it.
-    transactions = await getTransactionsFromNode(nodeClient);
-  }
-
   return {
     receiveAddresses,
     changeAddresses,
@@ -645,12 +692,13 @@ export const getDataFromMultisig = async (
   let organizedTransactions: Transaction[];
   let availableUtxos: UTXO[];
   if (nodeClient) {
-    organizedTransactions = await serializeTransactionsFromNode(
+    organizedTransactions = (await serializeTransactionsFromNode(
       nodeClient,
       transactions,
       receiveAddresses,
       changeAddresses
-    );
+    )) as any;
+    console.log(`${account.name}: `, organizedTransactions);
     availableUtxos = await nodeClient.listUnspent();
     const receiveAddressMap = createAddressMapFromAddressArray(
       receiveAddresses,
@@ -661,11 +709,12 @@ export const getDataFromMultisig = async (
       true
     );
     const addressMap = { ...receiveAddressMap, ...changeAddressMap };
+    console.log("availableUtxos: ", availableUtxos);
     for (let i = 0; i < availableUtxos.length; i++) {
       availableUtxos[i].value = bitcoinsToSatoshis(
         availableUtxos[i].amount
       ).toNumber();
-      availableUtxos[i].address = addressMap[availableUtxos[i].address.address];
+      availableUtxos[i].address = addressMap[availableUtxos[i].address as any];
     }
   } else {
     organizedTransactions = serializeTransactions(
@@ -710,12 +759,12 @@ export const getDataFromXPub = async (
   let organizedTransactions: Transaction[];
   let availableUtxos: UTXO[];
   if (nodeClient) {
-    organizedTransactions = await serializeTransactionsFromNode(
+    organizedTransactions = (await serializeTransactionsFromNode(
       nodeClient,
       transactions,
       receiveAddresses,
       changeAddresses
-    );
+    )) as any;
     availableUtxos = await nodeClient.listUnspent();
     const receiveAddressMap = createAddressMapFromAddressArray(
       receiveAddresses,

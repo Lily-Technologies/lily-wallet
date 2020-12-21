@@ -1,37 +1,33 @@
-import React, { Fragment } from 'react';
-import styled from 'styled-components';
-import { Psbt } from 'bitcoinjs-lib';
+import React, { Fragment } from "react";
+import styled from "styled-components";
+import { Psbt } from "bitcoinjs-lib";
 // import { CoboVaultSDK } from "@cvbb/sdk";
-import { V2 } from '@cvbb/qr-protocol/dist';
+import { V2 } from "@cvbb/qr-protocol/dist";
 
-import { AnimatedQrCode } from '../../../components'
+import { AnimatedQrCode } from "../../../components";
 
-import { lightGray } from '../../../utils/colors';
+import { lightGray } from "../../../utils/colors";
 
 interface Props {
-  psbt: Psbt
+  psbt: Psbt;
 }
 
 const PsbtQrCode = ({ psbt }: Props) => {
-  const psbtEncoded = V2.constructQRCode(psbt.toHex())
+  const psbtEncoded = V2.constructQRCode(psbt.toHex());
   return (
     <Fragment>
-      <ModalHeaderContainer>
-        Scan this with your device
-    </ModalHeaderContainer>
+      <ModalHeaderContainer>Scan this with your device</ModalHeaderContainer>
       <ModalContent>
-        <OutputItem style={{ wordBreak: 'break-word' }}>
-          <AnimatedQrCode
-            valueArray={psbtEncoded}
-          />
+        <OutputItem style={{ wordBreak: "break-word" }}>
+          <AnimatedQrCode valueArray={psbtEncoded} />
         </OutputItem>
       </ModalContent>
     </Fragment>
-  )
-}
+  );
+};
 
 const ModalHeaderContainer = styled.div`
-  border-bottom: 1px solid rgb(229,231,235);
+  border-bottom: 1px solid rgb(229, 231, 235);
   padding-top: 1.25rem;
   padding-bottom: 1.25rem;
   padding-left: 1.5rem;

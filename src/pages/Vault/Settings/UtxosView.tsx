@@ -1,14 +1,20 @@
-import React, { useContext } from 'react';
+import React, { useContext } from "react";
 
-import { AccountMapContext } from '../../../AccountMapContext';
+import { AccountMapContext } from "../../../AccountMapContext";
 
-import { Table, TableHeader, TableHead, TableBody, TableRow } from '../../../components/Table';
+import {
+  Table,
+  TableHeader,
+  TableHead,
+  TableBody,
+  TableRow,
+} from "../../../components/Table";
 
-import UtxoRow from './UtxoRow';
+import UtxoRow from "./UtxoRow";
 
 const UtxosView = () => {
   const { currentAccount } = useContext(AccountMapContext);
-
+  console.log("currentAccount: ", currentAccount);
   return (
     <Table>
       <TableHeader>
@@ -23,7 +29,7 @@ const UtxosView = () => {
         ))}
       </TableBody>
     </Table>
-  )
-}
+  );
+};
 
 export default UtxosView;

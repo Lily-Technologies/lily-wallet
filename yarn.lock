@@ -1173,36 +1173,36 @@
   resolved "https://registry.yarnpkg.com/@csstools/normalize.css/-/normalize.css-10.1.0.tgz#f0950bba18819512d42f7197e56c518aa491cf18"
   integrity sha512-ij4wRiunFfaJxjB0BdrYHIH8FxBJpOwNPhhAcunlmPdXudL1WQV1qoP9un6JsEBAgQH+7UXyyjh0g7jTxXK6tg==
 
-"@cvbb/bc-bech32@^1.1.8":
-  version "1.1.8"
-  resolved "https://registry.yarnpkg.com/@cvbb/bc-bech32/-/bc-bech32-1.1.8.tgz#15be6be98d862a41261540161ccc0844cc22665d"
-  integrity sha512-5ygsdy5wsSBFTSuoyLj2ddX1trnF9ktFw8ZwQI+ph9fXLkl7XkPz3H7DGmGS4GzGSDCy4AJo3DbezwMLSoNAaw==
+"@cvbb/bc-bech32@^1.1.9":
+  version "1.1.9"
+  resolved "https://registry.yarnpkg.com/@cvbb/bc-bech32/-/bc-bech32-1.1.9.tgz#ad8c9f2095011e7ed5f118849390be4b1cbb1ff7"
+  integrity sha512-kckIWXcoepNGjzi3yyfmWrOlpKaXFSvSuvsQxwRfB2MgWhysVc5jMahlYsnofMXb60WkWVZVZr8mFQydMMm2uA==
 
-"@cvbb/bc-ur@^0.2.8":
-  version "0.2.8"
-  resolved "https://registry.yarnpkg.com/@cvbb/bc-ur/-/bc-ur-0.2.8.tgz#a55c5c978fc91c48ad8108c1e7fd35b433434c87"
-  integrity sha512-NAbOaibCSwen26EKe4hhroWOlUz7eR6Zivs1+SZ8PjuxXI4xmn1xfEt48U1uNHocx5WrSRi+PYGsjdIptE2ilg==
+"@cvbb/bc-ur@^0.2.9":
+  version "0.2.9"
+  resolved "https://registry.yarnpkg.com/@cvbb/bc-ur/-/bc-ur-0.2.9.tgz#2130826cf9658842d2a969c1476cb4de3b038b4f"
+  integrity sha512-Q7PTYVSmvk0z47yYtBqjJVntKYe/lpaBZFvsUInU9XUYnaXVJKLidHw053+LQvLM8zJ8uy1zShee4lpiaoPUIA==
   dependencies:
-    "@cvbb/bc-bech32" "^1.1.8"
+    "@cvbb/bc-bech32" "^1.1.9"
     "@types/sha.js" "^2.4.0"
     sha.js "^2.4.11"
 
 "@cvbb/qr-protocol@^0.1.6":
-  version "0.1.6"
-  resolved "https://registry.yarnpkg.com/@cvbb/qr-protocol/-/qr-protocol-0.1.6.tgz#b03575ea3d10fce8fb90c3ea9727952a968f2128"
-  integrity sha512-nnnv1ZRX9CpaTfnWGH6jzuKNCDVonWMa4wGl72XDQcAmRnkJMdWZWewXTQXP7Jft1LittYv0EyMKocIwLUUJ2A==
+  version "0.1.7"
+  resolved "https://registry.yarnpkg.com/@cvbb/qr-protocol/-/qr-protocol-0.1.7.tgz#07494a6c39548a78156160a1100ae8e9a0df9314"
+  integrity sha512-17hADoiZ98wl10DG083Tq7vRIA55iW+1rtE/x43QKMIlkzuUCPRscP+e+0LxDQ+GO6yPNZ5Wu5dGgtLF4M4NYQ==
   dependencies:
-    "@cvbb/bc-ur" "^0.2.8"
+    "@cvbb/bc-ur" "^0.2.9"
     "@types/crypto-js" "^4.0.1"
     crypto-js "^4.0.0"
     protobufjs "^6.10.1"
 
-"@cvbb/sdk@^0.1.7":
-  version "0.1.7"
-  resolved "https://registry.yarnpkg.com/@cvbb/sdk/-/sdk-0.1.7.tgz#8dd5b48f9bf38d75a1df2cde5b15683d83f29f7d"
-  integrity sha512-lj29iWV8GbzXNOl+ToQYlANhCYprjDFa7UUqv0ziK3qVEULG5B939+JqjaegcnUAjlAsJMp3HT5m68CJhNteKw==
+"@cvbb/sdk@^0.1.8":
+  version "0.1.8"
+  resolved "https://registry.yarnpkg.com/@cvbb/sdk/-/sdk-0.1.8.tgz#13f20f8934e548777cc9465c58f9b067085028b1"
+  integrity sha512-2FZhS7va8Ycnji62hjqYscgrGJLuanTlTN9WCsoqqJZyPBiO/bCsSS4ZvnCcxXBfZmlU+0SRLsyuDL33UySoqQ==
   dependencies:
-    "@cvbb/bc-ur" "^0.2.8"
+    "@cvbb/bc-ur" "^0.2.9"
 
 "@develar/schema-utils@~2.6.5":
   version "2.6.5"
@@ -2033,9 +2033,9 @@
   integrity sha512-tHq6qdbT9U1IRSGf14CL0pUlULksvY9OZ+5eEgl1N7t+OA3tGvNpxJCzuKQlsNgCVwbAs670L1vcVQi8j9HjnA==
 
 "@types/node@*":
-  version "14.14.2"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-14.14.2.tgz#d25295f9e4ca5989a2c610754dc02a9721235eeb"
-  integrity sha512-jeYJU2kl7hL9U5xuI/BhKPZ4vqGM/OmK6whiFAXVhlstzZhVamWhDSmHyGLIp+RVyuF9/d0dqr2P85aFj4BvJg==
+  version "14.14.14"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-14.14.14.tgz#f7fd5f3cc8521301119f63910f0fb965c7d761ae"
+  integrity sha512-UHnOPWVWV1z+VV8k6L1HhG7UbGBgIdghqF3l9Ny9ApPghbjICXkUJSd/b9gOgQfjM1r+37cipdw/HJ3F6ICEnQ==
 
 "@types/node@10.12.18":
   version "10.12.18"
@@ -2053,9 +2053,9 @@
   integrity sha512-/xaVmBBjOGh55WCqumLAHXU9VhjGtmyTGqJzFBXRWZzByOXI5JAJNx9xPVGEsNizrNwcec92fQMj458MWfjN1A==
 
 "@types/node@^13.7.0":
-  version "13.13.33"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-13.13.33.tgz#300e65e0b465bda102b9845d172d8d45726a2dd8"
-  integrity sha512-1B3GM1yuYsFyEvBb+ljBqWBOylsWDYioZ5wpu8AhXdIhq20neXS7eaSC8GkwHE0yQYGiOIV43lMsgRYTgKZefQ==
+  version "13.13.36"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-13.13.36.tgz#0c4d3c4e365396c84b1c595524e2faff7dd45b26"
+  integrity sha512-ctzZJ+XsmHQwe3xp07gFUq4JxBaRSYzKHPgblR76//UanGST7vfFNF0+ty5eEbgTqsENopzoDK090xlha9dccQ==
 
 "@types/parse-json@^4.0.0":
   version "4.0.0"
