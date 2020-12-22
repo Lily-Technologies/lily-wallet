@@ -362,7 +362,7 @@ ipcMain.on("/account-data", async (event, args) => {
                   desc: await getMultisigDescriptor(nodeClient, config, true),
                   range: [0, 1000],
                   timestamp: "now",
-                  internal: true,
+                  internal: false,
                   watchonly: true,
                   keypool: true,
                 },
