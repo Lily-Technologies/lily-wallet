@@ -22,6 +22,7 @@ import {
   PubKey,
   ExtendedPublicKey,
   BitcoinCoreGetTransactionResponse,
+  BitcoinCoreGetRawTransactionResponse,
 } from "../types";
 
 export const bitcoinNetworkEqual = (a: Network, b: Network): boolean => {
@@ -267,13 +268,9 @@ export const serializeTransactions = (
 
 const serializeTransactionsFromNode = async (
   nodeClient: any,
-  transactions: Transaction[],
-  addresses: Address[],
-  changeAddresses: Address[]
+  transactions: BitcoinCoreGetRawTransactionResponse[]
 ) => {
-  transactions.sort(
-    (a, b) => a.status?.block_height! - b.status?.block_height!
-  ); // bitcoin-core returns value as blockheight
+  transactions.sort((a, b) => a.blocktime - b.blocktime!);
 
   let currentAccountTotal = new BigNumber(0);
   const decoratedTxArray = [];
@@ -289,7 +286,6 @@ const serializeTransactionsFromNode = async (
         bitcoinsToSatoshis(currentTransaction.details[0].amount)
       );
 
-      // KBC-TODO: here
       const decoratedTx = {
         txid: currentTransaction.txid,
         version: currentTransaction.decoded.version,
@@ -305,24 +301,22 @@ const serializeTransactionsFromNode = async (
         totalValue: currentAccountTotal.toNumber(),
         vin: await Promise.all(
           currentTransaction.decoded.vin.map(async (item) => {
-            const prevoutTx = (await nodeClient.getTransaction({
+            const prevoutTx = (await nodeClient.getRawTransaction({
               txid: item.txid,
-              include_watchonly: true,
               verbose: true,
-            })) as BitcoinCoreGetTransactionResponse;
+            })) as BitcoinCoreGetRawTransactionResponse;
             return {
               txid: item.txid,
               vout: item.vout,
               prevout: {
-                scriptpubkey:
-                  prevoutTx.decoded.vout[item.vout].scriptPubKey.hex,
-                scriptpubkey_asm:
-                  prevoutTx.decoded.vout[item.vout].scriptPubKey.asm,
-                scriptpubkey_type:
-                  prevoutTx.decoded.vout[item.vout].scriptPubKey.type,
+                scriptpubkey: prevoutTx.vout[item.vout].scriptPubKey.hex,
+                scriptpubkey_asm: prevoutTx.vout[item.vout].scriptPubKey.asm,
+                scriptpubkey_type: prevoutTx.vout[item.vout].scriptPubKey.type,
                 scriptpubkey_address:
-                  prevoutTx.decoded.vout[item.vout].scriptPubKey.addresses[0],
-                value: prevoutTx.decoded.vout[item.vout].value,
+                  prevoutTx.vout[item.vout].scriptPubKey.addresses[0],
+                value: bitcoinsToSatoshis(prevoutTx.vout[item.vout].value)
+                  .abs()
+                  .toNumber(),
               },
               scriptsig: item.scriptSig.hex,
               scriptsig_asm: item.scriptSig.asm,
@@ -338,12 +332,12 @@ const serializeTransactionsFromNode = async (
               scriptpubkey_address: item.scriptPubKey.addresses[0],
               scriptpubkey_asm: item.scriptPubKey.asm,
               scriptpubkey_type: item.scriptPubKey.type,
-              value: bitcoinsToSatoshis(item.value),
+              value: bitcoinsToSatoshis(item.value).abs().toNumber(),
             } as Vout)
         ),
         size: currentTransaction.decoded.size,
         weight: currentTransaction.decoded.weight,
-        fee: Math.abs(currentTransaction.fee),
+        fee: bitcoinsToSatoshis(currentTransaction.fee).abs().toNumber(),
         status: {
           confirmed: currentTransaction.blockheight ? true : false,
           block_time: currentTransaction.blocktime,
@@ -515,17 +509,25 @@ const getAddressFromPubKey = (
 };
 
 const getTransactionsFromAddress = async (
-  address: Address,
+  address: string,
   nodeClient: any,
   currentBitcoinNetwork: Network
 ) => {
   if (nodeClient) {
     let addressTxs = [];
-    const transactions = await getTransactionsFromNode(nodeClient);
-    for (let i = 0; i < transactions.length; i++) {
-      if (transactions[i].address === address) {
-        addressTxs.push(transactions[i]);
-      }
+    const txIds = await nodeClient.listReceivedByAddress({
+      minconf: 0,
+      include_empty: true,
+      include_watchonly: true,
+      address_filter: address,
+    });
+    const numTxIds = txIds[0]?.txids?.length || 0;
+    for (let i = 0; i < numTxIds; i++) {
+      const tx = await nodeClient.getRawTransaction({
+        txid: txIds[0].txids[i],
+        verbose: true,
+      });
+      addressTxs.push(tx);
     }
     return addressTxs;
   } else {
@@ -605,7 +607,7 @@ const scanForAddressesAndTransactions = async (
 ) => {
   const receiveAddresses = [];
   const changeAddresses = [];
-  let transactions: Transaction[] = [];
+  let transactions: (Transaction | BitcoinCoreGetRawTransactionResponse)[] = [];
 
   const unusedReceiveAddresses = [];
   const unusedChangeAddresses = [];
@@ -667,11 +669,6 @@ const scanForAddressesAndTransactions = async (
   };
 };
 
-const getTransactionsFromNode = async (nodeClient: any) => {
-  const transactions = await nodeClient.listTransactions({ count: 100 });
-  return transactions;
-};
-
 export const getDataFromMultisig = async (
   account: AccountConfig,
   nodeClient: any,
@@ -694,11 +691,8 @@ export const getDataFromMultisig = async (
   if (nodeClient) {
     organizedTransactions = (await serializeTransactionsFromNode(
       nodeClient,
-      transactions,
-      receiveAddresses,
-      changeAddresses
+      transactions as BitcoinCoreGetRawTransactionResponse[]
     )) as any;
-    console.log(`${account.name}: `, organizedTransactions);
     availableUtxos = await nodeClient.listUnspent();
     const receiveAddressMap = createAddressMapFromAddressArray(
       receiveAddresses,
@@ -709,7 +703,6 @@ export const getDataFromMultisig = async (
       true
     );
     const addressMap = { ...receiveAddressMap, ...changeAddressMap };
-    console.log("availableUtxos: ", availableUtxos);
     for (let i = 0; i < availableUtxos.length; i++) {
       availableUtxos[i].value = bitcoinsToSatoshis(
         availableUtxos[i].amount
@@ -718,7 +711,7 @@ export const getDataFromMultisig = async (
     }
   } else {
     organizedTransactions = serializeTransactions(
-      transactions,
+      transactions as Transaction[],
       receiveAddresses,
       changeAddresses
     );
@@ -761,9 +754,7 @@ export const getDataFromXPub = async (
   if (nodeClient) {
     organizedTransactions = (await serializeTransactionsFromNode(
       nodeClient,
-      transactions,
-      receiveAddresses,
-      changeAddresses
+      transactions as BitcoinCoreGetRawTransactionResponse[]
     )) as any;
     availableUtxos = await nodeClient.listUnspent();
     const receiveAddressMap = createAddressMapFromAddressArray(
@@ -787,7 +778,7 @@ export const getDataFromXPub = async (
       currentBitcoinNetwork
     );
     organizedTransactions = serializeTransactions(
-      transactions,
+      transactions as Transaction[],
       receiveAddresses,
       changeAddresses
     );

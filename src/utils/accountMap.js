@@ -468,12 +468,7 @@ exports.serializeTransactions = function (
     return b.status.block_time - a.status.block_time;
   });
 };
-var serializeTransactionsFromNode = function (
-  nodeClient,
-  transactions,
-  addresses,
-  changeAddresses
-) {
+var serializeTransactionsFromNode = function (nodeClient, transactions) {
   return __awaiter(void 0, void 0, void 0, function () {
     var currentAccountTotal,
       decoratedTxArray,
@@ -486,16 +481,8 @@ var serializeTransactionsFromNode = function (
       switch (_b.label) {
         case 0:
           transactions.sort(function (a, b) {
-            var _a, _b;
-            return (
-              ((_a = a.status) === null || _a === void 0
-                ? void 0
-                : _a.block_height) -
-              ((_b = b.status) === null || _b === void 0
-                ? void 0
-                : _b.block_height)
-            );
-          }); // bitcoin-core returns value as blockheight
+            return a.blocktime - b.blocktime;
+          });
           currentAccountTotal = new bignumber_js_1.default(0);
           decoratedTxArray = [];
           i = 0;
@@ -546,9 +533,8 @@ var serializeTransactionsFromNode = function (
                       case 0:
                         return [
                           4 /*yield*/,
-                          nodeClient.getTransaction({
+                          nodeClient.getRawTransaction({
                             txid: item.txid,
-                            include_watchonly: true,
                             verbose: true,
                           }),
                         ];
@@ -561,18 +547,20 @@ var serializeTransactionsFromNode = function (
                             vout: item.vout,
                             prevout: {
                               scriptpubkey:
-                                prevoutTx.decoded.vout[item.vout].scriptPubKey
-                                  .hex,
+                                prevoutTx.vout[item.vout].scriptPubKey.hex,
                               scriptpubkey_asm:
-                                prevoutTx.decoded.vout[item.vout].scriptPubKey
-                                  .asm,
+                                prevoutTx.vout[item.vout].scriptPubKey.asm,
                               scriptpubkey_type:
-                                prevoutTx.decoded.vout[item.vout].scriptPubKey
-                                  .type,
+                                prevoutTx.vout[item.vout].scriptPubKey.type,
                               scriptpubkey_address:
-                                prevoutTx.decoded.vout[item.vout].scriptPubKey
+                                prevoutTx.vout[item.vout].scriptPubKey
                                   .addresses[0],
-                              value: prevoutTx.decoded.vout[item.vout].value,
+                              value: unchained_bitcoin_1
+                                .bitcoinsToSatoshis(
+                                  prevoutTx.vout[item.vout].value
+                                )
+                                .abs()
+                                .toNumber(),
                             },
                             scriptsig: item.scriptSig.hex,
                             scriptsig_asm: item.scriptSig.asm,
@@ -595,12 +583,18 @@ var serializeTransactionsFromNode = function (
                 scriptpubkey_address: item.scriptPubKey.addresses[0],
                 scriptpubkey_asm: item.scriptPubKey.asm,
                 scriptpubkey_type: item.scriptPubKey.type,
-                value: unchained_bitcoin_1.bitcoinsToSatoshis(item.value),
+                value: unchained_bitcoin_1
+                  .bitcoinsToSatoshis(item.value)
+                  .abs()
+                  .toNumber(),
               };
             })),
             (_a.size = currentTransaction.decoded.size),
             (_a.weight = currentTransaction.decoded.weight),
-            (_a.fee = Math.abs(currentTransaction.fee)),
+            (_a.fee = unchained_bitcoin_1
+              .bitcoinsToSatoshis(currentTransaction.fee)
+              .abs()
+              .toNumber()),
             (_a.status = {
               confirmed: currentTransaction.blockheight ? true : false,
               block_time: currentTransaction.blocktime,
@@ -799,22 +793,51 @@ var getTransactionsFromAddress = function (
   currentBitcoinNetwork
 ) {
   return __awaiter(void 0, void 0, void 0, function () {
-    var addressTxs, transactions, i;
-    return __generator(this, function (_a) {
-      switch (_a.label) {
+    var addressTxs, txIds, numTxIds, i, tx;
+    var _a, _b;
+    return __generator(this, function (_c) {
+      switch (_c.label) {
         case 0:
-          if (!nodeClient) return [3 /*break*/, 2];
+          if (!nodeClient) return [3 /*break*/, 6];
           addressTxs = [];
-          return [4 /*yield*/, getTransactionsFromNode(nodeClient)];
+          return [
+            4 /*yield*/,
+            nodeClient.listReceivedByAddress({
+              minconf: 0,
+              include_empty: true,
+              include_watchonly: true,
+              address_filter: address,
+            }),
+          ];
         case 1:
-          transactions = _a.sent();
-          for (i = 0; i < transactions.length; i++) {
-            if (transactions[i].address === address) {
-              addressTxs.push(transactions[i]);
-            }
-          }
-          return [2 /*return*/, addressTxs];
+          txIds = _c.sent();
+          numTxIds =
+            ((_b =
+              (_a = txIds[0]) === null || _a === void 0 ? void 0 : _a.txids) ===
+              null || _b === void 0
+              ? void 0
+              : _b.length) || 0;
+          i = 0;
+          _c.label = 2;
         case 2:
+          if (!(i < numTxIds)) return [3 /*break*/, 5];
+          return [
+            4 /*yield*/,
+            nodeClient.getRawTransaction({
+              txid: txIds[0].txids[i],
+              verbose: true,
+            }),
+          ];
+        case 3:
+          tx = _c.sent();
+          addressTxs.push(tx);
+          _c.label = 4;
+        case 4:
+          i++;
+          return [3 /*break*/, 2];
+        case 5:
+          return [2 /*return*/, addressTxs];
+        case 6:
           return [
             4 /*yield*/,
             axios_1.default.get(
@@ -824,10 +847,10 @@ var getTransactionsFromAddress = function (
               )
             ),
           ];
-        case 3:
-          return [4 /*yield*/, _a.sent().data];
-        case 4:
-          return [2 /*return*/, _a.sent()];
+        case 7:
+          return [4 /*yield*/, _c.sent().data];
+        case 8:
+          return [2 /*return*/, _c.sent()];
       }
     });
   });
@@ -983,20 +1006,6 @@ var scanForAddressesAndTransactions = function (
     });
   });
 };
-var getTransactionsFromNode = function (nodeClient) {
-  return __awaiter(void 0, void 0, void 0, function () {
-    var transactions;
-    return __generator(this, function (_a) {
-      switch (_a.label) {
-        case 0:
-          return [4 /*yield*/, nodeClient.listTransactions({ count: 100 })];
-        case 1:
-          transactions = _a.sent();
-          return [2 /*return*/, transactions];
-      }
-    });
-  });
-};
 exports.getDataFromMultisig = function (
   account,
   nodeClient,
@@ -1037,16 +1046,10 @@ exports.getDataFromMultisig = function (
           if (!nodeClient) return [3 /*break*/, 4];
           return [
             4 /*yield*/,
-            serializeTransactionsFromNode(
-              nodeClient,
-              transactions,
-              receiveAddresses,
-              changeAddresses
-            ),
+            serializeTransactionsFromNode(nodeClient, transactions),
           ];
         case 2:
           organizedTransactions = _b.sent();
-          console.log(account.name + ": ", organizedTransactions);
           return [4 /*yield*/, nodeClient.listUnspent()];
         case 3:
           availableUtxos = _b.sent();
@@ -1062,7 +1065,6 @@ exports.getDataFromMultisig = function (
             __assign({}, receiveAddressMap),
             changeAddressMap
           );
-          console.log("availableUtxos: ", availableUtxos);
           for (i = 0; i < availableUtxos.length; i++) {
             availableUtxos[i].value = unchained_bitcoin_1
               .bitcoinsToSatoshis(availableUtxos[i].amount)
@@ -1142,12 +1144,7 @@ exports.getDataFromXPub = function (
           if (!nodeClient) return [3 /*break*/, 4];
           return [
             4 /*yield*/,
-            serializeTransactionsFromNode(
-              nodeClient,
-              transactions,
-              receiveAddresses,
-              changeAddresses
-            ),
+            serializeTransactionsFromNode(nodeClient, transactions),
           ];
         case 2:
           organizedTransactions = _b.sent();
