@@ -2,7 +2,7 @@ import React, { Fragment, useContext, useState } from "react";
 import styled, { css } from "styled-components";
 import { Network } from "bitcoinjs-lib";
 import { QRCode } from "react-qr-svg";
-import { encodeUR } from "@cvbb/bc-ur";
+import { CoboVaultSDK } from "@cvbb/sdk";
 
 import { AccountMapContext } from "../../../AccountMapContext";
 
@@ -32,6 +32,7 @@ import {
   getMultisigDeriationPathForNetwork,
 } from "../../../utils/files";
 
+const sdk = new CoboVaultSDK();
 interface Props {
   currentBitcoinNetwork: Network;
 }
@@ -114,10 +115,7 @@ const ExportView = ({ currentBitcoinNetwork }: Props) => {
       currentAccount.config.extendedPublicKeys,
       currentBitcoinNetwork
     );
-    console.log("ccFile: ", ccFile);
-
-    const ccFileEncoded = encodeUR(ccFile);
-
+    const ccFileEncoded = sdk.encodeDataForQR(ccFile);
     return (
       <Fragment>
         <ModalHeaderContainer>Scan this with your device</ModalHeaderContainer>
