@@ -1,49 +1,60 @@
-import React, { useContext, useState } from 'react';
-import styled, { css } from 'styled-components';
-import moment from 'moment';
-import { Network } from 'bitcoinjs-lib';
-import { AES } from 'crypto-js';
+import React, { useState } from "react";
+import styled, { css } from "styled-components";
+import { Network } from "bitcoinjs-lib";
+import { AES } from "crypto-js";
 
-import { Modal, Button } from '../../components';
+import { Modal, Button } from "../../components";
 
-import { PasswordModal } from './PasswordModal';
+import { PasswordModal } from "./PasswordModal";
 
-import { LilyConfig, NodeConfig } from '../../types'
+import { LilyConfig, NodeConfig } from "../../types";
 
-import { downloadFile, formatFilename } from '../../utils/files';
-import { mobile } from '../../utils/media';
-import { white, red500, green500, gray200, gray500, gray900 } from '../../utils/colors';
+import { downloadFile, formatFilename } from "../../utils/files";
+import { mobile } from "../../utils/media";
+import { white, green500, gray200, gray500, gray900 } from "../../utils/colors";
 
 interface Props {
-  config: LilyConfig,
-  nodeConfig: NodeConfig,
-  currentBitcoinNetwork: Network
+  config: LilyConfig;
+  nodeConfig: NodeConfig;
+  currentBitcoinNetwork: Network;
 }
 
-const ConfigurationSettings = ({ config, nodeConfig, currentBitcoinNetwork }: Props) => {
+const ConfigurationSettings = ({
+  config,
+  nodeConfig,
+  currentBitcoinNetwork,
+}: Props) => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
 
   const openInModal = (component: JSX.Element) => {
     setModalIsOpen(true);
     setModalContent(component);
-  }
+  };
 
   const closeModal = () => {
     setModalIsOpen(false);
     setModalContent(null);
-  }
+  };
 
   const downloadCurrentConfig = (password: string) => {
-    const encryptedConfigObject = AES.encrypt(JSON.stringify(config), password).toString();
-    downloadFile(encryptedConfigObject, formatFilename('lily_wallet_config', currentBitcoinNetwork, 'txt'));
-  }
+    const encryptedConfigObject = AES.encrypt(
+      JSON.stringify(config),
+      password
+    ).toString();
+    downloadFile(
+      encryptedConfigObject,
+      formatFilename("lily_wallet_config", currentBitcoinNetwork, "txt")
+    );
+  };
 
   return (
     <GeneralSection>
       <HeaderSection>
         <HeaderTitle>Configuration Information</HeaderTitle>
-        <HeaderSubtitle>This information is private and only seen by you.</HeaderSubtitle>
+        <HeaderSubtitle>
+          This information is private and only seen by you.
+        </HeaderSubtitle>
       </HeaderSection>
 
       <ProfileRow>
@@ -54,8 +65,16 @@ const ConfigurationSettings = ({ config, nodeConfig, currentBitcoinNetwork }: Pr
             <ActionButton
               background={white}
               color={green500}
-              onClick={() => openInModal(<PasswordModal downloadCurrentConfig={downloadCurrentConfig} />)}
-            >Save Backup</ActionButton>
+              onClick={() =>
+                openInModal(
+                  <PasswordModal
+                    downloadCurrentConfig={downloadCurrentConfig}
+                  />
+                )
+              }
+            >
+              Save Backup
+            </ActionButton>
           </ProfileValueAction>
         </ProfileValueColumn>
       </ProfileRow>
@@ -67,23 +86,26 @@ const ConfigurationSettings = ({ config, nodeConfig, currentBitcoinNetwork }: Pr
             <ActionButton
               background={white}
               color={green500}
-              onClick={() => openInModal(<PasswordModal downloadCurrentConfig={downloadCurrentConfig} />)}
-            >Connect to Custom Node</ActionButton>
+              onClick={() =>
+                openInModal(
+                  <PasswordModal
+                    downloadCurrentConfig={downloadCurrentConfig}
+                  />
+                )
+              }
+            >
+              Connect to Custom Node
+            </ActionButton>
           </ProfileValueAction>
         </ProfileValueColumn>
       </ProfileRow>
 
-
-      <Modal
-        isOpen={modalIsOpen}
-        onRequestClose={() => closeModal()}>
-        <ModalContentWrapper>
-          {modalContent}
-        </ModalContentWrapper>
+      <Modal isOpen={modalIsOpen} onRequestClose={() => closeModal()}>
+        <ModalContentWrapper>{modalContent}</ModalContentWrapper>
       </Modal>
     </GeneralSection>
-  )
-}
+  );
+};
 
 const HeaderSection = styled.div`
   margin-top: 2.5rem;
@@ -170,7 +192,7 @@ const ModalContentWrapper = styled.div`
     padding-left: 1em;
     padding-right: 1em;
     margin-left: 0;
-  `)};  
+  `)};
 `;
 
 export default ConfigurationSettings;

@@ -1,24 +1,28 @@
-import React, { useContext, useState } from 'react';
-import styled, { css } from 'styled-components';
+import React from "react";
+import styled, { css } from "styled-components";
 import { useHistory } from "react-router-dom";
-import moment from 'moment';
-import { Network } from 'bitcoinjs-lib';
-import { AES } from 'crypto-js';
+import moment from "moment";
 
-import { Button } from '../../components';
+import { Button } from "../../components";
 
-import { LilyConfig, NodeConfig } from '../../types'
+import { LilyConfig, NodeConfig } from "../../types";
 
-import { mobile } from '../../utils/media';
-import { white, green700, gray200, gray400, gray500, gray900 } from '../../utils/colors';
+import { mobile } from "../../utils/media";
+import {
+  white,
+  green700,
+  gray200,
+  gray400,
+  gray500,
+  gray900,
+} from "../../utils/colors";
 
 interface Props {
-  config: LilyConfig,
-  nodeConfig: NodeConfig,
-  currentBitcoinNetwork: Network
+  config: LilyConfig;
+  nodeConfig: NodeConfig;
 }
 
-const LicenseSettings = ({ config, nodeConfig, currentBitcoinNetwork }: Props) => {
+const LicenseSettings = ({ config, nodeConfig }: Props) => {
   const history = useHistory();
   let blockDiff;
   if (nodeConfig) {
@@ -27,18 +31,24 @@ const LicenseSettings = ({ config, nodeConfig, currentBitcoinNetwork }: Props) =
     blockDiff = config.license.expires;
   }
   const blockDiffTimeEst = blockDiff * 10;
-  const expireAsDate = moment().add(blockDiffTimeEst, "minutes").format('MMMM Do YYYY, h:mma');
+  const expireAsDate = moment()
+    .add(blockDiffTimeEst, "minutes")
+    .format("MMMM Do YYYY, h:mma");
 
   return (
     <GeneralSection>
       <HeaderSection>
         <HeaderTitle>License Information</HeaderTitle>
-        <HeaderSubtitle>This information is private and only seen by you.</HeaderSubtitle>
+        <HeaderSubtitle>
+          This information is private and only seen by you.
+        </HeaderSubtitle>
       </HeaderSection>
       <ProfileRow>
         <ProfileKeyColumn>Payment Transaction</ProfileKeyColumn>
         <ProfileValueColumn>
-          <ProfileValueText>{config.license && config.license.txId}</ProfileValueText>
+          <ProfileValueText>
+            {config.license && config.license.txId}
+          </ProfileValueText>
           {/* <ProfileValueAction>
             <ActionButton
               background={white}
@@ -51,7 +61,9 @@ const LicenseSettings = ({ config, nodeConfig, currentBitcoinNetwork }: Props) =
       <ProfileRow>
         <ProfileKeyColumn>License Expires</ProfileKeyColumn>
         <ProfileValueColumn>
-          <ProfileValueText>Block {config.license && config.license.expires.toLocaleString()}</ProfileValueText>
+          <ProfileValueText>
+            Block {config.license && config.license.expires.toLocaleString()}
+          </ProfileValueText>
           {/* <ProfileValueAction> */}
           {/* </ProfileValueAction> */}
         </ProfileValueColumn>
@@ -65,12 +77,24 @@ const LicenseSettings = ({ config, nodeConfig, currentBitcoinNetwork }: Props) =
         </ProfileValueColumn>
       </ProfileRow>
       <Buttons>
-        <LicenseButton background={white} color={gray900} style={{ border: `1px solid ${gray400}`, marginRight: '1em' }}>Contact Support</LicenseButton>
-        <LicenseButton background={green700} color={white} onClick={() => history.push('/purchase')}>Renew License</LicenseButton>
+        <LicenseButton
+          background={white}
+          color={gray900}
+          style={{ border: `1px solid ${gray400}`, marginRight: "1em" }}
+        >
+          Contact Support
+        </LicenseButton>
+        <LicenseButton
+          background={green700}
+          color={white}
+          onClick={() => history.push("/purchase")}
+        >
+          Renew License
+        </LicenseButton>
       </Buttons>
     </GeneralSection>
-  )
-}
+  );
+};
 
 const Buttons = styled.div`
   display: flex;
@@ -143,33 +167,6 @@ const ProfileValueColumn = styled.div`
 const ProfileValueText = styled.span`
   flex: 1;
   text-align: right;
-`;
-
-const ProfileValueAction = styled.span`
-  margin-left: 1rem;
-`;
-
-const ActionButton = styled.button`
-  ${Button};
-  font-weight: 600;
-`;
-
-const ModalContentWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-  padding: 1.5em;
-  align-items: flex-start;
-
-  ${mobile(css`
-    flex-direction: column;
-    align-items: center;
-    padding-top: 1.25em;
-    padding-bottom: 1em;
-    padding-left: 1em;
-    padding-right: 1em;
-    margin-left: 0;
-  `)};  
 `;
 
 export default LicenseSettings;

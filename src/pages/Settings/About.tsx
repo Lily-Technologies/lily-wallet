@@ -1,16 +1,15 @@
-import React, { useContext, useState } from 'react';
-import styled, { css } from 'styled-components';
-import { Network } from 'bitcoinjs-lib';
+import React from "react";
+import styled, { css } from "styled-components";
 
-import { Modal, Button, LicenseInformation } from '../../components';
+import { Button } from "../../components";
 
-import { LilyConfig } from '../../types'
+import { LilyConfig } from "../../types";
 
-import { mobile } from '../../utils/media';
-import { white, red500, green500, gray200, gray500, gray900 } from '../../utils/colors';
+import { mobile } from "../../utils/media";
+import { white, green500, gray200, gray500, gray900 } from "../../utils/colors";
 
 interface Props {
-  config: LilyConfig,
+  config: LilyConfig;
 }
 
 const About = ({ config }: Props) => {
@@ -18,13 +17,17 @@ const About = ({ config }: Props) => {
     <GeneralSection>
       <HeaderSection>
         <HeaderTitle>About Lily Wallet</HeaderTitle>
-        <HeaderSubtitle>This information is private and only seen by you.</HeaderSubtitle>
+        <HeaderSubtitle>
+          This information is private and only seen by you.
+        </HeaderSubtitle>
       </HeaderSection>
 
       <ProfileRow>
         <ProfileKeyColumn>Version</ProfileKeyColumn>
         <ProfileValueColumn>
-          <ProfileValueText style={{ textAlign: 'right' }}>{config.version}</ProfileValueText>
+          <ProfileValueText style={{ textAlign: "right" }}>
+            {config.version}
+          </ProfileValueText>
         </ProfileValueColumn>
       </ProfileRow>
       <ProfileRow>
@@ -32,10 +35,7 @@ const About = ({ config }: Props) => {
         <ProfileValueColumn>
           <ProfileValueText></ProfileValueText>
           <ProfileValueAction>
-            <ActionButton
-              background={white}
-              color={green500}
-            >
+            <ActionButton background={white} color={green500}>
               View Documentation
             </ActionButton>
           </ProfileValueAction>
@@ -46,9 +46,9 @@ const About = ({ config }: Props) => {
         <ProfileValueColumn>
           <ProfileValueText></ProfileValueText>
           <ProfileValueAction>
-            <ActionButton
-              background={white}
-              color={green500}>View Terms</ActionButton>
+            <ActionButton background={white} color={green500}>
+              View Terms
+            </ActionButton>
           </ProfileValueAction>
         </ProfileValueColumn>
       </ProfileRow>
@@ -57,17 +57,15 @@ const About = ({ config }: Props) => {
         <ProfileValueColumn>
           <ProfileValueText></ProfileValueText>
           <ProfileValueAction>
-            <ActionButton
-              background={white}
-              color={green500}>
+            <ActionButton background={white} color={green500}>
               View Privacy Policy
             </ActionButton>
           </ProfileValueAction>
         </ProfileValueColumn>
       </ProfileRow>
     </GeneralSection>
-  )
-}
+  );
+};
 
 const HeaderSection = styled.div`
   margin-top: 2.5rem;
@@ -137,24 +135,6 @@ const ProfileValueAction = styled.span`
 const ActionButton = styled.button`
   ${Button};
   font-weight: 600;
-`;
-
-const ModalContentWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-  padding: 1.5em;
-  align-items: flex-start;
-
-  ${mobile(css`
-    flex-direction: column;
-    align-items: center;
-    padding-top: 1.25em;
-    padding-bottom: 1em;
-    padding-left: 1em;
-    padding-right: 1em;
-    margin-left: 0;
-  `)};  
 `;
 
 export default About;

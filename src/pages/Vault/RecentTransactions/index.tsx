@@ -87,6 +87,7 @@ const RecentTransactions = ({
                 </TransactionRowWrapper>
               );
             }
+            return null;
           })}
         {!loading && transactions.length === 0 && (
           <NoTransasctionsSection flat={flat}>

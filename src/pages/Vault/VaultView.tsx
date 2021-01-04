@@ -15,7 +15,7 @@ import BigNumber from "bignumber.js";
 
 import { AccountMapContext } from "../../AccountMapContext";
 
-import { Loading, Modal, Button } from "../../components";
+import { Loading, Modal } from "../../components";
 
 import { mobile } from "../../utils/media";
 
