@@ -1,10 +1,10 @@
-import React from 'react';
-import styled from 'styled-components';
+import React from "react";
+import styled from "styled-components";
 
-import { Transition } from '.'
-import OutsideClick from './OutsideClick'
+import { Transition } from ".";
+import OutsideClick from "./OutsideClick";
 
-import { white, gray900 } from '../utils/colors';
+import { white, gray900 } from "../utils/colors";
 
 // https://codesandbox.io/s/outside-alerter-hooks-lmr2y?module=/src/OutsideAlerter.js&file=/src/OutsideAlerter.js
 /* 
@@ -25,19 +25,26 @@ import { white, gray900 } from '../utils/colors';
 */
 
 type DropdownItem = {
-  label: string
-  onClick(): void
-}
+  label: string;
+  onClick(): void;
+};
 interface Props {
-  isOpen: boolean
-  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>
-  buttonLabel?: string | React.ReactNode
-  dropdownItems: (DropdownItem | {})[]
-  minimal: boolean
-  style?: {}
+  isOpen: boolean;
+  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  buttonLabel?: string | React.ReactNode;
+  dropdownItems: (DropdownItem | {})[];
+  minimal: boolean;
+  style?: {};
 }
 
-export const Dropdown = ({ isOpen, setIsOpen, buttonLabel, dropdownItems, minimal, style }: Props) => {
+export const Dropdown = ({
+  isOpen,
+  setIsOpen,
+  buttonLabel,
+  dropdownItems,
+  minimal,
+  style,
+}: Props) => {
   return (
     <DropdownWrapper>
       <ButtonContainer>
@@ -45,26 +52,29 @@ export const Dropdown = ({ isOpen, setIsOpen, buttonLabel, dropdownItems, minima
           <MinimalDropdownButtonContainer
             style={style}
             onClick={() => setIsOpen(!isOpen)}
-            aria-label="Options" id="options-menu">
+            aria-label="Options"
+            id="options-menu"
+          >
             <DotDotDotImage fill="currentColor" viewBox="0 0 20 20">
               <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path>
             </DotDotDotImage>
           </MinimalDropdownButtonContainer>
         ) : (
-            <DropdownButtonContainer>
-              <DropdownButton
-                style={style}
-                onClick={() => setIsOpen(!isOpen)}
-                type="button"
-                id="options-menu"
-                aria-haspopup="true">
-                {buttonLabel}
-                {/* <DownArrowIcon style={style} fill="currentColor" viewBox="0 0 20 20">
+          <DropdownButtonContainer>
+            <DropdownButton
+              style={style}
+              onClick={() => setIsOpen(!isOpen)}
+              type="button"
+              id="options-menu"
+              aria-haspopup="true"
+            >
+              {buttonLabel}
+              {/* <DownArrowIcon style={style} fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
                 </DownArrowIcon> */}
-              </DropdownButton>
-            </DropdownButtonContainer>
-          )}
+            </DropdownButton>
+          </DropdownButtonContainer>
+        )}
       </ButtonContainer>
       <Transition
         show={isOpen}
@@ -79,7 +89,11 @@ export const Dropdown = ({ isOpen, setIsOpen, buttonLabel, dropdownItems, minima
         <OutsideClick onOutsideClick={() => setIsOpen(false)}>
           <DropdownItemsWrapper>
             <DropdownItemsContainer>
-              <DropdownItems role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
+              <DropdownItems
+                role="menu"
+                aria-orientation="vertical"
+                aria-labelledby="options-menu"
+              >
                 {dropdownItems.map((item, index) => {
                   if ("label" in item) {
                     return (
@@ -92,12 +106,13 @@ export const Dropdown = ({ isOpen, setIsOpen, buttonLabel, dropdownItems, minima
                             setIsOpen(false);
                           }
                         }}
-                        role="menuitem">{item.label}</DropdownItem>
-                    )
+                        role="menuitem"
+                      >
+                        {item.label}
+                      </DropdownItem>
+                    );
                   } else {
-                    return (
-                      <Divider key={index} />
-                    )
+                    return <Divider key={index} />;
                   }
                 })}
               </DropdownItems>
@@ -105,9 +120,9 @@ export const Dropdown = ({ isOpen, setIsOpen, buttonLabel, dropdownItems, minima
           </DropdownItemsWrapper>
         </OutsideClick>
       </Transition>
-    </DropdownWrapper >
-  )
-}
+    </DropdownWrapper>
+  );
+};
 
 const ButtonContainer = styled.div`
   display: flex;
@@ -122,64 +137,64 @@ const DropdownWrapper = styled.div`
 `;
 
 const DropdownButtonContainer = styled.span`
-  box-shadow: 0 1px 2px 0 rgba(0,0,0,.05);
-  border-radius: .375rem;
+  // box-shadow: 0 1px 2px 0 rgba(0,0,0,.05);
+  // border-radius: .375rem;
   cursor: pointer;
 `;
 
 const MinimalDropdownButtonContainer = styled.button`
   display: flex;
   align-items: center;
-  color: rgb(159,166,178);
+  color: rgb(159, 166, 178);
   padding: 0.25em;
   cursor: pointer;
   border: none;
   border-radius: 9999px;
 
   &:hover {
-    color: rgb(75,85,99);
-    background: rgba(255,255,255, 0.25)
+    color: rgb(75, 85, 99);
+    background: rgba(255, 255, 255, 0.25);
   }
 
   &:focus {
-    color: rgb(75,85,99);
+    color: rgb(75, 85, 99);
     outline: 0;
   }
 `;
 
 const DropdownButton = styled.button`
   transition-duration: 150ms;
-  transition-timing-function: cubic-bezier(.4,0,.2,1);
-  transition-property: background-color,border-color,color,fill,stroke,opacity,box-shadow,transform;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-property: background-color, border-color, color, fill, stroke,
+    opacity, box-shadow, transform;
   width: 100%;
   padding-left: 1rem;
   padding-right: 1rem;
-  padding-top: .5rem;
-  padding-bottom: .5rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
   line-height: 1.25rem;
-  font-size: .875rem;
+  font-size: 0.875rem;
   font-weight: 500;
   justify-content: center;
   display: inline-flex;
   // border-width: 1px;
-  border-radius: .375rem;
+  border-radius: 0.375rem;
   // border-color: rgb(210,214,220);
   background: ${white};
   cursor: pointer;
 
   &:active {
-    color: rgb(37,47,63);
+    color: rgb(37, 47, 63);
   }
 
-
   &:hover {
-    color: rgb(107,114,128);
+    color: rgb(107, 114, 128);
   }
 
   &:focus {
-    box-shadow: 0 0 0 3px rgba(164,202,254,.45);
+    box-shadow: 0 0 0 3px rgba(164, 202, 254, 0.45);
     outline: 0;
-    border-color: rgb(164,202,254)
+    border-color: rgb(164, 202, 254);
   }
 `;
 
@@ -193,23 +208,24 @@ const DotDotDotImage = styled.svg`
 const DropdownItemsWrapper = styled.div`
   transform-origin: top right;
   width: 14rem;
-  box-shadow: 0 10px 15px -3px rgba(0,0,0,.1), 0 4px 6px -2px rgba(0,0,0,.05);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
   right: 0;
   position: absolute;
-  margin-top: .5rem;
-  border-radius: .375rem;
+  margin-top: 0.5rem;
+  border-radius: 0.375rem;
   z-index: 2;
 `;
 
 const DropdownItemsContainer = styled.div`
-  border-radius: .375rem;
-  box-shadow: 0 0 0 1px rgba(0,0,0,.05);
+  border-radius: 0.375rem;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05);
   background: ${white};
 `;
 
 const DropdownItems = styled.div`
-  padding-top: .25rem;
-  padding-bottom: .25rem;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
 `;
 
 const Divider = styled.div`
@@ -220,24 +236,24 @@ const Divider = styled.div`
 const DropdownItem = styled.a<{ clickable: boolean }>`
   padding-left: 1rem;
   padding-right: 1rem;
-  padding-top: .5rem;
-  padding-bottom: .5rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
   line-height: 1.25rem;
-  font-size: .875rem;
+  font-size: 0.875rem;
   display: block;
   background-color: transparent;
   text-decoration: none;
-  cursor: ${p => p.clickable ? 'pointer' : 'default'};
+  cursor: ${(p) => (p.clickable ? "pointer" : "default")};
   color: ${gray900};
 
   &:hover {
-    background: rgb(244,245,247);
-    color: rgb(22,30,46);
+    background: rgb(244, 245, 247);
+    color: rgb(22, 30, 46);
   }
 
   &:focus {
     outline: 0;
-    background-color: rgb(244,245,247);
-    color: rgb(22,30,46);
+    background-color: rgb(244, 245, 247);
+    color: rgb(22, 30, 46);
   }
 `;

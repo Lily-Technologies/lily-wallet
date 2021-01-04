@@ -105,26 +105,6 @@ const App = () => {
     setInitialFlyInAnimation(true);
   };
 
-  const connectToBlockstream = async () => {
-    setNodeConfig(undefined);
-    const response = await window.ipcRenderer.invoke("/changeNodeConfig", {
-      nodeConfig: {
-        provider: "Blockstream",
-      },
-    });
-    setNodeConfig(response);
-  };
-
-  const connectToBitcoinCore = async () => {
-    setNodeConfig(undefined);
-    const response = await window.ipcRenderer.invoke("/changeNodeConfig", {
-      nodeConfig: {
-        provider: "Bitcoin Core",
-      },
-    });
-    setNodeConfig(response);
-  };
-
   const getNodeConfig = async () => {
     const response = await window.ipcRenderer.invoke("/getNodeConfig");
     setNodeConfig(response);
@@ -265,12 +245,9 @@ const App = () => {
     <Router>
       <ScrollToTop />
       <TitleBar
-        setNodeConfig={setNodeConfig}
         nodeConfig={nodeConfig}
         setMobileNavOpen={setMobileNavOpen}
         config={config}
-        connectToBlockstream={connectToBlockstream}
-        connectToBitcoinCore={connectToBitcoinCore}
         getNodeConfig={getNodeConfig}
         resetConfigFile={resetConfigFile}
       />
@@ -356,7 +333,9 @@ const App = () => {
               <Settings
                 config={config}
                 nodeConfig={nodeConfig!}
+                getNodeConfig={getNodeConfig}
                 currentBitcoinNetwork={currentBitcoinNetwork}
+                setNodeConfig={setNodeConfig}
               />
             )}
           />

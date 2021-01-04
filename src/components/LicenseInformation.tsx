@@ -1,14 +1,14 @@
-import React from 'react';
-import styled from 'styled-components';
-import moment from 'moment';
+import React from "react";
+import styled from "styled-components";
+import moment from "moment";
 
-import { gray500, gray900 } from '../utils/colors';
+import { gray500, gray900 } from "../utils/colors";
 
-import { LilyConfig, NodeConfig } from '../types';
+import { LilyConfig, NodeConfig } from "../types";
 
 interface Props {
-  config: LilyConfig
-  nodeConfig: NodeConfig
+  config: LilyConfig;
+  nodeConfig: NodeConfig;
 }
 
 export const LicenseInformation = ({ config, nodeConfig }: Props) => {
@@ -19,7 +19,9 @@ export const LicenseInformation = ({ config, nodeConfig }: Props) => {
     blockDiff = config.license.expires;
   }
   const blockDiffTimeEst = blockDiff * 10;
-  const expireAsDate = moment().add(blockDiffTimeEst, "minutes").format('MMMM Do YYYY, h:mma');
+  const expireAsDate = moment()
+    .add(blockDiffTimeEst, "minutes")
+    .format("MMMM Do YYYY, h:mma");
 
   return (
     <Wrapper>
@@ -30,7 +32,9 @@ export const LicenseInformation = ({ config, nodeConfig }: Props) => {
 
       <ItemContainer>
         <ItemLabel>License Expires</ItemLabel>
-        <ItemValue>Block {config.license && config.license.expires.toLocaleString()}</ItemValue>
+        <ItemValue>
+          Block {config?.license?.expires?.toLocaleString()}
+        </ItemValue>
       </ItemContainer>
 
       <ItemContainer>
@@ -38,8 +42,8 @@ export const LicenseInformation = ({ config, nodeConfig }: Props) => {
         <ItemValue>{expireAsDate}</ItemValue>
       </ItemContainer>
     </Wrapper>
-  )
-}
+  );
+};
 
 const ItemContainer = styled.div`
   margin: 1em 0;

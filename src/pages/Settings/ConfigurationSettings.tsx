@@ -78,28 +78,6 @@ const ConfigurationSettings = ({
           </ProfileValueAction>
         </ProfileValueColumn>
       </ProfileRow>
-      <ProfileRow>
-        <ProfileKeyColumn>Data Source</ProfileKeyColumn>
-        <ProfileValueColumn>
-          <ProfileValueText>{nodeConfig.provider}</ProfileValueText>
-          <ProfileValueAction>
-            <ActionButton
-              background={white}
-              color={green500}
-              onClick={() =>
-                openInModal(
-                  <PasswordModal
-                    downloadCurrentConfig={downloadCurrentConfig}
-                  />
-                )
-              }
-            >
-              Connect to Custom Node
-            </ActionButton>
-          </ProfileValueAction>
-        </ProfileValueColumn>
-      </ProfileRow>
-
       <Modal isOpen={modalIsOpen} onRequestClose={() => closeModal()}>
         <ModalContentWrapper>{modalContent}</ModalContentWrapper>
       </Modal>

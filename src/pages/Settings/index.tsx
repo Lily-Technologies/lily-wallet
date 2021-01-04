@@ -7,6 +7,7 @@ import { PageWrapper, PageTitle, Header, HeaderLeft } from "../../components";
 import Tabs from "./Tabs";
 import ConfigurationSettings from "./ConfigurationSettings";
 import License from "./License";
+import NetworkSettings from "./NetworkSettings";
 import About from "./About";
 
 import { white } from "../../utils/colors";
@@ -17,9 +18,17 @@ interface Props {
   config: LilyConfig;
   nodeConfig: NodeConfig;
   currentBitcoinNetwork: Network;
+  getNodeConfig: () => void;
+  setNodeConfig: React.Dispatch<React.SetStateAction<NodeConfig | undefined>>; // KBC-TODO: NodeConfig should be defined, even if we are connected to blockstream, yeah? No?
 }
 
-const Settings = ({ config, nodeConfig, currentBitcoinNetwork }: Props) => {
+const Settings = ({
+  config,
+  nodeConfig,
+  currentBitcoinNetwork,
+  getNodeConfig,
+  setNodeConfig,
+}: Props) => {
   const [currentTab, setCurrentTab] = useState("config");
 
   return (
@@ -42,6 +51,13 @@ const Settings = ({ config, nodeConfig, currentBitcoinNetwork }: Props) => {
           {currentTab === "license" && (
             <License config={config} nodeConfig={nodeConfig} />
           )}
+          {currentTab === "network" && (
+            <NetworkSettings
+              nodeConfig={nodeConfig}
+              getNodeConfig={getNodeConfig}
+              setNodeConfig={setNodeConfig}
+            />
+          )}
           {currentTab === "about" && <About config={config} />}
         </Wrapper>
       </Fragment>
@@ -53,7 +69,6 @@ const Wrapper = styled.div`
   background: ${white};
   border-radius: 0.385em;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-  overflow: hidden;
   padding: 1.5rem;
 `;
 

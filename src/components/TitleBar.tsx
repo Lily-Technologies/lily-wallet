@@ -1,46 +1,54 @@
-import React, { useState, Fragment } from 'react'
-import styled, { css } from 'styled-components';
-import { mobile } from '../utils/media';
-import { Circle } from '@styled-icons/boxicons-solid';
-import { Menu } from '@styled-icons/boxicons-regular';
-import BigNumber from 'bignumber.js';
+import React, { useState, Fragment } from "react";
+import { useHistory } from "react-router-dom";
+import styled, { css } from "styled-components";
+import { Circle } from "@styled-icons/boxicons-solid";
+import { Menu } from "@styled-icons/boxicons-regular";
 
-import { white, green400, orange400, red500, green800, green900 } from '../utils/colors';
+import {
+  white,
+  green400,
+  orange400,
+  red500,
+  green800,
+  green900,
+} from "../utils/colors";
 
-import { ConnectToNodeModal, StyledIcon, Dropdown, ConnectToLilyMobileModal, LicenseModal } from '.';
+import { getNodeStatus } from "../utils/other";
+import { mobile } from "../utils/media";
 
-import { NodeConfig, LilyConfig, SetStateBoolean } from '../types';
+import {
+  StyledIcon,
+  Dropdown,
+  ConnectToLilyMobileModal,
+  LicenseModal,
+} from ".";
+
+import { NodeConfig, LilyConfig, SetStateBoolean } from "../types";
 
 interface Props {
-  setNodeConfig: React.Dispatch<React.SetStateAction<NodeConfig | undefined>>, // KBC-TODO: NodeConfig should be defined, even if we are connected to blockstream, yeah? No?
-  nodeConfig: NodeConfig | undefined // KBC-TODO: NodeConfig should be defined, even if we are connected to blockstream, yeah? No?
-  setMobileNavOpen: SetStateBoolean,
-  config: LilyConfig,
-  connectToBlockstream: () => void,
-  connectToBitcoinCore: () => void,
-  getNodeConfig: () => void,
-  resetConfigFile: () => void
+  nodeConfig: NodeConfig | undefined; // KBC-TODO: NodeConfig should be defined, even if we are connected to blockstream, yeah? No?
+  setMobileNavOpen: SetStateBoolean;
+  config: LilyConfig;
+  getNodeConfig: () => void;
+  resetConfigFile: () => void;
 }
 
 export const TitleBar = ({
-  setNodeConfig,
   nodeConfig,
   setMobileNavOpen,
   config,
-  connectToBlockstream,
-  connectToBitcoinCore,
   getNodeConfig,
-  resetConfigFile
+  resetConfigFile,
 }: Props) => {
-  const [nodeConfigModalOpen, setNodeConfigModalOpen] = useState(false);
   const [moreOptionsDropdownOpen, setMoreOptionsDropdownOpen] = useState(false);
   const [nodeOptionsDropdownOpen, setNodeOptionsDropdownOpen] = useState(false);
   const [configModalOpen, setConfigModalOpen] = useState(false);
   const [licenseModalOpen, setLicenseModalOpen] = useState(false);
+  const history = useHistory();
 
   const refreshNodeData = async () => {
     await getNodeConfig();
-  }
+  };
 
   const nodeConfigDropdownItems = [];
 
@@ -48,53 +56,71 @@ export const TitleBar = ({
     label: (
       <Fragment>
         Status: <br />
-        {nodeConfig && nodeConfig.initialblockdownload && nodeConfig.verificationprogress ? `Initializing (${new BigNumber(nodeConfig.verificationprogress).multipliedBy(100).toFixed(2)}%)`
-          : nodeConfig && nodeConfig.connected ? `Connected via ${nodeConfig.provider}`
-            : nodeConfig && !nodeConfig.connected ? `Disconnected from ${nodeConfig.provider}`
-              : 'Connecting...'}
+        {getNodeStatus(nodeConfig)}
       </Fragment>
-    )
+    ),
   });
 
-  nodeConfigDropdownItems.push({})
+  nodeConfigDropdownItems.push({});
 
-  if (nodeConfig && nodeConfig.blocks) {
-    nodeConfigDropdownItems.push({ label: `Block Height: ${nodeConfig ? nodeConfig.blocks.toLocaleString() : 'Connecting...'}` });
-  }
-
-  nodeConfigDropdownItems.push({ label: 'Refresh Node Info', onClick: () => { refreshNodeData() } });
-  nodeConfigDropdownItems.push({})
-
-  if (nodeConfig && nodeConfig.provider !== 'Bitcoin Core') {
-    nodeConfigDropdownItems.push({ label: 'Connect to Bitcoin Core', onClick: async () => await connectToBitcoinCore() })
-  }
-  if (nodeConfig && nodeConfig.provider !== 'Blockstream') {
-    nodeConfigDropdownItems.push({ label: 'Connect to Blockstream', onClick: async () => await connectToBlockstream() })
-  }
-  nodeConfigDropdownItems.push({ label: 'Connect to Custom Node', onClick: () => setNodeConfigModalOpen(true) })
+  nodeConfigDropdownItems.push({
+    label: "Refresh network data",
+    onClick: () => {
+      refreshNodeData();
+    },
+  });
+  // nodeConfigDropdownItems.push({});
+  nodeConfigDropdownItems.push({
+    label: "Network Settings",
+    onClick: () => history.push("settings", { currentTab: "network" }),
+  });
 
   const moreOptionsDropdownItems = [
-    { label: 'Support', onClick: () => { console.log('foobar') } },
-    { label: 'License', onClick: () => { setLicenseModalOpen(true) } },
-    { label: 'View source code', onClick: () => { window.open('https://github.com/KayBeSee/lily-wallet', '_blank', 'nodeIntegration=no') } }
+    {
+      label: "Support",
+      onClick: () => {
+        console.log("foobar");
+      },
+    },
+    {
+      label: "License",
+      onClick: () => {
+        setLicenseModalOpen(true);
+      },
+    },
+    {
+      label: "View source code",
+      onClick: () => {
+        window.open(
+          "https://github.com/KayBeSee/lily-wallet",
+          "_blank",
+          "nodeIntegration=no"
+        );
+      },
+    },
   ];
 
   if (!config.isEmpty) {
     moreOptionsDropdownItems.push(
-      { label: 'Connect to Lily Mobile', onClick: () => { setConfigModalOpen(true) } },
-      { label: 'Sign out', onClick: async () => { await resetConfigFile() } }
-    )
+      {
+        label: "Connect to Lily Mobile",
+        onClick: () => {
+          setConfigModalOpen(true);
+        },
+      },
+      {
+        label: "Sign out",
+        onClick: async () => {
+          await resetConfigFile();
+        },
+      }
+    );
   }
 
   return (
     <Fragment>
       <HeightHolder />
       <DraggableTitleBar>
-        <ConnectToNodeModal
-          isOpen={nodeConfigModalOpen}
-          onRequestClose={() => setNodeConfigModalOpen(false)}
-          setNodeConfig={setNodeConfig}
-        />
         <ConnectToLilyMobileModal
           isOpen={configModalOpen}
           onRequestClose={() => setConfigModalOpen(false)}
@@ -108,7 +134,7 @@ export const TitleBar = ({
         />
         <LeftSection>
           {!config.isEmpty && (
-            <MobileMenuOpen onClick={() => setMobileNavOpen(true)} >
+            <MobileMenuOpen onClick={() => setMobileNavOpen(true)}>
               <StyledIcon as={Menu} size={36} /> Menu
             </MobileMenuOpen>
           )}
@@ -119,21 +145,39 @@ export const TitleBar = ({
               isOpen={nodeOptionsDropdownOpen}
               setIsOpen={setNodeOptionsDropdownOpen}
               minimal={false}
-              style={{ background: green900, color: white, padding: '0.35em 1em', border: 'none', fontFamily: 'Montserrat, sans-serif', display: 'flex', alignItems: 'center' }}
+              style={{
+                background: green900,
+                color: white,
+                padding: "0.35em 1em",
+                border: "none",
+                fontFamily: "Montserrat, sans-serif",
+                display: "flex",
+                alignItems: "center",
+              }}
               buttonLabel={
                 <Fragment>
                   {nodeConfig ? (
-                    <StyledIcon as={Circle} style={{
-                      color: (nodeConfig.initialblockdownload) ? orange400
-                        : (nodeConfig.connected) ? green400
+                    <StyledIcon
+                      as={Circle}
+                      style={{
+                        color: nodeConfig.initialblockdownload
+                          ? orange400
+                          : nodeConfig.connected
+                          ? green400
                           : red500, // !nodeConfig.connected
-                    }} />
+                      }}
+                    />
                   ) : (
-                      <LoadingImage alt="loading placeholder" src={require('../assets/flower-loading.svg')} />
-                    )}
-                  {nodeConfig && nodeConfig.connected ? null
-                    : nodeConfig && !nodeConfig.connected ? null
-                      : 'Connecting...'}
+                    <LoadingImage
+                      alt="loading placeholder"
+                      src={require("../assets/flower-loading.svg")}
+                    />
+                  )}
+                  {nodeConfig && nodeConfig.connected
+                    ? null
+                    : nodeConfig && !nodeConfig.connected
+                    ? null
+                    : "Connecting..."}
                 </Fragment>
               }
               dropdownItems={nodeConfigDropdownItems}
@@ -150,15 +194,15 @@ export const TitleBar = ({
             />
           </DotDotDotContainer>
         </RightSection>
-      </DraggableTitleBar >
+      </DraggableTitleBar>
     </Fragment>
-  )
-}
+  );
+};
 
 const LoadingImage = styled.img`
   filter: brightness(0) invert(1);
   max-width: 1.25em;
-  margin-right: .25em;
+  margin-right: 0.25em;
   opacity: 0.9;
 `;
 
@@ -181,7 +225,6 @@ const MobileMenuOpen = styled.div`
   ${mobile(css`
     display: flex;
   `)}
-
 `;
 
 const DotDotDotContainer = styled.div`
