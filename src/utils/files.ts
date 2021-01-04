@@ -9,6 +9,7 @@ import { bufferToHex } from "../utils/other";
 
 import {
   LilyConfig,
+  OldLilyConfig,
   AccountConfig,
   AddressType,
   Device,
@@ -92,6 +93,54 @@ export const containsColdcard = (devices: Device[]) => {
     }
   }
   return false;
+};
+
+export const updateConfigFileVersion = (
+  config: OldLilyConfig,
+  currentBlockHeight: number
+) => {
+  console.log("config.version: ", config.version);
+  if (config.version === "0.0.1" || config.version === "0.0.2") {
+    const updatedConfig = {
+      name: "",
+      version: "1.0.0",
+      isEmpty: false,
+      license: {
+        trial: true,
+        expires: currentBlockHeight + 4320, // one month free trial (6 * 24 * 30)
+      },
+      wallets: config.wallets.map((item) => ({
+        id: item.id,
+        created_at: item.created_at,
+        name: item.name,
+        network: item.network,
+        addressType: item.addressType,
+        quorum: item.quorum,
+        extendedPublicKeys: [
+          {
+            id: uuidv4(),
+            created_at: item.created_at,
+            parentFingerprint: item.parentFingerprint,
+            xpub: item.xpub,
+            network: item.network,
+            bip32Path: "m/0",
+            device: item.device || {
+              type: "lily",
+              model: "lily",
+              fingerprint: item.parentFingerprint,
+            },
+          },
+        ],
+        mnemonic: item.mnemonic,
+        parentFingerprint: item.parentFingerprint,
+      })),
+      vaults: config.vaults.map((item) => ({
+        ...item,
+      })),
+    } as LilyConfig;
+    return updatedConfig;
+  }
+  return config;
 };
 
 export const formatFilename = (

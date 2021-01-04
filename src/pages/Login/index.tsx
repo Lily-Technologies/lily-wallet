@@ -20,7 +20,7 @@ import {
 } from "../../utils/colors";
 import { bitcoinNetworkEqual } from "../../utils/files";
 import { mobile } from "../../utils/media";
-import { saveConfig } from "../../utils/files";
+import { saveConfig, updateConfigFileVersion } from "../../utils/files";
 
 import { LilyConfig, File } from "../../types";
 
@@ -63,7 +63,11 @@ const Login = ({
     if (encryptedConfigFile) {
       try {
         const bytes = AES.decrypt(encryptedConfigFile.file, localPassword);
-        const decryptedData = JSON.parse(bytes.toString(enc.Utf8));
+        let decryptedData = JSON.parse(bytes.toString(enc.Utf8));
+        decryptedData = updateConfigFileVersion(
+          decryptedData,
+          currentBlockHeight!
+        );
         setPasswordError(undefined);
         setTimeout(() => {
           setConfigFile(decryptedData);

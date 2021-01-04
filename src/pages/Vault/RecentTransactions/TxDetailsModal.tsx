@@ -1,10 +1,10 @@
-import React from 'react';
-import styled from 'styled-components';
+import React from "react";
+import styled from "styled-components";
 import { satoshisToBitcoins } from "unchained-bitcoin";
 
-import { Button } from '../';
+import { Button } from "../../../components";
 
-import TransactionTypeIcon from './TransactionTypeIcon';
+import TransactionTypeIcon from "./TransactionTypeIcon";
 
 import {
   white,
@@ -14,17 +14,17 @@ import {
   green800,
   darkGray,
   gray700,
-  gray800
-} from '../../utils/colors';
+  gray800,
+} from "../../../utils/colors";
 
-import { Transaction } from '../../types';
+import { Transaction } from "../../../types";
 
 interface Props {
-  transaction: Transaction
+  transaction: Transaction;
 }
 
 const TxDetailsModal = ({ transaction }: Props) => {
-  console.log('transaction: ', transaction);
+  console.log("transaction: ", transaction);
   return (
     <Wrapper>
       <HeaderWrapper>
@@ -37,42 +37,63 @@ const TxDetailsModal = ({ transaction }: Props) => {
 
       <MoreDetailsSection>
         <MoreDetailsHeader>Inputs</MoreDetailsHeader>
-        {transaction.vin.map(input => {
-          return (
-            <OutputItem>
-              <OutputAddress>{`${input.prevout.scriptpubkey_address}:${input.vout}`}</OutputAddress>
-              <OutputAmount>{satoshisToBitcoins(input.prevout.value).toNumber()} BTC</OutputAmount>
-            </OutputItem>
-          )
-        })}
+        <TxOutputSection>
+          {transaction.vin.map((input) => {
+            return (
+              <OutputItem>
+                <OutputAddress>{`${input.prevout.scriptpubkey_address}:${input.vout}`}</OutputAddress>
+                <OutputAmount>
+                  {satoshisToBitcoins(input.prevout.value).toNumber()} BTC
+                </OutputAmount>
+              </OutputItem>
+            );
+          })}
+        </TxOutputSection>
       </MoreDetailsSection>
       <MoreDetailsSection>
         <MoreDetailsHeader>Outputs</MoreDetailsHeader>
-        {transaction.vout.map(output => {
-          return (
-            <OutputItem>
-              <OutputAddress>{output.scriptpubkey_address}</OutputAddress>
-              <OutputAmount>{satoshisToBitcoins(output.value).toNumber()} BTC</OutputAmount>
-            </OutputItem>
-          )
-        })}
+        <TxOutputSection>
+          {transaction.vout.map((output) => {
+            return (
+              <OutputItem>
+                <OutputAddress>{output.scriptpubkey_address}</OutputAddress>
+                <OutputAmount>
+                  {satoshisToBitcoins(output.value).toNumber()} BTC
+                </OutputAmount>
+              </OutputItem>
+            );
+          })}
+        </TxOutputSection>
       </MoreDetailsSection>
       <MoreDetailsSection>
         <MoreDetailsHeader>Status</MoreDetailsHeader>
-        <StatusItem>{transaction.status.confirmed ? `Confirmed in block ${transaction.status.block_height}` : 'Unconfirmed'}</StatusItem>
-        <StatusItem>Paid {satoshisToBitcoins(transaction.fee).toNumber()} BTC in fees</StatusItem>
+        <StatusItem>
+          {transaction.status.confirmed
+            ? `Confirmed in block ${transaction.status.block_height}`
+            : "Unconfirmed"}
+        </StatusItem>
+        <StatusItem>
+          Paid {satoshisToBitcoins(transaction.fee).toNumber()} BTC in fees
+        </StatusItem>
       </MoreDetailsSection>
       <Buttons>
         <ViewExplorerButton
           background={green600}
           color={white}
-          onClick={() => window.open(`https://blockstream.info/tx/${transaction.txid}`, '_blank', 'nodeIntegration=no')}>
+          onClick={() =>
+            window.open(
+              `https://blockstream.info/tx/${transaction.txid}`,
+              "_blank",
+              "nodeIntegration=no"
+            )
+          }
+        >
           View on Blockstream
-          </ViewExplorerButton>
+        </ViewExplorerButton>
       </Buttons>
     </Wrapper>
-  )
-}
+  );
+};
 
 const Wrapper = styled.div`
   display: flex;
@@ -105,6 +126,11 @@ const TransactionId = styled.h5`
 
 const ViewExplorerButton = styled.button`
   ${Button};
+`;
+
+const TxOutputSection = styled.div`
+  display: flex;
+  flex-direction: column;
 `;
 
 const OutputItem = styled.div`

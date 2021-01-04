@@ -401,6 +401,14 @@ ipcMain.on("/account-data", async (event, args) => {
       BigNumber(0)
     );
 
+    let loading = false;
+    if (nodeClient) {
+      const resp = await nodeClient.getWalletInfo();
+      console.log("resp: ", resp);
+      // TODO: should check if keypool is > 0
+      loading = resp.scanning;
+    }
+
     const accountData = {
       name: config.name,
       config: config,
@@ -411,6 +419,7 @@ ipcMain.on("/account-data", async (event, args) => {
       unusedAddresses,
       currentBalance: currentBalance.toNumber(),
       unusedChangeAddresses,
+      loading,
     };
 
     event.reply("/account-data", accountData);
@@ -661,5 +670,41 @@ ipcMain.handle("/getNodeConfig", async (event, args) => {
       };
       return Promise.resolve(blockchainInfo);
     }
+  }
+});
+
+ipcMain.handle("/rescanBlockchain", async (event, args) => {
+  const { currentAccount, startHeight } = args;
+  console.log("currentAccount, startHeight: ", currentAccount, startHeight);
+  try {
+    if (currentNodeConfig.provider !== "Blockstream") {
+      const currentConfig = currentNodeConfig;
+      console.log("currentConfig: ", currentConfig);
+      const client = new Client({
+        wallet: `lily${currentAccount.config.id}`,
+        host: currentNodeConfig.host || "http://localhost:8332",
+        username: currentNodeConfig.rpcuser || currentNodeConfig.username, // TODO: uniform this in the future
+        password: currentNodeConfig.rpcpassword || currentNodeConfig.password,
+        version: "0.20.1",
+      });
+      console.log("client: ", client);
+
+      // don't await this call because it always times out, just trust that it's happening
+      // and then we verify via response from getwalletinfo
+      client.rescanBlockchain({
+        start_height: parseInt(startHeight),
+      });
+
+      const walletInfo = await client.getWalletInfo();
+      console.log("walletInfo: ", walletInfo);
+      if (walletInfo.scanning !== false) {
+        return Promise.resolve({ success: true });
+      } else {
+        return Promise.reject({ success: false });
+      }
+    }
+  } catch (e) {
+    console.log("exx: ", e);
+    return Promise.reject({ success: false, message: e.message });
   }
 });

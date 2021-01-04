@@ -1,5 +1,5 @@
-import React, { Fragment, useContext } from "react";
-import styled from "styled-components";
+import React, { Fragment, useContext, useState } from "react";
+import styled, { css } from "styled-components";
 import {
   AreaChart,
   Area,
@@ -15,9 +15,14 @@ import BigNumber from "bignumber.js";
 
 import { AccountMapContext } from "../../AccountMapContext";
 
-import { Loading } from "../../components";
+import { Loading, Modal, Button } from "../../components";
 
-import RecentTransactions from "../../components/transactions/RecentTransactions";
+import { mobile } from "../../utils/media";
+
+import RecentTransactions from "./RecentTransactions";
+import { RescanModal } from "./RescanModal";
+
+import { NodeConfig } from "../../types";
 
 import {
   gray,
@@ -48,7 +53,13 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
   return null;
 };
 
-const VaultView = () => {
+interface Props {
+  nodeConfig: NodeConfig;
+}
+
+const VaultView = ({ nodeConfig }: Props) => {
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
   const { currentAccount } = useContext(AccountMapContext);
   const { currentBalance, transactions } = currentAccount;
   const transactionsCopyForChart = [...transactions];
@@ -82,6 +93,22 @@ const VaultView = () => {
     });
   }
 
+  const openInModal = (component: JSX.Element) => {
+    setModalIsOpen(true);
+    setModalContent(component);
+  };
+
+  const closeModal = () => {
+    setModalIsOpen(false);
+    setModalContent(null);
+  };
+
+  const openRescanModal = () => {
+    openInModal(
+      <RescanModal closeModal={closeModal} currentAccount={currentAccount} />
+    );
+  };
+
   return (
     <Fragment>
       {currentAccount.loading && (
@@ -89,7 +116,7 @@ const VaultView = () => {
           <Loading style={{ margin: "10em 0" }} itemText={"Chart Data"} />
         </ValueWrapper>
       )}
-      {transactions.length > 0 && (
+      {transactions.length > 0 && !currentAccount.loading && (
         <ValueWrapper>
           <CurrentBalanceContainer>
             <CurrentBalanceText>Current Balance:</CurrentBalanceText>
@@ -147,10 +174,36 @@ const VaultView = () => {
         })}
         loading={currentAccount.loading}
         flat={false}
+        openRescanModal={
+          nodeConfig?.provider === "Blockstream"
+            ? undefined
+            : () => openRescanModal()
+        }
       />
+      <Modal isOpen={modalIsOpen} onRequestClose={() => closeModal()}>
+        <ModalContentWrapper>{modalContent}</ModalContentWrapper>
+      </Modal>
     </Fragment>
   );
 };
+
+const ModalContentWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  padding: 1.5em;
+  align-items: flex-start;
+
+  ${mobile(css`
+    flex-direction: column;
+    align-items: center;
+    padding-top: 1.25em;
+    padding-bottom: 1em;
+    padding-left: 1em;
+    padding-right: 1em;
+    margin-left: 0;
+  `)};
+`;
 
 const ValueWrapper = styled.div`
   background: ${white};

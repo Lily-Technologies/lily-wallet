@@ -221,10 +221,34 @@ export interface LilyConfig {
   version: string;
   license: LilyLicense;
   isEmpty: boolean;
+  wallets: AccountConfig[];
+  vaults: AccountConfig[];
+  keys: any[]; // TODO: change
+  exchanges: any[]; // TODO: change
+}
+
+export interface OldLilyConfig {
+  name: string;
+  version: string;
+  isEmpty: boolean;
   backup_options: {
     gDrive: boolean;
   };
-  wallets: AccountConfig[];
+  wallets: {
+    id: string;
+    created_at: number;
+    name: string;
+    network: string;
+    addressType: string;
+    quorum: {
+      requiredSigners: number;
+      totalSigners: number;
+    };
+    xpub: string;
+    parentFingerprint: string;
+    device: Device;
+    mnemonic?: string;
+  }[];
   vaults: AccountConfig[];
   keys: any[]; // TODO: change
   exchanges: any[]; // TODO: change
