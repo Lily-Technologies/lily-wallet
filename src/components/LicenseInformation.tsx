@@ -3,6 +3,7 @@ import styled from "styled-components";
 import moment from "moment";
 
 import { gray500, gray900 } from "../utils/colors";
+import { licenseExpires, licenseTxId, licenseTier } from "../utils/license";
 
 import { LilyConfig, NodeConfig } from "../types";
 
@@ -12,12 +13,7 @@ interface Props {
 }
 
 export const LicenseInformation = ({ config, nodeConfig }: Props) => {
-  let blockDiff;
-  if (nodeConfig) {
-    blockDiff = config.license.expires - nodeConfig.blocks;
-  } else {
-    blockDiff = config.license.expires;
-  }
+  const blockDiff = licenseExpires(config.license) - nodeConfig.blocks;
   const blockDiffTimeEst = blockDiff * 10;
   const expireAsDate = moment()
     .add(blockDiffTimeEst, "minutes")
@@ -26,20 +22,22 @@ export const LicenseInformation = ({ config, nodeConfig }: Props) => {
   return (
     <Wrapper>
       <ItemContainer>
-        <ItemLabel>Payment Transaction</ItemLabel>
-        <ItemValue>{config.license && config.license.txId}</ItemValue>
+        <ItemLabel>License Tier</ItemLabel>
+        <ItemValue>{licenseTier(config.license)}</ItemValue>
       </ItemContainer>
-
       <ItemContainer>
         <ItemLabel>License Expires</ItemLabel>
         <ItemValue>
-          Block {config?.license?.expires?.toLocaleString()}
+          Block {licenseExpires(config.license).toLocaleString()}
         </ItemValue>
       </ItemContainer>
-
       <ItemContainer>
         <ItemLabel>Approximate Expire Date</ItemLabel>
         <ItemValue>{expireAsDate}</ItemValue>
+      </ItemContainer>
+      <ItemContainer>
+        <ItemLabel>Payment Transaction</ItemLabel>
+        <ItemValue>{licenseTxId(config.license)}</ItemValue>
       </ItemContainer>
     </Wrapper>
   );

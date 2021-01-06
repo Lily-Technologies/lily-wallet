@@ -1,15 +1,23 @@
-import React, { Fragment } from 'react';
-import styled from 'styled-components';
-import { Check } from '@styled-icons/boxicons-regular';
-import { Dash } from '@styled-icons/octicons';
+import React, { Fragment } from "react";
+import styled from "styled-components";
+import { Check } from "@styled-icons/boxicons-regular";
+import { Dash } from "@styled-icons/octicons";
 
-import { Button } from '.';
+import { Button } from ".";
 
-import { white, gray100, gray400, gray600, gray900, green400, green700 } from '../utils/colors';
+import {
+  white,
+  gray100,
+  gray400,
+  gray600,
+  gray900,
+  green400,
+  green700,
+} from "../utils/colors";
 
-import { LicenseLevels } from '../types';
+import { LicenseTiers } from "../types";
 interface Props {
-  clickRenewLicense: (level: LicenseLevels) => void
+  clickRenewLicense: (level: LicenseTiers) => void;
 }
 
 export const PricingPlanTable = ({ clickRenewLicense }: Props) => {
@@ -25,7 +33,6 @@ export const PricingPlanTable = ({ clickRenewLicense }: Props) => {
           </TableRow>
         </TableHeader>
         <TableBody>
-
           <TableRow>
             <BoldTableColumn>Pricing</BoldTableColumn>
             <TableColumn>
@@ -45,27 +52,30 @@ export const PricingPlanTable = ({ clickRenewLicense }: Props) => {
             <PurchaseColumn />
             <PurchaseColumn>
               <PurchaseButton
-                onClick={() => clickRenewLicense(LicenseLevels.basic)}
+                onClick={() => clickRenewLicense(LicenseTiers.basic)}
                 background={green700}
-                color={white}>
+                color={white}
+              >
                 Buy Basic
-          </PurchaseButton>
+              </PurchaseButton>
             </PurchaseColumn>
             <PurchaseColumn>
               <PurchaseButton
-                onClick={() => clickRenewLicense(LicenseLevels.essential)}
+                onClick={() => clickRenewLicense(LicenseTiers.essential)}
                 background={green700}
-                color={white}>
+                color={white}
+              >
                 Buy Essential
-          </PurchaseButton>
+              </PurchaseButton>
             </PurchaseColumn>
             <PurchaseColumn>
               <PurchaseButton
-                onClick={() => clickRenewLicense(LicenseLevels.premium)}
+                onClick={() => clickRenewLicense(LicenseTiers.premium)}
                 background={green700}
-                color={white}>
+                color={white}
+              >
                 Buy Premium
-          </PurchaseButton>
+              </PurchaseButton>
             </PurchaseColumn>
           </TableRow>
           <FeatureRow>
@@ -76,27 +86,39 @@ export const PricingPlanTable = ({ clickRenewLicense }: Props) => {
           </FeatureRow>
           <TableRow>
             <TableColumn>Single Signature Hardware Wallets</TableColumn>
-            <TableColumn><CheckMark /></TableColumn>
-            <TableColumn><CheckMark /></TableColumn>
-            <TableColumn><CheckMark /></TableColumn>
+            <TableColumn>
+              <CheckMark />
+            </TableColumn>
+            <TableColumn>
+              <CheckMark />
+            </TableColumn>
+            <TableColumn>
+              <CheckMark />
+            </TableColumn>
           </TableRow>
           <TableRow>
             <TableColumn>2-of-3 Multisig Vaults</TableColumn>
-            <TableColumn><CheckMark /></TableColumn>
-            <TableColumn><CheckMark /></TableColumn>
-            <TableColumn><CheckMark /></TableColumn>
+            <TableColumn>
+              <CheckMark />
+            </TableColumn>
+            <TableColumn>
+              <CheckMark />
+            </TableColumn>
+            <TableColumn>
+              <CheckMark />
+            </TableColumn>
           </TableRow>
           <TableRow>
             <TableColumn>3-of-5 Multisig Vaults</TableColumn>
-            <TableColumn><DashIcon /></TableColumn>
-            <TableColumn><CheckMark /></TableColumn>
-            <TableColumn><CheckMark /></TableColumn>
-          </TableRow>
-          <TableRow>
-            <TableColumn>Mobile App</TableColumn>
-            <TableColumn><DashIcon /></TableColumn>
-            <TableColumn><CheckMark /></TableColumn>
-            <TableColumn><CheckMark /></TableColumn>
+            <TableColumn>
+              <DashIcon />
+            </TableColumn>
+            <TableColumn>
+              <CheckMark />
+            </TableColumn>
+            <TableColumn>
+              <CheckMark />
+            </TableColumn>
           </TableRow>
           <FeatureRow>
             <BoldTableColumn>Support</BoldTableColumn>
@@ -106,48 +128,63 @@ export const PricingPlanTable = ({ clickRenewLicense }: Props) => {
           </FeatureRow>
           <TableRow>
             <TableColumn>Email Support</TableColumn>
-            <TableColumn><CheckMark /></TableColumn>
-            <TableColumn><CheckMark /></TableColumn>
-            <TableColumn><CheckMark /></TableColumn>
+            <TableColumn>
+              <CheckMark />
+            </TableColumn>
+            <TableColumn>
+              <CheckMark />
+            </TableColumn>
+            <TableColumn>
+              <CheckMark />
+            </TableColumn>
           </TableRow>
           <TableRow>
             <TableColumn>Phone / Zoom Support</TableColumn>
-            <TableColumn><DashIcon /></TableColumn>
-            <TableColumn><DashIcon /></TableColumn>
-            <TableColumn><CheckMark /></TableColumn>
+            <TableColumn>
+              <DashIcon />
+            </TableColumn>
+            <TableColumn>
+              <DashIcon />
+            </TableColumn>
+            <TableColumn>
+              <CheckMark />
+            </TableColumn>
           </TableRow>
           <TableRow>
             <PurchaseColumn />
             <PurchaseColumn>
               <PurchaseButton
-                onClick={() => clickRenewLicense(LicenseLevels.basic)}
+                onClick={() => clickRenewLicense(LicenseTiers.basic)}
                 background={green700}
-                color={white}>
+                color={white}
+              >
                 Buy Basic
-          </PurchaseButton>
+              </PurchaseButton>
             </PurchaseColumn>
             <PurchaseColumn>
               <PurchaseButton
-                onClick={() => clickRenewLicense(LicenseLevels.essential)}
+                onClick={() => clickRenewLicense(LicenseTiers.essential)}
                 background={green700}
-                color={white}>
+                color={white}
+              >
                 Buy Essential
-          </PurchaseButton>
+              </PurchaseButton>
             </PurchaseColumn>
             <PurchaseColumn>
               <PurchaseButton
-                onClick={() => clickRenewLicense(LicenseLevels.premium)}
+                onClick={() => clickRenewLicense(LicenseTiers.premium)}
                 background={green700}
-                color={white}>
+                color={white}
+              >
                 Buy Premium
-          </PurchaseButton>
+              </PurchaseButton>
             </PurchaseColumn>
           </TableRow>
         </TableBody>
       </Table>
     </Fragment>
-  )
-}
+  );
+};
 
 const PurchaseButton = styled.button`
   ${Button};
@@ -195,7 +232,7 @@ const BoldTableColumn = styled(TableColumn)`
 
 const CheckMark = styled(Check)`
   width: 1.5em;
-  color: ${green400}
+  color: ${green400};
 `;
 
 const DashIcon = styled(Dash)`

@@ -8,7 +8,6 @@ import {
 } from "@styled-icons/material";
 import { Home } from "@styled-icons/fa-solid";
 import { SendPlane } from "@styled-icons/remix-fill";
-import { Newspaper } from "@styled-icons/remix-line";
 import { networks, Network } from "bitcoinjs-lib";
 
 import { StyledIcon } from ".";
@@ -51,14 +50,6 @@ export const NavLinks = ({ config, currentBitcoinNetwork }: Props) => {
             " (testnet)"}
         </WalletTitleText>
       </WalletTitle>
-      <SidebarItemLink active={pathname === "/purchase"} to="/purchase">
-        <StyledIcon
-          as={Newspaper}
-          size={24}
-          style={{ marginRight: ".65rem" }}
-        />
-        Buy License
-      </SidebarItemLink>
       <SidebarItem active={pathname === "/"} to="/">
         <StyledIcon as={Home} size={24} style={{ marginRight: ".65rem" }} />
         Home
@@ -79,7 +70,10 @@ export const NavLinks = ({ config, currentBitcoinNetwork }: Props) => {
         />
         Receive
       </SidebarItemLink>
-      <SidebarItemLink active={pathname === "/settings"} to="/settings">
+      <SidebarItemLink
+        active={pathname === "/settings" || pathname === "/purchase"}
+        to="/settings"
+      >
         <StyledIcon as={Settings} size={24} style={{ marginRight: ".65rem" }} />
         Settings
       </SidebarItemLink>

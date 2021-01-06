@@ -77,6 +77,7 @@
     "bip39": "^3.0.2",
     "bitcoin-core": "^3.0.0",
     "bitcoinjs-lib": "^5.1.10",
+    "bitcoinjs-message": "^2.1.4",
     "bs58check": "^2.1.2",
     "coinselect": "^3.1.12",
     "cors": "^2.8.5",

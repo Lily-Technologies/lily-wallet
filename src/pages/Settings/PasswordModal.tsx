@@ -1,55 +1,73 @@
-import React, { useState } from 'react';
-import styled, { css } from 'styled-components';
-import { LockAlt } from '@styled-icons/boxicons-regular'
+import React, { useState } from "react";
+import styled, { css } from "styled-components";
+import { LockAlt } from "@styled-icons/boxicons-regular";
 
-import { StyledIcon, Input, Button } from '../../components';
+import { StyledIcon, Input, Button } from "../../components";
 
-import { mobile } from '../../utils/media';
-import { white, yellow100, yellow400, gray500, green700 } from '../../utils/colors';
+import { mobile } from "../../utils/media";
+import {
+  white,
+  yellow100,
+  yellow400,
+  gray500,
+  green700,
+} from "../../utils/colors";
 
 interface Props {
-  downloadCurrentConfig: (password: string) => void
+  downloadEncryptedCurrentConfig: (password: string) => void;
+  downloadUnencryptedCurrentConfig: () => void;
 }
 
-export const PasswordModal = ({ downloadCurrentConfig }: Props) => {
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+export const PasswordModal = ({
+  downloadEncryptedCurrentConfig,
+  downloadUnencryptedCurrentConfig,
+}: Props) => {
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   return (
     <ModalContentWrapper>
       <DangerIconContainer>
-        <StyledIconCircle>
+        <StyledIconCircle
+          onDoubleClick={() => downloadUnencryptedCurrentConfig()}
+        >
           <StyledIcon style={{ color: yellow400 }} as={LockAlt} size={36} />
         </StyledIconCircle>
       </DangerIconContainer>
       <DangerTextContainer>
         <DangerText>Secure your backup with a password</DangerText>
-        <DangerSubtext>Give a password to encrypt your backup with.</DangerSubtext>
+        <DangerSubtext>
+          Give a password to encrypt your backup with.
+        </DangerSubtext>
         <Input
           label="Password"
           placeholder="password"
           value={password}
           onChange={setPassword}
-          type="password" />
+          type="password"
+        />
 
         <Input
-          style={{ marginTop: '1em' }}
+          style={{ marginTop: "1em" }}
           label="Confirm Password"
           placeholder="password"
           value={confirmPassword}
           onChange={setConfirmPassword}
-          type="password" />
+          type="password"
+        />
         <Buttons>
           <DownloadButton
             background={green700}
             color={white}
-            onClick={() => downloadCurrentConfig(password)}
-          >Download Backup</DownloadButton>
+            onClick={() => downloadEncryptedCurrentConfig(password)}
+          >
+            Download Backup
+          </DownloadButton>
         </Buttons>
       </DangerTextContainer>
     </ModalContentWrapper>
-  )
-}
+  );
+};
 
 const Buttons = styled.div`
   display: flex;
@@ -77,7 +95,7 @@ const ModalContentWrapper = styled.div`
     padding-left: 1em;
     padding-right: 1em;
     margin-left: 0;
-  `)};  
+  `)};
 `;
 
 const DangerTextContainer = styled.div`

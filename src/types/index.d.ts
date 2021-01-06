@@ -113,7 +113,7 @@ export enum TransactionType {
   moved = "moved",
 }
 
-export enum LicenseLevels {
+export enum LicenseTiers {
   basic = "basic",
   essential = "essential",
   premium = "premium",
@@ -210,11 +210,8 @@ export interface LicenseResponse {
   signature: string;
 }
 export interface LilyLicense {
-  trial: boolean;
-  expires: number;
-  license?: string;
-  signature?: string;
-  txId?: string;
+  license: string;
+  signature: string;
 }
 export interface LilyConfig {
   name: string;

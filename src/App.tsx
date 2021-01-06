@@ -13,6 +13,7 @@ import { networks } from "bitcoinjs-lib";
 
 import { offWhite, green700 } from "./utils/colors";
 import { mobile } from "./utils/media";
+import { getLicenseBannerMessage } from "./utils/license";
 
 import {
   Sidebar,
@@ -41,8 +42,8 @@ const emptyConfig = {
   version: "1.0.0",
   isEmpty: true,
   license: {
-    trial: true,
-    expires: 0,
+    license: "trial:0",
+    signature: "",
   },
   backup_options: {
     gDrive: false,
@@ -241,6 +242,11 @@ const App = () => {
     }
   }, [config, refresh, nodeConfig, setAccountMap, updateAccountMap]);
 
+  let licenseBannerMessage = "" as string | null;
+  if (nodeConfig) {
+    licenseBannerMessage = getLicenseBannerMessage(config.license, nodeConfig);
+  }
+
   return (
     <Router>
       <ScrollToTop />
@@ -251,11 +257,9 @@ const App = () => {
         getNodeConfig={getNodeConfig}
         resetConfigFile={resetConfigFile}
       />
-      {!config.isEmpty &&
-        nodeConfig &&
-        config.license.expires - nodeConfig.blocks < 840 && (
-          <AlertBar config={config} nodeConfig={nodeConfig!} />
-        )}
+      {!config.isEmpty && nodeConfig && licenseBannerMessage && (
+        <AlertBar message={licenseBannerMessage} />
+      )}
       <PageWrapper id="page-wrapper">
         <ConfigRequired />
         <Overlay />
@@ -332,10 +336,12 @@ const App = () => {
             render={() => (
               <Settings
                 config={config}
+                setConfigFile={setConfigFile}
                 nodeConfig={nodeConfig!}
                 getNodeConfig={getNodeConfig}
                 currentBitcoinNetwork={currentBitcoinNetwork}
                 setNodeConfig={setNodeConfig}
+                password={password}
               />
             )}
           />

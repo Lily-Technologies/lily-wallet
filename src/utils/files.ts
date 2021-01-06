@@ -1,9 +1,9 @@
-import moment from "moment";
 import { v4 as uuidv4 } from "uuid";
 import { networks, Network } from "bitcoinjs-lib";
 import { bip32 } from "bitcoinjs-lib";
 import { mnemonicToSeed } from "bip39";
 import { AES } from "crypto-js";
+import moment from "moment";
 
 import { bufferToHex } from "../utils/other";
 
@@ -106,8 +106,8 @@ export const updateConfigFileVersion = (
       version: "1.0.0",
       isEmpty: false,
       license: {
-        trial: true,
-        expires: currentBlockHeight + 4320, // one month free trial (6 * 24 * 30)
+        license: `trial:${currentBlockHeight + 4320}`, // one month free trial (6 * 24 * 30)
+        signature: "",
       },
       wallets: config.wallets.map((item) => ({
         id: item.id,

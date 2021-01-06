@@ -19,7 +19,7 @@ interface Props {
   currentBitcoinNetwork: Network;
 }
 
-const ConfigurationSettings = ({
+const BackupSettings = ({
   config,
   nodeConfig,
   currentBitcoinNetwork,
@@ -37,7 +37,7 @@ const ConfigurationSettings = ({
     setModalContent(null);
   };
 
-  const downloadCurrentConfig = (password: string) => {
+  const downloadEncryptedCurrentConfig = (password: string) => {
     const encryptedConfigObject = AES.encrypt(
       JSON.stringify(config),
       password
@@ -48,10 +48,17 @@ const ConfigurationSettings = ({
     );
   };
 
+  const downloadUnencryptedCurrentConfig = () => {
+    downloadFile(
+      JSON.stringify(config),
+      formatFilename("lily_wallet_config", currentBitcoinNetwork, "json")
+    );
+  };
+
   return (
     <GeneralSection>
       <HeaderSection>
-        <HeaderTitle>Configuration Information</HeaderTitle>
+        <HeaderTitle>Backup</HeaderTitle>
         <HeaderSubtitle>
           This information is private and only seen by you.
         </HeaderSubtitle>
@@ -68,7 +75,12 @@ const ConfigurationSettings = ({
               onClick={() =>
                 openInModal(
                   <PasswordModal
-                    downloadCurrentConfig={downloadCurrentConfig}
+                    downloadEncryptedCurrentConfig={
+                      downloadEncryptedCurrentConfig
+                    }
+                    downloadUnencryptedCurrentConfig={
+                      downloadUnencryptedCurrentConfig
+                    }
                   />
                 )
               }
@@ -173,4 +185,4 @@ const ModalContentWrapper = styled.div`
   `)};
 `;
 
-export default ConfigurationSettings;
+export default BackupSettings;

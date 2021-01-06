@@ -1,29 +1,46 @@
-import React, { useState, Fragment, useContext } from 'react';
-import styled from 'styled-components';
-import axios from 'axios';
-import { Psbt, Network } from 'bitcoinjs-lib';
-import BigNumber from 'bignumber.js';
+import React, { useState, Fragment, useContext } from "react";
+import styled from "styled-components";
+import axios from "axios";
+import { Psbt, Network } from "bitcoinjs-lib";
+import BigNumber from "bignumber.js";
 
-import { PricingPlanTable, PurchaseLicenseSuccess, Modal, ErrorModal, PageWrapper, PageTitle, Header, Button, HeaderLeft } from '../../components';
+import {
+  PricingPlanTable,
+  PurchaseLicenseSuccess,
+  Modal,
+  ErrorModal,
+  PageWrapper,
+  PageTitle,
+  Header,
+  Button,
+  HeaderLeft,
+} from "../../components";
 
-import ConfirmTxPage from '../../pages/Send/ConfirmTxPage';
+import ConfirmTxPage from "../../pages/Send/ConfirmTxPage";
 
-import { AccountMapContext } from '../../AccountMapContext';
+import { AccountMapContext } from "../../AccountMapContext";
 
-import { broadcastTransaction, createTransaction } from '../../utils/send';
-import { saveConfig } from '../../utils/files';
-import { white, gray400, gray900 } from '../../utils/colors';
+import { broadcastTransaction, createTransaction } from "../../utils/send";
+import { saveConfig } from "../../utils/files";
+import { white, gray400, gray900 } from "../../utils/colors";
 
-import { SetStatePsbt, FeeRates, LicenseLevels, LilyConfig, NodeConfig, PaymentAddressResponse, LicenseResponse } from '../../types'
-
+import {
+  SetStatePsbt,
+  FeeRates,
+  LicenseTiers,
+  LilyConfig,
+  NodeConfig,
+  PaymentAddressResponse,
+  LicenseResponse,
+} from "../../types";
 
 interface Props {
-  currentBitcoinNetwork: Network
-  currentBitcoinPrice: any
-  config: LilyConfig
-  password: string
-  nodeConfig: NodeConfig
-  setConfig: React.Dispatch<React.SetStateAction<LilyConfig>>
+  currentBitcoinNetwork: Network;
+  currentBitcoinPrice: any;
+  config: LilyConfig;
+  password: string;
+  nodeConfig: NodeConfig;
+  setConfig: React.Dispatch<React.SetStateAction<LilyConfig>>;
 }
 
 const PurchasePage = ({
@@ -32,72 +49,93 @@ const PurchasePage = ({
   config,
   setConfig,
   password,
-  nodeConfig
+  nodeConfig,
 }: Props) => {
   const [step, setStep] = useState(0);
   const [finalPsbt, setFinalPsbt] = useState<Psbt | undefined>(undefined);
-  const [feeRates, setFeeRates] = useState<FeeRates>({ fastestFee: 0, halfHourFee: 0, hourFee: 0 });
+  const [feeRates, setFeeRates] = useState<FeeRates>({
+    fastestFee: 0,
+    halfHourFee: 0,
+    hourFee: 0,
+  });
   const { currentAccount } = useContext(AccountMapContext);
-  const [licenseResponse, setLicenseResponse] = useState<LicenseResponse | undefined>(undefined);
+  const [licenseResponse, setLicenseResponse] = useState<
+    LicenseResponse | undefined
+  >(undefined);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
 
   const openInModal = (component: JSX.Element) => {
     setModalIsOpen(true);
     setModalContent(component);
-  }
+  };
 
   const closeModal = () => {
     setModalIsOpen(false);
     setModalContent(null);
-  }
+  };
 
-  const clickRenewLicense = async (level: LicenseLevels) => {
+  const clickRenewLicense = async (tier: LicenseTiers) => {
     try {
-      const { data: paymentAddressResponse }: { data: PaymentAddressResponse } = await axios.get(`${process.env.REACT_APP_LILY_ENDPOINT}/get-payment-address`);
-      const { psbt, feeRates } = await createTransaction(currentAccount, paymentAddressResponse[level].toString(), paymentAddressResponse.address, new BigNumber(0), currentBitcoinNetwork);
+      const {
+        data: paymentAddressResponse,
+      }: { data: PaymentAddressResponse } = await axios.get(
+        `${process.env.REACT_APP_LILY_ENDPOINT}/get-payment-address`
+      );
+      const { psbt, feeRates } = await createTransaction(
+        currentAccount,
+        paymentAddressResponse[tier].toString(),
+        paymentAddressResponse.address,
+        new BigNumber(0),
+        currentBitcoinNetwork
+      );
       setFinalPsbt(psbt);
       setFeeRates(feeRates);
       setStep(1);
-      const reqBody = { childPath: paymentAddressResponse.childPath, tx: psbt!.toBase64() };
-      const { data: licenseResponse }: { data: LicenseResponse } = await axios.post(`${process.env.REACT_APP_LILY_ENDPOINT}/get-license`, reqBody);
+      const reqBody = {
+        childPath: paymentAddressResponse.childPath,
+        tx: psbt!.toBase64(),
+        tier: tier,
+      };
+      const {
+        data: licenseResponse,
+      }: { data: LicenseResponse } = await axios.post(
+        `${process.env.REACT_APP_LILY_ENDPOINT}/get-license`,
+        reqBody
+      );
       setLicenseResponse(licenseResponse);
     } catch (e) {
-      console.log('e: ', e);
-      openInModal(<ErrorModal message={e.message} />)
+      console.log("e: ", e);
+      openInModal(<ErrorModal message={e.message} />);
     }
-  }
+  };
 
   const confirmTxWithLilyThenSend = async () => {
     if (licenseResponse) {
       try {
         finalPsbt!.finalizeAllInputs();
         const configCopy = { ...config };
-        const [expires, txId] = licenseResponse.license!.split(':');
-        configCopy.license = {
-          ...licenseResponse,
-          trial: false,
-          expires: Number(expires),
-          txId
-        }
-        await broadcastTransaction(currentAccount, finalPsbt!, nodeConfig, currentBitcoinNetwork);
+        configCopy.license = licenseResponse;
+        await broadcastTransaction(
+          currentAccount,
+          finalPsbt!,
+          nodeConfig,
+          currentBitcoinNetwork
+        );
         await saveConfig(configCopy, password);
         setConfig(configCopy);
         setStep(2);
       } catch (e) {
-        console.log('e: ', e);
-        openInModal(<ErrorModal message={e.message} />)
+        console.log("e: ", e);
+        openInModal(<ErrorModal message={e.message} />);
       }
     }
-  }
-
+  };
 
   return (
     <PageWrapper>
       <Fragment>
-        <Modal
-          isOpen={modalIsOpen}
-          onRequestClose={() => closeModal()}>
+        <Modal isOpen={modalIsOpen} onRequestClose={() => closeModal()}>
           {modalContent as React.ReactChild}
         </Modal>
         <Header>
@@ -105,18 +143,14 @@ const PurchasePage = ({
             <PageTitle>Purchase a license</PageTitle>
           </HeaderLeft>
           <Buttons>
-            <RenewButton
-              color={gray900}
-              background={white}>
+            <RenewButton color={gray900} background={white}>
               Questions? Call (970) 425-0282
-          </RenewButton>
+            </RenewButton>
           </Buttons>
         </Header>
         {/* <ModalContent step={step}> */}
         {step === 0 && (
-          <PricingPlanTable
-            clickRenewLicense={clickRenewLicense}
-          />
+          <PricingPlanTable clickRenewLicense={clickRenewLicense} />
         )}
         {step === 1 && (
           <ConfirmTxPage
@@ -135,8 +169,8 @@ const PurchasePage = ({
         {/* </ModalContent> */}
       </Fragment>
     </PageWrapper>
-  )
-}
+  );
+};
 
 const Buttons = styled.div`
   display: flex;
@@ -148,7 +182,7 @@ const RenewButton = styled.button`
   ${Button};
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   border: 1px solid ${gray400};
-  marginRight: 1em;
+  marginright: 1em;
 `;
 
 export default PurchasePage;

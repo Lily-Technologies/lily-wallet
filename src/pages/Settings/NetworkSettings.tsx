@@ -3,7 +3,6 @@ import styled, { css } from "styled-components";
 import { Circle } from "@styled-icons/boxicons-solid";
 
 import {
-  Modal,
   Button,
   ConnectToNodeModal,
   Dropdown,
@@ -29,26 +28,18 @@ interface Props {
   nodeConfig: NodeConfig;
   getNodeConfig: () => void;
   setNodeConfig: React.Dispatch<React.SetStateAction<NodeConfig | undefined>>; // KBC-TODO: NodeConfig should be defined, even if we are connected to blockstream, yeah? No?
+  openInModal: (component: JSX.Element) => void;
+  closeModal: () => void;
 }
 
 const NetworkSettings = ({
   nodeConfig,
   getNodeConfig,
   setNodeConfig,
+  openInModal,
+  closeModal,
 }: Props) => {
-  const [modalIsOpen, setModalIsOpen] = useState(false);
-  const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
   const [nodeConfigDropdownOpen, setNodeConfigDropdownOpen] = useState(false);
-
-  const openInModal = (component: JSX.Element) => {
-    setModalIsOpen(true);
-    setModalContent(component);
-  };
-
-  const closeModal = () => {
-    setModalIsOpen(false);
-    setModalContent(null);
-  };
 
   const refreshNodeData = async () => {
     await getNodeConfig();
@@ -110,7 +101,7 @@ const NetworkSettings = ({
       <ProfileRow>
         <ProfileKeyColumn>Status</ProfileKeyColumn>
         <ProfileValueColumn>
-          <ProfileValueText>{nodeConfig?.provider}</ProfileValueText>
+          <ProfileValueText></ProfileValueText>
           <ProfileValueAction>
             <StatusContainer>
               {nodeConfig ? (
@@ -178,9 +169,6 @@ const NetworkSettings = ({
           </ProfileValueAction>
         </ProfileValueColumn>
       </ProfileRow>
-      <Modal isOpen={modalIsOpen} onRequestClose={() => closeModal()}>
-        <ModalContentWrapper>{modalContent}</ModalContentWrapper>
-      </Modal>
     </GeneralSection>
   );
 };
@@ -260,24 +248,6 @@ const ProfileValueAction = styled.span`
 const ActionButton = styled.button`
   ${Button};
   font-weight: 600;
-`;
-
-const ModalContentWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-  padding: 1.5em;
-  align-items: flex-start;
-
-  ${mobile(css`
-    flex-direction: column;
-    align-items: center;
-    padding-top: 1.25em;
-    padding-bottom: 1em;
-    padding-left: 1em;
-    padding-right: 1em;
-    margin-left: 0;
-  `)};
 `;
 
 const LoadingImage = styled.img`

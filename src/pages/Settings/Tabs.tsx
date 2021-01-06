@@ -20,22 +20,22 @@ const Tabs = ({ currentTab, setCurrentTab }: Props) => {
   return (
     <TabsContainer>
       <TabItem
-        active={currentTab === "config"}
-        onClick={() => setCurrentTab("config")}
+        active={currentTab === "network"}
+        onClick={() => setCurrentTab("network")}
       >
-        Configuration
+        Network
+      </TabItem>
+      <TabItem
+        active={currentTab === "backup"}
+        onClick={() => setCurrentTab("backup")}
+      >
+        Backup
       </TabItem>
       <TabItem
         active={currentTab === "license"}
         onClick={() => setCurrentTab("license")}
       >
         License
-      </TabItem>
-      <TabItem
-        active={currentTab === "network"}
-        onClick={() => setCurrentTab("network")}
-      >
-        Network
       </TabItem>
       <TabItem
         active={currentTab === "about"}

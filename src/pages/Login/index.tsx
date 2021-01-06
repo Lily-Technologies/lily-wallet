@@ -85,8 +85,10 @@ const Login = ({
         try {
           const configCopy = { ...config };
           configCopy.isEmpty = false;
-          configCopy.license.trial = true;
-          configCopy.license.expires = currentBlockHeight + 4320; // one month free trial (6 * 24 * 30)
+          configCopy.license = {
+            license: `trial:${currentBlockHeight + 4320}`, // one month free trial (6 * 24 * 30)
+            signature: ``,
+          };
           setTimeout(() => {
             setConfigFile(configCopy);
             saveConfig(configCopy, localPassword); // we save a blank config file

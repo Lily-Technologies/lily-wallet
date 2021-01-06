@@ -1,30 +1,18 @@
-import React, { Fragment } from 'react';
-import styled from 'styled-components';
+import React, { Fragment } from "react";
+import styled from "styled-components";
 import { useHistory } from "react-router-dom";
-import moment from 'moment';
-import { Alert } from '@styled-icons/ionicons-outline'
+import { Alert } from "@styled-icons/ionicons-outline";
 
-import { Button } from '.';
+import { Button } from ".";
 
-import { white, yellow500, yellow600 } from '../utils/colors';
-
-import { LilyConfig, NodeConfig } from '../types';
+import { white, yellow500, yellow600 } from "../utils/colors";
 
 interface Props {
-  config: LilyConfig
-  nodeConfig: NodeConfig
+  message: string;
 }
 
-export const AlertBar = ({ config, nodeConfig }: Props) => {
+export const AlertBar = ({ message }: Props) => {
   const history = useHistory();
-  let blockDiff;
-  if (nodeConfig) {
-    blockDiff = config.license.expires - nodeConfig.blocks;
-  } else {
-    blockDiff = config.license.expires;
-  }
-  const blockDiffTimeEst = blockDiff * 10;
-  const expireAsDate = moment().add(blockDiffTimeEst, "minutes");
 
   return (
     <Fragment>
@@ -35,21 +23,20 @@ export const AlertBar = ({ config, nodeConfig }: Props) => {
             <IconWrapper>
               <Icon />
             </IconWrapper>
-            <Text>
-              Your license will expire in {blockDiff} blocks (approx. {expireAsDate.fromNow()})
-          </Text>
+            <Text>{message}</Text>
           </TextContainer>
           <BuyButton
             background={white}
             color={yellow500}
-            onClick={() => history.push('purchase')}>
+            onClick={() => history.push("/purchase")}
+          >
             Buy a License
-        </BuyButton>
+          </BuyButton>
         </Container>
-      </Wrapper >
+      </Wrapper>
     </Fragment>
-  )
-}
+  );
+};
 
 const Wrapper = styled.div`
   background: ${yellow500};
