@@ -59,11 +59,8 @@ const LicenseSettings = ({
     .add(blockDiffTimeEst, "minutes")
     .format("MMMM Do YYYY, h:mma");
 
-  console.log("config: ", config);
-
   const onLicenseUpload = (file: File) => {
     const parsedFile = JSON.parse(file.file);
-    console.log("parsedFile: ", parsedFile);
     const licenseErrorMessage = getLicenseUploadErrorMessage(
       parsedFile as LilyLicense,
       nodeConfig

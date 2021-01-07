@@ -254,7 +254,6 @@ const App = () => {
         nodeConfig={nodeConfig}
         setMobileNavOpen={setMobileNavOpen}
         config={config}
-        getNodeConfig={getNodeConfig}
         resetConfigFile={resetConfigFile}
       />
       {!config.isEmpty && nodeConfig && licenseBannerMessage && (

@@ -1,21 +1,39 @@
-import React, { useContext } from 'react';
-import styled from 'styled-components';
-import { Safe } from '@styled-icons/crypto';
-import { Wallet } from '@styled-icons/entypo';
+import React, { useContext, useEffect } from "react";
+import { Psbt } from "bitcoinjs-lib";
+import styled from "styled-components";
+import { Safe } from "@styled-icons/crypto";
+import { Wallet } from "@styled-icons/entypo";
 
-import { StyledIcon } from '.';
-import { white, gray100, gray300, gray400, gray700, gray800, orange600 } from '../utils/colors';
+import { StyledIcon } from ".";
+import {
+  white,
+  gray100,
+  gray300,
+  gray400,
+  gray700,
+  gray800,
+  orange600,
+} from "../utils/colors";
 
-import { LilyConfig } from '../types';
+import { LilyConfig } from "../types";
 
-import { AccountMapContext } from '../AccountMapContext';
+import { AccountMapContext } from "../AccountMapContext";
 
 interface Props {
-  config: LilyConfig
+  config: LilyConfig;
+  setFinalPsbt?: React.Dispatch<React.SetStateAction<Psbt | undefined>>;
 }
 
-export const SelectAccountMenu = ({ config }: Props) => {
-  const { setCurrentAccountId, currentAccount } = useContext(AccountMapContext);
+export const SelectAccountMenu = ({ config, setFinalPsbt }: Props) => {
+  const { setCurrentAccountId, currentAccount, accountMap } = useContext(
+    AccountMapContext
+  );
+
+  useEffect(() => {
+    if (!currentAccount.config.id && Object.keys(accountMap).length > 0) {
+      setCurrentAccountId(Object.values(accountMap)[0].config.id);
+    }
+  });
 
   return (
     <AccountMenu>
@@ -23,7 +41,13 @@ export const SelectAccountMenu = ({ config }: Props) => {
         <AccountMenuItemWrapper
           key={index}
           active={vault.id === currentAccount.config.id}
-          onClick={() => setCurrentAccountId(vault.id)}>
+          onClick={() => {
+            if (setFinalPsbt) {
+              setFinalPsbt(undefined);
+            }
+            setCurrentAccountId(vault.id);
+          }}
+        >
           <IconWrapper active={vault.id === currentAccount.config.id}>
             <StyledIcon as={Safe} size={48} />
           </IconWrapper>
@@ -34,7 +58,13 @@ export const SelectAccountMenu = ({ config }: Props) => {
         <AccountMenuItemWrapper
           key={index}
           active={wallet.id === currentAccount.config.id}
-          onClick={() => setCurrentAccountId(wallet.id)}>
+          onClick={() => {
+            if (setFinalPsbt) {
+              setFinalPsbt(undefined);
+            }
+            setCurrentAccountId(wallet.id);
+          }}
+        >
           <IconWrapper active={wallet.id === currentAccount.config.id}>
             <StyledIcon as={Wallet} size={48} />
           </IconWrapper>
@@ -42,15 +72,16 @@ export const SelectAccountMenu = ({ config }: Props) => {
         </AccountMenuItemWrapper>
       ))}
     </AccountMenu>
-  )
-}
+  );
+};
 
 const IconWrapper = styled.button<{ active: boolean }>`
   background: ${white};
   padding: 1.5em;
   border-radius: 0.385em;
   margin-bottom: 0.5em;
-  border: ${p => p.active ? `1px solid ${orange600}` : `1px solid ${gray300}`};
+  border: ${(p) =>
+    p.active ? `1px solid ${orange600}` : `1px solid ${gray300}`};
   cursor: pointer;V
 `;
 
@@ -59,12 +90,12 @@ const AccountMenuItemWrapper = styled.div<{ active: boolean }>`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  color: ${p => p.active ? gray800 : gray700};
-  padding: .5em;
+  color: ${(p) => (p.active ? gray800 : gray700)};
+  padding: 0.5em;
   flex: 1;
   border-radius: 0.385em;
   margin: 0 0.25em;
-  opacity: ${p => p.active ? 1 : 0.5};
+  opacity: ${(p) => (p.active ? 1 : 0.5)};
   cursor: pointer;
 
   &:hover {

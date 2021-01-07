@@ -16,12 +16,7 @@ import {
 import { getNodeStatus } from "../utils/other";
 import { mobile } from "../utils/media";
 
-import {
-  StyledIcon,
-  Dropdown,
-  ConnectToLilyMobileModal,
-  LicenseModal,
-} from ".";
+import { StyledIcon, Dropdown, ConnectToLilyMobileModal } from ".";
 
 import { NodeConfig, LilyConfig, SetStateBoolean } from "../types";
 
@@ -29,7 +24,6 @@ interface Props {
   nodeConfig: NodeConfig | undefined; // KBC-TODO: NodeConfig should be defined, even if we are connected to blockstream, yeah? No?
   setMobileNavOpen: SetStateBoolean;
   config: LilyConfig;
-  getNodeConfig: () => void;
   resetConfigFile: () => void;
 }
 
@@ -37,18 +31,12 @@ export const TitleBar = ({
   nodeConfig,
   setMobileNavOpen,
   config,
-  getNodeConfig,
   resetConfigFile,
 }: Props) => {
   const [moreOptionsDropdownOpen, setMoreOptionsDropdownOpen] = useState(false);
   const [nodeOptionsDropdownOpen, setNodeOptionsDropdownOpen] = useState(false);
   const [configModalOpen, setConfigModalOpen] = useState(false);
-  const [licenseModalOpen, setLicenseModalOpen] = useState(false);
   const history = useHistory();
-
-  const refreshNodeData = async () => {
-    await getNodeConfig();
-  };
 
   const nodeConfigDropdownItems = [];
 
@@ -62,13 +50,6 @@ export const TitleBar = ({
   });
 
   nodeConfigDropdownItems.push({});
-
-  nodeConfigDropdownItems.push({
-    label: "Refresh network data",
-    onClick: () => {
-      refreshNodeData();
-    },
-  });
   // nodeConfigDropdownItems.push({});
   nodeConfigDropdownItems.push({
     label: "Network Settings",
@@ -80,12 +61,6 @@ export const TitleBar = ({
       label: "Support",
       onClick: () => {
         console.log("foobar");
-      },
-    },
-    {
-      label: "License",
-      onClick: () => {
-        setLicenseModalOpen(true);
       },
     },
     {
@@ -102,12 +77,12 @@ export const TitleBar = ({
 
   if (!config.isEmpty) {
     moreOptionsDropdownItems.push(
-      {
-        label: "Connect to Lily Mobile",
-        onClick: () => {
-          setConfigModalOpen(true);
-        },
-      },
+      // { KBC-TODO: re-add when mobile app
+      //   label: "Connect to Lily Mobile",
+      //   onClick: () => {
+      //     setConfigModalOpen(true);
+      //   },
+      // },
       {
         label: "Sign out",
         onClick: async () => {
@@ -125,12 +100,6 @@ export const TitleBar = ({
           isOpen={configModalOpen}
           onRequestClose={() => setConfigModalOpen(false)}
           config={config}
-        />
-        <LicenseModal
-          config={config}
-          isOpen={licenseModalOpen}
-          nodeConfig={nodeConfig!}
-          onRequestClose={() => setLicenseModalOpen(false)}
         />
         <LeftSection>
           {!config.isEmpty && (

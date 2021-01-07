@@ -1,124 +1,213 @@
-import React, { Fragment, useState, useEffect, useContext } from 'react';
-import styled from 'styled-components';
-import BigNumber from 'bignumber.js';
-import { satoshisToBitcoins, blockExplorerTransactionURL } from "unchained-bitcoin";
-import { Psbt, Network } from 'bitcoinjs-lib';
-import { CheckCircle, RemoveCircle } from '@styled-icons/material';
+import React, { Fragment, useState, useContext } from "react";
+import styled from "styled-components";
+import BigNumber from "bignumber.js";
+import {
+  satoshisToBitcoins,
+  blockExplorerTransactionURL,
+} from "unchained-bitcoin";
+import { Psbt, Network } from "bitcoinjs-lib";
+import { CheckCircle, RemoveCircle } from "@styled-icons/material";
 
-import { PageWrapper, PageTitle, Header, HeaderRight, HeaderLeft, Loading, GridArea } from '../../components';
-import { SelectAccountMenu, StyledIcon, Modal, Button, NoAccountsEmptyState } from '../../components';
+import {
+  PageWrapper,
+  PageTitle,
+  Header,
+  HeaderRight,
+  HeaderLeft,
+  Loading,
+  GridArea,
+} from "../../components";
+import {
+  SelectAccountMenu,
+  StyledIcon,
+  Modal,
+  Button,
+  NoAccountsEmptyState,
+} from "../../components";
 
-import SendTxForm from './SendTxForm';
-import ConfirmTxPage from './ConfirmTxPage';
+import SendTxForm from "./SendTxForm";
+import ConfirmTxPage from "./ConfirmTxPage";
 
-import { AccountMapContext } from '../../AccountMapContext';
+import { AccountMapContext } from "../../AccountMapContext";
 
-import { white, gray400, gray500, gray600, gray800, green500, red500 } from '../../utils/colors';
+import {
+  white,
+  gray400,
+  gray500,
+  gray600,
+  gray800,
+  green500,
+  red500,
+} from "../../utils/colors";
 
-import { createTransaction, getSignedDevicesFromPsbt, broadcastTransaction } from '../../utils/send'
-import { getUnchainedNetworkFromBjslibNetwork } from '../../utils/files';
+import {
+  createTransaction,
+  getSignedDevicesFromPsbt,
+  broadcastTransaction,
+} from "../../utils/send";
+import { getUnchainedNetworkFromBjslibNetwork } from "../../utils/files";
 
-import { LilyConfig, NodeConfig, FeeRates, SetStatePsbt } from '../../types';
+import { LilyConfig, NodeConfig, FeeRates, SetStatePsbt } from "../../types";
 
 interface Props {
-  config: LilyConfig,
-  currentBitcoinNetwork: Network,
-  nodeConfig: NodeConfig,
-  currentBitcoinPrice: any // KBC-TODO: more specific type
+  config: LilyConfig;
+  currentBitcoinNetwork: Network;
+  nodeConfig: NodeConfig;
+  currentBitcoinPrice: any; // KBC-TODO: more specific type
 }
 
-const Send = ({ config, currentBitcoinNetwork, nodeConfig, currentBitcoinPrice }: Props) => {
+const Send = ({
+  config,
+  currentBitcoinNetwork,
+  nodeConfig,
+  currentBitcoinPrice,
+}: Props) => {
   document.title = `Send - Lily Wallet`;
   const [step, setStep] = useState(0);
   const [finalPsbt, setFinalPsbt] = useState<Psbt | undefined>(undefined);
-  const [feeRates, setFeeRates] = useState<FeeRates>({ fastestFee: 0, halfHourFee: 0, hourFee: 0 });
+  const [feeRates, setFeeRates] = useState<FeeRates>({
+    fastestFee: 0,
+    halfHourFee: 0,
+    hourFee: 0,
+  });
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
 
-  const { currentAccount, accountMap, setCurrentAccountId } = useContext(AccountMapContext);
+  const { currentAccount, accountMap } = useContext(AccountMapContext);
   const { currentBalance } = currentAccount;
-
-  useEffect(() => {
-    if (!currentAccount.config.id && Object.keys(accountMap).length > 0) {
-      setCurrentAccountId(Object.values(accountMap)[0].config.id);
-    }
-  })
 
   const openInModal = (component: JSX.Element) => {
     setModalIsOpen(true);
     setModalContent(component);
-  }
+  };
 
   const closeModal = () => {
     setModalIsOpen(false);
     setModalContent(null);
-  }
+  };
 
-  const createTransactionAndSetState = async (_recipientAddress: string, _sendAmount: string, _fee: BigNumber) => {
+  const createTransactionAndSetState = async (
+    _recipientAddress: string,
+    _sendAmount: string,
+    _fee: BigNumber
+  ) => {
     try {
-      const { psbt, feeRates } = await createTransaction(currentAccount, _sendAmount, _recipientAddress, _fee, currentBitcoinNetwork);
+      const { psbt, feeRates } = await createTransaction(
+        currentAccount,
+        _sendAmount,
+        _recipientAddress,
+        _fee,
+        currentBitcoinNetwork
+      );
       setFinalPsbt(psbt);
       setFeeRates(feeRates);
-      return psbt
+      return psbt;
     } catch (e) {
-      console.log('error: ', e)
-      throw new Error(e.message)
+      console.log("error: ", e);
+      throw new Error(e.message);
     }
-  }
+  };
 
-  const BroadcastModalContent = ({ broadcastedTxId, message }: { broadcastedTxId?: string, message: string }) => (
+  const BroadcastModalContent = ({
+    broadcastedTxId,
+    message,
+  }: {
+    broadcastedTxId?: string;
+    message: string;
+  }) => (
     <Fragment>
       <ModalHeaderContainer>
         Transaction {broadcastedTxId ? `Success` : `Failure`}
       </ModalHeaderContainer>
       <ModalBody>
         <IconWrapper style={{ color: broadcastedTxId ? green500 : red500 }}>
-          <StyledIcon as={broadcastedTxId ? CheckCircle : RemoveCircle} size={100} />
+          <StyledIcon
+            as={broadcastedTxId ? CheckCircle : RemoveCircle}
+            size={100}
+          />
         </IconWrapper>
         <ModalSubtext>{message}</ModalSubtext>
-        {broadcastedTxId && <ViewTransactionButton color={white} background={green500} href={blockExplorerTransactionURL(broadcastedTxId, getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork))} target="_blank">View Transaction</ViewTransactionButton>}
-        {!broadcastedTxId && <ViewTransactionButton color={white} background={red500} onClick={() => closeModal()}>Try Again</ViewTransactionButton>}
+        {broadcastedTxId && (
+          <ViewTransactionButton
+            color={white}
+            background={green500}
+            href={blockExplorerTransactionURL(
+              broadcastedTxId,
+              getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)
+            )}
+            target="_blank"
+          >
+            View Transaction
+          </ViewTransactionButton>
+        )}
+        {!broadcastedTxId && (
+          <ViewTransactionButton
+            color={white}
+            background={red500}
+            onClick={() => closeModal()}
+          >
+            Try Again
+          </ViewTransactionButton>
+        )}
       </ModalBody>
     </Fragment>
-  )
+  );
 
   const sendTransaction = async () => {
     if (finalPsbt) {
-      const signedDevices = getSignedDevicesFromPsbt(finalPsbt, currentAccount.config.extendedPublicKeys!);
-      if (signedDevices.length === currentAccount.config.quorum.requiredSigners) {
+      const signedDevices = getSignedDevicesFromPsbt(
+        finalPsbt,
+        currentAccount.config.extendedPublicKeys!
+      );
+      if (
+        signedDevices.length === currentAccount.config.quorum.requiredSigners
+      ) {
         try {
           finalPsbt.finalizeAllInputs();
-          const broadcastId = await broadcastTransaction(currentAccount, finalPsbt, nodeConfig, currentBitcoinNetwork);
-          openInModal(<BroadcastModalContent broadcastedTxId={broadcastId} message={'Your transaction has been broadcast.'} />);
+          const broadcastId = await broadcastTransaction(
+            currentAccount,
+            finalPsbt,
+            nodeConfig,
+            currentBitcoinNetwork
+          );
+          openInModal(
+            <BroadcastModalContent
+              broadcastedTxId={broadcastId}
+              message={"Your transaction has been broadcast."}
+            />
+          );
         } catch (e) {
-          if (e.response) { // error from blockstream
+          if (e.response) {
+            // error from blockstream
             openInModal(<BroadcastModalContent message={e.response.data} />);
-          } else { // error somewhere else
+          } else {
+            // error somewhere else
             openInModal(<BroadcastModalContent message={e.message} />);
           }
         }
       }
     }
-  }
+  };
 
   return (
     <PageWrapper>
       <Fragment>
-        <Modal
-          isOpen={modalIsOpen}
-          onRequestClose={() => closeModal()}>
+        <Modal isOpen={modalIsOpen} onRequestClose={() => closeModal()}>
           {modalContent as React.ReactChild}
         </Modal>
         <Header>
           <HeaderLeft>
             <PageTitle>Send from</PageTitle>
           </HeaderLeft>
-          <HeaderRight>
-          </HeaderRight>
+          <HeaderRight></HeaderRight>
         </Header>
-        {Object.keys(accountMap).length > 0 && <SelectAccountMenu config={config} />}
+        {Object.keys(accountMap).length > 0 && (
+          <SelectAccountMenu config={config} />
+        )}
         {Object.keys(accountMap).length === 0 && <NoAccountsEmptyState />}
-        {Object.keys(accountMap).length > 0 && currentAccount.loading && <Loading itemText={'Send Information'} />}
+        {Object.keys(accountMap).length > 0 && currentAccount.loading && (
+          <Loading itemText={"Send Information"} />
+        )}
         {!currentAccount.loading && step === 0 && (
           <GridArea>
             <SendTxForm
@@ -130,12 +219,10 @@ const Send = ({ config, currentBitcoinNetwork, nodeConfig, currentBitcoinPrice }
             />
             <SendContentRight>
               <CurrentBalanceWrapper>
-                <CurrentBalanceText>
-                  Current Balance:
-                  </CurrentBalanceText>
+                <CurrentBalanceText>Current Balance:</CurrentBalanceText>
                 <CurrentBalanceValue>
                   {satoshisToBitcoins(currentBalance).toNumber()} BTC
-                  </CurrentBalanceValue>
+                </CurrentBalanceValue>
               </CurrentBalanceWrapper>
             </SendContentRight>
           </GridArea>
@@ -153,9 +240,9 @@ const Send = ({ config, currentBitcoinNetwork, nodeConfig, currentBitcoinPrice }
           />
         )}
       </Fragment>
-    </PageWrapper >
-  )
-}
+    </PageWrapper>
+  );
+};
 
 const SendContentRight = styled.div`
   min-height: 400px;
@@ -169,7 +256,7 @@ const SendContentRight = styled.div`
 
 const CurrentBalanceWrapper = styled.div`
   padding: 1.5em;
-  display: 'flex';
+  display: "flex";
   margin-bottom: 1em;
   flex-direction: column;
   border-radius: 0.385em;
@@ -179,18 +266,19 @@ const CurrentBalanceWrapper = styled.div`
   text-align: right;
 `;
 
-
 const CurrentBalanceText = styled.div`
   font-size: 1.5em;
   color: ${gray600};
 `;
 
-
 const CurrentBalanceValue = styled.div`
   font-size: 2em;
 `;
 
-export const InputStaticText = styled.label<{ text: string, disabled: boolean }>`
+export const InputStaticText = styled.label<{
+  text: string;
+  disabled: boolean;
+}>`
   position: relative;
   display: flex;
   flex: 0 0;
@@ -204,12 +292,12 @@ export const InputStaticText = styled.label<{ text: string, disabled: boolean }>
   color: ${gray500};
 
   &::after {
-    content: ${p => p.text};
+    content: ${(p) => p.text};
     position: absolute;
     top: 4px;
     left: 94px;
     font-family: arial, helvetica, sans-serif;
-    font-size: .75em;
+    font-size: 0.75em;
     display: block;
     color: rgba(0, 0, 0, 0.6);
     font-weight: bold;
@@ -217,7 +305,7 @@ export const InputStaticText = styled.label<{ text: string, disabled: boolean }>
 `;
 
 const ModalHeaderContainer = styled.div`
-  border-bottom: 1px solid rgb(229,231,235);
+  border-bottom: 1px solid rgb(229, 231, 235);
   padding-top: 1.75rem;
   padding-bottom: 1.75rem;
   padding-left: 1.5rem;
@@ -237,9 +325,7 @@ const ModalBody = styled.div`
   justify-content: center;
 `;
 
-const IconWrapper = styled.div`
-
-`;
+const IconWrapper = styled.div``;
 
 const ModalSubtext = styled.div`
   color: ${gray800};

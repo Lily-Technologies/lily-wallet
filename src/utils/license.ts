@@ -49,14 +49,12 @@ const licenseExpireAsDate = (license: LilyLicense, nodeConfig: NodeConfig) => {
 };
 
 const isValidLicenseSignature = (license: LilyLicense) => {
-  console.log("hits isValidLicenseSignature", license);
   if (license.license && license.signature) {
     const verified = verify(
       license.license,
       process.env.REACT_APP_KEYSERVER_SIGNING_ADDRESS!,
       license.signature
     );
-    console.log("verified: ", verified);
     return verified;
   }
   return false;

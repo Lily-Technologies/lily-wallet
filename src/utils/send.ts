@@ -137,7 +137,8 @@ export const getFee = (psbt: Psbt, transactions: Transaction[]) => {
   const txMap = createTransactionMapFromTransactionArray(transactions);
   const inputSum = psbt.txInputs.reduce((acc, cur) => {
     const inputBuffer = cloneBuffer(cur.hash);
-    const currentUtxo = txMap[inputBuffer.reverse().toString("hex")];
+    const txId = inputBuffer.reverse().toString("hex"); // careful, this reverses in place.
+    const currentUtxo = txMap[txId];
     return Math.abs(currentUtxo.vout[cur.index].value) + acc;
   }, 0);
   return inputSum - outputSum;

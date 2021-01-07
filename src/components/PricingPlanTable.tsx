@@ -15,12 +15,16 @@ import {
   green700,
 } from "../utils/colors";
 
-import { LicenseTiers } from "../types";
+import { LicenseTiers, LilyAccount } from "../types";
 interface Props {
-  clickRenewLicense: (level: LicenseTiers) => void;
+  clickRenewLicense: (level: LicenseTiers, currentAccount: LilyAccount) => void;
+  currentAccount: LilyAccount;
 }
 
-export const PricingPlanTable = ({ clickRenewLicense }: Props) => {
+export const PricingPlanTable = ({
+  clickRenewLicense,
+  currentAccount,
+}: Props) => {
   return (
     <Fragment>
       <Table>
@@ -52,7 +56,9 @@ export const PricingPlanTable = ({ clickRenewLicense }: Props) => {
             <PurchaseColumn />
             <PurchaseColumn>
               <PurchaseButton
-                onClick={() => clickRenewLicense(LicenseTiers.basic)}
+                onClick={() =>
+                  clickRenewLicense(LicenseTiers.basic, currentAccount)
+                }
                 background={green700}
                 color={white}
               >
@@ -61,7 +67,9 @@ export const PricingPlanTable = ({ clickRenewLicense }: Props) => {
             </PurchaseColumn>
             <PurchaseColumn>
               <PurchaseButton
-                onClick={() => clickRenewLicense(LicenseTiers.essential)}
+                onClick={() =>
+                  clickRenewLicense(LicenseTiers.essential, currentAccount)
+                }
                 background={green700}
                 color={white}
               >
@@ -70,7 +78,9 @@ export const PricingPlanTable = ({ clickRenewLicense }: Props) => {
             </PurchaseColumn>
             <PurchaseColumn>
               <PurchaseButton
-                onClick={() => clickRenewLicense(LicenseTiers.premium)}
+                onClick={() =>
+                  clickRenewLicense(LicenseTiers.premium, currentAccount)
+                }
                 background={green700}
                 color={white}
               >
@@ -154,7 +164,9 @@ export const PricingPlanTable = ({ clickRenewLicense }: Props) => {
             <PurchaseColumn />
             <PurchaseColumn>
               <PurchaseButton
-                onClick={() => clickRenewLicense(LicenseTiers.basic)}
+                onClick={() =>
+                  clickRenewLicense(LicenseTiers.basic, currentAccount)
+                }
                 background={green700}
                 color={white}
               >
@@ -163,7 +175,9 @@ export const PricingPlanTable = ({ clickRenewLicense }: Props) => {
             </PurchaseColumn>
             <PurchaseColumn>
               <PurchaseButton
-                onClick={() => clickRenewLicense(LicenseTiers.essential)}
+                onClick={() =>
+                  clickRenewLicense(LicenseTiers.essential, currentAccount)
+                }
                 background={green700}
                 color={white}
               >
@@ -172,7 +186,9 @@ export const PricingPlanTable = ({ clickRenewLicense }: Props) => {
             </PurchaseColumn>
             <PurchaseColumn>
               <PurchaseButton
-                onClick={() => clickRenewLicense(LicenseTiers.premium)}
+                onClick={() =>
+                  clickRenewLicense(LicenseTiers.premium, currentAccount)
+                }
                 background={green700}
                 color={white}
               >

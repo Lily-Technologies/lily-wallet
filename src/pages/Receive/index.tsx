@@ -1,28 +1,44 @@
-import React, { Fragment, useState, useEffect, useContext } from 'react';
-import styled from 'styled-components';
+import React, { Fragment, useState, useContext } from "react";
+import styled from "styled-components";
 import { QRCode } from "react-qr-svg";
-import CopyToClipboard from 'react-copy-to-clipboard';
+import CopyToClipboard from "react-copy-to-clipboard";
 import { satoshisToBitcoins } from "unchained-bitcoin";
 
-import { Button, PageWrapper, GridArea, PageTitle, Header, HeaderRight, HeaderLeft, Loading, SelectAccountMenu, NoAccountsEmptyState } from '../../components';
+import {
+  Button,
+  PageWrapper,
+  GridArea,
+  PageTitle,
+  Header,
+  HeaderRight,
+  HeaderLeft,
+  Loading,
+  SelectAccountMenu,
+  NoAccountsEmptyState,
+} from "../../components";
 
-import { AccountMapContext } from '../../AccountMapContext';
+import { AccountMapContext } from "../../AccountMapContext";
 
-import { black, darkGray, white, darkOffWhite, lightGray, gray400, green600, gray600, gray800, green700 } from '../../utils/colors';
+import {
+  black,
+  darkGray,
+  white,
+  darkOffWhite,
+  lightGray,
+  gray400,
+  green600,
+  gray600,
+  gray800,
+  green700,
+} from "../../utils/colors";
 
-import { LilyConfig } from '../../types'
+import { LilyConfig } from "../../types";
 
 const Receive = ({ config }: { config: LilyConfig }) => {
   document.title = `Receive - Lily Wallet`;
   const [unusedAddressIndex, setUnusedAddressIndex] = useState(0);
-  const { currentAccount, accountMap, setCurrentAccountId } = useContext(AccountMapContext);
+  const { currentAccount, accountMap } = useContext(AccountMapContext);
   const { unusedAddresses, currentBalance } = currentAccount;
-
-  useEffect(() => {
-    if (!currentAccount.config.id && Object.keys(accountMap).length > 0) {
-      setCurrentAccountId(Object.values(accountMap)[0].config.id);
-    }
-  })
 
   return (
     <PageWrapper>
@@ -31,19 +47,20 @@ const Receive = ({ config }: { config: LilyConfig }) => {
           <HeaderLeft>
             <PageTitle>Receive to</PageTitle>
           </HeaderLeft>
-          <HeaderRight>
-          </HeaderRight>
+          <HeaderRight></HeaderRight>
         </Header>
 
-        {Object.keys(accountMap).length > 0 && <SelectAccountMenu config={config} />}
+        {Object.keys(accountMap).length > 0 && (
+          <SelectAccountMenu config={config} />
+        )}
         {Object.keys(accountMap).length === 0 && <NoAccountsEmptyState />}
-        {Object.keys(accountMap).length > 0 && currentAccount.loading && <Loading itemText={'Receive Information'} />}
+        {Object.keys(accountMap).length > 0 && currentAccount.loading && (
+          <Loading itemText={"Receive Information"} />
+        )}
         {!currentAccount.loading && (
           <GridArea>
             <AccountReceiveContentLeft>
-              <SendToAddressHeader>
-                Send bitcoin to
-                </SendToAddressHeader>
+              <SendToAddressHeader>Send bitcoin to</SendToAddressHeader>
               <AddressDisplayWrapper>
                 <BitcoinAddressLabel>Bitcoin address:</BitcoinAddressLabel>
                 {unusedAddresses[unusedAddressIndex].address}
@@ -58,29 +75,36 @@ const Receive = ({ config }: { config: LilyConfig }) => {
                 />
               </QRCodeWrapper>
               <ReceiveButtonContainer>
-                <CopyToClipboard text={unusedAddresses[unusedAddressIndex].address}>
-                  <CopyAddressButton color={white} background={green600}>Copy Address</CopyAddressButton>
+                <CopyToClipboard
+                  text={unusedAddresses[unusedAddressIndex].address}
+                >
+                  <CopyAddressButton color={white} background={green600}>
+                    Copy Address
+                  </CopyAddressButton>
                 </CopyToClipboard>
-                <NewAddressButton background="transparent" color={darkGray} onClick={() => setUnusedAddressIndex(unusedAddressIndex + 1)}>Generate New Address</NewAddressButton>
+                <NewAddressButton
+                  background="transparent"
+                  color={darkGray}
+                  onClick={() => setUnusedAddressIndex(unusedAddressIndex + 1)}
+                >
+                  Generate New Address
+                </NewAddressButton>
               </ReceiveButtonContainer>
-
             </AccountReceiveContentLeft>
             <AccountReceiveContentRight>
               <CurrentBalanceWrapper>
-                <CurrentBalanceText>
-                  Current Balance:
-                  </CurrentBalanceText>
+                <CurrentBalanceText>Current Balance:</CurrentBalanceText>
                 <CurrentBalanceValue>
                   {satoshisToBitcoins(currentBalance).toNumber()} BTC
-                  </CurrentBalanceValue>
+                </CurrentBalanceValue>
               </CurrentBalanceWrapper>
             </AccountReceiveContentRight>
           </GridArea>
         )}
       </Fragment>
     </PageWrapper>
-  )
-}
+  );
+};
 
 const BitcoinAddressLabel = styled.div`
   font-size: 0.75em;
@@ -154,7 +178,7 @@ const AccountReceiveContentRight = styled.div`
 
 const CurrentBalanceWrapper = styled.div`
   padding: 1.5em;
-  display: 'flex';
+  display: "flex";
   flex-direction: column;
   border-radius: 0.385em;
   background: ${white};
@@ -163,17 +187,13 @@ const CurrentBalanceWrapper = styled.div`
   border: 1px solid ${gray400};
 `;
 
-
 const CurrentBalanceText = styled.div`
   font-size: 1.5em;
   color: ${gray600};
 `;
 
-
 const CurrentBalanceValue = styled.div`
   font-size: 2em;
 `;
-
-
 
 export default Receive;

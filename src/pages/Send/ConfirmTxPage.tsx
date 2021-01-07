@@ -105,6 +105,8 @@ const ConfirmTxPage = ({
     [currentAccount.config.mnemonic, setFinalPsbt, currentBitcoinNetwork]
   );
 
+  useEffect(() => {}, [currentAccount]);
+
   // if the finalPsbt has signatures on it already, update signed device view
   useEffect(() => {
     setPreSignedDevices();
