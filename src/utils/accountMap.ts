@@ -770,7 +770,7 @@ export const getDataFromXPub = async (
       availableUtxos[i].value = bitcoinsToSatoshis(
         availableUtxos[i].amount
       ).toNumber();
-      availableUtxos[i].address = addressMap[availableUtxos[i].address.address];
+      availableUtxos[i].address = addressMap[availableUtxos[i].address as any];
     }
   } else {
     availableUtxos = await getUtxosForAddresses(
