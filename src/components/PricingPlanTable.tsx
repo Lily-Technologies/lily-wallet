@@ -1,9 +1,9 @@
-import React, { Fragment } from "react";
+import React, { Fragment, useState } from "react";
 import styled from "styled-components";
 import { Check } from "@styled-icons/boxicons-regular";
 import { Dash } from "@styled-icons/octicons";
 
-import { Button } from ".";
+import { Button, Spinner } from ".";
 
 import {
   white,
@@ -25,6 +25,19 @@ export const PricingPlanTable = ({
   clickRenewLicense,
   currentAccount,
 }: Props) => {
+  const [isLoading, setLoading] = useState(false);
+
+  const onLicenseClick = (tier: LicenseTiers, account: LilyAccount) => {
+    if (!isLoading) {
+      setLoading(true);
+      try {
+        clickRenewLicense(tier, account);
+      } catch (e) {
+        setLoading(false);
+      }
+    }
+  };
+
   return (
     <Fragment>
       <Table>
@@ -44,11 +57,11 @@ export const PricingPlanTable = ({
               <PriceSubtext>/year</PriceSubtext>
             </TableColumn>
             <TableColumn>
-              <PriceText>$200</PriceText>
+              <PriceText>$500</PriceText>
               <PriceSubtext>/year</PriceSubtext>
             </TableColumn>
             <TableColumn>
-              <PriceText>$500</PriceText>
+              <PriceText>$1,000</PriceText>
               <PriceSubtext>/year</PriceSubtext>
             </TableColumn>
           </TableRow>
@@ -57,34 +70,34 @@ export const PricingPlanTable = ({
             <PurchaseColumn>
               <PurchaseButton
                 onClick={() =>
-                  clickRenewLicense(LicenseTiers.basic, currentAccount)
+                  onLicenseClick(LicenseTiers.basic, currentAccount)
                 }
                 background={green700}
                 color={white}
               >
-                Buy Basic
+                {isLoading ? <Spinner /> : "Buy Basic"}
               </PurchaseButton>
             </PurchaseColumn>
             <PurchaseColumn>
               <PurchaseButton
                 onClick={() =>
-                  clickRenewLicense(LicenseTiers.essential, currentAccount)
+                  onLicenseClick(LicenseTiers.essential, currentAccount)
                 }
                 background={green700}
                 color={white}
               >
-                Buy Essential
+                {isLoading ? <Spinner /> : "Buy Essential"}
               </PurchaseButton>
             </PurchaseColumn>
             <PurchaseColumn>
               <PurchaseButton
                 onClick={() =>
-                  clickRenewLicense(LicenseTiers.premium, currentAccount)
+                  onLicenseClick(LicenseTiers.premium, currentAccount)
                 }
                 background={green700}
                 color={white}
               >
-                Buy Premium
+                {isLoading ? <Spinner /> : "Buy Premium"}
               </PurchaseButton>
             </PurchaseColumn>
           </TableRow>
@@ -165,34 +178,34 @@ export const PricingPlanTable = ({
             <PurchaseColumn>
               <PurchaseButton
                 onClick={() =>
-                  clickRenewLicense(LicenseTiers.basic, currentAccount)
+                  onLicenseClick(LicenseTiers.basic, currentAccount)
                 }
                 background={green700}
                 color={white}
               >
-                Buy Basic
+                {isLoading ? <Spinner /> : "Buy Basic"}
               </PurchaseButton>
             </PurchaseColumn>
             <PurchaseColumn>
               <PurchaseButton
                 onClick={() =>
-                  clickRenewLicense(LicenseTiers.essential, currentAccount)
+                  onLicenseClick(LicenseTiers.essential, currentAccount)
                 }
                 background={green700}
                 color={white}
               >
-                Buy Essential
+                {isLoading ? <Spinner /> : "Buy Essential"}
               </PurchaseButton>
             </PurchaseColumn>
             <PurchaseColumn>
               <PurchaseButton
                 onClick={() =>
-                  clickRenewLicense(LicenseTiers.premium, currentAccount)
+                  onLicenseClick(LicenseTiers.premium, currentAccount)
                 }
                 background={green700}
                 color={white}
               >
-                Buy Premium
+                {isLoading ? <Spinner /> : "Buy Premium"}
               </PurchaseButton>
             </PurchaseColumn>
           </TableRow>

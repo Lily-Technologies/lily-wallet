@@ -25,7 +25,13 @@ const About = ({ config }: Props) => {
       <ProfileRow>
         <ProfileKeyColumn>Version</ProfileKeyColumn>
         <ProfileValueColumn>
-          <ProfileValueText style={{ textAlign: "right" }}>
+          <ProfileValueText
+            style={{
+              textAlign: "right",
+              paddingLeft: "1.5rem",
+              paddingRight: "1.5rem",
+            }}
+          >
             {config.version}
           </ProfileValueText>
         </ProfileValueColumn>
@@ -35,7 +41,13 @@ const About = ({ config }: Props) => {
         <ProfileValueColumn>
           <ProfileValueText></ProfileValueText>
           <ProfileValueAction>
-            <ActionButton background={white} color={green500}>
+            <ActionButton
+              background={white}
+              color={green500}
+              onClick={() =>
+                window.open("https://docs.lily.kevinmulcrone.com", "_blank")
+              }
+            >
               View Documentation
             </ActionButton>
           </ProfileValueAction>
@@ -46,7 +58,13 @@ const About = ({ config }: Props) => {
         <ProfileValueColumn>
           <ProfileValueText></ProfileValueText>
           <ProfileValueAction>
-            <ActionButton background={white} color={green500}>
+            <ActionButton
+              background={white}
+              color={green500}
+              onClick={() =>
+                window.open("https://lily.kevinmulcrone.com/terms", "_blank")
+              }
+            >
               View Terms
             </ActionButton>
           </ProfileValueAction>
@@ -57,7 +75,13 @@ const About = ({ config }: Props) => {
         <ProfileValueColumn>
           <ProfileValueText></ProfileValueText>
           <ProfileValueAction>
-            <ActionButton background={white} color={green500}>
+            <ActionButton
+              background={white}
+              color={green500}
+              onClick={() =>
+                window.open("https://lily.kevinmulcrone.com/privacy", "_blank")
+              }
+            >
               View Privacy Policy
             </ActionButton>
           </ProfileValueAction>

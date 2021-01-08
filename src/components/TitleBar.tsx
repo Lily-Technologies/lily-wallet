@@ -60,17 +60,13 @@ export const TitleBar = ({
     {
       label: "Support",
       onClick: () => {
-        console.log("foobar");
+        window.open("https://docs.lily.kevinmulcrone.com", "_blank");
       },
     },
     {
       label: "View source code",
       onClick: () => {
-        window.open(
-          "https://github.com/KayBeSee/lily-wallet",
-          "_blank",
-          "nodeIntegration=no"
-        );
+        window.open("https://github.com/KayBeSee/lily-wallet", "_blank");
       },
     },
   ];

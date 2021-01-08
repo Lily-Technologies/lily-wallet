@@ -404,7 +404,6 @@ ipcMain.on("/account-data", async (event, args) => {
     let loading = false;
     if (nodeClient) {
       const resp = await nodeClient.getWalletInfo();
-      console.log("resp: ", resp);
       // TODO: should check if keypool is > 0
       loading = resp.scanning;
     }
@@ -675,11 +674,9 @@ ipcMain.handle("/getNodeConfig", async (event, args) => {
 
 ipcMain.handle("/rescanBlockchain", async (event, args) => {
   const { currentAccount, startHeight } = args;
-  console.log("currentAccount, startHeight: ", currentAccount, startHeight);
   try {
     if (currentNodeConfig.provider !== "Blockstream") {
       const currentConfig = currentNodeConfig;
-      console.log("currentConfig: ", currentConfig);
       const client = new Client({
         wallet: `lily${currentAccount.config.id}`,
         host: currentNodeConfig.host || "http://localhost:8332",
@@ -687,7 +684,6 @@ ipcMain.handle("/rescanBlockchain", async (event, args) => {
         password: currentNodeConfig.rpcpassword || currentNodeConfig.password,
         version: "0.20.1",
       });
-      console.log("client: ", client);
 
       // don't await this call because it always times out, just trust that it's happening
       // and then we verify via response from getwalletinfo
@@ -696,7 +692,6 @@ ipcMain.handle("/rescanBlockchain", async (event, args) => {
       });
 
       const walletInfo = await client.getWalletInfo();
-      console.log("walletInfo: ", walletInfo);
       if (walletInfo.scanning !== false) {
         return Promise.resolve({ success: true });
       } else {
@@ -704,7 +699,7 @@ ipcMain.handle("/rescanBlockchain", async (event, args) => {
       }
     }
   } catch (e) {
-    console.log("exx: ", e);
+    console.log("e: ", e);
     return Promise.reject({ success: false, message: e.message });
   }
 });

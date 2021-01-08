@@ -1167,8 +1167,7 @@ exports.getDataFromXPub = function (
             availableUtxos[i].value = unchained_bitcoin_1
               .bitcoinsToSatoshis(availableUtxos[i].amount)
               .toNumber();
-            availableUtxos[i].address =
-              addressMap[availableUtxos[i].address.address];
+            availableUtxos[i].address = addressMap[availableUtxos[i].address];
           }
           return [3 /*break*/, 6];
         case 4:

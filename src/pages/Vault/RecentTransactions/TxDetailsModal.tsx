@@ -24,7 +24,6 @@ interface Props {
 }
 
 const TxDetailsModal = ({ transaction }: Props) => {
-  console.log("transaction: ", transaction);
   return (
     <Wrapper>
       <HeaderWrapper>

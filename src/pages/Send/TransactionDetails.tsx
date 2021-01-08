@@ -1,4 +1,4 @@
-import React, { useState, Fragment, useEffect } from "react";
+import React, { useState, Fragment } from "react";
 import styled from "styled-components";
 import BigNumber from "bignumber.js";
 import { ArrowIosForwardOutline } from "@styled-icons/evaicons-outline";
@@ -65,12 +65,6 @@ const TransactionDetails = ({
   const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
   const signThreshold = currentAccount.config.quorum.requiredSigners;
   const { availableUtxos, transactions } = currentAccount;
-
-  console.log("currentAccountxxx: ", currentAccount);
-
-  useEffect(() => {
-    console.log("hits useEffect transactiondetails");
-  }, [currentAccount]);
 
   const _fee = getFee(finalPsbt, transactions);
 

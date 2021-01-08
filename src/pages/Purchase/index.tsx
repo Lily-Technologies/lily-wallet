@@ -107,7 +107,6 @@ const PurchasePage = ({
         setSelectedLicenseTier(tier);
         setFinalPsbt(psbt);
         setFeeRates(feeRates);
-        setStep(1);
         const reqBody = {
           childPath: paymentAddressResponse.childPath,
           tx: psbt!.toBase64(),
@@ -120,9 +119,10 @@ const PurchasePage = ({
           reqBody
         );
         setLicenseResponse(licenseResponse);
+        setStep(1);
       } catch (e) {
         console.log("e: ", e);
-        openInModal(<ErrorModal message={e.message} />);
+        openInModal(<ErrorModal message={`${e.message}. Please try again.`} />);
       }
     },
     [currentBitcoinNetwork]

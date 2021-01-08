@@ -14,7 +14,6 @@ import UtxoRow from "./UtxoRow";
 
 const UtxosView = () => {
   const { currentAccount } = useContext(AccountMapContext);
-  console.log("currentAccount: ", currentAccount);
   return (
     <Table>
       <TableHeader>
