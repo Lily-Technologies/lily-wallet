@@ -13,6 +13,7 @@ import { AccountMapContext } from "../../../AccountMapContext";
 import { LilyConfig } from "../../../types";
 
 import { mobile } from "../../../utils/media";
+import { capitalize } from "../../../utils/other";
 import {
   white,
   red500,
@@ -110,10 +111,7 @@ const GeneralView = ({
         <ProfileRow>
           <ProfileKeyColumn>{item.device.fingerprint}</ProfileKeyColumn>
           <ProfileValueColumn>
-            <ProfileValueText>
-              {item.device.type.charAt(0).toUpperCase() +
-                item.device.type.slice(1)}
-            </ProfileValueText>
+            <ProfileValueText>{capitalize(item.device.type)}</ProfileValueText>
             <ProfileValueAction>
               <ActionButton
                 background={white}

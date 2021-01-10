@@ -231,8 +231,6 @@ const App = () => {
 
       window.ipcRenderer.on("/account-data", (_event: any, ...args: any) => {
         const accountInfo = args[0] as LilyAccount;
-        console.log("accountInfo: ", accountInfo);
-
         updateAccountMap({
           ...accountInfo,
         });

@@ -164,7 +164,7 @@ const Login = ({
         </MainText>
 
         <FileUploader
-          accept="*"
+          accept=".txt"
           id="localConfigFile"
           onFileLoad={(file: File) => {
             setEncryptedConfigFile(file);

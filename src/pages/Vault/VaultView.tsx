@@ -1,4 +1,10 @@
-import React, { Fragment, useContext, useState, useEffect } from "react";
+import React, {
+  Fragment,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from "react";
 import styled, { css } from "styled-components";
 import {
   AreaChart,
@@ -95,7 +101,7 @@ const VaultView = ({ nodeConfig, toggleRefresh }: Props) => {
     });
   }
 
-  const scanProgress = async () => {
+  const scanProgress = useCallback(async () => {
     if (nodeConfig.provider !== "Blockstream") {
       const { scanning } = await window.ipcRenderer.invoke("/getWalletInfo", {
         currentAccount,
@@ -104,7 +110,7 @@ const VaultView = ({ nodeConfig, toggleRefresh }: Props) => {
         setProgress(scanning.progress);
       }
     }
-  };
+  }, [currentAccount, nodeConfig.provider]);
 
   const openInModal = (component: JSX.Element) => {
     setModalIsOpen(true);
@@ -130,7 +136,7 @@ const VaultView = ({ nodeConfig, toggleRefresh }: Props) => {
     scanProgress();
     const interval = setInterval(async () => scanProgress(), 2000);
     return () => clearInterval(interval);
-  }, [currentAccount]);
+  }, [currentAccount, scanProgress]);
 
   return (
     <Fragment>

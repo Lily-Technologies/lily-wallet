@@ -1,5 +1,6 @@
 import moment from "moment";
 import { verify } from "bitcoinjs-message";
+import { capitalize } from "./other";
 
 import { LilyLicense, NodeConfig } from "../types";
 
@@ -7,7 +8,7 @@ import { LilyLicense, NodeConfig } from "../types";
 
 export const licenseTier = (license: LilyLicense) => {
   const tier = license.license.split(":")[0];
-  return tier.charAt(0).toUpperCase() + tier.slice(1);
+  return capitalize(tier);
 };
 
 export const licenseExpires = (license: LilyLicense) => {

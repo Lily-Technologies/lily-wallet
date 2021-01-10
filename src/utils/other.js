@@ -1,6 +1,10 @@
 import bs58check from "bs58check";
 import BigNumber from "bignumber.js";
 
+export function capitalize(word) {
+  return word.charAt(0).toUpperCase() + word.slice(1);
+}
+
 export function cloneBuffer(buffer) {
   const clone = Buffer.alloc(buffer.length);
   buffer.copy(clone);

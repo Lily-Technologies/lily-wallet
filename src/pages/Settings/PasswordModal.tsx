@@ -6,12 +6,15 @@ import { StyledIcon, Input, Button } from "../../components";
 
 import { mobile } from "../../utils/media";
 import {
+  red,
   white,
   yellow100,
   yellow400,
   gray500,
   green700,
 } from "../../utils/colors";
+
+const MIN_PASSWORD_LENGTH = 8;
 
 interface Props {
   downloadEncryptedCurrentConfig: (password: string) => void;
@@ -23,7 +26,29 @@ export const PasswordModal = ({
   downloadUnencryptedCurrentConfig,
 }: Props) => {
   const [password, setPassword] = useState("");
+  const [passwordError, setPasswordError] = useState<string | undefined>(
+    undefined
+  );
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [confirmationError, setConfirmationError] = useState<
+    string | undefined
+  >(undefined);
+
+  const validateInput = () => {
+    if (password && password.length < MIN_PASSWORD_LENGTH) {
+      setPasswordError(
+        `Password must be at least ${MIN_PASSWORD_LENGTH} characters long`
+      );
+      return false;
+    } else if (password && confirmPassword && password !== confirmPassword) {
+      setConfirmationError("Password doesn't match confirmation");
+      return false;
+    } else {
+      setPasswordError(undefined);
+      setConfirmationError(undefined);
+      return true;
+    }
+  };
 
   return (
     <ModalContentWrapper>
@@ -41,25 +66,33 @@ export const PasswordModal = ({
         </DangerSubtext>
         <Input
           label="Password"
-          placeholder="password"
           value={password}
           onChange={setPassword}
           type="password"
         />
+        {passwordError !== undefined && (
+          <PasswordError>{passwordError}</PasswordError>
+        )}
 
         <Input
-          style={{ marginTop: "1em" }}
+          labelStyle={{ marginTop: "1em" }}
           label="Confirm Password"
-          placeholder="password"
           value={confirmPassword}
           onChange={setConfirmPassword}
           type="password"
         />
+        {confirmationError !== undefined && (
+          <PasswordError>{confirmationError}</PasswordError>
+        )}
         <Buttons>
           <DownloadButton
             background={green700}
             color={white}
-            onClick={() => downloadEncryptedCurrentConfig(password)}
+            onClick={() => {
+              if (validateInput()) {
+                downloadEncryptedCurrentConfig(password);
+              }
+            }}
           >
             Download Backup
           </DownloadButton>
@@ -133,4 +166,10 @@ const DangerSubtext = styled.div`
   padding-bottom: 2em;
   margin-top: 0.5rem;
   color: ${gray500};
+`;
+
+const PasswordError = styled.div`
+  color: ${red};
+  font-size: 0.75em;
+  margin-top: 0.5em;
 `;

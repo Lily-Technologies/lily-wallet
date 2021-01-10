@@ -1,21 +1,28 @@
-import React, { Fragment, useContext } from 'react';
-import styled, { css } from 'styled-components';
-import { Calculator } from '@styled-icons/heroicons-outline';
-import { Network } from 'bitcoinjs-lib';
+import React, { Fragment, useContext } from "react";
+import styled, { css } from "styled-components";
+import { Calculator } from "@styled-icons/heroicons-outline";
+import { Network } from "bitcoinjs-lib";
 
-import { AccountMapContext } from '../../../AccountMapContext';
+import { AccountMapContext } from "../../../AccountMapContext";
 
-import { StyledIcon } from '../../../components';
+import { StyledIcon } from "../../../components";
 
-import { mobile } from '../../../utils/media';
-import { getDerivationPath } from '../../../utils/files';
-import { green100, gray200, gray500, gray900, green600 } from '../../../utils/colors';
+import { mobile } from "../../../utils/media";
+import { getDerivationPath } from "../../../utils/files";
+import { capitalize } from "../../../utils/other";
+import {
+  green100,
+  gray200,
+  gray500,
+  gray900,
+  green600,
+} from "../../../utils/colors";
 
-import { ExtendedPublicKey } from '../../../types';
+import { ExtendedPublicKey } from "../../../types";
 
 interface Props {
-  item: ExtendedPublicKey
-  currentBitcoinNetwork: Network
+  item: ExtendedPublicKey;
+  currentBitcoinNetwork: Network;
 }
 
 const DeviceDetailsModal = ({ item, currentBitcoinNetwork }: Props) => {
@@ -33,17 +40,23 @@ const DeviceDetailsModal = ({ item, currentBitcoinNetwork }: Props) => {
           <ImageContainer>
             <DeviceImage
               src={
-                item.device.type === 'coldcard' ? require('../../../assets/coldcard.png')
-                  : item.device.type === 'ledger' ? require('../../../assets/ledger.png')
-                    : item.device.type === 'trezor' ? require('../../../assets/trezor.png')
-                      : require('../../../assets/iphone.png')
-              } />
+                item.device.type === "coldcard"
+                  ? require("../../../assets/coldcard.png")
+                  : item.device.type === "ledger"
+                  ? require("../../../assets/ledger.png")
+                  : item.device.type === "trezor"
+                  ? require("../../../assets/trezor.png")
+                  : require("../../../assets/iphone.png")
+              }
+            />
           </ImageContainer>
           <Rows>
             <ProfileRow>
               <ProfileKeyColumn>Device</ProfileKeyColumn>
               <ProfileValueColumn>
-                <ProfileValueText>{item.device.type.charAt(0).toUpperCase() + item.device.type.slice(1)}</ProfileValueText>
+                <ProfileValueText>
+                  {capitalize(item.device.type)}
+                </ProfileValueText>
               </ProfileValueColumn>
             </ProfileRow>
             <ProfileRow>
@@ -56,24 +69,28 @@ const DeviceDetailsModal = ({ item, currentBitcoinNetwork }: Props) => {
               <ProfileKeyColumn>Fingerprint</ProfileKeyColumn>
               <ProfileValueColumn>
                 <ProfileValueText>{item.parentFingerprint}</ProfileValueText>
-                <ProfileValueAction>
-                </ProfileValueAction>
+                <ProfileValueAction></ProfileValueAction>
               </ProfileValueColumn>
             </ProfileRow>
             <ProfileRow>
               <ProfileKeyColumn>Derivation Path</ProfileKeyColumn>
               <ProfileValueColumn>
-                <ProfileValueText>{getDerivationPath(currentAccount.config.addressType, item.bip32Path, currentBitcoinNetwork)}</ProfileValueText>
-                <ProfileValueAction>
-                </ProfileValueAction>
+                <ProfileValueText>
+                  {getDerivationPath(
+                    currentAccount.config.addressType,
+                    item.bip32Path,
+                    currentBitcoinNetwork
+                  )}
+                </ProfileValueText>
+                <ProfileValueAction></ProfileValueAction>
               </ProfileValueColumn>
             </ProfileRow>
           </Rows>
         </InformationContainer>
       </TextContainer>
     </Fragment>
-  )
-}
+  );
+};
 
 const ImageContainer = styled.div`
   margin-right: 3em;

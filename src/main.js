@@ -695,7 +695,6 @@ ipcMain.handle("/rescanBlockchain", async (event, args) => {
 
       const walletInfo = await client.getWalletInfo();
       sleep(100);
-      console.log("walletInfo: ", walletInfo);
       if (walletInfo.scanning !== false) {
         return Promise.resolve({ success: true });
       } else {
