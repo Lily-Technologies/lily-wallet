@@ -8,6 +8,7 @@ import { mobile } from "../../utils/media";
 import {
   white,
   green600,
+  red,
   red100,
   gray400,
   gray700,
@@ -25,9 +26,14 @@ interface RescanProps {
 interface Props {
   closeModal: () => void;
   currentAccount: LilyAccount;
+  toggleRefresh: () => void;
 }
 
-export const RescanModal = ({ closeModal, currentAccount }: Props) => {
+export const RescanModal = ({
+  closeModal,
+  currentAccount,
+  toggleRefresh,
+}: Props) => {
   const [startHeight, setStartHeight] = useState("");
   const [error, setError] = useState("");
 
@@ -36,11 +42,18 @@ export const RescanModal = ({ closeModal, currentAccount }: Props) => {
     currentAccount,
   }: RescanProps) => {
     try {
-      await window.ipcRenderer.invoke("/rescanBlockchain", {
+      const { success } = await window.ipcRenderer.invoke("/rescanBlockchain", {
         startHeight,
         currentAccount,
       });
-      closeModal();
+      if (success) {
+        toggleRefresh();
+        closeModal();
+      } else {
+        setError(
+          "Error rescanning. Try again or manually rescanning using bitcoin-cli."
+        );
+      }
     } catch (e) {
       setError(
         "Error rescanning. Try again or manually rescanning using bitcoin-cli."
@@ -67,6 +80,7 @@ export const RescanModal = ({ closeModal, currentAccount }: Props) => {
           onChange={setStartHeight}
           error={!!error}
         />
+        {!!error && <ErrorText>{error}</ErrorText>}
         <Buttons>
           <ActionButton
             style={{ border: `1px solid ${gray400}`, marginRight: "1em" }}
@@ -154,4 +168,10 @@ const Buttons = styled.div`
 const ActionButton = styled.button`
   ${Button};
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+`;
+
+const ErrorText = styled.div`
+  color: ${red};
+  font-size: 0.75em;
+  margin-top: 0.5em;
 `;

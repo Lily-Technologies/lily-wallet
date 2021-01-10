@@ -32,6 +32,7 @@ export const PricingPlanTable = ({
       setLoading(true);
       try {
         clickRenewLicense(tier, account);
+        setLoading(false);
       } catch (e) {
         setLoading(false);
       }

@@ -1,17 +1,21 @@
-import React from 'react';
+import React from "react";
 
-import styled, { keyframes } from 'styled-components';
-import { lightGreen, darkGray } from '../utils/colors';
+import styled, { keyframes } from "styled-components";
+import { lightGreen, darkGray } from "../utils/colors";
 
 interface Props {
-  itemText: string,
-  style?: any,
-  message?: string
+  itemText: string;
+  style?: any;
+  message?: string;
 }
 
 export const Loading = ({ itemText, style = {}, message }: Props) => (
   <LoadingWrapper style={style}>
-    <img alt="loading placeholder" src={require('../assets/flower-loading.svg')} style={{ maxWidth: '6.25em' }} />
+    <img
+      alt="loading placeholder"
+      src={require("../assets/flower-loading.svg")}
+      style={{ maxWidth: "6.25em" }}
+    />
     {!message && <LoadingText>Loading {itemText}</LoadingText>}
     {message && <LoadingText>{message}</LoadingText>}
     <LoadingSubText>Please wait...</LoadingSubText>
@@ -30,13 +34,15 @@ const LoadingWrapper = styled.div`
   padding: 1.5em;
 `;
 
-const LoadingText = styled.div`
+const LoadingText = styled.p`
   font-size: 1.5em;
   margin: 4px 0;
+  white-space: pre-wrap;
+  text-align: center;
 `;
 
 const LoadingSubText = styled.div`
-    font-size: .75em;
+  font-size: 0.75em;
 `;
 
 export const placeHolderShimmer = keyframes`
@@ -58,8 +64,13 @@ export const GrayAnimatedBackground = styled.div`
 
 export const GreenAnimatedBackground = styled.div`
   animation: ${placeHolderShimmer} 1s linear infinite forwards;
-  background: rgba(155,209,135, 0.95);
-  background: linear-gradient(to right, rgba(155,209,135, 0.5) 8%, ${lightGreen} 18%, rgba(155,209,135, 0.5) 33%);
+  background: rgba(155, 209, 135, 0.95);
+  background: linear-gradient(
+    to right,
+    rgba(155, 209, 135, 0.5) 8%,
+    ${lightGreen} 18%,
+    rgba(155, 209, 135, 0.5) 33%
+  );
   background-size: 800px 104px;
   position: relative;
   flex: 0 0 90%;

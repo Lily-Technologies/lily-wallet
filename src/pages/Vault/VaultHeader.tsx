@@ -140,7 +140,7 @@ const IconSvg = styled.svg`
 const LoadingImage = styled.img`
   filter: brightness(0) invert(1);
   max-width: 2em;
-  margin: 0 0.25em;
+  margin: 0 0.5em 0 0.75em;
 `;
 
 const SendButton = styled(Link)`
@@ -169,6 +169,9 @@ const SettingsButton = styled(Link)`
 const RefreshButton = styled.button`
   ${Button}
   border-radius: 25%;
+  padding-left: 0;
+  padding-right: 0;
+  margin: 0 0.5em 0 0.75em;
 `;
 
 const VaultExplainerText = styled.div`

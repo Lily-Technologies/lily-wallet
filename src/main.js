@@ -31,6 +31,8 @@ const {
 const path = require("path");
 const fs = require("fs");
 
+const sleep = async (time) => await new Promise((r) => setTimeout(r, time));
+
 const currentBitcoinNetwork =
   "TESTNET" in process.env ? networks.testnet : networks.bitcoin;
 
@@ -636,7 +638,7 @@ ipcMain.handle("/changeNodeConfig", async (event, args) => {
 });
 
 ipcMain.handle("/getNodeConfig", async (event, args) => {
-  if (currentNodeConfig.provider === "Bitcoin Core") {
+  if (currentNodeConfig?.provider === "Bitcoin Core") {
     try {
       const blockchainInfo = await getBitcoinCoreBlockchainInfo();
       return Promise.resolve(blockchainInfo);
@@ -692,6 +694,8 @@ ipcMain.handle("/rescanBlockchain", async (event, args) => {
       });
 
       const walletInfo = await client.getWalletInfo();
+      sleep(100);
+      console.log("walletInfo: ", walletInfo);
       if (walletInfo.scanning !== false) {
         return Promise.resolve({ success: true });
       } else {
@@ -701,5 +705,23 @@ ipcMain.handle("/rescanBlockchain", async (event, args) => {
   } catch (e) {
     console.log("e: ", e);
     return Promise.reject({ success: false, message: e.message });
+  }
+});
+
+ipcMain.handle("/getWalletInfo", async (event, args) => {
+  const { currentAccount } = args;
+  try {
+    const client = new Client({
+      wallet: `lily${currentAccount.config.id}`,
+      host: currentNodeConfig.host || "http://localhost:8332",
+      username: currentNodeConfig.rpcuser || currentNodeConfig.username, // TODO: uniform this in the future
+      password: currentNodeConfig.rpcpassword || currentNodeConfig.password,
+      version: "0.20.1",
+    });
+
+    const walletInfo = await client.getWalletInfo();
+    return Promise.resolve({ ...walletInfo });
+  } catch (e) {
+    return Promise.reject({ success: false, error: e.message });
   }
 });

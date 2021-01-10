@@ -24,7 +24,7 @@ export const licenseTxId = (license: LilyLicense) => {
 };
 
 export const isFreeTrial = (license: LilyLicense) => {
-  return licenseTier(license) === "trial";
+  return licenseTier(license) === "Trial";
 };
 
 export const isAlmostExpiredLicense = (
@@ -61,7 +61,7 @@ const isValidLicenseSignature = (license: LilyLicense) => {
 };
 
 const isFreeTrialLicense = (license: LilyLicense) => {
-  if (licenseTier(license) === "trial") {
+  if (licenseTier(license) === "Trial") {
     return true;
   }
   return false;

@@ -1,4 +1,4 @@
-import React, { Fragment, useContext, useState } from "react";
+import React, { Fragment, useContext, useState, useEffect } from "react";
 import styled, { css } from "styled-components";
 import {
   AreaChart,
@@ -55,11 +55,13 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
 
 interface Props {
   nodeConfig: NodeConfig;
+  toggleRefresh: () => void;
 }
 
-const VaultView = ({ nodeConfig }: Props) => {
+const VaultView = ({ nodeConfig, toggleRefresh }: Props) => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
+  const [progress, setProgress] = useState(0);
   const { currentAccount } = useContext(AccountMapContext);
   const { currentBalance, transactions } = currentAccount;
   const transactionsCopyForChart = [...transactions];
@@ -93,6 +95,17 @@ const VaultView = ({ nodeConfig }: Props) => {
     });
   }
 
+  const scanProgress = async () => {
+    if (nodeConfig.provider !== "Blockstream") {
+      const { scanning } = await window.ipcRenderer.invoke("/getWalletInfo", {
+        currentAccount,
+      });
+      if (scanning) {
+        setProgress(scanning.progress);
+      }
+    }
+  };
+
   const openInModal = (component: JSX.Element) => {
     setModalIsOpen(true);
     setModalContent(component);
@@ -105,15 +118,35 @@ const VaultView = ({ nodeConfig }: Props) => {
 
   const openRescanModal = () => {
     openInModal(
-      <RescanModal closeModal={closeModal} currentAccount={currentAccount} />
+      <RescanModal
+        toggleRefresh={toggleRefresh}
+        closeModal={closeModal}
+        currentAccount={currentAccount}
+      />
     );
   };
+
+  useEffect(() => {
+    scanProgress();
+    const interval = setInterval(async () => scanProgress(), 2000);
+    return () => clearInterval(interval);
+  }, [currentAccount]);
 
   return (
     <Fragment>
       {currentAccount.loading && (
         <ValueWrapper>
-          <Loading style={{ margin: "10em 0" }} itemText={"Chart Data"} />
+          <Loading
+            style={{ margin: "10em 0" }}
+            message={
+              progress
+                ? `Scanning for transactions \n (${(progress * 100).toFixed(
+                    2
+                  )}% complete)`
+                : undefined
+            }
+            itemText={"Chart Data"}
+          />
         </ValueWrapper>
       )}
       {transactions.length > 0 && !currentAccount.loading && (

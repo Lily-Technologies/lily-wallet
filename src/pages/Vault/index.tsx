@@ -52,7 +52,15 @@ const Vault = ({
               />
             )}
           />
-          <Route path="" render={() => <VaultView nodeConfig={nodeConfig} />} />
+          <Route
+            path=""
+            render={() => (
+              <VaultView
+                nodeConfig={nodeConfig}
+                toggleRefresh={toggleRefresh}
+              />
+            )}
+          />
         </Switch>
       </Fragment>
     </PageWrapper>

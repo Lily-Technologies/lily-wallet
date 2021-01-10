@@ -70,4 +70,5 @@ export function getNodeStatus(nodeConfig) {
       return "Connecting...";
     }
   }
+  return "Connecting...";
 }

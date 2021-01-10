@@ -162,8 +162,7 @@ const ExportView = ({ currentBitcoinNetwork }: Props) => {
         <HeaderSection>
           <HeaderTitle>Export Account</HeaderTitle>
           <HeaderSubtitle>
-            Some users wish to verify the information in Lily with other
-            software. Use the options below to use other software to verify the
+            Use the options below to use other software to verify the
             information in Lily.
           </HeaderSubtitle>
         </HeaderSection>

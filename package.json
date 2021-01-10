@@ -34,6 +34,7 @@
         "./src/preload.js",
         "./src/server/**/*",
         "./src/utils/**/*",
+        "./src/types/*",
         "./HWIs/HWI_MAC"
       ]
     },
@@ -53,6 +54,7 @@
         "./src/preload.js",
         "./src/server/**/*",
         "./src/utils/**/*",
+        "./src/types/*",
         "./HWIs/HWI_LINUX"
       ]
     },
@@ -63,6 +65,7 @@
         "./src/preload.js",
         "./src/server/**/*",
         "./src/utils/**/*",
+        "./src/types/*",
         "./HWIs/hwi.exe"
       ]
     }
