@@ -28,6 +28,10 @@
       "target": [
         "dmg"
       ],
+      "entitlements": "./build/entitlements.mac.inherit.plist",
+      "extendInfo": {
+        "NSCameraUsageDescription": "Allow your camera to scan QR codes during account setup and transaction signing."
+      },
       "files": [
         "./build/**/*",
         "./src/main.js",
