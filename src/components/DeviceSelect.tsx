@@ -1,23 +1,38 @@
-import React, { useState, useEffect } from 'react';
-import styled, { keyframes } from 'styled-components';
-import { CheckCircle } from '@styled-icons/material';
-import { ExclamationDiamond } from '@styled-icons/bootstrap'
+import React, { useState, useEffect } from "react";
+import styled, { keyframes } from "styled-components";
+import { CheckCircle } from "@styled-icons/material";
+import { ExclamationDiamond } from "@styled-icons/bootstrap";
 
-import { Button, StyledIcon, PromptPinModal } from '../components';
-import { lightGreen, gray, green, green800, white, darkGray, red, lightRed, yellow, lightYellow, gray600, gray900 } from '../utils/colors';
+import { Button, StyledIcon, PromptPinModal } from "../components";
+import {
+  lightGreen,
+  gray,
+  green,
+  green800,
+  white,
+  darkGray,
+  red,
+  lightRed,
+  yellow,
+  lightYellow,
+  gray600,
+  gray900,
+} from "../utils/colors";
 
-import { Device, HwiResponseEnumerate } from '../types';
+import { Device, HwiResponseEnumerate } from "../types";
 
 interface Props {
-  configuredDevices: Device[],
-  unconfiguredDevices: HwiResponseEnumerate[],
-  errorDevices: string[], // fingerprints of error devices
-  setUnconfiguredDevices: React.Dispatch<React.SetStateAction<HwiResponseEnumerate[]>>,
-  configuredThreshold: number,
-  deviceAction: (device: HwiResponseEnumerate, index: number) => void,
-  deviceActionText: string,
-  deviceActionLoadingText: string,
-  phoneAction?: () => void
+  configuredDevices: Device[];
+  unconfiguredDevices: HwiResponseEnumerate[];
+  errorDevices: string[]; // fingerprints of error devices
+  setUnconfiguredDevices: React.Dispatch<
+    React.SetStateAction<HwiResponseEnumerate[]>
+  >;
+  configuredThreshold: number;
+  deviceAction: (device: HwiResponseEnumerate, index: number) => void;
+  deviceActionText: string;
+  deviceActionLoadingText: string;
+  phoneAction?: () => void;
 }
 
 export const DeviceSelect = ({
@@ -29,11 +44,16 @@ export const DeviceSelect = ({
   deviceAction,
   deviceActionText,
   deviceActionLoadingText,
-  phoneAction
+  phoneAction,
 }: Props) => {
   const [devicesLoading, setDevicesLoading] = useState(false);
-  const [deviceActionLoading, setDeviceActionLoading] = useState<number | null>(null);
-  const [promptPinModalDevice, setPromptPinModalDevice] = useState<HwiResponseEnumerate | null>(null);
+  const [deviceActionLoading, setDeviceActionLoading] = useState<number | null>(
+    null
+  );
+  const [
+    promptPinModalDevice,
+    setPromptPinModalDevice,
+  ] = useState<HwiResponseEnumerate | null>(null);
 
   useEffect(() => {
     enumerate();
@@ -43,45 +63,55 @@ export const DeviceSelect = ({
     setDevicesLoading(true);
     // what?
     try {
-      const response: HwiResponseEnumerate[] = await window.ipcRenderer.invoke('/enumerate');
+      const response: HwiResponseEnumerate[] = await window.ipcRenderer.invoke(
+        "/enumerate"
+      );
       setDevicesLoading(false);
 
       if (phoneAction) {
         response.push({
-          type: 'cobo',
-          fingerprint: 'unknown',
-          xpub: 'unknown',
-          model: 'unknown',
-          path: 'unknown'
-        })
+          type: "cobo",
+          fingerprint: "unknown",
+          xpub: "unknown",
+          model: "unknown",
+          path: "unknown",
+        });
       }
 
       // filter out devices that are available but already imported
-      const filteredDevices = response.filter((device) => { // eslint-disable-line
+      const filteredDevices = response.filter((device) => {
+        // eslint-disable-line
         let deviceAlreadyConfigured = false;
         for (let i = 0; i < configuredDevices.length; i++) {
           if (configuredDevices[i].fingerprint === device.fingerprint) {
             deviceAlreadyConfigured = true;
-          } else if (device.type === 'phone' && configuredDevices[i].type === 'phone') { // there can only be one phone in a config
+          } else if (
+            device.type === "phone" &&
+            configuredDevices[i].type === "phone"
+          ) {
+            // there can only be one phone in a config
             deviceAlreadyConfigured = true;
           }
         }
         if (!deviceAlreadyConfigured) {
-          return device
+          return device;
         }
       });
       setUnconfiguredDevices(filteredDevices);
     } catch (e) {
-      console.log('e: ', e);
+      console.log("e: ", e);
       setDevicesLoading(false);
     }
-  }
+  };
 
-  const performDeviceAction = async (device: HwiResponseEnumerate, index: number) => {
-    setDeviceActionLoading(index)
+  const performDeviceAction = async (
+    device: HwiResponseEnumerate,
+    index: number
+  ) => {
+    setDeviceActionLoading(index);
     await deviceAction(device, index);
     setDeviceActionLoading(null);
-  }
+  };
 
   return (
     <Wrapper>
@@ -89,122 +119,167 @@ export const DeviceSelect = ({
         promptPinModalIsOpen={!!promptPinModalDevice}
         setPromptPinModalDevice={setPromptPinModalDevice}
         device={promptPinModalDevice!}
-        enumerate={enumerate} />
+        enumerate={enumerate}
+      />
       <DevicesWrapper>
-        {configuredDevices.map((device, index) => (
-          <DeviceWrapper
-            key={index}
-            imported={true}
-            displayLoadingCursor={deviceActionLoading !== null}>
-            <IconWrapper style={{ color: green }}>
-              <StyledIcon as={CheckCircle} size={24} />
-            </IconWrapper>
-            <DeviceImage
-              src={
-                device.type === 'coldcard' ? require('../assets/coldcard.png')
-                  : device.type === 'ledger' ? require('../assets/ledger.png')
-                    : device.type === 'trezor' ? require('../assets/trezor.png')
-                      : device.type === 'cobo' ? require('../assets/cobo.png')
-                        : require('../assets/iphone.png')
-              } />
-            <DeviceInfoWrapper>
-              <DeviceName>{device.type}</DeviceName>
-              <DeviceFingerprint imported={true}>{device.fingerprint}</DeviceFingerprint>
-            </DeviceInfoWrapper>
-          </DeviceWrapper>
-        ))}
-
-        {unconfiguredDevices.map((device, index) => {
-          const deviceError = errorDevices.includes(device.fingerprint);
-          const deviceWarning = !device.fingerprint && device.type !== 'phone'; // if ledger isn't in the BTC app or trezor is locked, it wont give fingerprint, so show warning
-          return (
+        <DeviceContainer>
+          {configuredDevices.map((device, index) => (
             <DeviceWrapper
               key={index}
-              loading={deviceActionLoading !== null && deviceActionLoading === index}
-              onClick={async () => {
-                if (deviceActionLoading === null) {
-                  if (deviceWarning) {
-                    if (device.type === 'trezor') {
-                      setPromptPinModalDevice(device);
-                    } else {
-                      await enumerate();
-                    }
-                  } else {
-                    if ((device.type === 'cobo' || device.type === 'phone') && phoneAction !== undefined) {
-                      phoneAction()
-                    } else {
-                      performDeviceAction(device, index)
-                    }
-                  }
-                }
-              }}
-              warning={deviceWarning}
-              error={deviceError}
+              imported={true}
               displayLoadingCursor={deviceActionLoading !== null}
             >
-              {(deviceError || deviceWarning) && (
-                <IconWrapper style={{ color: red }}>
-                  <StyledIcon as={ExclamationDiamond} size={24} />
-                </IconWrapper>
-              )}
+              <IconWrapper style={{ color: green }}>
+                <StyledIcon as={CheckCircle} size={24} />
+              </IconWrapper>
               <DeviceImage
                 src={
-                  device.type === 'coldcard' ? require('../assets/coldcard.png')
-                    : device.type === 'ledger' ? require('../assets/ledger.png')
-                      : device.type === 'trezor' ? require('../assets/trezor.png')
-                        : device.type === 'cobo' ? require('../assets/cobo.png')
-                          : require('../assets/iphone.png')
-                } />
+                  device.type === "coldcard"
+                    ? require("../assets/coldcard.png")
+                    : device.type === "ledger"
+                    ? require("../assets/ledger.png")
+                    : device.type === "trezor"
+                    ? require("../assets/trezor.png")
+                    : device.type === "cobo"
+                    ? require("../assets/cobo.png")
+                    : require("../assets/iphone.png")
+                }
+              />
               <DeviceInfoWrapper>
                 <DeviceName>{device.type}</DeviceName>
-                <DeviceFingerprint imported={false}>{device.fingerprint}</DeviceFingerprint>
-                <ImportedWrapper>
-                  {deviceActionLoading === index ? (
-                    <ConfiguringText error={deviceError} style={{ textAlign: 'center' }}>
-                      {deviceActionLoadingText}
-                      <ConfiguringAnimation>.</ConfiguringAnimation>
-                      <ConfiguringAnimation>.</ConfiguringAnimation>
-                      <ConfiguringAnimation>.</ConfiguringAnimation>
-                    </ConfiguringText>
-                  ) : deviceError || deviceWarning ? (
-                    <ConfiguringText error={true} warning={deviceWarning}>
-                      {deviceError ? 'Click to Retry' : device.type === 'ledger' ? 'Open Bitcoin App on Device' : 'Click to enter PIN'}
-                    </ConfiguringText>
-                  ) : (
-                        <ConfiguringText>
-                          {deviceActionText}
-                        </ConfiguringText>
-                      )}
-                </ImportedWrapper>
+                <DeviceFingerprint imported={true}>
+                  {device.fingerprint}
+                </DeviceFingerprint>
               </DeviceInfoWrapper>
             </DeviceWrapper>
-          )
-        }
-        )}
+          ))}
 
-        {unconfiguredDevices.length === 0 && configuredDevices.length === 0 && !devicesLoading && (
-          <NoDevicesContainer>
-            <NoDevicesWrapper>
-              <NoDevicesHeader>No devices detected</NoDevicesHeader>
-              <StyledIcon as={ExclamationDiamond} size={96} />
-              <NoDevicesSubheader>Please make sure your device is connected and unlocked.</NoDevicesSubheader>
-            </NoDevicesWrapper>
-          </NoDevicesContainer>
-        )}
+          {unconfiguredDevices.map((device, index) => {
+            const deviceError = errorDevices.includes(device.fingerprint);
+            const deviceWarning =
+              !device.fingerprint && device.type !== "phone"; // if ledger isn't in the BTC app or trezor is locked, it wont give fingerprint, so show warning
+            return (
+              <DeviceWrapper
+                key={index}
+                loading={
+                  deviceActionLoading !== null && deviceActionLoading === index
+                }
+                onClick={async () => {
+                  if (deviceActionLoading === null) {
+                    if (deviceWarning) {
+                      if (device.type === "trezor") {
+                        setPromptPinModalDevice(device);
+                      } else {
+                        await enumerate();
+                      }
+                    } else {
+                      if (
+                        (device.type === "cobo" || device.type === "phone") &&
+                        phoneAction !== undefined
+                      ) {
+                        phoneAction();
+                      } else {
+                        performDeviceAction(device, index);
+                      }
+                    }
+                  }
+                }}
+                warning={deviceWarning}
+                error={deviceError}
+                displayLoadingCursor={deviceActionLoading !== null}
+              >
+                {(deviceError || deviceWarning) && (
+                  <IconWrapper style={{ color: red }}>
+                    <StyledIcon as={ExclamationDiamond} size={24} />
+                  </IconWrapper>
+                )}
+                <DeviceImage
+                  src={
+                    device.type === "coldcard"
+                      ? require("../assets/coldcard.png")
+                      : device.type === "ledger"
+                      ? require("../assets/ledger.png")
+                      : device.type === "trezor"
+                      ? require("../assets/trezor.png")
+                      : device.type === "cobo"
+                      ? require("../assets/cobo.png")
+                      : require("../assets/iphone.png")
+                  }
+                />
+                <DeviceInfoWrapper>
+                  <DeviceName>{device.type}</DeviceName>
+                  <DeviceFingerprint imported={false}>
+                    {device.fingerprint}
+                  </DeviceFingerprint>
+                  <ImportedWrapper>
+                    {deviceActionLoading === index ? (
+                      <ConfiguringText
+                        error={deviceError}
+                        style={{ textAlign: "center" }}
+                      >
+                        {deviceActionLoadingText}
+                        <ConfiguringAnimation>.</ConfiguringAnimation>
+                        <ConfiguringAnimation>.</ConfiguringAnimation>
+                        <ConfiguringAnimation>.</ConfiguringAnimation>
+                      </ConfiguringText>
+                    ) : deviceError || deviceWarning ? (
+                      <ConfiguringText error={true} warning={deviceWarning}>
+                        {deviceError
+                          ? "Click to Retry"
+                          : device.type === "ledger"
+                          ? "Open Bitcoin App on Device"
+                          : "Click to enter PIN"}
+                      </ConfiguringText>
+                    ) : (
+                      <ConfiguringText>{deviceActionText}</ConfiguringText>
+                    )}
+                  </ImportedWrapper>
+                </DeviceInfoWrapper>
+              </DeviceWrapper>
+            );
+          })}
+        </DeviceContainer>
+        {unconfiguredDevices.length === 0 &&
+          configuredDevices.length === 0 &&
+          !devicesLoading && (
+            <NoDevicesContainer>
+              <NoDevicesWrapper>
+                <NoDevicesHeader>No devices detected</NoDevicesHeader>
+                <StyledIcon as={ExclamationDiamond} size={96} />
+                <NoDevicesSubheader>
+                  Please make sure your device is connected and unlocked.
+                </NoDevicesSubheader>
+              </NoDevicesWrapper>
+            </NoDevicesContainer>
+          )}
 
-        {unconfiguredDevices.length === 0 && configuredDevices.length === 0 && devicesLoading && (
-          <LoadingDevicesWrapper>
-            <LoadingImage src={require('../assets/flower-loading.svg')} style={{ maxWidth: '6.25em' }} alt="loading" />
-            <LoadingText>Loading Devices</LoadingText>
-            <LoadingSubText>Please wait...</LoadingSubText>
-          </LoadingDevicesWrapper>
-        )}
+        {unconfiguredDevices.length === 0 &&
+          configuredDevices.length === 0 &&
+          devicesLoading && (
+            <LoadingDevicesWrapper>
+              <LoadingImage
+                src={require("../assets/flower-loading.svg")}
+                style={{ maxWidth: "6.25em" }}
+                alt="loading"
+              />
+              <LoadingText>Loading Devices</LoadingText>
+              <LoadingSubText>Please wait...</LoadingSubText>
+            </LoadingDevicesWrapper>
+          )}
       </DevicesWrapper>
 
-      {configuredDevices.length < configuredThreshold && <ScanDevicesButton background={white} color={green800} onClick={enumerate}>{devicesLoading ? 'Updating Device List...' : 'Scan for devices'}</ScanDevicesButton>}
+      {configuredDevices.length < configuredThreshold && (
+        <ScanDevicesButton
+          background={white}
+          color={green800}
+          onClick={enumerate}
+        >
+          {devicesLoading ? "Updating Device List..." : "Scan for devices"}
+        </ScanDevicesButton>
+      )}
     </Wrapper>
-  )
-}
+  );
+};
 
 const LoadingImage = styled.img`
   color: ${gray900};
@@ -243,19 +318,17 @@ const LoadingDevicesWrapper = styled.div`
   text-align: center;
 `;
 
-
 const NoDevicesHeader = styled.h3`
   font-weight: 100;
 `;
-
 
 const NoDevicesSubheader = styled.h4`
   font-weight: 100;
 `;
 
-const ConfiguringText = styled.div<{ error?: boolean, warning?: boolean }>`
-  color: ${p => p.error ? gray600 : darkGray};
-  font-size: ${p => p.warning ? '0.75em' : '1em'};
+const ConfiguringText = styled.div<{ error?: boolean; warning?: boolean }>`
+  color: ${(p) => (p.error ? gray600 : darkGray)};
+  font-size: ${(p) => (p.warning ? "0.75em" : "1em")};
   text-align: center;
 `;
 
@@ -265,6 +338,11 @@ const DevicesWrapper = styled.div`
   margin-bottom: 1.25em;
   margin-top: 1.25em;
   overflow: scroll;
+`;
+
+const DeviceContainer = styled.div`
+  width: 100%;
+  display: flex;
 `;
 
 const DeviceInfoWrapper = styled.div`
@@ -280,7 +358,13 @@ const IconWrapper = styled.div`
   top: 0.65em;
 `;
 
-const DeviceWrapper = styled.div<{ loading?: boolean, imported?: boolean, error?: boolean, warning?: boolean, displayLoadingCursor?: boolean }>`
+const DeviceWrapper = styled.div<{
+  loading?: boolean;
+  imported?: boolean;
+  error?: boolean;
+  warning?: boolean;
+  displayLoadingCursor?: boolean;
+}>`
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -291,16 +375,30 @@ const DeviceWrapper = styled.div<{ loading?: boolean, imported?: boolean, error?
   flex: 0 1 15.625em;
   border-radius: 4px;
   position: relative;
-  animation-name: ${p => p.loading ? blinking : 'none'};
+  animation-name: ${(p) => (p.loading ? blinking : "none")};
   animation-duration: 1.4s;
   animation-iteration-count: infinite;
   animation-fill-mode: both;
 
-  background: ${p => p.imported ? lightGreen : p.error ? lightRed : p.warning ? lightYellow : 'none'};
-  border: ${p => p.imported ? `1px solid ${green}` : p.error ? `1px solid ${red}` : p.warning ? `1px solid ${yellow}` : '1px solid transparent'};
+  background: ${(p) =>
+    p.imported
+      ? lightGreen
+      : p.error
+      ? lightRed
+      : p.warning
+      ? lightYellow
+      : "none"};
+  border: ${(p) =>
+    p.imported
+      ? `1px solid ${green}`
+      : p.error
+      ? `1px solid ${red}`
+      : p.warning
+      ? `1px solid ${yellow}`
+      : "1px solid transparent"};
 
   &:hover {
-    cursor: ${p => p.displayLoadingCursor ? 'wait' : 'pointer'};
+    cursor: ${(p) => (p.displayLoadingCursor ? "wait" : "pointer")};
 `;
 
 const DeviceImage = styled.img`
@@ -318,7 +416,7 @@ const DeviceName = styled.h4`
 `;
 
 const DeviceFingerprint = styled.h5<{ imported: boolean }>`
-  color: ${p => p.imported ? darkGray : gray};
+  color: ${(p) => (p.imported ? darkGray : gray)};
   margin: 0;
   font-weight: 100;
 `;
@@ -329,7 +427,7 @@ const LoadingText = styled.div`
 `;
 
 const LoadingSubText = styled.div`
-    font-size: .75em;
+  font-size: 0.75em;
 `;
 
 const ImportedWrapper = styled.div``;
