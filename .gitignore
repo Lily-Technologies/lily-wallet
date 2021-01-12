@@ -4,3 +4,5 @@ LilyWallet-darwin-x64
 .DS_Store
 dist/
 LilyWallet-*
+.env
+compiled-ts/
