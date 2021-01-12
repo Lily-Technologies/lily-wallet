@@ -96,6 +96,7 @@ export const DeviceSelect = ({
         if (!deviceAlreadyConfigured) {
           return device;
         }
+        return null;
       });
       setUnconfiguredDevices(filteredDevices);
     } catch (e) {
