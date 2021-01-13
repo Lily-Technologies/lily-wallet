@@ -149,7 +149,7 @@ test("updateConfigFileVersion", () => {
     name: "",
     version: "1.0.0",
     isEmpty: false,
-    license: { trial: true, expires: 4420 },
+    license: { license: "trial:4420", signature: "" },
     wallets: [
       {
         id: "8e338244-49fb-4323-bec1-e04a65a28a52",
