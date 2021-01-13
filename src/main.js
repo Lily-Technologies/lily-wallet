@@ -172,24 +172,28 @@ const setupInitialNodeConfig = async () => {
 };
 
 async function getBitcoinCoreConfig() {
-  const rpcInfo = await getRpcInfo();
-  // TODO: check for testnet
-  if (rpcInfo) {
-    try {
-      const nodeConfig = {
-        username: rpcInfo.rpcuser,
-        password: rpcInfo.rpcpassword,
-        port: rpcInfo.rpcport || "8332",
-        version: "0.20.1",
-      };
-      return Promise.resolve(nodeConfig);
-    } catch (e) {
-      return Promise.reject(
-        "getBitcoinCoreConfig: RPC Info invalid. Make sure node is running."
-      );
+  try {
+    const rpcInfo = await getRpcInfo();
+    // TODO: check for testnet
+    if (rpcInfo) {
+      try {
+        const nodeConfig = {
+          username: rpcInfo.rpcuser,
+          password: rpcInfo.rpcpassword,
+          port: rpcInfo.rpcport || "8332",
+          version: "0.20.1",
+        };
+        return Promise.resolve(nodeConfig);
+      } catch (e) {
+        return Promise.reject(
+          "getBitcoinCoreConfig: RPC Info invalid. Make sure node is running."
+        );
+      }
     }
+    return Promise.reject("getBitcoinCoreConfig: No RPC Info found");
+  } catch (e) {
+    return Promise.reject("getBitcoinCoreConfig: No RPC Info found");
   }
-  return Promise.reject("getBitcoinCoreConfig: No RPC Info found");
 }
 
 const getBitcoinCoreBlockchainInfo = async () => {
@@ -430,8 +434,10 @@ ipcMain.on("/account-data", async (event, args) => {
 });
 
 ipcMain.handle("/get-config", async (event, args) => {
-  const file = await getFile("lily-config-encrypted.txt");
-  return file;
+  try {
+    const file = await getFile("lily-config-encrypted.txt");
+    return file;
+  } catch (e) {}
 });
 
 ipcMain.handle("/save-config", async (event, args) => {

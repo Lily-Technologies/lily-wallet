@@ -101,7 +101,9 @@ const Login = ({
           setIsLoading(false);
         }
       } else {
-        setPasswordError("Server error. Please try restarting.");
+        setPasswordError(
+          "Error retrieving blockchain data. Please try restarting."
+        );
         setIsLoading(false);
       }
     }

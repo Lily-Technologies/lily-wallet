@@ -71,7 +71,7 @@ const LicenseSettings = ({
       saveConfig(configCopy, password);
       setConfigFile({ ...configCopy });
       openInModal(
-        <PurchaseLicenseSuccess config={config} nodeConfig={nodeConfig} />
+        <PurchaseLicenseSuccess config={configCopy} nodeConfig={nodeConfig} />
       );
     } else {
       openInModal(<ErrorModal message={licenseErrorMessage} />);
