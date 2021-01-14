@@ -36,6 +36,10 @@ const sleep = async (time) => await new Promise((r) => setTimeout(r, time));
 const currentBitcoinNetwork =
   "TESTNET" in process.env ? networks.testnet : networks.bitcoin;
 
+const bitcoinNetworkEqual = (a, b) => {
+  return a.bech32 === b.bech32;
+};
+
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
@@ -101,8 +105,6 @@ function createWindow() {
       x: 10,
       y: 20,
     });
-
-  mainWindow.maximize();
 
   if ("DEVURL" in process.env) {
     // load dev url
