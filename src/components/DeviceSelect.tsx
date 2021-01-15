@@ -123,7 +123,6 @@ export const DeviceSelect = ({
         enumerate={enumerate}
       />
       <DevicesWrapper>
-        {/* <DeviceContainer> */}
         {configuredDevices.map((device, index) => (
           <DeviceWrapper
             key={index}
@@ -265,7 +264,6 @@ export const DeviceSelect = ({
               <LoadingSubText>Please wait...</LoadingSubText>
             </LoadingDevicesWrapper>
           )}
-        {/* </DeviceContainer> */}
       </DevicesWrapper>
 
       {configuredDevices.length < configuredThreshold && (
@@ -341,11 +339,6 @@ const DevicesWrapper = styled.div`
   margin-bottom: 1.25em;
   margin-top: 1.25em;
   overflow: scroll;
-`;
-
-const DeviceContainer = styled.div`
-  width: 100%;
-  display: flex;
 `;
 
 const DeviceInfoWrapper = styled.div`

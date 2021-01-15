@@ -1,138 +1,203 @@
-import React, { Fragment, useEffect, useState, useCallback } from 'react';
-import styled from 'styled-components';
-import { DotSingle } from '@styled-icons/entypo';
-import { StarOfLife } from '@styled-icons/fa-solid';
-import { Backspace } from '@styled-icons/ionicons-solid'
+import React, { Fragment, useEffect, useState, useCallback } from "react";
+import styled from "styled-components";
+import { DotSingle } from "@styled-icons/entypo";
+import { StarOfLife } from "@styled-icons/fa-solid";
+import { Backspace } from "@styled-icons/ionicons-solid";
 
-import { Modal, Button, Loading, StyledIcon } from '.';
+import { Modal, Button, Loading, StyledIcon } from ".";
 
-import { white, green400, green500, green600, gray100, gray200, gray300, gray900, red500 } from '../utils/colors';
+import {
+  white,
+  green400,
+  green500,
+  green600,
+  gray100,
+  gray200,
+  gray300,
+  gray900,
+  red500,
+} from "../utils/colors";
 
-import { HwiResponseEnumerate } from '../types';
+import { HwiResponseEnumerate } from "../types";
 
 interface Props {
-  device: HwiResponseEnumerate
-  promptPinModalIsOpen: boolean
-  setPromptPinModalDevice: React.Dispatch<React.SetStateAction<HwiResponseEnumerate | null>>
-  enumerate: () => void
+  device: HwiResponseEnumerate;
+  promptPinModalIsOpen: boolean;
+  setPromptPinModalDevice: React.Dispatch<
+    React.SetStateAction<HwiResponseEnumerate | null>
+  >;
+  enumerate: () => void;
 }
 
-export const PromptPinModal = ({ device, promptPinModalIsOpen, setPromptPinModalDevice, enumerate }: Props) => {
-  const [currentPin, setCurrentPin] = useState('');
-  const [loadingMessage, setLoadingMessage] = useState('');
-  const [promptPinError, setPromptPinError] = useState('');
+export const PromptPinModal = ({
+  device,
+  promptPinModalIsOpen,
+  setPromptPinModalDevice,
+  enumerate,
+}: Props) => {
+  const [currentPin, setCurrentPin] = useState("");
+  const [loadingMessage, setLoadingMessage] = useState("");
+  const [promptPinError, setPromptPinError] = useState("");
 
-  const closeModal = useCallback(
-    () => {
-      setPromptPinModalDevice(null);
-      setPromptPinError('');
-    }, [setPromptPinModalDevice]
-  );
+  const closeModal = useCallback(() => {
+    setPromptPinModalDevice(null);
+    setPromptPinError("");
+  }, [setPromptPinModalDevice]);
 
   useEffect(() => {
     async function promptPin() {
-      setLoadingMessage('Loading Keypad');
+      setLoadingMessage("Loading Keypad");
       try {
-        await window.ipcRenderer.invoke('/promptpin', {
+        await window.ipcRenderer.invoke("/promptpin", {
           deviceType: device.type,
-          devicePath: device.path
+          devicePath: device.path,
         });
-
       } catch (e) {
-        setPromptPinError('Something went wrong. Please unplug and re-plug in your device until no keypad appears on the screen.');
-        setTimeout(() => { closeModal() }, 10000)
+        setPromptPinError(
+          "Something went wrong. Please unplug and re-plug in your device until no keypad appears on the screen."
+        );
+        setTimeout(() => {
+          closeModal();
+        }, 10000);
       }
 
-      setLoadingMessage('');
+      setLoadingMessage("");
     }
 
     if (device) {
-      promptPin()
+      promptPin();
     }
   }, [device, closeModal]);
 
   const addToPin = (number: number) => {
     if (promptPinError) {
-      setPromptPinError('');
+      setPromptPinError("");
     }
     setCurrentPin(currentPin.concat(number.toString()));
-  }
+  };
 
   const backspacePin = () => {
     if (promptPinError) {
-      setPromptPinError('');
+      setPromptPinError("");
     }
     setCurrentPin(currentPin.substring(0, currentPin.length - 1));
-  }
+  };
 
   const sendPin = async () => {
-    setLoadingMessage('Unlocking Device')
+    setLoadingMessage("Unlocking Device");
     // TODO: this needs a try/catch.
     // TODO: figure out flow for if Trezor prompt comes up
-    const response = await window.ipcRenderer.invoke('/sendpin', {
+    const response = await window.ipcRenderer.invoke("/sendpin", {
       deviceType: device.type,
       devicePath: device.path,
-      pin: currentPin
+      pin: currentPin,
     });
-    setCurrentPin('');
+    setCurrentPin("");
     if (response.success) {
       await enumerate();
       closeModal();
     } else {
-      setPromptPinError('Incorrect Pin');
-      await window.ipcRenderer.invoke('/promptpin', {
+      setPromptPinError("Incorrect Pin");
+      await window.ipcRenderer.invoke("/promptpin", {
         deviceType: device.type,
-        devicePath: device.path
+        devicePath: device.path,
       });
-      setLoadingMessage('');
+      setLoadingMessage("");
     }
-  }
+  };
 
   const pinItems: any[] = []; // KBC-TODO: give this a correct type
-  pinItems.push(<PinItem onClick={() => addToPin(7)}><StyledIcon as={DotSingle} size={25} /></PinItem>)
-  pinItems.push(<PinItem onClick={() => addToPin(8)}><StyledIcon as={DotSingle} size={25} /></PinItem>)
-  pinItems.push(<PinItem onClick={() => addToPin(9)}><StyledIcon as={DotSingle} size={25} /></PinItem>)
-  pinItems.push(<PinItem onClick={() => addToPin(4)}><StyledIcon as={DotSingle} size={25} /></PinItem>)
-  pinItems.push(<PinItem onClick={() => addToPin(5)}><StyledIcon as={DotSingle} size={25} /></PinItem>)
-  pinItems.push(<PinItem onClick={() => addToPin(6)}><StyledIcon as={DotSingle} size={25} /></PinItem>)
-  pinItems.push(<PinItem onClick={() => addToPin(1)}><StyledIcon as={DotSingle} size={25} /></PinItem>)
-  pinItems.push(<PinItem onClick={() => addToPin(2)}><StyledIcon as={DotSingle} size={25} /></PinItem>)
-  pinItems.push(<PinItem onClick={() => addToPin(3)}><StyledIcon as={DotSingle} size={25} /></PinItem>)
+  pinItems.push(
+    <PinItem onClick={() => addToPin(7)}>
+      <StyledIcon as={DotSingle} size={25} />
+    </PinItem>
+  );
+  pinItems.push(
+    <PinItem onClick={() => addToPin(8)}>
+      <StyledIcon as={DotSingle} size={25} />
+    </PinItem>
+  );
+  pinItems.push(
+    <PinItem onClick={() => addToPin(9)}>
+      <StyledIcon as={DotSingle} size={25} />
+    </PinItem>
+  );
+  pinItems.push(
+    <PinItem onClick={() => addToPin(4)}>
+      <StyledIcon as={DotSingle} size={25} />
+    </PinItem>
+  );
+  pinItems.push(
+    <PinItem onClick={() => addToPin(5)}>
+      <StyledIcon as={DotSingle} size={25} />
+    </PinItem>
+  );
+  pinItems.push(
+    <PinItem onClick={() => addToPin(6)}>
+      <StyledIcon as={DotSingle} size={25} />
+    </PinItem>
+  );
+  pinItems.push(
+    <PinItem onClick={() => addToPin(1)}>
+      <StyledIcon as={DotSingle} size={25} />
+    </PinItem>
+  );
+  pinItems.push(
+    <PinItem onClick={() => addToPin(2)}>
+      <StyledIcon as={DotSingle} size={25} />
+    </PinItem>
+  );
+  pinItems.push(
+    <PinItem onClick={() => addToPin(3)}>
+      <StyledIcon as={DotSingle} size={25} />
+    </PinItem>
+  );
 
   const PinInput = () => (
     <Fragment>
       <PinInputWrapper>
-        <CurrentInput>{currentPin.split('').map(item => <StyledIcon as={StarOfLife} size={25} />)}</CurrentInput>
-        {currentPin.length > 0 && <BackspaceWrapper onClick={() => backspacePin()}><StyledIcon style={{ cursor: 'pointer' }} as={Backspace} size={25} /></BackspaceWrapper>}
+        <CurrentInput>
+          {currentPin.split("").map((item) => (
+            <StyledIcon as={StarOfLife} size={25} />
+          ))}
+        </CurrentInput>
+        {currentPin.length > 0 && (
+          <BackspaceWrapper onClick={() => backspacePin()}>
+            <StyledIcon
+              style={{ cursor: "pointer" }}
+              as={Backspace}
+              size={25}
+            />
+          </BackspaceWrapper>
+        )}
       </PinInputWrapper>
-      <PinItemsWrapper>
-        {pinItems}
-      </PinItemsWrapper>
+      <PinItemsWrapper>{pinItems}</PinItemsWrapper>
       {promptPinError && <ErrorText>{promptPinError}</ErrorText>}
       <UnlockButton
         background={green600}
         color={white}
-        onClick={() => sendPin()}>Unlock Device</UnlockButton>
+        onClick={() => sendPin()}
+      >
+        Unlock Device
+      </UnlockButton>
     </Fragment>
-  )
+  );
 
   return (
-    <Modal
-      isOpen={promptPinModalIsOpen}
-      onRequestClose={() => closeModal()}>
+    <Modal isOpen={promptPinModalIsOpen} onRequestClose={() => closeModal()}>
       <Fragment>
-        <ModalHeaderContainer>
-          Enter PIN
-      </ModalHeaderContainer>
-        {!!loadingMessage && <Loading itemText="Pinpad" message={loadingMessage} />}
+        <ModalHeaderContainer>Enter PIN</ModalHeaderContainer>
+        {!!loadingMessage && (
+          <Loading itemText="Pinpad" message={loadingMessage} />
+        )}
         {!!!loadingMessage && <PinInput />}
       </Fragment>
     </Modal>
-  )
-}
+  );
+};
 
 const ModalHeaderContainer = styled.div`
-  border-bottom: 1px solid rgb(229,231,235);
+  border-bottom: 1px solid rgb(229, 231, 235);
   padding-top: 1.25rem;
   padding-bottom: 1.25rem;
   padding-left: 1.5rem;
@@ -153,7 +218,7 @@ const PinInputWrapper = styled.div`
   margin: 1.5em 3em 0.5em;
   border-radius: 0.385em;
   height: 4.3333em;
-  box-shadow: inset 0 2px 4px 0 rgba(0,0,0,0.06);
+  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
   padding-top: 1.25rem;
   padding-bottom: 1.25rem;
   padding-left: 1.5rem;
@@ -189,7 +254,7 @@ const PinItemsWrapper = styled.div`
 
 const PinItem = styled.div`
   padding: 1.25em;
-  margin: .25em;
+  margin: 0.25em;
   background: ${white};
   border: 1px solid ${green500};
   border-radius: 4px;
@@ -211,7 +276,6 @@ const ErrorText = styled.div`
   color: ${red500};
   text-align: center;
   padding-bottom: 1em;
-  margin-top: -2em;
 `;
 
 const UnlockButton = styled.button`
