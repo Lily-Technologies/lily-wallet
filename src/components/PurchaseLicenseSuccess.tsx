@@ -5,8 +5,9 @@ import { CheckCircle } from "@styled-icons/material";
 import { LicenseInformation, StyledIcon } from ".";
 
 import { white, green500, gray700 } from "../utils/colors";
+import { licenseTier } from "../utils/license";
 
-import { LilyConfig, NodeConfig } from "../types";
+import { LilyConfig, NodeConfig, LicenseTiers } from "../types";
 
 interface Props {
   config: LilyConfig;
@@ -14,19 +15,23 @@ interface Props {
 }
 
 export const PurchaseLicenseSuccess = ({ config, nodeConfig }: Props) => {
+  const isFree =
+    licenseTier(config.license).toLowerCase() === LicenseTiers.free;
   return (
     <Wrapper>
       <IconWrapper style={{ color: green500 }}>
         <StyledIcon as={CheckCircle} size={100} />
       </IconWrapper>
-      <SuccessText>Payment Success!</SuccessText>
-      <SuccessSubtext>
-        Thank you so much for purchasing a license for Lily Wallet!
-        <br />
-        <br />
-        Your payment helps fund the development and maitanance of this open
-        source software.
-      </SuccessSubtext>
+      <SuccessText>{isFree ? `Enrollment ` : `Payment `} Success!</SuccessText>
+      {!isFree && (
+        <SuccessSubtext>
+          Thank you so much for purchasing a license for Lily Wallet!
+          <br />
+          <br />
+          Your payment helps fund the development and maitanance of this open
+          source software.
+        </SuccessSubtext>
+      )}
       <LicenseInformation config={config} nodeConfig={nodeConfig} />
     </Wrapper>
   );
@@ -39,6 +44,7 @@ const Wrapper = styled.div`
   background: ${white};
   border-radius: 0.875em;
   padding: 1.5em 0.75em;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
 `;
 
 const IconWrapper = styled.div``;

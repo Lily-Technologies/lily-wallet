@@ -28,7 +28,7 @@ import ConfirmTxPage from "../../pages/Send/ConfirmTxPage";
 import { AccountMapContext } from "../../AccountMapContext";
 
 import { broadcastTransaction, createTransaction } from "../../utils/send";
-import { saveConfig } from "../../utils/files";
+import { saveLicenseToConfig } from "../../utils/files";
 import { white, gray400, gray900 } from "../../utils/colors";
 
 import {
@@ -62,7 +62,7 @@ const PurchasePage = ({
   const [step, setStep] = useState(0);
   const [finalPsbt, setFinalPsbt] = useState<Psbt | undefined>(undefined);
   const [selectedLicenseTier, setSelectedLicenseTier] = useState<LicenseTiers>(
-    LicenseTiers.basic
+    LicenseTiers.free
   );
   const [feeRates, setFeeRates] = useState<FeeRates>({
     fastestFee: 0,
@@ -91,27 +91,35 @@ const PurchasePage = ({
   const clickRenewLicense = useCallback(
     async (tier: LicenseTiers, currentAccount: LilyAccount) => {
       try {
-        const {
-          data: paymentAddressResponse,
-        }: { data: PaymentAddressResponse } = await axios.get(
-          `${process.env.REACT_APP_LILY_ENDPOINT}/get-payment-address`
-        );
+        let reqBody;
+        if (tier !== LicenseTiers.free) {
+          const {
+            data: paymentAddressResponse,
+          }: { data: PaymentAddressResponse } = await axios.get(
+            `${process.env.REACT_APP_LILY_ENDPOINT}/get-payment-address`
+          );
 
-        const { psbt, feeRates } = await createTransaction(
-          currentAccount,
-          paymentAddressResponse[tier].toString(),
-          paymentAddressResponse.address,
-          new BigNumber(0),
-          currentBitcoinNetwork
-        );
-        setSelectedLicenseTier(tier);
-        setFinalPsbt(psbt);
-        setFeeRates(feeRates);
-        const reqBody = {
-          childPath: paymentAddressResponse.childPath,
-          tx: psbt!.toBase64(),
-          tier: tier,
-        };
+          const { psbt, feeRates } = await createTransaction(
+            currentAccount,
+            paymentAddressResponse[tier].toString(),
+            paymentAddressResponse.address,
+            new BigNumber(0),
+            currentBitcoinNetwork
+          );
+          setSelectedLicenseTier(tier);
+          setFinalPsbt(psbt);
+          setFeeRates(feeRates);
+          reqBody = {
+            childPath: paymentAddressResponse.childPath,
+            tx: psbt!.toBase64(),
+            tier: tier,
+          };
+        } else {
+          reqBody = {
+            tier: tier,
+          };
+        }
+
         const {
           data: licenseResponse,
         }: { data: LicenseResponse } = await axios.post(
@@ -119,30 +127,42 @@ const PurchasePage = ({
           reqBody
         );
         setLicenseResponse(licenseResponse);
-        setStep(1);
+        if (tier === LicenseTiers.free) {
+          const newConfig = await saveLicenseToConfig(
+            licenseResponse,
+            config,
+            password
+          );
+          setConfig(newConfig);
+          setStep(2);
+        } else {
+          setStep(1);
+        }
       } catch (e) {
         console.log("e: ", e);
         openInModal(<ErrorModal message={`${e.message}. Please try again.`} />);
       }
     },
-    [currentBitcoinNetwork]
+    [currentBitcoinNetwork, config, password, setConfig]
   );
 
   const confirmTxWithLilyThenSend = async () => {
     if (licenseResponse) {
       try {
         finalPsbt!.finalizeAllInputs();
-        const configCopy = { ...config };
-        configCopy.license = licenseResponse;
         await broadcastTransaction(
           currentAccount,
           finalPsbt!,
           nodeConfig,
           currentBitcoinNetwork
         );
-        await saveConfig(configCopy, password);
-        setConfig(configCopy);
+        const newConfig = await saveLicenseToConfig(
+          licenseResponse,
+          config,
+          password
+        );
         setStep(2);
+        setConfig(newConfig);
       } catch (e) {
         console.log("e: ", e);
         openInModal(<ErrorModal message={e.message} />);
