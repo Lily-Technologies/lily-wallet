@@ -1,5 +1,3 @@
-const axios = require("axios");
-const moment = require("moment");
 const {
   app,
   BrowserWindow,
@@ -8,6 +6,8 @@ const {
   dialog,
   shell,
 } = require("electron");
+const axios = require("axios");
+const moment = require("moment");
 const { networks } = require("bitcoinjs-lib");
 const BigNumber = require("bignumber.js");
 const Client = require("bitcoin-core");
@@ -32,6 +32,11 @@ const path = require("path");
 const fs = require("fs");
 
 const sleep = async (time) => await new Promise((r) => setTimeout(r, time));
+
+// disable showErrorBox
+dialog.showErrorBox = function (title, content) {
+  console.log(`${title}\n${content}`);
+};
 
 const currentBitcoinNetwork =
   "TESTNET" in process.env ? networks.testnet : networks.bitcoin;

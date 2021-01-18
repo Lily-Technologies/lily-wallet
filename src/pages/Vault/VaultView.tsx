@@ -102,13 +102,17 @@ const VaultView = ({ nodeConfig, toggleRefresh }: Props) => {
   }
 
   const scanProgress = useCallback(async () => {
-    if (nodeConfig.provider !== "Blockstream") {
-      const { scanning } = await window.ipcRenderer.invoke("/getWalletInfo", {
-        currentAccount,
-      });
-      if (scanning) {
-        setProgress(scanning.progress);
+    try {
+      if (nodeConfig.provider !== "Blockstream") {
+        const { scanning } = await window.ipcRenderer.invoke("/getWalletInfo", {
+          currentAccount,
+        });
+        if (scanning) {
+          setProgress(scanning.progress);
+        }
       }
+    } catch (e) {
+      console.log("e: ", e);
     }
   }, [currentAccount, nodeConfig.provider]);
 
