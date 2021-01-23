@@ -189,7 +189,7 @@ const IconSvg = styled.svg`
 `;
 
 const AccountsContainer = styled.div`
-  overflow: scroll;
+  overflow: auto;
   height: auto;
 `;
 

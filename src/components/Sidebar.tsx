@@ -1,23 +1,29 @@
-import React, { Fragment } from 'react';
-import styled, { css } from 'styled-components';
-import { useSpring, animated } from 'react-spring';
-import { Network } from 'bitcoinjs-lib';
+import React, { Fragment } from "react";
+import styled, { css } from "styled-components";
+import { useSpring, animated } from "react-spring";
+import { Network } from "bitcoinjs-lib";
 
-import { NavLinks } from './NavLinks';
+import { NavLinks } from "./NavLinks";
 
-import { white, darkOffWhite } from '../utils/colors';
-import { mobile } from '../utils/media';
+import { white, darkOffWhite } from "../utils/colors";
+import { mobile } from "../utils/media";
 
-import { LilyConfig } from '../types'
+import { LilyConfig } from "../types";
 
 interface Props {
-  config: LilyConfig
-  flyInAnimation: boolean
-  currentBitcoinNetwork: Network
+  config: LilyConfig;
+  flyInAnimation: boolean;
+  currentBitcoinNetwork: Network;
 }
 
-export const Sidebar = ({ config, flyInAnimation, currentBitcoinNetwork }: Props) => {
-  const sidebarAnimationProps = useSpring({ transform: flyInAnimation ? 'translateX(-120%)' : 'translateX(0%)' });
+export const Sidebar = ({
+  config,
+  flyInAnimation,
+  currentBitcoinNetwork,
+}: Props) => {
+  const sidebarAnimationProps = useSpring({
+    transform: flyInAnimation ? "translateX(-120%)" : "translateX(0%)",
+  });
 
   return (
     <Fragment>
@@ -32,7 +38,7 @@ export const Sidebar = ({ config, flyInAnimation, currentBitcoinNetwork }: Props
       </SidebarWrapperAnimated>
     </Fragment>
   );
-}
+};
 
 const SidebarPlaceholder = styled.div`
   width: 12em;
@@ -47,7 +53,7 @@ const SidebarWrapper = styled.div`
   border-left: none;
   height: 100vh;
   position: fixed;
-  box-shadow: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
 
   ${mobile(css`
     flex-direction: row;
@@ -63,6 +69,6 @@ const SidebarContainer = styled.div`
   height: 100%;
   width: 12em;
   background: ${white};
-  overflow: scroll;
+  overflow: auto;
   padding-bottom: 4em;
 `;

@@ -338,7 +338,7 @@ const DevicesWrapper = styled.div`
   justify-content: center;
   margin-bottom: 1.25em;
   margin-top: 1.25em;
-  overflow: scroll;
+  overflow: auto;
 `;
 
 const DeviceInfoWrapper = styled.div`

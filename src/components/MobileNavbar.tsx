@@ -1,23 +1,28 @@
-import React from 'react';
-import styled, { css } from 'styled-components';
-import { CloseOutline } from '@styled-icons/evaicons-outline';
-import { Network } from 'bitcoinjs-lib';
+import React from "react";
+import styled, { css } from "styled-components";
+import { CloseOutline } from "@styled-icons/evaicons-outline";
+import { Network } from "bitcoinjs-lib";
 
-import { NavLinks, Transition, Button, StyledIcon } from '.';
+import { NavLinks, Transition, Button, StyledIcon } from ".";
 
-import { white, gray800 } from '../utils/colors';
-import { mobile } from '../utils/media';
+import { white, gray800 } from "../utils/colors";
+import { mobile } from "../utils/media";
 
-import { LilyConfig } from '../types'
+import { LilyConfig } from "../types";
 
 interface Props {
-  config: LilyConfig
-  mobileNavOpen: boolean
-  setMobileNavOpen: React.Dispatch<React.SetStateAction<boolean>>
-  currentBitcoinNetwork: Network
+  config: LilyConfig;
+  mobileNavOpen: boolean;
+  setMobileNavOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  currentBitcoinNetwork: Network;
 }
 
-export const MobileNavbar = ({ config, mobileNavOpen, setMobileNavOpen, currentBitcoinNetwork }: Props) => (
+export const MobileNavbar = ({
+  config,
+  mobileNavOpen,
+  setMobileNavOpen,
+  currentBitcoinNetwork,
+}: Props) => (
   <Wrapper>
     <Transition
       show={mobileNavOpen}
@@ -47,10 +52,17 @@ export const MobileNavbar = ({ config, mobileNavOpen, setMobileNavOpen, currentB
       <SomeContainer>
         <SidebarContainer>
           <NavLinksContainer>
-            <NavLinks config={config} currentBitcoinNetwork={currentBitcoinNetwork} />
+            <NavLinks
+              config={config}
+              currentBitcoinNetwork={currentBitcoinNetwork}
+            />
           </NavLinksContainer>
           <CloseButtonContainer>
-            <CloseButton background="transparent" color={white} onClick={() => setMobileNavOpen(false)}>
+            <CloseButton
+              background="transparent"
+              color={white}
+              onClick={() => setMobileNavOpen(false)}
+            >
               <StyledIcon as={CloseOutline} size={36} />
             </CloseButton>
           </CloseButtonContainer>
@@ -68,7 +80,7 @@ const Wrapper = styled.div`
 `;
 
 const NavLinksContainer = styled.div`
-  overflow: scroll;
+  overflow: auto;
   height: 100vh;
 `;
 
@@ -99,7 +111,7 @@ const CloseButtonContainer = styled.div`
     position: absolute;
     top: 0;
     right: 0;
-    padding: .25rem;
+    padding: 0.25rem;
   `)};
 `;
 
