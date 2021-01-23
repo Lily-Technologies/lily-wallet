@@ -1,8 +1,7 @@
-import React, { useState, Fragment } from "react";
+import React, { useState, Fragment, useContext } from "react";
 import { useHistory } from "react-router-dom";
-import styled, { css } from "styled-components";
+import styled from "styled-components";
 import { Circle } from "@styled-icons/boxicons-solid";
-import { Menu } from "@styled-icons/boxicons-regular";
 
 import {
   white,
@@ -13,30 +12,26 @@ import {
   green900,
 } from "../utils/colors";
 
+import { AccountMapContext } from "../AccountMapContext";
+
 import { getNodeStatus } from "../utils/other";
-import { mobile } from "../utils/media";
 
 import { StyledIcon, Dropdown, ConnectToLilyMobileModal } from ".";
 
-import { NodeConfig, LilyConfig, SetStateBoolean } from "../types";
+import { NodeConfig, LilyConfig } from "../types";
 
 interface Props {
   nodeConfig: NodeConfig | undefined; // KBC-TODO: NodeConfig should be defined, even if we are connected to blockstream, yeah? No?
-  setMobileNavOpen: SetStateBoolean;
   config: LilyConfig;
   resetConfigFile: () => void;
 }
 
-export const TitleBar = ({
-  nodeConfig,
-  setMobileNavOpen,
-  config,
-  resetConfigFile,
-}: Props) => {
+export const TitleBar = ({ nodeConfig, config, resetConfigFile }: Props) => {
   const [moreOptionsDropdownOpen, setMoreOptionsDropdownOpen] = useState(false);
   const [nodeOptionsDropdownOpen, setNodeOptionsDropdownOpen] = useState(false);
   const [configModalOpen, setConfigModalOpen] = useState(false);
   const history = useHistory();
+  const { setCurrentAccountId } = useContext(AccountMapContext);
 
   const nodeConfigDropdownItems = [];
 
@@ -50,10 +45,9 @@ export const TitleBar = ({
   });
 
   nodeConfigDropdownItems.push({});
-  // nodeConfigDropdownItems.push({});
   nodeConfigDropdownItems.push({
     label: "Network Settings",
-    onClick: () => history.push("settings", { currentTab: "network" }),
+    onClick: () => history.push("/settings", { currentTab: "network" }),
   });
 
   const moreOptionsDropdownItems = [
@@ -69,9 +63,54 @@ export const TitleBar = ({
         window.open("https://github.com/KayBeSee/lily-wallet", "_blank");
       },
     },
-  ];
+  ] as { label?: string; onClick?: () => void; onlyMobile?: boolean }[];
 
   if (!config.isEmpty) {
+    moreOptionsDropdownItems.unshift(
+      {
+        label: "Home",
+        onClick: () => history.push("/"),
+        onlyMobile: true,
+      },
+      {
+        label: "Send",
+        onClick: () => history.push("/send"),
+        onlyMobile: true,
+      },
+      {
+        label: "Receive",
+        onClick: () => history.push("/receive"),
+        onlyMobile: true,
+      },
+      {
+        label: "Settings",
+        onClick: () => history.push("/settings"),
+        onlyMobile: true,
+      },
+      { onlyMobile: true },
+      ...config.wallets.map((wallet) => ({
+        label: wallet.name,
+        onClick: () => {
+          history.push(`/vault/${wallet.id}`);
+          setCurrentAccountId(wallet.id);
+        },
+        onlyMobile: true,
+      })),
+      ...config.vaults.map((vault) => ({
+        label: vault.name,
+        onClick: () => {
+          history.push(`/vault/${vault.id}`);
+          setCurrentAccountId(vault.id);
+        },
+        onlyMobile: true,
+      })),
+      {
+        label: "New Account",
+        onClick: () => history.push("/setup"),
+        onlyMobile: true,
+      },
+      { onlyMobile: true }
+    );
     moreOptionsDropdownItems.push(
       // { KBC-TODO: re-add when mobile app
       //   label: "Connect to Lily Mobile",
@@ -97,13 +136,7 @@ export const TitleBar = ({
           onRequestClose={() => setConfigModalOpen(false)}
           config={config}
         />
-        <LeftSection>
-          {!config.isEmpty && (
-            <MobileMenuOpen onClick={() => setMobileNavOpen(true)}>
-              <StyledIcon as={Menu} size={36} /> Menu
-            </MobileMenuOpen>
-          )}
-        </LeftSection>
+        <LeftSection></LeftSection>
         <RightSection>
           <NodeButtonContainer>
             <Dropdown
@@ -179,17 +212,6 @@ const RightSection = styled.div`
   display: flex;
   flex: 1;
   justify-content: flex-end;
-`;
-
-const MobileMenuOpen = styled.div`
-  display: none;
-  color: ${white};
-  cursor: pointer;
-  margin-left: 3.5em;
-  align-items: center;
-  ${mobile(css`
-    display: flex;
-  `)}
 `;
 
 const DotDotDotContainer = styled.div`

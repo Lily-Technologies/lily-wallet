@@ -50,10 +50,10 @@ export const NavLinks = ({ config, currentBitcoinNetwork }: Props) => {
             " (testnet)"}
         </WalletTitleText>
       </WalletTitle>
-      <SidebarItem active={pathname === "/"} to="/">
+      <SidebarItemLink active={pathname === "/"} to="/">
         <StyledIcon as={Home} size={24} style={{ marginRight: ".65rem" }} />
         Home
-      </SidebarItem>
+      </SidebarItemLink>
       <SidebarItemLink active={pathname === "/send"} to="/send">
         <StyledIcon
           as={SendPlane}
@@ -209,10 +209,6 @@ const SidebarItemStyle = css<{ active: boolean }>`
   &:hover {
     background: ${offWhite};
   }
-`;
-
-const SidebarItem = styled(({ active, ...p }) => <Link {...p} />)`
-  ${SidebarItemStyle};
 `;
 
 const SidebarItemLink = styled(({ active, ...p }) => <Link {...p} />)`

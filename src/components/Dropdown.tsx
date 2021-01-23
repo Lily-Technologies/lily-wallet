@@ -1,10 +1,11 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
 import { Transition } from ".";
 import OutsideClick from "./OutsideClick";
 
 import { white, gray900 } from "../utils/colors";
+import { mobile } from "../utils/media";
 
 // https://codesandbox.io/s/outside-alerter-hooks-lmr2y?module=/src/OutsideAlerter.js&file=/src/OutsideAlerter.js
 /* 
@@ -25,14 +26,19 @@ import { white, gray900 } from "../utils/colors";
 */
 
 type DropdownItem = {
-  label: string;
-  onClick(): void;
+  label?: string | JSX.Element;
+  onClick?: () => void;
+  onlyMobile?: boolean;
+};
+
+type Divider = {
+  onlyMobile?: boolean;
 };
 interface Props {
   isOpen: boolean;
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
   buttonLabel?: string | React.ReactNode;
-  dropdownItems: (DropdownItem | {})[];
+  dropdownItems: (DropdownItem | Divider)[];
   minimal: boolean;
   style?: {};
 }
@@ -100,6 +106,7 @@ export const Dropdown = ({
                       <DropdownItem
                         key={index}
                         clickable={!!item.onClick}
+                        onlyMobile={!!item.onlyMobile}
                         onClick={() => {
                           if (item.onClick) {
                             item.onClick();
@@ -112,7 +119,9 @@ export const Dropdown = ({
                       </DropdownItem>
                     );
                   } else {
-                    return <Divider key={index} />;
+                    return (
+                      <Divider key={index} onlyMobile={!!item.onlyMobile} />
+                    );
                   }
                 })}
               </DropdownItems>
@@ -228,23 +237,31 @@ const DropdownItems = styled.div`
   padding-bottom: 0.25rem;
 `;
 
-const Divider = styled.div`
+const Divider = styled.div<{ onlyMobile: boolean }>`
   background: #d2d6dc;
   height: 1px;
+  display: none;
+
+  ${(p) =>
+    p.onlyMobile
+      ? mobile(css`
+          display: flex;
+        `)
+      : "display: flex"}
 `;
 
-const DropdownItem = styled.a<{ clickable: boolean }>`
+const DropdownItem = styled.a<{ clickable: boolean; onlyMobile: boolean }>`
   padding-left: 1rem;
   padding-right: 1rem;
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
   line-height: 1.25rem;
   font-size: 0.875rem;
-  display: block;
   background-color: transparent;
   text-decoration: none;
   cursor: ${(p) => (p.clickable ? "pointer" : "default")};
   color: ${gray900};
+  display: none;
 
   &:hover {
     background: rgb(244, 245, 247);
@@ -256,4 +273,11 @@ const DropdownItem = styled.a<{ clickable: boolean }>`
     background-color: rgb(244, 245, 247);
     color: rgb(22, 30, 46);
   }
+
+  ${(p) =>
+    p.onlyMobile
+      ? mobile(css`
+          display: block;
+        `)
+      : "display: block;"}
 `;
