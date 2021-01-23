@@ -102,11 +102,17 @@ const Login = ({
         }
       } else {
         setPasswordError(
-          "Error retrieving blockchain data. Please try restarting."
+          "Error retrieving blockchain data. Please try restarting"
         );
         setIsLoading(false);
       }
     }
+  };
+
+  const onClickCreateNew = () => {
+    setLocalPassword("");
+    setPasswordError(undefined);
+    setEncryptedConfigFile(null);
   };
 
   const onInputEnter = (e: React.KeyboardEvent) => {
@@ -116,16 +122,16 @@ const Login = ({
   };
 
   const validateInput = () => {
-    if (localPassword && localPassword.length < MIN_PASSWORD_LENGTH) {
+    if (!!localPassword && localPassword.length < MIN_PASSWORD_LENGTH) {
       setPasswordError(
         `Password must be at least ${MIN_PASSWORD_LENGTH} characters long`
       );
       return false;
-    } else if (
-      localPassword &&
-      confirmation &&
-      localPassword !== confirmation
-    ) {
+    } else if (!!passwordError) {
+      setPasswordError(undefined);
+    }
+
+    if (!!localPassword && !!confirmation && localPassword !== confirmation) {
       setConfirmationError("Password doesn't match confirmation");
       return false;
     } else {
@@ -154,7 +160,7 @@ const Login = ({
               {encryptedConfigFile ? (
                 <Fragment>
                   or{" "}
-                  <SubTextLink onClick={() => setEncryptedConfigFile(null)}>
+                  <SubTextLink onClick={() => onClickCreateNew()}>
                     create a new one
                   </SubTextLink>
                 </Fragment>
