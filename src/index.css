@@ -4,6 +4,10 @@ body {
   font-size: 100%;
 }
 
+::-webkit-scrollbar {
+  display: none;
+}
+
 #root {
   min-height: 100%;
   display: flex;

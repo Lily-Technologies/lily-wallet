@@ -57,12 +57,17 @@ const NetworkSettings = ({
 
   const connectToBitcoinCore = async () => {
     setNodeConfig(undefined);
-    const response = await window.ipcRenderer.invoke("/changeNodeConfig", {
-      nodeConfig: {
-        provider: "Bitcoin Core",
-      },
-    });
-    setNodeConfig(response);
+    try {
+      const response = await window.ipcRenderer.invoke("/changeNodeConfig", {
+        nodeConfig: {
+          provider: "Bitcoin Core",
+        },
+      });
+      setNodeConfig(response);
+    } catch (e) {
+      console.log("e: ", JSON.stringify(e));
+      // setNodeConfig(response);
+    }
   };
 
   const nodeConfigDropdownItems = [];

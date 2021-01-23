@@ -15,13 +15,7 @@ import { offWhite, green700 } from "./utils/colors";
 import { mobile } from "./utils/media";
 import { getLicenseBannerMessage } from "./utils/license";
 
-import {
-  Sidebar,
-  MobileNavbar,
-  TitleBar,
-  ScrollToTop,
-  AlertBar,
-} from "./components";
+import { Sidebar, TitleBar, ScrollToTop, AlertBar } from "./components";
 
 // Pages
 import Login from "./pages/Login";
@@ -71,7 +65,6 @@ const App = () => {
   const [nodeConfig, setNodeConfig] = useState<NodeConfig | undefined>(
     undefined
   );
-  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [password, setPassword] = useState("");
 
   const { setAccountMap, updateAccountMap } = useContext(AccountMapContext);
@@ -79,7 +72,10 @@ const App = () => {
   const ConfigRequired = () => {
     const { pathname } = useLocation();
     const history = useHistory();
-    if (config.isEmpty && pathname !== "/login") {
+    if (
+      config.isEmpty &&
+      !(pathname === "/login" || pathname === "/settings")
+    ) {
       history.push("/login");
     }
     return null;
@@ -88,6 +84,8 @@ const App = () => {
   const Overlay = () => {
     const { pathname } = useLocation();
     if (!config.isEmpty && pathname !== "/setup") {
+      return <ColorOverlap />;
+    } else if (config.isEmpty && pathname === "/settings") {
       return <ColorOverlap />;
     }
     return null;
@@ -250,7 +248,6 @@ const App = () => {
       <ScrollToTop />
       <TitleBar
         nodeConfig={nodeConfig}
-        setMobileNavOpen={setMobileNavOpen}
         config={config}
         resetConfigFile={resetConfigFile}
       />
@@ -264,14 +261,6 @@ const App = () => {
           <Sidebar
             config={config}
             flyInAnimation={flyInAnimation}
-            currentBitcoinNetwork={currentBitcoinNetwork}
-          />
-        )}
-        {!config.isEmpty && (
-          <MobileNavbar
-            mobileNavOpen={mobileNavOpen}
-            setMobileNavOpen={setMobileNavOpen}
-            config={config}
             currentBitcoinNetwork={currentBitcoinNetwork}
           />
         )}

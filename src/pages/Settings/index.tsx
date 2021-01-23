@@ -1,13 +1,17 @@
 import React, { useState, Fragment } from "react";
 import styled, { css } from "styled-components";
 import { Network } from "bitcoinjs-lib";
+import { Link } from "react-router-dom";
+import { RightArrowAlt } from "@styled-icons/boxicons-regular";
 
 import {
   PageWrapper,
   PageTitle,
   Header,
   HeaderLeft,
+  HeaderRight,
   Modal,
+  StyledIcon,
 } from "../../components";
 
 import Tabs from "./Tabs";
@@ -60,9 +64,20 @@ const Settings = ({
           <HeaderLeft>
             <PageTitle>Settings</PageTitle>
           </HeaderLeft>
+          {config.isEmpty && (
+            <HeaderRight>
+              <DecoratedLink to="/login">
+                Return to Login <StyledIcon as={RightArrowAlt} />
+              </DecoratedLink>
+            </HeaderRight>
+          )}
         </Header>
         <Wrapper>
-          <Tabs currentTab={currentTab} setCurrentTab={setCurrentTab} />
+          <Tabs
+            currentTab={currentTab}
+            setCurrentTab={setCurrentTab}
+            config={config}
+          />
           {currentTab === "network" && (
             <NetworkSettings
               nodeConfig={nodeConfig}
@@ -122,6 +137,11 @@ const ModalContentWrapper = styled.div`
     padding-right: 1em;
     margin-left: 0;
   `)};
+`;
+
+const DecoratedLink = styled(Link)`
+  color: ${white};
+  text-decoration: none;
 `;
 
 export default Settings;

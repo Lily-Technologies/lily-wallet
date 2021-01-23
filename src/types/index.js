@@ -14,6 +14,7 @@ var AddressType = {
 };
 
 var LicenseTiers = {
+  free: "free",
   basic: "basic",
   essential: "essential",
   premium: "premium",

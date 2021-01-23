@@ -53,7 +53,13 @@ export const PricingPlanTable = ({
               color={white}
               disabled={!!isLoading}
             >
-              {isLoading === tier ? <Spinner /> : `Buy ${capitalize(tier)}`}
+              {isLoading === tier ? (
+                <Spinner />
+              ) : tier === LicenseTiers.free ? (
+                `Enroll`
+              ) : (
+                `Buy ${capitalize(tier)}`
+              )}
             </PurchaseButton>
           </PurchaseColumn>
         ))}
@@ -61,14 +67,13 @@ export const PricingPlanTable = ({
     );
   };
 
-  console.log("render isLoading: ", isLoading);
-
   return (
     <Fragment>
       <Table>
         <TableHeader>
           <TableRow>
             <TableColumn></TableColumn>
+            <TableColumn>Free</TableColumn>
             <TableColumn>Basic</TableColumn>
             <TableColumn>Essential</TableColumn>
             <TableColumn>Premium</TableColumn>
@@ -77,6 +82,10 @@ export const PricingPlanTable = ({
         <TableBody>
           <TableRow>
             <BoldTableColumn>Pricing</BoldTableColumn>
+            <TableColumn>
+              <PriceText>$0</PriceText>
+              <PriceSubtext>/year</PriceSubtext>
+            </TableColumn>
             <TableColumn>
               <PriceText>$100</PriceText>
               <PriceSubtext>/year</PriceSubtext>
@@ -96,6 +105,7 @@ export const PricingPlanTable = ({
             <TableColumn />
             <TableColumn />
             <TableColumn />
+            <TableColumn />
           </FeatureRow>
           <TableRow>
             <TableColumn>Single Signature Hardware Wallets</TableColumn>
@@ -108,9 +118,15 @@ export const PricingPlanTable = ({
             <TableColumn>
               <CheckMark />
             </TableColumn>
+            <TableColumn>
+              <CheckMark />
+            </TableColumn>
           </TableRow>
           <TableRow>
             <TableColumn>2-of-3 Multisig Vaults</TableColumn>
+            <TableColumn>
+              <DashIcon />
+            </TableColumn>
             <TableColumn>
               <CheckMark />
             </TableColumn>
@@ -127,6 +143,9 @@ export const PricingPlanTable = ({
               <DashIcon />
             </TableColumn>
             <TableColumn>
+              <DashIcon />
+            </TableColumn>
+            <TableColumn>
               <CheckMark />
             </TableColumn>
             <TableColumn>
@@ -138,9 +157,13 @@ export const PricingPlanTable = ({
             <TableColumn />
             <TableColumn />
             <TableColumn />
+            <TableColumn />
           </FeatureRow>
           <TableRow>
             <TableColumn>Email Support</TableColumn>
+            <TableColumn>
+              <DashIcon />
+            </TableColumn>
             <TableColumn>
               <CheckMark />
             </TableColumn>
@@ -153,6 +176,9 @@ export const PricingPlanTable = ({
           </TableRow>
           <TableRow>
             <TableColumn>Phone / Zoom Support</TableColumn>
+            <TableColumn>
+              <DashIcon />
+            </TableColumn>
             <TableColumn>
               <DashIcon />
             </TableColumn>
@@ -188,6 +214,7 @@ const Table = styled.table`
   border: none;
   background: ${white};
   border-collapse: collapse;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
 `;
 
 const TableHeader = styled.thead``;

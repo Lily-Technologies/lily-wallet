@@ -25,7 +25,7 @@ export const ConnectToNodeModal = ({
   onRequestClose,
   setNodeConfig,
 }: Props) => {
-  const [host, setHost] = useState("http://localhost:8332");
+  const [host, setHost] = useState("mynode.local");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [nodeConnectError, setNodeConnectError] = useState("");
@@ -42,11 +42,10 @@ export const ConnectToNodeModal = ({
           version: "0.20.1",
         },
       });
-
       setNodeConfig(response);
       onRequestClose();
     } catch (e) {
-      setNodeConnectError("Error Connecting to Node.");
+      setNodeConnectError("Error connecting to node.");
     }
     setIsLoading(false);
   };
@@ -98,24 +97,18 @@ export const ConnectToNodeModal = ({
               onKeyDown={(e) => onInputEnter(e)}
             />
           </InputContainer>
+          {nodeConnectError && <ErrorText>{nodeConnectError}</ErrorText>}
           <Buttons>
             <SaveButton
               background={green600}
               color={white}
               onClick={async () => {
-                try {
-                  await configureNode();
-                } catch (e) {
-                  console.log("e: ", e);
-                  setNodeConnectError("Error Connecting to Node.");
-                  setIsLoading(false);
-                }
+                await configureNode();
               }}
             >
               {isLoading ? <Spinner /> : "Connect to Node"}
             </SaveButton>
           </Buttons>
-          {nodeConnectError && <ErrorText>{nodeConnectError}</ErrorText>}
         </InputsWrapper>
       </ContentContainer>
     </ModalContentWrapper>

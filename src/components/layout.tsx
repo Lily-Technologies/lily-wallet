@@ -1,28 +1,26 @@
 // KBC-TODO: either apply throughout entire project or remove
 // There are some components that implement this in their own files
-import React from 'react';
-import styled, { css } from 'styled-components';
+import React from "react";
+import styled, { css } from "styled-components";
 
-import { mobile } from '../utils/media';
-import { white, black } from '../utils/colors';
+import { mobile } from "../utils/media";
+import { white, black } from "../utils/colors";
 
 interface Props {
-  children: React.ReactChild
+  children: React.ReactChild;
 }
 
 export const PageWrapper = ({ children }: Props) => {
   return (
     <Wrapper>
-      <Content>
-        {children}
-      </Content>
+      <Content>{children}</Content>
     </Wrapper>
-  )
-}
+  );
+};
 
 const Wrapper = styled.div`
   text-align: left;
-  font-family: 'Montserrat', sans-serif;
+  font-family: "Montserrat", sans-serif;
   color: ${black};
   display: flex;
   flex: 1;
@@ -43,7 +41,7 @@ const Content = styled.div`
   display: flex;
   flex-direction: column;
   padding: 2.25em 2em;
-  overflow: scroll;
+  overflow: auto;
   flex: 1;
   max-width: 75rem;
   width: 100%;

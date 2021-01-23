@@ -1,5 +1,3 @@
-const axios = require("axios");
-const moment = require("moment");
 const {
   app,
   BrowserWindow,
@@ -8,6 +6,8 @@ const {
   dialog,
   shell,
 } = require("electron");
+const axios = require("axios");
+const moment = require("moment");
 const { networks } = require("bitcoinjs-lib");
 const BigNumber = require("bignumber.js");
 const Client = require("bitcoin-core");
@@ -33,8 +33,17 @@ const fs = require("fs");
 
 const sleep = async (time) => await new Promise((r) => setTimeout(r, time));
 
+// disable showErrorBox
+dialog.showErrorBox = function (title, content) {
+  console.log(`${title}\n${content}`);
+};
+
 const currentBitcoinNetwork =
   "TESTNET" in process.env ? networks.testnet : networks.bitcoin;
+
+const bitcoinNetworkEqual = (a, b) => {
+  return a.bech32 === b.bech32;
+};
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -102,8 +111,6 @@ function createWindow() {
       y: 20,
     });
 
-  mainWindow.maximize();
-
   if ("DEVURL" in process.env) {
     // load dev url
     mainWindow.loadURL(`http://localhost:3001/`);
@@ -157,8 +164,6 @@ const setupInitialNodeConfig = async () => {
     try {
       const nodeConfigFile = await getFile("node-config.json");
       const nodeConfig = JSON.parse(nodeConfigFile.file);
-      const nodeClient = new Client(nodeConfig);
-      const blockchainInfo = await nodeClient.getBlockchainInfo();
       currentNodeConfig = nodeConfig;
     } catch (e) {
       currentNodeConfig = {
@@ -172,24 +177,28 @@ const setupInitialNodeConfig = async () => {
 };
 
 async function getBitcoinCoreConfig() {
-  const rpcInfo = await getRpcInfo();
-  // TODO: check for testnet
-  if (rpcInfo) {
-    try {
-      const nodeConfig = {
-        username: rpcInfo.rpcuser,
-        password: rpcInfo.rpcpassword,
-        port: rpcInfo.rpcport || "8332",
-        version: "0.20.1",
-      };
-      return Promise.resolve(nodeConfig);
-    } catch (e) {
-      return Promise.reject(
-        "getBitcoinCoreConfig: RPC Info invalid. Make sure node is running."
-      );
+  try {
+    const rpcInfo = await getRpcInfo();
+    // TODO: check for testnet
+    if (rpcInfo) {
+      try {
+        const nodeConfig = {
+          username: rpcInfo.rpcuser,
+          password: rpcInfo.rpcpassword,
+          port: rpcInfo.rpcport || "8332",
+          version: "0.20.1",
+        };
+        return Promise.resolve(nodeConfig);
+      } catch (e) {
+        return Promise.reject(
+          "getBitcoinCoreConfig: RPC Info invalid. Make sure node is running."
+        );
+      }
     }
+    return Promise.reject("getBitcoinCoreConfig: No RPC Info found");
+  } catch (e) {
+    return Promise.reject("getBitcoinCoreConfig: No RPC Info found");
   }
-  return Promise.reject("getBitcoinCoreConfig: No RPC Info found");
 }
 
 const getBitcoinCoreBlockchainInfo = async () => {
@@ -429,9 +438,15 @@ ipcMain.on("/account-data", async (event, args) => {
   }
 });
 
+ipcMain.handle("/quit", () => {
+  app.quit();
+});
+
 ipcMain.handle("/get-config", async (event, args) => {
-  const file = await getFile("lily-config-encrypted.txt");
-  return file;
+  try {
+    const file = await getFile("lily-config-encrypted.txt");
+    return file;
+  } catch (e) {}
 });
 
 ipcMain.handle("/save-config", async (event, args) => {
@@ -646,7 +661,7 @@ ipcMain.handle("/changeNodeConfig", async (event, args) => {
         connected: false,
         provider: "Custom Node",
       };
-      return Promise.resolve(blockchainInfo);
+      return Promise.reject(blockchainInfo);
     }
   }
 });
@@ -663,7 +678,7 @@ ipcMain.handle("/getNodeConfig", async (event, args) => {
       };
       return Promise.resolve(blockchainInfo);
     }
-  } else if (currentNodeConfig.provider === "Blockstream") {
+  } else if (currentNodeConfig?.provider === "Blockstream") {
     try {
       const blockchainInfo = await getBlockstreamBlockchainInfo();
       return Promise.resolve(blockchainInfo);

@@ -114,7 +114,7 @@ const AccountMenu = styled.div`
   justify-content: space-around;
   background: ${gray100};
   margin-bottom: 1em;
-  overflow: scroll;
+  overflow: auto;
   padding: 0.75em;
   border-radius: 0.385em;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);

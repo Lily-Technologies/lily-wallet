@@ -1,5 +1,5 @@
 import React, { Fragment, useState, useContext } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import { QRCode } from "react-qr-svg";
 import CopyToClipboard from "react-copy-to-clipboard";
 import { satoshisToBitcoins } from "unchained-bitcoin";
@@ -31,6 +31,7 @@ import {
   gray800,
   green700,
 } from "../../utils/colors";
+import { mobile } from "../../utils/media";
 
 import { LilyConfig } from "../../types";
 
@@ -174,6 +175,11 @@ const AccountReceiveContentRight = styled.div`
   flex-direction: column;
   overflow: hidden;
   width: 100%;
+
+  ${mobile(css`
+    order: -1;
+    min-height: auto;
+  `)};
 `;
 
 const CurrentBalanceWrapper = styled.div`

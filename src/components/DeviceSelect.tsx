@@ -123,16 +123,75 @@ export const DeviceSelect = ({
         enumerate={enumerate}
       />
       <DevicesWrapper>
-        <DeviceContainer>
-          {configuredDevices.map((device, index) => (
+        {configuredDevices.map((device, index) => (
+          <DeviceWrapper
+            key={index}
+            imported={true}
+            displayLoadingCursor={deviceActionLoading !== null}
+          >
+            <IconWrapper style={{ color: green }}>
+              <StyledIcon as={CheckCircle} size={24} />
+            </IconWrapper>
+            <DeviceImage
+              src={
+                device.type === "coldcard"
+                  ? require("../assets/coldcard.png")
+                  : device.type === "ledger"
+                  ? require("../assets/ledger.png")
+                  : device.type === "trezor"
+                  ? require("../assets/trezor.png")
+                  : device.type === "cobo"
+                  ? require("../assets/cobo.png")
+                  : require("../assets/iphone.png")
+              }
+            />
+            <DeviceInfoWrapper>
+              <DeviceName>{device.type}</DeviceName>
+              <DeviceFingerprint imported={true}>
+                {device.fingerprint}
+              </DeviceFingerprint>
+            </DeviceInfoWrapper>
+          </DeviceWrapper>
+        ))}
+
+        {unconfiguredDevices.map((device, index) => {
+          const deviceError = errorDevices.includes(device.fingerprint);
+          const deviceWarning = !device.fingerprint && device.type !== "phone"; // if ledger isn't in the BTC app or trezor is locked, it wont give fingerprint, so show warning
+          return (
             <DeviceWrapper
               key={index}
-              imported={true}
+              loading={
+                deviceActionLoading !== null && deviceActionLoading === index
+              }
+              onClick={async () => {
+                if (deviceActionLoading === null) {
+                  if (deviceWarning) {
+                    if (device.type === "trezor") {
+                      setPromptPinModalDevice(device);
+                    } else {
+                      await enumerate();
+                    }
+                  } else {
+                    if (
+                      (device.type === "cobo" || device.type === "phone") &&
+                      phoneAction !== undefined
+                    ) {
+                      phoneAction();
+                    } else {
+                      performDeviceAction(device, index);
+                    }
+                  }
+                }
+              }}
+              warning={deviceWarning}
+              error={deviceError}
               displayLoadingCursor={deviceActionLoading !== null}
             >
-              <IconWrapper style={{ color: green }}>
-                <StyledIcon as={CheckCircle} size={24} />
-              </IconWrapper>
+              {(deviceError || deviceWarning) && (
+                <IconWrapper style={{ color: red }}>
+                  <StyledIcon as={ExclamationDiamond} size={24} />
+                </IconWrapper>
+              )}
               <DeviceImage
                 src={
                   device.type === "coldcard"
@@ -148,98 +207,36 @@ export const DeviceSelect = ({
               />
               <DeviceInfoWrapper>
                 <DeviceName>{device.type}</DeviceName>
-                <DeviceFingerprint imported={true}>
+                <DeviceFingerprint imported={false}>
                   {device.fingerprint}
                 </DeviceFingerprint>
+                <ImportedWrapper>
+                  {deviceActionLoading === index ? (
+                    <ConfiguringText
+                      error={deviceError}
+                      style={{ textAlign: "center" }}
+                    >
+                      {deviceActionLoadingText}
+                      <ConfiguringAnimation>.</ConfiguringAnimation>
+                      <ConfiguringAnimation>.</ConfiguringAnimation>
+                      <ConfiguringAnimation>.</ConfiguringAnimation>
+                    </ConfiguringText>
+                  ) : deviceError || deviceWarning ? (
+                    <ConfiguringText error={true} warning={deviceWarning}>
+                      {deviceError
+                        ? "Click to Retry"
+                        : device.type === "ledger"
+                        ? "Open Bitcoin App on Device"
+                        : "Click to enter PIN"}
+                    </ConfiguringText>
+                  ) : (
+                    <ConfiguringText>{deviceActionText}</ConfiguringText>
+                  )}
+                </ImportedWrapper>
               </DeviceInfoWrapper>
             </DeviceWrapper>
-          ))}
-
-          {unconfiguredDevices.map((device, index) => {
-            const deviceError = errorDevices.includes(device.fingerprint);
-            const deviceWarning =
-              !device.fingerprint && device.type !== "phone"; // if ledger isn't in the BTC app or trezor is locked, it wont give fingerprint, so show warning
-            return (
-              <DeviceWrapper
-                key={index}
-                loading={
-                  deviceActionLoading !== null && deviceActionLoading === index
-                }
-                onClick={async () => {
-                  if (deviceActionLoading === null) {
-                    if (deviceWarning) {
-                      if (device.type === "trezor") {
-                        setPromptPinModalDevice(device);
-                      } else {
-                        await enumerate();
-                      }
-                    } else {
-                      if (
-                        (device.type === "cobo" || device.type === "phone") &&
-                        phoneAction !== undefined
-                      ) {
-                        phoneAction();
-                      } else {
-                        performDeviceAction(device, index);
-                      }
-                    }
-                  }
-                }}
-                warning={deviceWarning}
-                error={deviceError}
-                displayLoadingCursor={deviceActionLoading !== null}
-              >
-                {(deviceError || deviceWarning) && (
-                  <IconWrapper style={{ color: red }}>
-                    <StyledIcon as={ExclamationDiamond} size={24} />
-                  </IconWrapper>
-                )}
-                <DeviceImage
-                  src={
-                    device.type === "coldcard"
-                      ? require("../assets/coldcard.png")
-                      : device.type === "ledger"
-                      ? require("../assets/ledger.png")
-                      : device.type === "trezor"
-                      ? require("../assets/trezor.png")
-                      : device.type === "cobo"
-                      ? require("../assets/cobo.png")
-                      : require("../assets/iphone.png")
-                  }
-                />
-                <DeviceInfoWrapper>
-                  <DeviceName>{device.type}</DeviceName>
-                  <DeviceFingerprint imported={false}>
-                    {device.fingerprint}
-                  </DeviceFingerprint>
-                  <ImportedWrapper>
-                    {deviceActionLoading === index ? (
-                      <ConfiguringText
-                        error={deviceError}
-                        style={{ textAlign: "center" }}
-                      >
-                        {deviceActionLoadingText}
-                        <ConfiguringAnimation>.</ConfiguringAnimation>
-                        <ConfiguringAnimation>.</ConfiguringAnimation>
-                        <ConfiguringAnimation>.</ConfiguringAnimation>
-                      </ConfiguringText>
-                    ) : deviceError || deviceWarning ? (
-                      <ConfiguringText error={true} warning={deviceWarning}>
-                        {deviceError
-                          ? "Click to Retry"
-                          : device.type === "ledger"
-                          ? "Open Bitcoin App on Device"
-                          : "Click to enter PIN"}
-                      </ConfiguringText>
-                    ) : (
-                      <ConfiguringText>{deviceActionText}</ConfiguringText>
-                    )}
-                  </ImportedWrapper>
-                </DeviceInfoWrapper>
-              </DeviceWrapper>
-            );
-          })}
-        </DeviceContainer>
+          );
+        })}
         {unconfiguredDevices.length === 0 &&
           configuredDevices.length === 0 &&
           !devicesLoading && (
@@ -335,15 +332,13 @@ const ConfiguringText = styled.div<{ error?: boolean; warning?: boolean }>`
 
 const DevicesWrapper = styled.div`
   display: flex;
+  flex-direction: column;
+  max-height: 20em;
+  flex-wrap: wrap;
   justify-content: center;
   margin-bottom: 1.25em;
   margin-top: 1.25em;
-  overflow: scroll;
-`;
-
-const DeviceContainer = styled.div`
-  width: 100%;
-  display: flex;
+  overflow: auto;
 `;
 
 const DeviceInfoWrapper = styled.div`

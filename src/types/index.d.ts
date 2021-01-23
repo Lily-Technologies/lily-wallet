@@ -114,6 +114,7 @@ export enum TransactionType {
 }
 
 export enum LicenseTiers {
+  free = "free",
   basic = "basic",
   essential = "essential",
   premium = "premium",

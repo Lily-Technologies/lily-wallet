@@ -9,6 +9,7 @@ import { bufferToHex } from "../utils/other";
 
 import {
   LilyConfig,
+  LilyLicense,
   OldLilyConfig,
   AccountConfig,
   AddressType,
@@ -181,6 +182,17 @@ export const saveConfig = async (configFile: LilyConfig, password: string) => {
   } catch (e) {
     console.log("e: ", e);
   }
+};
+
+export const saveLicenseToConfig = async (
+  license: LilyLicense,
+  configFile: LilyConfig,
+  password: string
+) => {
+  const configCopy = { ...configFile };
+  configCopy.license = license;
+  await saveConfig(configCopy, password);
+  return configCopy;
 };
 
 export const createSinglesigConfigFile = async (
