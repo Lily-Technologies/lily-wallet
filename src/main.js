@@ -164,8 +164,6 @@ const setupInitialNodeConfig = async () => {
     try {
       const nodeConfigFile = await getFile("node-config.json");
       const nodeConfig = JSON.parse(nodeConfigFile.file);
-      const nodeClient = new Client(nodeConfig);
-      const blockchainInfo = await nodeClient.getBlockchainInfo();
       currentNodeConfig = nodeConfig;
     } catch (e) {
       currentNodeConfig = {
@@ -659,7 +657,7 @@ ipcMain.handle("/changeNodeConfig", async (event, args) => {
         connected: false,
         provider: "Custom Node",
       };
-      return Promise.resolve(blockchainInfo);
+      return Promise.reject(blockchainInfo);
     }
   }
 });
@@ -676,7 +674,7 @@ ipcMain.handle("/getNodeConfig", async (event, args) => {
       };
       return Promise.resolve(blockchainInfo);
     }
-  } else if (currentNodeConfig.provider === "Blockstream") {
+  } else if (currentNodeConfig?.provider === "Blockstream") {
     try {
       const blockchainInfo = await getBlockstreamBlockchainInfo();
       return Promise.resolve(blockchainInfo);
