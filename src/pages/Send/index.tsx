@@ -1,5 +1,5 @@
 import React, { Fragment, useState, useContext } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import BigNumber from "bignumber.js";
 import {
   satoshisToBitcoins,
@@ -46,6 +46,7 @@ import {
   broadcastTransaction,
 } from "../../utils/send";
 import { getUnchainedNetworkFromBjslibNetwork } from "../../utils/files";
+import { mobile } from "../../utils/media";
 
 import { LilyConfig, NodeConfig, FeeRates, SetStatePsbt } from "../../types";
 
@@ -252,6 +253,11 @@ const SendContentRight = styled.div`
   flex-direction: column;
   overflow: hidden;
   width: 100%;
+
+  ${mobile(css`
+    order: -1;
+    min-height: auto;
+  `)};
 `;
 
 const CurrentBalanceWrapper = styled.div`

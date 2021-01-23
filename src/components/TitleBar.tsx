@@ -111,21 +111,25 @@ export const TitleBar = ({ nodeConfig, config, resetConfigFile }: Props) => {
       },
       { onlyMobile: true }
     );
-    moreOptionsDropdownItems.push(
-      // { KBC-TODO: re-add when mobile app
-      //   label: "Connect to Lily Mobile",
-      //   onClick: () => {
-      //     setConfigModalOpen(true);
-      //   },
-      // },
-      {
-        label: "Sign out",
-        onClick: async () => {
-          await resetConfigFile();
-        },
-      }
-    );
+    // moreOptionsDropdownItems.push(
+    // { KBC-TODO: re-add when mobile app
+    //   label: "Connect to Lily Mobile",
+    //   onClick: () => {
+    //     setConfigModalOpen(true);
+    //   },
+    // },
+    // );
   }
+
+  moreOptionsDropdownItems.push(
+    {},
+    {
+      label: "Quit Lily Wallet",
+      onClick: async () => {
+        window.ipcRenderer.invoke("/quit");
+      },
+    }
+  );
 
   return (
     <Fragment>

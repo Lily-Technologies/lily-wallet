@@ -438,6 +438,10 @@ ipcMain.on("/account-data", async (event, args) => {
   }
 });
 
+ipcMain.handle("/quit", () => {
+  app.quit();
+});
+
 ipcMain.handle("/get-config", async (event, args) => {
   try {
     const file = await getFile("lily-config-encrypted.txt");
