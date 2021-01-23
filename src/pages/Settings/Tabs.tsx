@@ -9,14 +9,15 @@ import {
   gray700,
 } from "../../utils/colors";
 
-import { SetStateString } from "../../types";
+import { SetStateString, LilyConfig } from "../../types";
 
 interface Props {
   currentTab: string;
   setCurrentTab: SetStateString;
+  config: LilyConfig;
 }
 
-const Tabs = ({ currentTab, setCurrentTab }: Props) => {
+const Tabs = ({ currentTab, setCurrentTab, config }: Props) => {
   return (
     <TabsContainer>
       <TabItem
@@ -25,18 +26,22 @@ const Tabs = ({ currentTab, setCurrentTab }: Props) => {
       >
         Network
       </TabItem>
-      <TabItem
-        active={currentTab === "backup"}
-        onClick={() => setCurrentTab("backup")}
-      >
-        Backup
-      </TabItem>
-      <TabItem
-        active={currentTab === "license"}
-        onClick={() => setCurrentTab("license")}
-      >
-        License
-      </TabItem>
+      {!config.isEmpty && (
+        <TabItem
+          active={currentTab === "backup"}
+          onClick={() => setCurrentTab("backup")}
+        >
+          Backup
+        </TabItem>
+      )}
+      {!config.isEmpty && (
+        <TabItem
+          active={currentTab === "license"}
+          onClick={() => setCurrentTab("license")}
+        >
+          License
+        </TabItem>
+      )}
       <TabItem
         active={currentTab === "about"}
         onClick={() => setCurrentTab("about")}

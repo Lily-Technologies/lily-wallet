@@ -263,7 +263,6 @@ const SendContentRight = styled.div`
 const CurrentBalanceWrapper = styled.div`
   padding: 1.5em;
   display: "flex";
-  margin-bottom: 1em;
   flex-direction: column;
   border-radius: 0.385em;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);

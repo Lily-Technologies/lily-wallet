@@ -1,67 +1,76 @@
-import React, { Fragment, useContext, useState } from 'react';
-import styled, { css } from 'styled-components';
-import { ExclamationDiamond } from '@styled-icons/bootstrap';
+import React, { Fragment, useContext, useState } from "react";
+import styled, { css } from "styled-components";
+import { ExclamationDiamond } from "@styled-icons/bootstrap";
 import { useHistory } from "react-router-dom";
 
-import { AccountMapContext } from '../../../AccountMapContext';
+import { AccountMapContext } from "../../../AccountMapContext";
 
-import { Input, StyledIcon, Button } from '../../../components';
+import { Input, StyledIcon, Button } from "../../../components";
 
-import { mobile } from '../../../utils/media';
-import { white, red100, red500, red600, gray500 } from '../../../utils/colors';
-import { saveConfig } from '../../../utils/files';
+import { mobile } from "../../../utils/media";
+import { white, red100, red500, red600, gray500 } from "../../../utils/colors";
+import { saveConfig } from "../../../utils/files";
 
-import { LilyConfig } from '../../../types';
+import { LilyConfig } from "../../../types";
 
 interface Props {
-  config: LilyConfig
-  password: string
-  setConfigFile: React.Dispatch<React.SetStateAction<LilyConfig>>
+  config: LilyConfig;
+  password: string;
+  setConfigFile: React.Dispatch<React.SetStateAction<LilyConfig>>;
 }
 
 const DeleteAccountModal = ({ config, setConfigFile, password }: Props) => {
   const { currentAccount } = useContext(AccountMapContext);
-  const [accountNameConfirm, setAccountNameConfirm] = useState('');
+  const [accountNameConfirm, setAccountNameConfirm] = useState("");
   const [accountNameConfirmError, setAccountNameConfirmError] = useState(false);
   const history = useHistory();
 
   const onInputEnter = (e: React.KeyboardEvent<Element>) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       removeAccountAndDownloadConfig();
     }
-  }
+  };
 
   const removeAccountAndDownloadConfig = () => {
     if (accountNameConfirm === currentAccount.config.name) {
       const configCopy = { ...config };
       if (currentAccount.config.quorum.totalSigners === 1) {
-        configCopy.wallets = configCopy.wallets.filter((wallet) => wallet.id !== currentAccount.config.id)
+        configCopy.wallets = configCopy.wallets.filter(
+          (wallet) => wallet.id !== currentAccount.config.id
+        );
       } else {
-        configCopy.vaults = configCopy.vaults.filter((vault) => vault.id !== currentAccount.config.id)
+        configCopy.vaults = configCopy.vaults.filter(
+          (vault) => vault.id !== currentAccount.config.id
+        );
       }
 
       saveConfig(configCopy, password);
       setConfigFile({ ...configCopy });
-      history.push('/');
+      history.push("/");
     } else {
       setAccountNameConfirmError(true);
     }
-  }
+  };
 
   return (
     <Fragment>
       <DangerIconContainer>
         <StyledIconCircle>
-          <StyledIcon style={{ color: red600 }} as={ExclamationDiamond} size={36} />
+          <StyledIcon
+            style={{ color: red600 }}
+            as={ExclamationDiamond}
+            size={36}
+          />
         </StyledIconCircle>
       </DangerIconContainer>
       <DangerTextContainer>
         <DangerText>Delete Account</DangerText>
         <DangerSubtext>
-          You are about to delete an account from this configuration.
-            <br />
-            If there are any funds remaining in this account, they will be lost forever.
-            </DangerSubtext>
+          You are about to delete an account from your Lily Wallet.
+          <br />
+          If there are any funds remaining in this account, make sure you have
+          your backup.
+        </DangerSubtext>
         <Input
           label="Type in the account's name to delete"
           autoFocus
@@ -71,25 +80,30 @@ const DeleteAccountModal = ({ config, setConfigFile, password }: Props) => {
           onKeyDown={(e) => onInputEnter(e)}
           error={accountNameConfirmError}
         />
-        {accountNameConfirmError && <ConfirmError>Account name doesn't match</ConfirmError>}
+        {accountNameConfirmError && (
+          <ConfirmError>Account name doesn't match</ConfirmError>
+        )}
 
         <DeleteAccountButton
           background={red600}
           color={white}
-          onClick={() => { removeAccountAndDownloadConfig() }}>
+          onClick={() => {
+            removeAccountAndDownloadConfig();
+          }}
+        >
           Delete Account
-            </DeleteAccountButton>
+        </DeleteAccountButton>
       </DangerTextContainer>
     </Fragment>
-  )
-}
+  );
+};
 
 const DeleteAccountButton = styled.button`
   ${Button}
   margin-top: 1rem;
 
   ${mobile(css`
-  margin-top: 1.25rem;
+    margin-top: 1.25rem;
   `)};
 `;
 

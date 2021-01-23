@@ -72,7 +72,10 @@ const App = () => {
   const ConfigRequired = () => {
     const { pathname } = useLocation();
     const history = useHistory();
-    if (config.isEmpty && pathname !== "/login") {
+    if (
+      config.isEmpty &&
+      !(pathname === "/login" || pathname === "/settings")
+    ) {
       history.push("/login");
     }
     return null;
@@ -81,6 +84,8 @@ const App = () => {
   const Overlay = () => {
     const { pathname } = useLocation();
     if (!config.isEmpty && pathname !== "/setup") {
+      return <ColorOverlap />;
+    } else if (config.isEmpty && pathname === "/settings") {
       return <ColorOverlap />;
     }
     return null;

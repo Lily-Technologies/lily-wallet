@@ -104,6 +104,7 @@ export const TitleBar = ({ nodeConfig, config, resetConfigFile }: Props) => {
         },
         onlyMobile: true,
       })),
+      { onlyMobile: true },
       {
         label: "New Account",
         onClick: () => history.push("/setup"),
