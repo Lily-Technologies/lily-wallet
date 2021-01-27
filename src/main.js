@@ -10,7 +10,7 @@ const axios = require("axios");
 const moment = require("moment");
 const { networks } = require("bitcoinjs-lib");
 const BigNumber = require("bignumber.js");
-const Client = require("bitcoin-core");
+const { Client } = require("bitcoin-simple-rpc");
 
 const {
   enumerate,
@@ -165,6 +165,8 @@ const setupInitialNodeConfig = async () => {
       const nodeConfigFile = await getFile("node-config.json");
       const nodeConfig = JSON.parse(nodeConfigFile.file);
       currentNodeConfig = nodeConfig;
+      const nodeClient = new Client(nodeConfig);
+      const blockchainInfo = await nodeClient.getBlockchainInfo();
     } catch (e) {
       currentNodeConfig = {
         provider: "Blockstream",
@@ -216,18 +218,13 @@ const getBitcoinCoreBlockchainInfo = async () => {
 
 const getCustomNodeBlockchainInfo = async () => {
   try {
-    const nodeConfig = {
-      host: currentNodeConfig.host,
-      username: currentNodeConfig.username,
-      password: currentNodeConfig.password,
-      version: currentNodeConfig.version,
-    };
-    const nodeClient = new Client(nodeConfig);
+    const nodeClient = new Client(currentNodeConfig);
     const blockchainInfo = await nodeClient.getBlockchainInfo();
     blockchainInfo.provider = "Custom Node";
     blockchainInfo.connected = true;
     return Promise.resolve(blockchainInfo);
   } catch (e) {
+    console.log("e: ", e);
     return Promise.reject();
   }
 };
@@ -283,13 +280,9 @@ ipcMain.on("/account-data", async (event, args) => {
   let nodeClient = undefined;
   try {
     if (currentNodeConfig.provider !== "Blockstream") {
-      nodeClient = new Client({
-        wallet: `lily${config.id}`,
-        host: currentNodeConfig.host || "http://localhost:8332",
-        username: currentNodeConfig.rpcuser || currentNodeConfig.username, // TODO: uniform this in the future
-        password: currentNodeConfig.rpcpassword || currentNodeConfig.password,
-        version: "0.20.1",
-      });
+      const currentConfig = { ...currentNodeConfig };
+      currentConfig.baseURL = `${currentNodeConfig.baseURL}/wallet/lily${config.id}`;
+      nodeClient = new Client(currentConfig);
 
       const walletList = await nodeClient.listWallets();
 
@@ -707,14 +700,9 @@ ipcMain.handle("/rescanBlockchain", async (event, args) => {
   const { currentAccount, startHeight } = args;
   try {
     if (currentNodeConfig.provider !== "Blockstream") {
-      const currentConfig = currentNodeConfig;
-      const client = new Client({
-        wallet: `lily${currentAccount.config.id}`,
-        host: currentNodeConfig.host || "http://localhost:8332",
-        username: currentNodeConfig.rpcuser || currentNodeConfig.username, // TODO: uniform this in the future
-        password: currentNodeConfig.rpcpassword || currentNodeConfig.password,
-        version: "0.20.1",
-      });
+      const currentConfig = { ...currentNodeConfig };
+      currentConfig.baseURL = `${currentNodeConfig.baseURL}/wallet/lily${currentAccount.config.id}`;
+      const client = new Client(currentConfig);
 
       // don't await this call because it always times out, just trust that it's happening
       // and then we verify via response from getwalletinfo
@@ -739,14 +727,9 @@ ipcMain.handle("/rescanBlockchain", async (event, args) => {
 ipcMain.handle("/getWalletInfo", async (event, args) => {
   const { currentAccount } = args;
   try {
-    const client = new Client({
-      wallet: `lily${currentAccount.config.id}`,
-      host: currentNodeConfig.host || "http://localhost:8332",
-      username: currentNodeConfig.rpcuser || currentNodeConfig.username, // TODO: uniform this in the future
-      password: currentNodeConfig.rpcpassword || currentNodeConfig.password,
-      version: "0.20.1",
-    });
-
+    const currentConfig = { ...currentNodeConfig };
+    currentConfig.baseURL = `${currentNodeConfig.baseURL}/wallet/lily${currentAccount.config.id}`;
+    const client = new Client(currentConfig);
     const walletInfo = await client.getWalletInfo();
     return Promise.resolve({ ...walletInfo });
   } catch (e) {

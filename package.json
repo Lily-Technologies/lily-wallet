@@ -82,7 +82,7 @@
     "babel-register": "^6.26.0",
     "bignumber.js": "^9.0.0",
     "bip39": "^3.0.2",
-    "bitcoin-core": "^3.0.0",
+    "bitcoin-simple-rpc": "^0.0.1",
     "bitcoinjs-lib": "^5.1.10",
     "bitcoinjs-message": "^2.1.4",
     "bs58check": "^2.1.2",

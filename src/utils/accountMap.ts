@@ -276,11 +276,11 @@ const serializeTransactionsFromNode = async (
   const decoratedTxArray = [];
   for (let i = 0; i < transactions.length; i++) {
     try {
-      const currentTransaction = (await nodeClient.getTransaction({
-        txid: transactions[i].txid,
-        include_watchonly: true,
-        verbose: true,
-      })) as BitcoinCoreGetTransactionResponse;
+      const currentTransaction = (await nodeClient.getTransaction(
+        transactions[i].txid, //txid
+        true, // include_watchonly
+        true // verbose
+      )) as BitcoinCoreGetTransactionResponse;
 
       currentAccountTotal = currentAccountTotal.plus(
         bitcoinsToSatoshis(currentTransaction.details[0].amount)
@@ -301,10 +301,10 @@ const serializeTransactionsFromNode = async (
         totalValue: currentAccountTotal.toNumber(),
         vin: await Promise.all(
           currentTransaction.decoded.vin.map(async (item) => {
-            const prevoutTx = (await nodeClient.getRawTransaction({
-              txid: item.txid,
-              verbose: true,
-            })) as BitcoinCoreGetRawTransactionResponse;
+            const prevoutTx = (await nodeClient.getRawTransaction(
+              item.txid, // txid
+              true // verbose
+            )) as BitcoinCoreGetRawTransactionResponse;
             return {
               txid: item.txid,
               vout: item.vout,
@@ -515,18 +515,15 @@ const getTransactionsFromAddress = async (
 ) => {
   if (nodeClient) {
     let addressTxs = [];
-    const txIds = await nodeClient.listReceivedByAddress({
-      minconf: 0,
-      include_empty: true,
-      include_watchonly: true,
-      address_filter: address,
-    });
+    const txIds = await nodeClient.listReceivedByAddress(
+      0, // minconf
+      true, // include_empty
+      true, // include_watchonly
+      address // address_filter
+    );
     const numTxIds = txIds[0]?.txids?.length || 0;
     for (let i = 0; i < numTxIds; i++) {
-      const tx = await nodeClient.getRawTransaction({
-        txid: txIds[0].txids[i],
-        verbose: true,
-      });
+      const tx = await nodeClient.getRawTransaction(txIds[0].txids[i], true); // txid, verbose
       addressTxs.push(tx);
     }
     return addressTxs;

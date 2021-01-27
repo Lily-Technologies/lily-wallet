@@ -494,11 +494,11 @@ var serializeTransactionsFromNode = function (nodeClient, transactions) {
           _b.trys.push([2, 5, , 6]);
           return [
             4 /*yield*/,
-            nodeClient.getTransaction({
-              txid: transactions[i].txid,
-              include_watchonly: true,
-              verbose: true,
-            }),
+            nodeClient.getTransaction(
+              transactions[i].txid, //txid
+              true, // include_watchonly
+              true // verbose
+            ),
           ];
         case 3:
           currentTransaction = _b.sent();
@@ -533,10 +533,10 @@ var serializeTransactionsFromNode = function (nodeClient, transactions) {
                       case 0:
                         return [
                           4 /*yield*/,
-                          nodeClient.getRawTransaction({
-                            txid: item.txid,
-                            verbose: true,
-                          }),
+                          nodeClient.getRawTransaction(
+                            item.txid, // txid
+                            true // verbose
+                          ),
                         ];
                       case 1:
                         prevoutTx = _a.sent();
@@ -802,12 +802,12 @@ var getTransactionsFromAddress = function (
           addressTxs = [];
           return [
             4 /*yield*/,
-            nodeClient.listReceivedByAddress({
-              minconf: 0,
-              include_empty: true,
-              include_watchonly: true,
-              address_filter: address,
-            }),
+            nodeClient.listReceivedByAddress(
+              0, // minconf
+              true, // include_empty
+              true, // include_watchonly
+              address // address_filter
+            ),
           ];
         case 1:
           txIds = _c.sent();
@@ -823,10 +823,7 @@ var getTransactionsFromAddress = function (
           if (!(i < numTxIds)) return [3 /*break*/, 5];
           return [
             4 /*yield*/,
-            nodeClient.getRawTransaction({
-              txid: txIds[0].txids[i],
-              verbose: true,
-            }),
+            nodeClient.getRawTransaction(txIds[0].txids[i], true),
           ];
         case 3:
           tx = _c.sent();
