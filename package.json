@@ -102,6 +102,7 @@
     "react-spring": "^8.0.27",
     "react-webcam-barcode-scanner": "0.0.2-rc2",
     "recharts": "^1.8.5",
+    "socks-proxy-agent": "^5.0.0",
     "styled-components": "^5.1.0",
     "styled-icons": "^10.19.0",
     "unchained-bitcoin": "0.0.9",

@@ -10,7 +10,6 @@ const axios = require("axios");
 const moment = require("moment");
 const { networks } = require("bitcoinjs-lib");
 const BigNumber = require("bignumber.js");
-const { Client } = require("bitcoin-simple-rpc");
 
 const {
   enumerate,
@@ -19,7 +18,7 @@ const {
   promptpin,
   sendpin,
 } = require("./server/commands");
-const { getRpcInfo } = require("./server/utils");
+const { getRpcInfo, getClientFromNodeConfig } = require("./server/utils");
 const {
   getDataFromMultisig,
   getDataFromXPub,
@@ -157,16 +156,16 @@ function createWindow() {
 const setupInitialNodeConfig = async () => {
   try {
     const nodeConfig = await getBitcoinCoreConfig();
-    const nodeClient = new Client(nodeConfig);
-    const blockchainInfo = await nodeClient.getBlockchainInfo();
+    const nodeClient = getClientFromNodeConfig(nodeConfig);
+    const blockchainInfo = await nodeClient.getBlockchainInfo(); // if fails, go to catch case
     currentNodeConfig = nodeConfig;
   } catch (e) {
     try {
       const nodeConfigFile = await getFile("node-config.json");
       const nodeConfig = JSON.parse(nodeConfigFile.file);
       currentNodeConfig = nodeConfig;
-      const nodeClient = new Client(nodeConfig);
-      const blockchainInfo = await nodeClient.getBlockchainInfo();
+      const nodeClient = getClientFromNodeConfig(nodeConfig);
+      const blockchainInfo = await nodeClient.getBlockchainInfo(); // if fails, go to catch case
     } catch (e) {
       currentNodeConfig = {
         provider: "Blockstream",
@@ -206,7 +205,7 @@ async function getBitcoinCoreConfig() {
 const getBitcoinCoreBlockchainInfo = async () => {
   try {
     const nodeConfig = await getBitcoinCoreConfig(); // this changes currentNodeConfig
-    const nodeClient = new Client(nodeConfig);
+    const nodeClient = getClientFromNodeConfig(nodeConfig);
     const blockchainInfo = await nodeClient.getBlockchainInfo();
     blockchainInfo.provider = "Bitcoin Core";
     blockchainInfo.connected = true;
@@ -218,7 +217,7 @@ const getBitcoinCoreBlockchainInfo = async () => {
 
 const getCustomNodeBlockchainInfo = async () => {
   try {
-    const nodeClient = new Client(currentNodeConfig);
+    const nodeClient = getClientFromNodeConfig(currentNodeConfig);
     const blockchainInfo = await nodeClient.getBlockchainInfo();
     blockchainInfo.provider = "Custom Node";
     blockchainInfo.connected = true;
@@ -282,7 +281,7 @@ ipcMain.on("/account-data", async (event, args) => {
     if (currentNodeConfig.provider !== "Blockstream") {
       const currentConfig = { ...currentNodeConfig };
       currentConfig.baseURL = `${currentNodeConfig.baseURL}/wallet/lily${config.id}`;
-      nodeClient = new Client(currentConfig);
+      nodeClient = getClientFromNodeConfig(currentConfig);
 
       const walletList = await nodeClient.listWallets();
 
@@ -570,7 +569,7 @@ ipcMain.handle("/estimateFee", async (event, args) => {
       );
     }
   } else {
-    const nodeClient = new Client(currentNodeConfig);
+    const nodeClient = getClientFromNodeConfig(currentNodeConfig);
     try {
       const feeRates = {
         fastestFee: undefined,
@@ -603,7 +602,7 @@ ipcMain.handle("/broadcastTx", async (event, args) => {
   const { walletName, txHex } = args;
   try {
     currentNodeConfig.wallet = walletName;
-    const nodeClient = new Client(currentNodeConfig);
+    const nodeClient = getClientFromNodeConfig(currentNodeConfig);
     const resp = await nodeClient.sendRawTransaction(txHex);
     return Promise.resolve(resp);
   } catch (e) {
@@ -640,9 +639,8 @@ ipcMain.handle("/changeNodeConfig", async (event, args) => {
   } else {
     // custom
     try {
-      const nodeClient = new Client(nodeConfig);
+      const nodeClient = getClientFromNodeConfig(nodeConfig);
       const blockchainInfo = await nodeClient.getBlockchainInfo();
-      // TODO: save nodeConfig to file for later
       saveFile(JSON.stringify(nodeConfig), "node-config.json");
       blockchainInfo.provider = "Custom Node";
       blockchainInfo.connected = true;
@@ -702,7 +700,7 @@ ipcMain.handle("/rescanBlockchain", async (event, args) => {
     if (currentNodeConfig.provider !== "Blockstream") {
       const currentConfig = { ...currentNodeConfig };
       currentConfig.baseURL = `${currentNodeConfig.baseURL}/wallet/lily${currentAccount.config.id}`;
-      const client = new Client(currentConfig);
+      const client = getClientFromNodeConfig(currentConfig);
 
       // don't await this call because it always times out, just trust that it's happening
       // and then we verify via response from getwalletinfo
@@ -729,7 +727,7 @@ ipcMain.handle("/getWalletInfo", async (event, args) => {
   try {
     const currentConfig = { ...currentNodeConfig };
     currentConfig.baseURL = `${currentNodeConfig.baseURL}/wallet/lily${currentAccount.config.id}`;
-    const client = new Client(currentConfig);
+    const client = getClientFromNodeConfig(currentConfig);
     const walletInfo = await client.getWalletInfo();
     return Promise.resolve({ ...walletInfo });
   } catch (e) {

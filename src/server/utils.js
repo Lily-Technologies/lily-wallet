@@ -1,5 +1,7 @@
 const fs = require("fs");
 const readline = require("readline");
+const { Client } = require("bitcoin-simple-rpc");
+const { SocksProxyAgent } = require("socks-proxy-agent");
 
 const getBitcoinDirectory = () => {
   if (process.platform === "darwin") {
@@ -42,6 +44,16 @@ const getRpcInfo = async () => {
   });
 };
 
+const getClientFromNodeConfig = (nodeConfig) => {
+  if (nodeConfig.baseURL.includes(".onion")) {
+    const proxyOptions = "socks5h://127.0.0.1:9050";
+    const httpsAgent = new SocksProxyAgent(proxyOptions);
+    nodeConfig.httpAgent = httpsAgent;
+  }
+  return new Client(nodeConfig);
+};
+
 module.exports = {
   getRpcInfo,
+  getClientFromNodeConfig,
 };
