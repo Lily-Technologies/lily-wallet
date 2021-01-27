@@ -101,11 +101,23 @@ export const PricingPlanTable = ({
           </TableRow>
           <PurchaseButtonRow />
           <FeatureRow>
-            <BoldTableColumn>Features</BoldTableColumn>
-            <TableColumn />
-            <TableColumn />
-            <TableColumn />
-            <TableColumn />
+            <BoldTableColumn
+              style={{ borderTop: "1px solid rgb(203, 213, 224);" }}
+            >
+              Features
+            </BoldTableColumn>
+            <TableColumn
+              style={{ borderTop: "1px solid rgb(203, 213, 224);" }}
+            />
+            <TableColumn
+              style={{ borderTop: "1px solid rgb(203, 213, 224);" }}
+            />
+            <TableColumn
+              style={{ borderTop: "1px solid rgb(203, 213, 224);" }}
+            />
+            <TableColumn
+              style={{ borderTop: "1px solid rgb(203, 213, 224);" }}
+            />
           </FeatureRow>
           <TableRow>
             <TableColumn>Single Signature Hardware Wallets</TableColumn>
@@ -144,6 +156,43 @@ export const PricingPlanTable = ({
             </TableColumn>
             <TableColumn>
               <DashIcon />
+            </TableColumn>
+            <TableColumn>
+              <CheckMark />
+            </TableColumn>
+            <TableColumn>
+              <CheckMark />
+            </TableColumn>
+          </TableRow>
+          <FeatureRow>
+            <BoldTableColumn>Network</BoldTableColumn>
+            <TableColumn />
+            <TableColumn />
+            <TableColumn />
+            <TableColumn />
+          </FeatureRow>
+          <TableRow>
+            <TableColumn>Connect to Bitcoin Core</TableColumn>
+            <TableColumn>
+              <DashIcon />
+            </TableColumn>
+            <TableColumn>
+              <CheckMark />
+            </TableColumn>
+            <TableColumn>
+              <CheckMark />
+            </TableColumn>
+            <TableColumn>
+              <CheckMark />
+            </TableColumn>
+          </TableRow>
+          <TableRow>
+            <TableColumn>Tor Support</TableColumn>
+            <TableColumn>
+              <DashIcon />
+            </TableColumn>
+            <TableColumn>
+              <CheckMark />
             </TableColumn>
             <TableColumn>
               <CheckMark />
