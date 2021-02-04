@@ -121,7 +121,6 @@ export const getWrappedDescriptor = async (
   const descriptor = `sh(wpkh([${
     config.extendedPublicKeys[0].device.fingerprint
   }/49h/0h/0h]${config.extendedPublicKeys[0].xpub}/${isChange ? "1" : "0"}/*))`;
-  console.log("descriptor: ", descriptor);
   const descriptorWithChecksum = await client.getDescriptorInfo(descriptor);
   return descriptorWithChecksum.descriptor;
 };
