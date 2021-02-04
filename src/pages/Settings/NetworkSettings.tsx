@@ -154,7 +154,9 @@ const NetworkSettings = ({
       <ProfileRow>
         <ProfileKeyColumn>Data Source</ProfileKeyColumn>
         <ProfileValueColumn>
-          <ProfileValueText>{nodeConfig?.provider}</ProfileValueText>
+          <ProfileValueText>
+            {nodeConfig?.baseURL || nodeConfig?.provider}
+          </ProfileValueText>
           <ProfileValueAction>
             <Dropdown
               isOpen={nodeConfigDropdownOpen}

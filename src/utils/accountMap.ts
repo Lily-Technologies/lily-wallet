@@ -121,6 +121,7 @@ export const getWrappedDescriptor = async (
   const descriptor = `sh(wpkh([${
     config.extendedPublicKeys[0].device.fingerprint
   }/49h/0h/0h]${config.extendedPublicKeys[0].xpub}/${isChange ? "1" : "0"}/*))`;
+  console.log("descriptor: ", descriptor);
   const descriptorWithChecksum = await client.getDescriptorInfo(descriptor);
   return descriptorWithChecksum.descriptor;
 };
@@ -789,4 +790,105 @@ export const getDataFromXPub = async (
     unusedChangeAddresses,
     availableUtxos,
   ];
+};
+
+export const loadOrCreateWalletViaRPC = async (
+  config: AccountConfig,
+  nodeClient: any
+) => {
+  const walletList = await nodeClient.listWallets();
+
+  if (!walletList.includes(`lily${config.id}`)) {
+    try {
+      const walletResp = await nodeClient.loadWallet(
+        `lily${config.id}` // filename
+      );
+    } catch (e) {
+      // if failed to load wallet, then probably doesnt exist so let's create one and import
+      await nodeClient.createWallet(
+        `lily${config.id}`, // wallet_name
+        true, // disable_private_keys
+        true, //blank
+        "", // passphrase
+        true // avoid_reuse
+      );
+      if (config.quorum.totalSigners === 1) {
+        if (config.addressType === "p2sh") {
+          await nodeClient.importMulti(
+            [
+              {
+                desc: await getWrappedDescriptor(nodeClient, config, false),
+                range: [0, 1000],
+                timestamp: "now",
+                internal: false,
+                watchonly: true,
+                keypool: true,
+              },
+              {
+                desc: await getWrappedDescriptor(nodeClient, config, true),
+                range: [0, 1000],
+                timestamp: "now",
+                internal: false,
+                watchonly: true,
+                keypool: true,
+              },
+            ],
+            {
+              rescan: true,
+            }
+          );
+        } else {
+          await nodeClient.importMulti(
+            [
+              {
+                desc: await getSegwitDescriptor(nodeClient, config, false),
+                range: [0, 1000],
+                timestamp: "481824",
+                internal: false,
+                watchonly: true,
+                keypool: true,
+              },
+              {
+                desc: await getSegwitDescriptor(nodeClient, config, true),
+                range: [0, 1000],
+                timestamp: "481824",
+                internal: false,
+                watchonly: true,
+                keypool: true,
+              },
+            ],
+            {
+              rescan: true,
+            }
+          );
+        }
+      } else {
+        // multisig
+        //  import receive addresses
+        await nodeClient.importMulti(
+          [
+            {
+              desc: await getMultisigDescriptor(nodeClient, config, false),
+              range: [0, 1000],
+              timestamp: "481824",
+              internal: false,
+              watchonly: true,
+              keypool: true,
+            },
+            {
+              desc: await getMultisigDescriptor(nodeClient, config, true),
+              range: [0, 1000],
+              timestamp: "481824",
+              internal: false,
+              watchonly: true,
+              keypool: true,
+            },
+          ],
+          {
+            rescan: true,
+          }
+        );
+      }
+    }
+  }
 };

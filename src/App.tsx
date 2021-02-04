@@ -188,6 +188,7 @@ const App = () => {
   useEffect(() => {
     if (config.wallets.length || config.vaults.length) {
       const initialAccountMap = {} as AccountMap;
+      console.log("config: ", config);
 
       for (let i = 0; i < config.wallets.length; i++) {
         initialAccountMap[config.wallets[i].id] = {

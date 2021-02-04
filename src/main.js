@@ -22,9 +22,7 @@ const { getRpcInfo, getClientFromNodeConfig } = require("./server/utils");
 const {
   getDataFromMultisig,
   getDataFromXPub,
-  getMultisigDescriptor,
-  getWrappedDescriptor,
-  getSegwitDescriptor,
+  loadOrCreateWalletViaRPC,
 } = require("./utils/accountMap.js");
 
 const path = require("path");
@@ -280,103 +278,17 @@ ipcMain.on("/account-data", async (event, args) => {
   try {
     if (currentNodeConfig.provider !== "Blockstream") {
       const currentConfig = { ...currentNodeConfig };
-      currentConfig.baseURL = `${currentNodeConfig.baseURL}/wallet/lily${config.id}`;
-      nodeClient = getClientFromNodeConfig(currentConfig);
+      nodeClient = getClientFromNodeConfig(currentConfig, config);
 
-      const walletList = await nodeClient.listWallets();
-
-      if (!walletList.includes(`lily${config.id}`)) {
-        try {
-          const walletResp = await nodeClient.loadWallet({
-            filename: `lily${config.id}`,
-          });
-        } catch (e) {
-          // if failed to load wallet, then probably doesnt exist so let's create one and import
-          await nodeClient.createWallet({
-            wallet_name: `lily${config.id}`,
-            disable_private_keys: true,
-            blank: true,
-            avoid_reuse: true,
-          });
-          if (config.quorum.totalSigners === 1) {
-            if (config.addressType === "p2sh") {
-              await nodeClient.importMulti(
-                [
-                  {
-                    desc: await getWrappedDescriptor(nodeClient, config, false),
-                    range: [0, 1000],
-                    timestamp: "now",
-                    internal: false,
-                    watchonly: true,
-                    keypool: true,
-                  },
-                  {
-                    desc: await getWrappedDescriptor(nodeClient, config, true),
-                    range: [0, 1000],
-                    timestamp: "now",
-                    internal: false,
-                    watchonly: true,
-                    keypool: true,
-                  },
-                ],
-                {
-                  rescan: true,
-                }
-              );
-            } else {
-              await nodeClient.importMulti(
-                [
-                  {
-                    desc: await getSegwitDescriptor(nodeClient, config, false),
-                    range: [0, 1000],
-                    timestamp: "now",
-                    internal: false,
-                    watchonly: true,
-                    keypool: true,
-                  },
-                  {
-                    desc: await getSegwitDescriptor(nodeClient, config, true),
-                    range: [0, 1000],
-                    timestamp: "now",
-                    internal: false,
-                    watchonly: true,
-                    keypool: true,
-                  },
-                ],
-                {
-                  rescan: true,
-                }
-              );
-            }
-          } else {
-            // multisig
-            //  import receive addresses
-            await nodeClient.importMulti(
-              [
-                {
-                  desc: await getMultisigDescriptor(nodeClient, config, false),
-                  range: [0, 1000],
-                  timestamp: "now",
-                  internal: false,
-                  watchonly: true,
-                  keypool: true,
-                },
-                {
-                  desc: await getMultisigDescriptor(nodeClient, config, true),
-                  range: [0, 1000],
-                  timestamp: "now",
-                  internal: false,
-                  watchonly: true,
-                  keypool: true,
-                },
-              ],
-              {
-                rescan: true,
-              }
-            );
-          }
-        }
+      // loading from Lily Docker app and return early
+      if (nodeClient.getAccountData) {
+        const accountData = await nodeClient.getAccountData(config);
+        event.reply("/account-data", accountData);
+        return;
       }
+
+      // load or create wallet via RPC from RPC
+      await loadOrCreateWalletViaRPC(config, nodeClient);
     }
 
     if (config.quorum.totalSigners > 1) {
@@ -643,6 +555,7 @@ ipcMain.handle("/changeNodeConfig", async (event, args) => {
       const blockchainInfo = await nodeClient.getBlockchainInfo();
       saveFile(JSON.stringify(nodeConfig), "node-config.json");
       blockchainInfo.provider = "Custom Node";
+      blockchainInfo.baseURL = nodeConfig.baseURL;
       blockchainInfo.connected = true;
       currentNodeConfig = nodeConfig;
       return Promise.resolve(blockchainInfo);
@@ -651,6 +564,7 @@ ipcMain.handle("/changeNodeConfig", async (event, args) => {
       const blockchainInfo = {
         connected: false,
         provider: "Custom Node",
+        baseURL: nodeConfig.baseURL,
       };
       return Promise.reject(blockchainInfo);
     }
@@ -683,7 +597,11 @@ ipcMain.handle("/getNodeConfig", async (event, args) => {
   } else {
     try {
       const blockchainInfo = await getCustomNodeBlockchainInfo();
-      return Promise.resolve(blockchainInfo);
+      return Promise.resolve({
+        provider: "Custom Node",
+        baseURL: currentNodeConfig.baseURL,
+        ...blockchainInfo,
+      });
     } catch (e) {
       const blockchainInfo = {
         connected: false,
@@ -700,15 +618,13 @@ ipcMain.handle("/rescanBlockchain", async (event, args) => {
     if (currentNodeConfig.provider !== "Blockstream") {
       const currentConfig = { ...currentNodeConfig };
       currentConfig.baseURL = `${currentNodeConfig.baseURL}/wallet/lily${currentAccount.config.id}`;
-      const client = getClientFromNodeConfig(currentConfig);
+      const nodeClient = getClientFromNodeConfig(currentConfig);
 
       // don't await this call because it always times out, just trust that it's happening
       // and then we verify via response from getwalletinfo
-      client.rescanBlockchain({
-        start_height: parseInt(startHeight),
-      });
+      nodeClient.rescanBlockchain(parseInt(startHeight));
 
-      const walletInfo = await client.getWalletInfo();
+      const walletInfo = await nodeClient.getWalletInfo();
       sleep(100);
       if (walletInfo.scanning !== false) {
         return Promise.resolve({ success: true });
@@ -727,8 +643,8 @@ ipcMain.handle("/getWalletInfo", async (event, args) => {
   try {
     const currentConfig = { ...currentNodeConfig };
     currentConfig.baseURL = `${currentNodeConfig.baseURL}/wallet/lily${currentAccount.config.id}`;
-    const client = getClientFromNodeConfig(currentConfig);
-    const walletInfo = await client.getWalletInfo();
+    const nodeClient = getClientFromNodeConfig(currentConfig);
+    const walletInfo = await nodeClient.getWalletInfo();
     return Promise.resolve({ ...walletInfo });
   } catch (e) {
     return Promise.reject({ success: false, error: e.message });

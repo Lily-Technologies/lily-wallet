@@ -293,6 +293,7 @@ exports.getWrappedDescriptor = function (client, config, isChange) {
             "/" +
             (isChange ? "1" : "0") +
             "/*))";
+          console.log("descriptor: ", descriptor);
           return [4 /*yield*/, client.getDescriptorInfo(descriptor)];
         case 1:
           descriptorWithChecksum = _a.sent();
@@ -1195,6 +1196,206 @@ exports.getDataFromXPub = function (
               availableUtxos,
             ],
           ];
+      }
+    });
+  });
+};
+exports.loadOrCreateWalletViaRPC = function (config, nodeClient) {
+  return __awaiter(void 0, void 0, void 0, function () {
+    var walletList,
+      walletResp,
+      e_2,
+      _a,
+      _b,
+      _c,
+      _d,
+      _e,
+      _f,
+      _g,
+      _h,
+      _j,
+      _k,
+      _l,
+      _m,
+      _o,
+      _p,
+      _q;
+    return __generator(this, function (_r) {
+      switch (_r.label) {
+        case 0:
+          return [4 /*yield*/, nodeClient.listWallets()];
+        case 1:
+          walletList = _r.sent();
+          if (!!walletList.includes("lily" + config.id))
+            return [3 /*break*/, 19];
+          _r.label = 2;
+        case 2:
+          _r.trys.push([2, 4, , 19]);
+          return [
+            4 /*yield*/,
+            nodeClient.loadWallet(
+              "lily" + config.id // filename
+            ),
+          ];
+        case 3:
+          walletResp = _r.sent();
+          return [3 /*break*/, 19];
+        case 4:
+          e_2 = _r.sent();
+          // if failed to load wallet, then probably doesnt exist so let's create one and import
+          return [
+            4 /*yield*/,
+            nodeClient.createWallet(
+              "lily" + config.id, // wallet_name
+              true, // disable_private_keys
+              true, //blank
+              "", // passphrase
+              true // avoid_reuse
+            ),
+          ];
+        case 5:
+          // if failed to load wallet, then probably doesnt exist so let's create one and import
+          _r.sent();
+          if (!(config.quorum.totalSigners === 1)) return [3 /*break*/, 14];
+          if (!(config.addressType === "p2sh")) return [3 /*break*/, 9];
+          _b = (_a = nodeClient).importMulti;
+          _c = {};
+          return [
+            4 /*yield*/,
+            exports.getWrappedDescriptor(nodeClient, config, false),
+          ];
+        case 6:
+          _d = [
+            ((_c.desc = _r.sent()),
+            (_c.range = [0, 1000]),
+            (_c.timestamp = "now"),
+            (_c.internal = false),
+            (_c.watchonly = true),
+            (_c.keypool = true),
+            _c),
+          ];
+          _e = {};
+          return [
+            4 /*yield*/,
+            exports.getWrappedDescriptor(nodeClient, config, true),
+          ];
+        case 7:
+          return [
+            4 /*yield*/,
+            _b.apply(_a, [
+              _d.concat([
+                ((_e.desc = _r.sent()),
+                (_e.range = [0, 1000]),
+                (_e.timestamp = "now"),
+                (_e.internal = false),
+                (_e.watchonly = true),
+                (_e.keypool = true),
+                _e),
+              ]),
+              {
+                rescan: true,
+              },
+            ]),
+          ];
+        case 8:
+          _r.sent();
+          return [3 /*break*/, 13];
+        case 9:
+          _g = (_f = nodeClient).importMulti;
+          _h = {};
+          return [
+            4 /*yield*/,
+            exports.getSegwitDescriptor(nodeClient, config, false),
+          ];
+        case 10:
+          _j = [
+            ((_h.desc = _r.sent()),
+            (_h.range = [0, 1000]),
+            (_h.timestamp = "481824"),
+            (_h.internal = false),
+            (_h.watchonly = true),
+            (_h.keypool = true),
+            _h),
+          ];
+          _k = {};
+          return [
+            4 /*yield*/,
+            exports.getSegwitDescriptor(nodeClient, config, true),
+          ];
+        case 11:
+          return [
+            4 /*yield*/,
+            _g.apply(_f, [
+              _j.concat([
+                ((_k.desc = _r.sent()),
+                (_k.range = [0, 1000]),
+                (_k.timestamp = "481824"),
+                (_k.internal = false),
+                (_k.watchonly = true),
+                (_k.keypool = true),
+                _k),
+              ]),
+              {
+                rescan: true,
+              },
+            ]),
+          ];
+        case 12:
+          _r.sent();
+          _r.label = 13;
+        case 13:
+          return [3 /*break*/, 18];
+        case 14:
+          _m = (_l = nodeClient).importMulti;
+          _o = {};
+          return [
+            4 /*yield*/,
+            exports.getMultisigDescriptor(nodeClient, config, false),
+          ];
+        case 15:
+          _p = [
+            ((_o.desc = _r.sent()),
+            (_o.range = [0, 1000]),
+            (_o.timestamp = "481824"),
+            (_o.internal = false),
+            (_o.watchonly = true),
+            (_o.keypool = true),
+            _o),
+          ];
+          _q = {};
+          return [
+            4 /*yield*/,
+            exports.getMultisigDescriptor(nodeClient, config, true),
+          ];
+        case 16:
+          // multisig
+          //  import receive addresses
+          return [
+            4 /*yield*/,
+            _m.apply(_l, [
+              _p.concat([
+                ((_q.desc = _r.sent()),
+                (_q.range = [0, 1000]),
+                (_q.timestamp = "481824"),
+                (_q.internal = false),
+                (_q.watchonly = true),
+                (_q.keypool = true),
+                _q),
+              ]),
+              {
+                rescan: true,
+              },
+            ]),
+          ];
+        case 17:
+          // multisig
+          //  import receive addresses
+          _r.sent();
+          _r.label = 18;
+        case 18:
+          return [3 /*break*/, 19];
+        case 19:
+          return [2 /*return*/];
       }
     });
   });
