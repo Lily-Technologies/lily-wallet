@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import styled, { css } from "styled-components";
 import { PermScanWifi } from "@styled-icons/material-rounded";
 
-import { StyledIcon, Input, Button } from "../../components";
+import { StyledIcon, Input, Button, Spinner } from "../../components";
 
 import { mobile } from "../../utils/media";
 import {
@@ -36,12 +36,14 @@ export const RescanModal = ({
 }: Props) => {
   const [startHeight, setStartHeight] = useState("");
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const rescanBlockchain = async ({
     startHeight,
     currentAccount,
   }: RescanProps) => {
     try {
+      setIsLoading(true);
       const { success } = await window.ipcRenderer.invoke("/rescanBlockchain", {
         startHeight,
         currentAccount,
@@ -59,6 +61,7 @@ export const RescanModal = ({
         "Error rescanning. Try again or manually rescanning using bitcoin-cli."
       );
     }
+    setIsLoading(false);
   };
   return (
     <ModalContentWrapper>
@@ -95,7 +98,7 @@ export const RescanModal = ({
             color={white}
             background={green600}
           >
-            Rescan Blockchain
+            {isLoading ? <Spinner /> : "Rescan Blockchain"}
           </ActionButton>
         </Buttons>
       </DangerTextContainer>

@@ -51,7 +51,6 @@ const getClientFromNodeConfig = (nodeConfig) => {
     // is tor
     const proxyOptions = "socks5h://127.0.0.1:9050";
     const httpsAgent = new SocksProxyAgent(proxyOptions);
-    currentConfig.baseURL = `${currentNodeConfig.baseURL}/wallet/lily${config.id}`;
     return new Client({
       ...nodeConfig,
       httpAgent: httpsAgent,
@@ -61,7 +60,6 @@ const getClientFromNodeConfig = (nodeConfig) => {
     return new AxiosDockerProxy(nodeConfig);
   } else {
     // local node, no tor
-    currentConfig.baseURL = `${currentNodeConfig.baseURL}/wallet/lily${config.id}`;
     return new Client(nodeConfig);
   }
 };

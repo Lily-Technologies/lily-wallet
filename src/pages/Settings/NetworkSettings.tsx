@@ -246,6 +246,9 @@ const ProfileValueColumn = styled.div`
 
 const ProfileValueText = styled.span`
   flex: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 `;
 
 const ProfileValueAction = styled.span`

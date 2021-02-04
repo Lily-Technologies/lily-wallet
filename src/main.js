@@ -170,7 +170,7 @@ const setupInitialNodeConfig = async () => {
       };
     }
     return Promise.reject(
-      "setupInitialNodeConfig: Error connecting to Bitcoin Core, using Blockstream"
+      "setupInitialNodeConfig: Error connecting to Bitcoin Core."
     );
   }
 };
@@ -278,7 +278,8 @@ ipcMain.on("/account-data", async (event, args) => {
   try {
     if (currentNodeConfig.provider !== "Blockstream") {
       const currentConfig = { ...currentNodeConfig };
-      nodeClient = getClientFromNodeConfig(currentConfig, config);
+      currentConfig.baseURL = `${currentConfig.baseURL}/wallet/lily${config.id}`;
+      nodeClient = getClientFromNodeConfig(currentConfig);
 
       // loading from Lily Docker app and return early
       if (nodeClient.getAccountData) {
@@ -624,8 +625,8 @@ ipcMain.handle("/rescanBlockchain", async (event, args) => {
       // and then we verify via response from getwalletinfo
       nodeClient.rescanBlockchain(parseInt(startHeight));
 
-      const walletInfo = await nodeClient.getWalletInfo();
       sleep(100);
+      const walletInfo = await nodeClient.getWalletInfo();
       if (walletInfo.scanning !== false) {
         return Promise.resolve({ success: true });
       } else {
