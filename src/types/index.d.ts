@@ -62,6 +62,7 @@ export interface CaravanConfig {
 
 export interface NodeConfig {
   provider: string;
+  baseURL: string;
   connected: boolean;
   username: string;
   password: string;
