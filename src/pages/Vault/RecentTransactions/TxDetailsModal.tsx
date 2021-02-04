@@ -34,36 +34,38 @@ const TxDetailsModal = ({ transaction }: Props) => {
         </HeaderInfo>
       </HeaderWrapper>
 
-      <MoreDetailsSection>
-        <MoreDetailsHeader>Inputs</MoreDetailsHeader>
-        <TxOutputSection>
-          {transaction.vin.map((input) => {
-            return (
-              <OutputItem>
-                <OutputAddress>{`${input.prevout.scriptpubkey_address}:${input.vout}`}</OutputAddress>
-                <OutputAmount>
-                  {satoshisToBitcoins(input.prevout.value).toNumber()} BTC
-                </OutputAmount>
-              </OutputItem>
-            );
-          })}
-        </TxOutputSection>
-      </MoreDetailsSection>
-      <MoreDetailsSection>
-        <MoreDetailsHeader>Outputs</MoreDetailsHeader>
-        <TxOutputSection>
-          {transaction.vout.map((output) => {
-            return (
-              <OutputItem>
-                <OutputAddress>{output.scriptpubkey_address}</OutputAddress>
-                <OutputAmount>
-                  {satoshisToBitcoins(output.value).toNumber()} BTC
-                </OutputAmount>
-              </OutputItem>
-            );
-          })}
-        </TxOutputSection>
-      </MoreDetailsSection>
+      <OverflowSection>
+        <MoreDetailsSection style={{ marginTop: 0 }}>
+          <MoreDetailsHeader>Inputs</MoreDetailsHeader>
+          <TxOutputSection>
+            {transaction.vin.map((input) => {
+              return (
+                <OutputItem>
+                  <OutputAddress>{`${input.prevout.scriptpubkey_address}:${input.vout}`}</OutputAddress>
+                  <OutputAmount>
+                    {satoshisToBitcoins(input.prevout.value).toNumber()} BTC
+                  </OutputAmount>
+                </OutputItem>
+              );
+            })}
+          </TxOutputSection>
+        </MoreDetailsSection>
+        <MoreDetailsSection>
+          <MoreDetailsHeader>Outputs</MoreDetailsHeader>
+          <TxOutputSection>
+            {transaction.vout.map((output) => {
+              return (
+                <OutputItem>
+                  <OutputAddress>{output.scriptpubkey_address}</OutputAddress>
+                  <OutputAmount>
+                    {satoshisToBitcoins(output.value).toNumber()} BTC
+                  </OutputAmount>
+                </OutputItem>
+              );
+            })}
+          </TxOutputSection>
+        </MoreDetailsSection>
+      </OverflowSection>
       <MoreDetailsSection>
         <MoreDetailsHeader>Status</MoreDetailsHeader>
         <StatusItem>
@@ -103,6 +105,7 @@ const Wrapper = styled.div`
 const HeaderWrapper = styled.div`
   display: flex;
   align-items: center;
+  margin-bottom: 1.5em;
 `;
 
 const HeaderInfo = styled.div`
@@ -130,6 +133,13 @@ const ViewExplorerButton = styled.button`
 const TxOutputSection = styled.div`
   display: flex;
   flex-direction: column;
+`;
+
+const OverflowSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  max-height: 25em;
+  overflow: auto;
 `;
 
 const OutputItem = styled.div`
