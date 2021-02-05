@@ -142,7 +142,9 @@ const LicenseSettings = ({
       <ProfileRow>
         <ProfileKeyColumn>Payment Transaction ID</ProfileKeyColumn>
         <ProfileValueColumn>
-          <ProfileValueText>{licenseTxId(config.license)}</ProfileValueText>
+          <ProfileValueText>
+            {licenseTxId(config.license) || "N/A"}
+          </ProfileValueText>
         </ProfileValueColumn>
       </ProfileRow>
       <Buttons>

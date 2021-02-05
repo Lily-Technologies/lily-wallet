@@ -20,7 +20,7 @@ export const licenseTxId = (license: LilyLicense) => {
   if (txId) {
     return txId;
   } else {
-    return "N/A";
+    return null;
   }
 };
 
@@ -82,6 +82,7 @@ export const getLicenseUploadErrorMessage = (
 
 export const getLicenseBannerMessage = (
   license: LilyLicense,
+  txConfirmed: boolean,
   nodeConfig: NodeConfig
 ) => {
   if (isFreeTrialLicense(license)) {
@@ -100,6 +101,8 @@ export const getLicenseBannerMessage = (
     return `Your license will expire in ${
       licenseExpires(license) - nodeConfig.blocks
     } blocks (approx. ${licenseExpireAsDate(license, nodeConfig).fromNow()})`;
+  } else if (!txConfirmed && licenseTier(license) !== "Free") {
+    return `Your license's payment transaction hasn't confirmed yet`;
   } else {
     return null;
   }

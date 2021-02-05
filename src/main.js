@@ -153,25 +153,31 @@ function createWindow() {
 
 const setupInitialNodeConfig = async () => {
   try {
+    console.log("Trying to connect to local Bitcoin Core instance...");
     const nodeConfig = await getBitcoinCoreConfig();
     const nodeClient = getClientFromNodeConfig(nodeConfig);
     const blockchainInfo = await nodeClient.getBlockchainInfo(); // if fails, go to catch case
     currentNodeConfig = nodeConfig;
+    console.log("Connected to local Bitcoin Core instance.");
   } catch (e) {
+    console.log("Failed to connect to local Bitcoin Core instance.");
     try {
+      console.log("Trying to connect to remote Bitcoin Core instance...");
       const nodeConfigFile = await getFile("node-config.json");
       const nodeConfig = JSON.parse(nodeConfigFile.file);
       currentNodeConfig = nodeConfig;
       const nodeClient = getClientFromNodeConfig(nodeConfig);
       const blockchainInfo = await nodeClient.getBlockchainInfo(); // if fails, go to catch case
+      console.log(
+        `Connected to remote Bitcoin Core instance. (${currentNodeConfig.baseURL})`
+      );
     } catch (e) {
+      console.log("Failed to connect to remote Bitcoin Core instance.");
+      console.log("Connecting to Blockstream.");
       currentNodeConfig = {
         provider: "Blockstream",
       };
     }
-    return Promise.reject(
-      "setupInitialNodeConfig: Error connecting to Bitcoin Core."
-    );
   }
 };
 
@@ -221,7 +227,7 @@ const getCustomNodeBlockchainInfo = async () => {
     blockchainInfo.connected = true;
     return Promise.resolve(blockchainInfo);
   } catch (e) {
-    console.log("e: ", e);
+    console.log("getCustomNodeBlockchainInfo e: ", e);
     return Promise.reject();
   }
 };
@@ -339,7 +345,7 @@ ipcMain.on("/account-data", async (event, args) => {
 
     event.reply("/account-data", accountData);
   } catch (e) {
-    console.log("e: ", e);
+    console.log("ipcMain.on /account-data e: ", e);
   }
 });
 
@@ -351,7 +357,9 @@ ipcMain.handle("/get-config", async (event, args) => {
   try {
     const file = await getFile("lily-config-encrypted.txt");
     return file;
-  } catch (e) {}
+  } catch (e) {
+    console.log("Failed to get Lily config");
+  }
 });
 
 ipcMain.handle("/save-config", async (event, args) => {
@@ -506,6 +514,7 @@ ipcMain.handle("/estimateFee", async (event, args) => {
         .toNumber(); // TODO: this probably needs relooked at
       return Promise.resolve(feeRates);
     } catch (e) {
+      console.log(`error /estimateFee ${e.message}`);
       return Promise.reject(new Error("Error retrieving fee"));
     }
   }
@@ -519,6 +528,7 @@ ipcMain.handle("/broadcastTx", async (event, args) => {
     const resp = await nodeClient.sendRawTransaction(txHex);
     return Promise.resolve(resp);
   } catch (e) {
+    console.log(`error /broadcastTx ${e.message}`);
     return Promise.reject(new Error("Error broadcasting transaction"));
   }
 });
@@ -608,6 +618,7 @@ ipcMain.handle("/getNodeConfig", async (event, args) => {
         connected: false,
         provider: "Custom Node",
       };
+      console.log(`error /getNodeConfig ${e.message}`);
       return Promise.resolve(blockchainInfo);
     }
   }
@@ -627,15 +638,15 @@ ipcMain.handle("/rescanBlockchain", async (event, args) => {
 
       sleep(100);
       const walletInfo = await nodeClient.getWalletInfo();
-      if (walletInfo.scanning !== false) {
+      if (walletInfo.scanning) {
         return Promise.resolve({ success: true });
       } else {
-        return Promise.reject({ success: false });
+        throw new Error(`Wallet isnt scanning ${currentAccount.config.id}`);
       }
     }
   } catch (e) {
-    console.log("e: ", e);
-    return Promise.reject({ success: false, message: e.message });
+    console.log(`error /rescanBlockchain ${e.message}`);
+    return Promise.reject({ success: false, error: e.message });
   }
 });
 
@@ -648,6 +659,38 @@ ipcMain.handle("/getWalletInfo", async (event, args) => {
     const walletInfo = await nodeClient.getWalletInfo();
     return Promise.resolve({ ...walletInfo });
   } catch (e) {
+    console.log(`error /getWalletInfo ${e.message}`);
     return Promise.reject({ success: false, error: e.message });
   }
+});
+
+ipcMain.handle("/isConfirmedTransaction", async (event, args) => {
+  const { txId } = args;
+  console.log("txId: ", txId);
+  if (txId.length === 64) {
+    try {
+      if (currentNodeConfig.provider === "Blockstream") {
+        const data = await (
+          await axios.get(`https://blockstream.info/api/${txId}/status`)
+        ).data;
+        if (!!data.confirmed) {
+          return Promise.resolve(true);
+        }
+        throw new Error(`Transaction not confirmed (${txId})`);
+      } else {
+        const currentConfig = { ...currentNodeConfig };
+        const nodeClient = getClientFromNodeConfig(currentConfig);
+        const transaction = await nodeClient.getRawTransaction(txId, true);
+        if (transaction.confirmations > 0) {
+          return Promise.resolve(true);
+        }
+        throw new Error(`Transaction not confirmed (${txId})`);
+      }
+    } catch (e) {
+      console.log(`error /isConfirmedTransaction ${e.message}`);
+      return Promise.reject({ success: false, error: e.message });
+    }
+  }
+  console.log(`error /isConfirmedTransaction: Invalid txId`);
+  return Promise.reject({ success: false });
 });
