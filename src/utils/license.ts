@@ -1,6 +1,5 @@
 import moment from "moment";
 import { verify } from "bitcoinjs-message";
-import { capitalize } from "./other";
 
 import { LilyLicense, NodeConfig } from "../types";
 
@@ -8,7 +7,7 @@ import { LilyLicense, NodeConfig } from "../types";
 
 export const licenseTier = (license: LilyLicense) => {
   const tier = license.license.split(":")[0];
-  return capitalize(tier);
+  return tier;
 };
 
 export const licenseExpires = (license: LilyLicense) => {
@@ -25,7 +24,7 @@ export const licenseTxId = (license: LilyLicense) => {
 };
 
 export const isFreeTrial = (license: LilyLicense) => {
-  return licenseTier(license) === "Trial";
+  return licenseTier(license) === "trial";
 };
 
 export const isAlmostExpiredLicense = (
@@ -62,7 +61,7 @@ const isValidLicenseSignature = (license: LilyLicense) => {
 };
 
 const isFreeTrialLicense = (license: LilyLicense) => {
-  if (licenseTier(license) === "Trial") {
+  if (licenseTier(license) === "trial") {
     return true;
   }
   return false;
@@ -101,9 +100,26 @@ export const getLicenseBannerMessage = (
     return `Your license will expire in ${
       licenseExpires(license) - nodeConfig.blocks
     } blocks (approx. ${licenseExpireAsDate(license, nodeConfig).fromNow()})`;
-  } else if (!txConfirmed && licenseTier(license) !== "Free") {
+  } else if (!txConfirmed && licenseTier(license) !== "free") {
     return `Your license's payment transaction hasn't confirmed yet`;
   } else {
-    return null;
+    return "";
+  }
+};
+
+export const isAtLeastTier = (license: LilyLicense, minimumTier: string) => {
+  const TIERS = ["free", "basic", "essential", "premium", "trial"];
+  const licenseIndex = TIERS.indexOf(licenseTier(license));
+  const minimumIndex = TIERS.indexOf(minimumTier);
+  console.log(
+    "licenseIndex: ",
+    licenseIndex,
+    minimumIndex,
+    licenseIndex >= minimumIndex
+  );
+  if (licenseIndex >= minimumIndex) {
+    return true;
+  } else {
+    return false;
   }
 };

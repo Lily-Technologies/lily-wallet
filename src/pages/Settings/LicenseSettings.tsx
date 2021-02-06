@@ -23,6 +23,7 @@ import {
   licenseTxId,
   licenseTier,
 } from "../../utils/license";
+import { capitalize } from "../../utils/other";
 
 import {
   white,
@@ -111,7 +112,9 @@ const LicenseSettings = ({ nodeConfig, openInModal, password }: Props) => {
         <ProfileKeyColumn>Tier</ProfileKeyColumn>
         <ProfileValueColumn>
           <ProfileValueText></ProfileValueText>
-          <ProfileValueAction>{licenseTier(config.license)}</ProfileValueAction>
+          <ProfileValueAction>
+            {capitalize(licenseTier(config.license))}
+          </ProfileValueAction>
         </ProfileValueColumn>
       </ProfileRow>
       <ProfileRow>
