@@ -796,6 +796,7 @@ export const loadOrCreateWalletViaRPC = async (
   nodeClient: any
 ) => {
   const walletList = await nodeClient.listWallets();
+  console.log("walletList: ", walletList);
 
   if (!walletList.includes(`lily${config.id}`)) {
     try {
@@ -842,7 +843,7 @@ export const loadOrCreateWalletViaRPC = async (
               {
                 desc: await getSegwitDescriptor(nodeClient, config, false),
                 range: [0, 1000],
-                timestamp: "481824",
+                timestamp: 481824,
                 internal: false,
                 watchonly: true,
                 keypool: true,
@@ -850,7 +851,7 @@ export const loadOrCreateWalletViaRPC = async (
               {
                 desc: await getSegwitDescriptor(nodeClient, config, true),
                 range: [0, 1000],
-                timestamp: "481824",
+                timestamp: 481824,
                 internal: false,
                 watchonly: true,
                 keypool: true,
@@ -869,7 +870,7 @@ export const loadOrCreateWalletViaRPC = async (
             {
               desc: await getMultisigDescriptor(nodeClient, config, false),
               range: [0, 1000],
-              timestamp: "481824",
+              timestamp: 481824,
               internal: false,
               watchonly: true,
               keypool: true,
@@ -877,7 +878,7 @@ export const loadOrCreateWalletViaRPC = async (
             {
               desc: await getMultisigDescriptor(nodeClient, config, true),
               range: [0, 1000],
-              timestamp: "481824",
+              timestamp: 481824,
               internal: false,
               watchonly: true,
               keypool: true,

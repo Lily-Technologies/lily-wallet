@@ -293,7 +293,6 @@ exports.getWrappedDescriptor = function (client, config, isChange) {
             "/" +
             (isChange ? "1" : "0") +
             "/*))";
-          console.log("descriptor: ", descriptor);
           return [4 /*yield*/, client.getDescriptorInfo(descriptor)];
         case 1:
           descriptorWithChecksum = _a.sent();
@@ -1226,6 +1225,7 @@ exports.loadOrCreateWalletViaRPC = function (config, nodeClient) {
           return [4 /*yield*/, nodeClient.listWallets()];
         case 1:
           walletList = _r.sent();
+          console.log("walletList: ", walletList);
           if (!!walletList.includes("lily" + config.id))
             return [3 /*break*/, 19];
           _r.label = 2;
@@ -1311,7 +1311,7 @@ exports.loadOrCreateWalletViaRPC = function (config, nodeClient) {
           _j = [
             ((_h.desc = _r.sent()),
             (_h.range = [0, 1000]),
-            (_h.timestamp = "481824"),
+            (_h.timestamp = 481824),
             (_h.internal = false),
             (_h.watchonly = true),
             (_h.keypool = true),
@@ -1329,7 +1329,7 @@ exports.loadOrCreateWalletViaRPC = function (config, nodeClient) {
               _j.concat([
                 ((_k.desc = _r.sent()),
                 (_k.range = [0, 1000]),
-                (_k.timestamp = "481824"),
+                (_k.timestamp = 481824),
                 (_k.internal = false),
                 (_k.watchonly = true),
                 (_k.keypool = true),
@@ -1356,7 +1356,7 @@ exports.loadOrCreateWalletViaRPC = function (config, nodeClient) {
           _p = [
             ((_o.desc = _r.sent()),
             (_o.range = [0, 1000]),
-            (_o.timestamp = "481824"),
+            (_o.timestamp = 481824),
             (_o.internal = false),
             (_o.watchonly = true),
             (_o.keypool = true),
@@ -1376,7 +1376,7 @@ exports.loadOrCreateWalletViaRPC = function (config, nodeClient) {
               _p.concat([
                 ((_q.desc = _r.sent()),
                 (_q.range = [0, 1000]),
-                (_q.timestamp = "481824"),
+                (_q.timestamp = 481824),
                 (_q.internal = false),
                 (_q.watchonly = true),
                 (_q.keypool = true),
