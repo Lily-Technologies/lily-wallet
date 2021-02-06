@@ -5,11 +5,14 @@ import App from "./App";
 
 import { AccountMapProvider } from "./AccountMapContext";
 import { ConfigProvider } from "./ConfigContext";
+import { ModalProvider } from "./ModalContext";
 
 ReactDOM.render(
   <ConfigProvider>
     <AccountMapProvider>
-      <App />
+      <ModalProvider>
+        <App />
+      </ModalProvider>
     </AccountMapProvider>
   </ConfigProvider>,
   document.getElementById("root")

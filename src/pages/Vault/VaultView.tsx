@@ -5,7 +5,7 @@ import React, {
   useEffect,
   useCallback,
 } from "react";
-import styled, { css } from "styled-components";
+import styled from "styled-components";
 import {
   AreaChart,
   Area,
@@ -20,10 +20,9 @@ import moment from "moment";
 import BigNumber from "bignumber.js";
 
 import { AccountMapContext } from "../../AccountMapContext";
+import { ModalContext } from "../../ModalContext";
 
-import { Loading, Modal } from "../../components";
-
-import { mobile } from "../../utils/media";
+import { Loading } from "../../components";
 
 import RecentTransactions from "./RecentTransactions";
 import { RescanModal } from "./RescanModal";
@@ -65,8 +64,7 @@ interface Props {
 }
 
 const VaultView = ({ nodeConfig, toggleRefresh }: Props) => {
-  const [modalIsOpen, setModalIsOpen] = useState(false);
-  const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
+  const { openInModal, closeModal } = useContext(ModalContext);
   const [progress, setProgress] = useState(0);
   const { currentAccount } = useContext(AccountMapContext);
   const { currentBalance, transactions } = currentAccount;
@@ -115,16 +113,6 @@ const VaultView = ({ nodeConfig, toggleRefresh }: Props) => {
       console.log("e: ", e);
     }
   }, [currentAccount, nodeConfig.provider]);
-
-  const openInModal = (component: JSX.Element) => {
-    setModalIsOpen(true);
-    setModalContent(component);
-  };
-
-  const closeModal = () => {
-    setModalIsOpen(false);
-    setModalContent(null);
-  };
 
   const openRescanModal = () => {
     openInModal(
@@ -223,30 +211,9 @@ const VaultView = ({ nodeConfig, toggleRefresh }: Props) => {
             : () => openRescanModal()
         }
       />
-      <Modal isOpen={modalIsOpen} onRequestClose={() => closeModal()}>
-        <ModalContentWrapper>{modalContent}</ModalContentWrapper>
-      </Modal>
     </Fragment>
   );
 };
-
-const ModalContentWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-  padding: 1.5em;
-  align-items: flex-start;
-
-  ${mobile(css`
-    flex-direction: column;
-    align-items: center;
-    padding-top: 1.25em;
-    padding-bottom: 1em;
-    padding-left: 1em;
-    padding-right: 1em;
-    margin-left: 0;
-  `)};
-`;
 
 const ValueWrapper = styled.div`
   background: ${white};

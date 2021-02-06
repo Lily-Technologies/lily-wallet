@@ -1,77 +1,86 @@
-import React, { useState } from 'react';
-import styled from 'styled-components';
-import ReactModal from 'react-modal'
-import { Close } from '@styled-icons/ionicons-outline';
+import React, { useState, useContext } from "react";
+import styled, { css } from "styled-components";
+import ReactModal from "react-modal";
+import { Close } from "@styled-icons/ionicons-outline";
+import { ModalContext } from "../ModalContext";
 
-import { StyledIcon } from '.';
+import { StyledIcon } from ".";
 
-import { white, gray400, gray600 } from '../utils/colors';
+import { mobile } from "../utils/media";
+import { white, gray400, gray600 } from "../utils/colors";
 
 interface Props {
-  isOpen: boolean,
-  onAfterOpen?: () => void,
-  onRequestClose(): void,
-  style?: { content?: any, overlay?: any }
-  children: React.ReactChild
+  onAfterOpen?: () => void;
+  style?: { content?: any; overlay?: any };
 }
 
-export const Modal = ({ isOpen, onAfterOpen, onRequestClose, style = { content: {}, overlay: {} }, children }: Props) => {
+export const Modal = ({
+  onAfterOpen,
+  style = { content: {}, overlay: {} },
+}: Props) => {
+  const { modalIsOpen, closeModal, modalContent } = useContext(ModalContext);
   const [localOpen, setLocalOpen] = useState(false);
 
   const afterOpen = () => {
     setLocalOpen(true);
     onAfterOpen && onAfterOpen();
-  }
+  };
 
   const requestClose = () => {
     setLocalOpen(false);
-    onRequestClose && (
-      setTimeout(() => { onRequestClose() }, 100) // wait for transition to complete
-    );
-  }
+    setTimeout(() => {
+      closeModal();
+    }, 100); // wait for transition to complete
+  };
 
   const styles = {
     content: {
       background: white,
       opacity: 1,
-      boxShadow: '0 20px 25px -5px rgba(0,0,0,.1), 0 10px 10px -5px rgba(0,0,0,.04)',
-      borderRadius: '.5rem',
-      border: 'none',
-      maxWidth: '50em',
-      padding: '0',
-      position: 'relative',
-      width: '100%',
-      transform: localOpen ? 'scale(1)' : 'scale(0.9)',
-      transition: 'transform 0.25s',
-      ...style.content
+      boxShadow:
+        "0 20px 25px -5px rgba(0,0,0,.1), 0 10px 10px -5px rgba(0,0,0,.04)",
+      borderRadius: ".5rem",
+      border: "none",
+      maxWidth: "50em",
+      padding: "0",
+      position: "relative",
+      width: "100%",
+      transform: localOpen ? "scale(1)" : "scale(0.9)",
+      transition: "transform 0.25s",
+      ...style.content,
     },
     overlay: {
-      background: localOpen ? 'rgba(31, 31, 31, 0.75)' : 'rgba(31, 31, 31, 0)',
-      transition: 'background 0.25s',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
+      background: localOpen ? "rgba(31, 31, 31, 0.75)" : "rgba(31, 31, 31, 0)",
+      transition: "background 0.25s",
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
       zIndex: 1000,
-      ...style.overlay
-    }
+      ...style.overlay,
+    },
   } as ReactModal.Styles;
-
 
   return (
     <ReactModal
-      isOpen={isOpen}
+      isOpen={modalIsOpen}
       onAfterOpen={afterOpen}
       onRequestClose={requestClose}
       style={styles}
       contentLabel="Example Modal"
+      htmlOpenClassName="ReactModal__Html--open"
     >
-      {children}
+      <ModalContentWrapper>{modalContent}</ModalContentWrapper>
       <CloseButtonContainer>
-        <StyledIcon onClick={() => requestClose()} as={Close} size={36} style={{ cursor: 'pointer' }} />
+        <StyledIcon
+          onClick={() => requestClose()}
+          as={Close}
+          size={36}
+          style={{ cursor: "pointer" }}
+        />
       </CloseButtonContainer>
     </ReactModal>
-  )
-}
+  );
+};
 
 const CloseButtonContainer = styled.div`
   position: absolute;
@@ -84,4 +93,22 @@ const CloseButtonContainer = styled.div`
   &:hover {
     color: ${gray600};
   }
+`;
+
+const ModalContentWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  padding: 1.5em;
+  align-items: flex-start;
+
+  ${mobile(css`
+    flex-direction: column;
+    align-items: center;
+    padding-top: 1.25em;
+    padding-bottom: 1em;
+    padding-left: 1em;
+    padding-right: 1em;
+    margin-left: 0;
+  `)};
 `;

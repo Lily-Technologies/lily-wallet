@@ -2,7 +2,7 @@ import React, { useState, Fragment, useContext } from "react";
 import styled from "styled-components";
 import { Plus, Minus } from "@styled-icons/boxicons-regular";
 
-import { Modal, StyledIcon, Button } from "../../components";
+import { StyledIcon, Button } from "../../components";
 import {
   green400,
   green500,
@@ -16,14 +16,11 @@ import {
 import { isAtLeastTier } from "../../utils/license";
 
 import { ConfigContext } from "../../ConfigContext";
+import { ModalContext } from "../../ModalContext";
 
 import { LicenseTiers } from "../../types";
 
 interface Props {
-  selectNumberRequiredModalOpen: boolean;
-  setSelectNumberRequiredModalOpen: React.Dispatch<
-    React.SetStateAction<boolean>
-  >;
   numberOfImportedDevices: number;
   setConfigRequiredSigners: React.Dispatch<React.SetStateAction<number>>;
   configRequiredSigners: number;
@@ -31,13 +28,12 @@ interface Props {
 }
 
 const RequiredDevicesModal = ({
-  selectNumberRequiredModalOpen,
-  setSelectNumberRequiredModalOpen,
   numberOfImportedDevices,
   setConfigRequiredSigners,
   configRequiredSigners,
   setStep,
 }: Props) => {
+  const { closeModal } = useContext(ModalContext);
   const { config } = useContext(ConfigContext);
   const [requiredSigners, setRequiredSigners] = useState(configRequiredSigners);
   const [error, setError] = useState("");
@@ -57,45 +53,40 @@ const RequiredDevicesModal = ({
   };
 
   return (
-    <Modal
-      isOpen={selectNumberRequiredModalOpen}
-      onRequestClose={() => setSelectNumberRequiredModalOpen(false)}
-    >
-      <Fragment>
-        <ModalHeaderContainer>
-          How many devices are required to approve transactions?
-        </ModalHeaderContainer>
-        <SelectionContainer>
-          <SelectionWrapper>
-            <IncrementButton
-              onClick={() => restrictedSetRequiredSigners(requiredSigners - 1)}
-              disabled={requiredSigners - 1 === 0}
-            >
-              <StyledIcon as={Minus} size={25} />
-            </IncrementButton>
-            <CurrentSelection>{requiredSigners}</CurrentSelection>
-            <IncrementButton
-              onClick={() => restrictedSetRequiredSigners(requiredSigners + 1)}
-              disabled={requiredSigners + 1 > numberOfImportedDevices}
-            >
-              <StyledIcon as={Plus} size={25} />
-            </IncrementButton>
-          </SelectionWrapper>
-          {error && <ErrorText>{error}</ErrorText>}
-          <ContinueButton
-            background={green600}
-            color={white}
-            onClick={() => {
-              setConfigRequiredSigners(requiredSigners);
-              setSelectNumberRequiredModalOpen(false);
-              setStep(3);
-            }}
+    <Fragment>
+      <ModalHeaderContainer>
+        How many devices are required to approve transactions?
+      </ModalHeaderContainer>
+      <SelectionContainer>
+        <SelectionWrapper>
+          <IncrementButton
+            onClick={() => restrictedSetRequiredSigners(requiredSigners - 1)}
+            disabled={requiredSigners - 1 === 0}
           >
-            Confirm
-          </ContinueButton>
-        </SelectionContainer>
-      </Fragment>
-    </Modal>
+            <StyledIcon as={Minus} size={25} />
+          </IncrementButton>
+          <CurrentSelection>{requiredSigners}</CurrentSelection>
+          <IncrementButton
+            onClick={() => restrictedSetRequiredSigners(requiredSigners + 1)}
+            disabled={requiredSigners + 1 > numberOfImportedDevices}
+          >
+            <StyledIcon as={Plus} size={25} />
+          </IncrementButton>
+        </SelectionWrapper>
+        {error && <ErrorText>{error}</ErrorText>}
+        <ContinueButton
+          background={green600}
+          color={white}
+          onClick={() => {
+            setConfigRequiredSigners(requiredSigners);
+            closeModal();
+            setStep(3);
+          }}
+        >
+          Confirm
+        </ContinueButton>
+      </SelectionContainer>
+    </Fragment>
   );
 };
 

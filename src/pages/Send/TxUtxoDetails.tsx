@@ -1,22 +1,31 @@
-import React, { Fragment, useContext } from 'react';
-import styled from 'styled-components';
-import { Psbt, Network } from 'bitcoinjs-lib';
+import React, { useContext } from "react";
+import styled from "styled-components";
+import { Psbt, Network } from "bitcoinjs-lib";
 import { satoshisToBitcoins } from "unchained-bitcoin";
 
-import { createUtxoMapFromUtxoArray, getFee } from '../../utils/send';
-import { cloneBuffer } from '../../utils/other';
-import { green800, darkGray, darkOffWhite, lightGray, } from '../../utils/colors';
-import { AccountMapContext } from '../../AccountMapContext';
+import { createUtxoMapFromUtxoArray, getFee } from "../../utils/send";
+import { cloneBuffer } from "../../utils/other";
+import {
+  green800,
+  darkGray,
+  darkOffWhite,
+  lightGray,
+} from "../../utils/colors";
+import { AccountMapContext } from "../../AccountMapContext";
 
-import { UtxoMap } from '../../types';
+import { UtxoMap } from "../../types";
 
 interface Props {
-  psbt: Psbt
-  currentBitcoinPrice: number
-  currentBitcoinNetwork: Network
+  psbt: Psbt;
+  currentBitcoinPrice: number;
+  currentBitcoinNetwork: Network;
 }
 
-const TransactionUtxoDetails = ({ psbt, currentBitcoinPrice, currentBitcoinNetwork }: Props) => {
+const TransactionUtxoDetails = ({
+  psbt,
+  currentBitcoinPrice,
+  currentBitcoinNetwork,
+}: Props) => {
   const { currentAccount } = useContext(AccountMapContext);
   const { availableUtxos, transactions } = currentAccount;
   const _fee = getFee(psbt, transactions);
@@ -26,40 +35,71 @@ const TransactionUtxoDetails = ({ psbt, currentBitcoinPrice, currentBitcoinNetwo
   }
 
   return (
-    <Fragment>
+    <Container>
       <ModalHeaderContainer>
         <span>Transaction Details</span>
       </ModalHeaderContainer>
       <MoreDetailsContainer>
         <MoreDetailsSection>
           <MoreDetailsHeader>Inputs</MoreDetailsHeader>
-          {psbt.txInputs.map(input => {
+          {psbt.txInputs.map((input) => {
             const inputBuffer = cloneBuffer(input.hash);
-            const utxo = utxosMap[`${inputBuffer.reverse().toString('hex')}:${input.index}`];
+            const utxo =
+              utxosMap[
+                `${inputBuffer.reverse().toString("hex")}:${input.index}`
+              ];
             return (
               <OutputItem>
                 <OutputAddress>{utxo.address.address}</OutputAddress>
-                <OutputAmount>{satoshisToBitcoins(utxo.value).toNumber()} BTC</OutputAmount>
+                <OutputAmount>
+                  {satoshisToBitcoins(utxo.value).toNumber()} BTC
+                </OutputAmount>
               </OutputItem>
-            )
+            );
           })}
         </MoreDetailsSection>
         <MoreDetailsSection>
-          <MoreDetailsHeader style={{ marginTop: '1em' }}>Outputs</MoreDetailsHeader>
-          {psbt.txOutputs.map(output => (
+          <MoreDetailsHeader style={{ marginTop: "1em" }}>
+            Outputs
+          </MoreDetailsHeader>
+          {psbt.txOutputs.map((output) => (
             <OutputItem>
-              <OutputAddress>{output.address}</OutputAddress> <OutputAmount>{satoshisToBitcoins(output.value).toNumber()} BTC</OutputAmount>
+              <OutputAddress>{output.address}</OutputAddress>{" "}
+              <OutputAmount>
+                {satoshisToBitcoins(output.value).toNumber()} BTC
+              </OutputAmount>
             </OutputItem>
           ))}
 
-          <MoreDetailsHeader style={{ display: 'flex', justifyContent: 'space-between', marginTop: '2em' }}>
-            Fees: {<span>{satoshisToBitcoins(_fee).toNumber()} BTC (${satoshisToBitcoins(_fee).multipliedBy(currentBitcoinPrice).toFixed(2)})</span>}
+          <MoreDetailsHeader
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              marginTop: "2em",
+            }}
+          >
+            Fees:{" "}
+            {
+              <span>
+                {satoshisToBitcoins(_fee).toNumber()} BTC ($
+                {satoshisToBitcoins(_fee)
+                  .multipliedBy(currentBitcoinPrice)
+                  .toFixed(2)}
+                )
+              </span>
+            }
           </MoreDetailsHeader>
         </MoreDetailsSection>
       </MoreDetailsContainer>
-    </Fragment>
-  )
+    </Container>
+  );
 };
+
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+`;
 
 const OutputItem = styled.div`
   display: flex;
@@ -96,7 +136,7 @@ const MoreDetailsHeader = styled.div`
 `;
 
 const ModalHeaderContainer = styled.div`
-  border-bottom: 1px solid rgb(229,231,235);
+  border-bottom: 1px solid rgb(229, 231, 235);
   padding-top: 1.75rem;
   padding-bottom: 1.75rem;
   padding-left: 1.5rem;
@@ -108,4 +148,4 @@ const ModalHeaderContainer = styled.div`
   height: 90px;
 `;
 
-export default TransactionUtxoDetails
+export default TransactionUtxoDetails;

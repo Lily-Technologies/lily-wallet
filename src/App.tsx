@@ -14,7 +14,7 @@ import { networks } from "bitcoinjs-lib";
 import { offWhite, green700 } from "./utils/colors";
 import { mobile } from "./utils/media";
 
-import { Sidebar, TitleBar, ScrollToTop, AlertBar } from "./components";
+import { Sidebar, TitleBar, ScrollToTop, AlertBar, Modal } from "./components";
 
 // Pages
 import Login from "./pages/Login";
@@ -217,6 +217,7 @@ const App = () => {
       <ScrollToTop />
       <TitleBar nodeConfig={nodeConfig} config={config} />
       {!config.isEmpty && <AlertBar nodeConfig={nodeConfig} />}
+      <Modal />
       <PageWrapper id="page-wrapper">
         <ConfigRequired />
         <Overlay />
