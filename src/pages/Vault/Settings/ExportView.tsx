@@ -1,14 +1,14 @@
-import React, { Fragment, useContext, useState } from "react";
+import React, { Fragment, useContext } from "react";
 import styled, { css } from "styled-components";
 import { Network } from "bitcoinjs-lib";
 import { QRCode } from "react-qr-svg";
 import { CoboVaultSDK } from "@cvbb/sdk";
 
 import { AccountMapContext } from "../../../AccountMapContext";
+import { ModalContext } from "../../../ModalContext";
 
 import {
   MnemonicWordsDisplayer,
-  Modal,
   Button,
   AnimatedQrCode,
 } from "../../../components";
@@ -39,18 +39,7 @@ interface Props {
 
 const ExportView = ({ currentBitcoinNetwork }: Props) => {
   const { currentAccount } = useContext(AccountMapContext);
-  const [modalIsOpen, setModalIsOpen] = useState(false);
-  const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
-
-  const openInModal = (component: JSX.Element) => {
-    setModalIsOpen(true);
-    setModalContent(component);
-  };
-
-  const closeModal = () => {
-    setModalIsOpen(false);
-    setModalContent(null);
-  };
+  const { openInModal } = useContext(ModalContext);
 
   const downloadColdcardMultisigFile = () => {
     if (currentAccount.config.extendedPublicKeys) {
@@ -117,16 +106,22 @@ const ExportView = ({ currentBitcoinNetwork }: Props) => {
     );
     const ccFileEncoded = sdk.encodeDataForQR(ccFile);
     return (
-      <Fragment>
+      <Container>
         <ModalHeaderContainer>Scan this with your device</ModalHeaderContainer>
         <ModalContent>
           <OutputItem style={{ wordBreak: "break-word" }}>
             <AnimatedQrCode valueArray={ccFileEncoded} />
           </OutputItem>
         </ModalContent>
-      </Fragment>
+      </Container>
     );
   };
+
+  const Container = styled.div`
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  `;
 
   const XpubQrCode = () => (
     <QRCode
@@ -155,9 +150,6 @@ const ExportView = ({ currentBitcoinNetwork }: Props) => {
 
   return (
     <Fragment>
-      <Modal isOpen={modalIsOpen} onRequestClose={() => closeModal()}>
-        {modalContent as React.ReactChild}
-      </Modal>
       <GeneralSection>
         <HeaderSection>
           <HeaderTitle>Export Account</HeaderTitle>

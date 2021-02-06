@@ -20,7 +20,6 @@ import {
 import {
   SelectAccountMenu,
   StyledIcon,
-  Modal,
   Button,
   NoAccountsEmptyState,
 } from "../../components";
@@ -29,6 +28,7 @@ import SendTxForm from "./SendTxForm";
 import ConfirmTxPage from "./ConfirmTxPage";
 
 import { AccountMapContext } from "../../AccountMapContext";
+import { ModalContext } from "../../ModalContext";
 
 import {
   white,
@@ -71,21 +71,10 @@ const Send = ({
     halfHourFee: 0,
     hourFee: 0,
   });
-  const [modalIsOpen, setModalIsOpen] = useState(false);
-  const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
 
   const { currentAccount, accountMap } = useContext(AccountMapContext);
   const { currentBalance } = currentAccount;
-
-  const openInModal = (component: JSX.Element) => {
-    setModalIsOpen(true);
-    setModalContent(component);
-  };
-
-  const closeModal = () => {
-    setModalIsOpen(false);
-    setModalContent(null);
-  };
+  const { openInModal, closeModal } = useContext(ModalContext);
 
   const createTransactionAndSetState = async (
     _recipientAddress: string,
@@ -193,9 +182,6 @@ const Send = ({
   return (
     <PageWrapper>
       <Fragment>
-        <Modal isOpen={modalIsOpen} onRequestClose={() => closeModal()}>
-          {modalContent as React.ReactChild}
-        </Modal>
         <Header>
           <HeaderLeft>
             <PageTitle>Send from</PageTitle>

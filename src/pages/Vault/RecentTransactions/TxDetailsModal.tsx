@@ -99,7 +99,7 @@ const TxDetailsModal = ({ transaction }: Props) => {
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
-  padding: 2.25em 1.5em;
+  width: 100%;
 `;
 
 const HeaderWrapper = styled.div`

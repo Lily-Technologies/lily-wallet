@@ -13,7 +13,6 @@ import BigNumber from "bignumber.js";
 import {
   PricingPlanTable,
   PurchaseLicenseSuccess,
-  Modal,
   ErrorModal,
   PageWrapper,
   PageTitle,
@@ -26,6 +25,7 @@ import {
 import ConfirmTxPage from "../../pages/Send/ConfirmTxPage";
 
 import { AccountMapContext } from "../../AccountMapContext";
+import { ModalContext } from "../../ModalContext";
 
 import { broadcastTransaction, createTransaction } from "../../utils/send";
 import { saveLicenseToConfig } from "../../utils/files";
@@ -56,6 +56,7 @@ const PurchasePage = ({
   password,
   nodeConfig,
 }: Props) => {
+  const { openInModal } = useContext(ModalContext);
   const { config, setConfigFile } = useContext(ConfigContext);
   const [step, setStep] = useState(0);
   const [finalPsbt, setFinalPsbt] = useState<Psbt | undefined>(undefined);
@@ -73,18 +74,6 @@ const PurchasePage = ({
   const [licenseResponse, setLicenseResponse] = useState<
     LicenseResponse | undefined
   >(undefined);
-  const [modalIsOpen, setModalIsOpen] = useState(false);
-  const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
-
-  const openInModal = (component: JSX.Element) => {
-    setModalIsOpen(true);
-    setModalContent(component);
-  };
-
-  const closeModal = () => {
-    setModalIsOpen(false);
-    setModalContent(null);
-  };
 
   const clickRenewLicense = useCallback(
     async (tier: LicenseTiers, currentAccount: LilyAccount) => {
@@ -141,7 +130,7 @@ const PurchasePage = ({
         openInModal(<ErrorModal message={`${e.message}. Please try again.`} />);
       }
     },
-    [currentBitcoinNetwork, config, password, setConfigFile]
+    [currentBitcoinNetwork, config, password, setConfigFile, openInModal]
   );
 
   const confirmTxWithLilyThenSend = async () => {
@@ -183,9 +172,6 @@ const PurchasePage = ({
   return (
     <PageWrapper>
       <Fragment>
-        <Modal isOpen={modalIsOpen} onRequestClose={() => closeModal()}>
-          {modalContent as React.ReactChild}
-        </Modal>
         <Header>
           <HeaderLeft>
             <PageTitle>Purchase a license</PageTitle>

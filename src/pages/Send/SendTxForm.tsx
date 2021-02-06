@@ -4,9 +4,10 @@ import { networks, Network, Psbt } from "bitcoinjs-lib";
 import BigNumber from "bignumber.js";
 import { satoshisToBitcoins } from "unchained-bitcoin";
 
-import { Button, Input, Dropdown, Modal, FileUploader } from "../../components";
+import { Button, Input, Dropdown, FileUploader } from "../../components";
 
 import { AccountMapContext } from "../../AccountMapContext";
+import { ModalContext } from "../../ModalContext";
 
 import PastePsbtModalContent from "./PastePsbtModalContent";
 
@@ -51,20 +52,9 @@ const SendTxForm = ({
   const [sendAmountError, setSendAmountError] = useState(false);
   const [recipientAddressError, setRecipientAddressError] = useState(false);
   const { currentAccount } = useContext(AccountMapContext);
-  const [modalIsOpen, setModalIsOpen] = useState(false);
-  const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
+  const { openInModal, closeModal, modalIsOpen } = useContext(ModalContext);
   const fileUploadLabelRef = useRef<HTMLLabelElement>(null);
   const [importTxFromFileError, setImportTxFromFileError] = useState("");
-
-  const openInModal = (component: JSX.Element) => {
-    setModalIsOpen(true);
-    setModalContent(component);
-  };
-
-  const closeModal = () => {
-    setModalIsOpen(false);
-    setModalContent(null);
-  };
 
   const importTxFromFile = (file: string) => {
     try {
@@ -151,9 +141,6 @@ const SendTxForm = ({
         ref={fileUploadLabelRef}
         htmlFor="txFile"
       ></label>
-      <Modal isOpen={modalIsOpen} onRequestClose={() => closeModal()}>
-        {modalContent as React.ReactChild}
-      </Modal>
       <InputContainer>
         <Dropdown
           isOpen={optionsDropdownOpen}

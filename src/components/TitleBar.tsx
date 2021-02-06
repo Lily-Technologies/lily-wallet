@@ -16,7 +16,7 @@ import { AccountMapContext } from "../AccountMapContext";
 
 import { getNodeStatus } from "../utils/other";
 
-import { StyledIcon, Dropdown, ConnectToLilyMobileModal } from ".";
+import { StyledIcon, Dropdown } from ".";
 
 import { NodeConfig, LilyConfig } from "../types";
 
@@ -28,7 +28,6 @@ interface Props {
 export const TitleBar = ({ nodeConfig, config }: Props) => {
   const [moreOptionsDropdownOpen, setMoreOptionsDropdownOpen] = useState(false);
   const [nodeOptionsDropdownOpen, setNodeOptionsDropdownOpen] = useState(false);
-  const [configModalOpen, setConfigModalOpen] = useState(false);
   const history = useHistory();
   const { setCurrentAccountId } = useContext(AccountMapContext);
 
@@ -115,7 +114,7 @@ export const TitleBar = ({ nodeConfig, config }: Props) => {
     // { KBC-TODO: re-add when mobile app
     //   label: "Connect to Lily Mobile",
     //   onClick: () => {
-    //     setConfigModalOpen(true);
+    //     openInModal(<ConnectToLilyMobileModal />);
     //   },
     // },
     // );
@@ -135,11 +134,6 @@ export const TitleBar = ({ nodeConfig, config }: Props) => {
     <Fragment>
       <HeightHolder />
       <DraggableTitleBar>
-        <ConnectToLilyMobileModal
-          isOpen={configModalOpen}
-          onRequestClose={() => setConfigModalOpen(false)}
-          config={config}
-        />
         <LeftSection></LeftSection>
         <RightSection>
           <NodeButtonContainer>

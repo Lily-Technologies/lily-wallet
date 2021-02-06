@@ -14,8 +14,9 @@ import TransactionDetails from "./TransactionDetails";
 import AddSignatureFromQrCode from "./AddSignatureFromQrCode";
 
 import { AccountMapContext } from "../../AccountMapContext";
+import { ModalContext } from "../../ModalContext";
 
-import { GridArea, Modal, FileUploader, ErrorModal } from "../../components";
+import { GridArea, FileUploader, ErrorModal } from "../../components";
 
 import {
   SetStateNumber,
@@ -58,11 +59,10 @@ const ConfirmTxPage = ({
   currentBitcoinNetwork,
   createTransactionAndSetState,
 }: Props) => {
+  const { openInModal, closeModal } = useContext(ModalContext);
   const { currentAccount } = useContext(AccountMapContext);
   const [signedDevices, setSignedDevices] = useState<Device[]>([]);
   const fileUploadLabelRef = useRef<HTMLLabelElement>(null);
-  const [modalIsOpen, setModalIsOpen] = useState(false);
-  const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
 
   const setPreSignedDevices = useCallback(() => {
     if (currentAccount.config.addressType !== AddressType.P2WPKH) {
@@ -105,23 +105,11 @@ const ConfirmTxPage = ({
     [currentAccount.config.mnemonic, setFinalPsbt, currentBitcoinNetwork]
   );
 
-  useEffect(() => {}, [currentAccount]);
-
   // if the finalPsbt has signatures on it already, update signed device view
   useEffect(() => {
     setPreSignedDevices();
     signTransactionIfSingleSigner(finalPsbt);
   }, [setPreSignedDevices, signTransactionIfSingleSigner, finalPsbt]);
-
-  const openInModal = (component: JSX.Element) => {
-    setModalIsOpen(true);
-    setModalContent(component);
-  };
-
-  const closeModal = () => {
-    setModalIsOpen(false);
-    setModalContent(null);
-  };
 
   const importSignatureFromFile = (file: string) => {
     try {
@@ -173,9 +161,6 @@ const ConfirmTxPage = ({
         ref={fileUploadLabelRef}
         htmlFor="txFile"
       ></label>
-      <Modal isOpen={modalIsOpen} onRequestClose={() => closeModal()}>
-        {modalContent as React.ReactChild}
-      </Modal>
       <TransactionDetails
         finalPsbt={finalPsbt}
         sendTransaction={sendTransaction}

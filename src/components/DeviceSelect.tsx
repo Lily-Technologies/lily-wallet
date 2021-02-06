@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import styled, { keyframes } from "styled-components";
 import { CheckCircle } from "@styled-icons/material";
 import { ExclamationDiamond } from "@styled-icons/bootstrap";
@@ -20,6 +20,7 @@ import {
 } from "../utils/colors";
 
 import { Device, HwiResponseEnumerate } from "../types";
+import { ModalContext } from "../ModalContext";
 
 interface Props {
   configuredDevices: Device[];
@@ -46,14 +47,11 @@ export const DeviceSelect = ({
   deviceActionLoadingText,
   phoneAction,
 }: Props) => {
+  const { openInModal } = useContext(ModalContext);
   const [devicesLoading, setDevicesLoading] = useState(false);
   const [deviceActionLoading, setDeviceActionLoading] = useState<number | null>(
     null
   );
-  const [
-    promptPinModalDevice,
-    setPromptPinModalDevice,
-  ] = useState<HwiResponseEnumerate | null>(null);
 
   useEffect(() => {
     enumerate();
@@ -116,12 +114,6 @@ export const DeviceSelect = ({
 
   return (
     <Wrapper>
-      <PromptPinModal
-        promptPinModalIsOpen={!!promptPinModalDevice}
-        setPromptPinModalDevice={setPromptPinModalDevice}
-        device={promptPinModalDevice!}
-        enumerate={enumerate}
-      />
       <DevicesWrapper>
         {configuredDevices.map((device, index) => (
           <DeviceWrapper
@@ -167,7 +159,12 @@ export const DeviceSelect = ({
                 if (deviceActionLoading === null) {
                   if (deviceWarning) {
                     if (device.type === "trezor") {
-                      setPromptPinModalDevice(device);
+                      openInModal(
+                        <PromptPinModal
+                          device={device!}
+                          enumerate={enumerate}
+                        />
+                      );
                     } else {
                       await enumerate();
                     }

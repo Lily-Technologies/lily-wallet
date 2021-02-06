@@ -1,15 +1,16 @@
-import React, { useContext, useState } from "react";
+import React, { useContext } from "react";
 import styled, { css } from "styled-components";
 import moment from "moment";
 import { Network } from "bitcoinjs-lib";
 
-import { Modal, Button } from "../../../components";
+import { Button } from "../../../components";
 
 import DeleteAccountModal from "./DeleteAccountModal";
 import EditAccountNameModal from "./EditAccountNameModal";
 import DeviceDetailsModal from "./DeviceDetailsModal";
 
 import { AccountMapContext } from "../../../AccountMapContext";
+import { ModalContext } from "../../../ModalContext";
 
 import { mobile } from "../../../utils/media";
 import { capitalize } from "../../../utils/other";
@@ -28,18 +29,7 @@ interface Props {
 
 const GeneralView = ({ password, currentBitcoinNetwork }: Props) => {
   const { currentAccount } = useContext(AccountMapContext);
-  const [modalIsOpen, setModalIsOpen] = useState(false);
-  const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
-
-  const openInModal = (component: JSX.Element) => {
-    setModalIsOpen(true);
-    setModalContent(component);
-  };
-
-  const closeModal = () => {
-    setModalIsOpen(false);
-    setModalContent(null);
-  };
+  const { openInModal, closeModal } = useContext(ModalContext);
 
   return (
     <GeneralSection>
@@ -142,9 +132,6 @@ const GeneralView = ({ password, currentBitcoinNetwork }: Props) => {
           </ProfileValueAction>
         </ProfileValueColumn>
       </ProfileRow>
-      <Modal isOpen={modalIsOpen} onRequestClose={() => closeModal()}>
-        <ModalContentWrapper>{modalContent}</ModalContentWrapper>
-      </Modal>
     </GeneralSection>
   );
 };
@@ -217,24 +204,6 @@ const ProfileValueAction = styled.span`
 const ActionButton = styled.button`
   ${Button};
   font-weight: 600;
-`;
-
-const ModalContentWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-  padding: 1.5em;
-  align-items: flex-start;
-
-  ${mobile(css`
-    flex-direction: column;
-    align-items: center;
-    padding-top: 1.25em;
-    padding-bottom: 1em;
-    padding-left: 1em;
-    padding-right: 1em;
-    margin-left: 0;
-  `)};
 `;
 
 export default GeneralView;
