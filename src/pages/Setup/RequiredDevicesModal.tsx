@@ -45,11 +45,14 @@ const RequiredDevicesModal = ({
   const restrictedSetRequiredSigners = (requiredSigners: number) => {
     if (
       requiredSigners > 2 &&
-      isAtLeastTier(config.license, LicenseTiers.essential)
+      !isAtLeastTier(config.license, LicenseTiers.essential)
     ) {
-      setRequiredSigners(requiredSigners);
-    } else {
       setError("Requires upgrading license");
+    } else {
+      if (error) {
+        setError("");
+      }
+      setRequiredSigners(requiredSigners);
     }
   };
 
