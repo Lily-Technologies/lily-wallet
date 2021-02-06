@@ -671,7 +671,7 @@ ipcMain.handle("/isConfirmedTransaction", async (event, args) => {
     try {
       if (currentNodeConfig.provider === "Blockstream") {
         const data = await (
-          await axios.get(`https://blockstream.info/api/${txId}/status`)
+          await axios.get(`https://blockstream.info/api/tx/${txId}/status`)
         ).data;
         if (!!data.confirmed) {
           return Promise.resolve(true);

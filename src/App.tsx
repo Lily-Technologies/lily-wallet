@@ -13,7 +13,6 @@ import { networks } from "bitcoinjs-lib";
 
 import { offWhite, green700 } from "./utils/colors";
 import { mobile } from "./utils/media";
-import { getLicenseBannerMessage, licenseTxId } from "./utils/license";
 
 import { Sidebar, TitleBar, ScrollToTop, AlertBar } from "./components";
 
@@ -213,42 +212,11 @@ const App = () => {
     }
   }, [config, refresh, nodeConfig, setAccountMap, updateAccountMap]);
 
-  let licenseTxConfirmed = useRef(false);
-  let licenseBannerMessage = "" as string | null;
-  if (nodeConfig) {
-    licenseBannerMessage = getLicenseBannerMessage(
-      config.license,
-      licenseTxConfirmed.current,
-      nodeConfig
-    );
-  }
-
-  useEffect(() => {
-    async function checkLicenseTxConfirmed() {
-      try {
-        const txId = licenseTxId(config.license);
-        if (txId) {
-          licenseTxConfirmed.current = await window.ipcRenderer.invoke(
-            "/isConfirmedTransaction",
-            { txId }
-          );
-        }
-      } catch (e) {
-        console.log("Error retriving license transaction");
-      }
-    }
-    checkLicenseTxConfirmed();
-  }, [config.license]);
-
-  console.log("licenseTxConfirmed.current: ", licenseTxConfirmed.current);
-
   return (
     <Router>
       <ScrollToTop />
       <TitleBar nodeConfig={nodeConfig} config={config} />
-      {!config.isEmpty && nodeConfig && licenseBannerMessage && (
-        <AlertBar message={licenseBannerMessage} />
-      )}
+      {!config.isEmpty && <AlertBar nodeConfig={nodeConfig} />}
       <PageWrapper id="page-wrapper">
         <ConfigRequired />
         <Overlay />
