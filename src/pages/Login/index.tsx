@@ -1,4 +1,4 @@
-import React, { useState, Fragment } from "react";
+import React, { useState, Fragment, useContext } from "react";
 import { useHistory } from "react-router-dom";
 import styled, { css } from "styled-components";
 import { networks, Network } from "bitcoinjs-lib";
@@ -22,13 +22,12 @@ import { bitcoinNetworkEqual } from "../../utils/files";
 import { mobile } from "../../utils/media";
 import { saveConfig, updateConfigFileVersion } from "../../utils/files";
 
-import { LilyConfig, File } from "../../types";
+import { File } from "../../types";
+import { ConfigContext } from "../../ConfigContext";
 
 const MIN_PASSWORD_LENGTH = 8;
 
 interface Props {
-  config: LilyConfig;
-  setConfigFile: React.Dispatch<React.SetStateAction<LilyConfig>>;
   currentBitcoinNetwork: Network;
   encryptedConfigFile: File | null;
   setEncryptedConfigFile: React.Dispatch<React.SetStateAction<File | null>>;
@@ -37,14 +36,13 @@ interface Props {
 }
 
 const Login = ({
-  config,
-  setConfigFile,
   currentBitcoinNetwork,
   encryptedConfigFile,
   setEncryptedConfigFile,
   setPassword,
   currentBlockHeight,
 }: Props) => {
+  const { config, setConfigFile } = useContext(ConfigContext);
   document.title = `Login - Lily Wallet`;
   const [localPassword, setLocalPassword] = useState("");
   const [passwordError, setPasswordError] = useState<string | undefined>(

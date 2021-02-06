@@ -23,10 +23,9 @@ import { NodeConfig, LilyConfig } from "../types";
 interface Props {
   nodeConfig: NodeConfig | undefined; // KBC-TODO: NodeConfig should be defined, even if we are connected to blockstream, yeah? No?
   config: LilyConfig;
-  resetConfigFile: () => void;
 }
 
-export const TitleBar = ({ nodeConfig, config, resetConfigFile }: Props) => {
+export const TitleBar = ({ nodeConfig, config }: Props) => {
   const [moreOptionsDropdownOpen, setMoreOptionsDropdownOpen] = useState(false);
   const [nodeOptionsDropdownOpen, setNodeOptionsDropdownOpen] = useState(false);
   const [configModalOpen, setConfigModalOpen] = useState(false);

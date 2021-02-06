@@ -1,4 +1,4 @@
-import React, { useState, Fragment } from "react";
+import React, { useState, Fragment, useContext } from "react";
 import styled, { css } from "styled-components";
 import { Network } from "bitcoinjs-lib";
 import { Link } from "react-router-dom";
@@ -23,11 +23,11 @@ import About from "./About";
 import { white } from "../../utils/colors";
 import { mobile } from "../../utils/media";
 
-import { LilyConfig, NodeConfig } from "../../types";
+import { NodeConfig } from "../../types";
+
+import { ConfigContext } from "../../ConfigContext";
 
 interface Props {
-  config: LilyConfig;
-  setConfigFile: React.Dispatch<React.SetStateAction<LilyConfig>>;
   nodeConfig: NodeConfig;
   currentBitcoinNetwork: Network;
   getNodeConfig: () => void;
@@ -36,14 +36,13 @@ interface Props {
 }
 
 const Settings = ({
-  config,
-  setConfigFile,
   nodeConfig,
   currentBitcoinNetwork,
   getNodeConfig,
   setNodeConfig,
   password,
 }: Props) => {
+  const { config } = useContext(ConfigContext);
   const [currentTab, setCurrentTab] = useState("network");
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
@@ -96,15 +95,13 @@ const Settings = ({
           )}
           {currentTab === "license" && (
             <LicenseSettings
-              config={config}
               nodeConfig={nodeConfig}
               openInModal={openInModal}
               closeModal={closeModal}
               password={password}
-              setConfigFile={setConfigFile}
             />
           )}
-          {currentTab === "about" && <About config={config} />}
+          {currentTab === "about" && <About />}
         </Wrapper>
         <Modal isOpen={modalIsOpen} onRequestClose={() => closeModal()}>
           <ModalContentWrapper>{modalContent}</ModalContentWrapper>

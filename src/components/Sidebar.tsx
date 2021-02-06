@@ -8,19 +8,12 @@ import { NavLinks } from "./NavLinks";
 import { white, darkOffWhite } from "../utils/colors";
 import { mobile } from "../utils/media";
 
-import { LilyConfig } from "../types";
-
 interface Props {
-  config: LilyConfig;
   flyInAnimation: boolean;
   currentBitcoinNetwork: Network;
 }
 
-export const Sidebar = ({
-  config,
-  flyInAnimation,
-  currentBitcoinNetwork,
-}: Props) => {
+export const Sidebar = ({ flyInAnimation, currentBitcoinNetwork }: Props) => {
   const sidebarAnimationProps = useSpring({
     transform: flyInAnimation ? "translateX(-120%)" : "translateX(0%)",
   });
@@ -30,10 +23,7 @@ export const Sidebar = ({
       <SidebarPlaceholder></SidebarPlaceholder>
       <SidebarWrapperAnimated style={{ ...sidebarAnimationProps }}>
         <SidebarContainer>
-          <NavLinks
-            config={config}
-            currentBitcoinNetwork={currentBitcoinNetwork}
-          />
+          <NavLinks currentBitcoinNetwork={currentBitcoinNetwork} />
         </SidebarContainer>
       </SidebarWrapperAnimated>
     </Fragment>

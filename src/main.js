@@ -681,6 +681,7 @@ ipcMain.handle("/isConfirmedTransaction", async (event, args) => {
         const currentConfig = { ...currentNodeConfig };
         const nodeClient = getClientFromNodeConfig(currentConfig);
         const transaction = await nodeClient.getRawTransaction(txId, true);
+        console.log("transaction: ", transaction);
         if (transaction.confirmations > 0) {
           return Promise.resolve(true);
         }

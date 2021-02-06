@@ -1,46 +1,57 @@
-import React, { Fragment, useContext, useState } from 'react';
-import styled, { css } from 'styled-components';
-import { EditAlt } from '@styled-icons/boxicons-regular';
+import React, { Fragment, useContext, useState } from "react";
+import styled, { css } from "styled-components";
+import { EditAlt } from "@styled-icons/boxicons-regular";
 
-import { AccountMapContext } from '../../../AccountMapContext';
+import { AccountMapContext } from "../../../AccountMapContext";
 
-import { Input, StyledIcon, Button } from '../../../components';
+import { Input, StyledIcon, Button } from "../../../components";
 
-import { mobile } from '../../../utils/media';
-import { white, green100, red500, green600, gray500 } from '../../../utils/colors';
-import { saveConfig } from '../../../utils/files';
+import { mobile } from "../../../utils/media";
+import {
+  white,
+  green100,
+  red500,
+  green600,
+  gray500,
+} from "../../../utils/colors";
+import { saveConfig } from "../../../utils/files";
 
-import { LilyConfig } from '../../../types';
+import { ConfigContext } from "../../../ConfigContext";
 
 interface Props {
-  config: LilyConfig
-  password: string
-  setConfigFile: React.Dispatch<React.SetStateAction<LilyConfig>>
-  closeModal: () => void
+  password: string;
+  closeModal: () => void;
 }
 
-const EditAccountNameModal = ({ config, setConfigFile, password, closeModal }: Props) => {
+const EditAccountNameModal = ({ password, closeModal }: Props) => {
+  const { config, setConfigFile } = useContext(ConfigContext);
   const { currentAccount } = useContext(AccountMapContext);
-  const [accountNameConfirm, setAccountNameConfirm] = useState('');
+  const [accountNameConfirm, setAccountNameConfirm] = useState("");
   const [accountNameConfirmError, setAccountNameConfirmError] = useState(false);
 
   const onInputEnter = (e: React.KeyboardEvent<Element>) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       editNameAndUpdateConfig();
     }
-  }
+  };
 
   const editNameAndUpdateConfig = () => {
     try {
-      if (accountNameConfirm === '') { throw Error('Invalid account name') }
+      if (accountNameConfirm === "") {
+        throw Error("Invalid account name");
+      }
       const currentAccountConfigCopy = { ...currentAccount.config };
       currentAccountConfigCopy.name = accountNameConfirm;
       const configCopy = { ...config };
       if (currentAccount.config.quorum.totalSigners === 1) {
-        configCopy.wallets = configCopy.wallets.filter((wallet) => wallet.id !== currentAccount.config.id)
+        configCopy.wallets = configCopy.wallets.filter(
+          (wallet) => wallet.id !== currentAccount.config.id
+        );
         configCopy.wallets.push(currentAccountConfigCopy);
       } else {
-        configCopy.vaults = configCopy.vaults.filter((vault) => vault.id !== currentAccount.config.id);
+        configCopy.vaults = configCopy.vaults.filter(
+          (vault) => vault.id !== currentAccount.config.id
+        );
         configCopy.vaults.push(currentAccountConfigCopy);
       }
 
@@ -50,7 +61,7 @@ const EditAccountNameModal = ({ config, setConfigFile, password, closeModal }: P
     } catch (e) {
       setAccountNameConfirmError(e.message);
     }
-  }
+  };
 
   return (
     <Fragment>
@@ -61,7 +72,9 @@ const EditAccountNameModal = ({ config, setConfigFile, password, closeModal }: P
       </DangerIconContainer>
       <TextContainer>
         <HeadingText>Edit Account Name</HeadingText>
-        <Subtext>This information is private and only viewable within the Lily App.</Subtext>
+        <Subtext>
+          This information is private and only viewable within the Lily App.
+        </Subtext>
         <Input
           label="Account Name"
           autoFocus
@@ -71,25 +84,30 @@ const EditAccountNameModal = ({ config, setConfigFile, password, closeModal }: P
           onKeyDown={(e) => onInputEnter(e)}
           error={accountNameConfirmError}
         />
-        {accountNameConfirmError && <ConfirmError>{accountNameConfirmError}</ConfirmError>}
+        {accountNameConfirmError && (
+          <ConfirmError>{accountNameConfirmError}</ConfirmError>
+        )}
 
         <SaveChangesButton
           background={green600}
           color={white}
-          onClick={() => { editNameAndUpdateConfig() }}>
+          onClick={() => {
+            editNameAndUpdateConfig();
+          }}
+        >
           Save Changes
         </SaveChangesButton>
       </TextContainer>
     </Fragment>
-  )
-}
+  );
+};
 
 const SaveChangesButton = styled.button`
   ${Button}
   margin-top: 1rem;
 
   ${mobile(css`
-  margin-top: 1.25rem;
+    margin-top: 1.25rem;
   `)};
 `;
 

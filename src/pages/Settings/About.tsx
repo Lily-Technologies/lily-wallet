@@ -1,18 +1,16 @@
-import React from "react";
+import React, { useContext } from "react";
 import styled, { css } from "styled-components";
 
 import { Button } from "../../components";
 
-import { LilyConfig } from "../../types";
-
 import { mobile } from "../../utils/media";
 import { white, green500, gray200, gray500, gray900 } from "../../utils/colors";
 
-interface Props {
-  config: LilyConfig;
-}
+import { ConfigContext } from "../../ConfigContext";
 
-const About = ({ config }: Props) => {
+const About = () => {
+  const { config } = useContext(ConfigContext);
+
   return (
     <GeneralSection>
       <HeaderSection>

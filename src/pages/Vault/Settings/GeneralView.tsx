@@ -10,7 +10,6 @@ import EditAccountNameModal from "./EditAccountNameModal";
 import DeviceDetailsModal from "./DeviceDetailsModal";
 
 import { AccountMapContext } from "../../../AccountMapContext";
-import { LilyConfig } from "../../../types";
 
 import { mobile } from "../../../utils/media";
 import { capitalize } from "../../../utils/other";
@@ -22,20 +21,12 @@ import {
   gray500,
   gray900,
 } from "../../../utils/colors";
-
 interface Props {
-  config: LilyConfig;
-  setConfigFile: React.Dispatch<React.SetStateAction<LilyConfig>>;
   password: string;
   currentBitcoinNetwork: Network;
 }
 
-const GeneralView = ({
-  config,
-  setConfigFile,
-  password,
-  currentBitcoinNetwork,
-}: Props) => {
+const GeneralView = ({ password, currentBitcoinNetwork }: Props) => {
   const { currentAccount } = useContext(AccountMapContext);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
@@ -70,8 +61,6 @@ const GeneralView = ({
               onClick={() =>
                 openInModal(
                   <EditAccountNameModal
-                    config={config}
-                    setConfigFile={setConfigFile}
                     password={password}
                     closeModal={closeModal}
                   />
@@ -145,13 +134,7 @@ const GeneralView = ({
               background={white}
               color={red500}
               onClick={() =>
-                openInModal(
-                  <DeleteAccountModal
-                    config={config}
-                    setConfigFile={setConfigFile}
-                    password={password}
-                  />
-                )
+                openInModal(<DeleteAccountModal password={password} />)
               }
             >
               Delete

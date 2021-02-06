@@ -11,15 +11,13 @@ import { mobile } from "../../../utils/media";
 import { white, red100, red500, red600, gray500 } from "../../../utils/colors";
 import { saveConfig } from "../../../utils/files";
 
-import { LilyConfig } from "../../../types";
-
+import { ConfigContext } from "../../../ConfigContext";
 interface Props {
-  config: LilyConfig;
   password: string;
-  setConfigFile: React.Dispatch<React.SetStateAction<LilyConfig>>;
 }
 
-const DeleteAccountModal = ({ config, setConfigFile, password }: Props) => {
+const DeleteAccountModal = ({ password }: Props) => {
+  const { config, setConfigFile } = useContext(ConfigContext);
   const { currentAccount } = useContext(AccountMapContext);
   const [accountNameConfirm, setAccountNameConfirm] = useState("");
   const [accountNameConfirmError, setAccountNameConfirmError] = useState(false);
