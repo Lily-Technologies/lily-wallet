@@ -254,6 +254,7 @@ const PurchaseButton = styled.button<{
   width: 100%;
   cursor: ${(p) => (p.disabled ? "wait" : "auto")};
   pointer-events: ${(p) => (p.disabled ? "none" : "auto")};
+  white-space: pre-wrap;
 `;
 
 const Table = styled.table`
