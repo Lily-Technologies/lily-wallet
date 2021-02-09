@@ -1228,9 +1228,11 @@ exports.loadOrCreateWalletViaRPC = function (config, nodeClient) {
           console.log("walletList: ", walletList);
           if (!!walletList.includes("lily" + config.id))
             return [3 /*break*/, 19];
+          console.log("Wallet lily" + config.id + " isn't loaded.");
           _r.label = 2;
         case 2:
           _r.trys.push([2, 4, , 19]);
+          console.log("Attempting to load lily" + config.id + "...");
           return [
             4 /*yield*/,
             nodeClient.loadWallet(
@@ -1242,6 +1244,8 @@ exports.loadOrCreateWalletViaRPC = function (config, nodeClient) {
           return [3 /*break*/, 19];
         case 4:
           e_2 = _r.sent();
+          console.log("Couldn't load lily" + config.id + "...");
+          console.log("Creating lily" + config.id + "...");
           // if failed to load wallet, then probably doesnt exist so let's create one and import
           return [
             4 /*yield*/,
@@ -1258,6 +1262,7 @@ exports.loadOrCreateWalletViaRPC = function (config, nodeClient) {
           _r.sent();
           if (!(config.quorum.totalSigners === 1)) return [3 /*break*/, 14];
           if (!(config.addressType === "p2sh")) return [3 /*break*/, 9];
+          console.log("Importing " + config.addressType + " addresses...");
           _b = (_a = nodeClient).importMulti;
           _c = {};
           return [
@@ -1268,7 +1273,7 @@ exports.loadOrCreateWalletViaRPC = function (config, nodeClient) {
           _d = [
             ((_c.desc = _r.sent()),
             (_c.range = [0, 1000]),
-            (_c.timestamp = "now"),
+            (_c.timestamp = 1503446400),
             (_c.internal = false),
             (_c.watchonly = true),
             (_c.keypool = true),
@@ -1286,7 +1291,7 @@ exports.loadOrCreateWalletViaRPC = function (config, nodeClient) {
               _d.concat([
                 ((_e.desc = _r.sent()),
                 (_e.range = [0, 1000]),
-                (_e.timestamp = "now"),
+                (_e.timestamp = 1503446400),
                 (_e.internal = false),
                 (_e.watchonly = true),
                 (_e.keypool = true),
@@ -1301,6 +1306,7 @@ exports.loadOrCreateWalletViaRPC = function (config, nodeClient) {
           _r.sent();
           return [3 /*break*/, 13];
         case 9:
+          console.log("Importing " + config.addressType + " addresses...");
           _g = (_f = nodeClient).importMulti;
           _h = {};
           return [
@@ -1311,7 +1317,7 @@ exports.loadOrCreateWalletViaRPC = function (config, nodeClient) {
           _j = [
             ((_h.desc = _r.sent()),
             (_h.range = [0, 1000]),
-            (_h.timestamp = 481824),
+            (_h.timestamp = 1503446400),
             (_h.internal = false),
             (_h.watchonly = true),
             (_h.keypool = true),
@@ -1329,7 +1335,7 @@ exports.loadOrCreateWalletViaRPC = function (config, nodeClient) {
               _j.concat([
                 ((_k.desc = _r.sent()),
                 (_k.range = [0, 1000]),
-                (_k.timestamp = 481824),
+                (_k.timestamp = 1503446400),
                 (_k.internal = false),
                 (_k.watchonly = true),
                 (_k.keypool = true),
@@ -1346,6 +1352,7 @@ exports.loadOrCreateWalletViaRPC = function (config, nodeClient) {
         case 13:
           return [3 /*break*/, 18];
         case 14:
+          console.log("Importing " + config.addressType + " addresses...");
           _m = (_l = nodeClient).importMulti;
           _o = {};
           return [
@@ -1356,7 +1363,7 @@ exports.loadOrCreateWalletViaRPC = function (config, nodeClient) {
           _p = [
             ((_o.desc = _r.sent()),
             (_o.range = [0, 1000]),
-            (_o.timestamp = 481824),
+            (_o.timestamp = 1503446400),
             (_o.internal = false),
             (_o.watchonly = true),
             (_o.keypool = true),
@@ -1376,7 +1383,7 @@ exports.loadOrCreateWalletViaRPC = function (config, nodeClient) {
               _p.concat([
                 ((_q.desc = _r.sent()),
                 (_q.range = [0, 1000]),
-                (_q.timestamp = 481824),
+                (_q.timestamp = 1503446400),
                 (_q.internal = false),
                 (_q.watchonly = true),
                 (_q.keypool = true),

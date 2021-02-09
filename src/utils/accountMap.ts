@@ -799,11 +799,15 @@ export const loadOrCreateWalletViaRPC = async (
   console.log("walletList: ", walletList);
 
   if (!walletList.includes(`lily${config.id}`)) {
+    console.log(`Wallet lily${config.id} isn't loaded.`);
     try {
+      console.log(`Attempting to load lily${config.id}...`);
       const walletResp = await nodeClient.loadWallet(
         `lily${config.id}` // filename
       );
     } catch (e) {
+      console.log(`Couldn't load lily${config.id}...`);
+      console.log(`Creating lily${config.id}...`);
       // if failed to load wallet, then probably doesnt exist so let's create one and import
       await nodeClient.createWallet(
         `lily${config.id}`, // wallet_name
@@ -814,12 +818,13 @@ export const loadOrCreateWalletViaRPC = async (
       );
       if (config.quorum.totalSigners === 1) {
         if (config.addressType === "p2sh") {
+          console.log(`Importing ${config.addressType} addresses...`);
           await nodeClient.importMulti(
             [
               {
                 desc: await getWrappedDescriptor(nodeClient, config, false),
                 range: [0, 1000],
-                timestamp: "now",
+                timestamp: 1503446400,
                 internal: false,
                 watchonly: true,
                 keypool: true,
@@ -827,7 +832,7 @@ export const loadOrCreateWalletViaRPC = async (
               {
                 desc: await getWrappedDescriptor(nodeClient, config, true),
                 range: [0, 1000],
-                timestamp: "now",
+                timestamp: 1503446400,
                 internal: false,
                 watchonly: true,
                 keypool: true,
@@ -838,12 +843,13 @@ export const loadOrCreateWalletViaRPC = async (
             }
           );
         } else {
+          console.log(`Importing ${config.addressType} addresses...`);
           await nodeClient.importMulti(
             [
               {
                 desc: await getSegwitDescriptor(nodeClient, config, false),
                 range: [0, 1000],
-                timestamp: 481824,
+                timestamp: 1503446400,
                 internal: false,
                 watchonly: true,
                 keypool: true,
@@ -851,7 +857,7 @@ export const loadOrCreateWalletViaRPC = async (
               {
                 desc: await getSegwitDescriptor(nodeClient, config, true),
                 range: [0, 1000],
-                timestamp: 481824,
+                timestamp: 1503446400,
                 internal: false,
                 watchonly: true,
                 keypool: true,
@@ -863,6 +869,7 @@ export const loadOrCreateWalletViaRPC = async (
           );
         }
       } else {
+        console.log(`Importing ${config.addressType} addresses...`);
         // multisig
         //  import receive addresses
         await nodeClient.importMulti(
@@ -870,7 +877,7 @@ export const loadOrCreateWalletViaRPC = async (
             {
               desc: await getMultisigDescriptor(nodeClient, config, false),
               range: [0, 1000],
-              timestamp: 481824,
+              timestamp: 1503446400,
               internal: false,
               watchonly: true,
               keypool: true,
@@ -878,7 +885,7 @@ export const loadOrCreateWalletViaRPC = async (
             {
               desc: await getMultisigDescriptor(nodeClient, config, true),
               range: [0, 1000],
-              timestamp: 481824,
+              timestamp: 1503446400,
               internal: false,
               watchonly: true,
               keypool: true,

@@ -167,6 +167,7 @@ const setupInitialNodeConfig = async () => {
       const nodeConfig = JSON.parse(nodeConfigFile.file);
       currentNodeConfig = nodeConfig;
       const nodeClient = getClientFromNodeConfig(nodeConfig);
+      console.log(`Verifying connection to ${currentNodeConfig.baseURL})... `);
       const blockchainInfo = await nodeClient.getBlockchainInfo(); // if fails, go to catch case
       console.log(
         `Connected to remote Bitcoin Core instance. (${currentNodeConfig.baseURL})`
@@ -274,6 +275,11 @@ app.on("activate", function () {
 
 ipcMain.on("/account-data", async (event, args) => {
   const { config } = args;
+
+  // load data from cache
+  // event.reply("/account-data", accountData);
+
+  // load new data
   let addresses,
     changeAddresses,
     transactions,
@@ -289,12 +295,14 @@ ipcMain.on("/account-data", async (event, args) => {
 
       // loading from Lily Docker app and return early
       if (nodeClient.getAccountData) {
+        console.log(`Getting data from Docker app ${currentConfig.baseURL}`);
         const accountData = await nodeClient.getAccountData(config);
         event.reply("/account-data", accountData);
         return;
       }
 
       // load or create wallet via RPC from RPC
+      console.log(`Loading or creating wallet via RPC (${config.id})`);
       await loadOrCreateWalletViaRPC(config, nodeClient);
     }
 
@@ -318,6 +326,7 @@ ipcMain.on("/account-data", async (event, args) => {
       ] = await getDataFromXPub(config, nodeClient, currentBitcoinNetwork);
     }
 
+    console.log(`Calculating current balance for ${config.id}`);
     const currentBalance = availableUtxos.reduce(
       (accum, utxo) => accum.plus(utxo.value),
       BigNumber(0)
@@ -535,12 +544,14 @@ ipcMain.handle("/broadcastTx", async (event, args) => {
 
 ipcMain.handle("/changeNodeConfig", async (event, args) => {
   const { nodeConfig } = args;
+  console.log(`Attempting to connect to ${nodeConfig.provider}...`);
   if (nodeConfig.provider === "Bitcoin Core") {
     try {
       currentNodeConfig = await getBitcoinCoreConfig();
       const blockchainInfo = await getBitcoinCoreBlockchainInfo();
       return Promise.resolve(blockchainInfo);
     } catch (e) {
+      console.log("Failed to connect to Bitcoin Core");
       const blockchainInfo = {
         connected: false,
         provider: "Bitcoin Core",
@@ -553,6 +564,7 @@ ipcMain.handle("/changeNodeConfig", async (event, args) => {
       const blockchainInfo = await getBlockstreamBlockchainInfo();
       return Promise.resolve(blockchainInfo);
     } catch (e) {
+      console.log("Failed to connect to Blockstream");
       const blockchainInfo = {
         connected: false,
         provider: "Blockstream",
@@ -562,6 +574,7 @@ ipcMain.handle("/changeNodeConfig", async (event, args) => {
   } else {
     // custom
     try {
+      console.log(`Attempting to connect to ${nodeConfig.baseURL}`);
       const nodeClient = getClientFromNodeConfig(nodeConfig);
       const blockchainInfo = await nodeClient.getBlockchainInfo();
       saveFile(JSON.stringify(nodeConfig), "node-config.json");
@@ -571,7 +584,7 @@ ipcMain.handle("/changeNodeConfig", async (event, args) => {
       currentNodeConfig = nodeConfig;
       return Promise.resolve(blockchainInfo);
     } catch (e) {
-      console.log("catch e: ", e);
+      console.log(`Failed to connect to ${nodeConfig.baseURL} (error: ${e})`);
       const blockchainInfo = {
         connected: false,
         provider: "Custom Node",
@@ -618,7 +631,7 @@ ipcMain.handle("/getNodeConfig", async (event, args) => {
         connected: false,
         provider: "Custom Node",
       };
-      console.log(`error /getNodeConfig ${e.message}`);
+      console.log(`error /getNodeConfig ${e}`);
       return Promise.resolve(blockchainInfo);
     }
   }
@@ -666,7 +679,6 @@ ipcMain.handle("/getWalletInfo", async (event, args) => {
 
 ipcMain.handle("/isConfirmedTransaction", async (event, args) => {
   const { txId } = args;
-  console.log("txId: ", txId);
   if (txId.length === 64) {
     try {
       if (currentNodeConfig.provider === "Blockstream") {
@@ -681,7 +693,6 @@ ipcMain.handle("/isConfirmedTransaction", async (event, args) => {
         const currentConfig = { ...currentNodeConfig };
         const nodeClient = getClientFromNodeConfig(currentConfig);
         const transaction = await nodeClient.getRawTransaction(txId, true);
-        console.log("transaction: ", transaction);
         if (transaction.confirmations > 0) {
           return Promise.resolve(true);
         }
