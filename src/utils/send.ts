@@ -30,18 +30,6 @@ import {
   ExtendedPublicKey,
 } from "../types";
 
-const getTxHex = async (txid: string, currentBitcoinNetwork: Network) => {
-  const txHex = await (
-    await axios.get(
-      blockExplorerAPIURL(
-        `/tx/${txid}/hex`,
-        getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)
-      )
-    )
-  ).data;
-  return txHex;
-};
-
 export const combinePsbts = (finalPsbt: Psbt, signedPsbt: Psbt) => {
   const combinedPsbt = finalPsbt.combine(signedPsbt);
   return combinedPsbt;
@@ -316,12 +304,11 @@ export const createTransaction = async (
   for (let i = 0; i < spendingUtxos.length; i++) {
     const utxo = spendingUtxos[i];
 
-    const prevTxHex = await getTxHex(utxo.txid, currentBitcoinNetwork);
     const currentInput = {
       hash: utxo.txid,
       index: utxo.vout,
       sequence: 0xffffffff,
-      nonWitnessUtxo: Buffer.from(prevTxHex, "hex"),
+      nonWitnessUtxo: Buffer.from(utxo.prevTxHex, "hex"),
       bip32Derivation: utxo.address.bip32derivation.map((derivation) => ({
         masterFingerprint: Buffer.from(
           Object.values(derivation.masterFingerprint)

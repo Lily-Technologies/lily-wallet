@@ -96,6 +96,18 @@ const getUnchainedNetworkFromBjslibNetwork = (bitcoinJslibNetwork: Network) => {
   }
 };
 
+const getTxHex = async (txid: string, currentBitcoinNetwork: Network) => {
+  const txHex = await (
+    await axios.get(
+      blockExplorerAPIURL(
+        `/tx/${txid}/hex`,
+        getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)
+      )
+    )
+  ).data;
+  return txHex;
+};
+
 export const getMultisigDescriptor = async (
   client: any,
   config: AccountConfig,
@@ -443,6 +455,7 @@ const getUtxosForAddresses = async (
     for (let j = 0; j < utxosFromBlockstream.length; j++) {
       const utxo = utxosFromBlockstream[j];
       utxo.address = addresses[i];
+      utxo.prevTxHex = await getTxHex(utxo.txid, currentBitcoinNetwork);
       availableUtxos.push(utxo);
     }
   }
@@ -666,6 +679,33 @@ const scanForAddressesAndTransactions = async (
   };
 };
 
+const getUtxosFromNode = async (
+  receiveAddresses: any[],
+  changeAddresses: any[],
+  nodeClient: any
+) => {
+  const availableUtxos = await nodeClient.listUnspent();
+  const receiveAddressMap = createAddressMapFromAddressArray(
+    receiveAddresses,
+    false
+  );
+  const changeAddressMap = createAddressMapFromAddressArray(
+    changeAddresses,
+    true
+  );
+  const addressMap = { ...receiveAddressMap, ...changeAddressMap };
+  for (let i = 0; i < availableUtxos.length; i++) {
+    availableUtxos[i].value = bitcoinsToSatoshis(
+      availableUtxos[i].amount
+    ).toNumber();
+    availableUtxos[i].prevTxHex = await nodeClient.getRawTransaction(
+      availableUtxos[i].txid
+    );
+    availableUtxos[i].address = addressMap[availableUtxos[i].address as any];
+  }
+  return availableUtxos;
+};
+
 export const getDataFromMultisig = async (
   account: AccountConfig,
   nodeClient: any,
@@ -690,22 +730,11 @@ export const getDataFromMultisig = async (
       nodeClient,
       transactions as BitcoinCoreGetRawTransactionResponse[]
     )) as any;
-    availableUtxos = await nodeClient.listUnspent();
-    const receiveAddressMap = createAddressMapFromAddressArray(
+    availableUtxos = await getUtxosFromNode(
       receiveAddresses,
-      false
-    );
-    const changeAddressMap = createAddressMapFromAddressArray(
       changeAddresses,
-      true
+      nodeClient
     );
-    const addressMap = { ...receiveAddressMap, ...changeAddressMap };
-    for (let i = 0; i < availableUtxos.length; i++) {
-      availableUtxos[i].value = bitcoinsToSatoshis(
-        availableUtxos[i].amount
-      ).toNumber();
-      availableUtxos[i].address = addressMap[availableUtxos[i].address as any];
-    }
   } else {
     organizedTransactions = serializeTransactions(
       transactions as Transaction[],
@@ -753,22 +782,11 @@ export const getDataFromXPub = async (
       nodeClient,
       transactions as BitcoinCoreGetRawTransactionResponse[]
     )) as any;
-    availableUtxos = await nodeClient.listUnspent();
-    const receiveAddressMap = createAddressMapFromAddressArray(
+    availableUtxos = await getUtxosFromNode(
       receiveAddresses,
-      false
-    );
-    const changeAddressMap = createAddressMapFromAddressArray(
       changeAddresses,
-      true
+      nodeClient
     );
-    const addressMap = { ...receiveAddressMap, ...changeAddressMap };
-    for (let i = 0; i < availableUtxos.length; i++) {
-      availableUtxos[i].value = bitcoinsToSatoshis(
-        availableUtxos[i].amount
-      ).toNumber();
-      availableUtxos[i].address = addressMap[availableUtxos[i].address as any];
-    }
   } else {
     availableUtxos = await getUtxosForAddresses(
       receiveAddresses.concat(changeAddresses),
