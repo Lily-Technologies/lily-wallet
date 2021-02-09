@@ -178,7 +178,7 @@ const App = () => {
         };
         window.ipcRenderer.send("/account-data", {
           config: config.wallets[i],
-          nodeConfig,
+          password,
         }); // TODO: allow setting nodeConfig to be dynamic later
       }
 
@@ -197,7 +197,7 @@ const App = () => {
         };
         window.ipcRenderer.send("/account-data", {
           config: config.vaults[i],
-          nodeConfig,
+          password,
         }); // TODO: allow setting nodeConfig to be dynamic later
       }
 

@@ -48,35 +48,36 @@ const RecentTransactions = ({
       {(loading || transactions.length > 0) && (
         <RecentTransactionsHeader>Recent Activity</RecentTransactionsHeader>
       )}
-      {loading && <TransactionRowLoading flat={flat} />}
+      {loading && transactions.length === 0 && (
+        <TransactionRowLoading flat={flat} />
+      )}
       <TransactionsWrapper>
-        {!loading &&
-          transactions.map((transaction, index) => {
-            // eslint-disable-line
-            if (index < maxItems) {
-              return (
-                <TransactionRowWrapper key={index}>
-                  {shouldDisplayDate(transactions, index) && (
-                    <DateWrapper>
-                      {transaction.status.confirmed
-                        ? moment
-                            .unix(transaction.status.block_time)
-                            .format("MMMM DD, YYYY")
-                        : "Waiting for confirmation..."}
-                    </DateWrapper>
-                  )}
-                  <TransactionRow
-                    onClick={() =>
-                      openInModal(<TxDetailsModal transaction={transaction} />)
-                    }
-                    transaction={transaction}
-                    flat={flat}
-                  />
-                </TransactionRowWrapper>
-              );
-            }
-            return null;
-          })}
+        {transactions.map((transaction, index) => {
+          // eslint-disable-line
+          if (index < maxItems) {
+            return (
+              <TransactionRowWrapper key={index}>
+                {shouldDisplayDate(transactions, index) && (
+                  <DateWrapper>
+                    {transaction.status.confirmed
+                      ? moment
+                          .unix(transaction.status.block_time)
+                          .format("MMMM DD, YYYY")
+                      : "Waiting for confirmation..."}
+                  </DateWrapper>
+                )}
+                <TransactionRow
+                  onClick={() =>
+                    openInModal(<TxDetailsModal transaction={transaction} />)
+                  }
+                  transaction={transaction}
+                  flat={flat}
+                />
+              </TransactionRowWrapper>
+            );
+          }
+          return null;
+        })}
         {!loading && transactions.length === 0 && (
           <NoTransasctionsSection flat={flat}>
             <NoTransactionsHeader>No Transactions</NoTransactionsHeader>

@@ -1,47 +1,70 @@
-import React, { Fragment, useContext } from 'react';
-import styled from 'styled-components';
+import React, { Fragment, useContext } from "react";
+import styled from "styled-components";
 import { Link } from "react-router-dom";
-import { Bitcoin } from '@styled-icons/boxicons-logos';
-import { AddCircleOutline } from '@styled-icons/material';
+import { Bitcoin } from "@styled-icons/boxicons-logos";
+import { AddCircleOutline } from "@styled-icons/material";
 import { satoshisToBitcoins } from "unchained-bitcoin";
-import moment from 'moment';
+import moment from "moment";
 
-import { AccountMapContext } from '../../AccountMapContext';
+import { AccountMapContext } from "../../AccountMapContext";
 
-import { StyledIcon } from '../../components';
+import { StyledIcon } from "../../components";
 
-import { darkGray, white, gray500, black } from '../../utils/colors';
+import { darkGray, white, gray500, black } from "../../utils/colors";
+import rem from "../../utils/rem";
 
-import { Transaction } from '../../types';
+import { Transaction } from "../../types";
 
 const getLastTransactionTime = (transactions: Transaction[]) => {
-  if (transactions.length === 0) { // if no transactions yet
-    return `No activity on this account yet`
-  } else if (!transactions[0].status.confirmed) { // if last transaction isn't confirmed yet
-    return `Last transaction was moments ago`
-  } else { // if transaction is confirmed, give moments ago
-    return `Last transaction was ${moment.unix(transactions[0].status.block_time).fromNow()}`
+  if (transactions.length === 0) {
+    // if no transactions yet
+    return `No activity on this account yet`;
+  } else if (!transactions[0].status.confirmed) {
+    // if last transaction isn't confirmed yet
+    return `Last transaction was moments ago`;
+  } else {
+    // if transaction is confirmed, give moments ago
+    return `Last transaction was ${moment
+      .unix(transactions[0].status.block_time)
+      .fromNow()}`;
   }
-}
+};
 
 export const AccountsSection = () => {
   const { accountMap, setCurrentAccountId } = useContext(AccountMapContext);
 
   return (
     <Fragment>
-      <HomeHeadingItem style={{ marginTop: '2.5em', marginBottom: '1em' }}>Your Accounts</HomeHeadingItem>
+      <HomeHeadingItem style={{ marginTop: "2.5em", marginBottom: "1em" }}>
+        Your Accounts
+      </HomeHeadingItem>
       <AccountsWrapper>
         {Object.values(accountMap).map((account) => (
           <AccountItem
             to={`/vault/${account.config.id}`}
             onClick={() => setCurrentAccountId(account.config.id)}
-            key={account.config.id}>
-            <StyledIcon as={Bitcoin} size={48} />
+            key={account.config.id}
+          >
+            {account.loading ? (
+              <LoadingSpinner
+                alt="loading placeholder"
+                src={require("../../assets/flower-loading.svg")}
+                style={{ width: rem(48), height: rem(48) }}
+              />
+            ) : (
+              <StyledIcon as={Bitcoin} size={48} />
+            )}
             <AccountInfoContainer>
               <AccountName>{account.name}</AccountName>
-              {account.loading && 'Loading...'}
-              {!account.loading && <CurrentBalance>Current Balance: {satoshisToBitcoins(account.currentBalance).toFixed(8)} BTC</CurrentBalance>}
-              {!account.loading && <CurrentBalance>{getLastTransactionTime(account.transactions)}</CurrentBalance>}
+
+              <CurrentBalance>
+                Current Balance:{" "}
+                {satoshisToBitcoins(account.currentBalance).toFixed(8)} BTC
+              </CurrentBalance>
+
+              <CurrentBalance>
+                {getLastTransactionTime(account.transactions)}
+              </CurrentBalance>
             </AccountInfoContainer>
           </AccountItem>
         ))}
@@ -49,16 +72,18 @@ export const AccountsSection = () => {
           <StyledIcon as={AddCircleOutline} size={48} />
           <AccountInfoContainer>
             <AccountName>Add a new account</AccountName>
-            <CurrentBalance>Create a new account to send, receive, and manage bitcoin</CurrentBalance>
+            <CurrentBalance>
+              Create a new account to send, receive, and manage bitcoin
+            </CurrentBalance>
           </AccountInfoContainer>
         </AccountItem>
-        {!accountMap.size && (
-          <InvisibleItem></InvisibleItem>
-        )}
+        {!accountMap.size && <InvisibleItem></InvisibleItem>}
       </AccountsWrapper>
     </Fragment>
-  )
-}
+  );
+};
+
+const LoadingSpinner = styled.img``;
 
 const HomeHeadingItem = styled.h3`
   font-size: 1.5em;
@@ -81,18 +106,19 @@ const AccountItem = styled(Link)`
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  box-shadow: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
 
   &:hover {
     color: ${gray500};
   }
 
-  transition-property: background-color,border-color,color,fill,stroke,opacity,box-shadow,transform;
-  transition-timing-function: cubic-bezier(.4,0,.2,1);
-  transition-duration: .15s;
+  transition-property: background-color, border-color, color, fill, stroke,
+    opacity, box-shadow, transform;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 0.15s;
 
   &:active {
-    transform: scale(.99);
+    transform: scale(0.99);
     outline: 0;
   }
 `;

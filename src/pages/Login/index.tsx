@@ -68,8 +68,8 @@ const Login = ({
         );
         setPasswordError(undefined);
         setTimeout(() => {
-          setConfigFile(decryptedData);
           setPassword(localPassword);
+          setConfigFile(decryptedData);
           saveConfig(decryptedData, localPassword); // we resave the file after opening to update the modifiedDate value
           setIsLoading(false);
           history.replace(`/`);

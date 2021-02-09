@@ -132,7 +132,7 @@ const VaultView = ({ nodeConfig, toggleRefresh }: Props) => {
 
   return (
     <Fragment>
-      {currentAccount.loading && (
+      {currentAccount.loading && progress > 0 ? (
         <ValueWrapper>
           <Loading
             style={{ margin: "10em 0" }}
@@ -146,8 +146,7 @@ const VaultView = ({ nodeConfig, toggleRefresh }: Props) => {
             itemText={"Chart Data"}
           />
         </ValueWrapper>
-      )}
-      {transactions.length > 0 && !currentAccount.loading && (
+      ) : (
         <ValueWrapper>
           <CurrentBalanceContainer>
             <CurrentBalanceText>Current Balance:</CurrentBalanceText>

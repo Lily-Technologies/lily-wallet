@@ -10,6 +10,7 @@ const axios = require("axios");
 const moment = require("moment");
 const { networks } = require("bitcoinjs-lib");
 const BigNumber = require("bignumber.js");
+const { AES, enc } = require("crypto-js");
 
 const {
   enumerate,
@@ -83,6 +84,29 @@ const getFile = async (filename) => {
     });
   } else {
     return Promise.reject();
+  }
+};
+
+const getEncryptedFile = async (filename, password) => {
+  try {
+    const encryptedFile = await getFile(filename);
+    const bytes = AES.decrypt(encryptedFile.file, password);
+    const decryptedData = JSON.parse(bytes.toString(enc.Utf8));
+    return decryptedData;
+  } catch (e) {
+    throw new Error(`Error retriving ${filename}`);
+  }
+};
+
+const saveEncryptedFile = async (data, filename, password) => {
+  try {
+    const encryptedAccountCache = AES.encrypt(
+      JSON.stringify(data),
+      password
+    ).toString();
+    saveFile(encryptedAccountCache, `${filename}`);
+  } catch (e) {
+    throw new Error(`Error saving ${filename}`);
   }
 };
 
@@ -274,10 +298,21 @@ app.on("activate", function () {
 });
 
 ipcMain.on("/account-data", async (event, args) => {
-  const { config } = args;
+  const { config, password } = args;
 
   // load data from cache
-  // event.reply("/account-data", accountData);
+  const CACHE_FILE_NAME = `lily${config.id}-cache.txt`;
+  try {
+    const accountCache = await getEncryptedFile(CACHE_FILE_NAME, password);
+    event.reply("/account-data", {
+      ...accountCache,
+      loading: true,
+    });
+  } catch (e) {
+    console.log(
+      "/account-data: Error retriving cached data. Continuing to load account data..."
+    );
+  }
 
   // load new data
   let addresses,
@@ -332,13 +367,6 @@ ipcMain.on("/account-data", async (event, args) => {
       BigNumber(0)
     );
 
-    let loading = false;
-    if (nodeClient) {
-      const resp = await nodeClient.getWalletInfo();
-      // TODO: should check if keypool is > 0
-      loading = resp.scanning;
-    }
-
     const accountData = {
       name: config.name,
       config: config,
@@ -349,8 +377,22 @@ ipcMain.on("/account-data", async (event, args) => {
       unusedAddresses,
       currentBalance: currentBalance.toNumber(),
       unusedChangeAddresses,
-      loading,
     };
+
+    try {
+      console.log(`Saving ${config.id} results to cache`);
+      await saveEncryptedFile(accountData, CACHE_FILE_NAME, password);
+    } catch (e) {
+      console.log(`Error saving ${config.id} account data cache. ${e.message}`);
+    }
+
+    let loading = false;
+    if (nodeClient) {
+      const resp = await nodeClient.getWalletInfo();
+      // TODO: should check if keypool is > 0
+      loading = resp.scanning;
+    }
+    accountData.loading = loading;
 
     event.reply("/account-data", accountData);
   } catch (e) {
