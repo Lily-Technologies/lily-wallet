@@ -105,6 +105,7 @@ const VaultView = ({ nodeConfig, toggleRefresh }: Props) => {
         const { scanning } = await window.ipcRenderer.invoke("/getWalletInfo", {
           currentAccount,
         });
+        console.log("scanning: ", scanning);
         if (scanning) {
           setProgress(scanning.progress);
         }

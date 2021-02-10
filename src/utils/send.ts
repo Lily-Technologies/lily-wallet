@@ -15,7 +15,6 @@ import BigNumber from "bignumber.js";
 import coinSelect from "coinselect";
 
 import { cloneBuffer, bufferToHex } from "./other";
-import { getUnchainedNetworkFromBjslibNetwork } from "./files";
 
 import {
   LilyAccount,

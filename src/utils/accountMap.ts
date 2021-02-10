@@ -613,6 +613,8 @@ const scanForAddressesAndTransactions = async (
   account: AccountConfig,
   nodeClient: any,
   currentBitcoinNetwork: Network,
+  startRescanAddressesIndex: number,
+  startRescanChangeAddressesIndex: number,
   limitGap: number
 ) => {
   const receiveAddresses = [];
@@ -626,39 +628,51 @@ const scanForAddressesAndTransactions = async (
   let i = 0;
 
   while (gap < limitGap) {
-    const receiveAddress = getAddressFromAccount(
-      account,
-      `m/0/${i}`,
-      currentBitcoinNetwork
-    );
+    let receiveTxs = [];
+    if (unusedReceiveAddresses.length < limitGap) {
+      const receiveAddress = getAddressFromAccount(
+        account,
+        `m/0/${startRescanAddressesIndex + i}`,
+        currentBitcoinNetwork
+      );
+      console.log(
+        "receiveAddress: ",
+        startRescanAddressesIndex + i,
+        receiveAddress.address
+      );
 
-    receiveAddresses.push(receiveAddress);
-    const receiveTxs = await getTransactionsFromAddress(
-      receiveAddress.address,
-      nodeClient,
-      currentBitcoinNetwork
-    );
-    if (!receiveTxs.length) {
-      unusedReceiveAddresses.push(receiveAddress);
-    } else {
-      transactions = [...transactions, ...receiveTxs];
+      receiveTxs = await getTransactionsFromAddress(
+        receiveAddress.address,
+        nodeClient,
+        currentBitcoinNetwork
+      );
+      if (!receiveTxs.length) {
+        unusedReceiveAddresses.push(receiveAddress);
+      } else {
+        receiveAddresses.push(receiveAddress);
+        transactions = [...transactions, ...receiveTxs];
+      }
     }
 
-    const changeAddress = getAddressFromAccount(
-      account,
-      `m/1/${i}`,
-      currentBitcoinNetwork
-    );
-    changeAddresses.push(changeAddress);
-    const changeTxs = await getTransactionsFromAddress(
-      changeAddress.address,
-      nodeClient,
-      currentBitcoinNetwork
-    );
-    if (!changeTxs.length) {
-      unusedChangeAddresses.push(changeAddress);
-    } else {
-      transactions = [...transactions, ...changeTxs];
+    let changeTxs = [];
+    if (unusedChangeAddresses.length < limitGap) {
+      const changeAddress = getAddressFromAccount(
+        account,
+        `m/1/${startRescanChangeAddressesIndex + i}`,
+        currentBitcoinNetwork
+      );
+      changeTxs = await getTransactionsFromAddress(
+        changeAddress.address,
+        nodeClient,
+        currentBitcoinNetwork
+      );
+
+      if (!changeTxs.length) {
+        unusedChangeAddresses.push(changeAddress);
+      } else {
+        changeAddresses.push(changeAddress);
+        transactions = [...transactions, ...changeTxs];
+      }
     }
 
     if (!!!receiveTxs.length && !!!changeTxs.length) {
@@ -709,7 +723,9 @@ const getUtxosFromNode = async (
 export const getDataFromMultisig = async (
   account: AccountConfig,
   nodeClient: any,
-  currentBitcoinNetwork: Network
+  currentBitcoinNetwork: Network,
+  startRescanAddressesIndex: number,
+  startRescanChangeAddressesIndex: number
 ) => {
   const {
     receiveAddresses,
@@ -721,6 +737,8 @@ export const getDataFromMultisig = async (
     account,
     nodeClient,
     currentBitcoinNetwork,
+    startRescanAddressesIndex,
+    startRescanChangeAddressesIndex,
     10
   );
   let organizedTransactions: Transaction[];
@@ -760,7 +778,9 @@ export const getDataFromMultisig = async (
 export const getDataFromXPub = async (
   account: AccountConfig,
   nodeClient: any,
-  currentBitcoinNetwork: Network
+  currentBitcoinNetwork: Network,
+  startRescanAddressesIndex: number,
+  startRescanChangeAddressesIndex: number
 ) => {
   const {
     receiveAddresses,
@@ -772,6 +792,8 @@ export const getDataFromXPub = async (
     account,
     nodeClient,
     currentBitcoinNetwork,
+    startRescanAddressesIndex,
+    startRescanChangeAddressesIndex,
     10
   );
 
@@ -814,7 +836,6 @@ export const loadOrCreateWalletViaRPC = async (
   nodeClient: any
 ) => {
   const walletList = await nodeClient.listWallets();
-  console.log("walletList: ", walletList);
 
   if (!walletList.includes(`lily${config.id}`)) {
     console.log(`Wallet lily${config.id} isn't loaded.`);

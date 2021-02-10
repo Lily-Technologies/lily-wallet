@@ -74,7 +74,10 @@ const TxDetailsModal = ({ transaction }: Props) => {
             : "Unconfirmed"}
         </StatusItem>
         <StatusItem>
-          Paid {satoshisToBitcoins(transaction.fee).toNumber()} BTC in fees
+          {transaction.fee &&
+            `Paid ${satoshisToBitcoins(
+              transaction.fee
+            ).toNumber()} BTC in fees`}
         </StatusItem>
       </MoreDetailsSection>
       <Buttons>

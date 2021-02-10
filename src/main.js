@@ -302,13 +302,25 @@ ipcMain.on("/account-data", async (event, args) => {
 
   // load data from cache
   const CACHE_FILE_NAME = `lily${config.id}-cache.txt`;
+  let accountCache;
   try {
-    const accountCache = await getEncryptedFile(CACHE_FILE_NAME, password);
+    accountCache = await getEncryptedFile(CACHE_FILE_NAME, password);
     event.reply("/account-data", {
       ...accountCache,
       loading: true,
     });
   } catch (e) {
+    accountCache = {
+      name: config.name,
+      config: config,
+      transactions: [],
+      addresses: [],
+      changeAddresses: [],
+      unusedAddresses: [],
+      unusedChangeAddresses: [],
+      availableUtxos: [],
+      currentBalance: new BigNumber(0),
+    };
     console.log(
       "/account-data: Error retriving cached data. Continuing to load account data..."
     );
@@ -341,6 +353,24 @@ ipcMain.on("/account-data", async (event, args) => {
       await loadOrCreateWalletViaRPC(config, nodeClient);
     }
 
+    const startRescanAddressesIndex =
+      parseInt(
+        accountCache?.unusedAddresses?.[0]?.bip32derivation?.[0]?.path?.substring(
+          accountCache.unusedAddresses[0].bip32derivation[0].path.lastIndexOf(
+            "/"
+          ) + 1
+        )
+      ) || 0; // if no accountCache, start at 0
+
+    const startRescanChangeAddressesIndex =
+      parseInt(
+        accountCache?.unusedChangeAddresses?.[0]?.bip32derivation?.[0]?.path?.substring(
+          accountCache.unusedChangeAddresses[0].bip32derivation[0].path.lastIndexOf(
+            "/"
+          ) + 1
+        )
+      ) || 0; // if no accountCache, start at 0
+
     if (config.quorum.totalSigners > 1) {
       [
         addresses,
@@ -349,7 +379,13 @@ ipcMain.on("/account-data", async (event, args) => {
         unusedAddresses,
         unusedChangeAddresses,
         availableUtxos,
-      ] = await getDataFromMultisig(config, nodeClient, currentBitcoinNetwork);
+      ] = await getDataFromMultisig(
+        config,
+        nodeClient,
+        currentBitcoinNetwork,
+        startRescanAddressesIndex,
+        startRescanChangeAddressesIndex
+      );
     } else {
       [
         addresses,
@@ -358,7 +394,13 @@ ipcMain.on("/account-data", async (event, args) => {
         unusedAddresses,
         unusedChangeAddresses,
         availableUtxos,
-      ] = await getDataFromXPub(config, nodeClient, currentBitcoinNetwork);
+      ] = await getDataFromXPub(
+        config,
+        nodeClient,
+        currentBitcoinNetwork,
+        startRescanAddressesIndex,
+        startRescanChangeAddressesIndex
+      );
     }
 
     console.log(`Calculating current balance for ${config.id}`);
@@ -370,12 +412,12 @@ ipcMain.on("/account-data", async (event, args) => {
     const accountData = {
       name: config.name,
       config: config,
-      addresses,
-      changeAddresses,
-      availableUtxos,
-      transactions,
+      addresses: [...accountCache?.addresses, ...addresses],
+      changeAddresses: [...accountCache?.changeAddresses, ...addresses],
+      availableUtxos: [...accountCache?.availableUtxos, ...availableUtxos], // KBC-TODO: check on "old" utxos
+      transactions: [...accountCache?.transactions, ...transactions],
       unusedAddresses,
-      currentBalance: currentBalance.toNumber(),
+      currentBalance: accountCache.currentBalance + currentBalance.toNumber(),
       unusedChangeAddresses,
     };
 
