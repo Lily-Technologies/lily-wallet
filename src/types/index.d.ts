@@ -173,6 +173,7 @@ export interface UTXO {
   value: number;
   address: Address;
   amount?: number; // comes from bitcoin-core node
+  prevTxHex: string; // added to UTXO when retriving for Trezor HWW
 }
 
 export interface LilyAccount {

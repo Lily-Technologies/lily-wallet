@@ -332,6 +332,30 @@ var createAddressMapFromAddressArray = function (addressArray, isChange) {
   });
   return addressMap;
 };
+var getTxHex = function (txid, currentBitcoinNetwork) {
+  return __awaiter(void 0, void 0, void 0, function () {
+    var txHex;
+    return __generator(this, function (_a) {
+      switch (_a.label) {
+        case 0:
+          return [
+            4 /*yield*/,
+            axios_1.default.get(
+              unchained_bitcoin_1.blockExplorerAPIURL(
+                "/tx/" + txid + "/hex",
+                getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)
+              )
+            ),
+          ];
+        case 1:
+          return [4 /*yield*/, _a.sent().data];
+        case 2:
+          txHex = _a.sent();
+          return [2 /*return*/, txHex];
+      }
+    });
+  });
+};
 /**
  * Function used to aggregate values of inputs/outputs with optional
  * filtering options.
@@ -693,17 +717,67 @@ var getMultisigAddressFromPubKeys = function (
   });
   return address;
 };
+var getUtxosFromNode = function (
+  receiveAddresses,
+  changeAddresses,
+  nodeClient
+) {
+  return __awaiter(void 0, void 0, void 0, function () {
+    var availableUtxos, receiveAddressMap, changeAddressMap, addressMap, i, _a;
+    return __generator(this, function (_b) {
+      switch (_b.label) {
+        case 0:
+          return [4 /*yield*/, nodeClient.listUnspent()];
+        case 1:
+          availableUtxos = _b.sent();
+          receiveAddressMap = createAddressMapFromAddressArray(
+            receiveAddresses,
+            false
+          );
+          changeAddressMap = createAddressMapFromAddressArray(
+            changeAddresses,
+            true
+          );
+          addressMap = __assign(
+            __assign({}, receiveAddressMap),
+            changeAddressMap
+          );
+          i = 0;
+          _b.label = 2;
+        case 2:
+          if (!(i < availableUtxos.length)) return [3 /*break*/, 5];
+          availableUtxos[i].value = unchained_bitcoin_1
+            .bitcoinsToSatoshis(availableUtxos[i].amount)
+            .toNumber();
+          _a = availableUtxos[i];
+          return [
+            4 /*yield*/,
+            nodeClient.getRawTransaction(availableUtxos[i].txid),
+          ];
+        case 3:
+          _a.prevTxHex = _b.sent();
+          availableUtxos[i].address = addressMap[availableUtxos[i].address];
+          _b.label = 4;
+        case 4:
+          i++;
+          return [3 /*break*/, 2];
+        case 5:
+          return [2 /*return*/, availableUtxos];
+      }
+    });
+  });
+};
 var getUtxosForAddresses = function (addresses, currentBitcoinNetwork) {
   return __awaiter(void 0, void 0, void 0, function () {
-    var availableUtxos, i, utxosFromBlockstream, j, utxo;
-    return __generator(this, function (_a) {
-      switch (_a.label) {
+    var availableUtxos, i, utxosFromBlockstream, j, utxo, _a;
+    return __generator(this, function (_b) {
+      switch (_b.label) {
         case 0:
           availableUtxos = [];
           i = 0;
-          _a.label = 1;
+          _b.label = 1;
         case 1:
-          if (!(i < addresses.length)) return [3 /*break*/, 5];
+          if (!(i < addresses.length)) return [3 /*break*/, 8];
           return [
             4 /*yield*/,
             axios_1.default.get(
@@ -714,19 +788,28 @@ var getUtxosForAddresses = function (addresses, currentBitcoinNetwork) {
             ),
           ];
         case 2:
-          return [4 /*yield*/, _a.sent().data];
+          return [4 /*yield*/, _b.sent().data];
         case 3:
-          utxosFromBlockstream = _a.sent();
-          for (j = 0; j < utxosFromBlockstream.length; j++) {
-            utxo = utxosFromBlockstream[j];
-            utxo.address = addresses[i];
-            availableUtxos.push(utxo);
-          }
-          _a.label = 4;
+          utxosFromBlockstream = _b.sent();
+          j = 0;
+          _b.label = 4;
         case 4:
+          if (!(j < utxosFromBlockstream.length)) return [3 /*break*/, 7];
+          utxo = utxosFromBlockstream[j];
+          utxo.address = addresses[i];
+          _a = utxo;
+          return [4 /*yield*/, getTxHex(utxo.txid, currentBitcoinNetwork)];
+        case 5:
+          _a.prevTxHex = _b.sent();
+          availableUtxos.push(utxo);
+          _b.label = 6;
+        case 6:
+          j++;
+          return [3 /*break*/, 4];
+        case 7:
           i++;
           return [3 /*break*/, 1];
-        case 5:
+        case 8:
           return [2 /*return*/, availableUtxos];
       }
     });
@@ -1016,11 +1099,7 @@ exports.getDataFromMultisig = function (
       unusedChangeAddresses,
       transactions,
       organizedTransactions,
-      availableUtxos,
-      receiveAddressMap,
-      changeAddressMap,
-      addressMap,
-      i;
+      availableUtxos;
     return __generator(this, function (_b) {
       switch (_b.label) {
         case 0:
@@ -1047,27 +1126,12 @@ exports.getDataFromMultisig = function (
           ];
         case 2:
           organizedTransactions = _b.sent();
-          return [4 /*yield*/, nodeClient.listUnspent()];
+          return [
+            4 /*yield*/,
+            getUtxosFromNode(receiveAddresses, changeAddresses, nodeClient),
+          ];
         case 3:
           availableUtxos = _b.sent();
-          receiveAddressMap = createAddressMapFromAddressArray(
-            receiveAddresses,
-            false
-          );
-          changeAddressMap = createAddressMapFromAddressArray(
-            changeAddresses,
-            true
-          );
-          addressMap = __assign(
-            __assign({}, receiveAddressMap),
-            changeAddressMap
-          );
-          for (i = 0; i < availableUtxos.length; i++) {
-            availableUtxos[i].value = unchained_bitcoin_1
-              .bitcoinsToSatoshis(availableUtxos[i].amount)
-              .toNumber();
-            availableUtxos[i].address = addressMap[availableUtxos[i].address];
-          }
           return [3 /*break*/, 6];
         case 4:
           organizedTransactions = exports.serializeTransactions(
@@ -1114,11 +1178,7 @@ exports.getDataFromXPub = function (
       unusedChangeAddresses,
       transactions,
       organizedTransactions,
-      availableUtxos,
-      receiveAddressMap,
-      changeAddressMap,
-      addressMap,
-      i;
+      availableUtxos;
     return __generator(this, function (_b) {
       switch (_b.label) {
         case 0:
@@ -1145,27 +1205,12 @@ exports.getDataFromXPub = function (
           ];
         case 2:
           organizedTransactions = _b.sent();
-          return [4 /*yield*/, nodeClient.listUnspent()];
+          return [
+            4 /*yield*/,
+            getUtxosFromNode(receiveAddresses, changeAddresses, nodeClient),
+          ];
         case 3:
           availableUtxos = _b.sent();
-          receiveAddressMap = createAddressMapFromAddressArray(
-            receiveAddresses,
-            false
-          );
-          changeAddressMap = createAddressMapFromAddressArray(
-            changeAddresses,
-            true
-          );
-          addressMap = __assign(
-            __assign({}, receiveAddressMap),
-            changeAddressMap
-          );
-          for (i = 0; i < availableUtxos.length; i++) {
-            availableUtxos[i].value = unchained_bitcoin_1
-              .bitcoinsToSatoshis(availableUtxos[i].amount)
-              .toNumber();
-            availableUtxos[i].address = addressMap[availableUtxos[i].address];
-          }
           return [3 /*break*/, 6];
         case 4:
           return [
