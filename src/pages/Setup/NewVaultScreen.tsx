@@ -1,28 +1,45 @@
-import React, { useState, useRef } from 'react';
-import styled from 'styled-components';
-import { decode } from 'bs58check';
+import React, { useState, useRef, useContext } from "react";
+import styled from "styled-components";
+import { decode } from "bs58check";
 import BarcodeScannerComponent from "react-webcam-barcode-scanner";
-import { Network } from 'bitcoinjs-lib';
+import { Network } from "bitcoinjs-lib";
 
-import { Button, DeviceSelect, FileUploader, Dropdown, Modal } from '../../components';
-import { InnerWrapper, XPubHeaderWrapper, SetupHeaderWrapper, SetupExplainerText, FormContainer, BoxedWrapper, SetupHeader } from './styles';
-import { zpubToXpub } from '../../utils/other';
-import RequiredDevicesModal from './RequiredDevicesModal';
+import { Button, DeviceSelect, FileUploader, Dropdown } from "../../components";
+import {
+  InnerWrapper,
+  XPubHeaderWrapper,
+  SetupHeaderWrapper,
+  SetupExplainerText,
+  FormContainer,
+  BoxedWrapper,
+  SetupHeader,
+} from "./styles";
+import { zpubToXpub } from "../../utils/other";
+import RequiredDevicesModal from "./RequiredDevicesModal";
 
-import { white, green600 } from '../../utils/colors'
+import { white, green600 } from "../../utils/colors";
 
-import { getMultisigDeriationPathForNetwork } from '../../utils/files';
+import { getMultisigDeriationPathForNetwork } from "../../utils/files";
 
-import { HwiResponseEnumerate, File, ColdcardDeviceMultisigExportFile, ColdcardMultisigExportFile } from '../../types';
+import {
+  HwiResponseEnumerate,
+  File,
+  ColdcardDeviceMultisigExportFile,
+  ColdcardMultisigExportFile,
+} from "../../types";
+
+import { ModalContext } from "../../ModalContext";
 
 interface Props {
-  header: JSX.Element
-  setStep: React.Dispatch<React.SetStateAction<number>>
-  importedDevices: HwiResponseEnumerate[]
-  setImportedDevices: React.Dispatch<React.SetStateAction<HwiResponseEnumerate[]>>
-  setConfigRequiredSigners: React.Dispatch<React.SetStateAction<number>>
-  configRequiredSigners: number
-  currentBitcoinNetwork: Network
+  header: JSX.Element;
+  setStep: React.Dispatch<React.SetStateAction<number>>;
+  importedDevices: HwiResponseEnumerate[];
+  setImportedDevices: React.Dispatch<
+    React.SetStateAction<HwiResponseEnumerate[]>
+  >;
+  setConfigRequiredSigners: React.Dispatch<React.SetStateAction<number>>;
+  configRequiredSigners: number;
+  currentBitcoinNetwork: Network;
 }
 
 const NewVaultScreen = ({
@@ -32,22 +49,26 @@ const NewVaultScreen = ({
   setImportedDevices,
   setConfigRequiredSigners,
   configRequiredSigners,
-  currentBitcoinNetwork
+  currentBitcoinNetwork,
 }: Props) => {
-  const [selectNumberRequiredModalOpen, setSelectNumberRequiredModalOpen] = useState(false);
-  const [availableDevices, setAvailableDevices] = useState<HwiResponseEnumerate[]>([]);
+  const { openInModal, closeModal } = useContext(ModalContext);
+  const [availableDevices, setAvailableDevices] = useState<
+    HwiResponseEnumerate[]
+  >([]);
   const [errorDevices, setErrorDevices] = useState<string[]>([]);
   const [otherImportDropdownOpen, setOtherImportDropdownOpen] = useState(false);
-  const [qrScanModalOpen, setQrScanModalOpen] = useState(false);
 
   const importDeviceFromFileRef = useRef<HTMLLabelElement>(null);
 
-  const importMultisigDevice = async (device: HwiResponseEnumerate, index: number) => {
+  const importMultisigDevice = async (
+    device: HwiResponseEnumerate,
+    index: number
+  ) => {
     try {
-      const response = await window.ipcRenderer.invoke('/xpub', {
+      const response = await window.ipcRenderer.invoke("/xpub", {
         deviceType: device.type,
         devicePath: device.path,
-        path: getMultisigDeriationPathForNetwork(currentBitcoinNetwork) // we are assuming BIP48 P2WSH wallet
+        path: getMultisigDeriationPathForNetwork(currentBitcoinNetwork), // we are assuming BIP48 P2WSH wallet
       }); // KBC-TODO: add type for HwiXpubResponse
 
       setImportedDevices([...importedDevices, { ...device, ...response }]);
@@ -58,13 +79,12 @@ const NewVaultScreen = ({
         setErrorDevices(errorDevicesCopy);
       }
       setAvailableDevices([...availableDevices]);
-
     } catch (e) {
       const errorDevicesCopy = [...errorDevices];
       errorDevicesCopy.push(device.fingerprint);
-      setErrorDevices([...errorDevicesCopy])
+      setErrorDevices([...errorDevicesCopy]);
     }
-  }
+  };
 
   const importDeviceFromQR = ({ data }: { data: string }) => {
     try {
@@ -72,40 +92,46 @@ const NewVaultScreen = ({
       const xpubFromZpub = zpubToXpub(decode(xpub));
 
       const newDevice = {
-        type: 'cobo',
+        type: "cobo",
         fingerprint: xfp,
         xpub: xpubFromZpub,
-        model: 'unknown',
-        path: path
+        model: "unknown",
+        path: path,
       } as HwiResponseEnumerate;
 
       const updatedImportedDevices = [...importedDevices, newDevice];
       setImportedDevices(updatedImportedDevices);
-      setAvailableDevices([...availableDevices.filter((item) => item.type !== 'phone')]);
-      setQrScanModalOpen(false);
-    } catch (e) {
+      setAvailableDevices([
+        ...availableDevices.filter((item) => item.type !== "phone"),
+      ]);
+      closeModal();
+    } catch (e) {}
+  };
 
-    }
-  }
-
-  const importDeviceFromFile = (parsedFile: ColdcardDeviceMultisigExportFile) => {
+  const importDeviceFromFile = (
+    parsedFile: ColdcardDeviceMultisigExportFile
+  ) => {
     const zpub = decode(parsedFile.p2wsh);
     const xpub = zpubToXpub(zpub);
 
     const newDevice = {
-      type: 'coldcard',
+      type: "coldcard",
       fingerprint: parsedFile.xfp,
       xpub: xpub,
-      path: 'unknown',
-      model: 'unknown'
+      path: "unknown",
+      model: "unknown",
     } as HwiResponseEnumerate;
 
     const updatedImportedDevices = [...importedDevices, newDevice];
-    setImportedDevices(updatedImportedDevices)
-  }
+    setImportedDevices(updatedImportedDevices);
+  };
 
-  const importMultisigWalletFromFile = (parsedFile: ColdcardMultisigExportFile) => {
-    const numPubKeys = Object.keys(parsedFile).filter((key) => key.startsWith('x')).length // all exports start with x
+  const importMultisigWalletFromFile = (
+    parsedFile: ColdcardMultisigExportFile
+  ) => {
+    const numPubKeys = Object.keys(parsedFile).filter((key) =>
+      key.startsWith("x")
+    ).length; // all exports start with x
     const devicesFromFile = [];
 
     for (let i = 1; i < numPubKeys + 1; i++) {
@@ -114,17 +140,19 @@ const NewVaultScreen = ({
 
       const newDevice = {
         type: parsedFile[`x${i}/`].hw_type,
-        fingerprint: parsedFile[`x${i}/`].label.substring(parsedFile[`x${i}/`].label.indexOf('Coldcard ') + 'Coldcard '.length),
+        fingerprint: parsedFile[`x${i}/`].label.substring(
+          parsedFile[`x${i}/`].label.indexOf("Coldcard ") + "Coldcard ".length
+        ),
         xpub: xpub,
-        model: 'unknown',
-        path: 'none'
+        model: "unknown",
+        path: "none",
       } as HwiResponseEnumerate;
 
       devicesFromFile.push(newDevice);
     }
     const updatedImportedDevices = [...importedDevices, ...devicesFromFile];
-    setImportedDevices(updatedImportedDevices)
-  }
+    setImportedDevices(updatedImportedDevices);
+  };
 
   return (
     <InnerWrapper>
@@ -137,37 +165,30 @@ const NewVaultScreen = ({
             onFileLoad={({ file }: File) => {
               const parsedFile = JSON.parse(file);
               // TODO: should probably have better checking for files to make sure users aren't uploading "weird" files
-              if (parsedFile.seed_version) { // is a multisig file
-                importMultisigWalletFromFile(parsedFile)
-              } else { // is a wallet export file
-                importDeviceFromFile(parsedFile)
+              if (parsedFile.seed_version) {
+                // is a multisig file
+                importMultisigWalletFromFile(parsedFile);
+              } else {
+                // is a wallet export file
+                importDeviceFromFile(parsedFile);
               }
             }}
           />
-          <ImportFromFileLabel htmlFor="localConfigFile" ref={importDeviceFromFileRef}></ImportFromFileLabel>
-
-          <Modal
-            isOpen={qrScanModalOpen}
-            onRequestClose={() => setQrScanModalOpen(false)}
-          >
-            <BarcodeScannerComponent
-              // @ts-ignore
-              width={'100%'}
-              onUpdate={(err, result) => {
-                if (result) importDeviceFromQR({ data: result.getText() })
-                else return;
-              }}
-            />
-          </Modal>
+          <ImportFromFileLabel
+            htmlFor="localConfigFile"
+            ref={importDeviceFromFileRef}
+          ></ImportFromFileLabel>
 
           <XPubHeaderWrapper>
             <SetupHeaderWrapper>
               <div>
                 <SetupHeader>Connect Devices to Computer</SetupHeader>
                 <SetupExplainerText>
-                  Devices unlocked and connected to your computer will appear here. Click on them to include them in your vault.
-                  You may disconnect a device from your computer after it has been imported.
-                  </SetupExplainerText>
+                  Devices unlocked and connected to your computer will appear
+                  here. Click on them to include them in your vault. You may
+                  disconnect a device from your computer after it has been
+                  imported.
+                </SetupExplainerText>
               </div>
               <Dropdown
                 isOpen={otherImportDropdownOpen}
@@ -177,25 +198,36 @@ const NewVaultScreen = ({
                   {
                     label: "Import from File",
                     onClick: () => {
-                      const importDeviceFromFile = importDeviceFromFileRef.current;
+                      const importDeviceFromFile =
+                        importDeviceFromFileRef.current;
                       if (importDeviceFromFile) {
-                        importDeviceFromFile.click()
+                        importDeviceFromFile.click();
                       }
-                    }
+                    },
                   },
                   {
                     label: "Import from QR Code",
-                    onClick: () => setQrScanModalOpen(true)
-                  }
+                    onClick: () =>
+                      openInModal(
+                        <BarcodeScannerComponent
+                          // @ts-ignore
+                          width={"100%"}
+                          onUpdate={(err, result) => {
+                            if (result)
+                              importDeviceFromQR({ data: result.getText() });
+                            else return;
+                          }}
+                        />
+                      ),
+                  },
                 ]}
               />
-
             </SetupHeaderWrapper>
           </XPubHeaderWrapper>
           <DeviceSelect
             deviceAction={importMultisigDevice}
-            deviceActionText={'Click to Configure'}
-            deviceActionLoadingText={'Extracting XPub'}
+            deviceActionText={"Click to Configure"}
+            deviceActionLoadingText={"Extracting XPub"}
             configuredDevices={importedDevices}
             unconfiguredDevices={availableDevices}
             errorDevices={errorDevices}
@@ -203,25 +235,28 @@ const NewVaultScreen = ({
             configuredThreshold={15}
           />
         </BoxedWrapper>
-        {importedDevices.length > 1 && <ContinueButton
-          background={green600}
-          color={white}
-          onClick={() => {
-            setSelectNumberRequiredModalOpen(true)
-          }}>Finish Adding Devices</ContinueButton>}
+        {importedDevices.length > 1 && (
+          <ContinueButton
+            background={green600}
+            color={white}
+            onClick={() => {
+              openInModal(
+                <RequiredDevicesModal
+                  numberOfImportedDevices={importedDevices.length}
+                  setConfigRequiredSigners={setConfigRequiredSigners}
+                  configRequiredSigners={configRequiredSigners}
+                  setStep={setStep}
+                />
+              );
+            }}
+          >
+            Finish Adding Devices
+          </ContinueButton>
+        )}
       </FormContainer>
-
-      <RequiredDevicesModal
-        selectNumberRequiredModalOpen={selectNumberRequiredModalOpen}
-        setSelectNumberRequiredModalOpen={setSelectNumberRequiredModalOpen}
-        numberOfImportedDevices={importedDevices.length}
-        setConfigRequiredSigners={setConfigRequiredSigners}
-        configRequiredSigners={configRequiredSigners}
-        setStep={setStep}
-      />
     </InnerWrapper>
-  )
-}
+  );
+};
 
 const ContinueButton = styled.button`
   ${Button};

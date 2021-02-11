@@ -332,6 +332,30 @@ var createAddressMapFromAddressArray = function (addressArray, isChange) {
   });
   return addressMap;
 };
+var getTxHex = function (txid, currentBitcoinNetwork) {
+  return __awaiter(void 0, void 0, void 0, function () {
+    var txHex;
+    return __generator(this, function (_a) {
+      switch (_a.label) {
+        case 0:
+          return [
+            4 /*yield*/,
+            axios_1.default.get(
+              unchained_bitcoin_1.blockExplorerAPIURL(
+                "/tx/" + txid + "/hex",
+                getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)
+              )
+            ),
+          ];
+        case 1:
+          return [4 /*yield*/, _a.sent().data];
+        case 2:
+          txHex = _a.sent();
+          return [2 /*return*/, txHex];
+      }
+    });
+  });
+};
 /**
  * Function used to aggregate values of inputs/outputs with optional
  * filtering options.
@@ -494,11 +518,11 @@ var serializeTransactionsFromNode = function (nodeClient, transactions) {
           _b.trys.push([2, 5, , 6]);
           return [
             4 /*yield*/,
-            nodeClient.getTransaction({
-              txid: transactions[i].txid,
-              include_watchonly: true,
-              verbose: true,
-            }),
+            nodeClient.getTransaction(
+              transactions[i].txid, //txid
+              true, // include_watchonly
+              true // verbose
+            ),
           ];
         case 3:
           currentTransaction = _b.sent();
@@ -533,10 +557,10 @@ var serializeTransactionsFromNode = function (nodeClient, transactions) {
                       case 0:
                         return [
                           4 /*yield*/,
-                          nodeClient.getRawTransaction({
-                            txid: item.txid,
-                            verbose: true,
-                          }),
+                          nodeClient.getRawTransaction(
+                            item.txid, // txid
+                            true // verbose
+                          ),
                         ];
                       case 1:
                         prevoutTx = _a.sent();
@@ -693,17 +717,67 @@ var getMultisigAddressFromPubKeys = function (
   });
   return address;
 };
+var getUtxosFromNode = function (
+  receiveAddresses,
+  changeAddresses,
+  nodeClient
+) {
+  return __awaiter(void 0, void 0, void 0, function () {
+    var availableUtxos, receiveAddressMap, changeAddressMap, addressMap, i, _a;
+    return __generator(this, function (_b) {
+      switch (_b.label) {
+        case 0:
+          return [4 /*yield*/, nodeClient.listUnspent()];
+        case 1:
+          availableUtxos = _b.sent();
+          receiveAddressMap = createAddressMapFromAddressArray(
+            receiveAddresses,
+            false
+          );
+          changeAddressMap = createAddressMapFromAddressArray(
+            changeAddresses,
+            true
+          );
+          addressMap = __assign(
+            __assign({}, receiveAddressMap),
+            changeAddressMap
+          );
+          i = 0;
+          _b.label = 2;
+        case 2:
+          if (!(i < availableUtxos.length)) return [3 /*break*/, 5];
+          availableUtxos[i].value = unchained_bitcoin_1
+            .bitcoinsToSatoshis(availableUtxos[i].amount)
+            .toNumber();
+          _a = availableUtxos[i];
+          return [
+            4 /*yield*/,
+            nodeClient.getRawTransaction(availableUtxos[i].txid),
+          ];
+        case 3:
+          _a.prevTxHex = _b.sent();
+          availableUtxos[i].address = addressMap[availableUtxos[i].address];
+          _b.label = 4;
+        case 4:
+          i++;
+          return [3 /*break*/, 2];
+        case 5:
+          return [2 /*return*/, availableUtxos];
+      }
+    });
+  });
+};
 var getUtxosForAddresses = function (addresses, currentBitcoinNetwork) {
   return __awaiter(void 0, void 0, void 0, function () {
-    var availableUtxos, i, utxosFromBlockstream, j, utxo;
-    return __generator(this, function (_a) {
-      switch (_a.label) {
+    var availableUtxos, i, utxosFromBlockstream, j, utxo, _a;
+    return __generator(this, function (_b) {
+      switch (_b.label) {
         case 0:
           availableUtxos = [];
           i = 0;
-          _a.label = 1;
+          _b.label = 1;
         case 1:
-          if (!(i < addresses.length)) return [3 /*break*/, 5];
+          if (!(i < addresses.length)) return [3 /*break*/, 8];
           return [
             4 /*yield*/,
             axios_1.default.get(
@@ -714,19 +788,28 @@ var getUtxosForAddresses = function (addresses, currentBitcoinNetwork) {
             ),
           ];
         case 2:
-          return [4 /*yield*/, _a.sent().data];
+          return [4 /*yield*/, _b.sent().data];
         case 3:
-          utxosFromBlockstream = _a.sent();
-          for (j = 0; j < utxosFromBlockstream.length; j++) {
-            utxo = utxosFromBlockstream[j];
-            utxo.address = addresses[i];
-            availableUtxos.push(utxo);
-          }
-          _a.label = 4;
+          utxosFromBlockstream = _b.sent();
+          j = 0;
+          _b.label = 4;
         case 4:
+          if (!(j < utxosFromBlockstream.length)) return [3 /*break*/, 7];
+          utxo = utxosFromBlockstream[j];
+          utxo.address = addresses[i];
+          _a = utxo;
+          return [4 /*yield*/, getTxHex(utxo.txid, currentBitcoinNetwork)];
+        case 5:
+          _a.prevTxHex = _b.sent();
+          availableUtxos.push(utxo);
+          _b.label = 6;
+        case 6:
+          j++;
+          return [3 /*break*/, 4];
+        case 7:
           i++;
           return [3 /*break*/, 1];
-        case 5:
+        case 8:
           return [2 /*return*/, availableUtxos];
       }
     });
@@ -802,12 +885,12 @@ var getTransactionsFromAddress = function (
           addressTxs = [];
           return [
             4 /*yield*/,
-            nodeClient.listReceivedByAddress({
-              minconf: 0,
-              include_empty: true,
-              include_watchonly: true,
-              address_filter: address,
-            }),
+            nodeClient.listReceivedByAddress(
+              0, // minconf
+              true, // include_empty
+              true, // include_watchonly
+              address // address_filter
+            ),
           ];
         case 1:
           txIds = _c.sent();
@@ -823,10 +906,7 @@ var getTransactionsFromAddress = function (
           if (!(i < numTxIds)) return [3 /*break*/, 5];
           return [
             4 /*yield*/,
-            nodeClient.getRawTransaction({
-              txid: txIds[0].txids[i],
-              verbose: true,
-            }),
+            nodeClient.getRawTransaction(txIds[0].txids[i], true),
           ];
         case 3:
           tx = _c.sent();
@@ -1019,11 +1099,7 @@ exports.getDataFromMultisig = function (
       unusedChangeAddresses,
       transactions,
       organizedTransactions,
-      availableUtxos,
-      receiveAddressMap,
-      changeAddressMap,
-      addressMap,
-      i;
+      availableUtxos;
     return __generator(this, function (_b) {
       switch (_b.label) {
         case 0:
@@ -1050,27 +1126,12 @@ exports.getDataFromMultisig = function (
           ];
         case 2:
           organizedTransactions = _b.sent();
-          return [4 /*yield*/, nodeClient.listUnspent()];
+          return [
+            4 /*yield*/,
+            getUtxosFromNode(receiveAddresses, changeAddresses, nodeClient),
+          ];
         case 3:
           availableUtxos = _b.sent();
-          receiveAddressMap = createAddressMapFromAddressArray(
-            receiveAddresses,
-            false
-          );
-          changeAddressMap = createAddressMapFromAddressArray(
-            changeAddresses,
-            true
-          );
-          addressMap = __assign(
-            __assign({}, receiveAddressMap),
-            changeAddressMap
-          );
-          for (i = 0; i < availableUtxos.length; i++) {
-            availableUtxos[i].value = unchained_bitcoin_1
-              .bitcoinsToSatoshis(availableUtxos[i].amount)
-              .toNumber();
-            availableUtxos[i].address = addressMap[availableUtxos[i].address];
-          }
           return [3 /*break*/, 6];
         case 4:
           organizedTransactions = exports.serializeTransactions(
@@ -1117,11 +1178,7 @@ exports.getDataFromXPub = function (
       unusedChangeAddresses,
       transactions,
       organizedTransactions,
-      availableUtxos,
-      receiveAddressMap,
-      changeAddressMap,
-      addressMap,
-      i;
+      availableUtxos;
     return __generator(this, function (_b) {
       switch (_b.label) {
         case 0:
@@ -1148,27 +1205,12 @@ exports.getDataFromXPub = function (
           ];
         case 2:
           organizedTransactions = _b.sent();
-          return [4 /*yield*/, nodeClient.listUnspent()];
+          return [
+            4 /*yield*/,
+            getUtxosFromNode(receiveAddresses, changeAddresses, nodeClient),
+          ];
         case 3:
           availableUtxos = _b.sent();
-          receiveAddressMap = createAddressMapFromAddressArray(
-            receiveAddresses,
-            false
-          );
-          changeAddressMap = createAddressMapFromAddressArray(
-            changeAddresses,
-            true
-          );
-          addressMap = __assign(
-            __assign({}, receiveAddressMap),
-            changeAddressMap
-          );
-          for (i = 0; i < availableUtxos.length; i++) {
-            availableUtxos[i].value = unchained_bitcoin_1
-              .bitcoinsToSatoshis(availableUtxos[i].amount)
-              .toNumber();
-            availableUtxos[i].address = addressMap[availableUtxos[i].address];
-          }
           return [3 /*break*/, 6];
         case 4:
           return [
@@ -1198,6 +1240,214 @@ exports.getDataFromXPub = function (
               availableUtxos,
             ],
           ];
+      }
+    });
+  });
+};
+exports.loadOrCreateWalletViaRPC = function (config, nodeClient) {
+  return __awaiter(void 0, void 0, void 0, function () {
+    var walletList,
+      walletResp,
+      e_2,
+      _a,
+      _b,
+      _c,
+      _d,
+      _e,
+      _f,
+      _g,
+      _h,
+      _j,
+      _k,
+      _l,
+      _m,
+      _o,
+      _p,
+      _q;
+    return __generator(this, function (_r) {
+      switch (_r.label) {
+        case 0:
+          return [4 /*yield*/, nodeClient.listWallets()];
+        case 1:
+          walletList = _r.sent();
+          console.log("walletList: ", walletList);
+          if (!!walletList.includes("lily" + config.id))
+            return [3 /*break*/, 19];
+          console.log("Wallet lily" + config.id + " isn't loaded.");
+          _r.label = 2;
+        case 2:
+          _r.trys.push([2, 4, , 19]);
+          console.log("Attempting to load lily" + config.id + "...");
+          return [
+            4 /*yield*/,
+            nodeClient.loadWallet(
+              "lily" + config.id // filename
+            ),
+          ];
+        case 3:
+          walletResp = _r.sent();
+          return [3 /*break*/, 19];
+        case 4:
+          e_2 = _r.sent();
+          console.log("Couldn't load lily" + config.id + "...");
+          console.log("Creating lily" + config.id + "...");
+          // if failed to load wallet, then probably doesnt exist so let's create one and import
+          return [
+            4 /*yield*/,
+            nodeClient.createWallet(
+              "lily" + config.id, // wallet_name
+              true, // disable_private_keys
+              true, //blank
+              "", // passphrase
+              true // avoid_reuse
+            ),
+          ];
+        case 5:
+          // if failed to load wallet, then probably doesnt exist so let's create one and import
+          _r.sent();
+          if (!(config.quorum.totalSigners === 1)) return [3 /*break*/, 14];
+          if (!(config.addressType === "p2sh")) return [3 /*break*/, 9];
+          console.log("Importing " + config.addressType + " addresses...");
+          _b = (_a = nodeClient).importMulti;
+          _c = {};
+          return [
+            4 /*yield*/,
+            exports.getWrappedDescriptor(nodeClient, config, false),
+          ];
+        case 6:
+          _d = [
+            ((_c.desc = _r.sent()),
+            (_c.range = [0, 1000]),
+            (_c.timestamp = 1503446400),
+            (_c.internal = false),
+            (_c.watchonly = true),
+            (_c.keypool = true),
+            _c),
+          ];
+          _e = {};
+          return [
+            4 /*yield*/,
+            exports.getWrappedDescriptor(nodeClient, config, true),
+          ];
+        case 7:
+          return [
+            4 /*yield*/,
+            _b.apply(_a, [
+              _d.concat([
+                ((_e.desc = _r.sent()),
+                (_e.range = [0, 1000]),
+                (_e.timestamp = 1503446400),
+                (_e.internal = false),
+                (_e.watchonly = true),
+                (_e.keypool = true),
+                _e),
+              ]),
+              {
+                rescan: true,
+              },
+            ]),
+          ];
+        case 8:
+          _r.sent();
+          return [3 /*break*/, 13];
+        case 9:
+          console.log("Importing " + config.addressType + " addresses...");
+          _g = (_f = nodeClient).importMulti;
+          _h = {};
+          return [
+            4 /*yield*/,
+            exports.getSegwitDescriptor(nodeClient, config, false),
+          ];
+        case 10:
+          _j = [
+            ((_h.desc = _r.sent()),
+            (_h.range = [0, 1000]),
+            (_h.timestamp = 1503446400),
+            (_h.internal = false),
+            (_h.watchonly = true),
+            (_h.keypool = true),
+            _h),
+          ];
+          _k = {};
+          return [
+            4 /*yield*/,
+            exports.getSegwitDescriptor(nodeClient, config, true),
+          ];
+        case 11:
+          return [
+            4 /*yield*/,
+            _g.apply(_f, [
+              _j.concat([
+                ((_k.desc = _r.sent()),
+                (_k.range = [0, 1000]),
+                (_k.timestamp = 1503446400),
+                (_k.internal = false),
+                (_k.watchonly = true),
+                (_k.keypool = true),
+                _k),
+              ]),
+              {
+                rescan: true,
+              },
+            ]),
+          ];
+        case 12:
+          _r.sent();
+          _r.label = 13;
+        case 13:
+          return [3 /*break*/, 18];
+        case 14:
+          console.log("Importing " + config.addressType + " addresses...");
+          _m = (_l = nodeClient).importMulti;
+          _o = {};
+          return [
+            4 /*yield*/,
+            exports.getMultisigDescriptor(nodeClient, config, false),
+          ];
+        case 15:
+          _p = [
+            ((_o.desc = _r.sent()),
+            (_o.range = [0, 1000]),
+            (_o.timestamp = 1503446400),
+            (_o.internal = false),
+            (_o.watchonly = true),
+            (_o.keypool = true),
+            _o),
+          ];
+          _q = {};
+          return [
+            4 /*yield*/,
+            exports.getMultisigDescriptor(nodeClient, config, true),
+          ];
+        case 16:
+          // multisig
+          //  import receive addresses
+          return [
+            4 /*yield*/,
+            _m.apply(_l, [
+              _p.concat([
+                ((_q.desc = _r.sent()),
+                (_q.range = [0, 1000]),
+                (_q.timestamp = 1503446400),
+                (_q.internal = false),
+                (_q.watchonly = true),
+                (_q.keypool = true),
+                _q),
+              ]),
+              {
+                rescan: true,
+              },
+            ]),
+          ];
+        case 17:
+          // multisig
+          //  import receive addresses
+          _r.sent();
+          _r.label = 18;
+        case 18:
+          return [3 /*break*/, 19];
+        case 19:
+          return [2 /*return*/];
       }
     });
   });

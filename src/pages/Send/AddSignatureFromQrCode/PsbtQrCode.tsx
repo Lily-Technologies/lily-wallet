@@ -1,4 +1,4 @@
-import React, { Fragment } from "react";
+import React from "react";
 import styled from "styled-components";
 import { Psbt } from "bitcoinjs-lib";
 // import { CoboVaultSDK } from "@cvbb/sdk";
@@ -15,16 +15,22 @@ interface Props {
 const PsbtQrCode = ({ psbt }: Props) => {
   const psbtEncoded = V2.constructQRCode(psbt.toHex());
   return (
-    <Fragment>
+    <Container>
       <ModalHeaderContainer>Scan this with your device</ModalHeaderContainer>
       <ModalContent>
         <OutputItem style={{ wordBreak: "break-word" }}>
           <AnimatedQrCode valueArray={psbtEncoded} />
         </OutputItem>
       </ModalContent>
-    </Fragment>
+    </Container>
   );
 };
+
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+`;
 
 const ModalHeaderContainer = styled.div`
   border-bottom: 1px solid rgb(229, 231, 235);

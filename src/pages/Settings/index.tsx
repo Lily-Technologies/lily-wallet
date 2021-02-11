@@ -1,5 +1,5 @@
-import React, { useState, Fragment } from "react";
-import styled, { css } from "styled-components";
+import React, { useState, Fragment, useContext } from "react";
+import styled from "styled-components";
 import { Network } from "bitcoinjs-lib";
 import { Link } from "react-router-dom";
 import { RightArrowAlt } from "@styled-icons/boxicons-regular";
@@ -10,7 +10,6 @@ import {
   Header,
   HeaderLeft,
   HeaderRight,
-  Modal,
   StyledIcon,
 } from "../../components";
 
@@ -21,13 +20,13 @@ import NetworkSettings from "./NetworkSettings";
 import About from "./About";
 
 import { white } from "../../utils/colors";
-import { mobile } from "../../utils/media";
 
-import { LilyConfig, NodeConfig } from "../../types";
+import { NodeConfig } from "../../types";
+
+import { ConfigContext } from "../../ConfigContext";
+import { ModalContext } from "../../ModalContext";
 
 interface Props {
-  config: LilyConfig;
-  setConfigFile: React.Dispatch<React.SetStateAction<LilyConfig>>;
   nodeConfig: NodeConfig;
   currentBitcoinNetwork: Network;
   getNodeConfig: () => void;
@@ -36,26 +35,15 @@ interface Props {
 }
 
 const Settings = ({
-  config,
-  setConfigFile,
   nodeConfig,
   currentBitcoinNetwork,
   getNodeConfig,
   setNodeConfig,
   password,
 }: Props) => {
+  const { openInModal, closeModal } = useContext(ModalContext);
+  const { config } = useContext(ConfigContext);
   const [currentTab, setCurrentTab] = useState("network");
-  const [modalIsOpen, setModalIsOpen] = useState(false);
-  const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
-  const openInModal = (component: JSX.Element) => {
-    setModalIsOpen(true);
-    setModalContent(component);
-  };
-
-  const closeModal = () => {
-    setModalIsOpen(false);
-    setModalContent(null);
-  };
 
   return (
     <PageWrapper>
@@ -96,19 +84,14 @@ const Settings = ({
           )}
           {currentTab === "license" && (
             <LicenseSettings
-              config={config}
               nodeConfig={nodeConfig}
               openInModal={openInModal}
               closeModal={closeModal}
               password={password}
-              setConfigFile={setConfigFile}
             />
           )}
-          {currentTab === "about" && <About config={config} />}
+          {currentTab === "about" && <About />}
         </Wrapper>
-        <Modal isOpen={modalIsOpen} onRequestClose={() => closeModal()}>
-          <ModalContentWrapper>{modalContent}</ModalContentWrapper>
-        </Modal>
       </Fragment>
     </PageWrapper>
   );
@@ -119,24 +102,6 @@ const Wrapper = styled.div`
   border-radius: 0.385em;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
   padding: 1.5rem;
-`;
-
-const ModalContentWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-  align-items: center;
-  justify-content: center;
-
-  ${mobile(css`
-    flex-direction: column;
-    align-items: center;
-    padding-top: 1.25em;
-    padding-bottom: 1em;
-    padding-left: 1em;
-    padding-right: 1em;
-    margin-left: 0;
-  `)};
 `;
 
 const DecoratedLink = styled(Link)`

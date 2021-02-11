@@ -13,11 +13,9 @@ import VaultView from "./VaultView";
 import VaultSettings from "./Settings";
 import VaultHeader from "./VaultHeader";
 
-import { LilyConfig, NodeConfig } from "../../types";
+import { NodeConfig } from "../../types";
 
 interface Props {
-  config: LilyConfig;
-  setConfigFile: React.Dispatch<React.SetStateAction<LilyConfig>>;
   nodeConfig: NodeConfig;
   password: string;
   toggleRefresh(): void;
@@ -25,8 +23,6 @@ interface Props {
 }
 
 const Vault = ({
-  config,
-  setConfigFile,
   nodeConfig,
   password,
   toggleRefresh,
@@ -44,8 +40,6 @@ const Vault = ({
             path={`${path}/settings`}
             render={(props: RouteComponentProps) => (
               <VaultSettings
-                config={config}
-                setConfigFile={setConfigFile}
                 match={props.match}
                 password={password}
                 currentBitcoinNetwork={currentBitcoinNetwork}

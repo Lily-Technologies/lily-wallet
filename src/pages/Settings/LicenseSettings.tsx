@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import styled, { css } from "styled-components";
 import { useHistory } from "react-router-dom";
 import moment from "moment";
@@ -12,7 +12,7 @@ import {
   ErrorModal,
 } from "../../components";
 
-import { LilyConfig, LilyLicense, NodeConfig, File } from "../../types";
+import { LilyLicense, NodeConfig, File } from "../../types";
 
 import { mobile } from "../../utils/media";
 import { saveConfig } from "../../utils/files";
@@ -23,6 +23,7 @@ import {
   licenseTxId,
   licenseTier,
 } from "../../utils/license";
+import { capitalize } from "../../utils/other";
 
 import {
   white,
@@ -36,22 +37,17 @@ import {
   red500,
 } from "../../utils/colors";
 
+import { ConfigContext } from "../../ConfigContext";
+
 interface Props {
-  config: LilyConfig;
   nodeConfig: NodeConfig;
   openInModal: (component: JSX.Element) => void;
   closeModal: () => void;
   password: string;
-  setConfigFile: React.Dispatch<React.SetStateAction<LilyConfig>>;
 }
 
-const LicenseSettings = ({
-  config,
-  setConfigFile,
-  nodeConfig,
-  openInModal,
-  password,
-}: Props) => {
+const LicenseSettings = ({ nodeConfig, openInModal, password }: Props) => {
+  const { config, setConfigFile } = useContext(ConfigContext);
   const history = useHistory();
   const blockDiff = licenseExpires(config.license) - nodeConfig.blocks;
   const blockDiffTimeEst = blockDiff * 10;
@@ -116,7 +112,9 @@ const LicenseSettings = ({
         <ProfileKeyColumn>Tier</ProfileKeyColumn>
         <ProfileValueColumn>
           <ProfileValueText></ProfileValueText>
-          <ProfileValueAction>{licenseTier(config.license)}</ProfileValueAction>
+          <ProfileValueAction>
+            {capitalize(licenseTier(config.license))}
+          </ProfileValueAction>
         </ProfileValueColumn>
       </ProfileRow>
       <ProfileRow>
@@ -142,7 +140,9 @@ const LicenseSettings = ({
       <ProfileRow>
         <ProfileKeyColumn>Payment Transaction ID</ProfileKeyColumn>
         <ProfileValueColumn>
-          <ProfileValueText>{licenseTxId(config.license)}</ProfileValueText>
+          <ProfileValueText>
+            {licenseTxId(config.license) || "N/A"}
+          </ProfileValueText>
         </ProfileValueColumn>
       </ProfileRow>
       <Buttons>

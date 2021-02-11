@@ -1,5 +1,9 @@
 const fs = require("fs");
 const readline = require("readline");
+const { Client } = require("bitcoin-simple-rpc");
+const { SocksProxyAgent } = require("socks-proxy-agent");
+
+const AxiosDockerProxy = require("./AxiosDockerProxy");
 
 const getBitcoinDirectory = () => {
   if (process.platform === "darwin") {
@@ -42,6 +46,25 @@ const getRpcInfo = async () => {
   });
 };
 
+const getClientFromNodeConfig = (nodeConfig) => {
+  if (nodeConfig.baseURL.includes(".onion")) {
+    // is tor
+    const proxyOptions = "socks5h://127.0.0.1:9050";
+    const httpsAgent = new SocksProxyAgent(proxyOptions);
+    return new Client({
+      ...nodeConfig,
+      httpAgent: httpsAgent,
+    });
+  } else if (nodeConfig.baseURL.includes("umbrel")) {
+    // local umbrel lily-docker app testing
+    return new AxiosDockerProxy(nodeConfig);
+  } else {
+    // local node, no tor
+    return new Client(nodeConfig);
+  }
+};
+
 module.exports = {
   getRpcInfo,
+  getClientFromNodeConfig,
 };

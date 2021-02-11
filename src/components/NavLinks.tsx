@@ -25,16 +25,16 @@ import {
 } from "../utils/colors";
 import { bitcoinNetworkEqual } from "../utils/files";
 
-import { LilyConfig } from "../types";
+import { ConfigContext } from "../ConfigContext";
 
 interface Props {
-  config: LilyConfig;
   currentBitcoinNetwork: Network;
 }
 
-export const NavLinks = ({ config, currentBitcoinNetwork }: Props) => {
+export const NavLinks = ({ currentBitcoinNetwork }: Props) => {
   const { pathname } = useLocation();
   const { setCurrentAccountId } = useContext(AccountMapContext);
+  const { config } = useContext(ConfigContext);
 
   return (
     <Fragment>

@@ -16,20 +16,18 @@ import { AccountMapContext } from "../AccountMapContext";
 
 import { getNodeStatus } from "../utils/other";
 
-import { StyledIcon, Dropdown, ConnectToLilyMobileModal } from ".";
+import { StyledIcon, Dropdown } from ".";
 
 import { NodeConfig, LilyConfig } from "../types";
 
 interface Props {
   nodeConfig: NodeConfig | undefined; // KBC-TODO: NodeConfig should be defined, even if we are connected to blockstream, yeah? No?
   config: LilyConfig;
-  resetConfigFile: () => void;
 }
 
-export const TitleBar = ({ nodeConfig, config, resetConfigFile }: Props) => {
+export const TitleBar = ({ nodeConfig, config }: Props) => {
   const [moreOptionsDropdownOpen, setMoreOptionsDropdownOpen] = useState(false);
   const [nodeOptionsDropdownOpen, setNodeOptionsDropdownOpen] = useState(false);
-  const [configModalOpen, setConfigModalOpen] = useState(false);
   const history = useHistory();
   const { setCurrentAccountId } = useContext(AccountMapContext);
 
@@ -116,7 +114,7 @@ export const TitleBar = ({ nodeConfig, config, resetConfigFile }: Props) => {
     // { KBC-TODO: re-add when mobile app
     //   label: "Connect to Lily Mobile",
     //   onClick: () => {
-    //     setConfigModalOpen(true);
+    //     openInModal(<ConnectToLilyMobileModal />);
     //   },
     // },
     // );
@@ -136,11 +134,6 @@ export const TitleBar = ({ nodeConfig, config, resetConfigFile }: Props) => {
     <Fragment>
       <HeightHolder />
       <DraggableTitleBar>
-        <ConnectToLilyMobileModal
-          isOpen={configModalOpen}
-          onRequestClose={() => setConfigModalOpen(false)}
-          config={config}
-        />
         <LeftSection></LeftSection>
         <RightSection>
           <NodeButtonContainer>

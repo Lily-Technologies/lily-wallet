@@ -13,9 +13,8 @@ import { networks } from "bitcoinjs-lib";
 
 import { offWhite, green700 } from "./utils/colors";
 import { mobile } from "./utils/media";
-import { getLicenseBannerMessage } from "./utils/license";
 
-import { Sidebar, TitleBar, ScrollToTop, AlertBar } from "./components";
+import { Sidebar, TitleBar, ScrollToTop, AlertBar, Modal } from "./components";
 
 // Pages
 import Login from "./pages/Login";
@@ -28,32 +27,15 @@ import Home from "./pages/Home";
 import Purchase from "./pages/Purchase";
 
 import { AccountMapContext } from "./AccountMapContext";
+import { ConfigContext } from "./ConfigContext";
 
-import { LilyConfig, NodeConfig, File, AccountMap, LilyAccount } from "./types";
-
-const emptyConfig = {
-  name: "",
-  version: "1.0.0",
-  isEmpty: true,
-  license: {
-    license: "trial:0",
-    signature: "",
-  },
-  backup_options: {
-    gDrive: false,
-  },
-  wallets: [],
-  vaults: [],
-  keys: [],
-  exchanges: [],
-} as LilyConfig;
+import { NodeConfig, File, AccountMap, LilyAccount } from "./types";
 
 const App = () => {
   const [currentBitcoinPrice, setCurrentBitcoinPrice] = useState(
     new BigNumber(0)
   );
   const [historicalBitcoinPrice, setHistoricalBitcoinPrice] = useState({});
-  const [config, setConfigFile] = useState<LilyConfig>(emptyConfig);
   const [encryptedConfigFile, setEncryptedConfigFile] = useState<File | null>(
     null
   );
@@ -68,6 +50,7 @@ const App = () => {
   const [password, setPassword] = useState("");
 
   const { setAccountMap, updateAccountMap } = useContext(AccountMapContext);
+  const { config } = useContext(ConfigContext);
 
   const ConfigRequired = () => {
     const { pathname } = useLocation();
@@ -93,15 +76,6 @@ const App = () => {
 
   const toggleRefresh = () => {
     setRefresh(!refresh);
-  };
-
-  const resetConfigFile = async () => {
-    setConfigFile(emptyConfig);
-    const { file, modifiedTime } = await window.ipcRenderer.invoke(
-      "/get-config"
-    );
-    setEncryptedConfigFile({ file: file.toString(), modifiedTime });
-    setInitialFlyInAnimation(true);
   };
 
   const getNodeConfig = async () => {
@@ -238,28 +212,17 @@ const App = () => {
     }
   }, [config, refresh, nodeConfig, setAccountMap, updateAccountMap]);
 
-  let licenseBannerMessage = "" as string | null;
-  if (nodeConfig) {
-    licenseBannerMessage = getLicenseBannerMessage(config.license, nodeConfig);
-  }
-
   return (
     <Router>
       <ScrollToTop />
-      <TitleBar
-        nodeConfig={nodeConfig}
-        config={config}
-        resetConfigFile={resetConfigFile}
-      />
-      {!config.isEmpty && nodeConfig && licenseBannerMessage && (
-        <AlertBar message={licenseBannerMessage} />
-      )}
+      <TitleBar nodeConfig={nodeConfig} config={config} />
+      {!config.isEmpty && <AlertBar nodeConfig={nodeConfig} />}
+      <Modal />
       <PageWrapper id="page-wrapper">
         <ConfigRequired />
         <Overlay />
         {!config.isEmpty && (
           <Sidebar
-            config={config}
             flyInAnimation={flyInAnimation}
             currentBitcoinNetwork={currentBitcoinNetwork}
           />
@@ -269,8 +232,6 @@ const App = () => {
             path="/vault/:id"
             render={() => (
               <Vault
-                config={config}
-                setConfigFile={setConfigFile}
                 password={password}
                 toggleRefresh={toggleRefresh}
                 currentBitcoinNetwork={currentBitcoinNetwork}
@@ -296,8 +257,6 @@ const App = () => {
             path="/setup"
             render={() => (
               <Setup
-                config={config}
-                setConfigFile={setConfigFile}
                 password={password}
                 currentBitcoinNetwork={currentBitcoinNetwork}
               />
@@ -307,8 +266,6 @@ const App = () => {
             path="/login"
             render={() => (
               <Login
-                config={config}
-                setConfigFile={setConfigFile}
                 setPassword={setPassword}
                 encryptedConfigFile={encryptedConfigFile}
                 setEncryptedConfigFile={setEncryptedConfigFile}
@@ -321,8 +278,6 @@ const App = () => {
             path="/settings"
             render={() => (
               <Settings
-                config={config}
-                setConfigFile={setConfigFile}
                 nodeConfig={nodeConfig!}
                 getNodeConfig={getNodeConfig}
                 currentBitcoinNetwork={currentBitcoinNetwork}
@@ -337,8 +292,6 @@ const App = () => {
               <Purchase
                 currentBitcoinPrice={currentBitcoinPrice}
                 password={password}
-                config={config}
-                setConfig={setConfigFile}
                 nodeConfig={nodeConfig!}
                 currentBitcoinNetwork={currentBitcoinNetwork}
               />

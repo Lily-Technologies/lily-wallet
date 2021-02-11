@@ -100,11 +100,15 @@ const InformationContainer = styled.div`
   display: flex;
   padding: 1em;
   align-items: center;
+  overflow: auto;
+  width: 100%;
 `;
 
 const Rows = styled.div`
   display: flex;
   flex-direction: column;
+  width: 100%;
+  overflow: auto;
 `;
 
 const ProfileRow = styled.div`
@@ -154,6 +158,8 @@ const TextContainer = styled.div`
   align-items: flex-start;
   flex-direction: column;
   margin-left: 1rem;
+  width: 100%;
+  overflow: auto;
 
   ${mobile(css`
     margin-top: 0.75rem;

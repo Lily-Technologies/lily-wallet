@@ -1,10 +1,10 @@
-import React, { Fragment, useEffect, useState, useCallback } from "react";
+import React, { Fragment, useEffect, useState, useContext } from "react";
 import styled from "styled-components";
 import { DotSingle } from "@styled-icons/entypo";
 import { StarOfLife } from "@styled-icons/fa-solid";
 import { Backspace } from "@styled-icons/ionicons-solid";
 
-import { Modal, Button, Loading, StyledIcon } from ".";
+import { Button, Loading, StyledIcon } from ".";
 
 import {
   white,
@@ -20,29 +20,18 @@ import {
 
 import { HwiResponseEnumerate } from "../types";
 
+import { ModalContext } from "../ModalContext";
+
 interface Props {
   device: HwiResponseEnumerate;
-  promptPinModalIsOpen: boolean;
-  setPromptPinModalDevice: React.Dispatch<
-    React.SetStateAction<HwiResponseEnumerate | null>
-  >;
   enumerate: () => void;
 }
 
-export const PromptPinModal = ({
-  device,
-  promptPinModalIsOpen,
-  setPromptPinModalDevice,
-  enumerate,
-}: Props) => {
+export const PromptPinModal = ({ device, enumerate }: Props) => {
   const [currentPin, setCurrentPin] = useState("");
   const [loadingMessage, setLoadingMessage] = useState("");
   const [promptPinError, setPromptPinError] = useState("");
-
-  const closeModal = useCallback(() => {
-    setPromptPinModalDevice(null);
-    setPromptPinError("");
-  }, [setPromptPinModalDevice]);
+  const { closeModal } = useContext(ModalContext);
 
   useEffect(() => {
     async function promptPin() {
@@ -184,17 +173,21 @@ export const PromptPinModal = ({
   );
 
   return (
-    <Modal isOpen={promptPinModalIsOpen} onRequestClose={() => closeModal()}>
-      <Fragment>
-        <ModalHeaderContainer>Enter PIN</ModalHeaderContainer>
-        {!!loadingMessage && (
-          <Loading itemText="Pinpad" message={loadingMessage} />
-        )}
-        {!!!loadingMessage && <PinInput />}
-      </Fragment>
-    </Modal>
+    <Container>
+      <ModalHeaderContainer>Enter PIN</ModalHeaderContainer>
+      {!!loadingMessage && (
+        <Loading itemText="Pinpad" message={loadingMessage} />
+      )}
+      {!!!loadingMessage && <PinInput />}
+    </Container>
   );
 };
+
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+`;
 
 const ModalHeaderContainer = styled.div`
   border-bottom: 1px solid rgb(229, 231, 235);

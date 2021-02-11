@@ -148,6 +148,18 @@ const createAddressMapFromAddressArray = (
   return addressMap;
 };
 
+const getTxHex = async (txid: string, currentBitcoinNetwork: Network) => {
+  const txHex = await (
+    await axios.get(
+      blockExplorerAPIURL(
+        `/tx/${txid}/hex`,
+        getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)
+      )
+    )
+  ).data;
+  return txHex;
+};
+
 /**
  * Function used to aggregate values of inputs/outputs with optional
  * filtering options.
@@ -276,11 +288,11 @@ const serializeTransactionsFromNode = async (
   const decoratedTxArray = [];
   for (let i = 0; i < transactions.length; i++) {
     try {
-      const currentTransaction = (await nodeClient.getTransaction({
-        txid: transactions[i].txid,
-        include_watchonly: true,
-        verbose: true,
-      })) as BitcoinCoreGetTransactionResponse;
+      const currentTransaction = (await nodeClient.getTransaction(
+        transactions[i].txid, //txid
+        true, // include_watchonly
+        true // verbose
+      )) as BitcoinCoreGetTransactionResponse;
 
       currentAccountTotal = currentAccountTotal.plus(
         bitcoinsToSatoshis(currentTransaction.details[0].amount)
@@ -301,10 +313,10 @@ const serializeTransactionsFromNode = async (
         totalValue: currentAccountTotal.toNumber(),
         vin: await Promise.all(
           currentTransaction.decoded.vin.map(async (item) => {
-            const prevoutTx = (await nodeClient.getRawTransaction({
-              txid: item.txid,
-              verbose: true,
-            })) as BitcoinCoreGetRawTransactionResponse;
+            const prevoutTx = (await nodeClient.getRawTransaction(
+              item.txid, // txid
+              true // verbose
+            )) as BitcoinCoreGetRawTransactionResponse;
             return {
               txid: item.txid,
               vout: item.vout,
@@ -426,6 +438,34 @@ const getMultisigAddressFromPubKeys = (
   return address;
 };
 
+const getUtxosFromNode = async (
+  receiveAddresses: any[],
+  changeAddresses: any[],
+  nodeClient: any
+) => {
+  const availableUtxos = await nodeClient.listUnspent();
+  const receiveAddressMap = createAddressMapFromAddressArray(
+    receiveAddresses,
+    false
+  );
+  const changeAddressMap = createAddressMapFromAddressArray(
+    changeAddresses,
+    true
+  );
+  const addressMap = { ...receiveAddressMap, ...changeAddressMap };
+  for (let i = 0; i < availableUtxos.length; i++) {
+    availableUtxos[i].value = bitcoinsToSatoshis(
+      availableUtxos[i].amount
+    ).toNumber();
+    availableUtxos[i].prevTxHex = await nodeClient.getRawTransaction(
+      availableUtxos[i].txid,
+      true
+    ).hex;
+    availableUtxos[i].address = addressMap[availableUtxos[i].address as any];
+  }
+  return availableUtxos;
+};
+
 const getUtxosForAddresses = async (
   addresses: Address[],
   currentBitcoinNetwork: Network
@@ -443,6 +483,7 @@ const getUtxosForAddresses = async (
     for (let j = 0; j < utxosFromBlockstream.length; j++) {
       const utxo = utxosFromBlockstream[j];
       utxo.address = addresses[i];
+      utxo.prevTxHex = await getTxHex(utxo.txid, currentBitcoinNetwork);
       availableUtxos.push(utxo);
     }
   }
@@ -515,18 +556,15 @@ const getTransactionsFromAddress = async (
 ) => {
   if (nodeClient) {
     let addressTxs = [];
-    const txIds = await nodeClient.listReceivedByAddress({
-      minconf: 0,
-      include_empty: true,
-      include_watchonly: true,
-      address_filter: address,
-    });
+    const txIds = await nodeClient.listReceivedByAddress(
+      0, // minconf
+      true, // include_empty
+      true, // include_watchonly
+      address // address_filter
+    );
     const numTxIds = txIds[0]?.txids?.length || 0;
     for (let i = 0; i < numTxIds; i++) {
-      const tx = await nodeClient.getRawTransaction({
-        txid: txIds[0].txids[i],
-        verbose: true,
-      });
+      const tx = await nodeClient.getRawTransaction(txIds[0].txids[i], true); // txid, verbose
       addressTxs.push(tx);
     }
     return addressTxs;
@@ -693,22 +731,11 @@ export const getDataFromMultisig = async (
       nodeClient,
       transactions as BitcoinCoreGetRawTransactionResponse[]
     )) as any;
-    availableUtxos = await nodeClient.listUnspent();
-    const receiveAddressMap = createAddressMapFromAddressArray(
+    availableUtxos = await getUtxosFromNode(
       receiveAddresses,
-      false
-    );
-    const changeAddressMap = createAddressMapFromAddressArray(
       changeAddresses,
-      true
+      nodeClient
     );
-    const addressMap = { ...receiveAddressMap, ...changeAddressMap };
-    for (let i = 0; i < availableUtxos.length; i++) {
-      availableUtxos[i].value = bitcoinsToSatoshis(
-        availableUtxos[i].amount
-      ).toNumber();
-      availableUtxos[i].address = addressMap[availableUtxos[i].address as any];
-    }
   } else {
     organizedTransactions = serializeTransactions(
       transactions as Transaction[],
@@ -756,22 +783,11 @@ export const getDataFromXPub = async (
       nodeClient,
       transactions as BitcoinCoreGetRawTransactionResponse[]
     )) as any;
-    availableUtxos = await nodeClient.listUnspent();
-    const receiveAddressMap = createAddressMapFromAddressArray(
+    availableUtxos = await getUtxosFromNode(
       receiveAddresses,
-      false
-    );
-    const changeAddressMap = createAddressMapFromAddressArray(
       changeAddresses,
-      true
+      nodeClient
     );
-    const addressMap = { ...receiveAddressMap, ...changeAddressMap };
-    for (let i = 0; i < availableUtxos.length; i++) {
-      availableUtxos[i].value = bitcoinsToSatoshis(
-        availableUtxos[i].amount
-      ).toNumber();
-      availableUtxos[i].address = addressMap[availableUtxos[i].address as any];
-    }
   } else {
     availableUtxos = await getUtxosForAddresses(
       receiveAddresses.concat(changeAddresses),
@@ -792,4 +808,113 @@ export const getDataFromXPub = async (
     unusedChangeAddresses,
     availableUtxos,
   ];
+};
+
+export const loadOrCreateWalletViaRPC = async (
+  config: AccountConfig,
+  nodeClient: any
+) => {
+  const walletList = await nodeClient.listWallets();
+  console.log("walletList: ", walletList);
+
+  if (!walletList.includes(`lily${config.id}`)) {
+    console.log(`Wallet lily${config.id} isn't loaded.`);
+    try {
+      console.log(`Attempting to load lily${config.id}...`);
+      const walletResp = await nodeClient.loadWallet(
+        `lily${config.id}` // filename
+      );
+    } catch (e) {
+      console.log(`Couldn't load lily${config.id}...`);
+      console.log(`Creating lily${config.id}...`);
+      // if failed to load wallet, then probably doesnt exist so let's create one and import
+      await nodeClient.createWallet(
+        `lily${config.id}`, // wallet_name
+        true, // disable_private_keys
+        true, //blank
+        "", // passphrase
+        true // avoid_reuse
+      );
+      if (config.quorum.totalSigners === 1) {
+        if (config.addressType === "p2sh") {
+          console.log(`Importing ${config.addressType} addresses...`);
+          await nodeClient.importMulti(
+            [
+              {
+                desc: await getWrappedDescriptor(nodeClient, config, false),
+                range: [0, 1000],
+                timestamp: 1503446400,
+                internal: false,
+                watchonly: true,
+                keypool: true,
+              },
+              {
+                desc: await getWrappedDescriptor(nodeClient, config, true),
+                range: [0, 1000],
+                timestamp: 1503446400,
+                internal: false,
+                watchonly: true,
+                keypool: true,
+              },
+            ],
+            {
+              rescan: true,
+            }
+          );
+        } else {
+          console.log(`Importing ${config.addressType} addresses...`);
+          await nodeClient.importMulti(
+            [
+              {
+                desc: await getSegwitDescriptor(nodeClient, config, false),
+                range: [0, 1000],
+                timestamp: 1503446400,
+                internal: false,
+                watchonly: true,
+                keypool: true,
+              },
+              {
+                desc: await getSegwitDescriptor(nodeClient, config, true),
+                range: [0, 1000],
+                timestamp: 1503446400,
+                internal: false,
+                watchonly: true,
+                keypool: true,
+              },
+            ],
+            {
+              rescan: true,
+            }
+          );
+        }
+      } else {
+        console.log(`Importing ${config.addressType} addresses...`);
+        // multisig
+        //  import receive addresses
+        await nodeClient.importMulti(
+          [
+            {
+              desc: await getMultisigDescriptor(nodeClient, config, false),
+              range: [0, 1000],
+              timestamp: 1503446400,
+              internal: false,
+              watchonly: true,
+              keypool: true,
+            },
+            {
+              desc: await getMultisigDescriptor(nodeClient, config, true),
+              range: [0, 1000],
+              timestamp: 1503446400,
+              internal: false,
+              watchonly: true,
+              keypool: true,
+            },
+          ],
+          {
+            rescan: true,
+          }
+        );
+      }
+    }
+  }
 };

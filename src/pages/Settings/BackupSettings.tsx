@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useContext } from "react";
 import styled, { css } from "styled-components";
 import { Network } from "bitcoinjs-lib";
 import { AES } from "crypto-js";
 
-import { Modal, Button } from "../../components";
+import { Button } from "../../components";
 
 import { PasswordModal } from "./PasswordModal";
 
@@ -13,6 +13,7 @@ import { downloadFile, formatFilename } from "../../utils/files";
 import { mobile } from "../../utils/media";
 import { white, green500, gray200, gray500, gray900 } from "../../utils/colors";
 
+import { ModalContext } from "../../ModalContext";
 interface Props {
   config: LilyConfig;
   nodeConfig: NodeConfig;
@@ -24,18 +25,7 @@ const BackupSettings = ({
   nodeConfig,
   currentBitcoinNetwork,
 }: Props) => {
-  const [modalIsOpen, setModalIsOpen] = useState(false);
-  const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
-
-  const openInModal = (component: JSX.Element) => {
-    setModalIsOpen(true);
-    setModalContent(component);
-  };
-
-  const closeModal = () => {
-    setModalIsOpen(false);
-    setModalContent(null);
-  };
+  const { openInModal } = useContext(ModalContext);
 
   const downloadEncryptedCurrentConfig = (password: string) => {
     const encryptedConfigObject = AES.encrypt(
@@ -90,9 +80,6 @@ const BackupSettings = ({
           </ProfileValueAction>
         </ProfileValueColumn>
       </ProfileRow>
-      <Modal isOpen={modalIsOpen} onRequestClose={() => closeModal()}>
-        <ModalContentWrapper>{modalContent}</ModalContentWrapper>
-      </Modal>
     </GeneralSection>
   );
 };
@@ -165,24 +152,6 @@ const ProfileValueAction = styled.span`
 const ActionButton = styled.button`
   ${Button};
   font-weight: 600;
-`;
-
-const ModalContentWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-  padding: 1.5em;
-  align-items: flex-start;
-
-  ${mobile(css`
-    flex-direction: column;
-    align-items: center;
-    padding-top: 1.25em;
-    padding-bottom: 1em;
-    padding-left: 1em;
-    padding-right: 1em;
-    margin-left: 0;
-  `)};
 `;
 
 export default BackupSettings;

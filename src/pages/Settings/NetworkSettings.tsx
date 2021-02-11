@@ -154,7 +154,9 @@ const NetworkSettings = ({
       <ProfileRow>
         <ProfileKeyColumn>Data Source</ProfileKeyColumn>
         <ProfileValueColumn>
-          <ProfileValueText>{nodeConfig?.provider}</ProfileValueText>
+          <ProfileValueText>
+            {nodeConfig?.baseURL || nodeConfig?.provider}
+          </ProfileValueText>
           <ProfileValueAction>
             <Dropdown
               isOpen={nodeConfigDropdownOpen}
@@ -244,6 +246,9 @@ const ProfileValueColumn = styled.div`
 
 const ProfileValueText = styled.span`
   flex: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 `;
 
 const ProfileValueAction = styled.span`

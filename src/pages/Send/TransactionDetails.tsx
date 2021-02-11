@@ -1,4 +1,4 @@
-import React, { useState, Fragment } from "react";
+import React, { useState, Fragment, useContext } from "react";
 import styled from "styled-components";
 import BigNumber from "bignumber.js";
 import { ArrowIosForwardOutline } from "@styled-icons/evaicons-outline";
@@ -6,13 +6,9 @@ import { CheckCircle } from "@styled-icons/material";
 import { satoshisToBitcoins } from "unchained-bitcoin";
 import { Psbt, Network } from "bitcoinjs-lib";
 
-import {
-  StyledIcon,
-  Button,
-  SidewaysShake,
-  Dropdown,
-  Modal,
-} from "../../components";
+import { StyledIcon, Button, SidewaysShake, Dropdown } from "../../components";
+
+import { ModalContext } from "../../ModalContext";
 
 import {
   gray,
@@ -60,23 +56,12 @@ const TransactionDetails = ({
   createTransactionAndSetState,
   currentBitcoinNetwork,
 }: Props) => {
+  const { openInModal, closeModal } = useContext(ModalContext);
   const [optionsDropdownOpen, setOptionsDropdownOpen] = useState(false);
-  const [modalIsOpen, setModalIsOpen] = useState(false);
-  const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
   const signThreshold = currentAccount.config.quorum.requiredSigners;
   const { availableUtxos, transactions } = currentAccount;
 
   const _fee = getFee(finalPsbt, transactions);
-
-  const openInModal = (component: JSX.Element) => {
-    setModalIsOpen(true);
-    setModalContent(component);
-  };
-
-  const closeModal = () => {
-    setModalIsOpen(false);
-    setModalContent(null);
-  };
 
   const downloadPsbt = async () => {
     const psbtForDownload = finalPsbt.toBase64();
@@ -181,7 +166,7 @@ const TransactionDetails = ({
   };
 
   const PsbtDownloadDetails = () => (
-    <Fragment>
+    <Container>
       <ModalHeaderContainer>Download Complete</ModalHeaderContainer>
       <ModalBody>
         <IconWrapper style={{ color: green }}>
@@ -189,15 +174,12 @@ const TransactionDetails = ({
         </IconWrapper>
         <ModalSubtext>Your PSBT file has been saved successfully.</ModalSubtext>
       </ModalBody>
-    </Fragment>
+    </Container>
   );
 
   return (
-    <Fragment>
+    <Container>
       <AccountSendContentRight>
-        <Modal isOpen={modalIsOpen} onRequestClose={() => closeModal()}>
-          {modalContent as React.ReactChild}
-        </Modal>
         <SendDetailsContainer>
           <ModalHeaderContainer>
             <span>Transaction Summary</span>
@@ -246,16 +228,21 @@ const TransactionDetails = ({
           </SendButton>
         </SendDetailsContainer>
       </AccountSendContentRight>
-    </Fragment>
+    </Container>
   );
 };
+
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+`;
 
 const IconWrapper = styled.div``;
 
 const ModalBody = styled.div`
   display: flex;
   flex-direction: column;
-  padding: 2.5rem;
   align-items: center;
   justify-content: center;
 `;

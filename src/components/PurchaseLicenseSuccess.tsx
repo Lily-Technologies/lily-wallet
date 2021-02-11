@@ -15,8 +15,7 @@ interface Props {
 }
 
 export const PurchaseLicenseSuccess = ({ config, nodeConfig }: Props) => {
-  const isFree =
-    licenseTier(config.license).toLowerCase() === LicenseTiers.free;
+  const isFree = licenseTier(config.license) === LicenseTiers.free;
   return (
     <Wrapper>
       <IconWrapper style={{ color: green500 }}>

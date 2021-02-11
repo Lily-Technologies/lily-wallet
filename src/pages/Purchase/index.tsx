@@ -13,7 +13,6 @@ import BigNumber from "bignumber.js";
 import {
   PricingPlanTable,
   PurchaseLicenseSuccess,
-  Modal,
   ErrorModal,
   PageWrapper,
   PageTitle,
@@ -26,16 +25,18 @@ import {
 import ConfirmTxPage from "../../pages/Send/ConfirmTxPage";
 
 import { AccountMapContext } from "../../AccountMapContext";
+import { ModalContext } from "../../ModalContext";
 
 import { broadcastTransaction, createTransaction } from "../../utils/send";
 import { saveLicenseToConfig } from "../../utils/files";
 import { white, gray400, gray900 } from "../../utils/colors";
 
+import { ConfigContext } from "../../ConfigContext";
+
 import {
   SetStatePsbt,
   FeeRates,
   LicenseTiers,
-  LilyConfig,
   NodeConfig,
   PaymentAddressResponse,
   LicenseResponse,
@@ -45,20 +46,18 @@ import {
 interface Props {
   currentBitcoinNetwork: Network;
   currentBitcoinPrice: any;
-  config: LilyConfig;
   password: string;
   nodeConfig: NodeConfig;
-  setConfig: React.Dispatch<React.SetStateAction<LilyConfig>>;
 }
 
 const PurchasePage = ({
   currentBitcoinNetwork,
   currentBitcoinPrice,
-  config,
-  setConfig,
   password,
   nodeConfig,
 }: Props) => {
+  const { openInModal } = useContext(ModalContext);
+  const { config, setConfigFile } = useContext(ConfigContext);
   const [step, setStep] = useState(0);
   const [finalPsbt, setFinalPsbt] = useState<Psbt | undefined>(undefined);
   const [selectedLicenseTier, setSelectedLicenseTier] = useState<LicenseTiers>(
@@ -75,18 +74,6 @@ const PurchasePage = ({
   const [licenseResponse, setLicenseResponse] = useState<
     LicenseResponse | undefined
   >(undefined);
-  const [modalIsOpen, setModalIsOpen] = useState(false);
-  const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
-
-  const openInModal = (component: JSX.Element) => {
-    setModalIsOpen(true);
-    setModalContent(component);
-  };
-
-  const closeModal = () => {
-    setModalIsOpen(false);
-    setModalContent(null);
-  };
 
   const clickRenewLicense = useCallback(
     async (tier: LicenseTiers, currentAccount: LilyAccount) => {
@@ -133,7 +120,7 @@ const PurchasePage = ({
             config,
             password
           );
-          setConfig(newConfig);
+          setConfigFile(newConfig);
           setStep(2);
         } else {
           setStep(1);
@@ -143,7 +130,7 @@ const PurchasePage = ({
         openInModal(<ErrorModal message={`${e.message}. Please try again.`} />);
       }
     },
-    [currentBitcoinNetwork, config, password, setConfig]
+    [currentBitcoinNetwork, config, password, setConfigFile, openInModal]
   );
 
   const confirmTxWithLilyThenSend = async () => {
@@ -162,7 +149,7 @@ const PurchasePage = ({
           password
         );
         setStep(2);
-        setConfig(newConfig);
+        setConfigFile(newConfig);
       } catch (e) {
         console.log("e: ", e);
         openInModal(<ErrorModal message={e.message} />);
@@ -185,9 +172,6 @@ const PurchasePage = ({
   return (
     <PageWrapper>
       <Fragment>
-        <Modal isOpen={modalIsOpen} onRequestClose={() => closeModal()}>
-          {modalContent as React.ReactChild}
-        </Modal>
         <Header>
           <HeaderLeft>
             <PageTitle>Purchase a license</PageTitle>

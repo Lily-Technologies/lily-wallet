@@ -4,6 +4,7 @@ import moment from "moment";
 
 import { gray500, gray900 } from "../utils/colors";
 import { licenseExpires, licenseTxId, licenseTier } from "../utils/license";
+import { capitalize } from "../utils/other";
 
 import { LilyConfig, NodeConfig } from "../types";
 
@@ -23,7 +24,7 @@ export const LicenseInformation = ({ config, nodeConfig }: Props) => {
     <Wrapper>
       <ItemContainer>
         <ItemLabel>License Tier</ItemLabel>
-        <ItemValue>{licenseTier(config.license)}</ItemValue>
+        <ItemValue>{capitalize(licenseTier(config.license))}</ItemValue>
       </ItemContainer>
       <ItemContainer>
         <ItemLabel>License Expires</ItemLabel>

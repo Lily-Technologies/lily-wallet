@@ -62,6 +62,7 @@ export interface CaravanConfig {
 
 export interface NodeConfig {
   provider: string;
+  baseURL: string;
   connected: boolean;
   username: string;
   password: string;
@@ -172,6 +173,7 @@ export interface UTXO {
   value: number;
   address: Address;
   amount?: number; // comes from bitcoin-core node
+  prevTxHex: string; // added to UTXO when retriving for Trezor HWW
 }
 
 export interface LilyAccount {
