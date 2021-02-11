@@ -162,11 +162,19 @@ const setupInitialNodeConfig = async () => {
   } catch (e) {
     console.log("Failed to connect to local Bitcoin Core instance.");
     try {
-      console.log("Trying to connect to remote Bitcoin Core instance...");
-      const nodeConfigFile = await getFile("node-config.json");
-      const nodeConfig = JSON.parse(nodeConfigFile.file);
-      currentNodeConfig = nodeConfig;
-      const nodeClient = getClientFromNodeConfig(nodeConfig);
+      try {
+        console.log("Trying to connect to remote Bitcoin Core instance...");
+        const nodeConfigFile = await getFile("node-config.json");
+        const nodeConfig = JSON.parse(nodeConfigFile.file);
+        currentNodeConfig = nodeConfig;
+      } catch (e) {
+        console.log("Failed to retrieve remote Bitcoin Core connection data.");
+        console.log("Connecting to Blockstream.");
+        currentNodeConfig = {
+          provider: "Blockstream",
+        };
+      }
+      const nodeClient = getClientFromNodeConfig(currentNodeConfig);
       console.log(`Verifying connection to ${currentNodeConfig.baseURL})... `);
       const blockchainInfo = await nodeClient.getBlockchainInfo(); // if fails, go to catch case
       console.log(
@@ -174,10 +182,6 @@ const setupInitialNodeConfig = async () => {
       );
     } catch (e) {
       console.log("Failed to connect to remote Bitcoin Core instance.");
-      console.log("Connecting to Blockstream.");
-      currentNodeConfig = {
-        provider: "Blockstream",
-      };
     }
   }
 };
@@ -229,7 +233,7 @@ const getCustomNodeBlockchainInfo = async () => {
     return Promise.resolve(blockchainInfo);
   } catch (e) {
     console.log("getCustomNodeBlockchainInfo e: ", e);
-    return Promise.reject();
+    return Promise.reject("Error getting custom node blockchain info");
   }
 };
 
@@ -549,6 +553,7 @@ ipcMain.handle("/changeNodeConfig", async (event, args) => {
     try {
       currentNodeConfig = await getBitcoinCoreConfig();
       const blockchainInfo = await getBitcoinCoreBlockchainInfo();
+      console.log(`Connected to ${nodeConfig.provider}.`);
       return Promise.resolve(blockchainInfo);
     } catch (e) {
       console.log("Failed to connect to Bitcoin Core");
@@ -562,6 +567,7 @@ ipcMain.handle("/changeNodeConfig", async (event, args) => {
     try {
       currentNodeConfig = nodeConfig;
       const blockchainInfo = await getBlockstreamBlockchainInfo();
+      console.log(`Connected to ${nodeConfig.provider}.`);
       return Promise.resolve(blockchainInfo);
     } catch (e) {
       console.log("Failed to connect to Blockstream");
@@ -582,6 +588,7 @@ ipcMain.handle("/changeNodeConfig", async (event, args) => {
       blockchainInfo.baseURL = nodeConfig.baseURL;
       blockchainInfo.connected = true;
       currentNodeConfig = nodeConfig;
+      console.log(`Connected to ${nodeConfig.baseURL}`);
       return Promise.resolve(blockchainInfo);
     } catch (e) {
       console.log(`Failed to connect to ${nodeConfig.baseURL} (error: ${e})`);
