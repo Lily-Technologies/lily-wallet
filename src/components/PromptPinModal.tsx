@@ -173,15 +173,21 @@ export const PromptPinModal = ({ device, enumerate }: Props) => {
   );
 
   return (
-    <Fragment>
+    <Container>
       <ModalHeaderContainer>Enter PIN</ModalHeaderContainer>
       {!!loadingMessage && (
         <Loading itemText="Pinpad" message={loadingMessage} />
       )}
       {!!!loadingMessage && <PinInput />}
-    </Fragment>
+    </Container>
   );
 };
+
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+`;
 
 const ModalHeaderContainer = styled.div`
   border-bottom: 1px solid rgb(229, 231, 235);
