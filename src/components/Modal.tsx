@@ -1,12 +1,11 @@
 import React, { useState, useContext } from "react";
-import styled, { css } from "styled-components";
+import styled from "styled-components";
 import ReactModal from "react-modal";
 import { Close } from "@styled-icons/ionicons-outline";
 import { ModalContext } from "../ModalContext";
 
 import { StyledIcon } from ".";
 
-import { mobile } from "../utils/media";
 import { white, gray400, gray600 } from "../utils/colors";
 
 interface Props {
@@ -47,6 +46,8 @@ export const Modal = ({
       width: "100%",
       transform: localOpen ? "scale(1)" : "scale(0.9)",
       transition: "transform 0.25s",
+      right: 0,
+      left: 0,
       ...style.content,
     },
     overlay: {
@@ -97,18 +98,6 @@ const CloseButtonContainer = styled.div`
 
 const ModalContentWrapper = styled.div`
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   width: 100%;
-  padding: 1.5em;
-  align-items: flex-start;
-
-  ${mobile(css`
-    flex-direction: column;
-    align-items: center;
-    padding-top: 1.25em;
-    padding-bottom: 1em;
-    padding-left: 1em;
-    padding-right: 1em;
-    margin-left: 0;
-  `)};
 `;

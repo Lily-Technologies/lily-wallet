@@ -25,7 +25,7 @@ export const ConnectToNodeModal = ({
   onRequestClose,
   setNodeConfig,
 }: Props) => {
-  const [host, setHost] = useState("mynode.local");
+  const [host, setHost] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [nodeConnectError, setNodeConnectError] = useState("");
@@ -67,8 +67,8 @@ export const ConnectToNodeModal = ({
       <ContentContainer>
         <DangerText>Connect to a specific node</DangerText>
         <DangerSubtext>
-          Enter your node information to get transaction data directly from your
-          node.
+          Enter your connection information to get transaction data directly
+          from your node.
         </DangerSubtext>
         <InputsWrapper>
           <InputContainer style={{ marginTop: "1em" }}>
@@ -78,6 +78,7 @@ export const ConnectToNodeModal = ({
               value={host}
               onChange={setHost}
               onKeyDown={(e) => onInputEnter(e)}
+              placeholder="http://mynode.local:8332"
             />
           </InputContainer>
           <InputContainer>
@@ -87,6 +88,7 @@ export const ConnectToNodeModal = ({
               value={username}
               onChange={setUsername}
               onKeyDown={(e) => onInputEnter(e)}
+              placeholder="mynode"
             />
           </InputContainer>
           <InputContainer>
@@ -96,6 +98,7 @@ export const ConnectToNodeModal = ({
               value={password}
               onChange={setPassword}
               onKeyDown={(e) => onInputEnter(e)}
+              placeholder="••••••••••••••••"
             />
           </InputContainer>
           {nodeConnectError && <ErrorText>{nodeConnectError}</ErrorText>}

@@ -1,4 +1,4 @@
-import React, { Fragment, useContext, useState } from "react";
+import React, { useContext, useState } from "react";
 import styled, { css } from "styled-components";
 import { EditAlt } from "@styled-icons/boxicons-regular";
 
@@ -64,7 +64,7 @@ const EditAccountNameModal = ({ password, closeModal }: Props) => {
   };
 
   return (
-    <Fragment>
+    <ModalContentWrapper>
       <DangerIconContainer>
         <StyledIconCircle>
           <StyledIcon style={{ color: green600 }} as={EditAlt} size={36} />
@@ -98,9 +98,27 @@ const EditAccountNameModal = ({ password, closeModal }: Props) => {
           Save Changes
         </SaveChangesButton>
       </TextContainer>
-    </Fragment>
+    </ModalContentWrapper>
   );
 };
+
+const ModalContentWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  align-items: flex-start;
+  padding: 1.5em;
+
+  ${mobile(css`
+    flex-direction: column;
+    align-items: center;
+    padding-top: 1.25em;
+    padding-bottom: 1em;
+    padding-left: 1em;
+    padding-right: 1em;
+    margin-left: 0;
+  `)};
+`;
 
 const SaveChangesButton = styled.button`
   ${Button}

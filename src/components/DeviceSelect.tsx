@@ -359,13 +359,13 @@ const DeviceWrapper = styled.div<{
   displayLoadingCursor?: boolean;
 }>`
   display: flex;
+  flex: 1;
   flex-direction: column;
   justify-content: flex-end;
   align-items: center;
   padding: .75em;
   margin: 1.5em;
   margin-bottom: 0px;
-  flex: 0 1 15.625em;
   border-radius: 4px;
   position: relative;
   animation-name: ${(p) => (p.loading ? blinking : "none")};

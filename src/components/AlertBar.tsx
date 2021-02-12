@@ -37,19 +37,14 @@ export const AlertBar = ({ nodeConfig }: Props) => {
           }
         } catch (e) {
           licenseTxConfirmed = false;
-          console.log("Error retriving license transaction");
+          console.log("AlertBar: Error retriving license transaction");
         }
-        console.log("licenseTxConfirmed: ", licenseTxConfirmed);
         licenseBannerMessage.current = getLicenseBannerMessage(
           config.license,
           licenseTxConfirmed,
           nodeConfig
         );
       }
-      console.log(
-        "licenseBannerMessage.current: ",
-        licenseBannerMessage.current
-      );
     }
     checkLicenseTxConfirmed();
   }, [config, nodeConfig]);

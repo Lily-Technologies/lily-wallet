@@ -1,4 +1,4 @@
-import React, { Fragment, useContext } from "react";
+import React, { useContext } from "react";
 import styled, { css } from "styled-components";
 import { Calculator } from "@styled-icons/heroicons-outline";
 import { Network } from "bitcoinjs-lib";
@@ -28,7 +28,7 @@ interface Props {
 const DeviceDetailsModal = ({ item, currentBitcoinNetwork }: Props) => {
   const { currentAccount } = useContext(AccountMapContext);
   return (
-    <Fragment>
+    <ModalContentWrapper>
       <DangerIconContainer>
         <StyledIconCircle>
           <StyledIcon style={{ color: green600 }} as={Calculator} size={36} />
@@ -88,9 +88,27 @@ const DeviceDetailsModal = ({ item, currentBitcoinNetwork }: Props) => {
           </Rows>
         </InformationContainer>
       </TextContainer>
-    </Fragment>
+    </ModalContentWrapper>
   );
 };
+
+const ModalContentWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  align-items: flex-start;
+  padding: 1.5em;
+
+  ${mobile(css`
+    flex-direction: column;
+    align-items: center;
+    padding-top: 1.25em;
+    padding-bottom: 1em;
+    padding-left: 1em;
+    padding-right: 1em;
+    margin-left: 0;
+  `)};
+`;
 
 const ImageContainer = styled.div`
   margin-right: 3em;
