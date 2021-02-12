@@ -1,10 +1,4 @@
-import React, {
-  useState,
-  Fragment,
-  useContext,
-  useEffect,
-  useCallback,
-} from "react";
+import React, { useState, useContext, useEffect, useCallback } from "react";
 import styled from "styled-components";
 import axios from "axios";
 import { Psbt, Network } from "bitcoinjs-lib";
@@ -20,12 +14,12 @@ import {
   Button,
   HeaderLeft,
   SelectAccountMenu,
+  Modal,
 } from "../../components";
 
 import ConfirmTxPage from "../../pages/Send/ConfirmTxPage";
 
 import { AccountMapContext } from "../../AccountMapContext";
-import { ModalContext } from "../../ModalContext";
 
 import { broadcastTransaction, createTransaction } from "../../utils/send";
 import { saveLicenseToConfig } from "../../utils/files";
@@ -56,7 +50,6 @@ const PurchasePage = ({
   password,
   nodeConfig,
 }: Props) => {
-  const { openInModal } = useContext(ModalContext);
   const { config, setConfigFile } = useContext(ConfigContext);
   const [step, setStep] = useState(0);
   const [finalPsbt, setFinalPsbt] = useState<Psbt | undefined>(undefined);
@@ -74,6 +67,13 @@ const PurchasePage = ({
   const [licenseResponse, setLicenseResponse] = useState<
     LicenseResponse | undefined
   >(undefined);
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
+
+  const openInModal = useCallback((component: JSX.Element) => {
+    setModalIsOpen(true);
+    setModalContent(component);
+  }, []);
 
   const clickRenewLicense = useCallback(
     async (tier: LicenseTiers, currentAccount: LilyAccount) => {
@@ -171,7 +171,7 @@ const PurchasePage = ({
 
   return (
     <PageWrapper>
-      <Fragment>
+      <>
         <Header>
           <HeaderLeft>
             <PageTitle>Purchase a license</PageTitle>
@@ -209,7 +209,10 @@ const PurchasePage = ({
           <PurchaseLicenseSuccess config={config} nodeConfig={nodeConfig} />
         )}
         {/* </ModalContent> */}
-      </Fragment>
+        <Modal isOpen={modalIsOpen} closeModal={() => setModalIsOpen(false)}>
+          {modalContent}
+        </Modal>
+      </>
     </PageWrapper>
   );
 };

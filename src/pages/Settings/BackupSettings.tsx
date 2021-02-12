@@ -1,31 +1,30 @@
-import React, { useContext } from "react";
+import React, { useState } from "react";
 import styled, { css } from "styled-components";
 import { Network } from "bitcoinjs-lib";
 import { AES } from "crypto-js";
 
-import { Button } from "../../components";
+import { Button, Modal } from "../../components";
 
 import { PasswordModal } from "./PasswordModal";
 
-import { LilyConfig, NodeConfig } from "../../types";
+import { LilyConfig } from "../../types";
 
 import { downloadFile, formatFilename } from "../../utils/files";
 import { mobile } from "../../utils/media";
 import { white, green500, gray200, gray500, gray900 } from "../../utils/colors";
-
-import { ModalContext } from "../../ModalContext";
 interface Props {
   config: LilyConfig;
-  nodeConfig: NodeConfig;
   currentBitcoinNetwork: Network;
 }
 
-const BackupSettings = ({
-  config,
-  nodeConfig,
-  currentBitcoinNetwork,
-}: Props) => {
-  const { openInModal } = useContext(ModalContext);
+const BackupSettings = ({ config, currentBitcoinNetwork }: Props) => {
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
+
+  const openInModal = (component: JSX.Element) => {
+    setModalIsOpen(true);
+    setModalContent(component);
+  };
 
   const downloadEncryptedCurrentConfig = (password: string) => {
     const encryptedConfigObject = AES.encrypt(
@@ -80,6 +79,9 @@ const BackupSettings = ({
           </ProfileValueAction>
         </ProfileValueColumn>
       </ProfileRow>
+      <Modal isOpen={modalIsOpen} closeModal={() => setModalIsOpen(false)}>
+        {modalContent}
+      </Modal>
     </GeneralSection>
   );
 };

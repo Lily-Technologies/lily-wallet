@@ -2,15 +2,15 @@ import React, { useState } from "react";
 import styled, { css } from "styled-components";
 import { Connection } from "@styled-icons/icomoon";
 
-import { Button, Input, Spinner, StyledIcon } from ".";
+import { Button, Input, Spinner, StyledIcon, ModalContentWrapper } from ".";
 
 import { mobile } from "../utils/media";
 import {
   white,
   gray500,
   green600,
-  yellow100,
-  yellow400,
+  yellow200,
+  yellow600,
   red500,
 } from "../utils/colors";
 
@@ -61,15 +61,15 @@ export const ConnectToNodeModal = ({
     <ModalContentWrapper>
       <IconContainer>
         <StyledIconCircle>
-          <StyledIcon style={{ color: yellow400 }} as={Connection} size={36} />
+          <StyledIcon style={{ color: yellow600 }} as={Connection} size={36} />
         </StyledIconCircle>
       </IconContainer>
       <ContentContainer>
-        <DangerText>Connect to a specific node</DangerText>
-        <DangerSubtext>
+        <ModalHeader>Connect to a specific node</ModalHeader>
+        <ModalSubtext>
           Enter your connection information to get transaction data directly
           from your node.
-        </DangerSubtext>
+        </ModalSubtext>
         <InputsWrapper>
           <InputContainer style={{ marginTop: "1em" }}>
             <Input
@@ -119,24 +119,6 @@ export const ConnectToNodeModal = ({
   );
 };
 
-const ModalContentWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-  padding: 1.5em;
-  align-items: flex-start;
-
-  ${mobile(css`
-    flex-direction: column;
-    align-items: center;
-    padding-top: 1.25em;
-    padding-bottom: 1em;
-    padding-left: 1em;
-    padding-right: 1em;
-    margin-left: 0;
-  `)};
-`;
-
 const IconContainer = styled.div``;
 
 const Buttons = styled.div`
@@ -151,7 +133,7 @@ const InputContainer = styled.div`
 
 const StyledIconCircle = styled.div`
   border-radius: 9999px;
-  background: ${yellow100};
+  background: ${yellow200};
   width: 3rem;
   height: 3rem;
   display: flex;
@@ -185,13 +167,13 @@ const ErrorText = styled.div`
   color: ${red500};
 `;
 
-const DangerText = styled.div`
+const ModalHeader = styled.div`
   font-size: 1.125rem;
   text-align: center;
   font-weight: 600;
 `;
 
-const DangerSubtext = styled.div`
+const ModalSubtext = styled.div`
   padding-bottom: 2em;
   margin-top: 0.5rem;
   color: ${gray500};

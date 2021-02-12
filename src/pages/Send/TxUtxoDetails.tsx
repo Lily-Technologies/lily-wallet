@@ -21,11 +21,7 @@ interface Props {
   currentBitcoinNetwork: Network;
 }
 
-const TransactionUtxoDetails = ({
-  psbt,
-  currentBitcoinPrice,
-  currentBitcoinNetwork,
-}: Props) => {
+const TransactionUtxoDetails = ({ psbt, currentBitcoinPrice }: Props) => {
   const { currentAccount } = useContext(AccountMapContext);
   const { availableUtxos, transactions } = currentAccount;
   const _fee = getFee(psbt, transactions);
@@ -35,7 +31,7 @@ const TransactionUtxoDetails = ({
   }
 
   return (
-    <Container>
+    <>
       <ModalHeaderContainer>
         <span>Transaction Details</span>
       </ModalHeaderContainer>
@@ -91,15 +87,9 @@ const TransactionUtxoDetails = ({
           </MoreDetailsHeader>
         </MoreDetailsSection>
       </MoreDetailsContainer>
-    </Container>
+    </>
   );
 };
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-`;
 
 const OutputItem = styled.div`
   display: flex;

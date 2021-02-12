@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState, useContext } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { DotSingle } from "@styled-icons/entypo";
 import { StarOfLife } from "@styled-icons/fa-solid";
@@ -20,18 +20,16 @@ import {
 
 import { HwiResponseEnumerate } from "../types";
 
-import { ModalContext } from "../ModalContext";
-
 interface Props {
   device: HwiResponseEnumerate;
   enumerate: () => void;
+  closeModal: () => void;
 }
 
-export const PromptPinModal = ({ device, enumerate }: Props) => {
+export const PromptPinModal = ({ device, enumerate, closeModal }: Props) => {
   const [currentPin, setCurrentPin] = useState("");
   const [loadingMessage, setLoadingMessage] = useState("");
   const [promptPinError, setPromptPinError] = useState("");
-  const { closeModal } = useContext(ModalContext);
 
   useEffect(() => {
     async function promptPin() {
@@ -143,7 +141,7 @@ export const PromptPinModal = ({ device, enumerate }: Props) => {
   );
 
   const PinInput = () => (
-    <Fragment>
+    <>
       <PinInputWrapper>
         <CurrentInput>
           {currentPin.split("").map((item) => (
@@ -169,25 +167,19 @@ export const PromptPinModal = ({ device, enumerate }: Props) => {
       >
         Unlock Device
       </UnlockButton>
-    </Fragment>
+    </>
   );
 
   return (
-    <Container>
+    <>
       <ModalHeaderContainer>Enter PIN</ModalHeaderContainer>
       {!!loadingMessage && (
         <Loading itemText="Pinpad" message={loadingMessage} />
       )}
       {!!!loadingMessage && <PinInput />}
-    </Container>
+    </>
   );
 };
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-`;
 
 const ModalHeaderContainer = styled.div`
   border-bottom: 1px solid rgb(229, 231, 235);

@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import styled, { keyframes } from "styled-components";
 import { CheckCircle } from "@styled-icons/material";
 import { ExclamationDiamond } from "@styled-icons/bootstrap";
 
-import { Button, StyledIcon, PromptPinModal } from "../components";
+import { Button, StyledIcon, PromptPinModal, Modal } from "../components";
 import {
   lightGreen,
   gray,
@@ -20,7 +20,6 @@ import {
 } from "../utils/colors";
 
 import { Device, HwiResponseEnumerate } from "../types";
-import { ModalContext } from "../ModalContext";
 
 interface Props {
   configuredDevices: Device[];
@@ -47,11 +46,22 @@ export const DeviceSelect = ({
   deviceActionLoadingText,
   phoneAction,
 }: Props) => {
-  const { openInModal } = useContext(ModalContext);
   const [devicesLoading, setDevicesLoading] = useState(false);
   const [deviceActionLoading, setDeviceActionLoading] = useState<number | null>(
     null
   );
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
+
+  const openInModal = (component: JSX.Element) => {
+    setModalIsOpen(true);
+    setModalContent(component);
+  };
+
+  const closeModal = () => {
+    setModalIsOpen(false);
+    setModalContent(null);
+  };
 
   useEffect(() => {
     enumerate();
@@ -163,6 +173,7 @@ export const DeviceSelect = ({
                         <PromptPinModal
                           device={device!}
                           enumerate={enumerate}
+                          closeModal={() => closeModal()}
                         />
                       );
                     } else {
@@ -272,6 +283,9 @@ export const DeviceSelect = ({
           {devicesLoading ? "Updating Device List..." : "Scan for devices"}
         </ScanDevicesButton>
       )}
+      <Modal isOpen={modalIsOpen} closeModal={() => setModalIsOpen(false)}>
+        {modalContent}
+      </Modal>
     </Wrapper>
   );
 };

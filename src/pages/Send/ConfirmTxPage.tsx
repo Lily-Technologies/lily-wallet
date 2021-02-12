@@ -14,9 +14,8 @@ import TransactionDetails from "./TransactionDetails";
 import AddSignatureFromQrCode from "./AddSignatureFromQrCode";
 
 import { AccountMapContext } from "../../AccountMapContext";
-import { ModalContext } from "../../ModalContext";
 
-import { GridArea, FileUploader, ErrorModal } from "../../components";
+import { GridArea, FileUploader, ErrorModal, Modal } from "../../components";
 
 import {
   SetStateNumber,
@@ -59,10 +58,21 @@ const ConfirmTxPage = ({
   currentBitcoinNetwork,
   createTransactionAndSetState,
 }: Props) => {
-  const { openInModal, closeModal } = useContext(ModalContext);
   const { currentAccount } = useContext(AccountMapContext);
   const [signedDevices, setSignedDevices] = useState<Device[]>([]);
   const fileUploadLabelRef = useRef<HTMLLabelElement>(null);
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
+
+  const openInModal = (component: JSX.Element) => {
+    setModalIsOpen(true);
+    setModalContent(component);
+  };
+
+  const closeModal = () => {
+    setModalIsOpen(false);
+    setModalContent(null);
+  };
 
   const setPreSignedDevices = useCallback(() => {
     if (currentAccount.config.addressType !== AddressType.P2WPKH) {
@@ -183,6 +193,9 @@ const ConfirmTxPage = ({
           phoneAction={phoneAction}
         />
       )}
+      <Modal isOpen={modalIsOpen} closeModal={() => setModalIsOpen(false)}>
+        {modalContent}
+      </Modal>
     </GridArea>
   );
 };

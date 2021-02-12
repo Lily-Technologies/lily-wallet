@@ -1,16 +1,15 @@
-import React, { useContext } from "react";
+import React, { useState, useContext } from "react";
 import styled, { css } from "styled-components";
 import moment from "moment";
 import { Network } from "bitcoinjs-lib";
 
-import { Button } from "../../../components";
+import { Button, Modal } from "../../../components";
 
 import DeleteAccountModal from "./DeleteAccountModal";
 import EditAccountNameModal from "./EditAccountNameModal";
 import DeviceDetailsModal from "./DeviceDetailsModal";
 
 import { AccountMapContext } from "../../../AccountMapContext";
-import { ModalContext } from "../../../ModalContext";
 
 import { mobile } from "../../../utils/media";
 import { capitalize } from "../../../utils/other";
@@ -29,7 +28,18 @@ interface Props {
 
 const GeneralView = ({ password, currentBitcoinNetwork }: Props) => {
   const { currentAccount } = useContext(AccountMapContext);
-  const { openInModal, closeModal } = useContext(ModalContext);
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
+
+  const openInModal = (component: JSX.Element) => {
+    setModalIsOpen(true);
+    setModalContent(component);
+  };
+
+  const closeModal = () => {
+    setModalIsOpen(false);
+    setModalContent(null);
+  };
 
   return (
     <GeneralSection>
@@ -52,7 +62,7 @@ const GeneralView = ({ password, currentBitcoinNetwork }: Props) => {
                 openInModal(
                   <EditAccountNameModal
                     password={password}
-                    closeModal={closeModal}
+                    closeModal={() => setModalIsOpen(false)}
                   />
                 )
               }
@@ -124,7 +134,12 @@ const GeneralView = ({ password, currentBitcoinNetwork }: Props) => {
               background={white}
               color={red500}
               onClick={() =>
-                openInModal(<DeleteAccountModal password={password} />)
+                openInModal(
+                  <DeleteAccountModal
+                    password={password}
+                    closeModal={closeModal}
+                  />
+                )
               }
             >
               Delete
@@ -132,6 +147,10 @@ const GeneralView = ({ password, currentBitcoinNetwork }: Props) => {
           </ProfileValueAction>
         </ProfileValueColumn>
       </ProfileRow>
+
+      <Modal isOpen={modalIsOpen} closeModal={() => setModalIsOpen(false)}>
+        {modalContent}
+      </Modal>
     </GeneralSection>
   );
 };

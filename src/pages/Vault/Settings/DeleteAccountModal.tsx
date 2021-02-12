@@ -3,23 +3,27 @@ import styled, { css } from "styled-components";
 import { ExclamationDiamond } from "@styled-icons/bootstrap";
 import { useHistory } from "react-router-dom";
 
-import { Input, StyledIcon, Button } from "../../../components";
+import {
+  Input,
+  StyledIcon,
+  Button,
+  ModalContentWrapper,
+} from "../../../components";
 
 import { mobile } from "../../../utils/media";
 import { white, red100, red500, red600, gray500 } from "../../../utils/colors";
 import { saveConfig } from "../../../utils/files";
 
 import { ConfigContext } from "../../../ConfigContext";
-import { ModalContext } from "../../../ModalContext";
 import { AccountMapContext } from "../../../AccountMapContext";
 interface Props {
   password: string;
+  closeModal: () => void;
 }
 
-const DeleteAccountModal = ({ password }: Props) => {
+const DeleteAccountModal = ({ password, closeModal }: Props) => {
   const { config, setConfigFile } = useContext(ConfigContext);
   const { currentAccount } = useContext(AccountMapContext);
-  const { closeModal } = useContext(ModalContext);
   const [accountNameConfirm, setAccountNameConfirm] = useState("");
   const [accountNameConfirmError, setAccountNameConfirmError] = useState(false);
   const history = useHistory();
@@ -97,24 +101,6 @@ const DeleteAccountModal = ({ password }: Props) => {
     </ModalContentWrapper>
   );
 };
-
-const ModalContentWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-  align-items: flex-start;
-  padding: 1.5em;
-
-  ${mobile(css`
-    flex-direction: column;
-    align-items: center;
-    padding-top: 1.25em;
-    padding-bottom: 1em;
-    padding-left: 1em;
-    padding-right: 1em;
-    margin-left: 0;
-  `)};
-`;
 
 const DeleteAccountButton = styled.button`
   ${Button}

@@ -2,7 +2,13 @@ import React, { useState } from "react";
 import styled, { css } from "styled-components";
 import { PermScanWifi } from "@styled-icons/material-rounded";
 
-import { StyledIcon, Input, Button, Spinner } from "../../components";
+import {
+  StyledIcon,
+  Input,
+  Button,
+  Spinner,
+  ModalContentWrapper,
+} from "../../components";
 
 import { mobile } from "../../utils/media";
 import {
@@ -105,24 +111,6 @@ export const RescanModal = ({
     </ModalContentWrapper>
   );
 };
-
-const ModalContentWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-  padding: 1.5em;
-  align-items: flex-start;
-
-  ${mobile(css`
-    flex-direction: column;
-    align-items: center;
-    padding-top: 1.25em;
-    padding-bottom: 1em;
-    padding-left: 1em;
-    padding-right: 1em;
-    margin-left: 0;
-  `)};
-`;
 
 const DangerTextContainer = styled.div`
   display: flex;

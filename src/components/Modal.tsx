@@ -1,23 +1,28 @@
-import React, { useState, useContext } from "react";
-import styled from "styled-components";
+import React, { useState } from "react";
+import styled, { css } from "styled-components";
 import ReactModal from "react-modal";
 import { Close } from "@styled-icons/ionicons-outline";
-import { ModalContext } from "../ModalContext";
 
 import { StyledIcon } from ".";
 
 import { white, gray400, gray600 } from "../utils/colors";
+import { mobile } from "../utils/media";
 
 interface Props {
+  isOpen: boolean;
+  closeModal: () => void;
+  children: JSX.Element | null;
   onAfterOpen?: () => void;
   style?: { content?: any; overlay?: any };
 }
 
 export const Modal = ({
+  isOpen,
+  closeModal,
+  children,
   onAfterOpen,
   style = { content: {}, overlay: {} },
 }: Props) => {
-  const { modalIsOpen, closeModal, modalContent } = useContext(ModalContext);
   const [localOpen, setLocalOpen] = useState(false);
 
   const afterOpen = () => {
@@ -63,14 +68,14 @@ export const Modal = ({
 
   return (
     <ReactModal
-      isOpen={modalIsOpen}
+      isOpen={isOpen}
       onAfterOpen={afterOpen}
       onRequestClose={requestClose}
       style={styles}
       contentLabel="Example Modal"
       htmlOpenClassName="ReactModal__Html--open"
     >
-      <ModalContentWrapper>{modalContent}</ModalContentWrapper>
+      <StaticModalContentWrapper>{children}</StaticModalContentWrapper>
       <CloseButtonContainer>
         <StyledIcon
           onClick={() => requestClose()}
@@ -83,6 +88,30 @@ export const Modal = ({
   );
 };
 
+const StaticModalContentWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+`;
+
+export const ModalContentWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  align-items: flex-start;
+  padding: 1.5em;
+
+  ${mobile(css`
+    flex-direction: column;
+    align-items: center;
+    padding-top: 1.25em;
+    padding-bottom: 1em;
+    padding-left: 1em;
+    padding-right: 1em;
+    margin-left: 0;
+  `)};
+`;
+
 const CloseButtonContainer = styled.div`
   position: absolute;
   top: 0;
@@ -94,10 +123,4 @@ const CloseButtonContainer = styled.div`
   &:hover {
     color: ${gray600};
   }
-`;
-
-const ModalContentWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 100%;
 `;

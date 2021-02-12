@@ -3,9 +3,7 @@ import styled, { css } from "styled-components";
 import { Calculator } from "@styled-icons/heroicons-outline";
 import { Network } from "bitcoinjs-lib";
 
-import { AccountMapContext } from "../../../AccountMapContext";
-
-import { StyledIcon } from "../../../components";
+import { StyledIcon, ModalContentWrapper } from "../../../components";
 
 import { mobile } from "../../../utils/media";
 import { getDerivationPath } from "../../../utils/files";
@@ -19,6 +17,7 @@ import {
 } from "../../../utils/colors";
 
 import { ExtendedPublicKey } from "../../../types";
+import { AccountMapContext } from "../../../AccountMapContext";
 
 interface Props {
   item: ExtendedPublicKey;
@@ -91,24 +90,6 @@ const DeviceDetailsModal = ({ item, currentBitcoinNetwork }: Props) => {
     </ModalContentWrapper>
   );
 };
-
-const ModalContentWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-  align-items: flex-start;
-  padding: 1.5em;
-
-  ${mobile(css`
-    flex-direction: column;
-    align-items: center;
-    padding-top: 1.25em;
-    padding-bottom: 1em;
-    padding-left: 1em;
-    padding-right: 1em;
-    margin-left: 0;
-  `)};
-`;
 
 const ImageContainer = styled.div`
   margin-right: 3em;

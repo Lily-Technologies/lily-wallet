@@ -4,7 +4,12 @@ import { EditAlt } from "@styled-icons/boxicons-regular";
 
 import { AccountMapContext } from "../../../AccountMapContext";
 
-import { Input, StyledIcon, Button } from "../../../components";
+import {
+  Input,
+  StyledIcon,
+  Button,
+  ModalContentWrapper,
+} from "../../../components";
 
 import { mobile } from "../../../utils/media";
 import {
@@ -101,24 +106,6 @@ const EditAccountNameModal = ({ password, closeModal }: Props) => {
     </ModalContentWrapper>
   );
 };
-
-const ModalContentWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-  align-items: flex-start;
-  padding: 1.5em;
-
-  ${mobile(css`
-    flex-direction: column;
-    align-items: center;
-    padding-top: 1.25em;
-    padding-bottom: 1em;
-    padding-left: 1em;
-    padding-right: 1em;
-    margin-left: 0;
-  `)};
-`;
 
 const SaveChangesButton = styled.button`
   ${Button}

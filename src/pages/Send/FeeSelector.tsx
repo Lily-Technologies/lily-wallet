@@ -136,7 +136,7 @@ export const FeeSelector = ({
   };
 
   return (
-    <Container>
+    <>
       <ModalHeaderContainer>Adjust Transaction Fee</ModalHeaderContainer>
       {!showEditCustomFee ? (
         <div style={{ padding: "1.5em" }}>
@@ -249,15 +249,9 @@ export const FeeSelector = ({
           </ButtonGroup>
         </CustomFeeContainer>
       )}
-    </Container>
+    </>
   );
 };
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-`;
 
 const CustomFeeContainer = styled.div`
   padding: 1.5em;

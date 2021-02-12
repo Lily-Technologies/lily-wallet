@@ -1,7 +1,7 @@
-import React, { useContext } from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import moment from "moment";
-import { Button } from "../../../components";
+import { Button, Modal } from "../../../components";
 
 import TxDetailsModal from "./TxDetailsModal";
 import TransactionRow from "./TransactionRow";
@@ -10,8 +10,6 @@ import TransactionRowLoading from "./TransactionRowLoading";
 import { darkGray, white, green700 } from "../../../utils/colors";
 
 import { Transaction } from "../../../types";
-
-import { ModalContext } from "../../../ModalContext";
 
 const shouldDisplayDate = (transactions: Transaction[], index: number) => {
   if (index === 0) {
@@ -42,7 +40,14 @@ const RecentTransactions = ({
   openRescanModal,
   maxItems = Infinity,
 }: Props) => {
-  const { openInModal } = useContext(ModalContext);
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
+
+  const openInModal = (component: JSX.Element) => {
+    setModalIsOpen(true);
+    setModalContent(component);
+  };
+
   return (
     <RecentTransactionsWrapper>
       {(loading || transactions.length > 0) && (
@@ -97,6 +102,9 @@ const RecentTransactions = ({
           </NoTransasctionsSection>
         )}
       </TransactionsWrapper>
+      <Modal isOpen={modalIsOpen} closeModal={() => setModalIsOpen(false)}>
+        {modalContent}
+      </Modal>
     </RecentTransactionsWrapper>
   );
 };

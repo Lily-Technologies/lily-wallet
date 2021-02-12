@@ -1,10 +1,4 @@
-import React, {
-  Fragment,
-  useContext,
-  useState,
-  useEffect,
-  useCallback,
-} from "react";
+import React, { useContext, useState, useEffect, useCallback } from "react";
 import styled from "styled-components";
 import {
   AreaChart,
@@ -20,9 +14,8 @@ import moment from "moment";
 import BigNumber from "bignumber.js";
 
 import { AccountMapContext } from "../../AccountMapContext";
-import { ModalContext } from "../../ModalContext";
 
-import { Loading } from "../../components";
+import { Loading, Modal } from "../../components";
 
 import RecentTransactions from "./RecentTransactions";
 import { RescanModal } from "./RescanModal";
@@ -64,10 +57,11 @@ interface Props {
 }
 
 const VaultView = ({ nodeConfig, toggleRefresh }: Props) => {
-  const { openInModal, closeModal } = useContext(ModalContext);
   const [progress, setProgress] = useState(0);
   const { currentAccount } = useContext(AccountMapContext);
   const { currentBalance, transactions } = currentAccount;
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
   const transactionsCopyForChart = [...transactions];
   const transactionsCopyForRecentTransactions = [...transactions];
   const sortedTransactions = transactionsCopyForChart.sort(
@@ -98,6 +92,16 @@ const VaultView = ({ nodeConfig, toggleRefresh }: Props) => {
       ).toNumber(),
     });
   }
+
+  const openInModal = (component: JSX.Element) => {
+    setModalIsOpen(true);
+    setModalContent(component);
+  };
+
+  const closeModal = () => {
+    setModalIsOpen(false);
+    setModalContent(null);
+  };
 
   const scanProgress = useCallback(async () => {
     try {
@@ -131,7 +135,7 @@ const VaultView = ({ nodeConfig, toggleRefresh }: Props) => {
   }, [currentAccount, scanProgress]);
 
   return (
-    <Fragment>
+    <>
       {currentAccount.loading && (
         <ValueWrapper>
           <Loading
@@ -211,7 +215,10 @@ const VaultView = ({ nodeConfig, toggleRefresh }: Props) => {
             : () => openRescanModal()
         }
       />
-    </Fragment>
+      <Modal isOpen={modalIsOpen} closeModal={() => setModalIsOpen(false)}>
+        {modalContent}
+      </Modal>
+    </>
   );
 };
 

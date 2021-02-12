@@ -1,16 +1,17 @@
-import React, { Fragment, useContext } from "react";
+import React, { useState, useContext } from "react";
 import styled, { css } from "styled-components";
 import { Network } from "bitcoinjs-lib";
 import { QRCode } from "react-qr-svg";
 import { CoboVaultSDK } from "@cvbb/sdk";
 
 import { AccountMapContext } from "../../../AccountMapContext";
-import { ModalContext } from "../../../ModalContext";
 
 import {
   MnemonicWordsDisplayer,
   Button,
   AnimatedQrCode,
+  Modal,
+  ModalContentWrapper,
 } from "../../../components";
 import {
   white,
@@ -39,7 +40,13 @@ interface Props {
 
 const ExportView = ({ currentBitcoinNetwork }: Props) => {
   const { currentAccount } = useContext(AccountMapContext);
-  const { openInModal } = useContext(ModalContext);
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
+
+  const openInModal = (component: JSX.Element) => {
+    setModalIsOpen(true);
+    setModalContent(component);
+  };
 
   const downloadColdcardMultisigFile = () => {
     if (currentAccount.config.extendedPublicKeys) {
@@ -149,7 +156,7 @@ const ExportView = ({ currentBitcoinNetwork }: Props) => {
   );
 
   return (
-    <Fragment>
+    <>
       <GeneralSection>
         <HeaderSection>
           <HeaderTitle>Export Account</HeaderTitle>
@@ -193,7 +200,7 @@ const ExportView = ({ currentBitcoinNetwork }: Props) => {
           </ProfileRow>
         )}
         {currentAccount.config.quorum.totalSigners > 1 && (
-          <Fragment>
+          <>
             <ProfileRow>
               <ProfileKeyColumn>Coldcard Export File</ProfileKeyColumn>
               <ProfileValueColumn>
@@ -246,7 +253,7 @@ const ExportView = ({ currentBitcoinNetwork }: Props) => {
                 </ProfileValueAction>
               </ProfileValueColumn>
             </ProfileRow>
-          </Fragment>
+          </>
         )}
         {currentAccount.config.quorum.totalSigners === 1 && (
           <ProfileRow>
@@ -268,7 +275,10 @@ const ExportView = ({ currentBitcoinNetwork }: Props) => {
           </ProfileRow>
         )}
       </GeneralSection>
-    </Fragment>
+      <Modal isOpen={modalIsOpen} closeModal={() => setModalIsOpen(false)}>
+        {modalContent}
+      </Modal>
+    </>
   );
 };
 
@@ -341,24 +351,6 @@ const ProfileValueAction = styled.span`
 const ActionButton = styled.button`
   ${Button};
   font-weight: 600;
-`;
-
-const ModalContentWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-  padding: 1.5em;
-  align-items: flex-start;
-
-  ${mobile(css`
-    flex-direction: column;
-    align-items: center;
-    padding-top: 1.25em;
-    padding-bottom: 1em;
-    padding-left: 1em;
-    padding-right: 1em;
-    margin-left: 0;
-  `)};
 `;
 
 const WordsContainer = styled.div`

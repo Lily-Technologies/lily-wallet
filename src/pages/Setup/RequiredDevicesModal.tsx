@@ -1,4 +1,4 @@
-import React, { useState, Fragment, useContext } from "react";
+import React, { useState, useContext } from "react";
 import styled from "styled-components";
 import { Plus, Minus } from "@styled-icons/boxicons-regular";
 
@@ -16,7 +16,6 @@ import {
 import { isAtLeastTier } from "../../utils/license";
 
 import { ConfigContext } from "../../ConfigContext";
-import { ModalContext } from "../../ModalContext";
 
 import { LicenseTiers } from "../../types";
 
@@ -25,6 +24,7 @@ interface Props {
   setConfigRequiredSigners: React.Dispatch<React.SetStateAction<number>>;
   configRequiredSigners: number;
   setStep: React.Dispatch<React.SetStateAction<number>>;
+  closeModal: () => void;
 }
 
 const RequiredDevicesModal = ({
@@ -32,8 +32,8 @@ const RequiredDevicesModal = ({
   setConfigRequiredSigners,
   configRequiredSigners,
   setStep,
+  closeModal,
 }: Props) => {
-  const { closeModal } = useContext(ModalContext);
   const { config } = useContext(ConfigContext);
   const [requiredSigners, setRequiredSigners] = useState(configRequiredSigners);
   const [error, setError] = useState("");
@@ -53,7 +53,7 @@ const RequiredDevicesModal = ({
   };
 
   return (
-    <Fragment>
+    <>
       <ModalHeaderContainer>
         How many devices are required to approve transactions?
       </ModalHeaderContainer>
@@ -86,7 +86,7 @@ const RequiredDevicesModal = ({
           Confirm
         </ContinueButton>
       </SelectionContainer>
-    </Fragment>
+    </>
   );
 };
 

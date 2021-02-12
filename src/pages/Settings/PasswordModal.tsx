@@ -2,7 +2,12 @@ import React, { useState } from "react";
 import styled, { css } from "styled-components";
 import { LockAlt } from "@styled-icons/boxicons-regular";
 
-import { StyledIcon, Input, Button } from "../../components";
+import {
+  StyledIcon,
+  Input,
+  Button,
+  ModalContentWrapper,
+} from "../../components";
 
 import { mobile } from "../../utils/media";
 import {
@@ -60,10 +65,10 @@ export const PasswordModal = ({
         </StyledIconCircle>
       </DangerIconContainer>
       <DangerTextContainer>
-        <DangerText>Secure your backup with a password</DangerText>
-        <DangerSubtext>
+        <ModalHeader>Secure your backup with a password</ModalHeader>
+        <ModalSubtext>
           Give a password to encrypt your backup with.
-        </DangerSubtext>
+        </ModalSubtext>
         <Input
           label="Password"
           value={password}
@@ -113,24 +118,6 @@ const DownloadButton = styled.button`
   ${Button}
 `;
 
-const ModalContentWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-  padding: 1.5em;
-  align-items: flex-start;
-
-  ${mobile(css`
-    flex-direction: column;
-    align-items: center;
-    padding-top: 1.25em;
-    padding-bottom: 1em;
-    padding-left: 1em;
-    padding-right: 1em;
-    margin-left: 0;
-  `)};
-`;
-
 const DangerTextContainer = styled.div`
   display: flex;
   flex: 1;
@@ -156,16 +143,18 @@ const StyledIconCircle = styled.div`
   align-items: center;
 `;
 
-const DangerText = styled.div`
+const ModalHeader = styled.div`
   font-size: 1.125rem;
   text-align: center;
   font-weight: 600;
 `;
 
-const DangerSubtext = styled.div`
+const ModalSubtext = styled.div`
   padding-bottom: 2em;
   margin-top: 0.5rem;
   color: ${gray500};
+  font-size: 0.875rem;
+  line-height: 1.25rem;
 `;
 
 const PasswordError = styled.div`

@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useContext } from "react";
+import React, { useState, useContext } from "react";
 import styled, { css } from "styled-components";
 import BigNumber from "bignumber.js";
 import {
@@ -16,6 +16,7 @@ import {
   HeaderLeft,
   Loading,
   GridArea,
+  Modal,
 } from "../../components";
 import {
   SelectAccountMenu,
@@ -28,7 +29,6 @@ import SendTxForm from "./SendTxForm";
 import ConfirmTxPage from "./ConfirmTxPage";
 
 import { AccountMapContext } from "../../AccountMapContext";
-import { ModalContext } from "../../ModalContext";
 
 import {
   white,
@@ -74,7 +74,18 @@ const Send = ({
 
   const { currentAccount, accountMap } = useContext(AccountMapContext);
   const { currentBalance } = currentAccount;
-  const { openInModal, closeModal } = useContext(ModalContext);
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
+
+  const openInModal = (component: JSX.Element) => {
+    setModalIsOpen(true);
+    setModalContent(component);
+  };
+
+  const closeModal = () => {
+    setModalIsOpen(false);
+    setModalContent(null);
+  };
 
   const createTransactionAndSetState = async (
     _recipientAddress: string,
@@ -105,7 +116,7 @@ const Send = ({
     broadcastedTxId?: string;
     message: string;
   }) => (
-    <Fragment>
+    <>
       <ModalHeaderContainer>
         Transaction {broadcastedTxId ? `Success` : `Failure`}
       </ModalHeaderContainer>
@@ -140,7 +151,7 @@ const Send = ({
           </ViewTransactionButton>
         )}
       </ModalBody>
-    </Fragment>
+    </>
   );
 
   const sendTransaction = async () => {
@@ -181,7 +192,7 @@ const Send = ({
 
   return (
     <PageWrapper>
-      <Fragment>
+      <>
         <Header>
           <HeaderLeft>
             <PageTitle>Send from</PageTitle>
@@ -226,7 +237,10 @@ const Send = ({
             createTransactionAndSetState={createTransactionAndSetState}
           />
         )}
-      </Fragment>
+        <Modal isOpen={modalIsOpen} closeModal={() => setModalIsOpen(false)}>
+          {modalContent}
+        </Modal>
+      </>
     </PageWrapper>
   );
 };

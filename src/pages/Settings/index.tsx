@@ -1,4 +1,4 @@
-import React, { useState, Fragment, useContext } from "react";
+import React, { useState, useContext } from "react";
 import styled from "styled-components";
 import { Network } from "bitcoinjs-lib";
 import { Link } from "react-router-dom";
@@ -11,6 +11,7 @@ import {
   HeaderLeft,
   HeaderRight,
   StyledIcon,
+  Modal,
 } from "../../components";
 
 import Tabs from "./Tabs";
@@ -24,7 +25,6 @@ import { white } from "../../utils/colors";
 import { NodeConfig } from "../../types";
 
 import { ConfigContext } from "../../ConfigContext";
-import { ModalContext } from "../../ModalContext";
 
 interface Props {
   nodeConfig: NodeConfig;
@@ -41,13 +41,24 @@ const Settings = ({
   setNodeConfig,
   password,
 }: Props) => {
-  const { openInModal, closeModal } = useContext(ModalContext);
   const { config } = useContext(ConfigContext);
   const [currentTab, setCurrentTab] = useState("network");
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
+
+  const openInModal = (component: JSX.Element) => {
+    setModalIsOpen(true);
+    setModalContent(component);
+  };
+
+  const closeModal = () => {
+    setModalIsOpen(false);
+    setModalContent(null);
+  };
 
   return (
     <PageWrapper>
-      <Fragment>
+      <>
         <Header>
           <HeaderLeft>
             <PageTitle>Settings</PageTitle>
@@ -78,7 +89,6 @@ const Settings = ({
           {currentTab === "backup" && (
             <BackupSettings
               config={config}
-              nodeConfig={nodeConfig}
               currentBitcoinNetwork={currentBitcoinNetwork}
             />
           )}
@@ -92,7 +102,10 @@ const Settings = ({
           )}
           {currentTab === "about" && <About />}
         </Wrapper>
-      </Fragment>
+        <Modal isOpen={modalIsOpen} closeModal={() => setModalIsOpen(false)}>
+          {modalContent}
+        </Modal>
+      </>
     </PageWrapper>
   );
 };

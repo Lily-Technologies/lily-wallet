@@ -1,4 +1,4 @@
-import React, { useState, useRef, useContext } from "react";
+import React, { useState, useRef } from "react";
 import styled from "styled-components";
 import { decode } from "bs58check";
 import BarcodeScannerComponent from "react-webcam-barcode-scanner";
@@ -10,6 +10,7 @@ import {
   FileUploader,
   Dropdown,
   ErrorModal,
+  Modal,
 } from "../../components";
 import {
   InnerWrapper,
@@ -32,8 +33,6 @@ import {
   File,
 } from "../../types";
 
-import { ModalContext } from "../../ModalContext";
-
 interface Props {
   header: JSX.Element;
   setStep: React.Dispatch<React.SetStateAction<number>>;
@@ -51,13 +50,24 @@ const NewHardwareWalletScreen = ({
   setImportedDevices,
   currentBitcoinNetwork,
 }: Props) => {
-  const { openInModal, closeModal } = useContext(ModalContext);
   const [availableDevices, setAvailableDevices] = useState<
     HwiResponseEnumerate[]
   >([]);
   const [errorDevices, setErrorDevices] = useState<string[]>([]);
   const importDeviceFromFileRef = useRef<HTMLLabelElement>(null);
   const [otherImportDropdownOpen, setOtherImportDropdownOpen] = useState(false);
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
+
+  const openInModal = (component: JSX.Element) => {
+    setModalIsOpen(true);
+    setModalContent(component);
+  };
+
+  const closeModal = () => {
+    setModalIsOpen(false);
+    setModalContent(null);
+  };
 
   const importSingleSigDevice = async (
     device: HwiResponseEnumerate,
@@ -229,6 +239,9 @@ const NewHardwareWalletScreen = ({
           </ContinueButton>
         )}
       </FormContainer>
+      <Modal isOpen={modalIsOpen} closeModal={() => setModalIsOpen(false)}>
+        {modalContent}
+      </Modal>
     </InnerWrapper>
   );
 };
