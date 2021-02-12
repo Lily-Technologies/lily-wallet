@@ -752,7 +752,7 @@ var getUtxosFromNode = function (
           _a = availableUtxos[i];
           return [
             4 /*yield*/,
-            nodeClient.getRawTransaction(availableUtxos[i].txid),
+            nodeClient.getRawTransaction(availableUtxos[i].txid, true).hex,
           ];
         case 3:
           _a.prevTxHex = _b.sent();
@@ -1012,6 +1012,11 @@ var scanForAddressesAndTransactions = function (
     return __generator(this, function (_a) {
       switch (_a.label) {
         case 0:
+          console.log(
+            "(" +
+              account.id +
+              "): Deriving addresses and checking for transactions..."
+          );
           receiveAddresses = [];
           changeAddresses = [];
           transactions = [];
@@ -1072,6 +1077,11 @@ var scanForAddressesAndTransactions = function (
           i = i + 1;
           return [3 /*break*/, 1];
         case 4:
+          console.log(
+            "(" +
+              account.id +
+              "): Finished deriving addresses and checking for transactions."
+          );
           return [
             2 /*return*/,
             {
@@ -1120,12 +1130,16 @@ exports.getDataFromMultisig = function (
             (unusedChangeAddresses = _a.unusedChangeAddresses),
             (transactions = _a.transactions);
           if (!nodeClient) return [3 /*break*/, 4];
+          console.log(
+            "(" + account.id + "): Serializing transactions from node..."
+          );
           return [
             4 /*yield*/,
             serializeTransactionsFromNode(nodeClient, transactions),
           ];
         case 2:
           organizedTransactions = _b.sent();
+          console.log("(" + account.id + "): Getting UTXO data from node...");
           return [
             4 /*yield*/,
             getUtxosFromNode(receiveAddresses, changeAddresses, nodeClient),
@@ -1134,11 +1148,13 @@ exports.getDataFromMultisig = function (
           availableUtxos = _b.sent();
           return [3 /*break*/, 6];
         case 4:
+          console.log("(" + account.id + "): Serializing transactions...");
           organizedTransactions = exports.serializeTransactions(
             transactions,
             receiveAddresses,
             changeAddresses
           );
+          console.log("(" + account.id + "): Getting UTXO data...");
           return [
             4 /*yield*/,
             getUtxosForAddresses(
@@ -1199,12 +1215,16 @@ exports.getDataFromXPub = function (
             (unusedChangeAddresses = _a.unusedChangeAddresses),
             (transactions = _a.transactions);
           if (!nodeClient) return [3 /*break*/, 4];
+          console.log(
+            "(" + account.id + "): Serializing transactions from node..."
+          );
           return [
             4 /*yield*/,
             serializeTransactionsFromNode(nodeClient, transactions),
           ];
         case 2:
           organizedTransactions = _b.sent();
+          console.log("(" + account.id + "): Getting UTXO data from node...");
           return [
             4 /*yield*/,
             getUtxosFromNode(receiveAddresses, changeAddresses, nodeClient),
@@ -1213,6 +1233,7 @@ exports.getDataFromXPub = function (
           availableUtxos = _b.sent();
           return [3 /*break*/, 6];
         case 4:
+          console.log("(" + account.id + "): Getting UTXO data...");
           return [
             4 /*yield*/,
             getUtxosForAddresses(
@@ -1222,6 +1243,7 @@ exports.getDataFromXPub = function (
           ];
         case 5:
           availableUtxos = _b.sent();
+          console.log("(" + account.id + "): Serializing transactions...");
           organizedTransactions = exports.serializeTransactions(
             transactions,
             receiveAddresses,

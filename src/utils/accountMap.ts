@@ -643,6 +643,9 @@ const scanForAddressesAndTransactions = async (
   currentBitcoinNetwork: Network,
   limitGap: number
 ) => {
+  console.log(
+    `(${account.id}): Deriving addresses and checking for transactions...`
+  );
   const receiveAddresses = [];
   const changeAddresses = [];
   let transactions: (Transaction | BitcoinCoreGetRawTransactionResponse)[] = [];
@@ -698,6 +701,9 @@ const scanForAddressesAndTransactions = async (
     i = i + 1;
   }
 
+  console.log(
+    `(${account.id}): Finished deriving addresses and checking for transactions.`
+  );
   return {
     receiveAddresses,
     changeAddresses,
@@ -727,21 +733,26 @@ export const getDataFromMultisig = async (
   let organizedTransactions: Transaction[];
   let availableUtxos: UTXO[];
   if (nodeClient) {
+    console.log(`(${account.id}): Serializing transactions from node...`);
     organizedTransactions = (await serializeTransactionsFromNode(
       nodeClient,
       transactions as BitcoinCoreGetRawTransactionResponse[]
     )) as any;
+    console.log(`(${account.id}): Getting UTXO data from node...`);
     availableUtxos = await getUtxosFromNode(
       receiveAddresses,
       changeAddresses,
       nodeClient
     );
   } else {
+    console.log(`(${account.id}): Serializing transactions...`);
     organizedTransactions = serializeTransactions(
       transactions as Transaction[],
       receiveAddresses,
       changeAddresses
     );
+
+    console.log(`(${account.id}): Getting UTXO data...`);
     availableUtxos = await getUtxosForAddresses(
       receiveAddresses.concat(changeAddresses),
       currentBitcoinNetwork
@@ -779,20 +790,24 @@ export const getDataFromXPub = async (
   let organizedTransactions: Transaction[];
   let availableUtxos: UTXO[];
   if (nodeClient) {
+    console.log(`(${account.id}): Serializing transactions from node...`);
     organizedTransactions = (await serializeTransactionsFromNode(
       nodeClient,
       transactions as BitcoinCoreGetRawTransactionResponse[]
     )) as any;
+    console.log(`(${account.id}): Getting UTXO data from node...`);
     availableUtxos = await getUtxosFromNode(
       receiveAddresses,
       changeAddresses,
       nodeClient
     );
   } else {
+    console.log(`(${account.id}): Getting UTXO data...`);
     availableUtxos = await getUtxosForAddresses(
       receiveAddresses.concat(changeAddresses),
       currentBitcoinNetwork
     );
+    console.log(`(${account.id}): Serializing transactions...`);
     organizedTransactions = serializeTransactions(
       transactions as Transaction[],
       receiveAddresses,
