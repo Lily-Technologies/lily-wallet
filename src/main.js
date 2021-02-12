@@ -358,7 +358,7 @@ ipcMain.on("/account-data", async (event, args) => {
 
     event.reply("/account-data", accountData);
   } catch (e) {
-    console.log("ipcMain.on /account-data e: ", e);
+    console.log(`(${config.id}) /account-data error: `, e.message);
   }
 });
 
