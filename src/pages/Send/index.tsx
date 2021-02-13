@@ -1,5 +1,6 @@
 import React, { useState, useContext } from "react";
 import styled, { css } from "styled-components";
+import { useHistory } from "react-router-dom";
 import BigNumber from "bignumber.js";
 import {
   satoshisToBitcoins,
@@ -71,6 +72,8 @@ const Send = ({
     halfHourFee: 0,
     hourFee: 0,
   });
+  const [paymentSuccessful, setPaymentSuccess] = useState(false);
+  const history = useHistory();
 
   const { currentAccount, accountMap } = useContext(AccountMapContext);
   const { currentBalance } = currentAccount;
@@ -85,6 +88,9 @@ const Send = ({
   const closeModal = () => {
     setModalIsOpen(false);
     setModalContent(null);
+    if (paymentSuccessful) {
+      history.push("/");
+    }
   };
 
   const createTransactionAndSetState = async (
@@ -177,6 +183,7 @@ const Send = ({
               message={"Your transaction has been broadcast."}
             />
           );
+          setPaymentSuccess(true);
         } catch (e) {
           if (e.response) {
             // error from blockstream
@@ -237,7 +244,7 @@ const Send = ({
             createTransactionAndSetState={createTransactionAndSetState}
           />
         )}
-        <Modal isOpen={modalIsOpen} closeModal={() => setModalIsOpen(false)}>
+        <Modal isOpen={modalIsOpen} closeModal={() => closeModal()}>
           {modalContent}
         </Modal>
       </>
