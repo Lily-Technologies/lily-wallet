@@ -48,10 +48,10 @@ export const FeeSelector = ({
   createTransactionAndSetState,
   currentBitcoinPrice,
 }: Props) => {
-  const fee = getFee(finalPsbt, currentAccount.transactions);
+  const fee = getFee(finalPsbt, currentAccount.transactions); // in sats
   const [customFee, setCustomFee] = useState(fee);
   const [customFeeError, setCustomFeeError] = useState(false);
-  const [customFeeBtc, setCustomFeeBtc] = useState(bitcoinsToSatoshis(fee));
+  const [customFeeBtc, setCustomFeeBtc] = useState(satoshisToBitcoins(fee));
   const [showEditCustomFee, setShowEditCustomFee] = useState(false);
 
   let fastestFee: number;
@@ -217,6 +217,8 @@ export const FeeSelector = ({
             value={customFeeBtc}
             placeholder={"0.00001"}
             error={customFeeError}
+            inputStaticText="BTC"
+            largeText={true}
           />
           <InputStaticText disabled text="BTC">
             BTC
