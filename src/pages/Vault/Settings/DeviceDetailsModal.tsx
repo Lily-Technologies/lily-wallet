@@ -3,7 +3,9 @@ import styled, { css } from "styled-components";
 import { Calculator } from "@styled-icons/heroicons-outline";
 import { Network } from "bitcoinjs-lib";
 
-import { StyledIcon, ModalContentWrapper } from "../../../components";
+import { AccountMapContext } from "../../../AccountMapContext";
+
+import { StyledIcon } from "../../../components";
 
 import { mobile } from "../../../utils/media";
 import { getDerivationPath } from "../../../utils/files";
@@ -17,7 +19,6 @@ import {
 } from "../../../utils/colors";
 
 import { ExtendedPublicKey } from "../../../types";
-import { AccountMapContext } from "../../../AccountMapContext";
 
 interface Props {
   item: ExtendedPublicKey;
@@ -91,6 +92,24 @@ const DeviceDetailsModal = ({ item, currentBitcoinNetwork }: Props) => {
   );
 };
 
+const ModalContentWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  align-items: flex-start;
+  padding: 1.5em;
+
+  ${mobile(css`
+    flex-direction: column;
+    align-items: center;
+    padding-top: 1.25em;
+    padding-bottom: 1em;
+    padding-left: 1em;
+    padding-right: 1em;
+    margin-left: 0;
+  `)};
+`;
+
 const ImageContainer = styled.div`
   margin-right: 3em;
 `;
@@ -127,7 +146,7 @@ const ProfileKeyColumn = styled.div`
   font-size: 0.875rem;
   line-height: 1.25rem;
   color: ${gray500};
-  font-weight: 500;
+  font-weight: 600;
   align-items: center;
   display: flex;
 `;
@@ -181,7 +200,7 @@ const StyledIconCircle = styled.div`
 const HeadingText = styled.div`
   font-size: 1.125rem;
   text-align: center;
-  font-weight: 500;
+  font-weight: 600;
 `;
 
 const DeviceImage = styled.img`

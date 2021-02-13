@@ -171,7 +171,7 @@ const SendTxForm = ({
           }
           error={recipientAddressError}
           largeText={true}
-          style={{ textAlign: "right", fontSize: "0.85rem", marginTop: "-1em" }}
+          style={{ textAlign: "right" }}
         />
       </InputContainer>
       <InputContainer>

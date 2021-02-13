@@ -72,6 +72,8 @@ const ValueText = styled.span`
 
 const ValueAction = styled.span`
   margin-left: 1rem;
+  font-weight: 500;
+  color: ${gray700};
 `;
 
 const ActionButton = styled.button`

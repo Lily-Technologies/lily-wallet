@@ -118,6 +118,7 @@ const HeaderInfo = styled.div`
 const Header = styled.h1`
   color: ${gray800};
   margin: 0;
+  font-weight: 500;
 `;
 
 const TransactionId = styled.h5`

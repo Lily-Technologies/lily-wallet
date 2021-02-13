@@ -127,7 +127,7 @@ const ReceiveButtonContainer = styled.div`
 
 const CopyAddressButton = styled.div`
   ${Button};
-  font-weight: 600;
+  font-weight: 500;
 `;
 
 const NewAddressButton = styled.div`
