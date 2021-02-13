@@ -1,5 +1,6 @@
 import { Network, Psbt } from "bitcoinjs-lib";
 import { ACCOUNTMAP_SET, ACCOUNTMAP_UPDATE } from "../reducers/accountMap";
+import { WalletInfo } from "bitcoin-simple-rpc";
 
 declare global {
   namespace NodeJS {
@@ -186,7 +187,7 @@ export interface LilyAccount {
   unusedAddresses: Address[];
   unusedChangeAddresses: Address[];
   currentBalance: number;
-  loading: boolean;
+  loading: boolean | WalletInfo.scanning;
 }
 
 export interface AccountMap {

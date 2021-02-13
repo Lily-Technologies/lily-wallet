@@ -738,6 +738,14 @@ export const getDataFromMultisig = async (
       nodeClient,
       transactions as BitcoinCoreGetRawTransactionResponse[]
     )) as any;
+
+    console.log(`(${account.id}): re-serializing (test...)...`);
+    organizedTransactions = serializeTransactions(
+      organizedTransactions,
+      receiveAddresses,
+      changeAddresses
+    );
+
     console.log(`(${account.id}): Getting UTXO data from node...`);
     availableUtxos = await getUtxosFromNode(
       receiveAddresses,

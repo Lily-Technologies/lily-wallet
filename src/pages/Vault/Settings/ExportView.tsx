@@ -1,5 +1,5 @@
 import React, { useState, useContext } from "react";
-import styled, { css } from "styled-components";
+import styled from "styled-components";
 import { Network } from "bitcoinjs-lib";
 import { QRCode } from "react-qr-svg";
 import { CoboVaultSDK } from "@cvbb/sdk";

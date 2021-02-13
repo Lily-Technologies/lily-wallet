@@ -57,7 +57,7 @@ interface Props {
 }
 
 const VaultView = ({ nodeConfig, toggleRefresh }: Props) => {
-  const [progress, setProgress] = useState(0);
+  const [progress, setProgress] = useState<number>(0);
   const { currentAccount } = useContext(AccountMapContext);
   const { currentBalance, transactions } = currentAccount;
   const [modalIsOpen, setModalIsOpen] = useState(false);
@@ -111,12 +111,25 @@ const VaultView = ({ nodeConfig, toggleRefresh }: Props) => {
         });
         if (scanning) {
           setProgress(scanning.progress);
+        } else if (progress < 100) {
+          // if scanning is false and progress is defined,
+          // then we must have had progress sometime in the past,
+          // so we are finished scanning, so refetch.
+          // setProgress over 100 to render "refetching" message to user
+          toggleRefresh();
+          setProgress(420);
+        } else if (currentAccount.loading.progress && !!!progress) {
+          // if scanning is false, progress is 0, but current.loading.progress exists
+          // then we were returned currentAccount data while still rescanning and then navigated to this page
+          // we are done rescanning (because !!!scanning), so refetch data.
+          toggleRefresh();
+          setProgress(420);
         }
       }
     } catch (e) {
       console.log("e: ", e);
     }
-  }, [currentAccount, nodeConfig.provider]);
+  }, [currentAccount, nodeConfig.provider, toggleRefresh]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const openRescanModal = () => {
     openInModal(
@@ -129,29 +142,40 @@ const VaultView = ({ nodeConfig, toggleRefresh }: Props) => {
   };
 
   useEffect(() => {
-    scanProgress();
-    const interval = setInterval(async () => scanProgress(), 2000);
+    const interval = setInterval(async () => {
+      scanProgress();
+      if (
+        progress > 100 &&
+        (!!!currentAccount.loading || !!currentAccount.loading.progress)
+      ) {
+        setProgress(0);
+        clearInterval(interval);
+      }
+    }, 2000);
     return () => clearInterval(interval);
-  }, [currentAccount, scanProgress]);
+  }, [currentAccount, scanProgress]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <>
-      {currentAccount.loading && (
+      {currentAccount.loading ||
+      (progress && currentAccount.transactions.length === 0) ? (
         <ValueWrapper>
           <Loading
             style={{ margin: "10em 0" }}
             message={
-              progress
+              progress > 100
+                ? "Fetching newly scanned transactions"
+                : progress
                 ? `Scanning for transactions \n (${(progress * 100).toFixed(
                     2
                   )}% complete)`
                 : undefined
             }
-            itemText={"Chart Data"}
+            itemText={"Transaction Data"}
           />
         </ValueWrapper>
-      )}
-      {transactions.length > 0 && !currentAccount.loading && (
+      ) : null}
+      {transactions.length > 0 && !currentAccount.loading ? (
         <ValueWrapper>
           <CurrentBalanceContainer>
             <CurrentBalanceText>Current Balance:</CurrentBalanceText>
@@ -195,7 +219,7 @@ const VaultView = ({ nodeConfig, toggleRefresh }: Props) => {
             </ResponsiveContainer>
           </ChartContainer>
         </ValueWrapper>
-      )}
+      ) : null}
       <RecentTransactions
         transactions={transactionsCopyForRecentTransactions.sort((a, b) => {
           if (!b.status.confirmed && !a.status.confirmed) {
@@ -207,7 +231,7 @@ const VaultView = ({ nodeConfig, toggleRefresh }: Props) => {
           }
           return b.status.block_time - a.status.block_time;
         })}
-        loading={currentAccount.loading}
+        loading={!!currentAccount.loading || progress > 0}
         flat={false}
         openRescanModal={
           nodeConfig?.provider === "Blockstream"

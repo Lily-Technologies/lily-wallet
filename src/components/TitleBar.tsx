@@ -36,7 +36,7 @@ export const TitleBar = ({ nodeConfig, config }: Props) => {
   nodeConfigDropdownItems.push({
     label: (
       <Fragment>
-        Status: <br />
+        Network Status: <br />
         {getNodeStatus(nodeConfig)}
       </Fragment>
     ),

@@ -89,7 +89,7 @@ const getFile = async (filename) => {
 function createWindow() {
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    width: 800,
+    width: 1000,
     height: 600,
     backgroundColor: "rgb(245, 247, 250)",
     transparent: true,

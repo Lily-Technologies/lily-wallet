@@ -1139,6 +1139,12 @@ exports.getDataFromMultisig = function (
           ];
         case 2:
           organizedTransactions = _b.sent();
+          console.log("(" + account.id + "): re-serializing (test...)...");
+          organizedTransactions = exports.serializeTransactions(
+            organizedTransactions,
+            receiveAddresses,
+            changeAddresses
+          );
           console.log("(" + account.id + "): Getting UTXO data from node...");
           return [
             4 /*yield*/,
