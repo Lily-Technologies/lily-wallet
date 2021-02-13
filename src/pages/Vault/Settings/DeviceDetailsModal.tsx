@@ -127,7 +127,7 @@ const ProfileKeyColumn = styled.div`
   font-size: 0.875rem;
   line-height: 1.25rem;
   color: ${gray500};
-  font-weight: 600;
+  font-weight: 500;
   align-items: center;
   display: flex;
 `;
@@ -181,7 +181,7 @@ const StyledIconCircle = styled.div`
 const HeadingText = styled.div`
   font-size: 1.125rem;
   text-align: center;
-  font-weight: 600;
+  font-weight: 500;
 `;
 
 const DeviceImage = styled.img`

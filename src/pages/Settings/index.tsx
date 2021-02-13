@@ -120,6 +120,7 @@ const Wrapper = styled.div`
 const DecoratedLink = styled(Link)`
   color: ${white};
   text-decoration: none;
+  font-weight: 500;
 `;
 
 export default Settings;

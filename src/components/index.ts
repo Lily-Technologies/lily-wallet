@@ -27,5 +27,6 @@ export * from "./AlertBar";
 export * from "./Breadcrumbs";
 export * from "./ErrorModal";
 export * from "./NoAccountsEmptyState";
+export * from "./SettingsTable";
 
 export * from "./layout";

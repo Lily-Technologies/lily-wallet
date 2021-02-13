@@ -413,7 +413,7 @@ const MainText = styled.div`
   flex-direction: column;
   align-items: flex-start;
   width: 100%;
-  font-weight: 600;
+  font-weight: 500;
 `;
 
 const TextContainer = styled.div`

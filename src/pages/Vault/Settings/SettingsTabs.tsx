@@ -1,33 +1,51 @@
-import React from 'react';
-import styled from 'styled-components';
+import React from "react";
+import styled from "styled-components";
 
-import { green500, gray200, gray300, gray500, gray700 } from '../../../utils/colors';
+import {
+  green500,
+  gray200,
+  gray300,
+  gray500,
+  gray700,
+} from "../../../utils/colors";
 
-import { SetStateString } from '../../../types';
+import { SetStateString } from "../../../types";
 
 interface Props {
-  currentTab: string
-  setCurrentTab: SetStateString
+  currentTab: string;
+  setCurrentTab: SetStateString;
 }
 
 const SettingsTabs = ({ currentTab, setCurrentTab }: Props) => {
   return (
     <TabsContainer>
-      <TabItem active={currentTab === 'general'} onClick={() => setCurrentTab('general')}>
+      <TabItem
+        active={currentTab === "general"}
+        onClick={() => setCurrentTab("general")}
+      >
         General
-        </TabItem>
-      <TabItem active={currentTab === 'addresses'} onClick={() => setCurrentTab('addresses')} >
+      </TabItem>
+      <TabItem
+        active={currentTab === "addresses"}
+        onClick={() => setCurrentTab("addresses")}
+      >
         Addresses
       </TabItem>
-      <TabItem active={currentTab === 'utxos'} onClick={() => setCurrentTab('utxos')}>
+      <TabItem
+        active={currentTab === "utxos"}
+        onClick={() => setCurrentTab("utxos")}
+      >
         UTXOs
       </TabItem>
-      <TabItem active={currentTab === 'export'} onClick={() => setCurrentTab('export')}>
+      <TabItem
+        active={currentTab === "export"}
+        onClick={() => setCurrentTab("export")}
+      >
         Export
       </TabItem>
     </TabsContainer>
-  )
-}
+  );
+};
 
 const TabsContainer = styled.div`
   display: flex;
@@ -42,11 +60,11 @@ const TabItem = styled.button<{ active: boolean }>`
   font-size: 0.875rem;
   line-height: 1.25rem;
   font-weight: 500;
-  border-bottom: 2px solid ${p => p.active ? green500 : 'none'};
+  border-bottom: 2px solid ${(p) => (p.active ? green500 : "none")};
   margin-left: 2rem;
   cursor: pointer;
-  color: ${p => p.active ? green500 : gray500};
-  font-weight: 600;
+  color: ${(p) => (p.active ? green500 : gray500)};
+  font-weight: 500;
   text-decoration: none;
 
   &:nth-child(1) {
@@ -54,8 +72,8 @@ const TabItem = styled.button<{ active: boolean }>`
   }
 
   &:hover {
-    border-bottom: 2px solid ${p => p.active ? 'none' : gray300};
-    color: ${p => p.active ? 'inherit' : gray700};
+    border-bottom: 2px solid ${(p) => (p.active ? "none" : gray300)};
+    color: ${(p) => (p.active ? "inherit" : gray700)};
   }
 `;
 

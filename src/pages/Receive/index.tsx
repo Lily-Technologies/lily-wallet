@@ -41,6 +41,14 @@ const Receive = ({ config }: { config: LilyConfig }) => {
   const { currentAccount, accountMap } = useContext(AccountMapContext);
   const { unusedAddresses, currentBalance } = currentAccount;
 
+  const getNewAddress = () => {
+    if (unusedAddressIndex < 9) {
+      setUnusedAddressIndex(unusedAddressIndex + 1);
+    } else {
+      setUnusedAddressIndex(0);
+    }
+  };
+
   return (
     <PageWrapper>
       <Fragment>
@@ -86,7 +94,7 @@ const Receive = ({ config }: { config: LilyConfig }) => {
                 <NewAddressButton
                   background="transparent"
                   color={darkGray}
-                  onClick={() => setUnusedAddressIndex(unusedAddressIndex + 1)}
+                  onClick={() => getNewAddress()}
                 >
                   Generate New Address
                 </NewAddressButton>

@@ -1,25 +1,22 @@
 import React, { useState } from "react";
-import styled, { css } from "styled-components";
+import styled from "styled-components";
 import { Circle } from "@styled-icons/boxicons-solid";
 
 import {
-  Button,
   ConnectToNodeModal,
   Dropdown,
   StyledIcon,
+  SettingsTable,
 } from "../../components";
 
 import { NodeConfig } from "../../types";
 
-import { mobile } from "../../utils/media";
 import { getNodeStatus } from "../../utils/other";
 import {
   white,
   green400,
   green500,
-  gray200,
-  gray500,
-  gray900,
+  gray700,
   orange400,
   red500,
 } from "../../utils/colors";
@@ -96,18 +93,20 @@ const NetworkSettings = ({
   });
 
   return (
-    <GeneralSection>
-      <HeaderSection>
-        <HeaderTitle>Network Configuration</HeaderTitle>
-        <HeaderSubtitle>
+    <SettingsTable.Wrapper>
+      <SettingsTable.HeaderSection>
+        <SettingsTable.HeaderTitle>
+          Network Configuration
+        </SettingsTable.HeaderTitle>
+        <SettingsTable.HeaderSubtitle>
           This information is private and only seen by you.
-        </HeaderSubtitle>
-      </HeaderSection>
-      <ProfileRow>
-        <ProfileKeyColumn>Status</ProfileKeyColumn>
-        <ProfileValueColumn>
-          <ProfileValueText></ProfileValueText>
-          <ProfileValueAction>
+        </SettingsTable.HeaderSubtitle>
+      </SettingsTable.HeaderSection>
+      <SettingsTable.Row>
+        <SettingsTable.KeyColumn>Status</SettingsTable.KeyColumn>
+        <SettingsTable.ValueColumn>
+          <SettingsTable.ValueText></SettingsTable.ValueText>
+          <SettingsTable.ValueAction>
             <StatusContainer>
               {nodeConfig ? (
                 <StyledIcon
@@ -129,54 +128,54 @@ const NetworkSettings = ({
               )}
               {getNodeStatus(nodeConfig)}
             </StatusContainer>
-          </ProfileValueAction>
-        </ProfileValueColumn>
-      </ProfileRow>
-      <ProfileRow>
-        <ProfileKeyColumn>Block Height</ProfileKeyColumn>
-        <ProfileValueColumn>
-          <ProfileValueText>
+          </SettingsTable.ValueAction>
+        </SettingsTable.ValueColumn>
+      </SettingsTable.Row>
+      <SettingsTable.Row>
+        <SettingsTable.KeyColumn>Block Height</SettingsTable.KeyColumn>
+        <SettingsTable.ValueColumn>
+          <SettingsTable.ValueText>
             {nodeConfig
               ? nodeConfig?.blocks?.toLocaleString()
               : "Connecting..."}
-          </ProfileValueText>
-          <ProfileValueAction>
-            <ActionButton
+          </SettingsTable.ValueText>
+          <SettingsTable.ValueAction>
+            <SettingsTable.ActionButton
               background={white}
               color={green500}
               onClick={() => refreshNodeData()}
             >
               Refresh
-            </ActionButton>
-          </ProfileValueAction>
-        </ProfileValueColumn>
-      </ProfileRow>
-      <ProfileRow>
-        <ProfileKeyColumn>Data Source</ProfileKeyColumn>
-        <ProfileValueColumn>
-          <ProfileValueText>
+            </SettingsTable.ActionButton>
+          </SettingsTable.ValueAction>
+        </SettingsTable.ValueColumn>
+      </SettingsTable.Row>
+      <SettingsTable.Row>
+        <SettingsTable.KeyColumn>Data Source</SettingsTable.KeyColumn>
+        <SettingsTable.ValueColumn>
+          <SettingsTable.ValueText>
             {nodeConfig?.baseURL || nodeConfig?.provider}
-          </ProfileValueText>
-          <ProfileValueAction>
+          </SettingsTable.ValueText>
+          <SettingsTable.ValueAction>
             <Dropdown
               isOpen={nodeConfigDropdownOpen}
               setIsOpen={setNodeConfigDropdownOpen}
               minimal={false}
               dropdownItems={nodeConfigDropdownItems}
               buttonLabel={
-                <ActionButton
+                <SettingsTable.ActionButton
                   style={{ padding: 0 }}
                   background={white}
                   color={green500}
                 >
                   Change Data Source
-                </ActionButton>
+                </SettingsTable.ActionButton>
               }
             />
-          </ProfileValueAction>
-        </ProfileValueColumn>
-      </ProfileRow>
-    </GeneralSection>
+          </SettingsTable.ValueAction>
+        </SettingsTable.ValueColumn>
+      </SettingsTable.Row>
+    </SettingsTable.Wrapper>
   );
 };
 
@@ -185,79 +184,8 @@ const StatusContainer = styled.span`
   padding-right: 1.5rem;
   display: flex;
   align-items: center;
-`;
-
-const HeaderSection = styled.div`
-  margin-top: 2.5rem;
-  margin-bottom: 1em;
-`;
-
-const HeaderTitle = styled.h3`
-  color: ${gray900};
-  line-height: 1.5rem;
-  font-size: 1.125rem;
-  font-weight: 600;
-  margin: 0;
-  margin-bottom: 0.5em;
-`;
-
-const HeaderSubtitle = styled.span`
-  color: ${gray500};
-  font-size: 0.875rem;
-  line-height: 1.25rem;
   font-weight: 500;
-  max-width: 42rem;
-`;
-
-const GeneralSection = styled.div`
-  padding: 0.5em 1.5em;
-`;
-
-const ProfileRow = styled.div`
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1rem;
-  padding-top: 1.25rem;
-  padding-bottom: 1.25rem;
-  border-top: 1px solid ${gray200};
-
-  ${mobile(css`
-    display: block;
-  `)}
-`;
-
-const ProfileKeyColumn = styled.div`
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  color: ${gray500};
-  font-weight: 600;
-  align-items: center;
-  display: flex;
-`;
-
-const ProfileValueColumn = styled.div`
-  grid-column: span 2 / span 2;
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  color: ${gray900};
-  display: flex;
-  align-items: center;
-`;
-
-const ProfileValueText = styled.span`
-  flex: 1;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
-`;
-
-const ProfileValueAction = styled.span`
-  margin-left: 1rem;
-`;
-
-const ActionButton = styled.button`
-  ${Button};
-  font-weight: 600;
+  color: ${gray700};
 `;
 
 const LoadingImage = styled.img`

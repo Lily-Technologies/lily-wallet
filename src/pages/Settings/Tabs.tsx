@@ -69,7 +69,7 @@ const TabItem = styled.button<{ active: boolean }>`
   margin-left: 2rem;
   cursor: pointer;
   color: ${(p) => (p.active ? green500 : gray500)};
-  font-weight: 600;
+  font-weight: 500;
   text-decoration: none;
 
   &:nth-child(1) {

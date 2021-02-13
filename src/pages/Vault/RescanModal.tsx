@@ -140,7 +140,7 @@ const StyledIconCircle = styled.div`
 const DangerText = styled.div`
   font-size: 1.125rem;
   text-align: center;
-  font-weight: 600;
+  font-weight: 500;
 `;
 
 const DangerSubtext = styled.div`

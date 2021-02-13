@@ -251,7 +251,7 @@ const InputContainer = styled.div`
 const CopyAddressButton = styled.button`
   ${Button};
   flex: 1;
-  font-weight: 600;
+  font-weight: 500;
   padding: 1.25em;
 `;
 

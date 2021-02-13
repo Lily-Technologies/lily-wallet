@@ -8,24 +8,15 @@ import { AccountMapContext } from "../../../AccountMapContext";
 
 import {
   MnemonicWordsDisplayer,
-  Button,
   AnimatedQrCode,
   Modal,
   ModalContentWrapper,
+  SettingsTable,
 } from "../../../components";
-import {
-  white,
-  black,
-  lightGray,
-  gray200,
-  gray500,
-  gray900,
-  green500,
-} from "../../../utils/colors";
+import { white, black, lightGray, green500 } from "../../../utils/colors";
 
 import { CaravanConfig } from "../../../types";
 
-import { mobile } from "../../../utils/media";
 import {
   createColdCardBlob,
   downloadFile,
@@ -156,202 +147,133 @@ const ExportView = ({ currentBitcoinNetwork }: Props) => {
   );
 
   return (
-    <>
-      <GeneralSection>
-        <HeaderSection>
-          <HeaderTitle>Export Account</HeaderTitle>
-          <HeaderSubtitle>
-            Use the options below to use other software to verify the
-            information in Lily.
-          </HeaderSubtitle>
-        </HeaderSection>
-        {currentAccount.config.mnemonic && (
-          <ProfileRow>
-            <ProfileKeyColumn>Mnemonic Words</ProfileKeyColumn>
-            <ProfileValueColumn>
-              <ProfileValueText></ProfileValueText>
-              <ProfileValueAction>
-                <ActionButton
+    <SettingsTable.Wrapper>
+      <SettingsTable.HeaderSection>
+        <SettingsTable.HeaderTitle>Export Account</SettingsTable.HeaderTitle>
+        <SettingsTable.HeaderSubtitle>
+          Use the options below to use other software to verify the information
+          in Lily.
+        </SettingsTable.HeaderSubtitle>
+      </SettingsTable.HeaderSection>
+      {currentAccount.config.mnemonic && (
+        <SettingsTable.Row>
+          <SettingsTable.KeyColumn>Mnemonic Words</SettingsTable.KeyColumn>
+          <SettingsTable.ValueColumn>
+            <SettingsTable.ValueText></SettingsTable.ValueText>
+            <SettingsTable.ValueAction>
+              <SettingsTable.ActionButton
+                background={white}
+                color={green500}
+                onClick={() => {
+                  openInModal(<MnemonicQrCode />);
+                }}
+              >
+                QR Code
+              </SettingsTable.ActionButton>
+              <SettingsTable.ActionButton
+                background={white}
+                color={green500}
+                onClick={() =>
+                  openInModal(
+                    <WordsContainer>
+                      <MnemonicWordsDisplayer
+                        mnemonicWords={currentAccount.config.mnemonic!}
+                      />
+                    </WordsContainer>
+                  )
+                }
+              >
+                View
+              </SettingsTable.ActionButton>
+            </SettingsTable.ValueAction>
+          </SettingsTable.ValueColumn>
+        </SettingsTable.Row>
+      )}
+      {currentAccount.config.quorum.totalSigners > 1 && (
+        <>
+          <SettingsTable.Row>
+            <SettingsTable.KeyColumn>
+              Coldcard Export File
+            </SettingsTable.KeyColumn>
+            <SettingsTable.ValueColumn>
+              <SettingsTable.ValueText></SettingsTable.ValueText>
+              <SettingsTable.ValueAction>
+                <SettingsTable.ActionButton
                   background={white}
                   color={green500}
                   onClick={() => {
-                    openInModal(<MnemonicQrCode />);
-                  }}
-                >
-                  QR Code
-                </ActionButton>
-                <ActionButton
-                  background={white}
-                  color={green500}
-                  onClick={() =>
-                    openInModal(
-                      <WordsContainer>
-                        <MnemonicWordsDisplayer
-                          mnemonicWords={currentAccount.config.mnemonic!}
-                        />
-                      </WordsContainer>
-                    )
-                  }
-                >
-                  View
-                </ActionButton>
-              </ProfileValueAction>
-            </ProfileValueColumn>
-          </ProfileRow>
-        )}
-        {currentAccount.config.quorum.totalSigners > 1 && (
-          <>
-            <ProfileRow>
-              <ProfileKeyColumn>Coldcard Export File</ProfileKeyColumn>
-              <ProfileValueColumn>
-                <ProfileValueText></ProfileValueText>
-                <ProfileValueAction>
-                  <ActionButton
-                    background={white}
-                    color={green500}
-                    onClick={() => {
-                      downloadColdcardMultisigFile();
-                    }}
-                  >
-                    Download
-                  </ActionButton>
-                </ProfileValueAction>
-              </ProfileValueColumn>
-            </ProfileRow>
-            <ProfileRow>
-              <ProfileKeyColumn>Cobo Vault File</ProfileKeyColumn>
-              <ProfileValueColumn>
-                <ProfileValueText></ProfileValueText>
-                <ProfileValueAction>
-                  <ActionButton
-                    background={white}
-                    color={green500}
-                    onClick={() => {
-                      openInModal(<CoboVaultQrCode />);
-                    }}
-                  >
-                    View QR Code
-                  </ActionButton>
-                </ProfileValueAction>
-              </ProfileValueColumn>
-            </ProfileRow>
-            <ProfileRow></ProfileRow>
-            <ProfileRow>
-              <ProfileKeyColumn>Caravan File</ProfileKeyColumn>
-              <ProfileValueColumn>
-                <ProfileValueText></ProfileValueText>
-                <ProfileValueAction>
-                  <ActionButton
-                    background={white}
-                    color={green500}
-                    onClick={() => {
-                      downloadCaravanFile();
-                    }}
-                  >
-                    Download
-                  </ActionButton>
-                </ProfileValueAction>
-              </ProfileValueColumn>
-            </ProfileRow>
-          </>
-        )}
-        {currentAccount.config.quorum.totalSigners === 1 && (
-          <ProfileRow>
-            <ProfileKeyColumn>Extended Public Key (XPub)</ProfileKeyColumn>
-            <ProfileValueColumn>
-              <ProfileValueText></ProfileValueText>
-              <ProfileValueAction>
-                <ActionButton
-                  background={white}
-                  color={green500}
-                  onClick={() => {
-                    openInModal(<XpubQrCode />);
+                    downloadColdcardMultisigFile();
                   }}
                 >
                   Download
-                </ActionButton>
-              </ProfileValueAction>
-            </ProfileValueColumn>
-          </ProfileRow>
-        )}
-      </GeneralSection>
+                </SettingsTable.ActionButton>
+              </SettingsTable.ValueAction>
+            </SettingsTable.ValueColumn>
+          </SettingsTable.Row>
+          <SettingsTable.Row>
+            <SettingsTable.KeyColumn>Cobo Vault File</SettingsTable.KeyColumn>
+            <SettingsTable.ValueColumn>
+              <SettingsTable.ValueText></SettingsTable.ValueText>
+              <SettingsTable.ValueAction>
+                <SettingsTable.ActionButton
+                  background={white}
+                  color={green500}
+                  onClick={() => {
+                    openInModal(<CoboVaultQrCode />);
+                  }}
+                >
+                  View QR Code
+                </SettingsTable.ActionButton>
+              </SettingsTable.ValueAction>
+            </SettingsTable.ValueColumn>
+          </SettingsTable.Row>
+          <SettingsTable.Row></SettingsTable.Row>
+          <SettingsTable.Row>
+            <SettingsTable.KeyColumn>Caravan File</SettingsTable.KeyColumn>
+            <SettingsTable.ValueColumn>
+              <SettingsTable.ValueText></SettingsTable.ValueText>
+              <SettingsTable.ValueAction>
+                <SettingsTable.ActionButton
+                  background={white}
+                  color={green500}
+                  onClick={() => {
+                    downloadCaravanFile();
+                  }}
+                >
+                  Download
+                </SettingsTable.ActionButton>
+              </SettingsTable.ValueAction>
+            </SettingsTable.ValueColumn>
+          </SettingsTable.Row>
+        </>
+      )}
+      {currentAccount.config.quorum.totalSigners === 1 && (
+        <SettingsTable.Row>
+          <SettingsTable.KeyColumn>
+            Extended Public Key (XPub)
+          </SettingsTable.KeyColumn>
+          <SettingsTable.ValueColumn>
+            <SettingsTable.ValueText></SettingsTable.ValueText>
+            <SettingsTable.ValueAction>
+              <SettingsTable.ActionButton
+                background={white}
+                color={green500}
+                onClick={() => {
+                  openInModal(<XpubQrCode />);
+                }}
+              >
+                Download
+              </SettingsTable.ActionButton>
+            </SettingsTable.ValueAction>
+          </SettingsTable.ValueColumn>
+        </SettingsTable.Row>
+      )}
       <Modal isOpen={modalIsOpen} closeModal={() => setModalIsOpen(false)}>
         {modalContent}
       </Modal>
-    </>
+    </SettingsTable.Wrapper>
   );
 };
-
-const HeaderSection = styled.div`
-  margin-top: 2.5rem;
-  margin-bottom: 1em;
-`;
-
-const HeaderTitle = styled.h3`
-  color: ${gray900};
-  line-height: 1.5rem;
-  font-size: 1.125rem;
-  font-weight: 600;
-  margin: 0;
-  margin-bottom: 0.5em;
-`;
-
-const HeaderSubtitle = styled.span`
-  color: ${gray500};
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  font-weight: 500;
-  max-width: 42rem;
-`;
-
-const GeneralSection = styled.div`
-  padding: 0.5em 1.5em;
-`;
-
-const ProfileRow = styled.div`
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1rem;
-  padding-top: 1.25rem;
-  padding-bottom: 1.25rem;
-  border-top: 1px solid ${gray200};
-
-  ${mobile(css`
-    display: block;
-  `)}
-`;
-
-const ProfileKeyColumn = styled.div`
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  color: ${gray500};
-  font-weight: 600;
-  align-items: center;
-  display: flex;
-`;
-
-const ProfileValueColumn = styled.div`
-  grid-column: span 2 / span 2;
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  color: ${gray900};
-  display: flex;
-  align-items: center;
-`;
-
-const ProfileValueText = styled.span`
-  flex: 1;
-`;
-
-const ProfileValueAction = styled.span`
-  margin-left: 1rem;
-  display: flex;
-`;
-
-const ActionButton = styled.button`
-  ${Button};
-  font-weight: 600;
-`;
 
 const WordsContainer = styled.div`
   display: flex;

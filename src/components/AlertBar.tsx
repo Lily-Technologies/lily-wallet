@@ -134,5 +134,5 @@ const BuyButton = styled.button`
   padding: 0.5em 1em;
   font-size: 0.875rem;
   line-height: 1.25rem;
-  font-weight: 600;
+  font-weight: 500;
 `;

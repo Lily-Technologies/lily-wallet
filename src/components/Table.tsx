@@ -1,15 +1,13 @@
-import styled from 'styled-components';
+import styled from "styled-components";
 
-import { gray50, gray100, gray300, gray600, gray700 } from '../utils/colors';
+import { gray50, gray100, gray300, gray600, gray700 } from "../utils/colors";
 
 export const Table = styled.table`
   border: none;
   border-collapse: collapse;
 `;
 
-export const TableHeader = styled.thead`
-
-`;
+export const TableHeader = styled.thead``;
 
 export const TableHead = styled.th`
   letter-spacing: 0.05em;
@@ -20,7 +18,7 @@ export const TableHead = styled.th`
   padding-bottom: 0.75rem;
   font-size: 0.75rem;
   line-height: 1rem;
-  font-weight: 600;
+  font-weight: 500;
   color: ${gray600};
   background: ${gray50};
   border: none;
@@ -52,5 +50,5 @@ export const TableColumn = styled.td`
 
 export const TableColumnBold = styled(TableColumn)`
   color: ${gray700};
-  font-weight: 600;
+  font-weight: 500;
 `;

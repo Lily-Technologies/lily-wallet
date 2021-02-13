@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import styled, { css } from "styled-components";
+import styled from "styled-components";
 import { useHistory } from "react-router-dom";
 import moment from "moment";
 import { Circle } from "@styled-icons/boxicons-solid";
@@ -10,11 +10,11 @@ import {
   FileUploader,
   PurchaseLicenseSuccess,
   ErrorModal,
+  SettingsTable,
 } from "../../components";
 
 import { LilyLicense, NodeConfig, File } from "../../types";
 
-import { mobile } from "../../utils/media";
 import { saveConfig } from "../../utils/files";
 import {
   getLicenseUploadErrorMessage,
@@ -29,9 +29,7 @@ import {
   white,
   green400,
   green700,
-  gray200,
   gray400,
-  gray500,
   gray900,
   orange400,
   red500,
@@ -75,18 +73,20 @@ const LicenseSettings = ({ nodeConfig, openInModal, password }: Props) => {
   };
 
   return (
-    <GeneralSection>
-      <HeaderSection>
-        <HeaderTitle>License Information</HeaderTitle>
-        <HeaderSubtitle>
+    <SettingsTable.Wrapper>
+      <SettingsTable.HeaderSection>
+        <SettingsTable.HeaderTitle>
+          License Information
+        </SettingsTable.HeaderTitle>
+        <SettingsTable.HeaderSubtitle>
           This information is private and only seen by you.
-        </HeaderSubtitle>
-      </HeaderSection>
-      <ProfileRow>
-        <ProfileKeyColumn>Status</ProfileKeyColumn>
-        <ProfileValueColumn>
-          <ProfileValueText></ProfileValueText>
-          <ProfileValueAction>
+        </SettingsTable.HeaderSubtitle>
+      </SettingsTable.HeaderSection>
+      <SettingsTable.Row>
+        <SettingsTable.KeyColumn>Status</SettingsTable.KeyColumn>
+        <SettingsTable.ValueColumn>
+          <SettingsTable.ValueText></SettingsTable.ValueText>
+          <SettingsTable.ValueAction>
             <StatusContainer>
               <StyledIcon
                 as={Circle}
@@ -105,46 +105,49 @@ const LicenseSettings = ({ nodeConfig, openInModal, password }: Props) => {
                 ? "Active"
                 : "Expired"}
             </StatusContainer>
-          </ProfileValueAction>
-        </ProfileValueColumn>
-      </ProfileRow>
-      <ProfileRow>
-        <ProfileKeyColumn>Tier</ProfileKeyColumn>
-        <ProfileValueColumn>
-          <ProfileValueText></ProfileValueText>
-          <ProfileValueAction>
+          </SettingsTable.ValueAction>
+        </SettingsTable.ValueColumn>
+      </SettingsTable.Row>
+      <SettingsTable.Row>
+        <SettingsTable.KeyColumn>Tier</SettingsTable.KeyColumn>
+        <SettingsTable.ValueColumn>
+          <SettingsTable.ValueText></SettingsTable.ValueText>
+          <SettingsTable.ValueAction>
             {capitalize(licenseTier(config.license))}
-          </ProfileValueAction>
-        </ProfileValueColumn>
-      </ProfileRow>
-      <ProfileRow>
-        <ProfileKeyColumn>
+          </SettingsTable.ValueAction>
+        </SettingsTable.ValueColumn>
+      </SettingsTable.Row>
+      <SettingsTable.Row>
+        <SettingsTable.KeyColumn>
           {isFreeTrial(config.license) ? `Trial` : `License`} Expires
-        </ProfileKeyColumn>
-        <ProfileValueColumn>
-          <ProfileValueText>
+        </SettingsTable.KeyColumn>
+        <SettingsTable.ValueColumn>
+          <SettingsTable.ValueText></SettingsTable.ValueText>
+          <SettingsTable.ValueAction>
             Block {licenseExpires(config.license).toLocaleString()}
-          </ProfileValueText>
-          {/* <ProfileValueAction> */}
-          {/* </ProfileValueAction> */}
-        </ProfileValueColumn>
-      </ProfileRow>
-      <ProfileRow>
-        <ProfileKeyColumn>Approximate Expire Date</ProfileKeyColumn>
-        <ProfileValueColumn>
-          <ProfileValueText>{expireAsDate}</ProfileValueText>
-          {/* <ProfileValueAction> */}
-          {/* </ProfileValueAction> */}
-        </ProfileValueColumn>
-      </ProfileRow>
-      <ProfileRow>
-        <ProfileKeyColumn>Payment Transaction ID</ProfileKeyColumn>
-        <ProfileValueColumn>
-          <ProfileValueText>
+          </SettingsTable.ValueAction>
+        </SettingsTable.ValueColumn>
+      </SettingsTable.Row>
+      <SettingsTable.Row>
+        <SettingsTable.KeyColumn>
+          Approximate Expire Date
+        </SettingsTable.KeyColumn>
+        <SettingsTable.ValueColumn>
+          <SettingsTable.ValueText></SettingsTable.ValueText>
+          <SettingsTable.ValueAction>{expireAsDate}</SettingsTable.ValueAction>
+        </SettingsTable.ValueColumn>
+      </SettingsTable.Row>
+      <SettingsTable.Row>
+        <SettingsTable.KeyColumn>
+          Payment Transaction ID
+        </SettingsTable.KeyColumn>
+        <SettingsTable.ValueColumn>
+          <SettingsTable.ValueText></SettingsTable.ValueText>
+          <SettingsTable.ValueAction>
             {licenseTxId(config.license) || "N/A"}
-          </ProfileValueText>
-        </ProfileValueColumn>
-      </ProfileRow>
+          </SettingsTable.ValueAction>
+        </SettingsTable.ValueColumn>
+      </SettingsTable.Row>
       <Buttons>
         <LicenseButtonLabel
           background={white}
@@ -167,7 +170,7 @@ const LicenseSettings = ({ nodeConfig, openInModal, password }: Props) => {
         id="licenseUploadButton"
         onFileLoad={(file: File) => onLicenseUpload(file)}
       />
-    </GeneralSection>
+    </SettingsTable.Wrapper>
   );
 };
 
@@ -183,73 +186,6 @@ const LicenseButton = styled.button`
 
 const LicenseButtonLabel = styled.label`
   ${Button}
-`;
-
-const HeaderSection = styled.div`
-  margin-top: 2.5rem;
-  margin-bottom: 1em;
-`;
-
-const HeaderTitle = styled.h3`
-  color: ${gray900};
-  line-height: 1.5rem;
-  font-size: 1.125rem;
-  font-weight: 600;
-  margin: 0;
-  margin-bottom: 0.5em;
-`;
-
-const HeaderSubtitle = styled.span`
-  color: ${gray500};
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  font-weight: 500;
-  max-width: 42rem;
-`;
-
-const GeneralSection = styled.div`
-  padding: 0.5em 1.5em;
-`;
-
-const ProfileRow = styled.div`
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem;
-  padding-top: 1.25rem;
-  padding-bottom: 1.25rem;
-  border-top: 1px solid ${gray200};
-
-  ${mobile(css`
-    display: block;
-  `)}
-`;
-
-const ProfileKeyColumn = styled.div`
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  color: ${gray500};
-  font-weight: 600;
-  align-items: center;
-  display: flex;
-`;
-
-const ProfileValueColumn = styled.div`
-  grid-column: span 1 / span 1;
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  color: ${gray900};
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-`;
-
-const ProfileValueText = styled.span`
-  flex: 1;
-  text-align: right;
-`;
-
-const ProfileValueAction = styled.span`
-  margin-left: 1rem;
 `;
 
 const StatusContainer = styled.span`

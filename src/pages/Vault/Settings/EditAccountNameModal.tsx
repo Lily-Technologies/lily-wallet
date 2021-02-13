@@ -148,7 +148,7 @@ const StyledIconCircle = styled.div`
 const HeadingText = styled.div`
   font-size: 1.125rem;
   text-align: center;
-  font-weight: 600;
+  font-weight: 500;
 `;
 
 const Subtext = styled.div`

@@ -170,7 +170,7 @@ const ErrorText = styled.div`
 const ModalHeader = styled.div`
   font-size: 1.125rem;
   text-align: center;
-  font-weight: 600;
+  font-weight: 500;
 `;
 
 const ModalSubtext = styled.div`

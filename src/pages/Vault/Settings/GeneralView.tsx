@@ -1,9 +1,8 @@
 import React, { useState, useContext } from "react";
-import styled, { css } from "styled-components";
 import moment from "moment";
 import { Network } from "bitcoinjs-lib";
 
-import { Button, Modal } from "../../../components";
+import { Modal, SettingsTable } from "../../../components";
 
 import DeleteAccountModal from "./DeleteAccountModal";
 import EditAccountNameModal from "./EditAccountNameModal";
@@ -11,16 +10,8 @@ import DeviceDetailsModal from "./DeviceDetailsModal";
 
 import { AccountMapContext } from "../../../AccountMapContext";
 
-import { mobile } from "../../../utils/media";
 import { capitalize } from "../../../utils/other";
-import {
-  white,
-  red500,
-  green500,
-  gray200,
-  gray500,
-  gray900,
-} from "../../../utils/colors";
+import { white, red500, green500 } from "../../../utils/colors";
 interface Props {
   password: string;
   currentBitcoinNetwork: Network;
@@ -42,20 +33,24 @@ const GeneralView = ({ password, currentBitcoinNetwork }: Props) => {
   };
 
   return (
-    <GeneralSection>
-      <HeaderSection>
-        <HeaderTitle>Account Information</HeaderTitle>
-        <HeaderSubtitle>
+    <SettingsTable.Wrapper>
+      <SettingsTable.HeaderSection>
+        <SettingsTable.HeaderTitle>
+          Account Information
+        </SettingsTable.HeaderTitle>
+        <SettingsTable.HeaderSubtitle>
           This information is private and only seen by you.
-        </HeaderSubtitle>
-      </HeaderSection>
+        </SettingsTable.HeaderSubtitle>
+      </SettingsTable.HeaderSection>
 
-      <ProfileRow>
-        <ProfileKeyColumn>Name</ProfileKeyColumn>
-        <ProfileValueColumn>
-          <ProfileValueText>{currentAccount.config.name}</ProfileValueText>
-          <ProfileValueAction>
-            <ActionButton
+      <SettingsTable.Row>
+        <SettingsTable.KeyColumn>Name</SettingsTable.KeyColumn>
+        <SettingsTable.ValueColumn style={{ paddingTop: 0, paddingBottom: 0 }}>
+          <SettingsTable.ValueText>
+            {currentAccount.config.name}
+          </SettingsTable.ValueText>
+          <SettingsTable.ValueAction>
+            <SettingsTable.ActionButton
               background={white}
               color={green500}
               onClick={() =>
@@ -68,41 +63,49 @@ const GeneralView = ({ password, currentBitcoinNetwork }: Props) => {
               }
             >
               Edit
-            </ActionButton>
-          </ProfileValueAction>
-        </ProfileValueColumn>
-      </ProfileRow>
-      <ProfileRow>
-        <ProfileKeyColumn>Created</ProfileKeyColumn>
-        <ProfileValueColumn>
-          <ProfileValueText>
+            </SettingsTable.ActionButton>
+          </SettingsTable.ValueAction>
+        </SettingsTable.ValueColumn>
+      </SettingsTable.Row>
+      <SettingsTable.Row>
+        <SettingsTable.KeyColumn>Created</SettingsTable.KeyColumn>
+        <SettingsTable.ValueColumn>
+          <SettingsTable.ValueText>
             {moment(currentAccount.config.created_at).format("MMMM Do YYYY")}
-          </ProfileValueText>
-          <ProfileValueAction></ProfileValueAction>
-        </ProfileValueColumn>
-      </ProfileRow>
-      <ProfileRow>
-        <ProfileKeyColumn>ID</ProfileKeyColumn>
-        <ProfileValueColumn>
-          <ProfileValueText>{currentAccount.config.id}</ProfileValueText>
-          <ProfileValueAction></ProfileValueAction>
-        </ProfileValueColumn>
-      </ProfileRow>
+          </SettingsTable.ValueText>
+          <SettingsTable.ValueAction></SettingsTable.ValueAction>
+        </SettingsTable.ValueColumn>
+      </SettingsTable.Row>
+      <SettingsTable.Row>
+        <SettingsTable.KeyColumn>ID</SettingsTable.KeyColumn>
+        <SettingsTable.ValueColumn>
+          <SettingsTable.ValueText>
+            {currentAccount.config.id}
+          </SettingsTable.ValueText>
+          <SettingsTable.ValueAction></SettingsTable.ValueAction>
+        </SettingsTable.ValueColumn>
+      </SettingsTable.Row>
 
-      <HeaderSection>
-        <HeaderTitle>Device Information</HeaderTitle>
-        <HeaderSubtitle>
+      <SettingsTable.HeaderSection>
+        <SettingsTable.HeaderTitle>
+          Device Information
+        </SettingsTable.HeaderTitle>
+        <SettingsTable.HeaderSubtitle>
           Information about the devices that approve transactions for this
           account.
-        </HeaderSubtitle>
-      </HeaderSection>
+        </SettingsTable.HeaderSubtitle>
+      </SettingsTable.HeaderSection>
       {currentAccount.config.extendedPublicKeys?.map((item) => (
-        <ProfileRow>
-          <ProfileKeyColumn>{item.device.fingerprint}</ProfileKeyColumn>
-          <ProfileValueColumn>
-            <ProfileValueText>{capitalize(item.device.type)}</ProfileValueText>
-            <ProfileValueAction>
-              <ActionButton
+        <SettingsTable.Row>
+          <SettingsTable.KeyColumn>
+            {item.device.fingerprint}
+          </SettingsTable.KeyColumn>
+          <SettingsTable.ValueColumn>
+            <SettingsTable.ValueText>
+              {capitalize(item.device.type)}
+            </SettingsTable.ValueText>
+            <SettingsTable.ValueAction>
+              <SettingsTable.ActionButton
                 background={white}
                 color={green500}
                 onClick={() =>
@@ -115,22 +118,24 @@ const GeneralView = ({ password, currentBitcoinNetwork }: Props) => {
                 }
               >
                 View Details
-              </ActionButton>
-            </ProfileValueAction>
-          </ProfileValueColumn>
-        </ProfileRow>
+              </SettingsTable.ActionButton>
+            </SettingsTable.ValueAction>
+          </SettingsTable.ValueColumn>
+        </SettingsTable.Row>
       ))}
 
-      <HeaderSection>
-        <HeaderTitle>Danger Zone</HeaderTitle>
-        <HeaderSubtitle>Remove this account from Lily Wallet.</HeaderSubtitle>
-      </HeaderSection>
-      <ProfileRow>
-        <ProfileKeyColumn>Delete Account</ProfileKeyColumn>
-        <ProfileValueColumn>
-          <ProfileValueText></ProfileValueText>
-          <ProfileValueAction>
-            <ActionButton
+      <SettingsTable.HeaderSection>
+        <SettingsTable.HeaderTitle>Danger Zone</SettingsTable.HeaderTitle>
+        <SettingsTable.HeaderSubtitle>
+          Remove this account from Lily Wallet.
+        </SettingsTable.HeaderSubtitle>
+      </SettingsTable.HeaderSection>
+      <SettingsTable.Row>
+        <SettingsTable.KeyColumn>Delete Account</SettingsTable.KeyColumn>
+        <SettingsTable.ValueColumn>
+          <SettingsTable.ValueText></SettingsTable.ValueText>
+          <SettingsTable.ValueAction>
+            <SettingsTable.ActionButton
               background={white}
               color={red500}
               onClick={() =>
@@ -143,86 +148,16 @@ const GeneralView = ({ password, currentBitcoinNetwork }: Props) => {
               }
             >
               Delete
-            </ActionButton>
-          </ProfileValueAction>
-        </ProfileValueColumn>
-      </ProfileRow>
+            </SettingsTable.ActionButton>
+          </SettingsTable.ValueAction>
+        </SettingsTable.ValueColumn>
+      </SettingsTable.Row>
 
       <Modal isOpen={modalIsOpen} closeModal={() => setModalIsOpen(false)}>
         {modalContent}
       </Modal>
-    </GeneralSection>
+    </SettingsTable.Wrapper>
   );
 };
-
-const HeaderSection = styled.div`
-  margin-top: 2.5rem;
-  margin-bottom: 1em;
-`;
-
-const HeaderTitle = styled.h3`
-  color: ${gray900};
-  line-height: 1.5rem;
-  font-size: 1.125rem;
-  font-weight: 600;
-  margin: 0;
-  margin-bottom: 0.5em;
-`;
-
-const HeaderSubtitle = styled.span`
-  color: ${gray500};
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  font-weight: 500;
-  max-width: 42rem;
-`;
-
-const GeneralSection = styled.div`
-  padding: 0.5em 1.5em;
-`;
-
-const ProfileRow = styled.div`
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1rem;
-  padding-top: 1.25rem;
-  padding-bottom: 1.25rem;
-  border-top: 1px solid ${gray200};
-
-  ${mobile(css`
-    display: block;
-  `)}
-`;
-
-const ProfileKeyColumn = styled.div`
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  color: ${gray500};
-  font-weight: 600;
-  align-items: center;
-  display: flex;
-`;
-
-const ProfileValueColumn = styled.div`
-  grid-column: span 2 / span 2;
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  color: ${gray900};
-  display: flex;
-  align-items: center;
-`;
-
-const ProfileValueText = styled.span`
-  flex: 1;
-`;
-
-const ProfileValueAction = styled.span`
-  margin-left: 1rem;
-`;
-
-const ActionButton = styled.button`
-  ${Button};
-  font-weight: 600;
-`;
 
 export default GeneralView;

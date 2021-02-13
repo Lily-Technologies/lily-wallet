@@ -179,7 +179,7 @@ const VaultExplainerText = styled.div`
   display: flex;
   align-items: center;
   margin-top: 0.5em;
-  font-weight: 600;
+  font-weight: 500;
   font-size: 0.85em;
 `;
 
