@@ -41,7 +41,7 @@ const About = () => {
               background={white}
               color={green500}
               onClick={() =>
-                window.open("https://docs.lily.kevinmulcrone.com", "_blank")
+                window.open("https://docs.lily-wallet.com", "_blank")
               }
             >
               View Documentation
@@ -58,7 +58,7 @@ const About = () => {
               background={white}
               color={green500}
               onClick={() =>
-                window.open("https://lily.kevinmulcrone.com/terms", "_blank")
+                window.open("https://lily-wallet.com/terms", "_blank")
               }
             >
               View Terms
@@ -75,7 +75,7 @@ const About = () => {
               background={white}
               color={green500}
               onClick={() =>
-                window.open("https://lily.kevinmulcrone.com/privacy", "_blank")
+                window.open("https://lily-wallet.com/privacy", "_blank")
               }
             >
               View Privacy Policy

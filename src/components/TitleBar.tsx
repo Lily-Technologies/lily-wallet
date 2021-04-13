@@ -16,7 +16,7 @@ import { AccountMapContext } from "../AccountMapContext";
 
 import { getNodeStatus } from "../utils/other";
 
-import { StyledIcon, Dropdown } from ".";
+import { StyledIcon, Dropdown, Modal, ConnectToLilyMobileModal } from ".";
 
 import { NodeConfig, LilyConfig } from "../types";
 
@@ -30,6 +30,19 @@ export const TitleBar = ({ nodeConfig, config }: Props) => {
   const [nodeOptionsDropdownOpen, setNodeOptionsDropdownOpen] = useState(false);
   const history = useHistory();
   const { setCurrentAccountId } = useContext(AccountMapContext);
+
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
+
+  const openInModal = (component: JSX.Element) => {
+    setModalIsOpen(true);
+    setModalContent(component);
+  };
+
+  const closeModal = () => {
+    setModalIsOpen(false);
+    setModalContent(null);
+  };
 
   const nodeConfigDropdownItems = [];
 
@@ -52,7 +65,7 @@ export const TitleBar = ({ nodeConfig, config }: Props) => {
     {
       label: "Support",
       onClick: () => {
-        window.open("https://docs.lily.kevinmulcrone.com", "_blank");
+        window.open("https://lily-wallet.com/support", "_blank");
       },
     },
     {
@@ -110,14 +123,15 @@ export const TitleBar = ({ nodeConfig, config }: Props) => {
       },
       { onlyMobile: true }
     );
-    // moreOptionsDropdownItems.push(
-    // { KBC-TODO: re-add when mobile app
-    //   label: "Connect to Lily Mobile",
-    //   onClick: () => {
-    //     openInModal(<ConnectToLilyMobileModal />);
-    //   },
-    // },
-    // );
+    moreOptionsDropdownItems.push(
+      // KBC-TODO: re-add when mobile app
+      {
+        label: "Connect to Lily Mobile",
+        onClick: () => {
+          openInModal(<ConnectToLilyMobileModal />);
+        },
+      }
+    );
   }
 
   moreOptionsDropdownItems.push(
@@ -191,6 +205,9 @@ export const TitleBar = ({ nodeConfig, config }: Props) => {
           </DotDotDotContainer>
         </RightSection>
       </DraggableTitleBar>
+      <Modal isOpen={modalIsOpen} closeModal={() => closeModal()}>
+        {modalContent}
+      </Modal>
     </Fragment>
   );
 };
