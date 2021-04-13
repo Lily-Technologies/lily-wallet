@@ -1,5 +1,5 @@
 import React, { Fragment, useContext, useRef, useEffect } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import { useHistory } from "react-router-dom";
 import { Alert } from "@styled-icons/ionicons-outline";
 
@@ -10,6 +10,7 @@ import { white, yellow500, yellow600 } from "../utils/colors";
 import { NodeConfig } from "../types";
 
 import { getLicenseBannerMessage, licenseTxId } from "../utils/license";
+import { mobile } from "../utils/media";
 
 import { ConfigContext } from "../ConfigContext";
 
@@ -88,6 +89,10 @@ const HeightHolder = styled.div`
   height: 2.5rem;
   z-index: 0;
   background: transparent;
+
+  ${mobile(css`
+    height: 5.5rem;
+  `)}
 `;
 
 const Container = styled.div`
@@ -102,6 +107,12 @@ const Container = styled.div`
   padding-top: 0.75rem;
   padding-bottom: 0.75rem;
   margin: 0 auto;
+
+  ${mobile(css`
+    flex-direction: column;
+    padding-right: 0.75;
+    padding-left: 0.75;
+  `)};
 `;
 
 const TextContainer = styled.span`
@@ -135,4 +146,9 @@ const BuyButton = styled.button`
   font-size: 0.875rem;
   line-height: 1.25rem;
   font-weight: 500;
+
+  ${mobile(css`
+    width: 100%;
+    margin-top: 1em;
+  `)};
 `;

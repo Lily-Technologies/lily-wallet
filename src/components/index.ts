@@ -20,7 +20,7 @@ export * from "./AnimatedQrCode";
 export * from "./ConnectToLilyMobileModal";
 export * from "./ScrollToTop";
 export * from "./PurchaseLicenseSuccess";
-export * from "./PricingPlanTable";
+export * from "./PricingTable";
 export * from "./SelectAccountMenu";
 export * from "./LicenseInformation";
 export * from "./AlertBar";

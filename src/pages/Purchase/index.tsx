@@ -5,7 +5,7 @@ import { Psbt, Network } from "bitcoinjs-lib";
 import BigNumber from "bignumber.js";
 
 import {
-  PricingPlanTable,
+  PricingTable,
   PurchaseLicenseSuccess,
   ErrorModal,
   PageWrapper,
@@ -80,6 +80,18 @@ const PurchasePage = ({
       try {
         let reqBody;
         if (tier !== LicenseTiers.free) {
+          if (Object.keys(currentAccount.config).length === 0) {
+            throw Error(
+              "You haven't created an account yet! Please add an account and deposit funds in order to purchase a license."
+            );
+          }
+
+          if (currentAccount.loading) {
+            throw Error(
+              "Your current account is loading. Please wait for account to finish loading data or select a different account and try again."
+            );
+          }
+
           const {
             data: paymentAddressResponse,
           }: { data: PaymentAddressResponse } = await axios.get(
@@ -127,7 +139,7 @@ const PurchasePage = ({
         }
       } catch (e) {
         console.log("e: ", e);
-        openInModal(<ErrorModal message={`${e.message}. Please try again.`} />);
+        openInModal(<ErrorModal message={`${e.message}`} />);
       }
     },
     [currentBitcoinNetwork, config, password, setConfigFile, openInModal]
@@ -177,14 +189,19 @@ const PurchasePage = ({
             <PageTitle>Purchase a license</PageTitle>
           </HeaderLeft>
           <Buttons>
-            <RenewButton color={gray900} background={white}>
-              Questions? Call (970) 425-0282
+            <RenewButton
+              color={gray900}
+              background={white}
+              href="https://lily-wallet.com/support"
+              target="_blank"
+            >
+              Questions? Click here for support.
             </RenewButton>
           </Buttons>
         </Header>
         {/* <ModalContent step={step}> */}
         {step === 0 && (
-          <PricingPlanTable
+          <PricingTable
             clickRenewLicense={clickRenewLicense}
             currentAccount={currentAccount}
           />
@@ -223,7 +240,7 @@ const Buttons = styled.div`
   margin-top: 1em;
 `;
 
-const RenewButton = styled.button`
+const RenewButton = styled.a`
   ${Button};
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   border: 1px solid ${gray400};

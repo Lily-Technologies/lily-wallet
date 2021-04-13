@@ -63,10 +63,10 @@ body {
 }
 
 *,
-:before,
-:after {
+:after,
+:before {
   box-sizing: border-box;
-  border: 0 solid #d2d6dc;
+  border: 0 solid #e5e7eb;
 }
 
 *:focus:not(.focus-visible) {

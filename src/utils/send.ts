@@ -144,6 +144,9 @@ export const coinSelection = (amountInSats: number, availableUtxos: UTXO[]) => {
     spendingUtxos.push(availableUtxos[index]);
     index++;
   }
+  if (currentTotal.isLessThan(amountInSats)) {
+    throw Error("Not enough funds to complete transaction.");
+  }
   return { spendingUtxos, currentTotal };
 };
 
@@ -237,6 +240,7 @@ export const createTransaction = async (
   currentBitcoinNetwork: Network
 ) => {
   const { availableUtxos, unusedChangeAddresses, config } = currentAccount;
+
   let fee: BigNumber;
   const feeRates: FeeRates = await window.ipcRenderer.invoke("/estimateFee");
   if (desiredFee.toNumber() !== 0) {

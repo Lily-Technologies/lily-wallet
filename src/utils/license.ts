@@ -111,12 +111,6 @@ export const isAtLeastTier = (license: LilyLicense, minimumTier: string) => {
   const TIERS = ["free", "basic", "essential", "premium", "trial"];
   const licenseIndex = TIERS.indexOf(licenseTier(license));
   const minimumIndex = TIERS.indexOf(minimumTier);
-  console.log(
-    "licenseIndex: ",
-    licenseIndex,
-    minimumIndex,
-    licenseIndex >= minimumIndex
-  );
   if (licenseIndex >= minimumIndex) {
     return true;
   } else {
