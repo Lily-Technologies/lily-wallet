@@ -5,7 +5,6 @@ import { Spinner } from ".";
 
 import {
   gray50,
-  gray100,
   gray200,
   gray300,
   gray400,
@@ -1542,10 +1541,6 @@ const MobileTableSection = styled.caption`
   color: ${gray900};
   font-weight: 500;
   text-align: left;
-`;
-
-const FullTable = styled.div`
-  width: 100%;
 `;
 
 const DesktopTableContainer = styled.div`
