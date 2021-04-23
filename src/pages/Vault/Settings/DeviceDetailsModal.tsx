@@ -39,15 +39,21 @@ const DeviceDetailsModal = ({ item, currentBitcoinNetwork }: Props) => {
         <InformationContainer>
           <ImageContainer>
             <DeviceImage
-              src={
-                item.device.type === "coldcard"
-                  ? require("../../../assets/coldcard.png")
-                  : item.device.type === "ledger"
-                  ? require("../../../assets/ledger.png")
-                  : item.device.type === "trezor"
-                  ? require("../../../assets/trezor.png")
-                  : require("../../../assets/iphone.png")
-              }
+            src={
+              item.device.type === "coldcard"
+                ? require("../../../assets/coldcard.png")
+                : item.device.type === "ledger" && item.device.model === 'ledger_nano_s'
+                ? require("../../../assets/ledger_nano_s.png")
+                : item.device.type === "ledger" && item.device.model === 'ledger_nano_x'
+                ? require("../../../assets/ledger_nano_x.png")
+                : item.device.type === "trezor" && item.device.model === 'trezor_1'
+                ? require("../../../assets/trezor_1.png")
+                : item.device.type === 'trezor' && item.device.model === 'trezor_t'
+                ? require('../../../assets/trezor_t.png')
+                : item.device.type === "cobo"
+                ? require("../../../assets/cobo.png")
+                : require("../../../assets/iphone.png")
+            }
             />
           </ImageContainer>
           <Rows>

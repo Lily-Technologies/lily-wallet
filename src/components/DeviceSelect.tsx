@@ -138,10 +138,14 @@ export const DeviceSelect = ({
               src={
                 device.type === "coldcard"
                   ? require("../assets/coldcard.png")
-                  : device.type === "ledger"
-                  ? require("../assets/ledger.png")
-                  : device.type === "trezor"
-                  ? require("../assets/trezor.png")
+                  : device.type === "ledger" && device.model === 'ledger_nano_s'
+                  ? require("../assets/ledger_nano_s.png")
+                  : device.type === "ledger" && device.model === 'ledger_nano_x'
+                  ? require("../assets/ledger_nano_x.png")
+                  : device.type === "trezor" && device.model === 'trezor_1'
+                  ? require("../assets/trezor_1.png")
+                  : device.type === 'trezor' && device.model === 'trezor_t'
+                  ? require('../assets/trezor_t.png')
                   : device.type === "cobo"
                   ? require("../assets/cobo.png")
                   : require("../assets/iphone.png")
@@ -204,10 +208,14 @@ export const DeviceSelect = ({
                 src={
                   device.type === "coldcard"
                     ? require("../assets/coldcard.png")
-                    : device.type === "ledger"
-                    ? require("../assets/ledger.png")
-                    : device.type === "trezor"
-                    ? require("../assets/trezor.png")
+                    : device.type === "ledger" && device.model === 'ledger_nano_s'
+                    ? require("../assets/ledger_nano_s.png")
+                    : device.type === "ledger" && device.model === 'ledger_nano_x'
+                    ? require("../assets/ledger_nano_x.png")
+                    : device.type === "trezor" && device.model === 'trezor_1'
+                    ? require("../assets/trezor_1.png")
+                    : device.type === 'trezor' && device.model === 'trezor_t'
+                    ? require('../assets/trezor_t.png')
                     : device.type === "cobo"
                     ? require("../assets/cobo.png")
                     : require("../assets/iphone.png")
