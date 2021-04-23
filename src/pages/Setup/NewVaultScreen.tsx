@@ -104,16 +104,27 @@ const NewVaultScreen = ({
 
   const importDeviceFromQR = ({ data }: { data: string }) => {
     try {
-      const { xfp, xpub, path } = JSON.parse(data);
-      const xpubFromZpub = zpubToXpub(decode(xpub));
+      const { xfp, xpub, path, lilyMobile } = JSON.parse(data);
 
-      const newDevice = {
-        type: "cobo",
-        fingerprint: xfp,
-        xpub: xpubFromZpub,
-        model: "unknown",
-        path: path,
-      } as HwiResponseEnumerate;
+      let newDevice: HwiResponseEnumerate;
+      if (lilyMobile) {
+        newDevice = {
+          type: "phone",
+          fingerprint: xfp,
+          xpub: xpub,
+          model: "unknown",
+          path: path,
+        };
+      } else {
+        const xpubFromZpub = zpubToXpub(decode(xpub));
+        newDevice = {
+          type: "cobo",
+          fingerprint: xfp,
+          xpub: xpubFromZpub,
+          model: "unknown",
+          path: path,
+        };
+      }
 
       const updatedImportedDevices = [...importedDevices, newDevice];
       setImportedDevices(updatedImportedDevices);
