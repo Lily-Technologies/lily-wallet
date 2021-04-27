@@ -60,7 +60,7 @@ const Receive = ({ config }: { config: LilyConfig }) => {
         </Header>
 
         {Object.keys(accountMap).length > 0 && (
-          <SelectAccountMenu config={config} />
+          <SelectAccountMenu config={config} excludeNonSegwitAccounts={false} />
         )}
         {Object.keys(accountMap).length === 0 && <NoAccountsEmptyState />}
         {Object.keys(accountMap).length > 0 && currentAccount.loading && (

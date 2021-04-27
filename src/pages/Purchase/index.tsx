@@ -35,6 +35,7 @@ import {
   PaymentAddressResponse,
   LicenseResponse,
   LilyAccount,
+  AddressType
 } from "../../types";
 
 interface Props {
@@ -90,6 +91,10 @@ const PurchasePage = ({
             throw Error(
               "Your current account is loading. Please wait for account to finish loading data or select a different account and try again."
             );
+          }
+
+          if(currentAccount.config.addressType === AddressType.p2sh) {
+            throw Error('An invalid account type (P2SH) was being used to create this payment transaction. Please try making the payment again.')
           }
 
           const {
@@ -176,10 +181,18 @@ const PurchasePage = ({
   }, [currentAccount, step, clickRenewLicense, selectedLicenseTier]);
 
   useEffect(() => {
-    if (!currentAccount.config.id && Object.keys(accountMap).length > 0) {
-      setCurrentAccountId(Object.values(accountMap)[0].config.id);
+    // make sure there is a currentAccount selected
+    // currentAccount can be null if user goes from Home > Buy License without navigating to account
+    if ((!currentAccount.config.id && Object.keys(accountMap).length > 0) || currentAccount.config.addressType === AddressType.p2sh) {
+      for(let i=0; i < Object.keys(accountMap).length; i++) {
+        const tempCurrentAccount = Object.values(accountMap)[i];
+        if(tempCurrentAccount.config.addressType !== AddressType.p2sh) {
+          setCurrentAccountId(tempCurrentAccount.config.id);
+          break;
+        }
+      }
     }
-  }, [accountMap, currentAccount.config.id, setCurrentAccountId]);
+  }, [accountMap, currentAccount.config.id, currentAccount.config.addressType, setCurrentAccountId]);
 
   return (
     <PageWrapper>
@@ -199,7 +212,6 @@ const PurchasePage = ({
             </RenewButton>
           </Buttons>
         </Header>
-        {/* <ModalContent step={step}> */}
         {step === 0 && (
           <PricingTable
             clickRenewLicense={clickRenewLicense}
@@ -208,7 +220,7 @@ const PurchasePage = ({
         )}
         {step === 1 && (
           <>
-            <SelectAccountMenu config={config} setFinalPsbt={setFinalPsbt} />
+            <SelectAccountMenu config={config} setFinalPsbt={setFinalPsbt} excludeNonSegwitAccounts />
             {finalPsbt && (
               <ConfirmTxPage
                 finalPsbt={finalPsbt!}
@@ -225,7 +237,6 @@ const PurchasePage = ({
         {step === 2 && (
           <PurchaseLicenseSuccess config={config} nodeConfig={nodeConfig} />
         )}
-        {/* </ModalContent> */}
         <Modal isOpen={modalIsOpen} closeModal={() => setModalIsOpen(false)}>
           {modalContent}
         </Modal>

@@ -207,7 +207,7 @@ const Send = ({
           <HeaderRight></HeaderRight>
         </Header>
         {Object.keys(accountMap).length > 0 && (
-          <SelectAccountMenu config={config} />
+          <SelectAccountMenu config={config} excludeNonSegwitAccounts={false} />
         )}
         {Object.keys(accountMap).length === 0 && <NoAccountsEmptyState />}
         {Object.keys(accountMap).length > 0 && currentAccount.loading && (

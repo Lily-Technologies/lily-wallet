@@ -15,16 +15,17 @@ import {
   orange600,
 } from "../utils/colors";
 
-import { LilyConfig } from "../types";
+import { AddressType, LilyConfig } from "../types";
 
 import { AccountMapContext } from "../AccountMapContext";
 
 interface Props {
   config: LilyConfig;
   setFinalPsbt?: React.Dispatch<React.SetStateAction<Psbt | undefined>>;
+  excludeNonSegwitAccounts: boolean
 }
 
-export const SelectAccountMenu = ({ config, setFinalPsbt }: Props) => {
+export const SelectAccountMenu = ({ config, setFinalPsbt, excludeNonSegwitAccounts = false}: Props) => {
   const { setCurrentAccountId, currentAccount, accountMap } = useContext(
     AccountMapContext
   );
@@ -54,23 +55,28 @@ export const SelectAccountMenu = ({ config, setFinalPsbt }: Props) => {
           <AccountMenuItemName>{vault.name}</AccountMenuItemName>
         </AccountMenuItemWrapper>
       ))}
-      {config.wallets.map((wallet, index) => (
-        <AccountMenuItemWrapper
-          key={index}
-          active={wallet.id === currentAccount.config.id}
-          onClick={() => {
-            if (setFinalPsbt) {
-              setFinalPsbt(undefined);
-            }
-            setCurrentAccountId(wallet.id);
-          }}
-        >
-          <IconWrapper active={wallet.id === currentAccount.config.id}>
-            <StyledIcon as={Wallet} size={48} />
-          </IconWrapper>
-          <AccountMenuItemName>{wallet.name}</AccountMenuItemName>
-        </AccountMenuItemWrapper>
-      ))}
+      {config.wallets.map((wallet, index) => {
+        if(wallet.addressType === AddressType.p2sh && excludeNonSegwitAccounts) {
+          return null
+        } else {
+          return (
+            <AccountMenuItemWrapper
+              key={index}
+              active={wallet.id === currentAccount.config.id}
+              onClick={() => {
+                if (setFinalPsbt) {
+                  setFinalPsbt(undefined);
+                }
+                setCurrentAccountId(wallet.id);
+              }}
+            >
+              <IconWrapper active={wallet.id === currentAccount.config.id}>
+                <StyledIcon as={Wallet} size={48} />
+              </IconWrapper>
+              <AccountMenuItemName>{wallet.name}</AccountMenuItemName>
+            </AccountMenuItemWrapper>
+          )}
+        })}
     </AccountMenu>
   );
 };
