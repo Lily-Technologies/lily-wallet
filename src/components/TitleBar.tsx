@@ -123,15 +123,15 @@ export const TitleBar = ({ nodeConfig, config }: Props) => {
       },
       { onlyMobile: true }
     );
-    moreOptionsDropdownItems.push(
-      // KBC-TODO: re-add when mobile app
-      {
-        label: "Connect to Lily Mobile",
-        onClick: () => {
-          openInModal(<ConnectToLilyMobileModal />);
-        },
-      }
-    );
+    // moreOptionsDropdownItems.push(
+    //   // KBC-TODO: re-add when mobile app
+    //   {
+    //     label: "Connect to Lily Mobile",
+    //     onClick: () => {
+    //       openInModal(<ConnectToLilyMobileModal />);
+    //     },
+    //   }
+    // );
   }
 
   moreOptionsDropdownItems.push(
