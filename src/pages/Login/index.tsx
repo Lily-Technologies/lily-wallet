@@ -20,7 +20,8 @@ import {
 } from "../../utils/colors";
 import { bitcoinNetworkEqual } from "../../utils/files";
 import { mobile } from "../../utils/media";
-import { saveConfig, updateConfigFileVersion } from "../../utils/files";
+import { saveConfig} from "../../utils/files";
+import { updateConfigFileVersionOne, updateConfigFileVersionBeta} from '../../utils/migration'
 
 import { File } from "../../types";
 import { ConfigContext } from "../../ConfigContext";
@@ -62,10 +63,10 @@ const Login = ({
       try {
         const bytes = AES.decrypt(encryptedConfigFile.file, localPassword);
         let decryptedData = JSON.parse(bytes.toString(enc.Utf8));
-        decryptedData = updateConfigFileVersion(
+        decryptedData = updateConfigFileVersionOne(updateConfigFileVersionBeta(
           decryptedData,
           currentBlockHeight!
-        );
+        ));
         setPasswordError(undefined);
         setTimeout(() => {
           setConfigFile(decryptedData);
@@ -338,7 +339,6 @@ const SignupOptionItem = styled.div`
   align-items: center;
   justify-content: center;
   font-size: 1em;
-  // min-height: 12em;
   background: ${white};
 `;
 
@@ -372,7 +372,6 @@ const LilyImage = styled.img`
   bottom: 0;
   left: 0;
   right: 0;
-  // width: 100%;
   height: 100%;
   object-fit: cover;
   vertical-align: middle;
@@ -427,7 +426,6 @@ const TextContainer = styled.div`
 const Subtext = styled.div`
   font-size: 0.5em;
   color: ${darkGray};
-  // margin-bottom: .75em;
   font-weight: 500;
   margin-top: 0.5em;
 `;

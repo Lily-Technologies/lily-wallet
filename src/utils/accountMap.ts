@@ -388,15 +388,10 @@ const serializeTransactionsFromNode = async (
 const getChildPubKeyFromXpub = (
   xpub: ExtendedPublicKey,
   bip32Path: string,
-  addressType: AddressType,
   currentBitcoinNetwork: Network
 ) => {
   const childPubKeysBip32Path = bip32Path;
-  let bip32derivationPath = getDerivationPath(
-    addressType,
-    bip32Path,
-    currentBitcoinNetwork
-  );
+  let bip32derivationPath = `${xpub.bip32Path}/${bip32Path.replace("m/", "")}`;
 
   return {
     childPubKey: deriveChildPublicKey(
@@ -426,6 +421,7 @@ const getMultisigAddressFromPubKeys = (
 ) => {
   const rawPubkeys = pubkeys.map((publicKey) => publicKey.childPubKey);
   rawPubkeys.sort();
+
   const address = generateMultisigFromPublicKeys(
     getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork),
     config.addressType,
@@ -594,7 +590,6 @@ export const getAddressFromAccount = (
           return getChildPubKeyFromXpub(
             extendedPublicKey,
             path,
-            AddressType.multisig,
             currentBitcoinNetwork
           );
         }
@@ -612,7 +607,6 @@ export const getAddressFromAccount = (
       const receivePubKey = getChildPubKeyFromXpub(
         account.extendedPublicKeys[0],
         path,
-        AddressType.p2sh,
         currentBitcoinNetwork
       );
       return getAddressFromPubKey(
@@ -625,7 +619,6 @@ export const getAddressFromAccount = (
       const receivePubKey = getChildPubKeyFromXpub(
         account.extendedPublicKeys[0],
         path,
-        AddressType.P2WPKH,
         currentBitcoinNetwork
       );
       return getAddressFromPubKey(

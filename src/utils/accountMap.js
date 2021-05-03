@@ -147,15 +147,12 @@ var __generator =
       return { value: op[0] ? op[1] : void 0, done: true };
     }
   };
-var __spreadArrays =
-  (this && this.__spreadArrays) ||
-  function () {
-    for (var s = 0, i = 0, il = arguments.length; i < il; i++)
-      s += arguments[i].length;
-    for (var r = Array(s), k = 0, i = 0; i < il; i++)
-      for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
-        r[k] = a[j];
-    return r;
+var __spreadArray =
+  (this && this.__spreadArray) ||
+  function (to, from) {
+    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
+      to[j] = from[i];
+    return to;
   };
 var __importDefault =
   (this && this.__importDefault) ||
@@ -163,18 +160,20 @@ var __importDefault =
     return mod && mod.__esModule ? mod : { default: mod };
   };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.loadOrCreateWalletViaRPC = exports.getDataFromXPub = exports.getDataFromMultisig = exports.getAddressFromAccount = exports.serializeTransactions = exports.getSegwitDescriptor = exports.getWrappedDescriptor = exports.getMultisigDescriptor = exports.getDerivationPath = exports.bitcoinNetworkEqual = void 0;
 var axios_1 = __importDefault(require("axios"));
 var bignumber_js_1 = __importDefault(require("bignumber.js"));
 var bitcoinjs_lib_1 = require("bitcoinjs-lib");
 var unchained_bitcoin_1 = require("unchained-bitcoin");
 var types_1 = require("../types");
-exports.bitcoinNetworkEqual = function (a, b) {
+var bitcoinNetworkEqual = function (a, b) {
   return a.bech32 === b.bech32;
 };
+exports.bitcoinNetworkEqual = bitcoinNetworkEqual;
 function isVout(item) {
   return item.value !== undefined;
 }
-exports.getDerivationPath = function (
+var getDerivationPath = function (
   addressType,
   bip32Path,
   currentBitcoinNetwork
@@ -201,6 +200,7 @@ exports.getDerivationPath = function (
     );
   }
 };
+exports.getDerivationPath = getDerivationPath;
 var getMultisigDeriationPathForNetwork = function (network) {
   if (exports.bitcoinNetworkEqual(network, bitcoinjs_lib_1.networks.bitcoin)) {
     return "m/48'/0'/0'/2'";
@@ -249,7 +249,7 @@ var getUnchainedNetworkFromBjslibNetwork = function (bitcoinJslibNetwork) {
     return "testnet";
   }
 };
-exports.getMultisigDescriptor = function (client, config, isChange) {
+var getMultisigDescriptor = function (client, config, isChange) {
   return __awaiter(void 0, void 0, void 0, function () {
     var descriptor, descriptorWithChecksum;
     return __generator(this, function (_a) {
@@ -279,7 +279,8 @@ exports.getMultisigDescriptor = function (client, config, isChange) {
     });
   });
 };
-exports.getWrappedDescriptor = function (client, config, isChange) {
+exports.getMultisigDescriptor = getMultisigDescriptor;
+var getWrappedDescriptor = function (client, config, isChange) {
   return __awaiter(void 0, void 0, void 0, function () {
     var descriptor, descriptorWithChecksum;
     return __generator(this, function (_a) {
@@ -301,7 +302,8 @@ exports.getWrappedDescriptor = function (client, config, isChange) {
     });
   });
 };
-exports.getSegwitDescriptor = function (client, config, isChange) {
+exports.getWrappedDescriptor = getWrappedDescriptor;
+var getSegwitDescriptor = function (client, config, isChange) {
   return __awaiter(void 0, void 0, void 0, function () {
     var descriptor, descriptorWithChecksum;
     return __generator(this, function (_a) {
@@ -323,6 +325,7 @@ exports.getSegwitDescriptor = function (client, config, isChange) {
     });
   });
 };
+exports.getSegwitDescriptor = getSegwitDescriptor;
 var createAddressMapFromAddressArray = function (addressArray, isChange) {
   var addressMap = {};
   addressArray.forEach(function (addr) {
@@ -410,7 +413,7 @@ var decorateTx = function (tx, externalMap, changeMap) {
   });
   return tx;
 };
-exports.serializeTransactions = function (
+var serializeTransactions = function (
   transactionsFromBlockstream,
   addresses,
   changeAddresses
@@ -492,6 +495,7 @@ exports.serializeTransactions = function (
     return b.status.block_time - a.status.block_time;
   });
 };
+exports.serializeTransactions = serializeTransactions;
 var serializeTransactionsFromNode = function (nodeClient, transactions) {
   return __awaiter(void 0, void 0, void 0, function () {
     var currentAccountTotal,
@@ -499,8 +503,8 @@ var serializeTransactionsFromNode = function (nodeClient, transactions) {
       i,
       currentTransaction,
       decoratedTx,
-      _a,
       e_1;
+    var _a;
     return __generator(this, function (_b) {
       switch (_b.label) {
         case 0:
@@ -660,18 +664,9 @@ var serializeTransactionsFromNode = function (nodeClient, transactions) {
     });
   });
 };
-var getChildPubKeyFromXpub = function (
-  xpub,
-  bip32Path,
-  addressType,
-  currentBitcoinNetwork
-) {
+var getChildPubKeyFromXpub = function (xpub, bip32Path, currentBitcoinNetwork) {
   var childPubKeysBip32Path = bip32Path;
-  var bip32derivationPath = exports.getDerivationPath(
-    addressType,
-    bip32Path,
-    currentBitcoinNetwork
-  );
+  var bip32derivationPath = xpub.bip32Path + "/" + bip32Path.replace("m/", "");
   return {
     childPubKey: unchained_bitcoin_1.deriveChildPublicKey(
       xpub.xpub,
@@ -701,9 +696,16 @@ var getMultisigAddressFromPubKeys = function (
     return publicKey.childPubKey;
   });
   rawPubkeys.sort();
+  console.log("rawPubkeys: ", rawPubkeys);
+  console.log("config.quorum.requiredSigners: ", config.quorum.requiredSigners);
+  console.log("config.addressType,: ", config.addressType);
+  console.log(
+    "getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork): ",
+    getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)
+  );
   var address = unchained_bitcoin_1.generateMultisigFromPublicKeys.apply(
     void 0,
-    __spreadArrays(
+    __spreadArray(
       [
         getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork),
         config.addressType,
@@ -712,6 +714,7 @@ var getMultisigAddressFromPubKeys = function (
       rawPubkeys
     )
   );
+  console.log("address: ", address);
   address.bip32derivation = pubkeys.map(function (publicKey) {
     return publicKey.bip32derivation;
   });
@@ -935,11 +938,7 @@ var getTransactionsFromAddress = function (
     });
   });
 };
-exports.getAddressFromAccount = function (
-  account,
-  path,
-  currentBitcoinNetwork
-) {
+var getAddressFromAccount = function (account, path, currentBitcoinNetwork) {
   if (account.quorum.totalSigners > 1) {
     // multisig
     if (account.extendedPublicKeys) {
@@ -950,7 +949,6 @@ exports.getAddressFromAccount = function (
         return getChildPubKeyFromXpub(
           extendedPublicKey,
           path,
-          types_1.AddressType.multisig,
           currentBitcoinNetwork
         );
       });
@@ -967,7 +965,6 @@ exports.getAddressFromAccount = function (
       var receivePubKey = getChildPubKeyFromXpub(
         account.extendedPublicKeys[0],
         path,
-        types_1.AddressType.p2sh,
         currentBitcoinNetwork
       );
       return getAddressFromPubKey(
@@ -980,7 +977,6 @@ exports.getAddressFromAccount = function (
       var receivePubKey = getChildPubKeyFromXpub(
         account.extendedPublicKeys[0],
         path,
-        types_1.AddressType.P2WPKH,
         currentBitcoinNetwork
       );
       return getAddressFromPubKey(
@@ -991,6 +987,7 @@ exports.getAddressFromAccount = function (
     }
   }
 };
+exports.getAddressFromAccount = getAddressFromAccount;
 var scanForAddressesAndTransactions = function (
   account,
   nodeClient,
@@ -1046,7 +1043,10 @@ var scanForAddressesAndTransactions = function (
           if (!receiveTxs.length) {
             unusedReceiveAddresses.push(receiveAddress);
           } else {
-            transactions = __spreadArrays(transactions, receiveTxs);
+            transactions = __spreadArray(
+              __spreadArray([], transactions),
+              receiveTxs
+            );
           }
           changeAddress = exports.getAddressFromAccount(
             account,
@@ -1067,7 +1067,10 @@ var scanForAddressesAndTransactions = function (
           if (!changeTxs.length) {
             unusedChangeAddresses.push(changeAddress);
           } else {
-            transactions = __spreadArrays(transactions, changeTxs);
+            transactions = __spreadArray(
+              __spreadArray([], transactions),
+              changeTxs
+            );
           }
           if (!!!receiveTxs.length && !!!changeTxs.length) {
             gap = gap + 1;
@@ -1096,7 +1099,7 @@ var scanForAddressesAndTransactions = function (
     });
   });
 };
-exports.getDataFromMultisig = function (
+var getDataFromMultisig = function (
   account,
   nodeClient,
   currentBitcoinNetwork
@@ -1187,11 +1190,8 @@ exports.getDataFromMultisig = function (
     });
   });
 };
-exports.getDataFromXPub = function (
-  account,
-  nodeClient,
-  currentBitcoinNetwork
-) {
+exports.getDataFromMultisig = getDataFromMultisig;
+var getDataFromXPub = function (account, nodeClient, currentBitcoinNetwork) {
   return __awaiter(void 0, void 0, void 0, function () {
     var _a,
       receiveAddresses,
@@ -1272,26 +1272,11 @@ exports.getDataFromXPub = function (
     });
   });
 };
-exports.loadOrCreateWalletViaRPC = function (config, nodeClient) {
+exports.getDataFromXPub = getDataFromXPub;
+var loadOrCreateWalletViaRPC = function (config, nodeClient) {
   return __awaiter(void 0, void 0, void 0, function () {
-    var walletList,
-      walletResp,
-      e_2,
-      _a,
-      _b,
-      _c,
-      _d,
-      _e,
-      _f,
-      _g,
-      _h,
-      _j,
-      _k,
-      _l,
-      _m,
-      _o,
-      _p,
-      _q;
+    var walletList, walletResp, e_2, _a, _b, _c, _d, _e, _f, _g, _h, _j;
+    var _k, _l, _m, _o, _p, _q;
     return __generator(this, function (_r) {
       switch (_r.label) {
         case 0:
@@ -1337,22 +1322,22 @@ exports.loadOrCreateWalletViaRPC = function (config, nodeClient) {
           if (!(config.addressType === "p2sh")) return [3 /*break*/, 9];
           console.log("Importing " + config.addressType + " addresses...");
           _b = (_a = nodeClient).importMulti;
-          _c = {};
+          _k = {};
           return [
             4 /*yield*/,
             exports.getWrappedDescriptor(nodeClient, config, false),
           ];
         case 6:
-          _d = [
-            ((_c.desc = _r.sent()),
-            (_c.range = [0, 1000]),
-            (_c.timestamp = 1503446400),
-            (_c.internal = false),
-            (_c.watchonly = true),
-            (_c.keypool = true),
-            _c),
+          _c = [
+            ((_k.desc = _r.sent()),
+            (_k.range = [0, 1000]),
+            (_k.timestamp = 1503446400),
+            (_k.internal = false),
+            (_k.watchonly = true),
+            (_k.keypool = true),
+            _k),
           ];
-          _e = {};
+          _l = {};
           return [
             4 /*yield*/,
             exports.getWrappedDescriptor(nodeClient, config, true),
@@ -1361,14 +1346,14 @@ exports.loadOrCreateWalletViaRPC = function (config, nodeClient) {
           return [
             4 /*yield*/,
             _b.apply(_a, [
-              _d.concat([
-                ((_e.desc = _r.sent()),
-                (_e.range = [0, 1000]),
-                (_e.timestamp = 1503446400),
-                (_e.internal = false),
-                (_e.watchonly = true),
-                (_e.keypool = true),
-                _e),
+              _c.concat([
+                ((_l.desc = _r.sent()),
+                (_l.range = [0, 1000]),
+                (_l.timestamp = 1503446400),
+                (_l.internal = false),
+                (_l.watchonly = true),
+                (_l.keypool = true),
+                _l),
               ]),
               {
                 rescan: true,
@@ -1380,23 +1365,23 @@ exports.loadOrCreateWalletViaRPC = function (config, nodeClient) {
           return [3 /*break*/, 13];
         case 9:
           console.log("Importing " + config.addressType + " addresses...");
-          _g = (_f = nodeClient).importMulti;
-          _h = {};
+          _e = (_d = nodeClient).importMulti;
+          _m = {};
           return [
             4 /*yield*/,
             exports.getSegwitDescriptor(nodeClient, config, false),
           ];
         case 10:
-          _j = [
-            ((_h.desc = _r.sent()),
-            (_h.range = [0, 1000]),
-            (_h.timestamp = 1503446400),
-            (_h.internal = false),
-            (_h.watchonly = true),
-            (_h.keypool = true),
-            _h),
+          _f = [
+            ((_m.desc = _r.sent()),
+            (_m.range = [0, 1000]),
+            (_m.timestamp = 1503446400),
+            (_m.internal = false),
+            (_m.watchonly = true),
+            (_m.keypool = true),
+            _m),
           ];
-          _k = {};
+          _o = {};
           return [
             4 /*yield*/,
             exports.getSegwitDescriptor(nodeClient, config, true),
@@ -1404,15 +1389,15 @@ exports.loadOrCreateWalletViaRPC = function (config, nodeClient) {
         case 11:
           return [
             4 /*yield*/,
-            _g.apply(_f, [
-              _j.concat([
-                ((_k.desc = _r.sent()),
-                (_k.range = [0, 1000]),
-                (_k.timestamp = 1503446400),
-                (_k.internal = false),
-                (_k.watchonly = true),
-                (_k.keypool = true),
-                _k),
+            _e.apply(_d, [
+              _f.concat([
+                ((_o.desc = _r.sent()),
+                (_o.range = [0, 1000]),
+                (_o.timestamp = 1503446400),
+                (_o.internal = false),
+                (_o.watchonly = true),
+                (_o.keypool = true),
+                _o),
               ]),
               {
                 rescan: true,
@@ -1426,21 +1411,21 @@ exports.loadOrCreateWalletViaRPC = function (config, nodeClient) {
           return [3 /*break*/, 18];
         case 14:
           console.log("Importing " + config.addressType + " addresses...");
-          _m = (_l = nodeClient).importMulti;
-          _o = {};
+          _h = (_g = nodeClient).importMulti;
+          _p = {};
           return [
             4 /*yield*/,
             exports.getMultisigDescriptor(nodeClient, config, false),
           ];
         case 15:
-          _p = [
-            ((_o.desc = _r.sent()),
-            (_o.range = [0, 1000]),
-            (_o.timestamp = 1503446400),
-            (_o.internal = false),
-            (_o.watchonly = true),
-            (_o.keypool = true),
-            _o),
+          _j = [
+            ((_p.desc = _r.sent()),
+            (_p.range = [0, 1000]),
+            (_p.timestamp = 1503446400),
+            (_p.internal = false),
+            (_p.watchonly = true),
+            (_p.keypool = true),
+            _p),
           ];
           _q = {};
           return [
@@ -1452,8 +1437,8 @@ exports.loadOrCreateWalletViaRPC = function (config, nodeClient) {
           //  import receive addresses
           return [
             4 /*yield*/,
-            _m.apply(_l, [
-              _p.concat([
+            _h.apply(_g, [
+              _j.concat([
                 ((_q.desc = _r.sent()),
                 (_q.range = [0, 1000]),
                 (_q.timestamp = 1503446400),
@@ -1480,4 +1465,5 @@ exports.loadOrCreateWalletViaRPC = function (config, nodeClient) {
     });
   });
 };
+exports.loadOrCreateWalletViaRPC = loadOrCreateWalletViaRPC;
 //# sourceMappingURL=accountMap.js.map

@@ -224,8 +224,6 @@ export interface LilyConfig {
   isEmpty: boolean;
   wallets: AccountConfig[];
   vaults: AccountConfig[];
-  keys: any[]; // TODO: change
-  exchanges: any[]; // TODO: change
 }
 
 export interface OldLilyConfig {

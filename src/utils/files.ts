@@ -10,7 +10,6 @@ import { bufferToHex } from "../utils/other";
 import {
   LilyConfig,
   LilyLicense,
-  OldLilyConfig,
   AccountConfig,
   AddressType,
   Device,
@@ -20,28 +19,6 @@ import {
 
 export const bitcoinNetworkEqual = (a: Network, b: Network) => {
   return a.bech32 === b.bech32;
-};
-
-export const getDerivationPath = (
-  addressType: AddressType,
-  bip32Path: string,
-  currentBitcoinNetwork: Network
-) => {
-  const childPubKeysBip32Path = bip32Path;
-  if (addressType === "multisig") {
-    return `${getMultisigDeriationPathForNetwork(
-      currentBitcoinNetwork
-    )}/${childPubKeysBip32Path.replace("m/", "")}`;
-  } else if (addressType === "p2sh") {
-    return `${getP2shDeriationPathForNetwork(
-      currentBitcoinNetwork
-    )}/${childPubKeysBip32Path.replace("m/", "")}`;
-  } else {
-    // p2wpkh
-    return `${getP2wpkhDeriationPathForNetwork(
-      currentBitcoinNetwork
-    )}/${childPubKeysBip32Path.replace("m/", "")}`;
-  }
 };
 
 export const getMultisigDeriationPathForNetwork = (network: Network) => {
@@ -94,53 +71,6 @@ export const containsColdcard = (devices: Device[]) => {
     }
   }
   return false;
-};
-
-export const updateConfigFileVersion = (
-  config: OldLilyConfig,
-  currentBlockHeight: number
-) => {
-  if (config.version === "0.0.1" || config.version === "0.0.2") {
-    const updatedConfig = {
-      name: "",
-      version: "1.0.0",
-      isEmpty: false,
-      license: {
-        license: `trial:${currentBlockHeight + 4320}`, // one month free trial (6 * 24 * 30)
-        signature: "",
-      },
-      wallets: config.wallets.map((item) => ({
-        id: item.id,
-        created_at: item.created_at,
-        name: item.name,
-        network: item.network,
-        addressType: item.addressType,
-        quorum: item.quorum,
-        extendedPublicKeys: [
-          {
-            id: uuidv4(),
-            created_at: item.created_at,
-            parentFingerprint: item.parentFingerprint,
-            xpub: item.xpub,
-            network: item.network,
-            bip32Path: "m/0",
-            device: item.device || {
-              type: "lily",
-              model: "lily",
-              fingerprint: item.parentFingerprint,
-            },
-          },
-        ],
-        mnemonic: item.mnemonic,
-        parentFingerprint: item.parentFingerprint,
-      })),
-      vaults: config.vaults.map((item) => ({
-        ...item,
-      })),
-    } as LilyConfig;
-    return updatedConfig;
-  }
-  return config;
 };
 
 export const formatFilename = (
@@ -223,7 +153,7 @@ export const createSinglesigConfigFile = async (
         id: uuidv4(),
         created_at: Date.now(),
         network: getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork),
-        bip32Path: "m/0",
+        bip32Path: getP2wpkhDeriationPathForNetwork(currentBitcoinNetwork),
         xpub: xpubString,
         parentFingerprint: bufferToHex(root.fingerprint),
         device: {
@@ -262,7 +192,7 @@ export const createSinglesigHWWConfigFile = async (
         id: uuidv4(),
         created_at: Date.now(),
         network: getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork),
-        bip32Path: "m/0",
+        bip32Path: getP2shDeriationPathForNetwork(currentBitcoinNetwork),
         xpub: device.xpub,
         parentFingerprint: device.fingerprint,
         device: {
@@ -295,7 +225,7 @@ export const createMultisigConfigFile = (
       created_at: Date.now(),
       parentFingerprint: device.fingerprint,
       network: getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork),
-      bip32Path: "m/0",
+      bip32Path: getMultisigDeriationPathForNetwork(currentBitcoinNetwork),
       xpub: device.xpub,
       device: {
         type: device.type,

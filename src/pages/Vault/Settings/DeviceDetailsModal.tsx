@@ -8,7 +8,6 @@ import { AccountMapContext } from "../../../AccountMapContext";
 import { StyledIcon } from "../../../components";
 
 import { mobile } from "../../../utils/media";
-import { getDerivationPath } from "../../../utils/files";
 import { capitalize } from "../../../utils/other";
 import {
   green100,
@@ -82,11 +81,7 @@ const DeviceDetailsModal = ({ item, currentBitcoinNetwork }: Props) => {
               <ProfileKeyColumn>Derivation Path</ProfileKeyColumn>
               <ProfileValueColumn>
                 <ProfileValueText>
-                  {getDerivationPath(
-                    currentAccount.config.addressType,
-                    item.bip32Path,
-                    currentBitcoinNetwork
-                  )}
+                  {item.bip32Path}
                 </ProfileValueText>
                 <ProfileValueAction></ProfileValueAction>
               </ProfileValueColumn>
