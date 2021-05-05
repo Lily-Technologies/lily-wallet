@@ -1,9 +1,6 @@
-import React, { useContext } from "react";
+import React from "react";
 import styled, { css } from "styled-components";
 import { Calculator } from "@styled-icons/heroicons-outline";
-import { Network } from "bitcoinjs-lib";
-
-import { AccountMapContext } from "../../../AccountMapContext";
 
 import { StyledIcon } from "../../../components";
 
@@ -21,11 +18,9 @@ import { ExtendedPublicKey } from "../../../types";
 
 interface Props {
   item: ExtendedPublicKey;
-  currentBitcoinNetwork: Network;
 }
 
-const DeviceDetailsModal = ({ item, currentBitcoinNetwork }: Props) => {
-  const { currentAccount } = useContext(AccountMapContext);
+const DeviceDetailsModal = ({ item }: Props) => {
   return (
     <ModalContentWrapper>
       <DangerIconContainer>

@@ -696,13 +696,6 @@ var getMultisigAddressFromPubKeys = function (
     return publicKey.childPubKey;
   });
   rawPubkeys.sort();
-  console.log("rawPubkeys: ", rawPubkeys);
-  console.log("config.quorum.requiredSigners: ", config.quorum.requiredSigners);
-  console.log("config.addressType,: ", config.addressType);
-  console.log(
-    "getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork): ",
-    getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)
-  );
   var address = unchained_bitcoin_1.generateMultisigFromPublicKeys.apply(
     void 0,
     __spreadArray(
@@ -714,7 +707,6 @@ var getMultisigAddressFromPubKeys = function (
       rawPubkeys
     )
   );
-  console.log("address: ", address);
   address.bip32derivation = pubkeys.map(function (publicKey) {
     return publicKey.bip32derivation;
   });

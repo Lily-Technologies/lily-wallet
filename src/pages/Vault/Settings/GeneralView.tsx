@@ -112,7 +112,6 @@ const GeneralView = ({ password, currentBitcoinNetwork }: Props) => {
                   openInModal(
                     <DeviceDetailsModal
                       item={item}
-                      currentBitcoinNetwork={currentBitcoinNetwork}
                     />
                   )
                 }
