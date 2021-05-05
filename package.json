@@ -3,7 +3,7 @@
   "author": "Kevin Mulcrone <kaybesee@gmail.com> (https://kevinmulcrone.com)",
   "description": "Lily is the easiest way to securely store and manage your Bitcoin",
   "license": "MIT",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "private": true,
   "main": "./src/main.js",
   "homepage": "./",
@@ -20,7 +20,7 @@
   },
   "build": {
     "productName": "Lily Wallet",
-    "appId": "com.kevinmulcrone.lily",
+    "appId": "com.lily-wallet",
     "extends": null,
     "mac": {
       "category": "public.app-category.finance",
@@ -75,7 +75,7 @@
     }
   },
   "dependencies": {
-    "@cvbb/qr-protocol": "^0.1.6",
+    "@cvbb/qr-protocol": "^2.0.4",
     "@cvbb/sdk": "^0.1.8",
     "axios": "^0.21.1",
     "babel-preset-es2015": "^6.24.1",
@@ -121,6 +121,8 @@
     ]
   },
   "devDependencies": {
+    "@cypress/react": "^5.4.2",
+    "@cypress/webpack-dev-server": "^1.1.6",
     "@types/crypto-js": "^4.0.1",
     "@types/jest": "^26.0.15",
     "@types/react": "^16.9.53",
@@ -132,6 +134,7 @@
     "@types/rewire": "^2.5.28",
     "@types/styled-components": "^5.1.4",
     "@types/uuid": "^8.3.0",
+    "cypress": "^7.2.0",
     "electron": "^9.0.0",
     "electron-builder": "^22.7.0",
     "electron-installer-dmg": "^3.0.0",
