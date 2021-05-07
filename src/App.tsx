@@ -79,7 +79,7 @@ const App = () => {
   };
 
   const getNodeConfig = async () => {
-    const response = await window.ipcRenderer.invoke("/getNodeConfig");
+    const response = await window.ipcRenderer.invoke("/get-node-config");
     setNodeConfig(response);
   };
 
@@ -149,7 +149,7 @@ const App = () => {
   useEffect(() => {
     async function fetchNodeConfig() {
       try {
-        const response = await window.ipcRenderer.invoke("/getNodeConfig");
+        const response = await window.ipcRenderer.invoke("/get-node-config");
         setNodeConfig(response);
       } catch (e) {
         console.log(e.message);

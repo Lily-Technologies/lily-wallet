@@ -1,8 +1,6 @@
 /* global cy */
-import { getConfig } from "utils/files";
 import { networks } from "bitcoinjs-lib";
 import HistoricalBtcPriceFixture from "../../fixtures/historical-btc-price.json";
-import { login } from "../../support/login";
 
 describe("Login", () => {
   it("shows the Get Started button if no config loaded", () => {
@@ -11,7 +9,7 @@ describe("Login", () => {
         const invokeStub = cy.stub();
 
         invokeStub.withArgs("/get-config").returns(undefined);
-        invokeStub.withArgs("/getNodeConfig").returns({
+        invokeStub.withArgs("/get-node-config").returns({
           blocks: 687000,
           initialblockdownload: false,
           provider: "Blockstream",
@@ -38,7 +36,7 @@ describe("Login", () => {
         const invokeStub = cy.stub();
 
         invokeStub.withArgs("/get-config").returns(undefined);
-        invokeStub.withArgs("/getNodeConfig").returns({
+        invokeStub.withArgs("/get-node-config").returns({
           blocks: 687000,
           initialblockdownload: false,
           provider: "Blockstream",
@@ -78,7 +76,7 @@ describe("Login", () => {
           modifiedTime: 123456,
         });
 
-        invokeStub.withArgs("/getNodeConfig").returns({
+        invokeStub.withArgs("/get-node-config").returns({
           blocks: 687000,
           initialblockdownload: false,
           provider: "Blockstream",
@@ -113,7 +111,7 @@ describe("Login", () => {
           modifiedTime: 12345,
         });
 
-        invokeStub.withArgs("/getNodeConfig").returns({
+        invokeStub.withArgs("/get-node-config").returns({
           blocks: 687000,
           initialblockdownload: false,
           provider: "Blockstream",

@@ -43,8 +43,8 @@ describe('Send Utils', () => {
     global.ipcMain = ipcMain;
     global.ipcRenderer = ipcRenderer;
 
-    ipcMain.handle('/estimateFee', (event, obj) => {
-      event.sender.send('/estimateFee', FEE_RATES)
+    ipcMain.handle('/estimate-fee', (event, obj) => {
+      event.sender.send('/estimate-fee', FEE_RATES)
     });
   })
 

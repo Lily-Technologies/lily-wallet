@@ -27,5 +27,7 @@
 Cypress.on("window:before:load", (win) => {
   win.ipcRenderer = {
     invoke: () => null,
+    send: () => null,
+    on: () => null,
   };
 });

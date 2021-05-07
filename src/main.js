@@ -490,7 +490,7 @@ ipcMain.handle("/sendpin", async (event, args) => {
   return Promise.resolve(resp);
 });
 
-ipcMain.handle("/estimateFee", async (event, args) => {
+ipcMain.handle("/estimate-fee", async (event, args) => {
   if (currentNodeConfig.provider === "Blockstream") {
     try {
       const feeRates = await (
@@ -527,7 +527,7 @@ ipcMain.handle("/estimateFee", async (event, args) => {
         .toNumber(); // TODO: this probably needs relooked at
       return Promise.resolve(feeRates);
     } catch (e) {
-      console.log(`error /estimateFee ${e.message}`);
+      console.log(`error /estimate-fee ${e.message}`);
       return Promise.reject(new Error("Error retrieving fee"));
     }
   }
@@ -602,7 +602,7 @@ ipcMain.handle("/changeNodeConfig", async (event, args) => {
   }
 });
 
-ipcMain.handle("/getNodeConfig", async (event, args) => {
+ipcMain.handle("/get-node-config", async (event, args) => {
   if (currentNodeConfig?.provider === "Bitcoin Core") {
     try {
       const blockchainInfo = await getBitcoinCoreBlockchainInfo();
@@ -638,7 +638,7 @@ ipcMain.handle("/getNodeConfig", async (event, args) => {
         connected: false,
         provider: "Custom Node",
       };
-      console.log(`error /getNodeConfig ${e}`);
+      console.log(`error /get-node-config ${e}`);
       return Promise.resolve(blockchainInfo);
     }
   }

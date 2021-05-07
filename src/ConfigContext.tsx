@@ -2,7 +2,7 @@ import React, { createContext, useState } from "react";
 
 import { LilyConfig } from "./types";
 
-const EMPTY_CONFIG = {
+export const EMPTY_CONFIG = {
   name: "",
   version: "1.0.0",
   isEmpty: true,

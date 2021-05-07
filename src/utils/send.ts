@@ -242,7 +242,7 @@ export const createTransaction = async (
   const { availableUtxos, unusedChangeAddresses, config } = currentAccount;
 
   let fee: BigNumber;
-  const feeRates: FeeRates = await window.ipcRenderer.invoke("/estimateFee");
+  const feeRates: FeeRates = await window.ipcRenderer.invoke("/estimate-fee");
   if (desiredFee.toNumber() !== 0) {
     // if no fee specified, pick halfhour
     fee = new BigNumber(desiredFee);
