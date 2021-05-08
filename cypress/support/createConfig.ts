@@ -55,13 +55,12 @@ export const createAccountMap = () => {
 }
 
 export const createConfig = (password) => {
-
     const configFile = {
         ...EMPTY_CONFIG,
         isEmpty: false,
         wallets: [
-            // MnemonicAccount,
-            // HWWAccount
+            MnemonicAccount.config,
+            HWWAccount.config
         ],
         vaults: [
             MultisigAccount.config

@@ -1,7 +1,7 @@
 {
   "name": "Coldcard HWW",
   "config": {
-    "id": "af46ea03-226f-4f76-961d-65de559f5df3",
+    "id": "af46ea03-226f-4f76-961d-65deadfdf5df3",
     "created_at": 1603900550961,
     "name": "Coldcard",
     "network": "mainnet",

@@ -4,7 +4,7 @@ import { LilyConfig } from "./types";
 
 export const EMPTY_CONFIG = {
   name: "",
-  version: "1.0.0",
+  version: "1.0.5",
   isEmpty: true,
   license: {
     license: "trial:0",

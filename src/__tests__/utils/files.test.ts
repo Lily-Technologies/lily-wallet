@@ -1,4 +1,4 @@
-import { updateConfigFileVersion } from "../../utils/files";
+import { updateConfigFileVersionBeta } from "../../utils/migration";
 
 import { OldLilyConfig } from "../../types";
 
@@ -144,8 +144,8 @@ const PreV1Config = {
   exchanges: [],
 } as OldLilyConfig;
 
-test("updateConfigFileVersion", () => {
-  expect(updateConfigFileVersion(PreV1Config, 100)).toEqual({
+test("updateConfigFileVersionBeta", () => {
+  expect(updateConfigFileVersionBeta(PreV1Config, 100)).toEqual({
     name: "",
     version: "1.0.0",
     isEmpty: false,

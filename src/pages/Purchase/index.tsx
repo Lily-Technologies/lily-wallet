@@ -186,7 +186,7 @@ const PurchasePage = ({
     if ((!currentAccount.config.id && Object.keys(accountMap).length > 0) || currentAccount.config.addressType === AddressType.p2sh) {
       for(let i=0; i < Object.keys(accountMap).length; i++) {
         const tempCurrentAccount = Object.values(accountMap)[i];
-        if(tempCurrentAccount.config.addressType !== AddressType.p2sh) {
+        if(tempCurrentAccount.config.addressType !== AddressType.p2sh && !tempCurrentAccount.loading) {
           setCurrentAccountId(tempCurrentAccount.config.id);
           break;
         }
