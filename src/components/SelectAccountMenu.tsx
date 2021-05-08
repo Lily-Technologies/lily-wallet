@@ -115,7 +115,7 @@ const AccountMenuItemName = styled.div`
   font-size: 0.75em;
 `;
 
-const AccountMenu = styled.div`
+const AccountMenu = styled.nav`
   display: flex;
   justify-content: space-around;
   background: ${gray100};

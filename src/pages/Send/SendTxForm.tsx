@@ -171,6 +171,7 @@ const SendTxForm = ({
           }
           error={recipientAddressError}
           largeText={true}
+          id="bitcoin-receipt"
           style={{ textAlign: "right" }}
         />
       </InputContainer>
@@ -184,6 +185,7 @@ const SendTxForm = ({
           error={sendAmountError}
           inputStaticText="BTC"
           largeText={true}
+          id="bitcoin-amount"
         />
       </InputContainer>
       {sendAmountError && <SendAmountError>Not enough funds</SendAmountError>}
