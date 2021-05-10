@@ -1,3 +1,4 @@
+/* eslint-disable */
 "use strict";
 var __assign =
   (this && this.__assign) ||
@@ -458,11 +459,12 @@ var serializeTransactions = function (
     } else {
       var feeContribution = amountIn > 0 ? tx.fee : 0;
       var netAmount = amountIn - amountOut - feeContribution;
-      tx.type =
-        netAmount > 0
-          ? types_1.TransactionType.sent
-          : types_1.TransactionType.received;
-      if (tx.type === "sent") {
+      if (netAmount > 0) {
+        tx.type = types_1.TransactionType.sent;
+      } else {
+        tx.type = types_1.TransactionType.received;
+      }
+      if (tx.type === types_1.TransactionType.sent) {
         balance -= amountIn - amountOutChange + feeContribution;
         tx.totalValue = balance;
         tx.address = tx.vout.filter(function (vout) {

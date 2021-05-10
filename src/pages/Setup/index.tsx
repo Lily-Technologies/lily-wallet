@@ -12,6 +12,7 @@ import {
   downloadFile,
   saveConfig,
   containsColdcard,
+  getP2wpkhDeriationPathForNetwork,
 } from "../../utils/files";
 import { black } from "../../utils/colors";
 
@@ -24,7 +25,11 @@ import SuccessScreen from "./SuccessScreen";
 import NewWalletScreen from "./NewWalletScreen";
 import NewHardwareWalletScreen from "./NewHardwareWalletScreen";
 
-import { HwiResponseEnumerate, ExtendedPublicKey } from "../../types";
+import {
+  HwiResponseEnumerate,
+  ExtendedPublicKey,
+  AddressType,
+} from "../../types";
 
 import { ConfigContext } from "../../ConfigContext";
 
@@ -44,6 +49,10 @@ const Setup = ({ password, currentBitcoinNetwork }: Props) => {
   >([]);
   const [walletMnemonic, setWalletMnemonic] = useState("");
   const [configRequiredSigners, setConfigRequiredSigners] = useState(1);
+  const [addressType, setAddressType] = useState(AddressType.P2WPKH);
+  const [path, setPath] = useState(
+    getP2wpkhDeriationPathForNetwork(currentBitcoinNetwork)
+  );
   const [localConfig, setLocalConfig] = useState(config);
 
   const exportSetupFiles = useCallback(async () => {
@@ -66,6 +75,8 @@ const Setup = ({ password, currentBitcoinNetwork }: Props) => {
     } else {
       configObject = await createSinglesigHWWConfigFile(
         importedDevices[0],
+        addressType,
+        path,
         accountName,
         config,
         currentBitcoinNetwork
@@ -188,6 +199,8 @@ const Setup = ({ password, currentBitcoinNetwork }: Props) => {
             importedDevices={importedDevices}
             setImportedDevices={setImportedDevices}
             currentBitcoinNetwork={currentBitcoinNetwork}
+            setAddressType={setAddressType}
+            setPath={setPath}
           />
         );
       } else {

@@ -1,8 +1,11 @@
 import React, { useState, useRef } from "react";
 import styled from "styled-components";
+import axios from "axios";
 import { decode } from "bs58check";
 import BarcodeScannerComponent from "react-webcam-barcode-scanner";
 import { Network } from "bitcoinjs-lib";
+import { v4 as uuidv4 } from "uuid";
+import { blockExplorerAPIURL } from "unchained-bitcoin";
 
 import {
   Button,
@@ -23,7 +26,13 @@ import {
 } from "./styles";
 import { white } from "../../utils/colors";
 import { zpubToXpub } from "../../utils/other";
-import { getP2shDeriationPathForNetwork } from "../../utils/files";
+import {
+  getP2shDeriationPathForNetwork,
+  getP2wpkhDeriationPathForNetwork,
+  getUnchainedNetworkFromBjslibNetwork,
+} from "../../utils/files";
+
+import { getAddressFromAccount } from "../../utils/accountMap";
 
 import { green600 } from "../../utils/colors";
 
@@ -31,6 +40,8 @@ import {
   HwiResponseEnumerate,
   ColdcardElectrumExport,
   File,
+  AddressType,
+  AccountConfig,
 } from "../../types";
 
 interface Props {
@@ -41,6 +52,8 @@ interface Props {
     React.SetStateAction<HwiResponseEnumerate[]>
   >;
   currentBitcoinNetwork: Network;
+  setPath: React.Dispatch<React.SetStateAction<string>>;
+  setAddressType: React.Dispatch<React.SetStateAction<AddressType>>;
 }
 
 const NewHardwareWalletScreen = ({
@@ -49,6 +62,8 @@ const NewHardwareWalletScreen = ({
   importedDevices,
   setImportedDevices,
   currentBitcoinNetwork,
+  setPath,
+  setAddressType,
 }: Props) => {
   const [availableDevices, setAvailableDevices] = useState<
     HwiResponseEnumerate[]
@@ -74,11 +89,118 @@ const NewHardwareWalletScreen = ({
     index: number
   ) => {
     try {
-      const response = await window.ipcRenderer.invoke("/xpub", {
+      let response;
+
+      const p2wpkhResponse = await window.ipcRenderer.invoke("/xpub", {
         deviceType: device.type,
         devicePath: device.path,
-        path: getP2shDeriationPathForNetwork(currentBitcoinNetwork), // we are assuming BIP48 P2WSH wallet
+        path: getP2wpkhDeriationPathForNetwork(currentBitcoinNetwork), // we are assuming BIP48 P2WSH wallet
       }); // KBC-TODO: hwi xpub response type
+
+      const p2wpkhConfig = {
+        id: uuidv4(),
+        created_at: 123,
+        name: "test",
+        network: "mainnet",
+        addressType: AddressType.P2WPKH,
+        quorum: {
+          requiredSigners: 1,
+          totalSigners: 1,
+        },
+        extendedPublicKeys: [
+          {
+            id: uuidv4(),
+            created_at: Date.now(),
+            parentFingerprint: device.fingerprint,
+            network: "mainnet",
+            bip32Path: getP2wpkhDeriationPathForNetwork(currentBitcoinNetwork),
+            xpub: p2wpkhResponse.xpub,
+            device: {
+              type: device.type,
+              fingerprint: device.fingerprint,
+              model: device.model,
+            },
+          },
+        ],
+      } as AccountConfig;
+
+      let address = getAddressFromAccount(
+        p2wpkhConfig,
+        "m/0/0",
+        currentBitcoinNetwork
+      );
+
+      let { data: txs } = await axios.get(
+        blockExplorerAPIURL(
+          `/address/${address.address}/txs`,
+          getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)
+        )
+      );
+
+      if (txs.length) {
+        response = p2wpkhResponse;
+        setPath(getP2wpkhDeriationPathForNetwork(currentBitcoinNetwork));
+        setAddressType(AddressType.P2WPKH);
+      }
+
+      if (!response) {
+        // if no results, check P2SH(P2WPK)
+        const p2shResponse = await window.ipcRenderer.invoke("/xpub", {
+          deviceType: device.type,
+          devicePath: device.path,
+          path: getP2shDeriationPathForNetwork(currentBitcoinNetwork), // we are assuming BIP48 P2WSH wallet
+        }); // KBC-TODO: hwi xpub response type
+
+        const p2shConfig = {
+          id: uuidv4(),
+          created_at: 123,
+          name: "test",
+          network: "mainnet",
+          addressType: AddressType.p2sh,
+          quorum: {
+            requiredSigners: 1,
+            totalSigners: 1,
+          },
+          extendedPublicKeys: [
+            {
+              id: uuidv4(),
+              created_at: Date.now(),
+              parentFingerprint: device.fingerprint,
+              network: "mainnet",
+              bip32Path: getP2shDeriationPathForNetwork(currentBitcoinNetwork),
+              xpub: p2shResponse.xpub,
+              device: {
+                type: device.type,
+                fingerprint: device.fingerprint,
+                model: device.model,
+              },
+            },
+          ],
+        } as AccountConfig;
+
+        address = getAddressFromAccount(
+          p2shConfig,
+          "m/0/0",
+          currentBitcoinNetwork
+        );
+
+        let { data: txs } = await axios.get(
+          blockExplorerAPIURL(
+            `/address/${address.address}/txs`,
+            getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)
+          )
+        );
+
+        if (txs.length) {
+          response = p2shResponse;
+          setPath(getP2shDeriationPathForNetwork(currentBitcoinNetwork));
+          setAddressType(AddressType.p2sh);
+        }
+      }
+
+      if (!response) {
+        response = p2wpkhResponse;
+      }
 
       setImportedDevices([...importedDevices, { ...device, ...response }]);
       availableDevices.splice(index, 1);
@@ -88,8 +210,6 @@ const NewHardwareWalletScreen = ({
         setErrorDevices(errorDevicesCopy);
       }
       setAvailableDevices([...availableDevices]);
-
-      setStep(3);
     } catch (e) {
       const errorDevicesCopy = [...errorDevices];
       errorDevicesCopy.push(device.fingerprint);
@@ -227,7 +347,7 @@ const NewHardwareWalletScreen = ({
             configuredThreshold={15}
           />
         </BoxedWrapper>
-        {importedDevices.length > 1 && (
+        {importedDevices.length > 0 && (
           <ContinueButton
             background={green600}
             color={white}
@@ -250,6 +370,7 @@ const ContinueButton = styled.button`
   ${Button};
   border-top-right-radius: 0;
   border-top-left-radius: 0;
+  width: 100%;
 `;
 
 const ImportFromFileLabel = styled.label`

@@ -173,6 +173,8 @@ export const createSinglesigConfigFile = async (
 
 export const createSinglesigHWWConfigFile = async (
   device: HwiResponseEnumerate,
+  addressType: AddressType,
+  path: string,
   accountName: string,
   config: LilyConfig,
   currentBitcoinNetwork: Network
@@ -185,14 +187,14 @@ export const createSinglesigHWWConfigFile = async (
     created_at: Date.now(),
     name: accountName,
     network: getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork),
-    addressType: AddressType.p2sh,
+    addressType: addressType,
     quorum: { requiredSigners: 1, totalSigners: 1 },
     extendedPublicKeys: [
       {
         id: uuidv4(),
         created_at: Date.now(),
         network: getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork),
-        bip32Path: getP2shDeriationPathForNetwork(currentBitcoinNetwork),
+        bip32Path: path,
         xpub: device.xpub,
         parentFingerprint: device.fingerprint,
         device: {
