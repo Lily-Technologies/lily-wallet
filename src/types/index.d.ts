@@ -159,7 +159,7 @@ export interface Address {
   address: string;
   hash?: Buffer;
   output: any;
-  redeem: any;
+  redeem?: any;
   input?: any;
   witness?: any;
   isChange?: boolean;

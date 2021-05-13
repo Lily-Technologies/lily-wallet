@@ -1,0 +1,26 @@
+{
+  "id": "a713a6c7-29f0-44c4-b171-6ace35eb2eb9",
+  "created_at": 1620691617778,
+  "name": "DAS-CC",
+  "network": "mainnet",
+  "addressType": "p2sh",
+  "quorum": {
+    "requiredSigners": 1,
+    "totalSigners": 1
+  },
+  "extendedPublicKeys": [
+    {
+      "id": "9957d83e-e3a3-46a9-b562-e5f034c901d7",
+      "created_at": 1620691617778,
+      "network": "mainnet",
+      "bip32Path": "m/49'/0'/0'",
+      "xpub": "xpub6Ciyack9bAGpopvxjuQywxeZM4HKTtfKXiY33FPynmQGDFU1mX2ySWC6XeT4DNVMMRcKd9bjBtZzGUHhJfLbUrwf4aQcapnAUeMTqzqwX8E",
+      "parentFingerprint": "34ecf56b",
+      "device": {
+        "type": "coldcard",
+        "model": "coldcard",
+        "fingerprint": "34ecf56b"
+      }
+    }
+  ]
+}

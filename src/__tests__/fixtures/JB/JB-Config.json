@@ -1,0 +1,26 @@
+{
+  "id": "2ad7dfab-70c0-4343-abbd-fa91a7a73ae4",
+  "created_at": 1620781853571,
+  "name": "JB HWW",
+  "network": "mainnet",
+  "addressType": "P2WPKH",
+  "quorum": {
+    "requiredSigners": 1,
+    "totalSigners": 1
+  },
+  "extendedPublicKeys": [
+    {
+      "id": "23696ec1-b9ed-47d3-818b-e76c97404501",
+      "created_at": 1620781853571,
+      "network": "mainnet",
+      "bip32Path": "m/84'/0'/0'",
+      "xpub": "xpub6DAZ8xoRdTSw7sBTvFcDc22qS1pwbDiGqfjm15wQ5w1VSYpm5a5NCuZPhDpJRcSRTWUeL4KjyY32jKPX5eX1wTjLTRCJEdpAtVX7Z8b26Xs",
+      "parentFingerprint": "9130c3d6",
+      "device": {
+        "type": "coldcard",
+        "model": "coldcard",
+        "fingerprint": "9130c3d6"
+      }
+    }
+  ]
+}

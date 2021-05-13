@@ -12,7 +12,7 @@
     "start": "PORT=3001 react-scripts start",
     "electron-testnet": "TESTNET=true electron .",
     "build": "react-scripts build",
-    "test": "react-scripts test --testPathIgnorePatterns=src/__tests__/mock",
+    "test": "react-scripts test --testPathIgnorePatterns=src/__tests__/fixtures",
     "eject": "react-scripts eject",
     "pack": "electron-builder --dir",
     "dist": "electron-builder -mwl",

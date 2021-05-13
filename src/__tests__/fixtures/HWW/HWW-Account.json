@@ -16,7 +16,7 @@
         "created_at": 1603900550960,
         "parentFingerprint": "4F60D1C9",
         "network": "mainnet",
-        "bip32Path": "m/84'/0'/0'",
+        "bip32Path": "m/49'/0'/0'",
         "xpub": "xpub6F2wuvSo8gSRjE9JsMgSva9cDZGa2Hh9SEJ9yczCLd1q2SRFV6N4vRUKFoecbatfhgZcG5rNwTxygNLoPrKpjRt94czCzQQPnoVY1RauiL6",
         "device": {
           "type": "coldcard",

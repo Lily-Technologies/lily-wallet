@@ -35,6 +35,7 @@ const PageHeader = ({ headerText, setStep, step, setSetupOption }: Props) => {
         <HeaderRight>
           {step === 0 && (
             <Dropdown
+              data-cy="Select account dropdown"
               isOpen={dropdownOpen}
               setIsOpen={setDropdownOpen}
               minimal={true}

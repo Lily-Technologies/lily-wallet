@@ -178,7 +178,7 @@ const PurchasePage = ({
     if (step === 1) {
       clickRenewLicense(selectedLicenseTier, currentAccount);
     }
-  }, [currentAccount, step, clickRenewLicense, selectedLicenseTier]);
+  }, [currentAccount, clickRenewLicense, selectedLicenseTier]);
 
   useEffect(() => {
     // make sure there is a currentAccount selected

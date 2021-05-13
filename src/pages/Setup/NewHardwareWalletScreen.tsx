@@ -1,11 +1,13 @@
 import React, { useState, useRef } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import axios from "axios";
 import { decode } from "bs58check";
 import BarcodeScannerComponent from "react-webcam-barcode-scanner";
 import { Network } from "bitcoinjs-lib";
 import { v4 as uuidv4 } from "uuid";
 import { blockExplorerAPIURL } from "unchained-bitcoin";
+
+import { CursorClick } from "@styled-icons/heroicons-solid";
 
 import {
   Button,
@@ -14,6 +16,7 @@ import {
   Dropdown,
   ErrorModal,
   Modal,
+  StyledIcon,
 } from "../../components";
 import {
   InnerWrapper,
@@ -24,8 +27,8 @@ import {
   BoxedWrapper,
   SetupHeader,
 } from "./styles";
-import { white } from "../../utils/colors";
 import { zpubToXpub } from "../../utils/other";
+import { mobile } from "../../utils/media";
 import {
   getP2shDeriationPathForNetwork,
   getP2wpkhDeriationPathForNetwork,
@@ -34,7 +37,16 @@ import {
 
 import { getAddressFromAccount } from "../../utils/accountMap";
 
-import { green600 } from "../../utils/colors";
+import {
+  white,
+  gray300,
+  gray500,
+  gray700,
+  gray900,
+  green100,
+  green700,
+  green600,
+} from "../../utils/colors";
 
 import {
   HwiResponseEnumerate,
@@ -89,9 +101,7 @@ const NewHardwareWalletScreen = ({
     index: number
   ) => {
     try {
-      let response;
-
-      const p2wpkhResponse = await window.ipcRenderer.invoke("/xpub", {
+      const p2wpkhXpub = await window.ipcRenderer.invoke("/xpub", {
         deviceType: device.type,
         devicePath: device.path,
         path: getP2wpkhDeriationPathForNetwork(currentBitcoinNetwork), // we are assuming BIP48 P2WSH wallet
@@ -114,7 +124,7 @@ const NewHardwareWalletScreen = ({
             parentFingerprint: device.fingerprint,
             network: "mainnet",
             bip32Path: getP2wpkhDeriationPathForNetwork(currentBitcoinNetwork),
-            xpub: p2wpkhResponse.xpub,
+            xpub: p2wpkhXpub.xpub,
             device: {
               type: device.type,
               fingerprint: device.fingerprint,
@@ -124,85 +134,133 @@ const NewHardwareWalletScreen = ({
         ],
       } as AccountConfig;
 
-      let address = getAddressFromAccount(
+      const p2wpkhAddress = getAddressFromAccount(
         p2wpkhConfig,
         "m/0/0",
         currentBitcoinNetwork
       );
 
-      let { data: txs } = await axios.get(
+      let { data: p2wpkhTxs } = await axios.get(
         blockExplorerAPIURL(
-          `/address/${address.address}/txs`,
+          `/address/${p2wpkhAddress.address}/txs`,
           getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)
         )
       );
 
-      if (txs.length) {
-        response = p2wpkhResponse;
+      // check for P2SH(P2WPK) transactions too
+      const p2shXpub = await window.ipcRenderer.invoke("/xpub", {
+        deviceType: device.type,
+        devicePath: device.path,
+        path: getP2shDeriationPathForNetwork(currentBitcoinNetwork), // we are assuming BIP48 P2WSH wallet
+      }); // KBC-TODO: hwi xpub response type
+
+      const p2shConfig = {
+        id: uuidv4(),
+        created_at: 123,
+        name: "test",
+        network: "mainnet",
+        addressType: AddressType.p2sh,
+        quorum: {
+          requiredSigners: 1,
+          totalSigners: 1,
+        },
+        extendedPublicKeys: [
+          {
+            id: uuidv4(),
+            created_at: Date.now(),
+            parentFingerprint: device.fingerprint,
+            network: "mainnet",
+            bip32Path: getP2shDeriationPathForNetwork(currentBitcoinNetwork),
+            xpub: p2shXpub.xpub,
+            device: {
+              type: device.type,
+              fingerprint: device.fingerprint,
+              model: device.model,
+            },
+          },
+        ],
+      } as AccountConfig;
+
+      const p2shAddress = getAddressFromAccount(
+        p2shConfig,
+        "m/0/0",
+        currentBitcoinNetwork
+      );
+
+      let { data: p2shTxs } = await axios.get(
+        blockExplorerAPIURL(
+          `/address/${p2shAddress.address}/txs`,
+          getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)
+        )
+      );
+
+      let xpub;
+      if (p2shTxs.length && p2wpkhTxs.length) {
+        openInModal(
+          <ModalWrapper>
+            <StyledIconCircle>
+              <StyledIcon
+                style={{ color: green600 }}
+                as={CursorClick}
+                size={36}
+              />
+            </StyledIconCircle>
+            <ModalHeader>Select address type</ModalHeader>
+            <ModalSubtext>
+              We detected transaction history for two different address types
+              with this device. Please choose which address type you would like
+              to use.
+            </ModalSubtext>
+            <ButtonContainer>
+              <SecondaryOptionButton
+                data-cy="p2sh-button"
+                color={gray700}
+                background={white}
+                onClick={() => {
+                  setPath(
+                    getP2shDeriationPathForNetwork(currentBitcoinNetwork)
+                  );
+                  setAddressType(AddressType.p2sh);
+                  setImportedDevices([
+                    ...importedDevices,
+                    { ...device, ...p2shXpub },
+                  ]);
+                  closeModal();
+                }}
+              >
+                P2SH(P2WPKH)
+              </SecondaryOptionButton>
+              <OptionButton
+                data-cy="p2wpkh-button"
+                color={white}
+                background={green700}
+                onClick={() => {
+                  setPath(
+                    getP2wpkhDeriationPathForNetwork(currentBitcoinNetwork)
+                  );
+                  setAddressType(AddressType.P2WPKH);
+                  setImportedDevices([
+                    ...importedDevices,
+                    { ...device, ...p2wpkhXpub },
+                  ]);
+                  closeModal();
+                }}
+              >
+                P2WPKH
+              </OptionButton>
+            </ButtonContainer>
+          </ModalWrapper>
+        );
+      } else if (p2shTxs.length) {
+        setPath(getP2shDeriationPathForNetwork(currentBitcoinNetwork));
+        setAddressType(AddressType.p2sh);
+        setImportedDevices([...importedDevices, { ...device, ...p2shXpub }]);
+      } else {
         setPath(getP2wpkhDeriationPathForNetwork(currentBitcoinNetwork));
         setAddressType(AddressType.P2WPKH);
+        setImportedDevices([...importedDevices, { ...device, ...p2wpkhXpub }]);
       }
 
-      if (!response) {
-        // if no results, check P2SH(P2WPK)
-        const p2shResponse = await window.ipcRenderer.invoke("/xpub", {
-          deviceType: device.type,
-          devicePath: device.path,
-          path: getP2shDeriationPathForNetwork(currentBitcoinNetwork), // we are assuming BIP48 P2WSH wallet
-        }); // KBC-TODO: hwi xpub response type
-
-        const p2shConfig = {
-          id: uuidv4(),
-          created_at: 123,
-          name: "test",
-          network: "mainnet",
-          addressType: AddressType.p2sh,
-          quorum: {
-            requiredSigners: 1,
-            totalSigners: 1,
-          },
-          extendedPublicKeys: [
-            {
-              id: uuidv4(),
-              created_at: Date.now(),
-              parentFingerprint: device.fingerprint,
-              network: "mainnet",
-              bip32Path: getP2shDeriationPathForNetwork(currentBitcoinNetwork),
-              xpub: p2shResponse.xpub,
-              device: {
-                type: device.type,
-                fingerprint: device.fingerprint,
-                model: device.model,
-              },
-            },
-          ],
-        } as AccountConfig;
-
-        address = getAddressFromAccount(
-          p2shConfig,
-          "m/0/0",
-          currentBitcoinNetwork
-        );
-
-        let { data: txs } = await axios.get(
-          blockExplorerAPIURL(
-            `/address/${address.address}/txs`,
-            getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)
-          )
-        );
-
-        if (txs.length) {
-          response = p2shResponse;
-          setPath(getP2shDeriationPathForNetwork(currentBitcoinNetwork));
-          setAddressType(AddressType.p2sh);
-        }
-      }
-
-      if (!response) {
-        response = p2wpkhResponse;
-      }
-
-      setImportedDevices([...importedDevices, { ...device, ...response }]);
       availableDevices.splice(index, 1);
       if (errorDevices.includes(device.fingerprint)) {
         const errorDevicesCopy = [...errorDevices];
@@ -375,6 +433,57 @@ const ContinueButton = styled.button`
 
 const ImportFromFileLabel = styled.label`
   display: none;
+`;
+
+const ModalWrapper = styled.div`
+  padding: 1.5em;
+  text-align: center;
+`;
+
+const ModalHeader = styled.h3`
+  line-height: 1.5rem;
+  font-size: 1.125em;
+  color: ${gray900};
+`;
+
+const ModalSubtext = styled.p`
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: ${gray500};
+`;
+
+const SecondaryOptionButton = styled.button`
+  ${Button}
+  border: 1px solid ${gray300};
+  border-radius: 0.375em;
+  flex: 1;
+`;
+
+const OptionButton = styled.button`
+  ${Button}
+  flex: 1;
+`;
+
+const ButtonContainer = styled.div`
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1.5em;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  ${mobile(css`
+    display: block;
+  `)}
+`;
+
+const StyledIconCircle = styled.div`
+  border-radius: 9999px;
+  background: ${green100};
+  width: 3rem;
+  height: 3rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto;
 `;
 
 export default NewHardwareWalletScreen;

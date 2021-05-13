@@ -121,6 +121,7 @@ const SettingsHeader = ({ toggleRefresh }: Props) => {
           to={`${url}/settings`}
           color={white}
           background={"transparent"}
+          data-cy="settings"
         >
           <StyledIcon as={Settings} size={36} />
         </SettingsButton>

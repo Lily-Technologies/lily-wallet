@@ -102,12 +102,16 @@ const SendTxForm = ({
   ) => {
     const valid = validateForm(_recipientAddress, _sendAmount, _currentBalance);
     if (valid) {
-      await createTransactionAndSetState(
-        _recipientAddress,
-        _sendAmount,
-        new BigNumber(0)
-      );
-      setStep(1);
+      try {
+        await createTransactionAndSetState(
+          _recipientAddress,
+          _sendAmount,
+          new BigNumber(0)
+        );
+        setStep(1);
+      } catch (e) {
+        setSendAmountError(true);
+      }
     }
   };
 

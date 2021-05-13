@@ -1,0 +1,16 @@
+# See https://github.com/cypress-io/circleci-orb
+version: 2.1
+orbs:
+  cypress: cypress-io/cypress@1
+workflows:
+  build:
+    jobs:
+      - cypress/run
+
+      # another independent job
+      # testing how the orb can install and build
+      # in the subfolder
+      - cypress/install:
+          name: subfolder install and build
+          working_directory: examples/subfolder
+          build: npm run build

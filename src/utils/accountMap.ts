@@ -602,31 +602,16 @@ export const getAddressFromAccount = (
     }
   } else {
     // single sig
-    if (account.addressType === AddressType.p2sh) {
-      // hww
-      const receivePubKey = getChildPubKeyFromXpub(
-        account.extendedPublicKeys[0],
-        path,
-        currentBitcoinNetwork
-      );
-      return getAddressFromPubKey(
-        receivePubKey,
-        AddressType.p2sh,
-        currentBitcoinNetwork
-      );
-    } else {
-      // software wallet
-      const receivePubKey = getChildPubKeyFromXpub(
-        account.extendedPublicKeys[0],
-        path,
-        currentBitcoinNetwork
-      );
-      return getAddressFromPubKey(
-        receivePubKey,
-        AddressType.P2WPKH,
-        currentBitcoinNetwork
-      );
-    }
+    const receivePubKey = getChildPubKeyFromXpub(
+      account.extendedPublicKeys[0],
+      path,
+      currentBitcoinNetwork
+    );
+    return getAddressFromPubKey(
+      receivePubKey,
+      account.addressType,
+      currentBitcoinNetwork
+    );
   }
 };
 

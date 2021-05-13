@@ -1,0 +1,52 @@
+{
+  "id": "af46ea03-226f-4f76-961d-65de559f5df3",
+  "created_at": 1603900550961,
+  "name": "Coldcard Vault",
+  "network": "mainnet",
+  "addressType": "P2WSH",
+  "quorum": {
+    "requiredSigners": 2,
+    "totalSigners": 3
+  },
+  "extendedPublicKeys": [
+    {
+      "id": "5376cf19-5b44-442a-be76-5c137eda0078",
+      "created_at": 1603900550960,
+      "parentFingerprint": "4F60D1C9",
+      "network": "mainnet",
+      "bip32Path": "m/48'/0'/0'/2'",
+      "xpub": "xpub6F2wuvSo8gSRjE9JsMgSva9cDZGa2Hh9SEJ9yczCLd1q2SRFV6N4vRUKFoecbatfhgZcG5rNwTxygNLoPrKpjRt94czCzQQPnoVY1RauiL6",
+      "device": {
+        "type": "coldcard",
+        "model": "unknown",
+        "fingerprint": "4F60D1C9"
+      }
+    },
+    {
+      "id": "286a02f7-bc38-42f4-b87e-442e08fbb507",
+      "created_at": 1603900550961,
+      "parentFingerprint": "34ECF56B",
+      "network": "mainnet",
+      "bip32Path": "m/48'/0'/0'/2'",
+      "xpub": "xpub6FCzsnvwxusaXu8rxxn1XVKXSKFKjYrynid9ntEJ1Qc18Vi6eqGSkP6MJdEtDXCGqNNCGdytUJdLSucPxnyHdJYJKK6YMcTgULAxvrQYm5J",
+      "device": {
+        "type": "coldcard",
+        "model": "unknown",
+        "fingerprint": "34ECF56B"
+      }
+    },
+    {
+      "id": "aa2063d6-c166-4772-8154-369b810dec32",
+      "created_at": 1603900550961,
+      "parentFingerprint": "9130C3D6",
+      "network": "mainnet",
+      "bip32Path": "m/48'/0'/0'/2'",
+      "xpub": "xpub6F1TMXpKfN5hRMdDUwSb9qD6LQmx2LTEbNtTj4nkFJte9GN14aFbqpup5AW7m9YhnYiTvEc1PqkrXkDY4gzJ95tNWKUATL6hD2AT641pSLE",
+      "device": {
+        "type": "coldcard",
+        "model": "unknown",
+        "fingerprint": "9130C3D6"
+      }
+    }
+  ]
+}

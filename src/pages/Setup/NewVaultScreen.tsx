@@ -209,7 +209,7 @@ const NewVaultScreen = ({
           <XPubHeaderWrapper>
             <SetupHeaderWrapper>
               <div>
-                <SetupHeader>Connect Devices to Computer</SetupHeader>
+                <SetupHeader>Connect devices to computer</SetupHeader>
                 <SetupExplainerText>
                   Devices unlocked and connected to your computer will appear
                   here. Click on them to include them in your vault. You may
@@ -278,7 +278,7 @@ const NewVaultScreen = ({
               );
             }}
           >
-            Finish Adding Devices
+            Finish adding devices
           </ContinueButton>
         )}
       </FormContainer>

@@ -86,7 +86,7 @@ const Wrapper = styled.div`
 `;
 
 const HeightHolder = styled.div`
-  height: 2.5rem;
+  height: 3.5rem;
   z-index: 0;
   background: transparent;
 

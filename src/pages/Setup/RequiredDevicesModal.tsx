@@ -60,13 +60,17 @@ const RequiredDevicesModal = ({
       <SelectionContainer>
         <SelectionWrapper>
           <IncrementButton
+            data-cy="decrement-button"
             onClick={() => restrictedSetRequiredSigners(requiredSigners - 1)}
             disabled={requiredSigners - 1 === 0}
           >
             <StyledIcon as={Minus} size={25} />
           </IncrementButton>
-          <CurrentSelection>{requiredSigners}</CurrentSelection>
+          <CurrentSelection data-cy="required-devices">
+            {requiredSigners}
+          </CurrentSelection>
           <IncrementButton
+            data-cy="increment-button"
             onClick={() => restrictedSetRequiredSigners(requiredSigners + 1)}
             disabled={requiredSigners + 1 > numberOfImportedDevices}
           >

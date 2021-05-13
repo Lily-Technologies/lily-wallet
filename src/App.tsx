@@ -36,17 +36,15 @@ const App = () => {
     new BigNumber(0)
   );
   const [historicalBitcoinPrice, setHistoricalBitcoinPrice] = useState({});
-  const [encryptedConfigFile, setEncryptedConfigFile] = useState<File | null>(
-    null
-  );
+  const [encryptedConfigFile, setEncryptedConfigFile] =
+    useState<File | null>(null);
   const [currentBitcoinNetwork, setCurrentBitcoinNetwork] = useState(
     networks.bitcoin
   );
   const [refresh, setRefresh] = useState(false);
   const [flyInAnimation, setInitialFlyInAnimation] = useState(true);
-  const [nodeConfig, setNodeConfig] = useState<NodeConfig | undefined>(
-    undefined
-  );
+  const [nodeConfig, setNodeConfig] =
+    useState<NodeConfig | undefined>(undefined);
   const [password, setPassword] = useState("");
 
   const { setAccountMap, updateAccountMap } = useContext(AccountMapContext);
