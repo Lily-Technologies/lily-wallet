@@ -8,6 +8,7 @@ workflows:
       - cypress/run
 
       # another independent job
+      # update
       # testing how the orb can install and build
       # in the subfolder
       - cypress/install:
