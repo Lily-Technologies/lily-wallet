@@ -4,6 +4,5 @@
     "testFiles": "**/*spec.{js,jsx,ts,tsx}"
   },
   "viewportWidth": 1800,
-  "viewportHeight": 1000,
-  "numTestsKeptInMemory": 10
+  "viewportHeight": 1000
 }

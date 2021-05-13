@@ -1,17 +1,28 @@
-# See https://github.com/cypress-io/circleci-orb
 version: 2.1
 orbs:
   cypress: cypress-io/cypress@1
-workflows:
+jobs:
   build:
-    jobs:
-      - cypress/run
+    docker:
+      - image: cypress/base:12.14.0
 
-      # another independent job
-      # update
-      # testing how the orb can install and build
-      # in the subfolder
-      - cypress/install:
-          name: subfolder install and build
-          working_directory: examples/subfolder
-          build: npm run build
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "package.json" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+      - run: npm install
+
+      - save_cache:
+          paths:
+            - node_modules
+            - ~/.npm
+            - ~/.cache
+          key: v1-dependencies-{{ checksum "package.json" }}
+
+      - run: npm run ci:cypress-run

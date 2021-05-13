@@ -106,8 +106,7 @@ describe("Login", () => {
         const invokeStub = cy.stub();
 
         invokeStub.withArgs("/get-config").returns({
-          file:
-            "U2FsdGVkX18uxfd3y9sExPgblt7b7DiVazdfH1jHsnLpgGHUhc+5HvMmjCD/1MVmOooNT3gySiyBYSl38Kn+Yed5loplPFrjlicwi/NLIYKvckSfZWsNVaimISfuMca+3aVQT/vJSrBHGZMvPUpLSM59Kd491MXVU6gAIVHkL7EcZWCgAwsMI9MTFnJC2l6hdFZAiMvV223ijqNriYAOgqSsdF7c6N9Q1GazxwHAUFpLXx2/5vX/n1Wsjjd2Zs0Ny+h6Iip4nCQGnBW83OTUuA==",
+          file: "U2FsdGVkX18uxfd3y9sExPgblt7b7DiVazdfH1jHsnLpgGHUhc+5HvMmjCD/1MVmOooNT3gySiyBYSl38Kn+Yed5loplPFrjlicwi/NLIYKvckSfZWsNVaimISfuMca+3aVQT/vJSrBHGZMvPUpLSM59Kd491MXVU6gAIVHkL7EcZWCgAwsMI9MTFnJC2l6hdFZAiMvV223ijqNriYAOgqSsdF7c6N9Q1GazxwHAUFpLXx2/5vX/n1Wsjjd2Zs0Ny+h6Iip4nCQGnBW83OTUuA==",
           modifiedTime: 12345,
         });
 

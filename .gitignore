@@ -1,8 +1,9 @@
 node_modules
 build
-LilyWallet-darwin-x64
 .DS_Store
 dist/
-LilyWallet-*
 .env
 compiled-ts/
+
+cypress/videos
+cypress/screenshots
