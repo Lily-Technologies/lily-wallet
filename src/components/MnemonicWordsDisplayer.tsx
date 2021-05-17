@@ -1,10 +1,10 @@
-import React, { Fragment } from 'react';
-import styled from 'styled-components';
+import React, { Fragment } from "react";
+import styled from "styled-components";
 
-import { green800, white, darkGray } from '../utils/colors';
+import { green800, white, gray700 } from "../utils/colors";
 
 interface Props {
-  mnemonicWords: string
+  mnemonicWords: string;
 }
 
 export const MnemonicWordsDisplayer = ({ mnemonicWords }: Props) => {
@@ -45,8 +45,8 @@ export const MnemonicWordsDisplayer = ({ mnemonicWords }: Props) => {
         ))}
       </WordSection>
     </Fragment>
-  )
-}
+  );
+};
 
 const WordSection = styled.div`
   display: flex;
@@ -55,7 +55,7 @@ const WordSection = styled.div`
 
 const Word = styled.div`
   padding: 1.25em;
-  margin: .25em;
+  margin: 0.25em;
   background: ${white};
   border: 1px solid ${green800};
   border-radius: 4px;
@@ -67,6 +67,6 @@ const WordIndex = styled.span`
   position: absolute;
   top: 5px;
   left: 5px;
-  font-size: .5em;
-  color: ${darkGray};
+  font-size: 0.5em;
+  color: ${gray700};
 `;

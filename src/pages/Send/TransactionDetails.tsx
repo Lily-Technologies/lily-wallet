@@ -15,13 +15,13 @@ import {
 } from "../../components";
 
 import {
-  gray,
-  darkGray,
+  gray500,
+  gray800,
   white,
-  green,
-  darkGreen,
-  orange,
-  lightOrange,
+  green500,
+  green700,
+  orange500,
+  orange200,
 } from "../../utils/colors";
 import { downloadFile, formatFilename } from "../../utils/files";
 import { getFee } from "../../utils/send";
@@ -184,7 +184,7 @@ const TransactionDetails = ({
     <>
       <ModalHeaderContainer>Download Complete</ModalHeaderContainer>
       <ModalBody>
-        <IconWrapper style={{ color: green }}>
+        <IconWrapper style={{ color: green500 }}>
           <StyledIcon as={CheckCircle} size={100} />
         </IconWrapper>
         <ModalSubtext>Your PSBT file has been saved successfully.</ModalSubtext>
@@ -228,7 +228,7 @@ const TransactionDetails = ({
           </div>
           <SendButton
             sendable={signedDevices.length === signThreshold}
-            background={green}
+            background={green500}
             color={white}
             onClick={() => sendTransaction()}
           >
@@ -260,7 +260,7 @@ const ModalBody = styled.div`
 `;
 
 const ModalSubtext = styled.div`
-  color: ${darkGray};
+  color: ${gray800};
   margin-top: 1rem;
 `;
 
@@ -326,7 +326,7 @@ const TransactionFeeField = styled.div`
   padding: 1em 0;
   display: flex;
   justify-content: space-between;
-  color: ${gray};
+  color: ${gray500};
   flex-direction: column;
   align-items: center;
 `;
@@ -347,7 +347,7 @@ const SendButton = styled.div<{
   padding-top: 1.75rem;
   padding-bottom: 1.75rem;
   box-shadow: ${(p) =>
-    p.sendable ? `inset 1000px 0 0 0 ${darkGreen}` : "none"};
+    p.sendable ? `inset 1000px 0 0 0 ${green700}` : "none"};
 `;
 
 const SendButtonCheckmark = styled.div`
@@ -356,9 +356,9 @@ const SendButtonCheckmark = styled.div`
 
 const WarningBox = styled.div`
   padding: 1.5em;
-  background: ${lightOrange};
-  color: ${orange};
-  border: 1px solid ${orange};
+  background: ${orange200};
+  color: ${orange500};
+  border: 1px solid ${orange500};
   margin: 1.5em 0;
 `;
 

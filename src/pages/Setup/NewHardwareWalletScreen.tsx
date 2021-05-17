@@ -397,12 +397,12 @@ const NewHardwareWalletScreen = ({
           <DeviceSelect
             deviceAction={importSingleSigDevice}
             deviceActionText={"Click to Configure"}
-            deviceActionLoadingText={"Extracting XPub"}
+            deviceActionLoadingText={"Configuring"}
             configuredDevices={importedDevices}
             unconfiguredDevices={availableDevices}
             errorDevices={errorDevices}
             setUnconfiguredDevices={setAvailableDevices}
-            configuredThreshold={15}
+            configuredThreshold={1}
           />
         </BoxedWrapper>
         {importedDevices.length > 0 && (

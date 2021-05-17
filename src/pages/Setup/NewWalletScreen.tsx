@@ -2,28 +2,26 @@ import React from "react";
 import styled from "styled-components";
 
 import { Button, MnemonicWordsDisplayer } from "../../components";
+import { white, green600, gray100 } from "../../utils/colors";
 import {
-  white,
-  green600,
-  gray100,
-  darkOffWhite,
-} from "../../utils/colors";
-import { InnerWrapper, XPubHeaderWrapper, SetupHeaderWrapper, SetupExplainerText, FormContainer, BoxedWrapper, SetupHeader } from './styles';
+  InnerWrapper,
+  XPubHeaderWrapper,
+  SetupHeaderWrapper,
+  SetupExplainerText,
+  FormContainer,
+  BoxedWrapper,
+  SetupHeader,
+} from "./styles";
 
 interface Props {
-  header: JSX.Element
-  walletMnemonic: string
-  setStep: React.Dispatch<React.SetStateAction<number>>
+  header: JSX.Element;
+  walletMnemonic: string;
+  setStep: React.Dispatch<React.SetStateAction<number>>;
 }
 
-const CreateWallet = ({
-  header,
-  walletMnemonic,
-  setStep,
-}: Props) => {
-
+const CreateWallet = ({ header, walletMnemonic, setStep }: Props) => {
   return (
-    <InnerWrapper style={{ marginBottom: '2em' }}>
+    <InnerWrapper style={{ marginBottom: "2em" }}>
       {header}
       <FormContainer>
         <BoxedWrapper>
@@ -32,9 +30,10 @@ const CreateWallet = ({
               <div>
                 <SetupHeader>Write down these recovery words</SetupHeader>
                 <SetupExplainerText>
-                  These 24 words are the keys to your wallet. Write them down and keep
-                  them in a safe place. Do not share them with anyone else. These can
-                  be used to recover your wallet if you lose your configuration file.
+                  These 24 words are the keys to your wallet. Write them down
+                  and keep them in a safe place. Do not share them with anyone
+                  else. These can be used to recover your wallet if you lose
+                  your configuration file.
                 </SetupExplainerText>
               </div>
             </SetupHeaderWrapper>
@@ -47,13 +46,15 @@ const CreateWallet = ({
             color={white}
             onClick={() => {
               setStep(3);
-            }}>
-            I have written these words down <br /> and stored them in a safe place
+            }}
+          >
+            I have written these words down <br /> and stored them in a safe
+            place
           </SaveWalletButton>
         </BoxedWrapper>
       </FormContainer>
     </InnerWrapper>
-  )
+  );
 };
 
 const SaveWalletButton = styled.button`
@@ -69,7 +70,7 @@ const WordContainer = styled.div`
   padding: 1.25em;
   background: ${gray100};
   justify-content: center;
-  border-bottom: 1px solid ${darkOffWhite};
+  border-bottom: 1px solid ${gray100};
 `;
 
 export default CreateWallet;

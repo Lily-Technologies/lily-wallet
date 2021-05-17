@@ -5,7 +5,7 @@ import { V2 } from "@cvbb/qr-protocol/dist";
 
 import { AnimatedQrCode } from "../../../components";
 
-import { lightGray } from "../../../utils/colors";
+import { gray100 } from "../../../utils/colors";
 
 interface Props {
   psbt: Psbt;
@@ -41,7 +41,7 @@ const OutputItem = styled.div`
   display: flex;
   justify-content: space-between;
   padding: 1.5em;
-  background: ${lightGray};
+  background: ${gray100};
   justify-content: center;
   align-items: center;
   border-radius: 4px;

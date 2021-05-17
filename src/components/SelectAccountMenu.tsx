@@ -11,7 +11,7 @@ import {
   gray300,
   gray400,
   gray700,
-  gray800,
+  gray600,
   orange600,
 } from "../utils/colors";
 
@@ -22,13 +22,16 @@ import { AccountMapContext } from "../AccountMapContext";
 interface Props {
   config: LilyConfig;
   setFinalPsbt?: React.Dispatch<React.SetStateAction<Psbt | undefined>>;
-  excludeNonSegwitAccounts: boolean
+  excludeNonSegwitAccounts: boolean;
 }
 
-export const SelectAccountMenu = ({ config, setFinalPsbt, excludeNonSegwitAccounts = false}: Props) => {
-  const { setCurrentAccountId, currentAccount, accountMap } = useContext(
-    AccountMapContext
-  );
+export const SelectAccountMenu = ({
+  config,
+  setFinalPsbt,
+  excludeNonSegwitAccounts = false,
+}: Props) => {
+  const { setCurrentAccountId, currentAccount, accountMap } =
+    useContext(AccountMapContext);
 
   useEffect(() => {
     if (!currentAccount.config.id && Object.keys(accountMap).length > 0) {
@@ -56,8 +59,11 @@ export const SelectAccountMenu = ({ config, setFinalPsbt, excludeNonSegwitAccoun
         </AccountMenuItemWrapper>
       ))}
       {config.wallets.map((wallet, index) => {
-        if(wallet.addressType === AddressType.p2sh && excludeNonSegwitAccounts) {
-          return null
+        if (
+          wallet.addressType === AddressType.p2sh &&
+          excludeNonSegwitAccounts
+        ) {
+          return null;
         } else {
           return (
             <AccountMenuItemWrapper
@@ -75,8 +81,9 @@ export const SelectAccountMenu = ({ config, setFinalPsbt, excludeNonSegwitAccoun
               </IconWrapper>
               <AccountMenuItemName>{wallet.name}</AccountMenuItemName>
             </AccountMenuItemWrapper>
-          )}
-        })}
+          );
+        }
+      })}
     </AccountMenu>
   );
 };
@@ -88,7 +95,7 @@ const IconWrapper = styled.button<{ active: boolean }>`
   margin-bottom: 0.5em;
   border: ${(p) =>
     p.active ? `1px solid ${orange600}` : `1px solid ${gray300}`};
-  cursor: pointer;V
+  cursor: pointer;
 `;
 
 const AccountMenuItemWrapper = styled.div<{ active: boolean }>`
@@ -96,7 +103,7 @@ const AccountMenuItemWrapper = styled.div<{ active: boolean }>`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  color: ${(p) => (p.active ? gray800 : gray700)};
+  color: ${(p) => (p.active ? gray600 : gray700)};
   padding: 0.5em;
   flex: 1;
   border-radius: 0.385em;

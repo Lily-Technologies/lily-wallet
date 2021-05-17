@@ -14,9 +14,9 @@ import {
 
 import {
   green700,
-  darkGray,
+  gray600,
   white,
-  gray,
+  gray500,
   yellow100,
   yellow500,
 } from "../../utils/colors";
@@ -173,7 +173,7 @@ const ChartInfo = styled.div`
 `;
 
 const CurrentPriceText = styled.div`
-  color: ${darkGray};
+  color: ${gray600};
   font-size: 0.5em;
 `;
 
@@ -183,7 +183,7 @@ const ChartControlsContainer = styled.div`
 `;
 
 const ChartControlItem = styled.div<{ active: boolean }>`
-  color: ${(p) => (p.active ? green700 : gray)};
+  color: ${(p) => (p.active ? green700 : gray500)};
   padding: 0.25em;
   cursor: pointer;
   margin: 0 0.25em;
@@ -197,14 +197,13 @@ const CurrentBitcoinPriceContainer = styled.div`
 
 const ChartContainer = styled.div`
   padding: 0;
-  // border: 1px solid ${gray};
   background: ${white};
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
   border-radius: 0.385em;
 `;
 
 const TooltipContainer = styled.div`
-  background: rgba(31, 31, 31, 0.75); // black
+  background: rgba(31, 31, 31, 0.75);
   padding: 1em;
   border-radius: 4px;
   text-align: center;
@@ -215,6 +214,6 @@ const PriceTooltip = styled.div`
 `;
 
 const DateTooltip = styled.div`
-  color: ${gray};
+  color: ${gray500};
   font-size: 0.75em;
 `;

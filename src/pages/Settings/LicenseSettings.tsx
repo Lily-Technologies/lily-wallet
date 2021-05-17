@@ -30,7 +30,7 @@ import {
   green400,
   green700,
   gray400,
-  gray900,
+  gray800,
   orange400,
   red500,
 } from "../../utils/colors";
@@ -151,7 +151,7 @@ const LicenseSettings = ({ nodeConfig, openInModal, password }: Props) => {
       <Buttons>
         <LicenseButtonLabel
           background={white}
-          color={gray900}
+          color={gray800}
           style={{ border: `1px solid ${gray400}`, marginRight: "1em" }}
           htmlFor="licenseUploadButton"
         >

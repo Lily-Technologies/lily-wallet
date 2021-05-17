@@ -3,7 +3,7 @@ import styled from "styled-components";
 import moment from "moment";
 import { satoshisToBitcoins } from "unchained-bitcoin";
 
-import { white, offWhite } from "../../../utils/colors";
+import { white, gray50 } from "../../../utils/colors";
 
 import TransactionTypeIcon from "./TransactionTypeIcon";
 
@@ -40,7 +40,7 @@ const TransactionRow = ({ onClick, transaction, flat }: Props) => {
 };
 
 const TransactionRowWrapper = styled.div<{ flat: boolean }>`
-  border-bottom: 1px solid ${offWhite};
+  border-bottom: 1px solid ${gray50};
   background: ${(p) => (p.flat ? "transparent" : white)};
   box-shadow: ${(p) =>
     p.flat
@@ -56,7 +56,7 @@ const TransactionRowContainer = styled.div<{ flat: boolean }>`
   padding: ${(p) => (p.flat ? ".75em" : "1.5em")};
 
   &:hover {
-    background: ${(p) => !p.flat && offWhite};
+    background: ${(p) => !p.flat && gray50};
     cursor: ${(p) => !p.flat && "pointer"};
   }
 `;

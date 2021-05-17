@@ -21,10 +21,9 @@ import { AccountMapContext } from "../../AccountMapContext";
 
 import {
   black,
-  darkGray,
   white,
-  darkOffWhite,
-  lightGray,
+  gray100,
+  gray200,
   gray400,
   green600,
   gray600,
@@ -93,7 +92,7 @@ const Receive = ({ config }: { config: LilyConfig }) => {
                 </CopyToClipboard>
                 <NewAddressButton
                   background="transparent"
-                  color={darkGray}
+                  color={gray600}
                   onClick={() => getNewAddress()}
                 >
                   Generate New Address
@@ -136,7 +135,7 @@ const NewAddressButton = styled.div`
 
 const SendToAddressHeader = styled.div`
   font-size: 1em;
-  color: ${darkGray};
+  color: ${gray800};
   margin: 12px;
 `;
 
@@ -148,8 +147,8 @@ const QRCodeWrapper = styled.div`
 `;
 
 const AddressDisplayWrapper = styled.div`
-  border: 1px solid ${darkOffWhite};
-  background: ${lightGray};
+  border: 1px solid ${gray200};
+  background: ${gray100};
   padding: 0.75em;
   color: ${green700};
   display: flex;

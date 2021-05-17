@@ -23,9 +23,9 @@ import { RescanModal } from "./RescanModal";
 import { NodeConfig } from "../../types";
 
 import {
-  gray,
   white,
-  darkGray,
+  gray500,
+  gray800,
   yellow100,
   yellow500,
 } from "../../utils/colors";
@@ -262,12 +262,12 @@ const CurrentBalanceContainer = styled.div`
 `;
 
 const CurrentBalanceText = styled.div`
-  color: ${darkGray};
+  color: ${gray800};
   font-size: 0.5em;
 `;
 
 const TooltipContainer = styled.div`
-  background: rgba(31, 31, 31, 0.75); // black
+  background: rgba(31, 31, 31, 0.75);
   padding: 1em;
   border-radius: 4px;
   text-align: center;
@@ -278,7 +278,7 @@ const PriceTooltip = styled.div`
 `;
 
 const DateTooltip = styled.div`
-  color: ${gray};
+  color: ${gray500};
   font-size: 0.75em;
 `;
 

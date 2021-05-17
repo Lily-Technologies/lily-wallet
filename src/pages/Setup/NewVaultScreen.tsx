@@ -254,7 +254,7 @@ const NewVaultScreen = ({
           <DeviceSelect
             deviceAction={importMultisigDevice}
             deviceActionText={"Click to Configure"}
-            deviceActionLoadingText={"Extracting XPub"}
+            deviceActionLoadingText={"Configuring"}
             configuredDevices={importedDevices}
             unconfiguredDevices={availableDevices}
             errorDevices={errorDevices}

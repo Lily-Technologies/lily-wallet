@@ -12,7 +12,7 @@ import {
   SetupHeader,
 } from "./styles";
 
-import { white, red, green600 } from "../../utils/colors";
+import { white, red500, green600 } from "../../utils/colors";
 import { capitalize as capitalizeFunc } from "../../utils/other";
 
 interface Props {
@@ -134,7 +134,7 @@ const ExportFilesButton = styled.button`
 `;
 
 const Error = styled.div`
-  color: ${red};
+  color: ${red500};
   font-size: 0.75em;
   margin-top: 0.5em;
 `;

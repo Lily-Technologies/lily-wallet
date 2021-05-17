@@ -5,17 +5,17 @@ import { ExclamationDiamond } from "@styled-icons/bootstrap";
 
 import { Button, StyledIcon, PromptPinModal, Modal } from "../components";
 import {
-  lightGreen,
-  gray,
-  green,
-  green800,
+  green200,
+  green500,
   white,
-  darkGray,
-  red,
-  lightRed,
-  yellow,
-  lightYellow,
+  red500,
+  red200,
+  yellow300,
+  yellow100,
+  gray300,
+  gray400,
   gray600,
+  gray700,
   gray900,
 } from "../utils/colors";
 
@@ -47,9 +47,8 @@ export const DeviceSelect = ({
   phoneAction,
 }: Props) => {
   const [devicesLoading, setDevicesLoading] = useState(false);
-  const [deviceActionLoading, setDeviceActionLoading] = useState<number | null>(
-    null
-  );
+  const [deviceActionLoading, setDeviceActionLoading] =
+    useState<number | null>(null);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
 
@@ -131,21 +130,21 @@ export const DeviceSelect = ({
             imported={true}
             displayLoadingCursor={deviceActionLoading !== null}
           >
-            <IconWrapper style={{ color: green }}>
+            <IconWrapper style={{ color: green500 }}>
               <StyledIcon as={CheckCircle} size={24} />
             </IconWrapper>
             <DeviceImage
               src={
                 device.type === "coldcard"
                   ? require("../assets/coldcard.png")
-                  : device.type === "ledger" && device.model === 'ledger_nano_s'
+                  : device.type === "ledger" && device.model === "ledger_nano_s"
                   ? require("../assets/ledger_nano_s.png")
-                  : device.type === "ledger" && device.model === 'ledger_nano_x'
+                  : device.type === "ledger" && device.model === "ledger_nano_x"
                   ? require("../assets/ledger_nano_x.png")
-                  : device.type === "trezor" && device.model === 'trezor_1'
+                  : device.type === "trezor" && device.model === "trezor_1"
                   ? require("../assets/trezor_1.png")
-                  : device.type === 'trezor' && device.model === 'trezor_t'
-                  ? require('../assets/trezor_t.png')
+                  : device.type === "trezor" && device.model === "trezor_t"
+                  ? require("../assets/trezor_t.png")
                   : device.type === "cobo"
                   ? require("../assets/cobo.png")
                   : require("../assets/iphone.png")
@@ -200,7 +199,7 @@ export const DeviceSelect = ({
               displayLoadingCursor={deviceActionLoading !== null}
             >
               {(deviceError || deviceWarning) && (
-                <IconWrapper style={{ color: red }}>
+                <IconWrapper style={{ color: red500 }}>
                   <StyledIcon as={ExclamationDiamond} size={24} />
                 </IconWrapper>
               )}
@@ -208,14 +207,16 @@ export const DeviceSelect = ({
                 src={
                   device.type === "coldcard"
                     ? require("../assets/coldcard.png")
-                    : device.type === "ledger" && device.model === 'ledger_nano_s'
+                    : device.type === "ledger" &&
+                      device.model === "ledger_nano_s"
                     ? require("../assets/ledger_nano_s.png")
-                    : device.type === "ledger" && device.model === 'ledger_nano_x'
+                    : device.type === "ledger" &&
+                      device.model === "ledger_nano_x"
                     ? require("../assets/ledger_nano_x.png")
-                    : device.type === "trezor" && device.model === 'trezor_1'
+                    : device.type === "trezor" && device.model === "trezor_1"
                     ? require("../assets/trezor_1.png")
-                    : device.type === 'trezor' && device.model === 'trezor_t'
-                    ? require('../assets/trezor_t.png')
+                    : device.type === "trezor" && device.model === "trezor_t"
+                    ? require("../assets/trezor_t.png")
                     : device.type === "cobo"
                     ? require("../assets/cobo.png")
                     : require("../assets/iphone.png")
@@ -282,15 +283,15 @@ export const DeviceSelect = ({
           )}
       </DevicesWrapper>
 
-      {configuredDevices.length < configuredThreshold && (
+      {configuredDevices.length <= configuredThreshold && !devicesLoading ? (
         <ScanDevicesButton
           background={white}
-          color={green800}
+          color={gray700}
           onClick={enumerate}
         >
           {devicesLoading ? "Updating Device List..." : "Scan for devices"}
         </ScanDevicesButton>
-      )}
+      ) : null}
       <Modal isOpen={modalIsOpen} closeModal={() => setModalIsOpen(false)}>
         {modalContent}
       </Modal>
@@ -331,7 +332,7 @@ const LoadingDevicesWrapper = styled.div`
   align-items: center;
   padding: 1.5em;
   justify-content: center;
-  color: ${darkGray};
+  color: ${gray600};
   text-align: center;
 `;
 
@@ -344,7 +345,7 @@ const NoDevicesSubheader = styled.h4`
 `;
 
 const ConfiguringText = styled.div<{ error?: boolean; warning?: boolean }>`
-  color: ${(p) => (p.error ? gray600 : darkGray)};
+  color: ${(p) => (p.error ? gray600 : gray600)};
   font-size: ${(p) => (p.warning ? "0.75em" : "1em")};
   text-align: center;
 `;
@@ -385,7 +386,7 @@ const DeviceWrapper = styled.div<{
   flex-direction: column;
   justify-content: flex-end;
   align-items: center;
-  padding: .75em;
+  padding: 0.75em;
   margin: 1.5em;
   margin-bottom: 0px;
   border-radius: 4px;
@@ -396,24 +397,19 @@ const DeviceWrapper = styled.div<{
   animation-fill-mode: both;
 
   background: ${(p) =>
-    p.imported
-      ? lightGreen
-      : p.error
-      ? lightRed
-      : p.warning
-      ? lightYellow
-      : "none"};
+    p.imported ? green200 : p.error ? red200 : p.warning ? yellow100 : "none"};
   border: ${(p) =>
     p.imported
-      ? `1px solid ${green}`
+      ? `1px solid ${green500}`
       : p.error
-      ? `1px solid ${red}`
+      ? `1px solid ${red500}`
       : p.warning
-      ? `1px solid ${yellow}`
+      ? `1px solid ${yellow300}`
       : "1px solid transparent"};
 
   &:hover {
     cursor: ${(p) => (p.displayLoadingCursor ? "wait" : "pointer")};
+  }
 `;
 
 const DeviceImage = styled.img`
@@ -431,7 +427,7 @@ const DeviceName = styled.h4`
 `;
 
 const DeviceFingerprint = styled.h5<{ imported: boolean }>`
-  color: ${(p) => (p.imported ? darkGray : gray)};
+  color: ${(p) => (p.imported ? gray600 : gray600)};
   margin: 0;
   font-weight: 100;
 `;
@@ -453,7 +449,7 @@ const ScanDevicesButton = styled.button`
   font-size: 1em;
   width: fit-content;
   align-self: center;
-  border: 1px solid ${green800};
+  border: 1px solid ${gray300};
   margin-bottom: 1em;
 `;
 
@@ -468,12 +464,4 @@ const ConfiguringAnimation = styled.span`
   animation-duration: 1.4s;
   animation-iteration-count: infinite;
   animation-fill-mode: both;
-
-  // &:nth-child(2) {
-  //   animation-delay: .2s;
-  // }
-
-  // &:nth-child(3) {
-  //   animation-delay: .4s;
-  // }
 `;

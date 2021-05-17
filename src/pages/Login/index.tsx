@@ -10,18 +10,22 @@ import { StyledIcon, FileUploader, Button, Input } from "../../components";
 
 import {
   black,
-  darkGray,
   white,
-  red,
+  red500,
   gray500,
+  gray600,
+  gray800,
   gray900,
   green500,
   green600,
 } from "../../utils/colors";
 import { bitcoinNetworkEqual } from "../../utils/files";
 import { mobile } from "../../utils/media";
-import { saveConfig} from "../../utils/files";
-import { updateConfigFileVersionOne, updateConfigFileVersionBeta} from '../../utils/migration'
+import { saveConfig } from "../../utils/files";
+import {
+  updateConfigFileVersionOne,
+  updateConfigFileVersionBeta,
+} from "../../utils/migration";
 
 import { File } from "../../types";
 import { ConfigContext } from "../../ConfigContext";
@@ -46,13 +50,11 @@ const Login = ({
   const { config, setConfigFile } = useContext(ConfigContext);
   document.title = `Login - Lily Wallet`;
   const [localPassword, setLocalPassword] = useState("");
-  const [passwordError, setPasswordError] = useState<string | undefined>(
-    undefined
-  );
+  const [passwordError, setPasswordError] =
+    useState<string | undefined>(undefined);
   const [confirmation, setConfirmation] = useState("");
-  const [confirmationError, setConfirmationError] = useState<
-    string | undefined
-  >(undefined);
+  const [confirmationError, setConfirmationError] =
+    useState<string | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
   const [step, setStep] = useState(0);
   const history = useHistory();
@@ -63,10 +65,9 @@ const Login = ({
       try {
         const bytes = AES.decrypt(encryptedConfigFile.file, localPassword);
         let decryptedData = JSON.parse(bytes.toString(enc.Utf8));
-        decryptedData = updateConfigFileVersionOne(updateConfigFileVersionBeta(
-          decryptedData,
-          currentBlockHeight!
-        ));
+        decryptedData = updateConfigFileVersionOne(
+          updateConfigFileVersionBeta(decryptedData, currentBlockHeight!)
+        );
         setPasswordError(undefined);
         setTimeout(() => {
           setConfigFile(decryptedData);
@@ -313,7 +314,7 @@ const InputContainer = styled.div`
 `;
 
 const PasswordError = styled.div`
-  color: ${red};
+  color: ${red500};
   font-size: 0.75em;
   margin-top: 0.5em;
 `;
@@ -321,7 +322,7 @@ const PasswordError = styled.div`
 const SignupOptionSubtext = styled.div`
   font-size: 0.75em;
   margin-top: 1em;
-  color: ${darkGray};
+  color: ${gray600};
   padding: 0 2em;
   line-height: 1.5em;
   white-space: normal;
@@ -425,7 +426,7 @@ const TextContainer = styled.div`
 
 const Subtext = styled.div`
   font-size: 0.5em;
-  color: ${darkGray};
+  color: ${gray800};
   font-weight: 500;
   margin-top: 0.5em;
 `;

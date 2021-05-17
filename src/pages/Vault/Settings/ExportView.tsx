@@ -13,7 +13,7 @@ import {
   ModalContentWrapper,
   SettingsTable,
 } from "../../../components";
-import { white, black, lightGray, green500 } from "../../../utils/colors";
+import { white, black, gray100, green500 } from "../../../utils/colors";
 
 import { CaravanConfig } from "../../../types";
 
@@ -77,11 +77,8 @@ const ExportView = ({ currentBitcoinNetwork }: Props) => {
         ) {
           configCopy.extendedPublicKeys[i].method =
             configCopy.extendedPublicKeys[i].device.type;
-          configCopy.extendedPublicKeys[
-            i
-          ].bip32Path = getMultisigDeriationPathForNetwork(
-            currentBitcoinNetwork
-          );
+          configCopy.extendedPublicKeys[i].bip32Path =
+            getMultisigDeriationPathForNetwork(currentBitcoinNetwork);
         } else {
           configCopy.extendedPublicKeys[i].method = "xpub";
         }
@@ -303,7 +300,7 @@ const OutputItem = styled.div`
   display: flex;
   justify-content: space-between;
   padding: 1.5em;
-  background: ${lightGray};
+  background: ${gray100};
   justify-content: center;
   align-items: center;
   border-radius: 4px;

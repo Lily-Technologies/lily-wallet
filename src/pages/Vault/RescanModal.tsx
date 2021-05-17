@@ -14,8 +14,8 @@ import { mobile } from "../../utils/media";
 import {
   white,
   green600,
-  red,
   red100,
+  red500,
   gray400,
   gray700,
   gray500,
@@ -162,7 +162,7 @@ const ActionButton = styled.button`
 `;
 
 const ErrorText = styled.div`
-  color: ${red};
+  color: ${red500};
   font-size: 0.75em;
   margin-top: 0.5em;
 `;

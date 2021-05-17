@@ -11,7 +11,7 @@ import { AccountMapContext } from "../../AccountMapContext";
 import PastePsbtModalContent from "./PastePsbtModalContent";
 
 import { bitcoinNetworkEqual } from "../../utils/files";
-import { white, gray400, red, green600 } from "../../utils/colors";
+import { white, gray400, red500, green600 } from "../../utils/colors";
 import {
   validateAddress,
   validateSendAmount,
@@ -237,7 +237,7 @@ const SentTxFormContainer = styled.div`
 
 const SendAmountError = styled.div`
   font-size: 0.5em;
-  color: ${red};
+  color: ${red500};
   text-align: right;
 `;
 
@@ -262,7 +262,7 @@ const CopyAddressButton = styled.button`
 `;
 
 const ErrorText = styled.div`
-  color: ${red};
+  color: ${red500};
   text-align: center;
   padding-left: 0;
   padding-right: 0;

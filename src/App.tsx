@@ -11,7 +11,7 @@ import axios from "axios";
 import BigNumber from "bignumber.js";
 import { networks } from "bitcoinjs-lib";
 
-import { offWhite, green700 } from "./utils/colors";
+import { gray50, green700 } from "./utils/colors";
 import { mobile } from "./utils/media";
 
 import { Sidebar, TitleBar, ScrollToTop, AlertBar } from "./components";
@@ -318,12 +318,12 @@ const ColorOverlap = styled.div`
   top: 0;
   left: 0;
   right: 0;
-  height: 13em;
+  height: 19em;
   background-color: ${green700};
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
 
   ${mobile(css`
-    height: 15em;
+    height: 20em;
   `)}
 `;
 
@@ -332,7 +332,7 @@ const PageWrapper = styled.div`
   display: flex;
   font-family: "Raleway", sans-serif;
   flex: 1;
-  background: ${offWhite};
+  background: ${gray50};
 
   ${mobile(css`
     flex-direction: column;

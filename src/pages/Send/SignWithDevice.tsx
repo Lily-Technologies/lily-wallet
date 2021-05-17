@@ -1,19 +1,19 @@
-import React, { useState } from 'react';
-import styled from 'styled-components';
-import { Psbt } from 'bitcoinjs-lib';
+import React, { useState } from "react";
+import styled from "styled-components";
+import { Psbt } from "bitcoinjs-lib";
 
-import { DeviceSelect, Dropdown } from '../../components';
-import { darkGray, white } from '../../utils/colors';
+import { DeviceSelect, Dropdown } from "../../components";
+import { gray800, white } from "../../utils/colors";
 
-import { Device, HwiResponseEnumerate } from '../../types';
+import { Device, HwiResponseEnumerate } from "../../types";
 
 interface Props {
-  finalPsbt: Psbt
-  setFinalPsbt: React.Dispatch<React.SetStateAction<Psbt>>
-  signedDevices: Device[]
-  signThreshold: number
-  fileUploadLabelRef: React.RefObject<HTMLLabelElement>
-  phoneAction?: () => void
+  finalPsbt: Psbt;
+  setFinalPsbt: React.Dispatch<React.SetStateAction<Psbt>>;
+  signedDevices: Device[];
+  signThreshold: number;
+  fileUploadLabelRef: React.RefObject<HTMLLabelElement>;
+  phoneAction?: () => void;
 }
 
 const SignWithDevice = ({
@@ -22,19 +22,24 @@ const SignWithDevice = ({
   signedDevices,
   signThreshold,
   fileUploadLabelRef,
-  phoneAction
+  phoneAction,
 }: Props) => {
-  const [unsignedDevices, setUnsignedDevices] = useState<HwiResponseEnumerate[]>([]);
+  const [unsignedDevices, setUnsignedDevices] = useState<
+    HwiResponseEnumerate[]
+  >([]);
   const [errorDevices, setErrorDevices] = useState<string[]>([]); // stores fingerprint of error devices
   const [optionsDropdownOpen, setOptionsDropdownOpen] = useState(false);
 
   // KBC-TODO: add a test
-  const signWithDevice = async (device: HwiResponseEnumerate, index: number) => {
+  const signWithDevice = async (
+    device: HwiResponseEnumerate,
+    index: number
+  ) => {
     try {
-      const response = await window.ipcRenderer.invoke('/sign', {
+      const response = await window.ipcRenderer.invoke("/sign", {
         deviceType: device.type,
         devicePath: device.path,
-        psbt: finalPsbt.toBase64()
+        psbt: finalPsbt.toBase64(),
       });
 
       setFinalPsbt(Psbt.fromBase64(response.psbt));
@@ -48,21 +53,21 @@ const SignWithDevice = ({
     } catch (e) {
       const errorDevicesCopy = [...errorDevices];
       errorDevicesCopy.push(device.fingerprint);
-      setErrorDevices([...errorDevicesCopy])
+      setErrorDevices([...errorDevicesCopy]);
     }
-  }
+  };
 
   const dropdownItems = [
     {
-      label: 'Add signature from file',
+      label: "Add signature from file",
       onClick: () => {
         const txFileUploadButton = fileUploadLabelRef.current;
         if (txFileUploadButton !== null) {
-          txFileUploadButton.click()
+          txFileUploadButton.click();
         }
-      }
-    }
-  ]
+      },
+    },
+  ];
 
   return (
     <TransactionDetailsWrapper>
@@ -70,7 +75,9 @@ const SignWithDevice = ({
         <SetupHeaderWrapper>
           <SetupHeaderLeft>
             <SetupHeader>Confirm on Devices</SetupHeader>
-            <SetupSubheader>{signedDevices.length} of {signThreshold} devices confirmed</SetupSubheader>
+            <SetupSubheader>
+              {signedDevices.length} of {signThreshold} devices confirmed
+            </SetupSubheader>
           </SetupHeaderLeft>
           <SetupHeaderRight>
             <Dropdown
@@ -86,23 +93,23 @@ const SignWithDevice = ({
         configuredDevices={signedDevices}
         unconfiguredDevices={unsignedDevices}
         deviceAction={signWithDevice}
-        deviceActionText={'Click to Approve'}
-        deviceActionLoadingText={'Approve on device'}
+        deviceActionText={"Click to Approve"}
+        deviceActionLoadingText={"Approve on device"}
         setUnconfiguredDevices={setUnsignedDevices}
         errorDevices={errorDevices}
         configuredThreshold={signThreshold}
         phoneAction={phoneAction}
       />
     </TransactionDetailsWrapper>
-  )
-}
+  );
+};
 
 const TransactionDetailsWrapper = styled.div`
   display: flex;
   flex-direction: column;
   min-height: 400px;
   justify-content: space-between;
-  box-shadow: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
   border-radius: 0.375rem;
   background: ${white};
   height: 100%;
@@ -115,7 +122,7 @@ const SetupHeaderContainer = styled.div`
   padding-bottom: 1.25rem;
   padding-left: 1.5rem;
   padding-right: 1.5rem;
-  border-bottom: 1px solid rgb(229,231,235);
+  border-bottom: 1px solid rgb(229, 231, 235);
   height: 90px;
 `;
 
@@ -142,7 +149,7 @@ const SetupHeader = styled.span`
 
 const SetupSubheader = styled.span`
   font-size: 14px;
-  color: ${darkGray};
+  color: ${gray800};
 `;
 
 export default SignWithDevice;

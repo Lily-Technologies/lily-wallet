@@ -3,7 +3,7 @@ import styled from "styled-components";
 
 import { Button } from "../../components";
 
-import { white, green600, red, gray, darkGray } from "../../utils/colors";
+import { white, green600, red500, gray500, gray600 } from "../../utils/colors";
 
 import { SetStateString } from "../../types";
 
@@ -97,7 +97,7 @@ const PastePsbtTextArea = styled.textarea`
 `;
 
 const ErrorText = styled.div`
-  color: ${red};
+  color: ${red500};
   text-align: center;
   padding-left: 0;
   padding-right: 0;
@@ -109,14 +109,14 @@ const ImportButtons = styled.div`
 
 const FromFileButton = styled.button`
   padding: 1em 1.25rem;
-  border: 1px solid ${gray};
+  border: 1px solid ${gray500};
   border-radius: 0.375rem;
   flex: 1;
   text-align: center;
   font-family: "Montserrat", sans-serif;
 
   &:hover {
-    border: 1px solid ${darkGray};
+    border: 1px solid ${gray600};
     cursor: pointer;
   }
 `;

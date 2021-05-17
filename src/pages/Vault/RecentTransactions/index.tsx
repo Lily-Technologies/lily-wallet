@@ -7,7 +7,7 @@ import TxDetailsModal from "./TxDetailsModal";
 import TransactionRow from "./TransactionRow";
 import TransactionRowLoading from "./TransactionRowLoading";
 
-import { darkGray, white, green700 } from "../../../utils/colors";
+import { gray800, white, green700 } from "../../../utils/colors";
 
 import { Transaction } from "../../../types";
 
@@ -125,7 +125,7 @@ const TransactionRowWrapper = styled.div``;
 
 const DateWrapper = styled.div`
   margin: 1.5em 0 1em;
-  color: ${darkGray};
+  color: ${gray800};
 `;
 
 const RecentTransactionsHeader = styled.div`
@@ -149,15 +149,15 @@ const NoTransasctionsSection = styled.div<{ flat: boolean }>`
 `;
 
 const NoTransactionsHeader = styled.h3`
-  color: ${darkGray};
+  color: ${gray800};
 `;
 const NoTransactionsSubtext = styled.h4`
-  color: ${darkGray};
+  color: ${gray800};
 `;
 
 const DeadFlower = styled.img`
   width: 6.25em;
-  color: ${darkGray};
+  color: ${gray800};
 `;
 
 const RescanButton = styled.button`

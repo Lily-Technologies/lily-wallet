@@ -11,7 +11,7 @@ import {
 
 import { mobile } from "../../utils/media";
 import {
-  red,
+  red500,
   white,
   yellow100,
   yellow400,
@@ -31,13 +31,11 @@ export const PasswordModal = ({
   downloadUnencryptedCurrentConfig,
 }: Props) => {
   const [password, setPassword] = useState("");
-  const [passwordError, setPasswordError] = useState<string | undefined>(
-    undefined
-  );
+  const [passwordError, setPasswordError] =
+    useState<string | undefined>(undefined);
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [confirmationError, setConfirmationError] = useState<
-    string | undefined
-  >(undefined);
+  const [confirmationError, setConfirmationError] =
+    useState<string | undefined>(undefined);
 
   const validateInput = () => {
     if (password && password.length < MIN_PASSWORD_LENGTH) {
@@ -158,7 +156,7 @@ const ModalSubtext = styled.div`
 `;
 
 const PasswordError = styled.div`
-  color: ${red};
+  color: ${red500};
   font-size: 0.75em;
   margin-top: 0.5em;
 `;

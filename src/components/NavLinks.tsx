@@ -16,10 +16,10 @@ import { AccountMapContext } from "../AccountMapContext";
 
 import {
   white,
-  offWhite,
-  darkGray,
-  darkOffWhite,
-  lightBlack,
+  gray50,
+  gray700,
+  gray100,
+  gray900,
   green100,
   green700,
 } from "../utils/colors";
@@ -51,14 +51,18 @@ export const NavLinks = ({ currentBitcoinNetwork }: Props) => {
         </WalletTitleText>
       </WalletTitle>
       <SidebarItemLink active={pathname === "/"} to="/">
-        <StyledIcon as={Home} size={24} style={{ marginRight: ".65rem" }} />
+        <StyledIcon
+          as={Home}
+          size={24}
+          style={{ marginRight: ".65rem", color: gray700 }}
+        />
         Home
       </SidebarItemLink>
       <SidebarItemLink active={pathname === "/send"} to="/send">
         <StyledIcon
           as={SendPlane}
           size={24}
-          style={{ marginRight: ".65rem" }}
+          style={{ marginRight: ".65rem", color: gray700 }}
         />
         Send
       </SidebarItemLink>
@@ -66,7 +70,7 @@ export const NavLinks = ({ currentBitcoinNetwork }: Props) => {
         <StyledIcon
           as={VerticalAlignBottom}
           size={24}
-          style={{ marginRight: ".65rem" }}
+          style={{ marginRight: ".65rem", color: gray700 }}
         />
         Receive
       </SidebarItemLink>
@@ -74,7 +78,11 @@ export const NavLinks = ({ currentBitcoinNetwork }: Props) => {
         active={pathname === "/settings" || pathname === "/purchase"}
         to="/settings"
       >
-        <StyledIcon as={Settings} size={24} style={{ marginRight: ".65rem" }} />
+        <StyledIcon
+          as={Settings}
+          size={24}
+          style={{ marginRight: ".65rem", color: gray700 }}
+        />
         Settings
       </SidebarItemLink>
 
@@ -139,7 +147,7 @@ export const NavLinks = ({ currentBitcoinNetwork }: Props) => {
         <StyledIcon
           as={AddCircleOutline}
           size={24}
-          style={{ marginRight: ".65rem" }}
+          style={{ marginRight: ".65rem", color: gray700 }}
         />
         New Account
       </SidebarItemLink>
@@ -166,7 +174,7 @@ const LilyImageGray = styled.img`
 `;
 
 const WalletsHeader = styled.h3`
-  color: ${lightBlack};
+  color: ${gray900};
   margin: 1.125em;
   font-size: 1.125em;
   font-weight: 100;
@@ -181,7 +189,7 @@ const WalletTitle = styled(WalletsHeader)`
 `;
 
 const IconSvg = styled.svg`
-  color: #869198;
+  color: ${gray700};
   width: 1.25rem;
   margin-right: 0.65rem;
   height: 1.25rem;
@@ -195,11 +203,11 @@ const AccountsContainer = styled.div`
 
 const SidebarItemStyle = css<{ active: boolean }>`
   background: ${(p) => (p.active ? green100 : white)};
-  border: ${(p) => (p.active ? `solid 0.0625em ${darkOffWhite}` : "none")};
+  border: ${(p) => (p.active ? `solid 0.0625em ${gray100}` : "none")};
   border-left: ${(p) => (p.active ? `solid 0.6875em ${green700}` : "none")};
   margin-left: ${(p) => (p.active ? `solid 0.6875em ${green700}` : "none")};
   border-right: none;
-  color: ${(p) => (p.active ? "inherit" : darkGray)};
+  color: ${(p) => (p.active ? "inherit" : gray700)};
   padding: ${(p) => (p.active ? `1em 1.2em 1.125em .5em` : "1em 1.2em")};
   text-decoration: none;
   font-size: 0.9em;
@@ -207,7 +215,7 @@ const SidebarItemStyle = css<{ active: boolean }>`
   align-items: center;
 
   &:hover {
-    background: ${offWhite};
+    background: ${(p) => (p.active ? green100 : gray50)};
   }
 `;
 

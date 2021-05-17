@@ -8,11 +8,10 @@ import TransactionTypeIcon from "./TransactionTypeIcon";
 
 import {
   white,
-  lightGray,
-  darkOffWhite,
   green600,
   green800,
-  darkGray,
+  gray100,
+  gray300,
   gray700,
   gray800,
 } from "../../../utils/colors";
@@ -149,8 +148,8 @@ const OutputItem = styled.div`
   justify-content: space-between;
   padding: 1.5em;
   margin: 12px 0;
-  background: ${lightGray};
-  border: 1px solid ${darkOffWhite};
+  background: ${gray100};
+  border: 1px solid ${gray300};
   justify-content: center;
   align-items: center;
   border-radius: 4px;
@@ -172,7 +171,7 @@ const MoreDetailsSection = styled.div`
 `;
 
 const MoreDetailsHeader = styled.div`
-  color: ${darkGray};
+  color: ${gray800};
   font-size: 1.5em;
 `;
 

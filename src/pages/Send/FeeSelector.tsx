@@ -9,12 +9,13 @@ import { Button, Input } from "../../components";
 import { getFeeForMultisig, getFee } from "../../utils/send";
 
 import {
-  gray,
-  blue,
-  darkGray,
-  lightGray,
-  lightBlue,
-  offWhite,
+  gray50,
+  gray100,
+  gray200,
+  gray400,
+  gray500,
+  green200,
+  green500,
   green600,
   white,
 } from "../../utils/colors";
@@ -265,7 +266,7 @@ const ButtonGroup = styled.div`
 
 const CancelButton = styled.div`
   padding: 1em 1.25rem;
-  border: 1px solid ${gray};
+  border: 1px solid ${gray400};
   border-radius: 0.375rem;
   flex: 1;
   text-align: center;
@@ -273,7 +274,7 @@ const CancelButton = styled.div`
   margin-right: 1em;
 
   &:hover {
-    border: 1px solid ${darkGray};
+    border: 1px solid ${gray500};
     cursor: pointer;
   }
 `;
@@ -292,7 +293,7 @@ const FeeMainText = styled.div`
 `;
 
 const FeeSubtext = styled.div`
-  color: ${darkGray};
+  color: ${gray500};
   font-size: 0.75em;
 `;
 
@@ -300,22 +301,22 @@ const FeeItem = styled.div<{ selected: boolean }>`
   display: flex;
   flex-direction: column;
   padding: 1.5em;
+  background: ${(p) => (p.selected ? green200 : gray100)};
+  border: 1px solid ${(p) => (p.selected ? green500 : gray200)};
   margin: 12px 0;
-  background: ${(p) => (p.selected ? lightBlue : lightGray)};
-  border: 1px solid ${(p) => (p.selected ? blue : offWhite)};
   justify-content: center;
   align-items: center;
   border-radius: 4px;
   cursor: pointer;
   transition-duration: 0.15s;
-
   &:hover {
-    border: 1px solid ${(p) => (p.selected ? blue : offWhite)};
-    background: ${(p) => (p.selected ? lightBlue : offWhite)};
+    border: 1px solid ${(p) => (p.selected ? green500 : gray50)};
+
+    background: ${(p) => (p.selected ? green200 : gray50)};
   }
 
   &:active {
-    background: ${(p) => (p.selected ? lightBlue : gray)};
+    background: ${(p) => (p.selected ? green200 : gray400)};
   }
 `;
 
@@ -345,7 +346,7 @@ export const InputStaticText = styled.label<{
   margin-right: 40px;
   font-size: 1.5em;
   font-weight: 100;
-  color: ${gray};
+  color: ${gray400};
 
   &::after {
     content: ${(p) => p.text};

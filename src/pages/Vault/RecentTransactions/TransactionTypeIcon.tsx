@@ -5,7 +5,7 @@ import { Transfer } from "@styled-icons/boxicons-regular";
 
 import { StyledIcon } from "../../../components";
 
-import { green, gray, red500 } from "../../../utils/colors";
+import { green400, gray500, red500 } from "../../../utils/colors";
 
 import { Transaction } from "../../../types";
 
@@ -40,7 +40,7 @@ const StyledIconModified = styled(StyledIcon)<{
 }>`
   padding: 0.5em;
   margin-right: 0.75em;
-  background: ${(p) => (p.moved ? gray : p.receive ? green : red500)};
+  background: ${(p) => (p.moved ? gray500 : p.receive ? green400 : red500)};
   border-radius: 50%;
 `;
 

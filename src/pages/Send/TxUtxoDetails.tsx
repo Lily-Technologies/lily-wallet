@@ -5,12 +5,7 @@ import { satoshisToBitcoins } from "unchained-bitcoin";
 
 import { createUtxoMapFromUtxoArray, getFee } from "../../utils/send";
 import { cloneBuffer } from "../../utils/other";
-import {
-  green800,
-  darkGray,
-  darkOffWhite,
-  lightGray,
-} from "../../utils/colors";
+import { green800, gray50, gray100, gray600 } from "../../utils/colors";
 import { AccountMapContext } from "../../AccountMapContext";
 
 import { UtxoMap } from "../../types";
@@ -96,8 +91,8 @@ const OutputItem = styled.div`
   justify-content: space-between;
   padding: 1.5em;
   margin: 12px 0;
-  background: ${lightGray};
-  border: 1px solid ${darkOffWhite};
+  background: ${gray100};
+  border: 1px solid ${gray50};
   justify-content: center;
   align-items: center;
   border-radius: 4px;
@@ -121,7 +116,7 @@ const MoreDetailsContainer = styled.div`
 `;
 
 const MoreDetailsHeader = styled.div`
-  color: ${darkGray};
+  color: ${gray600};
   font-size: 1.5em;
 `;
 

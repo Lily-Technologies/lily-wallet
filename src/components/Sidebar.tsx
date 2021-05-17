@@ -5,7 +5,7 @@ import { Network } from "bitcoinjs-lib";
 
 import { NavLinks } from "./NavLinks";
 
-import { white, darkOffWhite } from "../utils/colors";
+import { white, gray100 } from "../utils/colors";
 import { mobile } from "../utils/media";
 
 interface Props {
@@ -38,8 +38,7 @@ const SidebarWrapper = styled.div`
   display: flex;
   flex-direction: column;
   width: 12em;
-  // min-height: 100vh;
-  border: solid 1px ${darkOffWhite};
+  border: solid 1px ${gray100};
   border-left: none;
   height: 100vh;
   position: fixed;

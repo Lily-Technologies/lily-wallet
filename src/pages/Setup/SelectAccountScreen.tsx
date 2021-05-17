@@ -5,14 +5,7 @@ import { Calculator } from "@styled-icons/heroicons-outline";
 
 import { StyledIcon, Button } from "../../components";
 import { InnerWrapper } from "./styles";
-import {
-  green800,
-  darkGray,
-  white,
-  gray,
-  gray800,
-  red500,
-} from "../../utils/colors";
+import { green800, white, gray500, gray800, red500 } from "../../utils/colors";
 
 import { isAtLeastTier } from "../../utils/license";
 
@@ -127,14 +120,14 @@ const SignupOptionMainText = styled.div`
 
 const SignupOptionSubtext = styled.div`
   font-size: 0.5em;
-  color: ${darkGray};
+  color: ${gray800};
   line-height: 1em;
 `;
 
 const SignupOptionItem = styled.div`
   ${Button};
   background: ${white};
-  border: 1px solid ${gray};
+  border: 1px solid ${gray500};
   display: flex;
   align-items: center;
   justify-content: flex-start;

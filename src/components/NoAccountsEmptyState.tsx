@@ -1,10 +1,10 @@
-import React from 'react';
-import styled from 'styled-components';
+import React from "react";
+import styled from "styled-components";
 import { useHistory } from "react-router-dom";
 
-import { Button } from '.'
+import { Button } from ".";
 
-import { white, gray800, green700 } from '../utils/colors';
+import { white, gray600, green700 } from "../utils/colors";
 
 export const NoAccountsEmptyState = () => {
   const history = useHistory();
@@ -16,12 +16,13 @@ export const NoAccountsEmptyState = () => {
       <CreateAccountButton
         background={green700}
         color={white}
-        onClick={() => history.push('/setup')}>
+        onClick={() => history.push("/setup")}
+      >
         Add your first account
       </CreateAccountButton>
     </Container>
-  )
-}
+  );
+};
 
 const Container = styled.div`
   background: ${white};
@@ -31,11 +32,11 @@ const Container = styled.div`
   align-items: center;
   justify-content: center;
   border-radius: 0.385rem;
-  box-shadow: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
 `;
 
 const Text = styled.span`
-  color: ${gray800};
+  color: ${gray600};
   font-size: 2rem;
   line-height: 1;
   margin-bottom: 3rem;

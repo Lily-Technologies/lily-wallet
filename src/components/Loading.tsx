@@ -1,7 +1,7 @@
 import React from "react";
 
 import styled, { keyframes } from "styled-components";
-import { lightGreen, darkGray } from "../utils/colors";
+import { green200, gray700 } from "../utils/colors";
 
 interface Props {
   itemText: string;
@@ -30,7 +30,7 @@ const LoadingWrapper = styled.div`
   border-radius: 4px;
   margin: 18px 0;
   flex-direction: column;
-  color: ${darkGray};
+  color: ${gray700};
   padding: 1.5em;
 `;
 
@@ -47,10 +47,11 @@ const LoadingSubText = styled.div`
 
 export const placeHolderShimmer = keyframes`
   0%{
-      background-position: -468px 0
+      background-position: -468px 0;
   }
   100%{
-      background-position: 468px 0
+      background-position: 468px 0;
+  }
 `;
 
 export const GrayAnimatedBackground = styled.div`
@@ -68,7 +69,7 @@ export const GreenAnimatedBackground = styled.div`
   background: linear-gradient(
     to right,
     rgba(155, 209, 135, 0.5) 8%,
-    ${lightGreen} 18%,
+    ${green200} 18%,
     rgba(155, 209, 135, 0.5) 33%
   );
   background-size: 800px 104px;
