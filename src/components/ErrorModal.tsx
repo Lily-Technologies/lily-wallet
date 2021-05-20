@@ -1,18 +1,17 @@
 import React from "react";
-import styled, { css } from "styled-components";
+import styled from "styled-components";
 import { ExclamationDiamond } from "@styled-icons/bootstrap";
 
-import { StyledIcon, ModalContentWrapper } from ".";
+import { StyledIcon, ModalContentWrapper, Button } from ".";
 
-import { mobile } from "../utils/media";
-import { red100, red600, gray500 } from "../utils/colors";
+import { white, red100, red600, gray500 } from "../utils/colors";
 
 interface Props {
   message: string;
 }
 
 export const ErrorModal = ({ message }: Props) => (
-  <ModalContentWrapper>
+  <ModifiedModalContentWrapper>
     <DangerIconContainer>
       <StyledIconCircle>
         <StyledIcon
@@ -25,21 +24,37 @@ export const ErrorModal = ({ message }: Props) => (
     <DangerTextContainer>
       <DangerText>Error</DangerText>
       <DangerSubtext>{message}</DangerSubtext>
+      <DismissButton color={white} background={red600}>
+        Dismiss
+      </DismissButton>
     </DangerTextContainer>
-  </ModalContentWrapper>
+  </ModifiedModalContentWrapper>
 );
+
+const DismissButton = styled.button`
+  ${Button}
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  width: 100%;
+  margin-top: 1.25rem;
+`;
+
+const ModifiedModalContentWrapper = styled(ModalContentWrapper)`
+  flex-direction: column;
+  align-items: center;
+  margin-top: 1.25rem;
+  max-width: ;
+`;
 
 const DangerTextContainer = styled.div`
   display: flex;
   flex: 1;
-  align-items: flex-start;
+  align-items: center;
   flex-direction: column;
-  margin-left: 1rem;
-
-  ${mobile(css`
-    margin-top: 0.75rem;
-    margin-left: 0;
-  `)};
+  margin-top: 0.75rem;
+  width: 100%;
 `;
 
 const DangerIconContainer = styled.div``;
@@ -61,7 +76,7 @@ const DangerText = styled.div`
 `;
 
 const DangerSubtext = styled.div`
-  padding-bottom: 2em;
   margin-top: 0.5rem;
   color: ${gray500};
+  text-align: center;
 `;

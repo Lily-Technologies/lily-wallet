@@ -641,7 +641,6 @@ const scanForAddressesAndTransactions = async (
       currentBitcoinNetwork
     );
 
-    receiveAddresses.push(receiveAddress);
     const receiveTxs = await getTransactionsFromAddress(
       receiveAddress.address,
       nodeClient,
@@ -650,6 +649,7 @@ const scanForAddressesAndTransactions = async (
     if (!receiveTxs.length) {
       unusedReceiveAddresses.push(receiveAddress);
     } else {
+      receiveAddresses.push(receiveAddress);
       transactions = [...transactions, ...receiveTxs];
     }
 

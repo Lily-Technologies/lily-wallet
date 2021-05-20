@@ -65,7 +65,7 @@ Cypress.Commands.add("login", () => {
 
       invokeStub
         .withArgs("/estimate-fee")
-        .returns({ fastestFee: 2, halfHourFee: 2, hourFee: 2, minimumFee: 1 })
+        .returns({ fastestFee: 10, halfHourFee: 5, hourFee: 2, minimumFee: 1 })
         .as("Estimate Fee");
 
       const onStub = cy

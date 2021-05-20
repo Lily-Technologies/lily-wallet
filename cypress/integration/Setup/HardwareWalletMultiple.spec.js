@@ -3,10 +3,11 @@
 import { DAS, JB, Sunny } from "../../../src/__tests__/fixtures";
 
 describe("Single Hardware Wallet - Multiple Tx Histories", () => {
+  beforeEach(() => {
+    cy.login();
+  });
   it("allows user to select P2WPKH if multiple address type transaction histories exist", () => {
     const ACCOUNT_NAME = "P2WPK Hardware Wallet";
-
-    cy.login();
 
     cy.intercept(
       {
@@ -77,15 +78,13 @@ describe("Single Hardware Wallet - Multiple Tx Histories", () => {
 
     cy.get("[data-cy=settings]").click();
 
-    cy.contains("View Details").click();
+    cy.contains("View details").click();
 
     cy.contains("m/84'/0'/0'").should("be.visible");
   });
 
   it("allows user to select P2SH(P2WPKH) if multiple address type transaction histories exist", () => {
     const ACCOUNT_NAME = "P2WPK Hardware Wallet";
-
-    cy.login();
 
     cy.intercept(
       {
@@ -156,7 +155,7 @@ describe("Single Hardware Wallet - Multiple Tx Histories", () => {
 
     cy.get("[data-cy=settings]").click();
 
-    cy.contains("View Details").click();
+    cy.contains("View details").click();
 
     cy.contains("m/49'/0'/0'").should("be.visible");
   });

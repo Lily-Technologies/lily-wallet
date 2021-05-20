@@ -22,8 +22,8 @@ export const createConfig = (password) => {
   const configFile = {
     ...EMPTY_CONFIG,
     isEmpty: false,
-    // wallets: [Mnemonic.account.config, HWW.account.config],
-    vaults: [{ ...createLilyAccount(Multisig) }],
+    wallets: [Mnemonic.account.config, HWW.account.config],
+    vaults: [Multisig.config],
   } as LilyConfig;
 
   return AES.encrypt(JSON.stringify(configFile), password).toString();

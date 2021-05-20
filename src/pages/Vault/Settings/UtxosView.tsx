@@ -1,34 +1,29 @@
 import React, { useContext } from "react";
+import styled from "styled-components";
 
 import { AccountMapContext } from "../../../AccountMapContext";
 
-import {
-  Table,
-  TableHeader,
-  TableHead,
-  TableBody,
-  TableRow,
-} from "../../../components/Table";
+import { Table, TableBody } from "../../../components/Table";
 
 import UtxoRow from "./UtxoRow";
 
 const UtxosView = () => {
   const { currentAccount } = useContext(AccountMapContext);
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Address</TableHead>
-          <TableHead>Value</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {currentAccount.availableUtxos.map((utxo) => (
-          <UtxoRow utxo={utxo} />
-        ))}
-      </TableBody>
-    </Table>
+    <Padding>
+      <Table>
+        <TableBody>
+          {currentAccount.availableUtxos.map((utxo) => (
+            <UtxoRow key={utxo.txid} utxo={utxo} />
+          ))}
+        </TableBody>
+      </Table>
+    </Padding>
   );
 };
+
+const Padding = styled.div`
+  padding: 0 1.5em;
+`;
 
 export default UtxosView;

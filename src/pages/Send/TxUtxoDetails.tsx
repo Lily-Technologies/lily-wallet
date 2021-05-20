@@ -5,7 +5,7 @@ import { satoshisToBitcoins } from "unchained-bitcoin";
 
 import { createUtxoMapFromUtxoArray, getFee } from "../../utils/send";
 import { cloneBuffer } from "../../utils/other";
-import { green800, gray50, gray100, gray600 } from "../../utils/colors";
+import { gray100, gray300, gray600, green800 } from "../../utils/colors";
 import { AccountMapContext } from "../../AccountMapContext";
 
 import { UtxoMap } from "../../types";
@@ -49,7 +49,7 @@ const TransactionUtxoDetails = ({ psbt, currentBitcoinPrice }: Props) => {
             );
           })}
         </MoreDetailsSection>
-        <MoreDetailsSection>
+        <MoreDetailsSection data-cy="transaction-outputs">
           <MoreDetailsHeader style={{ marginTop: "1em" }}>
             Outputs
           </MoreDetailsHeader>
@@ -92,7 +92,7 @@ const OutputItem = styled.div`
   padding: 1.5em;
   margin: 12px 0;
   background: ${gray100};
-  border: 1px solid ${gray50};
+  border: 1px solid ${gray300};
   justify-content: center;
   align-items: center;
   border-radius: 4px;

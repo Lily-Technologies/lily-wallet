@@ -19,7 +19,7 @@ interface Props {
 
 const Tabs = ({ currentTab, setCurrentTab, config }: Props) => {
   return (
-    <TabsContainer>
+    <TabsContainer id="settings-navigation">
       <TabItem
         active={currentTab === "network"}
         onClick={() => setCurrentTab("network")}
@@ -52,7 +52,7 @@ const Tabs = ({ currentTab, setCurrentTab, config }: Props) => {
   );
 };
 
-const TabsContainer = styled.div`
+const TabsContainer = styled.nav`
   display: flex;
   border-bottom: 1px solid ${gray200};
 `;

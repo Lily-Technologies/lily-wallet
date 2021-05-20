@@ -24,6 +24,6 @@ describe("Mnemonic", () => {
 
     cy.get("[data-cy=settings]").click();
 
-    cy.contains();
+    cy.contains("Lily").should("be.visible");
   });
 });

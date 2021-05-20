@@ -76,6 +76,7 @@ export const ConnectToNodeModal = ({
               label="Host"
               type="text"
               value={host}
+              id="node-host"
               onChange={setHost}
               onKeyDown={(e) => onInputEnter(e)}
               placeholder="http://mynode.local:8332"
@@ -85,6 +86,7 @@ export const ConnectToNodeModal = ({
             <Input
               label="Username"
               type="text"
+              id="node-username"
               value={username}
               onChange={setUsername}
               onKeyDown={(e) => onInputEnter(e)}
@@ -95,6 +97,7 @@ export const ConnectToNodeModal = ({
             <Input
               label="Password"
               type="password"
+              id="node-password"
               value={password}
               onChange={setPassword}
               onKeyDown={(e) => onInputEnter(e)}
@@ -110,7 +113,7 @@ export const ConnectToNodeModal = ({
                 await configureNode();
               }}
             >
-              {isLoading ? <Spinner /> : "Connect to Node"}
+              {isLoading ? <Spinner /> : "Connect to node"}
             </SaveButton>
           </Buttons>
         </InputsWrapper>

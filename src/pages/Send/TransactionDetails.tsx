@@ -19,7 +19,7 @@ import {
   gray800,
   white,
   green500,
-  green700,
+  green600,
   orange500,
   orange200,
 } from "../../utils/colors";
@@ -107,7 +107,7 @@ const TransactionDetails = ({
         },
       },
       {
-        label: "View transaction as QR Code",
+        label: "View transaction QR code",
         onClick: () => {
           viewTxQrCode();
         },
@@ -120,7 +120,7 @@ const TransactionDetails = ({
       (!signedDevices.length || currentAccount.config.mnemonic)
     ) {
       dropdownItems.unshift({
-        label: "Adjust Fee",
+        label: "Adjust transaction fee",
         onClick: () => {
           openInModal(
             <FeeSelector
@@ -144,7 +144,7 @@ const TransactionDetails = ({
     // if we are creating the transaction ourselves, give options for adjustment
     if (setStep !== undefined) {
       dropdownItems.unshift({
-        label: "View more details",
+        label: "View transaction details",
         onClick: () => {
           openInModal(
             <TransactionUtxoDetails
@@ -163,7 +163,7 @@ const TransactionDetails = ({
     ) {
       // eslint-disable-line
       dropdownItems.unshift({
-        label: "Edit Transaction",
+        label: "Edit transaction",
         onClick: () => setStep && setStep(0),
       });
     }
@@ -171,6 +171,7 @@ const TransactionDetails = ({
     return (
       <Fragment>
         <Dropdown
+          data-cy="send-options-dropdown"
           isOpen={optionsDropdownOpen}
           setIsOpen={setOptionsDropdownOpen}
           minimal={true}
@@ -213,14 +214,24 @@ const TransactionDetails = ({
           </MainTxData>
           <div>
             <TransactionFeeField>
-              Transaction Fee:{" "}
-              <span>
-                {satoshisToBitcoins(_fee).toNumber()} BTC ($
-                {satoshisToBitcoins(_fee)
-                  .multipliedBy(currentBitcoinPrice)
-                  .toFixed(2)}
-                )
-              </span>
+              <>
+                Transaction Fee:{" "}
+                <span>
+                  <span data-cy="transactionFeeBtc">
+                    {satoshisToBitcoins(_fee).toNumber()}
+                  </span>
+                  <span>
+                    {" "}
+                    BTC ($
+                    <span data-cy="transactionFeeUsd">
+                      {satoshisToBitcoins(_fee)
+                        .multipliedBy(currentBitcoinPrice)
+                        .toFixed(2)}
+                    </span>
+                    )
+                  </span>
+                </span>
+              </>
             </TransactionFeeField>
             {_fee >= ABSURD_FEE && (
               <WarningBox>Warning: transaction fee is very high</WarningBox>
@@ -347,7 +358,7 @@ const SendButton = styled.div<{
   padding-top: 1.75rem;
   padding-bottom: 1.75rem;
   box-shadow: ${(p) =>
-    p.sendable ? `inset 1000px 0 0 0 ${green700}` : "none"};
+    p.sendable ? `inset 1000px 0 0 0 ${green600}` : "none"};
 `;
 
 const SendButtonCheckmark = styled.div`

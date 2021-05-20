@@ -101,6 +101,7 @@ import MultisigTransactions from "./Multisig/Multisig-Transactions.json";
 import MultisigUnusedAddresses from "./Multisig/Multisig-UnusedAddresses.json";
 import MultisigUnusedChangeAddresses from "./Multisig/Multisig-UnusedChangeAddresses.json";
 import MultisigUTXOs from "./Multisig/Multisig-UTXOs.json";
+import MultisigOtherData from "./Multisig/Multisig-other-data.json";
 
 const Multisig = {
   config: MultisigConfig,
@@ -110,6 +111,7 @@ const Multisig = {
   unusedAddresses: MultisigUnusedAddresses,
   unusedChangeAddresses: MultisigUnusedChangeAddresses,
   availableUtxos: MultisigUTXOs,
+  other: MultisigOtherData,
 };
 
 export { HWW, DAS, JB, Sunny, Mnemonic, Multisig };

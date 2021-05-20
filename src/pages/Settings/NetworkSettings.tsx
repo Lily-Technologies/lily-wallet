@@ -82,7 +82,7 @@ const NetworkSettings = ({
     });
   }
   nodeConfigDropdownItems.push({
-    label: "Connect to Custom Node",
+    label: "Connect to specific node",
     onClick: () =>
       openInModal(
         <ConnectToNodeModal
@@ -96,7 +96,7 @@ const NetworkSettings = ({
     <SettingsTable.Wrapper>
       <SettingsTable.HeaderSection>
         <SettingsTable.HeaderTitle>
-          Network Configuration
+          Network configuration
         </SettingsTable.HeaderTitle>
         <SettingsTable.HeaderSubtitle>
           This information is private and only seen by you.
@@ -168,7 +168,7 @@ const NetworkSettings = ({
                   background={white}
                   color={green500}
                 >
-                  Change Data Source
+                  Change data source
                 </SettingsTable.ActionButton>
               }
             />

@@ -4,7 +4,14 @@ import { networks, Network, Psbt } from "bitcoinjs-lib";
 import BigNumber from "bignumber.js";
 import { satoshisToBitcoins } from "unchained-bitcoin";
 
-import { Button, Input, Dropdown, FileUploader, Modal } from "../../components";
+import {
+  Button,
+  Input,
+  Dropdown,
+  FileUploader,
+  Modal,
+  ErrorModal,
+} from "../../components";
 
 import { AccountMapContext } from "../../AccountMapContext";
 
@@ -73,7 +80,7 @@ const SendTxForm = ({
       setImportTxFromFileError("");
       setStep(1);
     } catch (e) {
-      setImportTxFromFileError(e.message);
+      openInModal(<ErrorModal message={e.message} />);
     }
   };
 
@@ -142,7 +149,7 @@ const SendTxForm = ({
   ];
 
   return (
-    <SentTxFormContainer>
+    <SentTxFormContainer data-cy="send-form">
       <FileUploader
         accept="*"
         id="txFile"

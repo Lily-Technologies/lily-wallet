@@ -29,7 +29,6 @@ const SettingsHeader = ({ toggleRefresh }: Props) => {
   const { currentAccount } = useContext(AccountMapContext);
   const history = useHistory();
   let { url } = useRouteMatch();
-
   return (
     <Header>
       <HeaderLeft>

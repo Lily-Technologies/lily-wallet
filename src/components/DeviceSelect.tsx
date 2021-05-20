@@ -13,7 +13,6 @@ import {
   yellow300,
   yellow100,
   gray300,
-  gray400,
   gray600,
   gray700,
   gray900,

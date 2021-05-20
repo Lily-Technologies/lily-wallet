@@ -1,14 +1,14 @@
 /* global cy */
 
 import { Multisig } from "../../../src/__tests__/fixtures";
-
-describe("Send", () => {
+describe("Send - General", () => {
+  beforeEach(() => {
+    cy.login();
+  });
   it("sends a transaction", () => {
     cy.intercept("POST", "https://blockstream.info/api/tx", (req) => {
       req.reply("abc123");
     });
-
-    cy.login();
 
     cy.window().then((win) => {
       win.ipcRenderer.invoke
@@ -67,5 +67,72 @@ describe("Send", () => {
     cy.contains("Transaction Success").should("be.visible");
 
     cy.get("a").contains("View Transaction").should("be.visible");
+  });
+
+  it("Transaction Details Modal accurate data", () => {
+    const SendAmount = "0.001";
+    const SendAddress = "bc1q5an4cj60h7rzajurywavsks74vyaktxxp9m5cx";
+
+    cy.contains("Send").click();
+
+    cy.get("nav").contains(Multisig.config.name).click();
+
+    cy.get("#bitcoin-receipt").type(SendAddress);
+
+    cy.get("#bitcoin-amount").type(SendAmount);
+
+    cy.contains("Preview Transaction").click();
+
+    cy.contains("Transaction Summary").should("be.visible");
+
+    cy.get("[data-cy=send-options-dropdown]").click();
+
+    cy.contains("View transaction details").click();
+
+    cy.contains("Transaction Details").should("be.visible");
+    cy.get("[data-cy=transaction-outputs]")
+      .contains(SendAddress)
+      .should("be.visible");
+    cy.get("[data-cy=transaction-outputs]")
+      .contains(Multisig.unusedChangeAddresses[0].address)
+      .should("be.visible");
+  });
+
+  it("allows transaction to be edited", () => {
+    const sendAmount = "0.001";
+    const sendAddress = "bc1q5an4cj60h7rzajurywavsks74vyaktxxp9m5cx";
+
+    const replacementSendAmount = "0.0025";
+    const replacementSendAddress = "3Cid3dAuS9e8pTaNCydgwERv2wut4VQXSQ";
+
+    cy.contains("Send").click();
+
+    cy.get("nav").contains(Multisig.config.name).click();
+
+    cy.get("#bitcoin-receipt").type(sendAddress);
+
+    cy.get("#bitcoin-amount").type(sendAmount);
+
+    cy.contains("Preview Transaction").click();
+
+    cy.contains("Transaction Summary").should("be.visible");
+
+    cy.contains(sendAmount).should("be.visible");
+    cy.contains(sendAddress).should("be.visible");
+
+    cy.get("[data-cy=send-options-dropdown]").click();
+
+    cy.contains("Edit transaction").click();
+
+    cy.get("#bitcoin-receipt").clear().type(replacementSendAddress);
+
+    cy.get("#bitcoin-amount").clear().type(replacementSendAmount);
+
+    cy.contains("Preview Transaction").click();
+
+    cy.contains("Transaction Summary").should("be.visible");
+
+    cy.contains(replacementSendAddress).should("be.visible");
+    cy.contains(replacementSendAmount).should("be.visible");
   });
 });

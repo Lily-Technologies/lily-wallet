@@ -25,7 +25,7 @@ import { NodeConfig } from "../../types";
 import {
   white,
   gray500,
-  gray800,
+  gray600,
   yellow100,
   yellow500,
 } from "../../utils/colors";
@@ -262,7 +262,7 @@ const CurrentBalanceContainer = styled.div`
 `;
 
 const CurrentBalanceText = styled.div`
-  color: ${gray800};
+  color: ${gray600};
   font-size: 0.5em;
 `;
 

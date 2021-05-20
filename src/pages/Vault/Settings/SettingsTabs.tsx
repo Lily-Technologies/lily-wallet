@@ -72,8 +72,8 @@ const TabItem = styled.button<{ active: boolean }>`
   }
 
   &:hover {
-    border-bottom: 2px solid ${(p) => (p.active ? "none" : gray300)};
-    color: ${(p) => (p.active ? "inherit" : gray700)};
+    border-bottom: 2px solid ${(p) => (p.active ? green500 : gray300)};
+    color: ${(p) => (p.active ? green500 : gray700)};
   }
 `;
 

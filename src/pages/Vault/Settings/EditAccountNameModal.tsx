@@ -17,7 +17,9 @@ import {
   green100,
   red500,
   green600,
+  gray300,
   gray500,
+  gray700,
 } from "../../../utils/colors";
 import { saveConfig } from "../../../utils/files";
 
@@ -93,23 +95,55 @@ const EditAccountNameModal = ({ password, closeModal }: Props) => {
           <ConfirmError>{accountNameConfirmError}</ConfirmError>
         )}
 
-        <SaveChangesButton
-          background={green600}
-          color={white}
-          onClick={() => {
-            editNameAndUpdateConfig();
-          }}
-        >
-          Save Changes
-        </SaveChangesButton>
+        <Buttons>
+          <CancelButton
+            background={white}
+            color={gray700}
+            onClick={() => {
+              closeModal();
+            }}
+          >
+            Cancel
+          </CancelButton>
+          <SaveChangesButton
+            background={green600}
+            color={white}
+            onClick={() => {
+              editNameAndUpdateConfig();
+            }}
+          >
+            Save
+          </SaveChangesButton>
+        </Buttons>
       </TextContainer>
     </ModalContentWrapper>
   );
 };
 
+const Buttons = styled.div`
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: flex-end;
+
+  ${mobile(css`
+    flex-direction: column;
+  `)};
+`;
+
 const SaveChangesButton = styled.button`
   ${Button}
   margin-top: 1rem;
+
+  ${mobile(css`
+    margin-top: 1.25rem;
+  `)};
+`;
+
+const CancelButton = styled.button`
+  ${Button}
+  margin-top: 1rem;
+  border: 1px solid ${gray300};
 
   ${mobile(css`
     margin-top: 1.25rem;

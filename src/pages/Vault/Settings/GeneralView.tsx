@@ -76,15 +76,6 @@ const GeneralView = ({ password, currentBitcoinNetwork }: Props) => {
           <SettingsTable.ValueAction></SettingsTable.ValueAction>
         </SettingsTable.ValueColumn>
       </SettingsTable.Row>
-      <SettingsTable.Row>
-        <SettingsTable.KeyColumn>ID</SettingsTable.KeyColumn>
-        <SettingsTable.ValueColumn>
-          <SettingsTable.ValueText>
-            {currentAccount.config.id}
-          </SettingsTable.ValueText>
-          <SettingsTable.ValueAction></SettingsTable.ValueAction>
-        </SettingsTable.ValueColumn>
-      </SettingsTable.Row>
 
       <SettingsTable.HeaderSection>
         <SettingsTable.HeaderTitle>
@@ -108,15 +99,9 @@ const GeneralView = ({ password, currentBitcoinNetwork }: Props) => {
               <SettingsTable.ActionButton
                 background={white}
                 color={green500}
-                onClick={() =>
-                  openInModal(
-                    <DeviceDetailsModal
-                      item={item}
-                    />
-                  )
-                }
+                onClick={() => openInModal(<DeviceDetailsModal item={item} />)}
               >
-                View Details
+                View details
               </SettingsTable.ActionButton>
             </SettingsTable.ValueAction>
           </SettingsTable.ValueColumn>

@@ -161,7 +161,17 @@ var __importDefault =
     return mod && mod.__esModule ? mod : { default: mod };
   };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.loadOrCreateWalletViaRPC = exports.getDataFromXPub = exports.getDataFromMultisig = exports.getAddressFromAccount = exports.serializeTransactions = exports.getSegwitDescriptor = exports.getWrappedDescriptor = exports.getMultisigDescriptor = exports.getDerivationPath = exports.bitcoinNetworkEqual = void 0;
+exports.loadOrCreateWalletViaRPC =
+  exports.getDataFromXPub =
+  exports.getDataFromMultisig =
+  exports.getAddressFromAccount =
+  exports.serializeTransactions =
+  exports.getSegwitDescriptor =
+  exports.getWrappedDescriptor =
+  exports.getMultisigDescriptor =
+  exports.getDerivationPath =
+  exports.bitcoinNetworkEqual =
+    void 0;
 var axios_1 = __importDefault(require("axios"));
 var bignumber_js_1 = __importDefault(require("bignumber.js"));
 var bitcoinjs_lib_1 = require("bitcoinjs-lib");
@@ -459,12 +469,11 @@ var serializeTransactions = function (
     } else {
       var feeContribution = amountIn > 0 ? tx.fee : 0;
       var netAmount = amountIn - amountOut - feeContribution;
-      if (netAmount > 0) {
-        tx.type = types_1.TransactionType.sent;
-      } else {
-        tx.type = types_1.TransactionType.received;
-      }
-      if (tx.type === types_1.TransactionType.sent) {
+      tx.type =
+        netAmount > 0
+          ? types_1.TransactionType.sent
+          : types_1.TransactionType.received;
+      if (tx.type === "sent") {
         balance -= amountIn - amountOutChange + feeContribution;
         tx.totalValue = balance;
         tx.address = tx.vout.filter(function (vout) {
@@ -954,31 +963,16 @@ var getAddressFromAccount = function (account, path, currentBitcoinNetwork) {
     }
   } else {
     // single sig
-    if (account.addressType === types_1.AddressType.p2sh) {
-      // hww
-      var receivePubKey = getChildPubKeyFromXpub(
-        account.extendedPublicKeys[0],
-        path,
-        currentBitcoinNetwork
-      );
-      return getAddressFromPubKey(
-        receivePubKey,
-        types_1.AddressType.p2sh,
-        currentBitcoinNetwork
-      );
-    } else {
-      // software wallet
-      var receivePubKey = getChildPubKeyFromXpub(
-        account.extendedPublicKeys[0],
-        path,
-        currentBitcoinNetwork
-      );
-      return getAddressFromPubKey(
-        receivePubKey,
-        types_1.AddressType.P2WPKH,
-        currentBitcoinNetwork
-      );
-    }
+    var receivePubKey = getChildPubKeyFromXpub(
+      account.extendedPublicKeys[0],
+      path,
+      currentBitcoinNetwork
+    );
+    return getAddressFromPubKey(
+      receivePubKey,
+      account.addressType,
+      currentBitcoinNetwork
+    );
   }
 };
 exports.getAddressFromAccount = getAddressFromAccount;
@@ -1023,7 +1017,6 @@ var scanForAddressesAndTransactions = function (
             "m/0/" + i,
             currentBitcoinNetwork
           );
-          receiveAddresses.push(receiveAddress);
           return [
             4 /*yield*/,
             getTransactionsFromAddress(
@@ -1037,6 +1030,7 @@ var scanForAddressesAndTransactions = function (
           if (!receiveTxs.length) {
             unusedReceiveAddresses.push(receiveAddress);
           } else {
+            receiveAddresses.push(receiveAddress);
             transactions = __spreadArray(
               __spreadArray([], transactions),
               receiveTxs

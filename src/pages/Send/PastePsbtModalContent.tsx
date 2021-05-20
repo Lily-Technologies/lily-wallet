@@ -59,7 +59,7 @@ const PastePsbtModalContent = ({
               importTxFromFile(pastedPsbtValue);
             }}
           >
-            Import Transaction
+            Import transaction
           </ImportTxButton>
         </ImportButtons>
       </div>

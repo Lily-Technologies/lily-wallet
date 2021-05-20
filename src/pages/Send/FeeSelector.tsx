@@ -11,9 +11,10 @@ import { getFeeForMultisig, getFee } from "../../utils/send";
 import {
   gray50,
   gray100,
-  gray200,
+  gray300,
   gray400,
   gray500,
+  gray600,
   green200,
   green500,
   green600,
@@ -66,7 +67,9 @@ export const FeeSelector = ({
       finalPsbt.txOutputs.length,
       currentAccount.config.quorum.requiredSigners,
       currentAccount.config.quorum.totalSigners
-    ).integerValue(BigNumber.ROUND_CEIL);
+    )
+      .integerValue(BigNumber.ROUND_CEIL)
+      .toNumber();
     normalFee = getFeeForMultisig(
       feeRates.halfHourFee,
       currentAccount.config.addressType,
@@ -74,7 +77,9 @@ export const FeeSelector = ({
       finalPsbt.txOutputs.length,
       currentAccount.config.quorum.requiredSigners,
       currentAccount.config.quorum.totalSigners
-    ).integerValue(BigNumber.ROUND_CEIL);
+    )
+      .integerValue(BigNumber.ROUND_CEIL)
+      .toNumber();
     slowFee = getFeeForMultisig(
       feeRates.hourFee,
       currentAccount.config.addressType,
@@ -82,7 +87,9 @@ export const FeeSelector = ({
       finalPsbt.txOutputs.length,
       currentAccount.config.quorum.requiredSigners,
       currentAccount.config.quorum.totalSigners
-    ).integerValue(BigNumber.ROUND_CEIL);
+    )
+      .integerValue(BigNumber.ROUND_CEIL)
+      .toNumber();
   } else {
     fastestFee = coinSelect(
       availableUtxos,
@@ -142,16 +149,23 @@ export const FeeSelector = ({
       {!showEditCustomFee ? (
         <div style={{ padding: "1.5em" }}>
           <FeeItem
+            data-cy="fastFeeItem"
             onClick={() => selectFee(fastestFee)}
             selected={fastestFee === fee}
           >
             <FeeMainText>Fast: ~10 minutes</FeeMainText>
             <FeeSubtext>
               $
-              {satoshisToBitcoins(fastestFee)
-                .multipliedBy(currentBitcoinPrice)
-                .toFixed(2)}
-              , {satoshisToBitcoins(fastestFee).toNumber()} BTC
+              <span data-cy="fastFeePrice">
+                {satoshisToBitcoins(fastestFee)
+                  .multipliedBy(currentBitcoinPrice)
+                  .toFixed(2)}
+              </span>
+              ,{" "}
+              <span data-cy="fastFeeBTC">
+                {satoshisToBitcoins(fastestFee).toNumber()}
+              </span>{" "}
+              BTC
             </FeeSubtext>
           </FeeItem>
           {normalFee !== fastestFee && (
@@ -162,29 +176,43 @@ export const FeeSelector = ({
               <FeeMainText>Normal: ~30 minutes</FeeMainText>
               <FeeSubtext>
                 $
-                {satoshisToBitcoins(normalFee)
-                  .multipliedBy(currentBitcoinPrice)
-                  .toFixed(2)}
-                , {satoshisToBitcoins(normalFee).toNumber()} BTC
+                <span data-cy="normalFeePrice">
+                  {satoshisToBitcoins(normalFee)
+                    .multipliedBy(currentBitcoinPrice)
+                    .toFixed(2)}
+                </span>
+                ,{" "}
+                <span data-cy="normalFeeBTC">
+                  {satoshisToBitcoins(normalFee).toNumber()}
+                </span>{" "}
+                BTC
               </FeeSubtext>
             </FeeItem>
           )}
           {slowFee !== normalFee && ( //  remove slow option if same as normal (mempool isnt very full)
             <FeeItem
+              data-cy="slowFeeItem"
               onClick={() => selectFee(slowFee)}
               selected={slowFee === fee}
             >
               <FeeMainText>Slow: ~1 hour</FeeMainText>
               <FeeSubtext>
                 $
-                {satoshisToBitcoins(slowFee)
-                  .multipliedBy(currentBitcoinPrice)
-                  .toFixed(2)}
-                , {satoshisToBitcoins(slowFee).toNumber()} BTC
+                <span data-cy="slowFeePrice">
+                  {satoshisToBitcoins(slowFee)
+                    .multipliedBy(currentBitcoinPrice)
+                    .toFixed(2)}
+                </span>
+                ,{" "}
+                <span data-cy="slowFeeBTC">
+                  {satoshisToBitcoins(slowFee).toNumber()}
+                </span>{" "}
+                BTC
               </FeeSubtext>
             </FeeItem>
           )}
           <FeeItem
+            data-cy="customFeeItem"
             onClick={() => {
               setShowEditCustomFee(true);
             }}
@@ -192,7 +220,7 @@ export const FeeSelector = ({
               slowFee !== fee && normalFee !== fee && fastestFee !== fee
             }
           >
-            <FeeMainText>Custom Fee</FeeMainText>
+            <FeeMainText>Set custom fee</FeeMainText>
             <FeeSubtext>
               {slowFee !== fee &&
                 normalFee !== fee &&
@@ -220,6 +248,7 @@ export const FeeSelector = ({
             error={customFeeError}
             inputStaticText="BTC"
             largeText={true}
+            id="custom-fee"
           />
           <InputStaticText disabled text="BTC">
             BTC
@@ -247,7 +276,7 @@ export const FeeSelector = ({
                 }
               }}
             >
-              Save Fee
+              Adjust fee
             </SaveFeeButton>
           </ButtonGroup>
         </CustomFeeContainer>
@@ -293,7 +322,7 @@ const FeeMainText = styled.div`
 `;
 
 const FeeSubtext = styled.div`
-  color: ${gray500};
+  color: ${gray600};
   font-size: 0.75em;
 `;
 
@@ -302,7 +331,7 @@ const FeeItem = styled.div<{ selected: boolean }>`
   flex-direction: column;
   padding: 1.5em;
   background: ${(p) => (p.selected ? green200 : gray100)};
-  border: 1px solid ${(p) => (p.selected ? green500 : gray200)};
+  border: 1px solid ${(p) => (p.selected ? green500 : gray300)};
   margin: 12px 0;
   justify-content: center;
   align-items: center;

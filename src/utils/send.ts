@@ -107,7 +107,7 @@ export const getFeeForMultisig = (
   numOutputs: number,
   requiredSigners: number,
   totalSigners: number
-) => {
+): BigNumber => {
   const feeRateString = feesPerByteInSatoshis.toString();
   return estimateMultisigTransactionFee({
     addressType: addressType,
@@ -247,7 +247,7 @@ export const createTransaction = async (
     // if no fee specified, pick halfhour
     fee = new BigNumber(desiredFee);
   } else if (config.quorum.totalSigners > 1) {
-    fee = await getFeeForMultisig(
+    fee = getFeeForMultisig(
       feeRates.halfHourFee,
       config.addressType,
       1,
@@ -283,7 +283,7 @@ export const createTransaction = async (
     config.quorum.totalSigners > 1
   ) {
     // we assumed 1 input utxo when first calculating fee, if more inputs then readjust fee
-    fee = await getFeeForMultisig(
+    fee = getFeeForMultisig(
       feeRates.halfHourFee,
       config.addressType,
       spendingUtxos.length,
@@ -330,7 +330,7 @@ export const createTransaction = async (
       // hardware wallet, add redeemScript
       // KBC-TODO: clean this up
       currentInput.redeemScript = Buffer.from(
-        (Object.values(utxo.address.redeem.output) as unknown) as Buffer
+        Object.values(utxo.address.redeem.output) as unknown as Buffer
       );
     }
 

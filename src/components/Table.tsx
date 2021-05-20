@@ -1,6 +1,13 @@
 import styled from "styled-components";
 
-import { gray50, gray100, gray300, gray600, gray700 } from "../utils/colors";
+import { gray50, gray200, gray300, gray600, gray700 } from "../utils/colors";
+
+export const TableContainer = styled.div`
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  border-bottom-width: 1px;
+  border-radius: 0.5rem;
+  border-color: ${gray200};
+`;
 
 export const Table = styled.table`
   border: none;
@@ -27,7 +34,7 @@ export const TableHead = styled.th`
 export const TableBody = styled.tbody``;
 
 export const TableRow = styled.tr`
-  border: 1px solid ${gray100};
+  border: 1px solid ${gray200};
 `;
 
 export const TableColumn = styled.td`
@@ -40,10 +47,6 @@ export const TableColumn = styled.td`
   color: ${gray600};
 
   border: none;
-  // padding-top: 1.25rem;
-  // padding-bottom: 1.25rem;
-  // padding-left: 1.5rem;
-  // padding-right: 1.5rem;
   border-bottom: 1px solid ${gray300};
   border-width: thin;
 `;

@@ -50,6 +50,7 @@ export const Dropdown = ({
   dropdownItems,
   minimal,
   style,
+  ...rest
 }: Props) => {
   return (
     <DropdownWrapper>
@@ -60,6 +61,7 @@ export const Dropdown = ({
             onClick={() => setIsOpen(!isOpen)}
             aria-label="Options"
             id="options-menu"
+            {...rest}
           >
             <DotDotDotImage fill="currentColor" viewBox="0 0 20 20">
               <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path>
@@ -73,6 +75,7 @@ export const Dropdown = ({
               type="button"
               id="options-menu"
               aria-haspopup="true"
+              {...rest}
             >
               {buttonLabel}
               {/* <DownArrowIcon style={style} fill="currentColor" viewBox="0 0 20 20">

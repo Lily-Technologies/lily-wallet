@@ -3,10 +3,11 @@
 import { DAS, JB, Sunny } from "../../../src/__tests__/fixtures";
 
 describe("Single Hardware Wallet", () => {
+  beforeEach(() => {
+    cy.login();
+  });
   it("sets up a hardware wallet with P2SH transasctions already", () => {
     const ACCOUNT_NAME = "P2SH Hardware Wallet";
-
-    cy.login();
 
     cy.intercept(
       {
@@ -75,15 +76,13 @@ describe("Single Hardware Wallet", () => {
 
     cy.get("[data-cy=settings]").click();
 
-    cy.contains("View Details").click();
+    cy.contains("View details").click();
 
     cy.contains("m/49'/0'/0'").should("be.visible");
   });
 
   it("sets up a hardware wallet with P2WPK transasctions already", () => {
     const ACCOUNT_NAME = "P2WPK Hardware Wallet";
-
-    cy.login();
 
     cy.intercept(
       {
@@ -152,7 +151,7 @@ describe("Single Hardware Wallet", () => {
 
     cy.get("[data-cy=settings]").click();
 
-    cy.contains("View Details").click();
+    cy.contains("View details").click();
 
     cy.contains("m/84'/0'/0'").should("be.visible");
   });
