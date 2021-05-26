@@ -76,7 +76,7 @@ const Sunny = {
   other: SunnyOtherData,
 };
 
-import MnemonicAccount from "./Mnemonic/Mnemonic-Account.json";
+import MnemonicConfig from "./Mnemonic/Mnemonic-Config.json";
 import MnemonicAddresses from "./Mnemonic/Mnemonic-Addresses.json";
 import MnemonicChangeAddresses from "./Mnemonic/Mnemonic-ChangeAddresses.json";
 import MnemonicTransactions from "./Mnemonic/Mnemonic-Transactions.json";
@@ -85,7 +85,7 @@ import MnemonicUnusedChangeAddresses from "./Mnemonic/Mnemonic-UnusedChangeAddre
 import MnemonicUTXOs from "./Mnemonic/Mnemonic-UTXOs.json";
 
 const Mnemonic = {
-  account: MnemonicAccount,
+  config: MnemonicConfig,
   addresses: MnemonicAddresses,
   changeAddresses: MnemonicChangeAddresses,
   transactions: MnemonicTransactions,

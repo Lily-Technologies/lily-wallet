@@ -194,7 +194,6 @@ const NewHardwareWalletScreen = ({
         )
       );
 
-      let xpub;
       if (p2shTxs.length && p2wpkhTxs.length) {
         openInModal(
           <ModalWrapper>

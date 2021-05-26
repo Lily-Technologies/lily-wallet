@@ -69,7 +69,7 @@ describe("Send Utils", () => {
     // try with account that doesn't own the psbt, should throw an error
     expect(() =>
       validateTxForAccount(psbt, {
-        ...Mnemonic.account,
+        ...Mnemonic.config,
         availableUtxos: Mnemonic.availableUtxos,
       })
     ).toThrow();
@@ -269,7 +269,7 @@ describe("Send Utils", () => {
 
     const AMOUNT_TO_SEND = "0.001";
     const CURRENT_ACCOUNT = {
-      ...Mnemonic.account,
+      ...Mnemonic.config,
       availableUtxos: Mnemonic.availableUtxos,
       unusedChangeAddresses: Mnemonic.unusedChangeAddresses,
     };

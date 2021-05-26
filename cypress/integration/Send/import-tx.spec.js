@@ -3,6 +3,10 @@ import { Multisig } from "../../../src/__tests__/fixtures";
 describe("Send - Import transactions", () => {
   beforeEach(() => {
     cy.login();
+
+    cy.window().then((win) => {
+      win.ipcRenderer.invoke.withArgs("/enumerate").returns([]);
+    });
   });
 
   it("allows an unsigned transaction to be imported via a file", () => {
@@ -34,10 +38,6 @@ describe("Send - Import transactions", () => {
       "be.visible"
     );
     cy.contains("No devices detected").should("be.visible");
-
-    cy.get("[data-cy=send-options-dropdown]").click();
-
-    cy.contains("Edit transaction").should("be.visible");
   });
 
   it("allows a transaction with one signature to be imported via a file", () => {

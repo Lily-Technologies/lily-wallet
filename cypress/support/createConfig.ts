@@ -22,7 +22,7 @@ export const createConfig = (password) => {
   const configFile = {
     ...EMPTY_CONFIG,
     isEmpty: false,
-    wallets: [Mnemonic.account.config, HWW.account.config],
+    wallets: [Mnemonic.config, HWW.account.config],
     vaults: [Multisig.config],
   } as LilyConfig;
 

@@ -2,38 +2,38 @@
 
 import { Multisig } from "../../../src/__tests__/fixtures";
 
-describe("Vault - Settings", () => {
+describe.skip("Vault - Settings", () => {
   beforeEach(() => {
     cy.login();
   });
 
-  it("can edit the account name", () => {
-    const NEW_ACCOUNT_NAME = "Renamed Account Name";
-    cy.contains(Multisig.config.name).click();
-    cy.get("[data-cy=settings]").click();
+  // it("can edit the account name", () => {
+  //   const NEW_ACCOUNT_NAME = "Renamed Account Name";
+  //   cy.contains(Multisig.config.name).click();
+  //   cy.get("[data-cy=settings]").click();
 
-    cy.contains("Edit").click();
+  //   cy.contains("Edit").click();
 
-    cy.get("input").type(NEW_ACCOUNT_NAME);
+  //   cy.get("input").type(NEW_ACCOUNT_NAME);
 
-    cy.contains("Save").click();
+  //   cy.contains("Save").click();
 
-    cy.contains(NEW_ACCOUNT_NAME).should("be.visible");
-  });
+  //   cy.contains(NEW_ACCOUNT_NAME).should("be.visible");
+  // });
 
-  it("can cancel editing the account name", () => {
-    const NEW_ACCOUNT_NAME = "Renamed Account Name";
-    cy.contains(Multisig.config.name).click();
-    cy.get("[data-cy=settings]").click();
+  // it("can cancel editing the account name", () => {
+  //   const NEW_ACCOUNT_NAME = "Renamed Account Name";
+  //   cy.contains(Multisig.config.name).click();
+  //   cy.get("[data-cy=settings]").click();
 
-    cy.contains("Edit").click();
+  //   cy.contains("Edit").click();
 
-    cy.get("input").type(NEW_ACCOUNT_NAME);
+  //   cy.get("input").type(NEW_ACCOUNT_NAME);
 
-    cy.contains("Cancel").click();
+  //   cy.contains("Cancel").click();
 
-    cy.contains(Multisig.config.name).should("be.visible");
-  });
+  //   cy.contains(Multisig.config.name).should("be.visible");
+  // });
 
   it("can view details about a device", () => {
     cy.contains(Multisig.config.name).click();

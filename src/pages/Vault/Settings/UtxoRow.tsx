@@ -2,11 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { satoshisToBitcoins } from "unchained-bitcoin";
 
-import {
-  TableRow,
-  TableColumn,
-  TableColumnBold,
-} from "../../../components/Table";
+import { TableRow, TableColumn } from "../../../components/Table";
 
 import { gray500, gray900, green800 } from "../../../utils/colors";
 

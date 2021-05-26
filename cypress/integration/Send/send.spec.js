@@ -1,6 +1,6 @@
 /* global cy */
 
-import { Multisig } from "../../../src/__tests__/fixtures";
+import { Mnemonic, Multisig } from "../../../src/__tests__/fixtures";
 describe("Send - General", () => {
   beforeEach(() => {
     cy.login();
@@ -69,7 +69,7 @@ describe("Send - General", () => {
     cy.get("a").contains("View Transaction").should("be.visible");
   });
 
-  it("Transaction Details Modal accurate data", () => {
+  it("shows correct tx details in Transaction Details Modal", () => {
     const SendAmount = "0.001";
     const SendAddress = "bc1q5an4cj60h7rzajurywavsks74vyaktxxp9m5cx";
 
@@ -134,5 +134,26 @@ describe("Send - General", () => {
 
     cy.contains(replacementSendAddress).should("be.visible");
     cy.contains(replacementSendAmount).should("be.visible");
+  });
+
+  it("automatically signs Mnemonic transactions", () => {
+    const sendAmount = "0.001";
+    const sendAddress = "bc1q5an4cj60h7rzajurywavsks74vyaktxxp9m5cx";
+
+    cy.contains("Send").click();
+
+    cy.get("nav").contains(Mnemonic.config.name).click();
+
+    cy.get("#bitcoin-receipt").type(sendAddress);
+
+    cy.get("#bitcoin-amount").type(sendAmount);
+
+    cy.contains("Preview Transaction").click();
+
+    cy.contains("Transaction Summary").should("be.visible");
+
+    cy.contains(sendAmount).should("be.visible");
+    cy.contains(sendAddress).should("be.visible");
+    cy.contains("Broadcast Transaction").should("be.visible");
   });
 });
