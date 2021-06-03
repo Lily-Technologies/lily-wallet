@@ -3,7 +3,7 @@
   "config": {
     "id": "af46ea03-226f-4f76-961d-65deadfdf5df3",
     "created_at": 1603900550961,
-    "name": "Coldcard",
+    "name": "Coldcard HWW",
     "network": "mainnet",
     "addressType": "p2sh",
     "quorum": {
@@ -20,7 +20,7 @@
         "xpub": "xpub6F2wuvSo8gSRjE9JsMgSva9cDZGa2Hh9SEJ9yczCLd1q2SRFV6N4vRUKFoecbatfhgZcG5rNwTxygNLoPrKpjRt94czCzQQPnoVY1RauiL6",
         "device": {
           "type": "coldcard",
-          "model": "unknown",
+          "model": "coldcard",
           "fingerprint": "4F60D1C9"
         }
       }

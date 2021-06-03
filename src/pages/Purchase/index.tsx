@@ -22,7 +22,7 @@ import ConfirmTxPage from "../../pages/Send/ConfirmTxPage";
 import { AccountMapContext } from "../../AccountMapContext";
 
 import { broadcastTransaction, createTransaction } from "../../utils/send";
-import { saveLicenseToConfig } from "../../utils/files";
+import { saveLicenseToVault } from "../../utils/files";
 import { white, gray400, gray900 } from "../../utils/colors";
 
 import { ConfigContext } from "../../ConfigContext";
@@ -31,11 +31,13 @@ import {
   SetStatePsbt,
   FeeRates,
   LicenseTiers,
+  LicenseResponseTiers,
   NodeConfig,
   PaymentAddressResponse,
-  LicenseResponse,
+  LilyLicense,
   LilyAccount,
-  AddressType
+  AddressType,
+  VaultConfig,
 } from "../../types";
 
 interface Props {
@@ -55,19 +57,17 @@ const PurchasePage = ({
   const [step, setStep] = useState(0);
   const [finalPsbt, setFinalPsbt] = useState<Psbt | undefined>(undefined);
   const [selectedLicenseTier, setSelectedLicenseTier] = useState<LicenseTiers>(
-    LicenseTiers.free
+    LicenseTiers.basic
   );
   const [feeRates, setFeeRates] = useState<FeeRates>({
     fastestFee: 0,
     halfHourFee: 0,
     hourFee: 0,
   });
-  const { currentAccount, accountMap, setCurrentAccountId } = useContext(
-    AccountMapContext
-  );
-  const [licenseResponse, setLicenseResponse] = useState<
-    LicenseResponse | undefined
-  >(undefined);
+  const { currentAccount, accountMap, setCurrentAccountId } =
+    useContext(AccountMapContext);
+  const [licenseResponse, setLicenseResponse] =
+    useState<LilyLicense | undefined>(undefined);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
 
@@ -76,75 +76,80 @@ const PurchasePage = ({
     setModalContent(component);
   }, []);
 
+  const closeModal = useCallback(() => {
+    setModalIsOpen(false);
+    setModalContent(null);
+  }, []);
+
   const clickRenewLicense = useCallback(
     async (tier: LicenseTiers, currentAccount: LilyAccount) => {
       try {
         let reqBody;
-        if (tier !== LicenseTiers.free) {
-          if (Object.keys(currentAccount.config).length === 0) {
-            throw Error(
-              "You haven't created an account yet! Please add an account and deposit funds in order to purchase a license."
-            );
-          }
-
-          if (currentAccount.loading) {
-            throw Error(
-              "Your current account is loading. Please wait for account to finish loading data or select a different account and try again."
-            );
-          }
-
-          if(currentAccount.config.addressType === AddressType.p2sh) {
-            throw Error('An invalid account type (P2SH) was being used to create this payment transaction. Please try making the payment again.')
-          }
-
-          const {
-            data: paymentAddressResponse,
-          }: { data: PaymentAddressResponse } = await axios.get(
-            `${process.env.REACT_APP_LILY_ENDPOINT}/get-payment-address`
+        if (Object.keys(currentAccount.config).length === 0) {
+          throw Error(
+            "You haven't created an account yet! Please add an account and deposit funds in order to purchase a license."
           );
+        }
 
-          const { psbt, feeRates } = await createTransaction(
-            currentAccount,
-            paymentAddressResponse[tier].toString(),
-            paymentAddressResponse.address,
-            new BigNumber(0),
-            currentBitcoinNetwork
+        if (currentAccount.loading) {
+          throw Error(
+            "Your current account is loading. Please wait for account to finish loading data or select a different account and try again."
           );
-          setSelectedLicenseTier(tier);
-          setFinalPsbt(psbt);
-          setFeeRates(feeRates);
-          reqBody = {
-            childPath: paymentAddressResponse.childPath,
-            tx: psbt!.toBase64(),
-            tier: tier,
-          };
-        } else {
-          reqBody = {
-            tier: tier,
-          };
+        }
+
+        if (currentAccount.config.addressType === AddressType.p2sh) {
+          throw Error(
+            "An invalid account type (P2SH) was being used to create this payment transaction. Please try making the payment again."
+          );
         }
 
         const {
-          data: licenseResponse,
-        }: { data: LicenseResponse } = await axios.post(
-          `${process.env.REACT_APP_LILY_ENDPOINT}/get-license`,
-          reqBody
+          data: paymentAddressResponse,
+        }: { data: PaymentAddressResponse } = await axios.get(
+          `${process.env.REACT_APP_LILY_ENDPOINT}/get-payment-address`
         );
-        setLicenseResponse(licenseResponse);
-        if (tier === LicenseTiers.free) {
-          const newConfig = await saveLicenseToConfig(
-            licenseResponse,
-            config,
-            password
+
+        const totalSigners =
+          currentAccount.config.quorum.totalSigners === 3
+            ? "Three"
+            : currentAccount.config.quorum.totalSigners === 5
+            ? "Five"
+            : "";
+
+        const tierAndTotalSigners =
+          `${tier}${totalSigners}` as LicenseResponseTiers;
+
+        console.log("tierAndTotalSigners: ", tierAndTotalSigners);
+        console.log("paymentAddressResponse: ", paymentAddressResponse);
+
+        const { psbt, feeRates } = await createTransaction(
+          currentAccount,
+          paymentAddressResponse[tierAndTotalSigners].toString(),
+          paymentAddressResponse.address,
+          new BigNumber(0),
+          currentBitcoinNetwork
+        );
+        setSelectedLicenseTier(tier);
+        setFinalPsbt(psbt);
+        setFeeRates(feeRates);
+        reqBody = {
+          childPath: paymentAddressResponse.childPath,
+          tx: psbt!.toBase64(),
+          tier: tier,
+        };
+
+        const { data: licenseResponse }: { data: LilyLicense } =
+          await axios.post(
+            `${process.env.REACT_APP_LILY_ENDPOINT}/get-license`,
+            reqBody
           );
-          setConfigFile(newConfig);
-          setStep(2);
-        } else {
-          setStep(1);
-        }
+        setLicenseResponse(licenseResponse);
+        setStep(1);
       } catch (e) {
         console.log("e: ", e);
-        openInModal(<ErrorModal message={`${e.message}`} />);
+        openInModal(
+          <ErrorModal message={`${e.message}`} closeModal={closeModal} />
+        );
       }
     },
     [currentBitcoinNetwork, config, password, setConfigFile, openInModal]
@@ -160,7 +165,9 @@ const PurchasePage = ({
           nodeConfig,
           currentBitcoinNetwork
         );
-        const newConfig = await saveLicenseToConfig(
+
+        const newConfig = await saveLicenseToVault(
+          currentAccount.config as VaultConfig,
           licenseResponse,
           config,
           password
@@ -169,7 +176,7 @@ const PurchasePage = ({
         setConfigFile(newConfig);
       } catch (e) {
         console.log("e: ", e);
-        openInModal(<ErrorModal message={e.message} />);
+        openInModal(<ErrorModal message={e.message} closeModal={closeModal} />);
       }
     }
   };
@@ -183,16 +190,27 @@ const PurchasePage = ({
   useEffect(() => {
     // make sure there is a currentAccount selected
     // currentAccount can be null if user goes from Home > Buy License without navigating to account
-    if ((!currentAccount.config.id && Object.keys(accountMap).length > 0) || currentAccount.config.addressType === AddressType.p2sh) {
-      for(let i=0; i < Object.keys(accountMap).length; i++) {
+    if (
+      (!currentAccount.config.id && Object.keys(accountMap).length > 0) ||
+      currentAccount.config.addressType === AddressType.p2sh
+    ) {
+      for (let i = 0; i < Object.keys(accountMap).length; i++) {
         const tempCurrentAccount = Object.values(accountMap)[i];
-        if(tempCurrentAccount.config.addressType !== AddressType.p2sh && !tempCurrentAccount.loading) {
+        if (
+          tempCurrentAccount.config.addressType !== AddressType.p2sh &&
+          !tempCurrentAccount.loading
+        ) {
           setCurrentAccountId(tempCurrentAccount.config.id);
           break;
         }
       }
     }
-  }, [accountMap, currentAccount.config.id, currentAccount.config.addressType, setCurrentAccountId]);
+  }, [
+    accountMap,
+    currentAccount.config.id,
+    currentAccount.config.addressType,
+    setCurrentAccountId,
+  ]);
 
   return (
     <PageWrapper>
@@ -220,7 +238,11 @@ const PurchasePage = ({
         )}
         {step === 1 && (
           <>
-            <SelectAccountMenu config={config} setFinalPsbt={setFinalPsbt} excludeNonSegwitAccounts />
+            <SelectAccountMenu
+              config={config}
+              setFinalPsbt={setFinalPsbt}
+              excludeNonSegwitAccounts
+            />
             {finalPsbt && (
               <ConfirmTxPage
                 finalPsbt={finalPsbt!}
@@ -235,7 +257,10 @@ const PurchasePage = ({
           </>
         )}
         {step === 2 && (
-          <PurchaseLicenseSuccess config={config} nodeConfig={nodeConfig} />
+          <PurchaseLicenseSuccess
+            config={currentAccount.config as VaultConfig}
+            nodeConfig={nodeConfig}
+          />
         )}
         <Modal isOpen={modalIsOpen} closeModal={() => setModalIsOpen(false)}>
           {modalContent}

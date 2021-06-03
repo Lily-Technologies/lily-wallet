@@ -34,14 +34,6 @@ const Tabs = ({ currentTab, setCurrentTab, config }: Props) => {
           Backup
         </TabItem>
       )}
-      {!config.isEmpty && (
-        <TabItem
-          active={currentTab === "license"}
-          onClick={() => setCurrentTab("license")}
-        >
-          License
-        </TabItem>
-      )}
       <TabItem
         active={currentTab === "about"}
         onClick={() => setCurrentTab("about")}

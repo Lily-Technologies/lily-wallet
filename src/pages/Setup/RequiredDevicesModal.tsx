@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import { Plus, Minus } from "@styled-icons/boxicons-regular";
 
@@ -9,15 +9,8 @@ import {
   green600,
   gray400,
   gray500,
-  red500,
   white,
 } from "../../utils/colors";
-
-import { isAtLeastTier } from "../../utils/license";
-
-import { ConfigContext } from "../../ConfigContext";
-
-import { LicenseTiers } from "../../types";
 
 interface Props {
   numberOfImportedDevices: number;
@@ -34,23 +27,7 @@ const RequiredDevicesModal = ({
   setStep,
   closeModal,
 }: Props) => {
-  const { config } = useContext(ConfigContext);
   const [requiredSigners, setRequiredSigners] = useState(configRequiredSigners);
-  const [error, setError] = useState("");
-
-  const restrictedSetRequiredSigners = (requiredSigners: number) => {
-    if (
-      requiredSigners > 2 &&
-      !isAtLeastTier(config.license, LicenseTiers.essential)
-    ) {
-      setError("Requires upgrading license");
-    } else {
-      if (error) {
-        setError("");
-      }
-      setRequiredSigners(requiredSigners);
-    }
-  };
 
   return (
     <>
@@ -61,7 +38,7 @@ const RequiredDevicesModal = ({
         <SelectionWrapper>
           <IncrementButton
             data-cy="decrement-button"
-            onClick={() => restrictedSetRequiredSigners(requiredSigners - 1)}
+            onClick={() => setRequiredSigners(requiredSigners - 1)}
             disabled={requiredSigners - 1 === 0}
           >
             <StyledIcon as={Minus} size={25} />
@@ -71,13 +48,12 @@ const RequiredDevicesModal = ({
           </CurrentSelection>
           <IncrementButton
             data-cy="increment-button"
-            onClick={() => restrictedSetRequiredSigners(requiredSigners + 1)}
+            onClick={() => setRequiredSigners(requiredSigners + 1)}
             disabled={requiredSigners + 1 > numberOfImportedDevices}
           >
             <StyledIcon as={Plus} size={25} />
           </IncrementButton>
         </SelectionWrapper>
-        {error && <ErrorText>{error}</ErrorText>}
         <ContinueButton
           background={green600}
           color={white}
@@ -150,10 +126,6 @@ const IncrementButton = styled.button<{ disabled: boolean }>`
   &:active {
     background: ${(p) => !p.disabled && green600};
   }
-`;
-
-const ErrorText = styled.div`
-  color: ${red500};
 `;
 
 export default RequiredDevicesModal;

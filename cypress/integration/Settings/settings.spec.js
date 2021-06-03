@@ -14,9 +14,6 @@ describe("Settings", () => {
     cy.get("nav#settings-navigation").contains("Backup").click();
     cy.contains("Configuration File").should("be.visible");
 
-    cy.get("nav#settings-navigation").contains("License").click();
-    cy.contains("License Information").should("be.visible");
-
     cy.get("nav#settings-navigation").contains("About").click();
     cy.contains("About Lily Wallet").should("be.visible");
   });

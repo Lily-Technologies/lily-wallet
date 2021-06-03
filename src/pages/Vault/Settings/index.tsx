@@ -1,24 +1,43 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { RouteComponentProps } from "react-router-dom";
 import { Network } from "bitcoinjs-lib";
 
 import GeneralView from "./GeneralView";
 import AddressesView from "./AddressesView";
 import UtxosView from "./UtxosView";
+import LicenseSettings from "./LicenseSettings";
 import ExportView from "./ExportView";
 import SettingsTabs from "./SettingsTabs";
 
+import { Modal } from "../../../components";
+
 import { white } from "../../../utils/colors";
+import { NodeConfig } from "types";
 
 interface Props {
   password: string;
+  nodeConfig: NodeConfig;
   currentBitcoinNetwork: Network;
-  match: RouteComponentProps["match"];
 }
 
-const VaultSettings = ({ password, currentBitcoinNetwork }: Props) => {
+const VaultSettings = ({
+  password,
+  nodeConfig,
+  currentBitcoinNetwork,
+}: Props) => {
   const [currentTab, setCurrentTab] = useState("general");
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
+
+  const openInModal = (component: JSX.Element) => {
+    setModalIsOpen(true);
+    setModalContent(component);
+  };
+
+  const closeModal = () => {
+    setModalIsOpen(false);
+    setModalContent(null);
+  };
 
   return (
     <Wrapper>
@@ -34,9 +53,20 @@ const VaultSettings = ({ password, currentBitcoinNetwork }: Props) => {
       )}
       {currentTab === "addresses" && <AddressesView />}
       {currentTab === "utxos" && <UtxosView />}
+      {currentTab === "license" && (
+        <LicenseSettings
+          nodeConfig={nodeConfig}
+          openInModal={openInModal}
+          closeModal={closeModal}
+          password={password}
+        />
+      )}
       {currentTab === "export" && (
         <ExportView currentBitcoinNetwork={currentBitcoinNetwork} />
       )}
+      <Modal isOpen={modalIsOpen} closeModal={() => setModalIsOpen(false)}>
+        {modalContent}
+      </Modal>
     </Wrapper>
   );
 };

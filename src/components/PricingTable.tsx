@@ -9,6 +9,7 @@ import {
   gray300,
   gray400,
   gray500,
+  gray700,
   gray900,
   green500,
   green600,
@@ -38,602 +39,199 @@ export const PricingTable = ({ clickRenewLicense, currentAccount }: Props) => {
     }
   };
 
+  const twoOfThree = currentAccount.config.quorum.totalSigners === 3;
+  const threeOfFive = currentAccount.config.quorum.totalSigners === 5;
+  const premiumOnly = !twoOfThree && !threeOfFive;
+  const basicPrice = twoOfThree ? 100 : threeOfFive ? 500 : 1000;
+
   return (
     <Wrapper>
       <MobileTableContainer>
-        <MobileTableItem>
-          <HeaderColumn>
-            <MobileHeading>Free</MobileHeading>
-            <p className="mt-4">
-              <Price>$0</Price>
-              <span className="text-base font-medium text-gray-500">/year</span>
-            </p>
+        {!premiumOnly ? (
+          <MobileTableItem>
+            <HeaderColumn>
+              <MobileHeading>Basic</MobileHeading>
+              <p className="mt-4">
+                <Price>${basicPrice}</Price>
+                <span className="text-base font-medium text-gray-500">
+                  /year
+                </span>
+              </p>
 
-            <DownloadButton
-              onClick={() => onLicenseClick(LicenseTiers.free, currentAccount)}
-              disabled={!!isLoading}
-            >
-              {isLoading === LicenseTiers.free ? <Spinner /> : "Continue Free"}
-            </DownloadButton>
-          </HeaderColumn>
+              <DownloadButton
+                onClick={() =>
+                  onLicenseClick(LicenseTiers.basic, currentAccount)
+                }
+                disabled={!!isLoading}
+              >
+                {isLoading === LicenseTiers.basic ? <Spinner /> : "Buy Basic"}
+              </DownloadButton>
+            </HeaderColumn>
 
-          <MobileTable>
-            <MobileTableSection>Features</MobileTableSection>
-            <thead>
-              <TableRow>
-                <ScreenReaderCol scope="col">Feature</ScreenReaderCol>
-                <ScreenReaderCol scope="col">Included</ScreenReaderCol>
-              </TableRow>
-            </thead>
-            <TableBody>
-              <TableRow>
-                <TableHeader scope="row">
-                  Single Signature Hardware Wallets
-                </TableHeader>
-                <TableColumn>
-                  <CheckIcon
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                      clipRule="evenodd"
-                    />
-                  </CheckIcon>
-                  <ScreenReader>Yes</ScreenReader>
-                </TableColumn>
-              </TableRow>
+            <MobileTable>
+              <MobileTableSection>Security</MobileTableSection>
+              <thead>
+                <TableRow>
+                  <ScreenReaderCol scope="col">Feature</ScreenReaderCol>
+                  <ScreenReaderCol scope="col">Included</ScreenReaderCol>
+                </TableRow>
+              </thead>
+              <TableBody>
+                <TableRow>
+                  <TableHeader scope="row">
+                    Single Signature Hardware Wallets
+                  </TableHeader>
+                  <TableColumn>
+                    <CheckIcon
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      aria-hidden="true"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clipRule="evenodd"
+                      />
+                    </CheckIcon>
+                    <ScreenReader>Yes</ScreenReader>
+                  </TableColumn>
+                </TableRow>
 
-              <TableRow>
-                <TableHeader scope="row">2-of-3 Multisig Vaults</TableHeader>
-                <TableColumn>
-                  <DashIcon
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-                      clipRule="evenodd"
-                    />
-                  </DashIcon>
-                  <ScreenReader>No</ScreenReader>
-                </TableColumn>
-              </TableRow>
+                <TableRow>
+                  <TableHeader scope="row">
+                    {twoOfThree ? "2-of-3" : threeOfFive ? "3-of-5" : "Custom"}{" "}
+                    Multisig Vault
+                  </TableHeader>
+                  <TableColumn>
+                    <CheckIcon
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      aria-hidden="true"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clipRule="evenodd"
+                      />
+                    </CheckIcon>
+                    <ScreenReader>Yes</ScreenReader>
+                  </TableColumn>
+                </TableRow>
+              </TableBody>
+            </MobileTable>
 
-              <TableRow>
-                <TableHeader scope="row">3-of-5 Multisig Vaults</TableHeader>
-                <TableColumn>
-                  <DashIcon
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-                      clipRule="evenodd"
-                    />
-                  </DashIcon>
-                  <ScreenReader>No</ScreenReader>
-                </TableColumn>
-              </TableRow>
-            </TableBody>
-          </MobileTable>
+            <MobileTable>
+              <MobileTableSection>Network</MobileTableSection>
+              <thead>
+                <TableRow>
+                  <ScreenReaderCol scope="col">Feature</ScreenReaderCol>
+                  <ScreenReaderCol scope="col">Included</ScreenReaderCol>
+                </TableRow>
+              </thead>
+              <TableBody>
+                <TableRow>
+                  <TableHeader scope="row">Connect to Bitcoin Core</TableHeader>
+                  <TableColumn>
+                    <CheckIcon
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      aria-hidden="true"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clipRule="evenodd"
+                      />
+                    </CheckIcon>
+                    <ScreenReader>Yes</ScreenReader>
+                  </TableColumn>
+                </TableRow>
 
-          <MobileTable>
-            <MobileTableSection>Network</MobileTableSection>
-            <thead>
-              <TableRow>
-                <ScreenReaderCol scope="col">Feature</ScreenReaderCol>
-                <ScreenReaderCol scope="col">Included</ScreenReaderCol>
-              </TableRow>
-            </thead>
-            <TableBody>
-              <TableRow>
-                <TableHeader scope="row">Connect to Bitcoin Core</TableHeader>
-                <TableColumn>
-                  <DashIcon
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-                      clipRule="evenodd"
-                    />
-                  </DashIcon>
-                  <ScreenReader>No</ScreenReader>
-                </TableColumn>
-              </TableRow>
+                <TableRow>
+                  <TableHeader scope="row">Tor Support</TableHeader>
+                  <TableColumn>
+                    <CheckIcon
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      aria-hidden="true"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clipRule="evenodd"
+                      />
+                    </CheckIcon>
+                    <ScreenReader>Yes</ScreenReader>
+                  </TableColumn>
+                </TableRow>
+              </TableBody>
+            </MobileTable>
 
-              <TableRow>
-                <TableHeader scope="row">Tor Support</TableHeader>
-                <TableColumn>
-                  <DashIcon
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-                      clipRule="evenodd"
-                    />
-                  </DashIcon>
-                  <ScreenReader>No</ScreenReader>
-                </TableColumn>
-              </TableRow>
-            </TableBody>
-          </MobileTable>
+            <MobileTable>
+              <MobileTableSection>Support</MobileTableSection>
+              <thead>
+                <TableRow>
+                  <ScreenReaderCol scope="col">Feature</ScreenReaderCol>
+                  <ScreenReaderCol scope="col">Included</ScreenReaderCol>
+                </TableRow>
+              </thead>
+              <TableBody>
+                <TableRow>
+                  <TableHeader scope="row">Email Support</TableHeader>
+                  <TableColumn>
+                    <CheckIcon
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      aria-hidden="true"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clipRule="evenodd"
+                      />
+                    </CheckIcon>
+                    <ScreenReader>Yes</ScreenReader>
+                  </TableColumn>
+                </TableRow>
 
-          <MobileTable>
-            <MobileTableSection>Support</MobileTableSection>
-            <thead>
-              <TableRow>
-                <ScreenReaderCol scope="col">Feature</ScreenReaderCol>
-                <ScreenReaderCol scope="col">Included</ScreenReaderCol>
-              </TableRow>
-            </thead>
-            <TableBody>
-              <TableRow>
-                <TableHeader scope="row">Email Support</TableHeader>
-                <TableColumn>
-                  <DashIcon
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-                      clipRule="evenodd"
-                    />
-                  </DashIcon>
-                  <ScreenReader>No</ScreenReader>
-                </TableColumn>
-              </TableRow>
+                <TableRow>
+                  <TableHeader scope="row">Phone / Zoom Support</TableHeader>
+                  <TableColumn>
+                    <DashIcon
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      aria-hidden="true"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
+                        clipRule="evenodd"
+                      />
+                    </DashIcon>
+                    <ScreenReader>No</ScreenReader>
+                  </TableColumn>
+                </TableRow>
+              </TableBody>
+            </MobileTable>
 
-              <TableRow>
-                <TableHeader scope="row">Phone / Zoom Support</TableHeader>
-                <TableColumn>
-                  <DashIcon
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-                      clipRule="evenodd"
-                    />
-                  </DashIcon>
-                  <ScreenReader>No</ScreenReader>
-                </TableColumn>
-              </TableRow>
-            </TableBody>
-          </MobileTable>
-
-          <FooterButton>
-            <DownloadButton
-              onClick={() => onLicenseClick(LicenseTiers.free, currentAccount)}
-              disabled={!!isLoading}
-            >
-              {isLoading === LicenseTiers.free ? <Spinner /> : "Continue Free"}
-            </DownloadButton>
-          </FooterButton>
-        </MobileTableItem>
-
-        <MobileTableItem>
-          <HeaderColumn>
-            <MobileHeading>Basic</MobileHeading>
-            <p className="mt-4">
-              <Price>$100</Price>
-              <span className="text-base font-medium text-gray-500">/year</span>
-            </p>
-
-            <DownloadButton
-              onClick={() => onLicenseClick(LicenseTiers.basic, currentAccount)}
-              disabled={!!isLoading}
-            >
-              {isLoading === LicenseTiers.basic ? <Spinner /> : "Buy Basic"}
-            </DownloadButton>
-          </HeaderColumn>
-
-          <MobileTable>
-            <MobileTableSection>Features</MobileTableSection>
-            <thead>
-              <TableRow>
-                <ScreenReaderCol scope="col">Feature</ScreenReaderCol>
-                <ScreenReaderCol scope="col">Included</ScreenReaderCol>
-              </TableRow>
-            </thead>
-            <TableBody>
-              <TableRow>
-                <TableHeader scope="row">
-                  Single Signature Hardware Wallets
-                </TableHeader>
-                <TableColumn>
-                  <CheckIcon
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                      clipRule="evenodd"
-                    />
-                  </CheckIcon>
-                  <ScreenReader>Yes</ScreenReader>
-                </TableColumn>
-              </TableRow>
-
-              <TableRow>
-                <TableHeader scope="row">2-of-3 Multisig Vaults</TableHeader>
-                <TableColumn>
-                  <CheckIcon
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                      clipRule="evenodd"
-                    />
-                  </CheckIcon>
-                  <ScreenReader>Yes</ScreenReader>
-                </TableColumn>
-              </TableRow>
-
-              <TableRow>
-                <TableHeader scope="row">3-of-5 Multisig Vaults</TableHeader>
-                <TableColumn>
-                  <DashIcon
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-                      clipRule="evenodd"
-                    />
-                  </DashIcon>
-                  <ScreenReader>No</ScreenReader>
-                </TableColumn>
-              </TableRow>
-            </TableBody>
-          </MobileTable>
-
-          <MobileTable>
-            <MobileTableSection>Network</MobileTableSection>
-            <thead>
-              <TableRow>
-                <ScreenReaderCol scope="col">Feature</ScreenReaderCol>
-                <ScreenReaderCol scope="col">Included</ScreenReaderCol>
-              </TableRow>
-            </thead>
-            <TableBody>
-              <TableRow>
-                <TableHeader scope="row">Connect to Bitcoin Core</TableHeader>
-                <TableColumn>
-                  <CheckIcon
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                      clipRule="evenodd"
-                    />
-                  </CheckIcon>
-                  <ScreenReader>Yes</ScreenReader>
-                </TableColumn>
-              </TableRow>
-
-              <TableRow>
-                <TableHeader scope="row">Tor Support</TableHeader>
-                <TableColumn>
-                  <CheckIcon
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                      clipRule="evenodd"
-                    />
-                  </CheckIcon>
-                  <ScreenReader>Yes</ScreenReader>
-                </TableColumn>
-              </TableRow>
-            </TableBody>
-          </MobileTable>
-
-          <MobileTable>
-            <MobileTableSection>Support</MobileTableSection>
-            <thead>
-              <TableRow>
-                <ScreenReaderCol scope="col">Feature</ScreenReaderCol>
-                <ScreenReaderCol scope="col">Included</ScreenReaderCol>
-              </TableRow>
-            </thead>
-            <TableBody>
-              <TableRow>
-                <TableHeader scope="row">Email Support</TableHeader>
-                <TableColumn>
-                  <CheckIcon
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                      clipRule="evenodd"
-                    />
-                  </CheckIcon>
-                  <ScreenReader>Yes</ScreenReader>
-                </TableColumn>
-              </TableRow>
-
-              <TableRow>
-                <TableHeader scope="row">Phone / Zoom Support</TableHeader>
-                <TableColumn>
-                  <DashIcon
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-                      clipRule="evenodd"
-                    />
-                  </DashIcon>
-                  <ScreenReader>No</ScreenReader>
-                </TableColumn>
-              </TableRow>
-            </TableBody>
-          </MobileTable>
-
-          <FooterButton>
-            <DownloadButton
-              onClick={() => onLicenseClick(LicenseTiers.basic, currentAccount)}
-              disabled={!!isLoading}
-            >
-              {isLoading === LicenseTiers.basic ? <Spinner /> : "Buy Basic"}
-            </DownloadButton>
-          </FooterButton>
-        </MobileTableItem>
-
-        <MobileTableItem>
-          <HeaderColumn>
-            <MobileHeading>Essential</MobileHeading>
-            <p className="mt-4">
-              <Price>$500</Price>
-              <span className="text-base font-medium text-gray-500">/year</span>
-            </p>
-
-            <DownloadButton
-              onClick={() =>
-                onLicenseClick(LicenseTiers.essential, currentAccount)
-              }
-              disabled={!!isLoading}
-            >
-              {isLoading === LicenseTiers.essential ? (
-                <Spinner />
-              ) : (
-                "Buy Essential"
-              )}
-            </DownloadButton>
-          </HeaderColumn>
-
-          <MobileTable>
-            <MobileTableSection>Features</MobileTableSection>
-            <thead>
-              <TableRow>
-                <ScreenReaderCol scope="col">Feature</ScreenReaderCol>
-                <ScreenReaderCol scope="col">Included</ScreenReaderCol>
-              </TableRow>
-            </thead>
-            <TableBody>
-              <TableRow>
-                <TableHeader scope="row">
-                  Single Signature Hardware Wallets
-                </TableHeader>
-                <TableColumn>
-                  <CheckIcon
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                      clipRule="evenodd"
-                    />
-                  </CheckIcon>
-                  <ScreenReader>Yes</ScreenReader>
-                </TableColumn>
-              </TableRow>
-
-              <TableRow>
-                <TableHeader scope="row">2-of-3 Multisig Vaults</TableHeader>
-                <TableColumn>
-                  <CheckIcon
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                      clipRule="evenodd"
-                    />
-                  </CheckIcon>
-                  <ScreenReader>Yes</ScreenReader>
-                </TableColumn>
-              </TableRow>
-
-              <TableRow>
-                <TableHeader scope="row">3-of-5 Multisig Vaults</TableHeader>
-                <TableColumn>
-                  <CheckIcon
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                      clipRule="evenodd"
-                    />
-                  </CheckIcon>
-                  <ScreenReader>Yes</ScreenReader>
-                </TableColumn>
-              </TableRow>
-            </TableBody>
-          </MobileTable>
-
-          <MobileTable>
-            <MobileTableSection>Network</MobileTableSection>
-            <thead>
-              <TableRow>
-                <ScreenReaderCol scope="col">Feature</ScreenReaderCol>
-                <ScreenReaderCol scope="col">Included</ScreenReaderCol>
-              </TableRow>
-            </thead>
-            <TableBody>
-              <TableRow>
-                <TableHeader scope="row">Connect to Bitcoin Core</TableHeader>
-                <TableColumn>
-                  <CheckIcon
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                      clipRule="evenodd"
-                    />
-                  </CheckIcon>
-                  <ScreenReader>Yes</ScreenReader>
-                </TableColumn>
-              </TableRow>
-
-              <TableRow>
-                <TableHeader scope="row">Tor Support</TableHeader>
-                <TableColumn>
-                  <CheckIcon
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                      clipRule="evenodd"
-                    />
-                  </CheckIcon>
-                  <ScreenReader>Yes</ScreenReader>
-                </TableColumn>
-              </TableRow>
-            </TableBody>
-          </MobileTable>
-
-          <MobileTable>
-            <MobileTableSection>Support</MobileTableSection>
-            <thead>
-              <TableRow>
-                <ScreenReaderCol scope="col">Feature</ScreenReaderCol>
-                <ScreenReaderCol scope="col">Included</ScreenReaderCol>
-              </TableRow>
-            </thead>
-            <TableBody>
-              <TableRow>
-                <TableHeader scope="row">Email Support</TableHeader>
-                <TableColumn>
-                  <CheckIcon
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                      clipRule="evenodd"
-                    />
-                  </CheckIcon>
-                  <ScreenReader>Yes</ScreenReader>
-                </TableColumn>
-              </TableRow>
-
-              <TableRow>
-                <TableHeader scope="row">Phone / Zoom Support</TableHeader>
-                <TableColumn>
-                  <DashIcon
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-                      clipRule="evenodd"
-                    />
-                  </DashIcon>
-                  <ScreenReader>No</ScreenReader>
-                </TableColumn>
-              </TableRow>
-            </TableBody>
-          </MobileTable>
-
-          <FooterButton>
-            <DownloadButton
-              onClick={() =>
-                onLicenseClick(LicenseTiers.essential, currentAccount)
-              }
-              disabled={!!isLoading}
-            >
-              {isLoading === LicenseTiers.essential ? (
-                <Spinner />
-              ) : (
-                "Buy Essential"
-              )}
-            </DownloadButton>
-          </FooterButton>
-        </MobileTableItem>
+            <FooterButton>
+              <DownloadButton
+                onClick={() =>
+                  onLicenseClick(LicenseTiers.basic, currentAccount)
+                }
+                disabled={!!isLoading}
+              >
+                {isLoading === LicenseTiers.basic ? <Spinner /> : "Buy Basic"}
+              </DownloadButton>
+            </FooterButton>
+          </MobileTableItem>
+        ) : null}
 
         <MobileTableItem>
           <HeaderColumn>
@@ -654,7 +252,7 @@ export const PricingTable = ({ clickRenewLicense, currentAccount }: Props) => {
           </HeaderColumn>
 
           <MobileTable>
-            <MobileTableSection>Features</MobileTableSection>
+            <MobileTableSection>Security</MobileTableSection>
             <thead>
               <TableRow>
                 <ScreenReaderCol scope="col">Feature</ScreenReaderCol>
@@ -684,26 +282,10 @@ export const PricingTable = ({ clickRenewLicense, currentAccount }: Props) => {
               </TableRow>
 
               <TableRow>
-                <TableHeader scope="row">2-of-3 Multisig Vaults</TableHeader>
-                <TableColumn>
-                  <CheckIcon
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                      clipRule="evenodd"
-                    />
-                  </CheckIcon>
-                  <ScreenReader>Yes</ScreenReader>
-                </TableColumn>
-              </TableRow>
-
-              <TableRow>
-                <TableHeader scope="row">3-of-5 Multisig Vaults</TableHeader>
+                <TableHeader scope="row">
+                  {twoOfThree ? "2-of-3" : threeOfFive ? "3-of-5" : "Custom"}{" "}
+                  Multisig Vault
+                </TableHeader>
                 <TableColumn>
                   <CheckIcon
                     xmlns="http://www.w3.org/2000/svg"
@@ -844,11 +426,9 @@ export const PricingTable = ({ clickRenewLicense, currentAccount }: Props) => {
                 <span>Plans</span>
               </DesktopPlansHeader>
 
-              <DesktopTableHeader scope="col">Free</DesktopTableHeader>
-
-              <DesktopTableHeader scope="col">Basic</DesktopTableHeader>
-
-              <DesktopTableHeader scope="col">Essential</DesktopTableHeader>
+              {!premiumOnly ? (
+                <DesktopTableHeader scope="col">Basic</DesktopTableHeader>
+              ) : null}
 
               <DesktopTableHeader scope="col">Premium</DesktopTableHeader>
             </TableRow>
@@ -859,74 +439,30 @@ export const PricingTable = ({ clickRenewLicense, currentAccount }: Props) => {
                 Pricing
               </DesktopTablePricingHeader>
 
-              <DesktopTablePricingHeaderColumn>
-                <div className="h-full flex flex-col justify-between">
-                  <div>
-                    <p>
-                      <Price>$0</Price>
-                      <PerYear>/ year</PerYear>
-                    </p>
+              {!premiumOnly ? (
+                <DesktopTablePricingHeaderColumn>
+                  <div className="h-full flex flex-col justify-between">
+                    <div>
+                      <p>
+                        <Price>${basicPrice}</Price>
+                        <PerYear>/ year</PerYear>
+                      </p>
+                    </div>
+                    <DownloadButton
+                      onClick={() =>
+                        onLicenseClick(LicenseTiers.basic, currentAccount)
+                      }
+                      disabled={!!isLoading}
+                    >
+                      {isLoading === LicenseTiers.basic ? (
+                        <Spinner />
+                      ) : (
+                        "Buy Basic"
+                      )}
+                    </DownloadButton>
                   </div>
-                  <DownloadButton
-                    onClick={() =>
-                      onLicenseClick(LicenseTiers.free, currentAccount)
-                    }
-                    disabled={!!isLoading}
-                  >
-                    {isLoading === LicenseTiers.free ? (
-                      <Spinner />
-                    ) : (
-                      "Continue Free"
-                    )}
-                  </DownloadButton>
-                </div>
-              </DesktopTablePricingHeaderColumn>
-
-              <DesktopTablePricingHeaderColumn>
-                <div className="h-full flex flex-col justify-between">
-                  <div>
-                    <p>
-                      <Price>$100</Price>
-                      <PerYear>/ year</PerYear>
-                    </p>
-                  </div>
-                  <DownloadButton
-                    onClick={() =>
-                      onLicenseClick(LicenseTiers.basic, currentAccount)
-                    }
-                    disabled={!!isLoading}
-                  >
-                    {isLoading === LicenseTiers.basic ? (
-                      <Spinner />
-                    ) : (
-                      "Buy Basic"
-                    )}
-                  </DownloadButton>
-                </div>
-              </DesktopTablePricingHeaderColumn>
-
-              <DesktopTablePricingHeaderColumn>
-                <div className="h-full flex flex-col justify-between">
-                  <div>
-                    <p>
-                      <Price>$500</Price>
-                      <PerYear>/ year</PerYear>
-                    </p>
-                  </div>
-                  <DownloadButton
-                    onClick={() =>
-                      onLicenseClick(LicenseTiers.essential, currentAccount)
-                    }
-                    disabled={!!isLoading}
-                  >
-                    {isLoading === LicenseTiers.essential ? (
-                      <Spinner />
-                    ) : (
-                      "Buy Essential"
-                    )}
-                  </DownloadButton>
-                </div>
-              </DesktopTablePricingHeaderColumn>
+                </DesktopTablePricingHeaderColumn>
+              ) : null}
 
               <DesktopTablePricingHeaderColumn>
                 <div className="h-full flex flex-col justify-between">
@@ -953,7 +489,7 @@ export const PricingTable = ({ clickRenewLicense, currentAccount }: Props) => {
             </TableRow>
             <TableRow>
               <TableHeaderDesktop colSpan={5} scope="colgroup">
-                Features
+                Security
               </TableHeaderDesktop>
             </TableRow>
 
@@ -961,51 +497,23 @@ export const PricingTable = ({ clickRenewLicense, currentAccount }: Props) => {
               <DesktopKeyHeader scope="row">
                 Single Signature Hardware Wallets
               </DesktopKeyHeader>
-              <TableColumn>
-                <DesktopCheckIcon
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                    clipRule="evenodd"
-                  />
-                </DesktopCheckIcon>
-                <ScreenReader>Included in Free</ScreenReader>
-              </TableColumn>
-              <TableColumn>
-                <DesktopCheckIcon
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                    clipRule="evenodd"
-                  />
-                </DesktopCheckIcon>
-                <ScreenReader>Included in Basic</ScreenReader>
-              </TableColumn>
-              <TableColumn>
-                <DesktopCheckIcon
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                    clipRule="evenodd"
-                  />
-                </DesktopCheckIcon>
-                <ScreenReader>Included in Essential</ScreenReader>
-              </TableColumn>
+              {!premiumOnly ? (
+                <TableColumn>
+                  <DesktopCheckIcon
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </DesktopCheckIcon>
+                  <ScreenReader>Included in Basic</ScreenReader>
+                </TableColumn>
+              ) : null}
               <TableColumn>
                 <DesktopCheckIcon
                   xmlns="http://www.w3.org/2000/svg"
@@ -1025,119 +533,26 @@ export const PricingTable = ({ clickRenewLicense, currentAccount }: Props) => {
 
             <TableRow>
               <DesktopKeyHeader scope="row">
-                2-of-3 Multisig Vaults
+                {twoOfThree ? "2-of-3" : threeOfFive ? "3-of-5" : "Custom"}{" "}
+                Multisig Vault
               </DesktopKeyHeader>
-              <TableColumn>
-                <DesktopDashIcon
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-                    clipRule="evenodd"
-                  />
-                </DesktopDashIcon>
-                <ScreenReader>Not included in Free</ScreenReader>
-              </TableColumn>
-              <TableColumn>
-                <DesktopCheckIcon
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                    clipRule="evenodd"
-                  />
-                </DesktopCheckIcon>
-                <ScreenReader>Included in Basic</ScreenReader>
-              </TableColumn>
-              <TableColumn>
-                <DesktopCheckIcon
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                    clipRule="evenodd"
-                  />
-                </DesktopCheckIcon>
-                <ScreenReader>Included in Essential</ScreenReader>
-              </TableColumn>
-              <TableColumn>
-                <DesktopCheckIcon
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                    clipRule="evenodd"
-                  />
-                </DesktopCheckIcon>
-                <ScreenReader>Included in Premium</ScreenReader>
-              </TableColumn>
-            </TableRow>
-
-            <TableRow>
-              <DesktopKeyHeader scope="row">
-                3-of-5 Multisig Vaults
-              </DesktopKeyHeader>
-              <TableColumn>
-                <DesktopDashIcon
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-                    clipRule="evenodd"
-                  />
-                </DesktopDashIcon>
-                <ScreenReader>Not included in Free</ScreenReader>
-              </TableColumn>
-              <TableColumn>
-                <DesktopDashIcon
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-                    clipRule="evenodd"
-                  />
-                </DesktopDashIcon>
-                <ScreenReader>Not included in Basic</ScreenReader>
-              </TableColumn>
-              <TableColumn>
-                <DesktopCheckIcon
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                    clipRule="evenodd"
-                  />
-                </DesktopCheckIcon>
-                <ScreenReader>Included in Essential</ScreenReader>
-              </TableColumn>
+              {!premiumOnly ? (
+                <TableColumn>
+                  <DesktopCheckIcon
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </DesktopCheckIcon>
+                  <ScreenReader>Included in Basic</ScreenReader>
+                </TableColumn>
+              ) : null}
               <TableColumn>
                 <DesktopCheckIcon
                   xmlns="http://www.w3.org/2000/svg"
@@ -1164,51 +579,23 @@ export const PricingTable = ({ clickRenewLicense, currentAccount }: Props) => {
               <DesktopKeyHeader scope="row">
                 Connect to Bitcoin Core
               </DesktopKeyHeader>
-              <TableColumn>
-                <DesktopDashIcon
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-                    clipRule="evenodd"
-                  />
-                </DesktopDashIcon>
-                <ScreenReader>Not included in Free</ScreenReader>
-              </TableColumn>
-              <TableColumn>
-                <DesktopCheckIcon
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                    clipRule="evenodd"
-                  />
-                </DesktopCheckIcon>
-                <ScreenReader>Included in Basic</ScreenReader>
-              </TableColumn>
-              <TableColumn>
-                <DesktopCheckIcon
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                    clipRule="evenodd"
-                  />
-                </DesktopCheckIcon>
-                <ScreenReader>Included in Essential</ScreenReader>
-              </TableColumn>
+              {!premiumOnly ? (
+                <TableColumn>
+                  <DesktopCheckIcon
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </DesktopCheckIcon>
+                  <ScreenReader>Included in Basic</ScreenReader>
+                </TableColumn>
+              ) : null}
               <TableColumn>
                 <DesktopCheckIcon
                   xmlns="http://www.w3.org/2000/svg"
@@ -1228,51 +615,23 @@ export const PricingTable = ({ clickRenewLicense, currentAccount }: Props) => {
 
             <TableRow>
               <DesktopKeyHeader scope="row">Tor Support</DesktopKeyHeader>
-              <TableColumn>
-                <DesktopDashIcon
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-                    clipRule="evenodd"
-                  />
-                </DesktopDashIcon>
-                <ScreenReader>Not included in Free</ScreenReader>
-              </TableColumn>
-              <TableColumn>
-                <DesktopCheckIcon
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                    clipRule="evenodd"
-                  />
-                </DesktopCheckIcon>
-                <ScreenReader>Included in Basic</ScreenReader>
-              </TableColumn>
-              <TableColumn>
-                <DesktopCheckIcon
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                    clipRule="evenodd"
-                  />
-                </DesktopCheckIcon>
-                <ScreenReader>Included in Essential</ScreenReader>
-              </TableColumn>
+              {!premiumOnly ? (
+                <TableColumn>
+                  <DesktopCheckIcon
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </DesktopCheckIcon>
+                  <ScreenReader>Included in Basic</ScreenReader>
+                </TableColumn>
+              ) : null}
               <TableColumn>
                 <DesktopCheckIcon
                   xmlns="http://www.w3.org/2000/svg"
@@ -1298,51 +657,23 @@ export const PricingTable = ({ clickRenewLicense, currentAccount }: Props) => {
 
             <TableRow>
               <DesktopKeyHeader scope="row">Email Support</DesktopKeyHeader>
-              <TableColumn>
-                <DesktopDashIcon
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-                    clipRule="evenodd"
-                  />
-                </DesktopDashIcon>
-                <ScreenReader>Not included in Free</ScreenReader>
-              </TableColumn>
-              <TableColumn>
-                <DesktopCheckIcon
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                    clipRule="evenodd"
-                  />
-                </DesktopCheckIcon>
-                <ScreenReader>Included in Basic</ScreenReader>
-              </TableColumn>
-              <TableColumn>
-                <DesktopCheckIcon
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                    clipRule="evenodd"
-                  />
-                </DesktopCheckIcon>
-                <ScreenReader>Included in Essential</ScreenReader>
-              </TableColumn>
+              {!premiumOnly ? (
+                <TableColumn>
+                  <DesktopCheckIcon
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </DesktopCheckIcon>
+                  <ScreenReader>Included in Basic</ScreenReader>
+                </TableColumn>
+              ) : null}
               <TableColumn>
                 <DesktopCheckIcon
                   xmlns="http://www.w3.org/2000/svg"
@@ -1364,51 +695,23 @@ export const PricingTable = ({ clickRenewLicense, currentAccount }: Props) => {
               <DesktopKeyHeader scope="row">
                 Phone / Zoom Support
               </DesktopKeyHeader>
-              <TableColumn>
-                <DesktopDashIcon
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-                    clipRule="evenodd"
-                  />
-                </DesktopDashIcon>
-                <ScreenReader>Not included in Free</ScreenReader>
-              </TableColumn>
-              <TableColumn>
-                <DesktopDashIcon
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-                    clipRule="evenodd"
-                  />
-                </DesktopDashIcon>
-                <ScreenReader>Not included in Basic</ScreenReader>
-              </TableColumn>
-              <TableColumn>
-                <DesktopDashIcon
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-                    clipRule="evenodd"
-                  />
-                </DesktopDashIcon>
-                <ScreenReader>Not included in Essential</ScreenReader>
-              </TableColumn>
+              {!premiumOnly ? (
+                <TableColumn>
+                  <DesktopDashIcon
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
+                      clipRule="evenodd"
+                    />
+                  </DesktopDashIcon>
+                  <ScreenReader>Not included in Basic</ScreenReader>
+                </TableColumn>
+              ) : null}
               <TableColumn>
                 <DesktopCheckIcon
                   xmlns="http://www.w3.org/2000/svg"
@@ -1429,44 +732,22 @@ export const PricingTable = ({ clickRenewLicense, currentAccount }: Props) => {
           <tfoot>
             <TableRow>
               <ScreenReaderCol scope="row">Choose your plan</ScreenReaderCol>
-              <TableFooterItem>
-                <DownloadButton
-                  onClick={() =>
-                    onLicenseClick(LicenseTiers.free, currentAccount)
-                  }
-                  disabled={!!isLoading}
-                >
-                  {isLoading === LicenseTiers.free ? (
-                    <Spinner />
-                  ) : (
-                    "Continue Free"
-                  )}
-                </DownloadButton>
-              </TableFooterItem>
-              <TableFooterItem>
-                <DownloadButton
-                  onClick={() =>
-                    onLicenseClick(LicenseTiers.basic, currentAccount)
-                  }
-                  disabled={!!isLoading}
-                >
-                  {isLoading === LicenseTiers.basic ? <Spinner /> : "Buy Basic"}
-                </DownloadButton>
-              </TableFooterItem>
-              <TableFooterItem>
-                <DownloadButton
-                  onClick={() =>
-                    onLicenseClick(LicenseTiers.essential, currentAccount)
-                  }
-                  disabled={!!isLoading}
-                >
-                  {isLoading === LicenseTiers.essential ? (
-                    <Spinner />
-                  ) : (
-                    "Buy Essential"
-                  )}
-                </DownloadButton>
-              </TableFooterItem>
+              {!premiumOnly ? (
+                <TableFooterItem>
+                  <DownloadButton
+                    onClick={() =>
+                      onLicenseClick(LicenseTiers.basic, currentAccount)
+                    }
+                    disabled={!!isLoading}
+                  >
+                    {isLoading === LicenseTiers.basic ? (
+                      <Spinner />
+                    ) : (
+                      "Buy Basic"
+                    )}
+                  </DownloadButton>
+                </TableFooterItem>
+              ) : null}
               <TableFooterItem>
                 <DownloadButton
                   onClick={() =>
@@ -1584,7 +865,7 @@ const TableHeader = styled.th`
   font-size: 0.875rem;
   line-height: 1.25rem;
   font-weight: 400;
-  color: ${gray500};
+  color: ${gray700};
   text-align: left;
   border-color: ${gray300};
 `;
@@ -1672,6 +953,7 @@ const DesktopTableHeader = styled.th`
   color: ${gray900};
   text-align: left;
   border: none;
+  width: 40%;
 `;
 
 const TableHeaderDesktop = styled.th`
@@ -1688,16 +970,16 @@ const TableHeaderDesktop = styled.th`
 `;
 
 const DesktopKeyHeader = styled.th`
-	padding-top: 1.25rem;
-	padding-bottom: 1.25rem;
-	padding-left: 1.5rem;
-	padding-right: 1.5rem;
-	font-weight: 400;
-	color: ${gray500}
-	text-align: left;
-	font-size: 0.875rem;
-	line-height: 1.25rem;
-	border-color: ${gray200};
+  padding-top: 1.25rem;
+  padding-bottom: 1.25rem;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  font-weight: 400;
+  color: ${gray700};
+  text-align: left;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  border-color: ${gray200};
 `;
 
 const TableFooterItem = styled.td`
@@ -1748,6 +1030,7 @@ const DesktopPlansHeader = styled.th`
   font-size: 0.875rem;
   font-weight: 500;
   border: none;
+  width: 20%;
 `;
 
 const DesktopTablePricingHeader = styled.th`
@@ -1775,11 +1058,11 @@ const DesktopTablePricingHeaderColumn = styled.td`
 `;
 
 const FooterButton = styled.div`
-	padding-left: 1rem;
-	padding-right: 1rem;
-	padding-top: 1.25rem;
-	padding-bottomt 1.25rem;
-	border-color: ${gray200};
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding-top: 1.25rem;
+  padding-bottom: 1.25rem;
+  border-color: ${gray200};
 `;
 
 const PerYear = styled.span`

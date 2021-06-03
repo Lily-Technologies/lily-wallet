@@ -6,10 +6,10 @@ import { gray500, gray900 } from "../utils/colors";
 import { licenseExpires, licenseTxId, licenseTier } from "../utils/license";
 import { capitalize } from "../utils/other";
 
-import { LilyConfig, NodeConfig } from "../types";
+import { NodeConfig, VaultConfig } from "../types";
 
 interface Props {
-  config: LilyConfig;
+  config: VaultConfig;
   nodeConfig: NodeConfig;
 }
 

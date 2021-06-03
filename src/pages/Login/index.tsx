@@ -25,6 +25,7 @@ import { saveConfig } from "../../utils/files";
 import {
   updateConfigFileVersionOne,
   updateConfigFileVersionBeta,
+  updateConfigFileVersionOneDotFive,
 } from "../../utils/migration";
 
 import { File } from "../../types";
@@ -65,8 +66,10 @@ const Login = ({
       try {
         const bytes = AES.decrypt(encryptedConfigFile.file, localPassword);
         let decryptedData = JSON.parse(bytes.toString(enc.Utf8));
-        decryptedData = updateConfigFileVersionOne(
-          updateConfigFileVersionBeta(decryptedData, currentBlockHeight!)
+        decryptedData = updateConfigFileVersionOneDotFive(
+          updateConfigFileVersionOne(
+            updateConfigFileVersionBeta(decryptedData, currentBlockHeight!)
+          )
         );
         setPasswordError(undefined);
         setTimeout(() => {
@@ -81,29 +84,18 @@ const Login = ({
         setIsLoading(false);
       }
     } else {
-      if (currentBlockHeight) {
-        try {
-          const configCopy = { ...config };
-          configCopy.isEmpty = false;
-          configCopy.license = {
-            license: `trial:${currentBlockHeight + 4320}`, // one month free trial (6 * 24 * 30)
-            signature: ``,
-          };
-          setTimeout(() => {
-            setConfigFile(configCopy);
-            saveConfig(configCopy, localPassword); // we save a blank config file
-            setPassword(localPassword);
-            setIsLoading(false);
-            history.replace(`/`);
-          }, 2000);
-        } catch (e) {
-          setPasswordError("Error. Try again.");
+      try {
+        const configCopy = { ...config };
+        configCopy.isEmpty = false;
+        setTimeout(() => {
+          setConfigFile(configCopy);
+          saveConfig(configCopy, localPassword); // we save a blank config file
+          setPassword(localPassword);
           setIsLoading(false);
-        }
-      } else {
-        setPasswordError(
-          "Error retrieving blockchain data. Please try restarting"
-        );
+          history.replace(`/`);
+        }, 2000);
+      } catch (e) {
+        setPasswordError("Error. Try again.");
         setIsLoading(false);
       }
     }

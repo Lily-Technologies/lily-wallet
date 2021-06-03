@@ -23,7 +23,7 @@ const {
   getDataFromMultisig,
   getDataFromXPub,
   loadOrCreateWalletViaRPC,
-} = require("./utils/accountMap.js");
+} = require("./utils/accountMap");
 
 const path = require("path");
 const fs = require("fs");
@@ -89,7 +89,7 @@ const getFile = async (filename) => {
 function createWindow() {
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    width: 1000,
+    width: 1100,
     height: 600,
     backgroundColor: "rgb(245, 247, 250)",
     transparent: true,

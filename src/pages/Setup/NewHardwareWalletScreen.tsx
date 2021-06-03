@@ -297,7 +297,7 @@ const NewHardwareWalletScreen = ({
       setImportedDevices(updatedImportedDevices);
       setStep(3);
     } catch (e) {
-      openInModal(<ErrorModal message={e.message} />);
+      openInModal(<ErrorModal message={e.message} closeModal={closeModal} />);
     }
   };
 
@@ -321,7 +321,7 @@ const NewHardwareWalletScreen = ({
       ]);
       closeModal();
     } catch (e) {
-      openInModal(<ErrorModal message={e.message} />);
+      openInModal(<ErrorModal message={e.message} closeModal={closeModal} />);
     }
   };
 

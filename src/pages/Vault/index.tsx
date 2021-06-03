@@ -40,8 +40,8 @@ const Vault = ({
             path={`${path}/settings`}
             render={(props: RouteComponentProps) => (
               <VaultSettings
-                match={props.match}
                 password={password}
+                nodeConfig={nodeConfig}
                 currentBitcoinNetwork={currentBitcoinNetwork}
               />
             )}

@@ -1,4 +1,4 @@
-import { Multisig } from "../../../src/__tests__/fixtures";
+import { Multisig, Mnemonic } from "../../../src/__tests__/fixtures";
 
 describe("Send - Import transactions", () => {
   beforeEach(() => {
@@ -166,5 +166,33 @@ describe("Send - Import transactions", () => {
     cy.contains("Invalid Transaction").should("be.visible");
 
     cy.contains("Dismiss").click();
+  });
+
+  it("shows an error if the user tries to import a transaction from the wrong account", () => {
+    cy.contains("Send").click();
+
+    cy.get("nav").contains(Mnemonic.config.name).click();
+
+    cy.get("[data-cy=send-form]").find("#options-menu").click();
+
+    cy.contains("Import from file").click();
+
+    cy.get("input[type=file]").then((el) => {
+      const blob = Cypress.Blob.base64StringToBlob(
+        btoa(Multisig.other.two_signature_transaction),
+        "text/plain"
+      );
+
+      const file = new File([blob], "foobar.psbt", { type: "text/plain" });
+      const list = new DataTransfer();
+
+      list.items.add(file);
+      const myFileList = list.files;
+
+      el[0].files = myFileList;
+      el[0].dispatchEvent(new Event("change", { bubbles: true }));
+    });
+
+    cy.contains("Error").should("be.visible");
   });
 });

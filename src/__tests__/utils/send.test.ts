@@ -269,9 +269,10 @@ describe("Send Utils", () => {
 
     const AMOUNT_TO_SEND = "0.001";
     const CURRENT_ACCOUNT = {
-      ...Mnemonic.config,
+      config: Mnemonic.config,
       availableUtxos: Mnemonic.availableUtxos,
       unusedChangeAddresses: Mnemonic.unusedChangeAddresses,
+      transactions: Mnemonic.transactions,
     };
     const RECIPIENT_ADDRESS = "bc1qf9gnplc9fvc6txpcfysfvcznfx6qmhksce0jjk";
     const DESIRED_FEE = new BigNumber(0);

@@ -8,9 +8,10 @@ import { white, red100, red600, gray500 } from "../utils/colors";
 
 interface Props {
   message: string;
+  closeModal: () => void;
 }
 
-export const ErrorModal = ({ message }: Props) => (
+export const ErrorModal = ({ message, closeModal }: Props) => (
   <ModifiedModalContentWrapper>
     <DangerIconContainer>
       <StyledIconCircle>
@@ -24,7 +25,11 @@ export const ErrorModal = ({ message }: Props) => (
     <DangerTextContainer>
       <DangerText>Error</DangerText>
       <DangerSubtext>{message}</DangerSubtext>
-      <DismissButton color={white} background={red600}>
+      <DismissButton
+        color={white}
+        background={red600}
+        onClick={() => closeModal()}
+      >
         Dismiss
       </DismissButton>
     </DangerTextContainer>

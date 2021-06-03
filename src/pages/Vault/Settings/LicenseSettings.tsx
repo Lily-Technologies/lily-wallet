@@ -11,19 +11,19 @@ import {
   PurchaseLicenseSuccess,
   ErrorModal,
   SettingsTable,
-} from "../../components";
+} from "../../../components";
 
-import { LilyLicense, NodeConfig, File } from "../../types";
+import { LilyLicense, NodeConfig, File, VaultConfig } from "../../../types";
 
-import { saveConfig } from "../../utils/files";
+import { saveConfig } from "../../../utils/files";
 import {
   getLicenseUploadErrorMessage,
   licenseExpires,
   isFreeTrial,
   licenseTxId,
   licenseTier,
-} from "../../utils/license";
-import { capitalize } from "../../utils/other";
+} from "../../../utils/license";
+import { capitalize } from "../../../utils/other";
 
 import {
   white,
@@ -33,9 +33,10 @@ import {
   gray800,
   orange400,
   red500,
-} from "../../utils/colors";
+} from "../../../utils/colors";
 
-import { ConfigContext } from "../../ConfigContext";
+import { ConfigContext } from "../../../ConfigContext";
+import { AccountMapContext } from "../../../AccountMapContext";
 
 interface Props {
   nodeConfig: NodeConfig;
@@ -44,10 +45,19 @@ interface Props {
   password: string;
 }
 
-const LicenseSettings = ({ nodeConfig, openInModal, password }: Props) => {
+const LicenseSettings = ({
+  nodeConfig,
+  openInModal,
+  password,
+  closeModal,
+}: Props) => {
   const { config, setConfigFile } = useContext(ConfigContext);
+  const { currentAccount } = useContext(AccountMapContext);
+
+  const accountConfig = currentAccount.config as VaultConfig;
+
   const history = useHistory();
-  const blockDiff = licenseExpires(config.license) - nodeConfig.blocks;
+  const blockDiff = licenseExpires(accountConfig.license) - nodeConfig.blocks;
   const blockDiffTimeEst = blockDiff * 10;
   const expireAsDate = moment()
     .add(blockDiffTimeEst, "minutes")
@@ -61,14 +71,30 @@ const LicenseSettings = ({ nodeConfig, openInModal, password }: Props) => {
     );
     if (!licenseErrorMessage) {
       const configCopy = { ...config };
-      configCopy.license = parsedFile;
+
+      configCopy.vaults = configCopy.vaults.filter(
+        (item) => item.id === accountConfig.id
+      );
+
+      const updatedAccountConfig = {
+        ...accountConfig,
+        license: parsedFile,
+      };
+
+      configCopy.vaults.push(updatedAccountConfig);
+
       saveConfig(configCopy, password);
       setConfigFile({ ...configCopy });
       openInModal(
-        <PurchaseLicenseSuccess config={configCopy} nodeConfig={nodeConfig} />
+        <PurchaseLicenseSuccess
+          config={updatedAccountConfig}
+          nodeConfig={nodeConfig}
+        />
       );
     } else {
-      openInModal(<ErrorModal message={licenseErrorMessage} />);
+      openInModal(
+        <ErrorModal message={licenseErrorMessage} closeModal={closeModal} />
+      );
     }
   };
 
@@ -92,16 +118,16 @@ const LicenseSettings = ({ nodeConfig, openInModal, password }: Props) => {
                 as={Circle}
                 style={{
                   marginRight: "0.35em",
-                  color: isFreeTrial(config.license)
+                  color: isFreeTrial(accountConfig.license)
                     ? orange400
-                    : licenseExpires(config.license) > nodeConfig.blocks
+                    : licenseExpires(accountConfig.license) > nodeConfig.blocks
                     ? green400
-                    : red500, // config.license.expires > nodeConfig.blocks
+                    : red500, // accountConfig.license.expires > nodeConfig.blocks
                 }}
               />
-              {isFreeTrial(config.license)
+              {isFreeTrial(accountConfig.license)
                 ? `Free Trial`
-                : licenseExpires(config.license) > nodeConfig.blocks
+                : licenseExpires(accountConfig.license) > nodeConfig.blocks
                 ? "Active"
                 : "Expired"}
             </StatusContainer>
@@ -113,18 +139,18 @@ const LicenseSettings = ({ nodeConfig, openInModal, password }: Props) => {
         <SettingsTable.ValueColumn>
           <SettingsTable.ValueText></SettingsTable.ValueText>
           <SettingsTable.ValueAction>
-            {capitalize(licenseTier(config.license))}
+            {capitalize(licenseTier(accountConfig.license))}
           </SettingsTable.ValueAction>
         </SettingsTable.ValueColumn>
       </SettingsTable.Row>
       <SettingsTable.Row>
         <SettingsTable.KeyColumn>
-          {isFreeTrial(config.license) ? `Trial` : `License`} Expires
+          {isFreeTrial(accountConfig.license) ? `Trial` : `License`} Expires
         </SettingsTable.KeyColumn>
         <SettingsTable.ValueColumn>
           <SettingsTable.ValueText></SettingsTable.ValueText>
           <SettingsTable.ValueAction>
-            Block {licenseExpires(config.license).toLocaleString()}
+            Block {licenseExpires(accountConfig.license).toLocaleString()}
           </SettingsTable.ValueAction>
         </SettingsTable.ValueColumn>
       </SettingsTable.Row>
@@ -144,7 +170,7 @@ const LicenseSettings = ({ nodeConfig, openInModal, password }: Props) => {
         <SettingsTable.ValueColumn>
           <SettingsTable.ValueText></SettingsTable.ValueText>
           <SettingsTable.ValueAction>
-            {licenseTxId(config.license) || "N/A"}
+            {licenseTxId(accountConfig.license) || "N/A"}
           </SettingsTable.ValueAction>
         </SettingsTable.ValueColumn>
       </SettingsTable.Row>
@@ -160,7 +186,7 @@ const LicenseSettings = ({ nodeConfig, openInModal, password }: Props) => {
         <LicenseButton
           background={green700}
           color={white}
-          onClick={() => history.push("/purchase")}
+          onClick={() => history.push(`purchase`)}
         >
           Renew License
         </LicenseButton>

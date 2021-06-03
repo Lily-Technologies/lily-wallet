@@ -1,3 +1,5 @@
+import { VaultConfig, AccountConfig } from "../../types";
+
 import HWWAccount from "./HWW/HWW-Account.json";
 import HWWAddresses from "./HWW/HWW-Addresses.json";
 import HWWChangeAddresses from "./HWW/HWW-ChangeAddresses.json";
@@ -7,7 +9,7 @@ import HWWUnusedChangeAddresses from "./HWW/HWW-UnusedChangeAddresses.json";
 import HWWUTXOs from "./HWW/HWW-UTXOs.json";
 
 const HWW = {
-  account: HWWAccount,
+  account: HWWAccount as AccountConfig,
   addresses: HWWAddresses,
   changeAddresses: HWWChangeAddresses,
   transactions: HWWTransactions,
@@ -26,7 +28,7 @@ import DASUTXOs from "./DAS/DAS-UTXOs.json";
 import DASOtherData from "./DAS/DAS-other-data.json";
 
 const DAS = {
-  account: DASAccount,
+  account: DASAccount as AccountConfig,
   addresses: DASAddresses,
   changeAddresses: DASChangeAddresses,
   transactions: DASTransactions,
@@ -46,7 +48,7 @@ import JBUTXOs from "./JB/JB-UTXOs.json";
 import JBOtherData from "./JB/JB-other-data.json";
 
 const JB = {
-  config: JBAccount,
+  config: JBAccount as AccountConfig,
   addresses: JBAddresses,
   changeAddresses: JBChangeAddresses,
   transactions: JBTransactions,
@@ -66,7 +68,7 @@ import SunnyAccount from "./Sunny/Sunny-Config.json";
 import SunnyOtherData from "./Sunny/Sunny-other-data.json";
 
 const Sunny = {
-  config: SunnyAccount,
+  config: SunnyAccount as AccountConfig,
   // addresses: SunnyAddresses,
   // changeAddresses: SunnyChangeAddresses,
   // transactions: SunnyTransactions,
@@ -104,7 +106,7 @@ import MultisigUTXOs from "./Multisig/Multisig-UTXOs.json";
 import MultisigOtherData from "./Multisig/Multisig-other-data.json";
 
 const Multisig = {
-  config: MultisigConfig,
+  config: MultisigConfig as VaultConfig,
   addresses: MultisigAddresses,
   changeAddresses: MultisigChangeAddresses,
   transactions: MultisigTransactions,

@@ -1,5 +1,7 @@
 import React, { Fragment, useContext, useRef, useEffect } from "react";
 import styled, { css } from "styled-components";
+import { blockExplorerTransactionURL } from "unchained-bitcoin";
+import { Network } from "bitcoinjs-lib";
 import { useHistory } from "react-router-dom";
 import { Alert } from "@styled-icons/ionicons-outline";
 
@@ -7,50 +9,58 @@ import { Button } from ".";
 
 import { white, yellow500, yellow600 } from "../utils/colors";
 
-import { NodeConfig } from "../types";
+import { NodeConfig, VaultConfig } from "../types";
 
 import { getLicenseBannerMessage, licenseTxId } from "../utils/license";
 import { mobile } from "../utils/media";
+import { getUnchainedNetworkFromBjslibNetwork } from "../utils/files";
 
 import { ConfigContext } from "../ConfigContext";
+import { AccountMapContext } from "../AccountMapContext";
 
 interface Props {
   nodeConfig: NodeConfig | undefined;
+  currentBitcoinNetwork: Network;
 }
 
-export const AlertBar = ({ nodeConfig }: Props) => {
+export const AlertBar = ({ nodeConfig, currentBitcoinNetwork }: Props) => {
   const { config } = useContext(ConfigContext);
+  const { setCurrentAccountId } = useContext(AccountMapContext);
   const history = useHistory();
 
-  let licenseBannerMessage = useRef("");
+  let licenseBannerMessage = useRef({ message: "", promptBuy: false });
+  let licenseBannerAccount = useRef({} as VaultConfig);
 
   useEffect(() => {
     async function checkLicenseTxConfirmed() {
       let licenseTxConfirmed = false;
-      if (nodeConfig && !config.isEmpty) {
-        try {
-          const txId = licenseTxId(config.license);
-          if (txId) {
-            licenseTxConfirmed = await window.ipcRenderer.invoke(
-              "/isConfirmedTransaction",
-              { txId }
-            );
+      if (nodeConfig) {
+        config.vaults.forEach(async (vault) => {
+          try {
+            const txId = licenseTxId(vault.license);
+            if (txId) {
+              licenseTxConfirmed = await window.ipcRenderer.invoke(
+                "/isConfirmedTransaction",
+                { txId }
+              );
+            }
+          } catch (e) {
+            licenseTxConfirmed = false;
+            console.log("AlertBar: Error retriving license transaction");
           }
-        } catch (e) {
-          licenseTxConfirmed = false;
-          console.log("AlertBar: Error retriving license transaction");
-        }
-        licenseBannerMessage.current = getLicenseBannerMessage(
-          config.license,
-          licenseTxConfirmed,
-          nodeConfig
-        );
+          licenseBannerMessage.current = getLicenseBannerMessage(
+            vault,
+            licenseTxConfirmed,
+            nodeConfig
+          );
+          licenseBannerAccount.current = vault;
+        });
       }
     }
     checkLicenseTxConfirmed();
   }, [config, nodeConfig]);
 
-  if (licenseBannerMessage.current) {
+  if (licenseBannerMessage.current.message) {
     return (
       <Fragment>
         <HeightHolder />
@@ -60,15 +70,34 @@ export const AlertBar = ({ nodeConfig }: Props) => {
               <IconWrapper>
                 <Icon />
               </IconWrapper>
-              <Text>{licenseBannerMessage.current}</Text>
+              <Text>{licenseBannerMessage.current.message}</Text>
             </TextContainer>
-            <BuyButton
-              background={white}
-              color={yellow500}
-              onClick={() => history.push("/purchase")}
-            >
-              Buy a License
-            </BuyButton>
+            {licenseBannerMessage.current.promptBuy ? (
+              <BuyButton
+                background={white}
+                color={yellow500}
+                onClick={() => {
+                  setCurrentAccountId(licenseBannerAccount.current.id);
+                  history.push(
+                    `/vault/${licenseBannerAccount.current.id}/purchase`
+                  );
+                }}
+              >
+                Buy a License
+              </BuyButton>
+            ) : (
+              <ViewTransactionButton
+                background={white}
+                color={yellow500}
+                href={blockExplorerTransactionURL(
+                  licenseTxId(licenseBannerAccount.current.license) as string,
+                  getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)
+                )}
+                target="_blank"
+              >
+                View transaction
+              </ViewTransactionButton>
+            )}
           </Container>
         </Wrapper>
       </Fragment>
@@ -140,6 +169,20 @@ const Text = styled.span`
 `;
 
 const BuyButton = styled.button`
+  ${Button}
+  font-size: 0.75em;
+  padding: 0.5em 1em;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 500;
+
+  ${mobile(css`
+    width: 100%;
+    margin-top: 1em;
+  `)};
+`;
+
+const ViewTransactionButton = styled.a`
   ${Button}
   font-size: 0.75em;
   padding: 0.5em 1em;

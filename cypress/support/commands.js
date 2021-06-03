@@ -93,7 +93,7 @@ Cypress.Commands.add("login", () => {
                 loading: false,
               };
               args1(undefined, multisigAccount);
-            }, 1000);
+            }, 1);
 
             setTimeout(() => {
               const mnemonicAccount = {
@@ -109,7 +109,7 @@ Cypress.Commands.add("login", () => {
                 loading: false,
               };
               args1(undefined, mnemonicAccount);
-            }, 1500);
+            }, 15);
           })
           .as("account-data");
 

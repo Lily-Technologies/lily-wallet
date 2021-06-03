@@ -1,17 +1,11 @@
-import React, { useState, useContext } from "react";
+import React from "react";
 import styled from "styled-components";
 import { Bank } from "@styled-icons/remix-line";
 import { Calculator } from "@styled-icons/heroicons-outline";
 
 import { StyledIcon, Button } from "../../components";
 import { InnerWrapper } from "./styles";
-import { green800, white, gray500, gray800, red500 } from "../../utils/colors";
-
-import { isAtLeastTier } from "../../utils/license";
-
-import { ConfigContext } from "../../ConfigContext";
-
-import { LicenseTiers } from "../../types";
+import { green800, white, gray500, gray800 } from "../../utils/colors";
 
 interface Props {
   header: JSX.Element;
@@ -20,19 +14,6 @@ interface Props {
 }
 
 const SelectAccountScreen = ({ header, setSetupOption, setStep }: Props) => {
-  const { config } = useContext(ConfigContext);
-  const [error, setError] = useState("");
-
-  const restrictedSetSetupOption = (setupOption: number) => {
-    if (isAtLeastTier(config.license, LicenseTiers.basic)) {
-      setSetupOption(setupOption);
-      return true;
-    } else {
-      setError("Requires upgrading license");
-      return false;
-    }
-  };
-
   return (
     <InnerWrapper>
       {header}
@@ -78,10 +59,8 @@ const SelectAccountScreen = ({ header, setSetupOption, setStep }: Props) => {
           background={white}
           color={gray800}
           onClick={() => {
-            const hasAccess = restrictedSetSetupOption(1);
-            if (hasAccess) {
-              setStep(1);
-            }
+            setSetupOption(1);
+            setStep(1);
           }}
         >
           <StyledIcon as={Bank} size={48} style={{ marginTop: "0.15em" }} />
@@ -94,7 +73,6 @@ const SelectAccountScreen = ({ header, setSetupOption, setStep }: Props) => {
           </SignupOptionTextContainer>
         </SignupOptionItem>
       </SignupOptionMenu>
-      {error && <ErrorText>{error}</ErrorText>}
     </InnerWrapper>
   );
 };
@@ -137,10 +115,6 @@ const SignupOptionItem = styled.div`
   font-size: 1.5em;
   text-align: center;
   white-space: normal;
-`;
-
-const ErrorText = styled.div`
-  color: ${red500};
 `;
 
 export default SelectAccountScreen;

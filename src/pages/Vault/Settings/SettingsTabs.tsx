@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import styled from "styled-components";
 
 import {
@@ -9,6 +9,8 @@ import {
   gray700,
 } from "../../../utils/colors";
 
+import { AccountMapContext } from "../../../AccountMapContext";
+
 import { SetStateString } from "../../../types";
 
 interface Props {
@@ -17,8 +19,9 @@ interface Props {
 }
 
 const SettingsTabs = ({ currentTab, setCurrentTab }: Props) => {
+  const { currentAccount } = useContext(AccountMapContext);
   return (
-    <TabsContainer>
+    <TabsContainer data-cy="settings-tabs">
       <TabItem
         active={currentTab === "general"}
         onClick={() => setCurrentTab("general")}
@@ -37,6 +40,14 @@ const SettingsTabs = ({ currentTab, setCurrentTab }: Props) => {
       >
         UTXOs
       </TabItem>
+      {currentAccount.config.quorum.totalSigners > 1 ? (
+        <TabItem
+          active={currentTab === "license"}
+          onClick={() => setCurrentTab("license")}
+        >
+          License
+        </TabItem>
+      ) : null}
       <TabItem
         active={currentTab === "export"}
         onClick={() => setCurrentTab("export")}

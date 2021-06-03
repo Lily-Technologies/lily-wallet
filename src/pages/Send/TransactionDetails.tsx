@@ -79,12 +79,14 @@ const TransactionDetails = ({
   const _fee = getFee(finalPsbt, transactions);
 
   const downloadPsbt = async () => {
-    const psbtForDownload = finalPsbt.toBase64();
-    await downloadFile(
-      psbtForDownload,
-      formatFilename("tx", currentBitcoinNetwork, "psbt")
-    );
-    openInModal(<PsbtDownloadDetails />);
+    try {
+      const psbtForDownload = finalPsbt.toBase64();
+      await downloadFile(
+        psbtForDownload,
+        formatFilename("tx", currentBitcoinNetwork, "psbt")
+      );
+      openInModal(<PsbtDownloadDetails />);
+    } catch (e) {}
   };
 
   const viewTxQrCode = () => {
@@ -268,6 +270,7 @@ const ModalBody = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  padding: 2.5em;
 `;
 
 const ModalSubtext = styled.div`

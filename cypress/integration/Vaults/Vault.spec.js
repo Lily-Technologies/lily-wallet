@@ -2,13 +2,13 @@
 
 import { Multisig } from "../../../src/__tests__/fixtures";
 
-describe("Vault - Settings", () => {
+describe("Vault - General", () => {
   beforeEach(() => {
     cy.login();
   });
 
   it("can view transaction details", () => {
-    cy.contains(Multisig.config.name).click();
+    cy.get("[data-cy=nav-item]").contains(Multisig.config.name).click();
 
     cy.contains(Multisig.transactions[0].address).click();
 
@@ -22,7 +22,7 @@ describe("Vault - Settings", () => {
       cy.stub(win, "open").as("viewInExplorer");
     });
 
-    cy.contains(Multisig.config.name).click();
+    cy.get("[data-cy=nav-item]").contains(Multisig.config.name).click();
 
     cy.contains(Multisig.transactions[0].address).click();
 

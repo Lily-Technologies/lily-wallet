@@ -75,13 +75,22 @@ const ConfirmTxPage = ({
   };
 
   const setPreSignedDevices = useCallback(() => {
-    if (currentAccount.config.addressType !== AddressType.P2WPKH) {
-      // KBC-TODO: this needs to handle the single hww case
-      const signedDevicesObjects = getSignedDevicesFromPsbt(
-        finalPsbt,
-        currentAccount.config.extendedPublicKeys!
+    try {
+      if (currentAccount.config.addressType !== AddressType.P2WPKH) {
+        // KBC-TODO: this needs to handle the single hww case
+        const signedDevicesObjects = getSignedDevicesFromPsbt(
+          finalPsbt,
+          currentAccount.config.extendedPublicKeys!
+        );
+        setSignedDevices(signedDevicesObjects);
+      }
+    } catch (e) {
+      openInModal(
+        <ErrorModal
+          message="Something went wrong. Make sure you are importing a transaction from the right account. If this problem persists, contact support."
+          closeModal={closeModal}
+        />
       );
-      setSignedDevices(signedDevicesObjects);
     }
   }, [
     currentAccount.config.addressType,
@@ -135,7 +144,7 @@ const ConfirmTxPage = ({
       closeModal();
     } catch (e) {
       console.log("e: ", e);
-      openInModal(<ErrorModal message={e.message} />);
+      openInModal(<ErrorModal message={e.message} closeModal={closeModal} />);
     }
   };
 

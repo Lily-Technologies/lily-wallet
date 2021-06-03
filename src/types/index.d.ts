@@ -116,9 +116,13 @@ export enum TransactionType {
 }
 
 export enum LicenseTiers {
-  free = "free",
   basic = "basic",
-  essential = "essential",
+  premium = "premium",
+}
+
+export enum LicenseResponseTiers {
+  basicThree = "basicThree",
+  basicFive = "basicFive",
   premium = "premium",
 }
 
@@ -205,13 +209,9 @@ export interface UtxoMap {
 export interface PaymentAddressResponse {
   childPath: string;
   address: string;
-  basic: number;
-  essential: number;
+  basicThree: number;
+  basicFive: number;
   premium: number;
-}
-export interface LicenseResponse {
-  license: string;
-  signature: string;
 }
 export interface LilyLicense {
   license: string;
@@ -219,16 +219,33 @@ export interface LilyLicense {
 }
 export interface LilyConfig {
   name: string;
-  version: string;
+  version: "1.0.6";
+  isEmpty: boolean;
+  wallets: AccountConfig[];
+  vaults: VaultConfig[];
+}
+
+export interface LilyConfigOneDotFiveConfig {
+  name: string;
+  version: "1.0.5";
   license: LilyLicense;
   isEmpty: boolean;
   wallets: AccountConfig[];
   vaults: AccountConfig[];
 }
 
-export interface OldLilyConfig {
+export interface LilyConfigOneDotZeroConfig {
   name: string;
-  version: string;
+  version: "1.0.0";
+  license: LilyLicense;
+  isEmpty: boolean;
+  wallets: AccountConfig[];
+  vaults: AccountConfig[];
+}
+
+export interface LilyZeroDotOneConfig {
+  name: string;
+  version: "0.0.1" | "0.0.2";
   isEmpty: boolean;
   backup_options: {
     gDrive: boolean;
@@ -298,6 +315,10 @@ export interface AccountConfig {
   extendedPublicKeys: ExtendedPublicKey[];
   mnemonic?: string;
   parentFingerprint?: string;
+}
+
+export interface VaultConfig extends AccountConfig {
+  license: LilyLicense;
 }
 
 export interface Bip32Derivation {

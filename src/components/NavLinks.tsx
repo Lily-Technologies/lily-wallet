@@ -50,7 +50,7 @@ export const NavLinks = ({ currentBitcoinNetwork }: Props) => {
             " (testnet)"}
         </WalletTitleText>
       </WalletTitle>
-      <SidebarItemLink active={pathname === "/"} to="/">
+      <SidebarItemLink data-cy="nav-item" active={pathname === "/"} to="/">
         <StyledIcon
           as={Home}
           size={24}
@@ -58,7 +58,11 @@ export const NavLinks = ({ currentBitcoinNetwork }: Props) => {
         />
         Home
       </SidebarItemLink>
-      <SidebarItemLink active={pathname === "/send"} to="/send">
+      <SidebarItemLink
+        data-cy="nav-item"
+        active={pathname === "/send"}
+        to="/send"
+      >
         <StyledIcon
           as={SendPlane}
           size={24}
@@ -66,7 +70,11 @@ export const NavLinks = ({ currentBitcoinNetwork }: Props) => {
         />
         Send
       </SidebarItemLink>
-      <SidebarItemLink active={pathname === "/receive"} to="/receive">
+      <SidebarItemLink
+        data-cy="nav-item"
+        active={pathname === "/receive"}
+        to="/receive"
+      >
         <StyledIcon
           as={VerticalAlignBottom}
           size={24}
@@ -75,7 +83,8 @@ export const NavLinks = ({ currentBitcoinNetwork }: Props) => {
         Receive
       </SidebarItemLink>
       <SidebarItemLink
-        active={pathname === "/settings" || pathname === "/purchase"}
+        data-cy="nav-item"
+        active={pathname === "/settings"}
         to="/settings"
       >
         <StyledIcon
@@ -90,6 +99,7 @@ export const NavLinks = ({ currentBitcoinNetwork }: Props) => {
       <AccountsContainer>
         {config.wallets.map((wallet) => (
           <SidebarItemLink
+            data-cy="nav-item"
             key={wallet.id}
             active={pathname.includes(`/vault/${wallet.id}`)}
             onClick={() => {
@@ -124,6 +134,7 @@ export const NavLinks = ({ currentBitcoinNetwork }: Props) => {
 
         {config.vaults.map((vault) => (
           <SidebarItemLink
+            data-cy="nav-item"
             key={vault.id}
             active={pathname.includes(`/vault/${vault.id}`)}
             onClick={() => {
@@ -143,7 +154,11 @@ export const NavLinks = ({ currentBitcoinNetwork }: Props) => {
         ))}
       </AccountsContainer>
 
-      <SidebarItemLink active={pathname === "/setup"} to={`/setup`}>
+      <SidebarItemLink
+        data-cy="nav-item"
+        active={pathname === "/setup"}
+        to={`/setup`}
+      >
         <StyledIcon
           as={AddCircleOutline}
           size={24}

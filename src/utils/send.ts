@@ -120,15 +120,19 @@ export const getFeeForMultisig = (
 };
 
 export const getFee = (psbt: Psbt, transactions: Transaction[]) => {
-  const outputSum = psbt.txOutputs.reduce((acc, cur) => acc + cur.value, 0);
-  const txMap = createTransactionMapFromTransactionArray(transactions);
-  const inputSum = psbt.txInputs.reduce((acc, cur) => {
-    const inputBuffer = cloneBuffer(cur.hash);
-    const txId = inputBuffer.reverse().toString("hex"); // careful, this reverses in place.
-    const currentUtxo = txMap[txId];
-    return Math.abs(currentUtxo.vout[cur.index].value) + acc;
-  }, 0);
-  return inputSum - outputSum;
+  try {
+    const outputSum = psbt.txOutputs.reduce((acc, cur) => acc + cur.value, 0);
+    const txMap = createTransactionMapFromTransactionArray(transactions);
+    const inputSum = psbt.txInputs.reduce((acc, cur) => {
+      const inputBuffer = cloneBuffer(cur.hash);
+      const txId = inputBuffer.reverse().toString("hex"); // careful, this reverses in place.
+      const currentUtxo = txMap[txId];
+      return Math.abs(currentUtxo.vout[cur.index].value) + acc;
+    }, 0);
+    return inputSum - outputSum;
+  } catch (e) {
+    throw new Error(e);
+  }
 };
 
 export const coinSelection = (amountInSats: number, availableUtxos: UTXO[]) => {

@@ -7,7 +7,7 @@ import TxDetailsModal from "./TxDetailsModal";
 import TransactionRow from "./TransactionRow";
 import TransactionRowLoading from "./TransactionRowLoading";
 
-import { gray800, white, green700 } from "../../../utils/colors";
+import { gray600, gray800, white, green700 } from "../../../utils/colors";
 
 import { Transaction } from "../../../types";
 
@@ -149,10 +149,10 @@ const NoTransasctionsSection = styled.div<{ flat: boolean }>`
 `;
 
 const NoTransactionsHeader = styled.h3`
-  color: ${gray800};
+  color: ${gray600};
 `;
 const NoTransactionsSubtext = styled.h4`
-  color: ${gray800};
+  color: ${gray600};
 `;
 
 const DeadFlower = styled.img`

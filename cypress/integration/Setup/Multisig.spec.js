@@ -55,7 +55,7 @@ describe("Multisig", () => {
 
     cy.contains("View Accounts").click();
 
-    cy.contains(ACCOUNT_NAME).click();
+    cy.get("[data-cy=nav-item]").contains(ACCOUNT_NAME).click();
 
     cy.get("[data-cy=settings]").click();
 

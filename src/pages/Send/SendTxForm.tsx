@@ -23,6 +23,7 @@ import {
   validateAddress,
   validateSendAmount,
   getPsbtFromText,
+  getFee,
 } from "../../utils/send";
 
 import { SetStateNumber, File } from "../../types";
@@ -76,11 +77,18 @@ const SendTxForm = ({
   const importTxFromFile = (file: string) => {
     try {
       const tx = getPsbtFromText(file);
+      try {
+        getFee(tx, currentAccount.transactions); // this verifies that the tx is for currentAccount
+      } catch (e) {
+        throw new Error(
+          "This transaction does not belong to the currently selected account."
+        );
+      }
       setFinalPsbt(tx);
       setImportTxFromFileError("");
       setStep(1);
     } catch (e) {
-      openInModal(<ErrorModal message={e.message} />);
+      openInModal(<ErrorModal message={e.message} closeModal={closeModal} />);
     }
   };
 

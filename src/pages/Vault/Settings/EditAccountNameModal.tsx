@@ -24,6 +24,7 @@ import {
 import { saveConfig } from "../../../utils/files";
 
 import { ConfigContext } from "../../../ConfigContext";
+import { VaultConfig } from "types";
 
 interface Props {
   password: string;
@@ -59,7 +60,7 @@ const EditAccountNameModal = ({ password, closeModal }: Props) => {
         configCopy.vaults = configCopy.vaults.filter(
           (vault) => vault.id !== currentAccount.config.id
         );
-        configCopy.vaults.push(currentAccountConfigCopy);
+        configCopy.vaults.push(currentAccountConfigCopy as VaultConfig);
       }
 
       saveConfig(configCopy, password);

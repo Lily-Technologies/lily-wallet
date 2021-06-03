@@ -15,6 +15,7 @@ import {
   Device,
   ExtendedPublicKey,
   HwiResponseEnumerate,
+  VaultConfig,
 } from "../types";
 
 export const bitcoinNetworkEqual = (a: Network, b: Network) => {
@@ -114,13 +115,23 @@ export const saveConfig = async (configFile: LilyConfig, password: string) => {
   }
 };
 
-export const saveLicenseToConfig = async (
+export const saveLicenseToVault = async (
+  accountConfig: VaultConfig,
   license: LilyLicense,
-  configFile: LilyConfig,
+  config: LilyConfig,
   password: string
 ) => {
-  const configCopy = { ...configFile };
-  configCopy.license = license;
+  const configCopy = { ...config };
+
+  configCopy.vaults = configCopy.vaults.filter(
+    (item) => item.id !== accountConfig.id
+  );
+
+  const updatedAccountConfig = {
+    ...accountConfig,
+    license: license,
+  };
+  configCopy.vaults.push(updatedAccountConfig);
   await saveConfig(configCopy, password);
   return configCopy;
 };
@@ -216,6 +227,7 @@ export const createMultisigConfigFile = (
   requiredSigners: number,
   accountName: string,
   config: LilyConfig,
+  currentBlockHeight: number,
   currentBitcoinNetwork: Network
 ) => {
   const configCopy = { ...config };
@@ -241,6 +253,10 @@ export const createMultisigConfigFile = (
     id: uuidv4(),
     created_at: Date.now(),
     name: accountName,
+    license: {
+      license: `trial:${currentBlockHeight + 4320}`, // one month free trial (6 * 24 * 30)
+      signature: "",
+    },
     network: getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork),
     addressType: AddressType.P2WSH,
     quorum: {

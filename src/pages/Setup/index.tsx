@@ -35,10 +35,15 @@ import { ConfigContext } from "../../ConfigContext";
 
 interface Props {
   password: string;
+  currentBlockHeight: number;
   currentBitcoinNetwork: Network;
 }
 
-const Setup = ({ password, currentBitcoinNetwork }: Props) => {
+const Setup = ({
+  password,
+  currentBlockHeight,
+  currentBitcoinNetwork,
+}: Props) => {
   document.title = `Setup - Lily Wallet`;
   const { config, setConfigFile } = useContext(ConfigContext);
   const [setupOption, setSetupOption] = useState(0);
@@ -63,6 +68,7 @@ const Setup = ({ password, currentBitcoinNetwork }: Props) => {
         configRequiredSigners,
         accountName,
         config,
+        currentBlockHeight,
         currentBitcoinNetwork
       );
     } else if (setupOption === 2) {
@@ -86,10 +92,13 @@ const Setup = ({ password, currentBitcoinNetwork }: Props) => {
     setLocalConfig(configObject);
   }, [
     accountName,
+    addressType,
     config,
     configRequiredSigners,
     currentBitcoinNetwork,
+    currentBlockHeight,
     importedDevices,
+    path,
     password,
     setupOption,
     walletMnemonic,

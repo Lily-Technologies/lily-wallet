@@ -214,7 +214,12 @@ const App = () => {
     <Router>
       <ScrollToTop />
       <TitleBar nodeConfig={nodeConfig} config={config} />
-      {!config.isEmpty && <AlertBar nodeConfig={nodeConfig} />}
+      {!config.isEmpty && (
+        <AlertBar
+          nodeConfig={nodeConfig}
+          currentBitcoinNetwork={currentBitcoinNetwork}
+        />
+      )}
       <PageWrapper id="page-wrapper">
         <ConfigRequired />
         <Overlay />
@@ -225,6 +230,17 @@ const App = () => {
           />
         )}
         <Switch>
+          <Route
+            path="/vault/:id/purchase"
+            render={() => (
+              <Purchase
+                currentBitcoinPrice={currentBitcoinPrice}
+                password={password}
+                nodeConfig={nodeConfig!}
+                currentBitcoinNetwork={currentBitcoinNetwork}
+              />
+            )}
+          />
           <Route
             path="/vault/:id"
             render={() => (
@@ -255,6 +271,7 @@ const App = () => {
             render={() => (
               <Setup
                 password={password}
+                currentBlockHeight={nodeConfig! && nodeConfig.blocks!}
                 currentBitcoinNetwork={currentBitcoinNetwork}
               />
             )}
@@ -280,17 +297,6 @@ const App = () => {
                 currentBitcoinNetwork={currentBitcoinNetwork}
                 setNodeConfig={setNodeConfig}
                 password={password}
-              />
-            )}
-          />
-          <Route
-            path="/purchase"
-            render={() => (
-              <Purchase
-                currentBitcoinPrice={currentBitcoinPrice}
-                password={password}
-                nodeConfig={nodeConfig!}
-                currentBitcoinNetwork={currentBitcoinNetwork}
               />
             )}
           />

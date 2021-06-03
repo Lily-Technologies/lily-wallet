@@ -10,7 +10,6 @@ import {
   MnemonicWordsDisplayer,
   AnimatedQrCode,
   Modal,
-  ModalContentWrapper,
   SettingsTable,
 } from "../../../components";
 import { white, black, gray100, green500 } from "../../../utils/colors";
@@ -104,9 +103,7 @@ const ExportView = ({ currentBitcoinNetwork }: Props) => {
       <Container>
         <ModalHeaderContainer>Scan this with your device</ModalHeaderContainer>
         <ModalContent>
-          <OutputItem style={{ wordBreak: "break-word" }}>
-            <AnimatedQrCode valueArray={ccFileEncoded} />
-          </OutputItem>
+          <AnimatedQrCode valueArray={ccFileEncoded} />
         </ModalContent>
       </Container>
     );
@@ -119,28 +116,33 @@ const ExportView = ({ currentBitcoinNetwork }: Props) => {
   `;
 
   const XpubQrCode = () => (
-    <QRCode
-      bgColor={white}
-      fgColor={black}
-      level="Q"
-      style={{ width: 256 }}
-      value={currentAccount.config.extendedPublicKeys[0].xpub as string}
-    />
+    <Container>
+      <ModalHeaderContainer>Scan this with your device</ModalHeaderContainer>
+      <ModalContent>
+        <QRCode
+          bgColor={white}
+          fgColor={black}
+          level="Q"
+          style={{ width: 256 }}
+          value={currentAccount.config.extendedPublicKeys[0].xpub as string}
+        />
+      </ModalContent>
+    </Container>
   );
 
   const MnemonicQrCode = () => (
-    <ModalContentWrapper>
-      <QRCode
-        bgColor={white}
-        fgColor={black}
-        level="Q"
-        style={{ width: 256 }}
-        value={currentAccount.config.mnemonic as string}
-      />
-      <ScanInstructions>
-        Scan this QR code to import this wallet into BlueWallet
-      </ScanInstructions>
-    </ModalContentWrapper>
+    <Container>
+      <ModalHeaderContainer>Scan this with your device</ModalHeaderContainer>
+      <ModalContent>
+        <QRCode
+          bgColor={white}
+          fgColor={black}
+          level="Q"
+          style={{ width: 256 }}
+          value={currentAccount.config.mnemonic as string}
+        />
+      </ModalContent>
+    </Container>
   );
 
   return (
@@ -157,7 +159,7 @@ const ExportView = ({ currentBitcoinNetwork }: Props) => {
           <SettingsTable.KeyColumn>Mnemonic Words</SettingsTable.KeyColumn>
           <SettingsTable.ValueColumn>
             <SettingsTable.ValueText></SettingsTable.ValueText>
-            <SettingsTable.ValueAction>
+            <SettingsTable.ValueAction style={{ display: "flex" }}>
               <SettingsTable.ActionButton
                 background={white}
                 color={green500}
@@ -165,22 +167,27 @@ const ExportView = ({ currentBitcoinNetwork }: Props) => {
                   openInModal(<MnemonicQrCode />);
                 }}
               >
-                QR Code
+                View QR Code
               </SettingsTable.ActionButton>
               <SettingsTable.ActionButton
                 background={white}
                 color={green500}
                 onClick={() =>
                   openInModal(
-                    <WordsContainer>
-                      <MnemonicWordsDisplayer
-                        mnemonicWords={currentAccount.config.mnemonic!}
-                      />
-                    </WordsContainer>
+                    <Container>
+                      <ModalHeaderContainer>
+                        Do not share these words with anyone.
+                      </ModalHeaderContainer>
+                      <ModalContent>
+                        <MnemonicWordsDisplayer
+                          mnemonicWords={currentAccount.config.mnemonic!}
+                        />
+                      </ModalContent>
+                    </Container>
                   )
                 }
               >
-                View
+                View Words
               </SettingsTable.ActionButton>
             </SettingsTable.ValueAction>
           </SettingsTable.ValueColumn>
@@ -224,7 +231,6 @@ const ExportView = ({ currentBitcoinNetwork }: Props) => {
               </SettingsTable.ValueAction>
             </SettingsTable.ValueColumn>
           </SettingsTable.Row>
-          <SettingsTable.Row></SettingsTable.Row>
           <SettingsTable.Row>
             <SettingsTable.KeyColumn>Caravan File</SettingsTable.KeyColumn>
             <SettingsTable.ValueColumn>
@@ -259,7 +265,7 @@ const ExportView = ({ currentBitcoinNetwork }: Props) => {
                   openInModal(<XpubQrCode />);
                 }}
               >
-                Download
+                View QR Code
               </SettingsTable.ActionButton>
             </SettingsTable.ValueAction>
           </SettingsTable.ValueColumn>
@@ -271,18 +277,6 @@ const ExportView = ({ currentBitcoinNetwork }: Props) => {
     </SettingsTable.Wrapper>
   );
 };
-
-const WordsContainer = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  padding: 1.25em;
-  justify-content: center;
-`;
-
-const ScanInstructions = styled.div`
-  font-size: 0.5em;
-  padding: 1.5em 0;
-`;
 
 const ModalHeaderContainer = styled.div`
   border-bottom: 1px solid rgb(229, 231, 235);
@@ -296,16 +290,11 @@ const ModalHeaderContainer = styled.div`
   font-size: 1.5em;
 `;
 
-const OutputItem = styled.div`
+const ModalContent = styled.div`
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   padding: 1.5em;
   background: ${gray100};
-  justify-content: center;
-  align-items: center;
-  border-radius: 4px;
 `;
-
-const ModalContent = styled.div``;
 
 export default ExportView;

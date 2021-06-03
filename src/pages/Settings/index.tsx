@@ -16,7 +16,6 @@ import {
 
 import Tabs from "./Tabs";
 import BackupSettings from "./BackupSettings";
-import LicenseSettings from "./LicenseSettings";
 import NetworkSettings from "./NetworkSettings";
 import About from "./About";
 
@@ -90,14 +89,6 @@ const Settings = ({
             <BackupSettings
               config={config}
               currentBitcoinNetwork={currentBitcoinNetwork}
-            />
-          )}
-          {currentTab === "license" && (
-            <LicenseSettings
-              nodeConfig={nodeConfig}
-              openInModal={openInModal}
-              closeModal={closeModal}
-              password={password}
             />
           )}
           {currentTab === "about" && <About />}

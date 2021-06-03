@@ -1,96 +1,135 @@
 import { v4 as uuidv4 } from "uuid";
 import { networks } from "bitcoinjs-lib";
 
-import { getP2shDeriationPathForNetwork, getP2wpkhDeriationPathForNetwork, getMultisigDeriationPathForNetwork } from './files'
+import {
+  getP2shDeriationPathForNetwork,
+  getP2wpkhDeriationPathForNetwork,
+  getMultisigDeriationPathForNetwork,
+} from "./files";
 
 import {
-    LilyConfig,
-    OldLilyConfig,
-    AddressType,
-  } from "../types";
+  LilyConfig,
+  LilyZeroDotOneConfig,
+  LilyConfigOneDotFiveConfig,
+  LilyConfigOneDotZeroConfig,
+  AddressType,
+} from "../types";
 
-  export const getBjsNetworkFromUnchained = (
-    unchainedNetwork: string
-  ) => {
-    if (unchainedNetwork === 'testnet') {
-      return networks.testnet;
-    } else {
-      return networks.bitcoin
-    }
-  };
+export const getBjsNetworkFromUnchained = (unchainedNetwork: string) => {
+  if (unchainedNetwork === "testnet") {
+    return networks.testnet;
+  } else {
+    return networks.bitcoin;
+  }
+};
 
 export const updateConfigFileVersionBeta = (
-    config: OldLilyConfig,
-    currentBlockHeight: number
-  ) => {
-    if (config.version === "0.0.1" || config.version === "0.0.2") {
-      const updatedConfig = {
-        name: "",
-        version: "1.0.0",
-        isEmpty: false,
-        license: {
-          license: `trial:${currentBlockHeight + 4320}`, // one month free trial (6 * 24 * 30)
-          signature: "",
-        },
-        wallets: config.wallets.map((item) => ({
-          id: item.id,
-          created_at: item.created_at,
-          name: item.name,
-          network: item.network,
-          addressType: item.addressType,
-          quorum: item.quorum,
-          extendedPublicKeys: [
-            {
-              id: uuidv4(),
-              created_at: item.created_at,
-              parentFingerprint: item.parentFingerprint,
-              xpub: item.xpub,
-              network: item.network,
-              bip32Path: "m/0",
-              device: item.device || {
-                type: "lily",
-                model: "lily",
-                fingerprint: item.parentFingerprint,
-              },
+  config:
+    | LilyConfigOneDotFiveConfig
+    | LilyConfigOneDotZeroConfig
+    | LilyConfig
+    | LilyZeroDotOneConfig,
+  currentBlockHeight: number
+) => {
+  if (config.version === "0.0.1" || config.version === "0.0.2") {
+    const updatedConfig = {
+      name: "",
+      version: "1.0.0",
+      isEmpty: false,
+      license: {
+        license: `trial:${currentBlockHeight + 4320}`, // one month free trial (6 * 24 * 30)
+        signature: "",
+      },
+      wallets: config.wallets.map((item) => ({
+        id: item.id,
+        created_at: item.created_at,
+        name: item.name,
+        network: item.network,
+        addressType: item.addressType,
+        quorum: item.quorum,
+        extendedPublicKeys: [
+          {
+            id: uuidv4(),
+            created_at: item.created_at,
+            parentFingerprint: item.parentFingerprint,
+            xpub: item.xpub,
+            network: item.network,
+            bip32Path: "m/0",
+            device: item.device || {
+              type: "lily",
+              model: "lily",
+              fingerprint: item.parentFingerprint,
             },
-          ],
-          mnemonic: item.mnemonic,
-          parentFingerprint: item.parentFingerprint,
-        })),
-        vaults: config.vaults.map((item) => ({
-          ...item,
-        })),
-      } as LilyConfig;
-      return updatedConfig;
-    }
-    return config as unknown as LilyConfig;
-  };
-  
-  export const updateConfigFileVersionOne = (
-    config: LilyConfig
-  ) => {
-    if (config.version === "1.0.0") {
-      const updatedConfig = {
-        ...config,
-        version: '1.0.5',
-        wallets: config.wallets.map((item) => ({
-          ...item,
-          extendedPublicKeys: [
-            {
-              ...item.extendedPublicKeys[0],
-              bip32Path: item.addressType === AddressType.p2sh ? getP2shDeriationPathForNetwork(getBjsNetworkFromUnchained(item.network)) : getP2wpkhDeriationPathForNetwork(getBjsNetworkFromUnchained(item.network)),
-            }
-          ],
-        })),
-        vaults: config.vaults.map((item) => ({
-          ...item,
-          extendedPublicKeys: item.extendedPublicKeys.map((extendedPublicKey) => ({
+          },
+        ],
+        mnemonic: item.mnemonic,
+        parentFingerprint: item.parentFingerprint,
+      })),
+      vaults: config.vaults.map((item) => ({
+        ...item,
+      })),
+    } as LilyConfigOneDotZeroConfig;
+    return updatedConfig;
+  }
+  return config as unknown as
+    | LilyConfigOneDotFiveConfig
+    | LilyConfigOneDotZeroConfig
+    | LilyConfig;
+};
+
+export const updateConfigFileVersionOne = (
+  config: LilyConfigOneDotFiveConfig | LilyConfigOneDotZeroConfig | LilyConfig
+) => {
+  if (config.version === "1.0.0") {
+    const updatedConfig = {
+      ...config,
+      version: "1.0.5",
+      wallets: config.wallets.map((item) => ({
+        ...item,
+        extendedPublicKeys: [
+          {
+            ...item.extendedPublicKeys[0],
+            bip32Path:
+              item.addressType === AddressType.p2sh
+                ? getP2shDeriationPathForNetwork(
+                    getBjsNetworkFromUnchained(item.network)
+                  )
+                : getP2wpkhDeriationPathForNetwork(
+                    getBjsNetworkFromUnchained(item.network)
+                  ),
+          },
+        ],
+      })),
+      vaults: config.vaults.map((item) => ({
+        ...item,
+        extendedPublicKeys: item.extendedPublicKeys.map(
+          (extendedPublicKey) => ({
             ...extendedPublicKey,
-            bip32Path: getMultisigDeriationPathForNetwork(getBjsNetworkFromUnchained(item.network))
-          }))
-        })),
-      } as LilyConfig;
-      return updatedConfig;
-    }
-    return config;
-  };
+            bip32Path: getMultisigDeriationPathForNetwork(
+              getBjsNetworkFromUnchained(item.network)
+            ),
+          })
+        ),
+      })),
+    } as LilyConfigOneDotFiveConfig;
+    return updatedConfig;
+  }
+  return config as unknown as LilyConfigOneDotFiveConfig | LilyConfig;
+};
+
+export const updateConfigFileVersionOneDotFive = (
+  config: LilyConfigOneDotFiveConfig | LilyConfig
+) => {
+  if (config.version === "1.0.5") {
+    const updatedConfig = {
+      ...config,
+      version: "1.0.6",
+      vaults: config.vaults.map((item) => ({
+        ...item,
+        license: config.license,
+      })),
+    } as LilyConfig;
+    return updatedConfig;
+  }
+  return config as unknown as LilyConfig;
+};
