@@ -658,7 +658,7 @@ const scanForAddressesAndTransactions = async (
       `m/1/${i}`,
       currentBitcoinNetwork
     );
-    changeAddresses.push(changeAddress);
+
     const changeTxs = await getTransactionsFromAddress(
       changeAddress.address,
       nodeClient,
@@ -667,6 +667,7 @@ const scanForAddressesAndTransactions = async (
     if (!changeTxs.length) {
       unusedChangeAddresses.push(changeAddress);
     } else {
+      changeAddresses.push(changeAddress);
       transactions = [...transactions, ...changeTxs];
     }
 
