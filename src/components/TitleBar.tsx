@@ -16,7 +16,7 @@ import { AccountMapContext } from "../AccountMapContext";
 
 import { getNodeStatus } from "../utils/other";
 
-import { StyledIcon, Dropdown } from ".";
+import { StyledIcon, Dropdown, Modal, SupportModal } from ".";
 
 import { NodeConfig, LilyConfig } from "../types";
 
@@ -30,8 +30,20 @@ export const TitleBar = ({ nodeConfig, config }: Props) => {
   const [nodeOptionsDropdownOpen, setNodeOptionsDropdownOpen] = useState(false);
   const history = useHistory();
   const { setCurrentAccountId } = useContext(AccountMapContext);
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
 
   const nodeConfigDropdownItems = [];
+
+  const openInModal = (component: JSX.Element) => {
+    setModalIsOpen(true);
+    setModalContent(component);
+  };
+
+  const closeModal = () => {
+    setModalIsOpen(false);
+    setModalContent(null);
+  };
 
   nodeConfigDropdownItems.push({
     label: (
@@ -52,7 +64,8 @@ export const TitleBar = ({ nodeConfig, config }: Props) => {
     {
       label: "Support",
       onClick: () => {
-        window.open("https://lily-wallet.com/support", "_blank");
+        openInModal(<SupportModal closeModal={closeModal} />);
+        // window.open("https://lily-wallet.com/support", "_blank");
       },
     },
     {
@@ -183,6 +196,9 @@ export const TitleBar = ({ nodeConfig, config }: Props) => {
           </DotDotDotContainer>
         </RightSection>
       </DraggableTitleBar>
+      <Modal isOpen={modalIsOpen} closeModal={() => setModalIsOpen(false)}>
+        {modalContent}
+      </Modal>
     </Fragment>
   );
 };
