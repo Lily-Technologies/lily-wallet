@@ -22,14 +22,17 @@
   },
   "build": {
     "productName": "Lily Wallet",
-    "appId": "com.lily-wallet",
+    "appId": "com.lily-wallet.lily",
     "extends": null,
+    "afterSign": "./afterSignHook.js",
     "mac": {
       "category": "public.app-category.finance",
       "icon": "./src/assets/AppIcon.icns",
       "target": [
         "dmg"
       ],
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
       "entitlements": "./build/entitlements.mac.inherit.plist",
       "extendInfo": {
         "NSCameraUsageDescription": "Allow your camera to scan QR codes during account setup and transaction signing."
@@ -37,12 +40,15 @@
       "files": [
         "./build/**/*",
         "./src/main.js",
+        "./src/types/*",
         "./src/preload.js",
         "./src/server/**/*",
         "./src/utils/**/*",
-        "./src/types/*",
         "./HWIs/HWI_MAC"
       ]
+    },
+    "dmg": {
+      "sign": false
     },
     "linux": {
       "category": "Finance",
@@ -57,10 +63,10 @@
       "files": [
         "./build/**/*",
         "./src/main.js",
+        "./src/types/*",
         "./src/preload.js",
         "./src/server/**/*",
         "./src/utils/**/*",
-        "./src/types/*",
         "./HWIs/HWI_LINUX"
       ]
     },
@@ -68,10 +74,10 @@
       "files": [
         "./build/**/*",
         "./src/main.js",
+        "./src/types/*",
         "./src/preload.js",
         "./src/server/**/*",
         "./src/utils/**/*",
-        "./src/types/*",
         "./HWIs/hwi.exe"
       ]
     }
@@ -91,6 +97,7 @@
     "cors": "^2.8.5",
     "crypto-js": "^4.0.0",
     "dotenv": "^8.2.0",
+    "electron-notarize": "^1.0.0",
     "moment": "^2.29.1",
     "polished": "^3.5.1",
     "react": "^16.13.1",
@@ -141,7 +148,7 @@
     "babel-preset-env": "^1.7.0",
     "chai-colors": "^1.0.1",
     "cypress": "^7.2.0",
-    "electron": "^9.0.0",
+    "electron": "^13.1.4",
     "electron-builder": "^22.7.0",
     "electron-installer-dmg": "^3.0.0",
     "electron-mock-ipc": "^0.3.8",
