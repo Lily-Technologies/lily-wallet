@@ -106,7 +106,7 @@ function createWindow() {
   mainWindow.setTrafficLightPosition &&
     mainWindow.setTrafficLightPosition({
       x: 10,
-      y: 20,
+      y: 10,
     });
 
   if ("DEVURL" in process.env) {
