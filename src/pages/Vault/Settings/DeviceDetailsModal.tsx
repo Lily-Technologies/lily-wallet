@@ -33,21 +33,27 @@ const DeviceDetailsModal = ({ item }: Props) => {
         <InformationContainer>
           <ImageContainer>
             <DeviceImage
-            src={
-              item.device.type === "coldcard"
-                ? require("../../../assets/coldcard.png")
-                : item.device.type === "ledger" && item.device.model === 'ledger_nano_s'
-                ? require("../../../assets/ledger_nano_s.png")
-                : item.device.type === "ledger" && item.device.model === 'ledger_nano_x'
-                ? require("../../../assets/ledger_nano_x.png")
-                : item.device.type === "trezor" && item.device.model === 'trezor_1'
-                ? require("../../../assets/trezor_1.png")
-                : item.device.type === 'trezor' && item.device.model === 'trezor_t'
-                ? require('../../../assets/trezor_t.png')
-                : item.device.type === "cobo"
-                ? require("../../../assets/cobo.png")
-                : require("../../../assets/iphone.png")
-            }
+              src={
+                item.device.type === "coldcard"
+                  ? require("../../../assets/coldcard.png")
+                  : item.device.type === "ledger" &&
+                    item.device.model === "ledger_nano_s"
+                  ? require("../../../assets/ledger_nano_s.png")
+                  : item.device.type === "ledger" &&
+                    item.device.model === "ledger_nano_x"
+                  ? require("../../../assets/ledger_nano_x.png")
+                  : item.device.type === "trezor" &&
+                    item.device.model === "trezor_1"
+                  ? require("../../../assets/trezor_1.png")
+                  : item.device.type === "trezor" &&
+                    item.device.model === "trezor_t"
+                  ? require("../../../assets/trezor_t.png")
+                  : item.device.type === "cobo"
+                  ? require("../../../assets/cobo.png")
+                  : item.device.type === "bitbox02"
+                  ? require("../../../assets/bitbox02.png")
+                  : require("../../../assets/iphone.png")
+              }
             />
           </ImageContainer>
           <Rows>
@@ -75,9 +81,7 @@ const DeviceDetailsModal = ({ item }: Props) => {
             <ProfileRow>
               <ProfileKeyColumn>Derivation Path</ProfileKeyColumn>
               <ProfileValueColumn>
-                <ProfileValueText>
-                  {item.bip32Path}
-                </ProfileValueText>
+                <ProfileValueText>{item.bip32Path}</ProfileValueText>
                 <ProfileValueAction></ProfileValueAction>
               </ProfileValueColumn>
             </ProfileRow>

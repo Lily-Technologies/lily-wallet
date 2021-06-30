@@ -271,7 +271,14 @@ export interface LilyZeroDotOneConfig {
 }
 
 export interface Device {
-  type: "coldcard" | "trezor" | "ledger" | "phone" | "lily" | "cobo";
+  type:
+    | "coldcard"
+    | "trezor"
+    | "ledger"
+    | "phone"
+    | "lily"
+    | "cobo"
+    | "bitbox02";
   fingerprint: string;
   model: string; // KBC-TODO: get more specific with this
 }

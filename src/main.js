@@ -97,7 +97,8 @@ function createWindow() {
     // icon: path.join(__dirname, '/assets/AppIcon.icns'),
     titleBarStyle: "hidden",
     webPreferences: {
-      nodeIntegration: false,
+      nodeIntegration: true,
+      contextIsolation: false,
       preload: path.resolve(__dirname, "preload.js"),
     },
   });
@@ -434,7 +435,8 @@ ipcMain.handle("/enumerate", async (event, args) => {
     return (
       device.type === "coldcard" ||
       device.type === "ledger" ||
-      device.type === "trezor"
+      device.type === "trezor" ||
+      device.type === "bitbox02"
     );
   });
   return Promise.resolve(filteredDevices);

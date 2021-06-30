@@ -46,8 +46,9 @@ export const DeviceSelect = ({
   phoneAction,
 }: Props) => {
   const [devicesLoading, setDevicesLoading] = useState(false);
-  const [deviceActionLoading, setDeviceActionLoading] =
-    useState<number | null>(null);
+  const [deviceActionLoading, setDeviceActionLoading] = useState<number | null>(
+    null
+  );
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
 
@@ -83,6 +84,8 @@ export const DeviceSelect = ({
           path: "unknown",
         });
       }
+
+      console.log("response: ", response);
 
       // filter out devices that are available but already imported
       const filteredDevices = response.filter((device) => {
@@ -146,6 +149,8 @@ export const DeviceSelect = ({
                   ? require("../assets/trezor_t.png")
                   : device.type === "cobo"
                   ? require("../assets/cobo.png")
+                  : device.type === "bitbox02"
+                  ? require("../assets/bitbox02.png")
                   : require("../assets/iphone.png")
               }
             />
@@ -218,6 +223,8 @@ export const DeviceSelect = ({
                     ? require("../assets/trezor_t.png")
                     : device.type === "cobo"
                     ? require("../assets/cobo.png")
+                    : device.type === "bitbox02"
+                    ? require("../assets/bitbox02.png")
                     : require("../assets/iphone.png")
                 }
               />
