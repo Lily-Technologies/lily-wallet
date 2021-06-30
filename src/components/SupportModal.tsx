@@ -7,14 +7,13 @@ import {
   StyledIcon,
   Button,
   ModalContentWrapper,
-  Spinner,
+  Loading,
 } from "../components";
 
 import { mobile } from "../utils/media";
 import {
   white,
   green100,
-  red500,
   green600,
   gray100,
   gray300,
@@ -69,13 +68,15 @@ export const SupportModal = ({ closeModal }: Props) => {
       <TextContainer>
         <HeadingText>Lily Support Portal</HeadingText>
         <Subtext>
-          {supportCode
+          {isLoading
+            ? ""
+            : supportCode
             ? "When asked, give this code to our support staff to verify your license."
             : `Upgrade to a paying customer to recieve premium support.`}
         </Subtext>
 
         <SupportCodeContainer data-cy="support-code">
-          {isLoading ? <Spinner /> : null}
+          {isLoading ? <Loading message="Verifying License" /> : null}
           {supportCode.split("").map((char) => (
             <CodeDigit>{char}</CodeDigit>
           ))}

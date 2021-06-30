@@ -14,7 +14,6 @@ import {
   red500,
   gray500,
   gray600,
-  gray800,
   gray900,
   green500,
   green600,
@@ -418,7 +417,7 @@ const TextContainer = styled.div`
 
 const Subtext = styled.div`
   font-size: 0.5em;
-  color: ${gray800};
+  color: ${gray600};
   font-weight: 500;
   margin-top: 0.5em;
 `;
