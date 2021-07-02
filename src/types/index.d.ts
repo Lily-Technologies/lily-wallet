@@ -219,7 +219,7 @@ export interface LilyLicense {
 }
 export interface LilyConfig {
   name: string;
-  version: "1.0.6";
+  version: "1.0.7";
   isEmpty: boolean;
   wallets: AccountConfig[];
   vaults: VaultConfig[];

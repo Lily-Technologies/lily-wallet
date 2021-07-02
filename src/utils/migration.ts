@@ -123,7 +123,7 @@ export const updateConfigFileVersionOneDotFive = (
   if (config.version === "1.0.5") {
     const updatedConfig = {
       ...config,
-      version: "1.0.6",
+      version: "1.0.7",
       vaults: config.vaults.map((item) => ({
         ...item,
         license: config.license,

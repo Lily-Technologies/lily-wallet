@@ -4,7 +4,7 @@ import { LilyConfig } from "./types";
 
 export const EMPTY_CONFIG = {
   name: "",
-  version: "1.0.6",
+  version: "1.0.7",
   isEmpty: true,
   backup_options: {
     gDrive: false,
