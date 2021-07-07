@@ -97,8 +97,8 @@ function createWindow() {
     // icon: path.join(__dirname, '/assets/AppIcon.icns'),
     titleBarStyle: "hidden",
     webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false,
+      nodeIntegration: false,
+      contextIsolation: true,
       preload: path.resolve(__dirname, "preload.js"),
     },
   });
