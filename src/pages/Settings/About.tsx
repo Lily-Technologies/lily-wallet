@@ -1,14 +1,10 @@
-import React, { useContext } from "react";
+import React from "react";
 
 import { SettingsTable } from "../../components";
 
 import { white, green500 } from "../../utils/colors";
 
-import { ConfigContext } from "../../ConfigContext";
-
 const About = () => {
-  const { config } = useContext(ConfigContext);
-
   return (
     <SettingsTable.Wrapper>
       <SettingsTable.HeaderSection>
