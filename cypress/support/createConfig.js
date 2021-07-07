@@ -1,4 +1,3 @@
-import { LilyConfig, AccountMap } from "../../src/types";
 import { EMPTY_CONFIG } from "../../src/ConfigContext";
 import { AES } from "crypto-js";
 
@@ -24,7 +23,7 @@ export const createConfig = (password) => {
     isEmpty: false,
     wallets: [Mnemonic.config, HWW.account.config],
     vaults: [Multisig.config],
-  } as LilyConfig;
+  };
 
   return AES.encrypt(JSON.stringify(configFile), password).toString();
 };
