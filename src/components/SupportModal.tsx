@@ -56,7 +56,7 @@ export const SupportModal = ({ closeModal }: Props) => {
       }
     }
     getSupportCode();
-  }, []);
+  }, [config.isEmpty, config.vaults]);
 
   return (
     <ModalContentWrapper>
