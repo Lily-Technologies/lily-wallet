@@ -190,9 +190,9 @@ const LilyImageGray = styled.img`
 
 const WalletsHeader = styled.h3`
   color: ${gray900};
-  margin: 1.125em;
+  margin: 1.125em 1.125em 0.925em 0.75em;
   font-size: 1.125em;
-  font-weight: 100;
+  font-weight: 500;
 `;
 
 const WalletTitle = styled(WalletsHeader)`
