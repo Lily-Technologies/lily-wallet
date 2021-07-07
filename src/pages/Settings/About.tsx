@@ -28,7 +28,7 @@ const About = () => {
               paddingRight: "1.5rem",
             }}
           >
-            {config.version}
+            {process.env.REACT_APP_VERSION}
           </SettingsTable.ValueText>
         </SettingsTable.ValueColumn>
       </SettingsTable.Row>
