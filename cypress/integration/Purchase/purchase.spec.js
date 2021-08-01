@@ -5,9 +5,9 @@ describe("Purchase", () => {
     cy.intercept("GET", "**/get-payment-address", (req) => {
       req.reply({
         address: "bc1q5an4cj60h7rzajurywavsks74vyaktxxp9m5cx",
-        basic: 0.00017363418094421467,
+        basicThree: 0.00017363418094421467,
         childPath: "m/0/10",
-        essential: 0.008681709047210735,
+        basicFive: 0.008681709047210735,
         premium: 0.008681709047210735,
       });
     }).as("getPaymentAddress");
@@ -55,8 +55,14 @@ describe("Purchase", () => {
         .as("sign response");
     });
 
+    cy.wait(2500);
+    cy.screenshot("home");
     cy.get("button").contains("Buy a License").click();
+
+    cy.wait(1);
+    cy.screenshot("license");
     cy.get("button:visible").contains("Buy Basic").click();
+
     cy.contains("Transaction Summary").should("be.visible");
 
     cy.contains("Confirm on Devices (0/2)").should("be.visible");
@@ -69,8 +75,11 @@ describe("Purchase", () => {
 
     cy.contains("Broadcast Transaction").should("be.visible");
 
+    cy.screenshot("approve");
+
     cy.contains("Broadcast Transaction").click();
 
     cy.contains("Payment Success").should("be.visible");
+    cy.screenshot("success");
   });
 });

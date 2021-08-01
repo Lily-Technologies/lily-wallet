@@ -32,5 +32,11 @@ module.exports = (on, config) => {
     require("@cypress/react/plugins/react-scripts")(on, config);
   }
 
+  const { renameSync } = require("fs");
+
+  on("after:screenshot", ({ path }) => {
+    renameSync(path, path.replace(/ \(\d*\)/i, ""));
+  });
+
   return config;
 };
