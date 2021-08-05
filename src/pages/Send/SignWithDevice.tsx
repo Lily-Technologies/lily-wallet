@@ -28,7 +28,6 @@ const SignWithDevice = ({
     HwiResponseEnumerate[]
   >([]);
   const [errorDevices, setErrorDevices] = useState<string[]>([]); // stores fingerprint of error devices
-  const [optionsDropdownOpen, setOptionsDropdownOpen] = useState(false);
 
   // KBC-TODO: add a test
   const signWithDevice = async (
@@ -80,12 +79,7 @@ const SignWithDevice = ({
             </SetupSubheader>
           </SetupHeaderLeft>
           <SetupHeaderRight>
-            <Dropdown
-              isOpen={optionsDropdownOpen}
-              setIsOpen={setOptionsDropdownOpen}
-              minimal={true}
-              dropdownItems={dropdownItems}
-            />
+            <Dropdown minimal={true} dropdownItems={dropdownItems} />
           </SetupHeaderRight>
         </SetupHeaderWrapper>
       </SetupHeaderContainer>

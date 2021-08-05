@@ -15,7 +15,6 @@ import { mobile } from "../../../utils/media";
 import {
   white,
   green100,
-  red500,
   green600,
   gray300,
   gray500,
@@ -35,7 +34,7 @@ const EditAccountNameModal = ({ password, closeModal }: Props) => {
   const { config, setConfigFile } = useContext(ConfigContext);
   const { currentAccount } = useContext(AccountMapContext);
   const [accountNameConfirm, setAccountNameConfirm] = useState("");
-  const [accountNameConfirmError, setAccountNameConfirmError] = useState(false);
+  const [accountNameConfirmError, setAccountNameConfirmError] = useState("");
 
   const onInputEnter = (e: React.KeyboardEvent<Element>) => {
     if (e.key === "Enter") {
@@ -92,10 +91,6 @@ const EditAccountNameModal = ({ password, closeModal }: Props) => {
           onKeyDown={(e) => onInputEnter(e)}
           error={accountNameConfirmError}
         />
-        {accountNameConfirmError && (
-          <ConfirmError>{accountNameConfirmError}</ConfirmError>
-        )}
-
         <Buttons>
           <CancelButton
             background={white}
@@ -149,10 +144,6 @@ const CancelButton = styled.button`
   ${mobile(css`
     margin-top: 1.25rem;
   `)};
-`;
-
-const ConfirmError = styled.div`
-  color: ${red500};
 `;
 
 const TextContainer = styled.div`

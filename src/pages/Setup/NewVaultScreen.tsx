@@ -23,6 +23,7 @@ import {
 } from "./styles";
 import { zpubToXpub } from "../../utils/other";
 import RequiredDevicesModal from "./RequiredDevicesModal";
+import InputXpubModal from "./InputXpubModal";
 
 import { white, green600 } from "../../utils/colors";
 
@@ -60,7 +61,6 @@ const NewVaultScreen = ({
     HwiResponseEnumerate[]
   >([]);
   const [errorDevices, setErrorDevices] = useState<string[]>([]);
-  const [otherImportDropdownOpen, setOtherImportDropdownOpen] = useState(false);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
 
@@ -218,9 +218,8 @@ const NewVaultScreen = ({
                 </SetupExplainerText>
               </div>
               <Dropdown
-                isOpen={otherImportDropdownOpen}
-                setIsOpen={setOtherImportDropdownOpen}
                 minimal={true}
+                data-cy="advanced-import-dropdown"
                 dropdownItems={[
                   {
                     label: "Import from File",
@@ -244,6 +243,17 @@ const NewVaultScreen = ({
                               importDeviceFromQR({ data: result.getText() });
                             else return;
                           }}
+                        />
+                      ),
+                  },
+                  {
+                    label: "Manually add device",
+                    onClick: () =>
+                      openInModal(
+                        <InputXpubModal
+                          importedDevices={importedDevices}
+                          setImportedDevices={setImportedDevices}
+                          closeModal={closeModal}
                         />
                       ),
                   },
@@ -282,7 +292,11 @@ const NewVaultScreen = ({
           </ContinueButton>
         )}
       </FormContainer>
-      <Modal isOpen={modalIsOpen} closeModal={() => setModalIsOpen(false)}>
+      <Modal
+        isOpen={modalIsOpen}
+        closeModal={() => setModalIsOpen(false)}
+        style={{ content: { overflow: "inherit" } }}
+      >
         {modalContent}
       </Modal>
     </InnerWrapper>

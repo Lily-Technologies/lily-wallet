@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 
 import { HeaderWrapper, CancelButton, PageTitleSubtext } from "./styles";
 import {
@@ -21,8 +21,6 @@ interface Props {
 }
 
 const PageHeader = ({ headerText, setStep, step, setSetupOption }: Props) => {
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-
   return (
     <HeaderWrapper>
       <Header>
@@ -36,8 +34,6 @@ const PageHeader = ({ headerText, setStep, step, setSetupOption }: Props) => {
           {step === 0 && (
             <Dropdown
               data-cy="Select account dropdown"
-              isOpen={dropdownOpen}
-              setIsOpen={setDropdownOpen}
               minimal={true}
               dropdownItems={[
                 {

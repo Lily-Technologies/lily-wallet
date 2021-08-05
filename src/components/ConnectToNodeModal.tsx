@@ -11,7 +11,6 @@ import {
   green600,
   yellow200,
   yellow600,
-  red500,
 } from "../utils/colors";
 
 import { NodeConfig } from "../types";
@@ -102,9 +101,9 @@ export const ConnectToNodeModal = ({
               onChange={setPassword}
               onKeyDown={(e) => onInputEnter(e)}
               placeholder="••••••••••••••••"
+              error={nodeConnectError}
             />
           </InputContainer>
-          {nodeConnectError && <ErrorText>{nodeConnectError}</ErrorText>}
           <Buttons>
             <SaveButton
               background={green600}
@@ -164,10 +163,6 @@ const SaveButton = styled.button`
 
 const InputsWrapper = styled.div`
   width: 100%;
-`;
-
-const ErrorText = styled.div`
-  color: ${red500};
 `;
 
 const ModalHeader = styled.div`

@@ -11,7 +11,7 @@ import {
 } from "../../../components";
 
 import { mobile } from "../../../utils/media";
-import { white, red100, red500, red600, gray500 } from "../../../utils/colors";
+import { white, red100, red600, gray500 } from "../../../utils/colors";
 import { saveConfig } from "../../../utils/files";
 
 import { ConfigContext } from "../../../ConfigContext";
@@ -25,7 +25,7 @@ const DeleteAccountModal = ({ password, closeModal }: Props) => {
   const { config, setConfigFile } = useContext(ConfigContext);
   const { currentAccount } = useContext(AccountMapContext);
   const [accountNameConfirm, setAccountNameConfirm] = useState("");
-  const [accountNameConfirmError, setAccountNameConfirmError] = useState(false);
+  const [accountNameConfirmError, setAccountNameConfirmError] = useState("");
   const history = useHistory();
 
   const onInputEnter = (e: React.KeyboardEvent<Element>) => {
@@ -52,7 +52,7 @@ const DeleteAccountModal = ({ password, closeModal }: Props) => {
       closeModal();
       history.push("/");
     } else {
-      setAccountNameConfirmError(true);
+      setAccountNameConfirmError("Account name doesn't match");
     }
   };
 
@@ -84,10 +84,6 @@ const DeleteAccountModal = ({ password, closeModal }: Props) => {
           onKeyDown={(e) => onInputEnter(e)}
           error={accountNameConfirmError}
         />
-        {accountNameConfirmError && (
-          <ConfirmError>Account name doesn't match</ConfirmError>
-        )}
-
         <DeleteAccountButton
           background={red600}
           color={white}
@@ -109,10 +105,6 @@ const DeleteAccountButton = styled.button`
   ${mobile(css`
     margin-top: 1.25rem;
   `)};
-`;
-
-const ConfirmError = styled.div`
-  color: ${red500};
 `;
 
 const DangerTextContainer = styled.div`

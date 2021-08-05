@@ -86,6 +86,8 @@
   "dependencies": {
     "@cvbb/qr-protocol": "^2.0.4",
     "@cvbb/sdk": "^0.1.8",
+    "@headlessui/react": "^1.4.0",
+    "@heroicons/react": "^1.0.3",
     "axios": "^0.21.1",
     "babel-register": "^6.26.0",
     "bignumber.js": "^9.0.0",

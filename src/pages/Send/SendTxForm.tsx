@@ -55,9 +55,8 @@ const SendTxForm = ({
       satoshisToBitcoins(finalPsbt.txOutputs[0].value).toString()) ||
       ""
   ); // eslint-disable-line
-  const [optionsDropdownOpen, setOptionsDropdownOpen] = useState(false);
-  const [sendAmountError, setSendAmountError] = useState(false);
-  const [recipientAddressError, setRecipientAddressError] = useState(false);
+  const [sendAmountError, setSendAmountError] = useState("");
+  const [recipientAddressError, setRecipientAddressError] = useState("");
   const { currentAccount } = useContext(AccountMapContext);
   const fileUploadLabelRef = useRef<HTMLLabelElement>(null);
   const [importTxFromFileError, setImportTxFromFileError] = useState("");
@@ -100,11 +99,11 @@ const SendTxForm = ({
     let valid = true;
     if (!validateAddress(_recipientAddress, currentBitcoinNetwork)) {
       valid = false;
-      setRecipientAddressError(true);
+      setRecipientAddressError("Invalid address");
     }
     if (!validateSendAmount(_sendAmount, _currentBalance)) {
       valid = false;
-      setSendAmountError(true);
+      setSendAmountError("Not enough funds");
     }
 
     return valid;
@@ -125,7 +124,7 @@ const SendTxForm = ({
         );
         setStep(1);
       } catch (e) {
-        setSendAmountError(true);
+        setSendAmountError("Unable to create transaction");
       }
     }
   };
@@ -172,8 +171,6 @@ const SendTxForm = ({
       ></label>
       <InputContainer>
         <Dropdown
-          isOpen={optionsDropdownOpen}
-          setIsOpen={setOptionsDropdownOpen}
           minimal={true}
           style={{ alignSelf: "flex-end" }}
           dropdownItems={dropdownItems}
@@ -207,7 +204,6 @@ const SendTxForm = ({
           id="bitcoin-amount"
         />
       </InputContainer>
-      {sendAmountError && <SendAmountError>Not enough funds</SendAmountError>}
       <SendButtonContainer>
         <CopyAddressButton
           background={green600}
@@ -248,12 +244,6 @@ const SentTxFormContainer = styled.div`
   justify-content: center;
   width: 100%;
   position: relative;
-`;
-
-const SendAmountError = styled.div`
-  font-size: 0.5em;
-  color: ${red500};
-  text-align: right;
 `;
 
 const SendButtonContainer = styled.div`

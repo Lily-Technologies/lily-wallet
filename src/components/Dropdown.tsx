@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import styled, { css } from "styled-components";
 
 import { Transition } from ".";
@@ -35,8 +35,6 @@ type Divider = {
   onlyMobile?: boolean;
 };
 interface Props {
-  isOpen: boolean;
-  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
   buttonLabel?: string | React.ReactNode;
   dropdownItems: (DropdownItem | Divider)[];
   minimal: boolean;
@@ -44,14 +42,14 @@ interface Props {
 }
 
 export const Dropdown = ({
-  isOpen,
-  setIsOpen,
   buttonLabel,
   dropdownItems,
   minimal,
   style,
   ...rest
 }: Props) => {
+  const [isOpen, setIsOpen] = useState(false);
+
   return (
     <DropdownWrapper>
       <ButtonContainer>

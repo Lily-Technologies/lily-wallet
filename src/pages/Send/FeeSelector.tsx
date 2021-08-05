@@ -52,7 +52,7 @@ export const FeeSelector = ({
 }: Props) => {
   const fee = getFee(finalPsbt, currentAccount.transactions); // in sats
   const [customFee, setCustomFee] = useState(fee);
-  const [customFeeError, setCustomFeeError] = useState(false);
+  const [customFeeError, setCustomFeeError] = useState("");
   const [customFeeBtc, setCustomFeeBtc] = useState(satoshisToBitcoins(fee));
   const [showEditCustomFee, setShowEditCustomFee] = useState(false);
 
@@ -125,11 +125,11 @@ export const FeeSelector = ({
 
   const validateCustomFee = () => {
     if (!satoshisToBitcoins(customFee).isGreaterThan(0)) {
-      setCustomFeeError(true);
+      setCustomFeeError("Cannot set a negative fee!");
       return false;
     }
     if (satoshisToBitcoins(customFee).isGreaterThan(0) && customFeeError) {
-      setCustomFeeError(false);
+      setCustomFeeError("");
     }
     return true;
   };

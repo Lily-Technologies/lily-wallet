@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import styled from "styled-components";
 import { Circle } from "@styled-icons/boxicons-solid";
 
@@ -36,8 +36,6 @@ const NetworkSettings = ({
   openInModal,
   closeModal,
 }: Props) => {
-  const [nodeConfigDropdownOpen, setNodeConfigDropdownOpen] = useState(false);
-
   const refreshNodeData = async () => {
     await getNodeConfig();
   };
@@ -158,8 +156,6 @@ const NetworkSettings = ({
           </SettingsTable.ValueText>
           <SettingsTable.ValueAction>
             <Dropdown
-              isOpen={nodeConfigDropdownOpen}
-              setIsOpen={setNodeConfigDropdownOpen}
               minimal={false}
               dropdownItems={nodeConfigDropdownItems}
               buttonLabel={

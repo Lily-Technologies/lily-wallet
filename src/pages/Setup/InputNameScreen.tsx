@@ -12,7 +12,7 @@ import {
   SetupHeader,
 } from "./styles";
 
-import { white, red500, green600 } from "../../utils/colors";
+import { white, green600 } from "../../utils/colors";
 import { capitalize as capitalizeFunc } from "../../utils/other";
 
 interface Props {
@@ -93,7 +93,7 @@ const InputNameScreen = ({
           <PasswordWrapper>
             <Input
               autoFocus
-              error={false}
+              error={nameError}
               label="Account Name"
               type="text"
               placeholder={`${getAccountType(setupOption, "all")} Name`}
@@ -101,7 +101,6 @@ const InputNameScreen = ({
               onChange={setAccountName}
               onKeyDown={(e) => onInputEnter(e)}
             />
-            {nameError !== undefined && <Error>{nameError}</Error>}
           </PasswordWrapper>
 
           <ExportFilesButton
@@ -131,12 +130,6 @@ const ExportFilesButton = styled.button`
   border-top-left-radius: 0;
   border-top-right-radius: 0;
   width: 100%;
-`;
-
-const Error = styled.div`
-  color: ${red500};
-  font-size: 0.75em;
-  margin-top: 0.5em;
 `;
 
 export default InputNameScreen;

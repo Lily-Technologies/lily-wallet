@@ -1,12 +1,19 @@
 import React, { Fragment } from "react";
 import styled from "styled-components";
 
-import { white, gray300, gray500, gray600, red400 } from "../utils/colors";
+import {
+  white,
+  gray300,
+  gray500,
+  gray700,
+  red400,
+  red500,
+} from "../utils/colors";
 
 export interface Props {
   value: string;
-  onChange(e: string): void;
-  error?: boolean;
+  onChange(value: string): void;
+  error?: string;
   label: string;
   id?: string;
   placeholder?: string;
@@ -17,6 +24,7 @@ export interface Props {
   largeText?: boolean;
   style?: object;
   labelStyle?: object;
+  disabled?: boolean;
 }
 
 export const Input = ({
@@ -33,6 +41,7 @@ export const Input = ({
   style,
   labelStyle,
   largeText = false,
+  disabled,
 }: Props) => (
   <Fragment>
     {label && (
@@ -40,38 +49,54 @@ export const Input = ({
         {label}
       </Label>
     )}
-    <InputWrapper>
-      <StyledInput
-        type={type || "text"}
-        id={id}
-        value={value}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-          onChange(e.target.value)
-        }
-        onKeyDown={onKeyDown}
-        error={error}
-        autoFocus={autoFocus}
-        placeholder={placeholder}
-        largeText={largeText}
-        staticText={!!inputStaticText}
-        style={style}
-      />
-      {inputStaticText && (
-        <InputStaticText
-          disabled
-          text={inputStaticText}
+    <InputAndErrorWrapper>
+      <InputWrapper>
+        <StyledInput
+          type={type || "text"}
+          id={id}
+          value={value}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            onChange(e.target.value)
+          }
+          onKeyDown={onKeyDown}
+          error={!!error}
+          autoFocus={autoFocus}
+          placeholder={placeholder}
           largeText={largeText}
-        ></InputStaticText>
-      )}
-    </InputWrapper>
+          staticText={!!inputStaticText}
+          style={style}
+          disabled={disabled}
+        />
+        {inputStaticText && (
+          <InputStaticText
+            disabled
+            text={inputStaticText}
+            largeText={largeText}
+          ></InputStaticText>
+        )}
+      </InputWrapper>
+      {!!error && <ErrorText>{error}</ErrorText>}
+    </InputAndErrorWrapper>
   </Fragment>
 );
+
+const InputAndErrorWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+`;
+
+const ErrorText = styled.div`
+  color: ${red500};
+  font-size: 0.75em;
+  margin-top: 0.5em;
+`;
 
 const Label = styled.label<{ largeText: boolean }>`
   font-size: ${(p) => (p.largeText ? "1.15rem" : ".875rem")};
   line-height: ${(p) => (p.largeText ? "2.25em" : "1.25em")};
   font-weight: 500;
-  color: ${gray600};
+  color: ${gray700};
 `;
 
 const InputWrapper = styled.div`
@@ -93,6 +118,7 @@ const StyledInput = styled.input<{
   error: boolean | undefined;
   largeText: boolean;
   staticText: boolean;
+  disabled?: boolean;
 }>`
   font-size: ${(p) => (p.largeText ? "1rem" : ".875rem")};
   line-height: ${(p) => (p.largeText ? "3em" : "1.25em")};
@@ -105,6 +131,8 @@ const StyledInput = styled.input<{
   padding: 0.5rem 0.75rem;
   padding-right: ${(p) => (p.staticText ? "3em" : "0.75em")};
   text-align: ${(p) => (p.staticText ? "right" : "left")};
+  position: relative;
+  cursor: ${(p) => (p.disabled ? "not-allowed" : "text")}
 
   *,
   &:after,

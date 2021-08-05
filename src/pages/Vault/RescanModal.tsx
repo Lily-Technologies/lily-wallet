@@ -15,7 +15,6 @@ import {
   white,
   green600,
   red100,
-  red500,
   gray400,
   gray700,
   gray500,
@@ -87,9 +86,8 @@ export const RescanModal = ({
           type="number"
           value={startHeight}
           onChange={setStartHeight}
-          error={!!error}
+          error={error}
         />
-        {!!error && <ErrorText>{error}</ErrorText>}
         <Buttons>
           <ActionButton
             style={{ border: `1px solid ${gray400}`, marginRight: "1em" }}
@@ -159,10 +157,4 @@ const Buttons = styled.div`
 const ActionButton = styled.button`
   ${Button};
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-`;
-
-const ErrorText = styled.div`
-  color: ${red500};
-  font-size: 0.75em;
-  margin-top: 0.5em;
 `;

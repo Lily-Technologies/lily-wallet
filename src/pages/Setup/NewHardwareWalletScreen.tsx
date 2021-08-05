@@ -82,7 +82,6 @@ const NewHardwareWalletScreen = ({
   >([]);
   const [errorDevices, setErrorDevices] = useState<string[]>([]);
   const importDeviceFromFileRef = useRef<HTMLLabelElement>(null);
-  const [otherImportDropdownOpen, setOtherImportDropdownOpen] = useState(false);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
 
@@ -357,8 +356,6 @@ const NewHardwareWalletScreen = ({
                 </SetupExplainerText>
               </div>
               <Dropdown
-                isOpen={otherImportDropdownOpen}
-                setIsOpen={setOtherImportDropdownOpen}
                 minimal={true}
                 dropdownItems={[
                   {

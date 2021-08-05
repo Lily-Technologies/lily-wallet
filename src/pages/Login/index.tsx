@@ -11,7 +11,6 @@ import { StyledIcon, FileUploader, Button, Input } from "../../components";
 import {
   black,
   white,
-  red500,
   gray500,
   gray600,
   gray900,
@@ -50,11 +49,13 @@ const Login = ({
   const { config, setConfigFile } = useContext(ConfigContext);
   document.title = `Login - Lily Wallet`;
   const [localPassword, setLocalPassword] = useState("");
-  const [passwordError, setPasswordError] =
-    useState<string | undefined>(undefined);
+  const [passwordError, setPasswordError] = useState<string | undefined>(
+    undefined
+  );
   const [confirmation, setConfirmation] = useState("");
-  const [confirmationError, setConfirmationError] =
-    useState<string | undefined>(undefined);
+  const [confirmationError, setConfirmationError] = useState<
+    string | undefined
+  >(undefined);
   const [isLoading, setIsLoading] = useState(false);
   const [step, setStep] = useState(0);
   const history = useHistory();
@@ -187,12 +188,9 @@ const Login = ({
                   value={localPassword}
                   onKeyDown={(e) => onInputEnter(e)}
                   onChange={setLocalPassword}
-                  error={!!passwordError}
+                  error={passwordError}
                   type="password"
                 />
-                {passwordError !== undefined && (
-                  <PasswordError>{passwordError}</PasswordError>
-                )}
               </InputContainer>
               {!encryptedConfigFile && (
                 <InputContainer style={{ paddingBottom: ".5em" }}>
@@ -201,12 +199,9 @@ const Login = ({
                     value={confirmation}
                     onKeyDown={(e) => onInputEnter(e)}
                     onChange={setConfirmation}
-                    error={!!confirmationError}
+                    error={confirmationError}
                     type="password"
                   />
-                  {confirmationError !== undefined && (
-                    <PasswordError>{confirmationError}</PasswordError>
-                  )}
                 </InputContainer>
               )}
               <SignInButton
@@ -300,14 +295,8 @@ const InputContainer = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
-  align-items: flex-start;
   margin-bottom: 0.75em;
-`;
-
-const PasswordError = styled.div`
-  color: ${red500};
-  font-size: 0.75em;
-  margin-top: 0.5em;
+  text-align: left;
 `;
 
 const SignupOptionSubtext = styled.div`

@@ -60,7 +60,6 @@ const TransactionDetails = ({
   createTransactionAndSetState,
   currentBitcoinNetwork,
 }: Props) => {
-  const [optionsDropdownOpen, setOptionsDropdownOpen] = useState(false);
   const signThreshold = currentAccount.config.quorum.requiredSigners;
   const { availableUtxos, transactions } = currentAccount;
   const [modalIsOpen, setModalIsOpen] = useState(false);
@@ -174,8 +173,6 @@ const TransactionDetails = ({
       <Fragment>
         <Dropdown
           data-cy="send-options-dropdown"
-          isOpen={optionsDropdownOpen}
-          setIsOpen={setOptionsDropdownOpen}
           minimal={true}
           dropdownItems={dropdownItems}
         />

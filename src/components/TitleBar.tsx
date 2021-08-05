@@ -26,8 +26,6 @@ interface Props {
 }
 
 export const TitleBar = ({ nodeConfig, config }: Props) => {
-  const [moreOptionsDropdownOpen, setMoreOptionsDropdownOpen] = useState(false);
-  const [nodeOptionsDropdownOpen, setNodeOptionsDropdownOpen] = useState(false);
   const history = useHistory();
   const { setCurrentAccountId } = useContext(AccountMapContext);
   const [modalIsOpen, setModalIsOpen] = useState(false);
@@ -143,8 +141,6 @@ export const TitleBar = ({ nodeConfig, config }: Props) => {
         <RightSection>
           <NodeButtonContainer>
             <Dropdown
-              isOpen={nodeOptionsDropdownOpen}
-              setIsOpen={setNodeOptionsDropdownOpen}
               minimal={false}
               style={{
                 background: green900,
@@ -188,8 +184,6 @@ export const TitleBar = ({ nodeConfig, config }: Props) => {
           <DotDotDotContainer>
             <Dropdown
               style={{ color: white }}
-              isOpen={moreOptionsDropdownOpen}
-              setIsOpen={setMoreOptionsDropdownOpen}
               minimal={true}
               dropdownItems={moreOptionsDropdownItems}
             />

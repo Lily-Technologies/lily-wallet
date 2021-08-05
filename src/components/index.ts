@@ -20,6 +20,7 @@ export * from "./OutsideClick";
 export * from "./AnimatedQrCode";
 export * from "./ConnectToLilyMobileModal";
 export * from "./ScrollToTop";
+export * from "./Select";
 export * from "./PurchaseLicenseSuccess";
 export * from "./PricingTable";
 export * from "./SelectAccountMenu";
