@@ -33,7 +33,7 @@ describe("Send - Import transactions", () => {
       el[0].dispatchEvent(new Event("change", { bubbles: true }));
     });
 
-    cy.contains("Sending 0.01 BTC").should("be.visible");
+    cy.contains("0.01 BTC").should("be.visible");
     cy.contains("bc1qf9gnplc9fvc6txpcfysfvcznfx6qmhksce0jjk").should(
       "be.visible"
     );
@@ -64,7 +64,7 @@ describe("Send - Import transactions", () => {
       el[0].dispatchEvent(new Event("change", { bubbles: true }));
     });
 
-    cy.contains("Sending 0.01 BTC").should("be.visible");
+    cy.contains("0.01 BTC").should("be.visible");
     cy.contains("bc1qf9gnplc9fvc6txpcfysfvcznfx6qmhksce0jjk").should(
       "be.visible"
     );
@@ -100,7 +100,7 @@ describe("Send - Import transactions", () => {
       el[0].dispatchEvent(new Event("change", { bubbles: true }));
     });
 
-    cy.contains("Sending 0.01 BTC").should("be.visible");
+    cy.contains("0.01 BTC").should("be.visible");
     cy.contains("bc1qf9gnplc9fvc6txpcfysfvcznfx6qmhksce0jjk").should(
       "be.visible"
     );
@@ -130,7 +130,7 @@ describe("Send - Import transactions", () => {
 
     cy.contains("Import transaction").click();
 
-    cy.contains("Sending 0.01 BTC").should("be.visible");
+    cy.contains("0.01 BTC").should("be.visible");
     cy.contains("bc1qf9gnplc9fvc6txpcfysfvcznfx6qmhksce0jjk").should(
       "be.visible"
     );
