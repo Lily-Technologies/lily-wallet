@@ -11,6 +11,7 @@ import {
   FileUploader,
   Modal,
   ErrorModal,
+  Spinner,
 } from "../../components";
 
 import { AccountMapContext } from "../../AccountMapContext";
@@ -55,6 +56,7 @@ const SendTxForm = ({
       satoshisToBitcoins(finalPsbt.txOutputs[0].value).toString()) ||
       ""
   ); // eslint-disable-line
+  const [isLoading, setIsLoading] = useState(false);
   const [sendAmountError, setSendAmountError] = useState("");
   const [recipientAddressError, setRecipientAddressError] = useState("");
   const { currentAccount } = useContext(AccountMapContext);
@@ -117,6 +119,7 @@ const SendTxForm = ({
     const valid = validateForm(_recipientAddress, _sendAmount, _currentBalance);
     if (valid) {
       try {
+        setIsLoading(true);
         await createTransactionAndSetState(
           _recipientAddress,
           _sendAmount,
@@ -125,6 +128,7 @@ const SendTxForm = ({
         setStep(1);
       } catch (e) {
         setSendAmountError("Unable to create transaction");
+        setIsLoading(false);
       }
     }
   };
@@ -216,7 +220,7 @@ const SendTxForm = ({
             )
           }
         >
-          Preview Transaction
+          {isLoading ? <Spinner /> : "Preview Transaction"}
         </CopyAddressButton>
         {importTxFromFileError && !modalIsOpen && (
           <ErrorText style={{ paddingTop: "1em" }}>
@@ -263,7 +267,12 @@ const CopyAddressButton = styled.button`
   ${Button};
   flex: 1;
   font-weight: 500;
-  padding: 1.25em;
+  font-size: 1rem;
+  line-height: 1.5rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
 `;
 
 const ErrorText = styled.div`

@@ -138,7 +138,6 @@ const SetupHeader = styled.span`
   font-size: 1.5em;
   display: inline-block;
   margin-bottom: 4px;
-  font-weight: 100;
 `;
 
 const SetupSubheader = styled.span`

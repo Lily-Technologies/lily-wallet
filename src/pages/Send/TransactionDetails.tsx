@@ -15,7 +15,7 @@ import {
 } from "../../components";
 
 import {
-  gray500,
+  gray200,
   gray800,
   white,
   green500,
@@ -200,57 +200,75 @@ const TransactionDetails = ({
             <span>Transaction Summary</span>
             <TransactionOptionsDropdown />
           </ModalHeaderContainer>
-          <MainTxData>
-            <SendingHeader
-              style={{ padding: 0 }}
-            >{`Sending ${satoshisToBitcoins(
-              finalPsbt.txOutputs[0].value
-            )} BTC`}</SendingHeader>
-            <ToField>to</ToField>
-            <RecipientAddressRow style={{ paddingTop: 0, textAlign: "right" }}>
-              {finalPsbt.txOutputs[0].address}
-            </RecipientAddressRow>
-          </MainTxData>
-          <div>
-            <TransactionFeeField>
-              <>
-                Transaction Fee:{" "}
-                <span>
-                  <span data-cy="transactionFeeBtc">
-                    {satoshisToBitcoins(_fee).toNumber()}
-                  </span>
-                  <span>
-                    {" "}
-                    BTC ($
-                    <span data-cy="transactionFeeUsd">
-                      {satoshisToBitcoins(_fee)
-                        .multipliedBy(currentBitcoinPrice)
-                        .toFixed(2)}
-                    </span>
-                    )
-                  </span>
+          <TxReviewWrapper>
+            <TxItem>
+              <TxItemLabel>To</TxItemLabel>
+              <TxItemValue>{finalPsbt.txOutputs[0].address}</TxItemValue>
+            </TxItem>
+
+            <TxItem>
+              <TxItemLabel>Amount</TxItemLabel>
+              <TxItemValue>
+                {`${satoshisToBitcoins(finalPsbt.txOutputs[0].value)} BTC`}
+              </TxItemValue>
+            </TxItem>
+
+            <TxItem>
+              <TxItemLabel>Fee</TxItemLabel>
+              <TxItemValue>
+                <span data-cy="transactionFeeBtc">
+                  {satoshisToBitcoins(_fee).toNumber()}
                 </span>
-              </>
-            </TransactionFeeField>
+                <span>
+                  {" "}
+                  BTC ($
+                  <span data-cy="transactionFeeUsd">
+                    {satoshisToBitcoins(_fee)
+                      .multipliedBy(currentBitcoinPrice)
+                      .toFixed(2)}
+                  </span>
+                  )
+                </span>
+              </TxItemValue>
+            </TxItem>
             {_fee >= ABSURD_FEE && (
               <WarningBox>Warning: transaction fee is very high</WarningBox>
             )}
-          </div>
-          <SendButton
-            sendable={signedDevices.length === signThreshold}
-            background={green500}
-            color={white}
-            onClick={() => sendTransaction()}
-          >
-            {signedDevices.length < signThreshold
-              ? `Confirm on Devices (${signedDevices.length}/${signThreshold})`
-              : "Broadcast Transaction"}
-            {signedDevices.length < signThreshold ? null : (
-              <SendButtonCheckmark>
-                <StyledIcon as={ArrowIosForwardOutline} size={16} />
-              </SendButtonCheckmark>
-            )}
-          </SendButton>
+
+            <TxItem
+              style={{
+                paddingTop: "1.5rem",
+                borderTop: "1px solid rgb(229, 231, 235)",
+                fontWeight: 500,
+                fontSize: "1rem",
+                lineHeight: "1.5rem",
+              }}
+            >
+              <TxItemLabel>Total</TxItemLabel>
+              <TxItemValue>
+                {`${satoshisToBitcoins(
+                  finalPsbt.txOutputs[0].value + _fee
+                )} BTC`}
+              </TxItemValue>
+            </TxItem>
+          </TxReviewWrapper>
+          <SendButtonContainer>
+            <SendButton
+              sendable={signedDevices.length === signThreshold}
+              background={green500}
+              color={white}
+              onClick={() => sendTransaction()}
+            >
+              {signedDevices.length < signThreshold
+                ? `Confirm on Devices (${signedDevices.length}/${signThreshold})`
+                : "Broadcast Transaction"}
+              {signedDevices.length < signThreshold ? null : (
+                <SendButtonCheckmark>
+                  <StyledIcon as={ArrowIosForwardOutline} size={16} />
+                </SendButtonCheckmark>
+              )}
+            </SendButton>
+          </SendButtonContainer>
         </SendDetailsContainer>
       </AccountSendContentRight>
       <Modal isOpen={modalIsOpen} closeModal={() => setModalIsOpen(false)}>
@@ -259,6 +277,25 @@ const TransactionDetails = ({
     </>
   );
 };
+
+const TxReviewWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+`;
+
+const TxItem = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1.5rem;
+`;
+
+const TxItemLabel = styled.div``;
+
+const TxItemValue = styled.div``;
 
 const IconWrapper = styled.div``;
 
@@ -288,31 +325,13 @@ const ModalHeaderContainer = styled.div`
   height: 90px;
 `;
 
-const SendingHeader = styled.div`
-  font-size: 1.75em;
-`;
-
-const MainTxData = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin: 4em 0 3em;
-  padding-left: 3.5rem;
-  padding-right: 3.5rem;
-`;
-
-const RecipientAddressRow = styled.div`
-  word-break: break-all;
-  font-size: 1.2em;
-  align-self: center;
-`;
-
 const AccountSendContentRight = styled.div`
   min-height: 400px;
   padding: 0;
   display: flex;
   flex: 1;
   flex-direction: column;
+  width: 100%;
 `;
 
 const SendDetailsContainer = styled.div`
@@ -325,24 +344,18 @@ const SendDetailsContainer = styled.div`
   border-radius: 0.375rem;
 `;
 
-const ToField = styled.div`
-  font-size: 1em;
-  padding: 1em 0;
+const SendButtonContainer = styled.div`
   display: flex;
-  justify-content: space-between;
-`;
-
-const TransactionFeeField = styled.div`
-  font-size: 1em;
-  padding: 1em 0;
-  display: flex;
-  justify-content: space-between;
-  color: ${gray500};
-  flex-direction: column;
   align-items: center;
+  justify-content: center;
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  border-top: 1px solid ${gray200};
 `;
 
-const SendButton = styled.div<{
+const SendButton = styled.button<{
   sendable: boolean;
   background: string;
   color: string;
@@ -350,13 +363,13 @@ const SendButton = styled.div<{
   ${Button};
   transition: ease-out 0.4s;
   position: relative;
-  font-size: 1.5em;
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
-  padding-left: 2.5rem;
-  padding-right: 2.5rem;
-  padding-top: 1.75rem;
-  padding-bottom: 1.75rem;
+  font-size: 1rem;
+  line-height: 1.5rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  width: 100%;
   box-shadow: ${(p) =>
     p.sendable ? `inset 1000px 0 0 0 ${green600}` : "none"};
 `;
