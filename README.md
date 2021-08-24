@@ -17,6 +17,6 @@
 
 ## License
 
-This project is open source under the MIT license, which means you have full access to the source code and can modify it to fit your own needs. See [LICENSE](LICENSE) for more information.
+This project is open source under the MIT license, which means you have full access to the source code and can modify it to fit your own needs. And CC (Common Clauses) limitation. See [LICENSE](LICENSE) for more information.
 
-[MIT](LICENSE) © Kevin Mulcrone
+[MIT + CC](LICENSE) © Kevin Mulcrone
