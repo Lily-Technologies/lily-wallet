@@ -128,9 +128,11 @@ const DateWrapper = styled.div`
   color: ${gray800};
 `;
 
-const RecentTransactionsHeader = styled.div`
+const RecentTransactionsHeader = styled.h2`
   font-size: 1.5em;
   margin-top: 1.5em;
+  margin-bottom: 0;
+  font-weight: 500;
 `;
 
 const NoTransasctionsSection = styled.div<{ flat: boolean }>`

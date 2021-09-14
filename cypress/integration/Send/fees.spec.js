@@ -35,7 +35,7 @@ describe("Send - Import transactions", () => {
 
     cy.contains("Preview Transaction").click();
 
-    cy.contains("Transaction Summary").should("be.visible");
+    cy.contains("Transaction summary").should("be.visible");
 
     cy.get("[data-cy=send-options-dropdown]").click();
 
@@ -120,7 +120,7 @@ describe("Send - Import transactions", () => {
 
     cy.contains("Preview Transaction").click();
 
-    cy.contains("Transaction Summary").should("be.visible");
+    cy.contains("Transaction summary").should("be.visible");
 
     cy.get("[data-cy=send-options-dropdown]").click();
 
@@ -199,7 +199,7 @@ describe("Send - Import transactions", () => {
 
     cy.contains("Preview Transaction").click();
 
-    cy.contains("Transaction Summary").should("be.visible");
+    cy.contains("Transaction summary").should("be.visible");
 
     cy.get("[data-cy=send-options-dropdown]").click();
 
@@ -268,7 +268,7 @@ describe("Send - Import transactions", () => {
 
     cy.contains("Preview Transaction").click();
 
-    cy.contains("Transaction Summary").should("be.visible");
+    cy.contains("Transaction summary").should("be.visible");
 
     cy.get("[data-cy=send-options-dropdown]").click();
 

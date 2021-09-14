@@ -54,6 +54,7 @@ export const GridArea = styled.div`
   grid-gap: 1.5em;
   padding: 1.5em;
   justify-items: center;
+  width: 100%;
 `;
 
 export const PageTitle = styled.div`

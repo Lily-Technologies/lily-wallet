@@ -24,12 +24,18 @@ import {
   orange200,
 } from "../../utils/colors";
 import { downloadFile, formatFilename } from "../../utils/files";
-import { getFee } from "../../utils/send";
+import { getFee, truncateAddress } from "../../utils/send";
 import { FeeSelector } from "./FeeSelector";
 import AddSignatureFromQrCode from "./AddSignatureFromQrCode";
 import TransactionUtxoDetails from "./TxUtxoDetails";
+import ShoppingCart from "./ShoppingCart";
 
-import { LilyAccount, Device, FeeRates } from "../../types";
+import {
+  LilyOnchainAccount,
+  Device,
+  FeeRates,
+  ShoppingItem,
+} from "../../types";
 
 const ABSURD_FEE = 1000000; // 0.01 BTC
 
@@ -37,7 +43,7 @@ interface Props {
   finalPsbt: Psbt;
   sendTransaction: () => void;
   feeRates: FeeRates;
-  currentAccount: LilyAccount;
+  currentAccount: LilyOnchainAccount;
   signedDevices: Device[];
   setStep?: React.Dispatch<React.SetStateAction<number>>;
   currentBitcoinPrice: any; // KBC-TODO: change to be more specific
@@ -47,6 +53,7 @@ interface Props {
     _fee: BigNumber
   ) => Promise<Psbt>;
   currentBitcoinNetwork: Network;
+  shoppingItems?: ShoppingItem[];
 }
 
 const TransactionDetails = ({
@@ -59,6 +66,7 @@ const TransactionDetails = ({
   currentBitcoinPrice,
   createTransactionAndSetState,
   currentBitcoinNetwork,
+  shoppingItems,
 }: Props) => {
   const signThreshold = currentAccount.config.quorum.requiredSigners;
   const { availableUtxos, transactions } = currentAccount;
@@ -151,7 +159,6 @@ const TransactionDetails = ({
             <TransactionUtxoDetails
               psbt={finalPsbt}
               currentBitcoinPrice={currentBitcoinPrice}
-              currentBitcoinNetwork={currentBitcoinPrice}
             />
           );
         },
@@ -197,13 +204,21 @@ const TransactionDetails = ({
       <AccountSendContentRight>
         <SendDetailsContainer>
           <ModalHeaderContainer>
-            <span>Transaction Summary</span>
+            <span>Transaction summary</span>
             <TransactionOptionsDropdown />
           </ModalHeaderContainer>
+          {shoppingItems && <ShoppingCart items={shoppingItems} />}
           <TxReviewWrapper>
             <TxItem>
               <TxItemLabel>To</TxItemLabel>
-              <TxItemValue>{finalPsbt.txOutputs[0].address}</TxItemValue>
+              <TxItemValue>
+                {truncateAddress(finalPsbt.txOutputs[0].address!)}
+              </TxItemValue>
+            </TxItem>
+
+            <TxItem>
+              <TxItemLabel>From</TxItemLabel>
+              <TxItemValue>{currentAccount.name}</TxItemValue>
             </TxItem>
 
             <TxItem>
@@ -214,7 +229,7 @@ const TransactionDetails = ({
             </TxItem>
 
             <TxItem>
-              <TxItemLabel>Fee</TxItemLabel>
+              <TxItemLabel>Network fee</TxItemLabel>
               <TxItemValue>
                 <span data-cy="transactionFeeBtc">
                   {satoshisToBitcoins(_fee).toNumber()}
@@ -289,6 +304,7 @@ const TxReviewWrapper = styled.div`
 
 const TxItem = styled.div`
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   margin-top: 1.5rem;
 `;

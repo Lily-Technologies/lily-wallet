@@ -1,0 +1,881 @@
+[
+  {
+    "type": "CHANNEL_CLOSE",
+    "creation_date": 1630096053,
+    "title": "Close channel to 02afb0e4d55bc00a5526744fef34b2b257cdfd57fa9ceb53caa9b182e648f72a4e",
+    "value_sat": 50000,
+    "tx": {
+      "txid": "583ebc5a220ec65c0eb5a0a6de3d957e65cd1f5146e46dd66f583400ed7c652f",
+      "version": 2,
+      "locktime": 0,
+      "vin": [
+        {
+          "txid": "364980c4abe62f0134a637d3b6af9dab6e994740b648de099802ad6aa0c654cf",
+          "vout": 0,
+          "prevout": {
+            "scriptpubkey": "002079f1ff4fc5519a51d70749afa88ff080d22ddde8086e0f7af588945bb9d3b5f3",
+            "scriptpubkey_asm": "OP_0 OP_PUSHBYTES_32 79f1ff4fc5519a51d70749afa88ff080d22ddde8086e0f7af588945bb9d3b5f3",
+            "scriptpubkey_type": "v0_p2wsh",
+            "scriptpubkey_address": "bc1q08cl7n792xd9r4c8fxh63rlssrfzmh0gpphq77h43z29hwwnkhesvk5ak8",
+            "value": 123456
+          },
+          "scriptsig": "",
+          "scriptsig_asm": "",
+          "witness": [
+            "",
+            "3044022061e0e07373a9c002411b0302325b906043fb40953160e8d44223a9686ee0b8d302207e6e01dc28e6d947d76c5b94325570eb3a90e4c40e6596e4ec67f246082da7da01",
+            "304402203d6f8a8b0bdc1271f6d33b8d6ef60e8cd94d80c2ef1c51cdd628d3bbc6fe9e850220351e7d2cccbeaf31460d66221a59f819ad397cdc320260eb034805a6c168cfe101",
+            "5221025b5439b64a42c891458cefd1b30255034aec9195ff88dbf94b607aad7289047b210370b68eefc2673524a95d299ae759de4d48c18791e0deb3be53b8255f8d24e2a152ae"
+          ],
+          "is_coinbase": false,
+          "sequence": 4294967295,
+          "inner_witnessscript_asm": "OP_PUSHNUM_2 OP_PUSHBYTES_33 025b5439b64a42c891458cefd1b30255034aec9195ff88dbf94b607aad7289047b OP_PUSHBYTES_33 0370b68eefc2673524a95d299ae759de4d48c18791e0deb3be53b8255f8d24e2a1 OP_PUSHNUM_2 OP_CHECKMULTISIG"
+        }
+      ],
+      "vout": [
+        {
+          "scriptpubkey": "00148ae9de9ec1df822a3afa97d91d1b3364d487ddd2",
+          "scriptpubkey_asm": "OP_0 OP_PUSHBYTES_20 8ae9de9ec1df822a3afa97d91d1b3364d487ddd2",
+          "scriptpubkey_type": "v0_p2wpkh",
+          "scriptpubkey_address": "bc1q3t5aa8kpm7pz5wh6jlv36xenvn2g0hwjek6fsa",
+          "value": 50000
+        },
+        {
+          "scriptpubkey": "001487319892e3caef83a3bf847748fffa65546b382f",
+          "scriptpubkey_asm": "OP_0 OP_PUSHBYTES_20 87319892e3caef83a3bf847748fffa65546b382f",
+          "scriptpubkey_type": "v0_p2wpkh",
+          "scriptpubkey_address": "bc1qsuce3yhrethc8gals3m53ll6v42xkwp04v8pdg",
+          "value": 70994
+        }
+      ],
+      "size": 333,
+      "weight": 672,
+      "fee": 2462,
+      "status": {
+        "confirmed": true,
+        "block_height": 697868,
+        "block_hash": "0000000000000000000042024f415e2095a710efd86cc85332abc80ee37f594c",
+        "block_time": 1630096053
+      }
+    },
+    "channel": {
+      "resolutions": [],
+      "channel_point": "364980c4abe62f0134a637d3b6af9dab6e994740b648de099802ad6aa0c654cf:0",
+      "chan_id": 739241249851244500,
+      "chain_hash": "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
+      "closing_tx_hash": "583ebc5a220ec65c0eb5a0a6de3d957e65cd1f5146e46dd66f583400ed7c652f",
+      "remote_pubkey": "02afb0e4d55bc00a5526744fef34b2b257cdfd57fa9ceb53caa9b182e648f72a4e",
+      "capacity": 123456,
+      "close_height": 697868,
+      "settled_balance": 50000,
+      "time_locked_balance": 0,
+      "close_type": "COOPERATIVE_CLOSE",
+      "open_initiator": "INITIATOR_REMOTE",
+      "close_initiator": "INITIATOR_LOCAL"
+    }
+  },
+  {
+    "type": "CHANNEL_OPEN",
+    "creation_date": 1629508310,
+    "title": "Open channel to 03037dc08e9ac63b82581f79b662a4d0ceca8a8ca162b1af3551595b8f2d97b70a",
+    "value_sat": 10000000,
+    "tx": {
+      "txid": "93960e5db80140e41202fbbc5c60c6ab224fad4ea966fc9e785842cd3729a746",
+      "version": 2,
+      "locktime": 0,
+      "vin": [
+        {
+          "txid": "2f2f8e996ba7c9c48d4b9664ee8a97a9d4497a35ca84401fc690ecf1cc894a81",
+          "vout": 1,
+          "prevout": {
+            "scriptpubkey": "0014add781020c0a585961a403db0d88137accbcf1f1",
+            "scriptpubkey_asm": "OP_0 OP_PUSHBYTES_20 add781020c0a585961a403db0d88137accbcf1f1",
+            "scriptpubkey_type": "v0_p2wpkh",
+            "scriptpubkey_address": "bc1q4htczqsvpfv9jcdyq0dsmzqn0txteu03aldqdd",
+            "value": 100000
+          },
+          "scriptsig": "",
+          "scriptsig_asm": "",
+          "witness": [
+            "3045022100d5fc2df2129d45ac83ba423c21b4caac5352c8f17bda9f26711120e2ff066cfd022047387913745998b1b05185ee9b6a60968a537a28ef6688ae8e61304835cc7e1001",
+            "0376d20631550963a528b2977881a9f5f794c06e8a741b9c26c4b364cdc795c154"
+          ],
+          "is_coinbase": false,
+          "sequence": 0
+        },
+        {
+          "txid": "78a03d413354a0d959f7a443bd979cca035636c6c780b6803e6045a79fb52920",
+          "vout": 0,
+          "prevout": {
+            "scriptpubkey": "001448df06c13ecde0a300d93bb287d4ed96c3f3e84f",
+            "scriptpubkey_asm": "OP_0 OP_PUSHBYTES_20 48df06c13ecde0a300d93bb287d4ed96c3f3e84f",
+            "scriptpubkey_type": "v0_p2wpkh",
+            "scriptpubkey_address": "bc1qfr0sdsf7ehs2xqxe8weg048djmpl86z0gyvxsl",
+            "value": 1000000
+          },
+          "scriptsig": "",
+          "scriptsig_asm": "",
+          "witness": [
+            "3044022072e7934d077b6dec054d011573847ce3dec592961923f42d50bd6e9548e4c9d90220420015e88a165c747fcf14aabb7a7869f5da3a68075efadc53c1175afd00289001",
+            "024f31ba182d0b36d0b922a693bd7fe16bc035fbd6ddadaf278d9b7b05e1527a25"
+          ],
+          "is_coinbase": false,
+          "sequence": 0
+        },
+        {
+          "txid": "ddb7573d975d045da4abdddec70b9c91502fa2bd54ef6accef4a96e61498aed0",
+          "vout": 1,
+          "prevout": {
+            "scriptpubkey": "001494c71f71229f14166b893a983c07597e1eca4d12",
+            "scriptpubkey_asm": "OP_0 OP_PUSHBYTES_20 94c71f71229f14166b893a983c07597e1eca4d12",
+            "scriptpubkey_type": "v0_p2wpkh",
+            "scriptpubkey_address": "bc1qjnr37ufznu2pv6uf82vrcp6e0c0v5ngjwqc46a",
+            "value": 8999695
+          },
+          "scriptsig": "",
+          "scriptsig_asm": "",
+          "witness": [
+            "3045022100e6a0868716defc2a690f9ec9fb917e95cd0d4c520773c68fe79f68db0b2e8a300220332d2201459f48eea9c70e2892b91b9c0e8ee6c894c7a51c9a7f7d740df8cd8501",
+            "034ddf67ded1b86b8a1fc17333dba9ada4eba737521317037550a71e7277d6146e"
+          ],
+          "is_coinbase": false,
+          "sequence": 0
+        }
+      ],
+      "vout": [
+        {
+          "scriptpubkey": "00142261e33156094a7b936d475c7a23e756a0295352",
+          "scriptpubkey_asm": "OP_0 OP_PUSHBYTES_20 2261e33156094a7b936d475c7a23e756a0295352",
+          "scriptpubkey_type": "v0_p2wpkh",
+          "scriptpubkey_address": "bc1qyfs7xv2kp998hymdgaw85gl826szj56jwd839m",
+          "value": 99117
+        },
+        {
+          "scriptpubkey": "002094bdb011725a8c8103b56e9fc2d783d25abe78db12fa666763ce13dd4907a3f4",
+          "scriptpubkey_asm": "OP_0 OP_PUSHBYTES_32 94bdb011725a8c8103b56e9fc2d783d25abe78db12fa666763ce13dd4907a3f4",
+          "scriptpubkey_type": "v0_p2wsh",
+          "scriptpubkey_address": "bc1qjj7mqytjt2xgzqa4d60u94ur6fdtu7xmztaxvemrecfa6jg8506q2h4u09",
+          "value": 10000000
+        }
+      ],
+      "size": 532,
+      "weight": 1153,
+      "fee": 578,
+      "status": {
+        "confirmed": true,
+        "block_height": 696764,
+        "block_hash": "00000000000000000003b23f4b18daa2ce6cf1bf2d5f3aea1f4f4b65059a7d15",
+        "block_time": 1629508310
+      }
+    }
+  },
+  {
+    "htlcs": [
+      {
+        "status": "SUCCEEDED",
+        "route": {
+          "hops": [
+            {
+              "custom_records": {},
+              "chan_id": 765588847058026500,
+              "chan_capacity": 1000000,
+              "amt_to_forward": 200000,
+              "fee": 341,
+              "expiry": 696704,
+              "amt_to_forward_msat": 200000000,
+              "fee_msat": 341000,
+              "pub_key": "03abf6f44c355dec0d5aa155bdbdd6e0c8fefe318eff402de65c6eb2e1be55dc3e",
+              "tlv_payload": true,
+              "mpp_record": null,
+              "amp_record": null
+            },
+            {
+              "custom_records": {},
+              "chan_id": 669246339697147900,
+              "chan_capacity": 16777215,
+              "amt_to_forward": 200000,
+              "fee": 0,
+              "expiry": 696686,
+              "amt_to_forward_msat": 200000000,
+              "fee_msat": 0,
+              "pub_key": "03037dc08e9ac63b82581f79b662a4d0ceca8a8ca162b1af3551595b8f2d97b70a",
+              "tlv_payload": true,
+              "mpp_record": null,
+              "amp_record": null
+            },
+            {
+              "custom_records": {},
+              "chan_id": 669247439148744700,
+              "chan_capacity": 200000,
+              "amt_to_forward": 200000,
+              "fee": 0,
+              "expiry": 696686,
+              "amt_to_forward_msat": 200000000,
+              "fee_msat": 0,
+              "pub_key": "022d91f14e85cc7bbd4888f806899a8a42367ab8ee1d85393264055631a96fa36e",
+              "tlv_payload": true,
+              "mpp_record": {
+                "total_amt_msat": 200000000,
+                "payment_addr": {
+                  "0": 73,
+                  "1": 83,
+                  "2": 100,
+                  "3": 133,
+                  "4": 35,
+                  "5": 33,
+                  "6": 157,
+                  "7": 53,
+                  "8": 252,
+                  "9": 118,
+                  "10": 231,
+                  "11": 18,
+                  "12": 255,
+                  "13": 152,
+                  "14": 30,
+                  "15": 71,
+                  "16": 202,
+                  "17": 200,
+                  "18": 40,
+                  "19": 149,
+                  "20": 232,
+                  "21": 231,
+                  "22": 245,
+                  "23": 143,
+                  "24": 16,
+                  "25": 114,
+                  "26": 67,
+                  "27": 58,
+                  "28": 66,
+                  "29": 218,
+                  "30": 152,
+                  "31": 181
+                }
+              },
+              "amp_record": null
+            }
+          ],
+          "total_time_lock": 696734,
+          "total_fees": 341,
+          "total_amt": 200341,
+          "total_fees_msat": 341000,
+          "total_amt_msat": 200341000
+        },
+        "attempt_time_ns": 1629437649776827400,
+        "resolve_time_ns": 1629437651352825900,
+        "failure": null,
+        "preimage": {
+          "0": 18,
+          "1": 235,
+          "2": 169,
+          "3": 185,
+          "4": 84,
+          "5": 8,
+          "6": 26,
+          "7": 68,
+          "8": 104,
+          "9": 178,
+          "10": 25,
+          "11": 55,
+          "12": 4,
+          "13": 93,
+          "14": 88,
+          "15": 24,
+          "16": 30,
+          "17": 91,
+          "18": 107,
+          "19": 18,
+          "20": 170,
+          "21": 29,
+          "22": 18,
+          "23": 251,
+          "24": 35,
+          "25": 50,
+          "26": 147,
+          "27": 125,
+          "28": 224,
+          "29": 29,
+          "30": 174,
+          "31": 138
+        },
+        "attempt_id": 3
+      }
+    ],
+    "payment_hash": "df4199212e77439f505fa1864af51a4b069222fc5265c385c234140639e4d303",
+    "value": 200000,
+    "creation_date": 1629437648,
+    "fee": 341,
+    "payment_preimage": "12eba9b954081a4468b21937045d58181e5b6b12aa1d12fb2332937de01dae8a",
+    "value_sat": 200000,
+    "value_msat": 200000000,
+    "payment_request": "lnbc2m1ps3708epp5maqejgfwwape75zl5xry4ag6fvrfyghu2fju8pwzxs2qvw0y6vpsdp9f35kw6r5de5kueeqv3jhqmmnd96zqvpwxqcrycqzpgxqrrssrzjqvphmsywntrrhqjcraumvc4y6r8v4z5v593trte429v4hredj7ms5zfrpcqq84sqqyqqqqqqqqqqqqqqzgrzjqvphmsywntrrhqjcraumvc4y6r8v4z5v593trte429v4hredj7ms5zsuq5qqf2gqqyqqqqqqqqqqqqqqzgrzjqvphmsywntrrhqjcraumvc4y6r8v4z5v593trte429v4hredj7ms5z2f55qq2ngqqyqqqqqqqqqqqqqqzgsp5f9fkfpfryxwntlrkuuf0lxq7gl9vs2y4arnltrcswfpn5sk6nz6s9qyyssq3al377jg3uztntk82kt46q92a0c9xdxznc8ts0e5u92wdxljwu2h4v6enaw8sun9h37ahj2hjcercdrawfkm5qzn83kc8h60z7yzquqpeykehs",
+    "status": "SUCCEEDED",
+    "fee_sat": 341,
+    "fee_msat": 341000,
+    "creation_time_ns": 1629437648361973500,
+    "payment_index": 4,
+    "failure_reason": "FAILURE_REASON_NONE",
+    "title": "Lightning deposit 0.002",
+    "type": "PAYMENT_SEND"
+  },
+  {
+    "htlcs": [
+      {
+        "status": "SUCCEEDED",
+        "route": {
+          "hops": [
+            {
+              "custom_records": {},
+              "chan_id": 765588847058026500,
+              "chan_capacity": 1000000,
+              "amt_to_forward": 500000,
+              "fee": 851,
+              "expiry": 696699,
+              "amt_to_forward_msat": 500000000,
+              "fee_msat": 851000,
+              "pub_key": "03abf6f44c355dec0d5aa155bdbdd6e0c8fefe318eff402de65c6eb2e1be55dc3e",
+              "tlv_payload": true,
+              "mpp_record": null,
+              "amp_record": null
+            },
+            {
+              "custom_records": {},
+              "chan_id": 669246339697147900,
+              "chan_capacity": 16777215,
+              "amt_to_forward": 500000,
+              "fee": 0,
+              "expiry": 696681,
+              "amt_to_forward_msat": 500000000,
+              "fee_msat": 0,
+              "pub_key": "03037dc08e9ac63b82581f79b662a4d0ceca8a8ca162b1af3551595b8f2d97b70a",
+              "tlv_payload": true,
+              "mpp_record": null,
+              "amp_record": null
+            },
+            {
+              "custom_records": {},
+              "chan_id": 669247439148744700,
+              "chan_capacity": 500000,
+              "amt_to_forward": 500000,
+              "fee": 0,
+              "expiry": 696681,
+              "amt_to_forward_msat": 500000000,
+              "fee_msat": 0,
+              "pub_key": "022d91f14e85cc7bbd4888f806899a8a42367ab8ee1d85393264055631a96fa36e",
+              "tlv_payload": true,
+              "mpp_record": {
+                "total_amt_msat": 500000000,
+                "payment_addr": {
+                  "0": 232,
+                  "1": 115,
+                  "2": 200,
+                  "3": 237,
+                  "4": 180,
+                  "5": 54,
+                  "6": 55,
+                  "7": 94,
+                  "8": 242,
+                  "9": 185,
+                  "10": 203,
+                  "11": 180,
+                  "12": 53,
+                  "13": 48,
+                  "14": 49,
+                  "15": 122,
+                  "16": 71,
+                  "17": 228,
+                  "18": 245,
+                  "19": 155,
+                  "20": 22,
+                  "21": 110,
+                  "22": 120,
+                  "23": 100,
+                  "24": 173,
+                  "25": 238,
+                  "26": 23,
+                  "27": 147,
+                  "28": 36,
+                  "29": 13,
+                  "30": 95,
+                  "31": 16
+                }
+              },
+              "amp_record": null
+            }
+          ],
+          "total_time_lock": 696729,
+          "total_fees": 851,
+          "total_amt": 500851,
+          "total_fees_msat": 851000,
+          "total_amt_msat": 500851000
+        },
+        "attempt_time_ns": 1629434811989860900,
+        "resolve_time_ns": 1629434814106674200,
+        "failure": null,
+        "preimage": {
+          "0": 24,
+          "1": 174,
+          "2": 121,
+          "3": 23,
+          "4": 99,
+          "5": 215,
+          "6": 217,
+          "7": 150,
+          "8": 191,
+          "9": 251,
+          "10": 42,
+          "11": 189,
+          "12": 211,
+          "13": 199,
+          "14": 45,
+          "15": 167,
+          "16": 240,
+          "17": 191,
+          "18": 187,
+          "19": 6,
+          "20": 123,
+          "21": 253,
+          "22": 121,
+          "23": 198,
+          "24": 199,
+          "25": 52,
+          "26": 158,
+          "27": 120,
+          "28": 44,
+          "29": 126,
+          "30": 209,
+          "31": 98
+        },
+        "attempt_id": 2
+      }
+    ],
+    "payment_hash": "16ad926794133bed5618b378782942db16ef751b4f2fd7da2a70d62443f54fd6",
+    "value": 500000,
+    "creation_date": 1629434810,
+    "fee": 851,
+    "payment_preimage": "18ae791763d7d996bffb2abdd3c72da7f0bfbb067bfd79c6c7349e782c7ed162",
+    "value_sat": 500000,
+    "value_msat": 500000000,
+    "payment_request": "lnbc5m1ps37vulpp5z6keyeu5zva764sckdu8s22zmvtw7agmfuha0k32wrtzgsl4fltqdp9f35kw6r5de5kueeqv3jhqmmnd96zqvpwxqcr2cqzpgxqrrssrzjqvphmsywntrrhqjcraumvc4y6r8v4z5v593trte429v4hredj7ms5zfrpcqq84sqqyqqqqqqqqqqqqqqzgrzjqvphmsywntrrhqjcraumvc4y6r8v4z5v593trte429v4hredj7ms5zsuq5qqf2gqqyqqqqqqqqqqqqqqzgrzjqvphmsywntrrhqjcraumvc4y6r8v4z5v593trte429v4hredj7ms5zvwwcqqg8qqqqqqqqqqqqqqqqqqzgrzjqvphmsywntrrhqjcraumvc4y6r8v4z5v593trte429v4hredj7ms5z2f55qq2ngqqyqqqqqqqqqqqqqqzgsp5apeu3md5xcm4au4eew6r2vp30fr7favmzeh8se9dactexfqdtugq9qyyssquwap9yp3azun3s2t02a9zta05zcksrl9qcgpswdgnk3tsglsnhzhfy63g2dz3zan9grtxes7cq8tftzxju6u7ul5rr8tnwk2jhy5y8cphad4jk",
+    "status": "SUCCEEDED",
+    "fee_sat": 851,
+    "fee_msat": 851000,
+    "creation_time_ns": 1629434810768470000,
+    "payment_index": 3,
+    "failure_reason": "FAILURE_REASON_NONE",
+    "title": "Lightning deposit 0.005",
+    "type": "PAYMENT_SEND"
+  },
+  {
+    "htlcs": [
+      {
+        "status": "SUCCEEDED",
+        "route": {
+          "hops": [
+            {
+              "custom_records": {},
+              "chan_id": 765588847058026500,
+              "chan_capacity": 1000000,
+              "amt_to_forward": 78893,
+              "fee": 0,
+              "expiry": 696344,
+              "amt_to_forward_msat": 78893000,
+              "fee_msat": 0,
+              "pub_key": "03abf6f44c355dec0d5aa155bdbdd6e0c8fefe318eff402de65c6eb2e1be55dc3e",
+              "tlv_payload": true,
+              "mpp_record": {
+                "total_amt_msat": 78893000,
+                "payment_addr": {
+                  "0": 191,
+                  "1": 198,
+                  "2": 210,
+                  "3": 3,
+                  "4": 75,
+                  "5": 18,
+                  "6": 75,
+                  "7": 46,
+                  "8": 192,
+                  "9": 179,
+                  "10": 152,
+                  "11": 89,
+                  "12": 190,
+                  "13": 2,
+                  "14": 112,
+                  "15": 161,
+                  "16": 43,
+                  "17": 11,
+                  "18": 87,
+                  "19": 142,
+                  "20": 2,
+                  "21": 68,
+                  "22": 32,
+                  "23": 132,
+                  "24": 235,
+                  "25": 243,
+                  "26": 203,
+                  "27": 21,
+                  "28": 244,
+                  "29": 206,
+                  "30": 26,
+                  "31": 155
+                }
+              },
+              "amp_record": null
+            }
+          ],
+          "total_time_lock": 696344,
+          "total_fees": 0,
+          "total_amt": 78893,
+          "total_fees_msat": 0,
+          "total_amt_msat": 78893000
+        },
+        "attempt_time_ns": 1629240562671338000,
+        "resolve_time_ns": 1629240563909289500,
+        "failure": null,
+        "preimage": {
+          "0": 35,
+          "1": 79,
+          "2": 74,
+          "3": 170,
+          "4": 199,
+          "5": 25,
+          "6": 33,
+          "7": 208,
+          "8": 241,
+          "9": 133,
+          "10": 48,
+          "11": 171,
+          "12": 81,
+          "13": 107,
+          "14": 25,
+          "15": 13,
+          "16": 157,
+          "17": 72,
+          "18": 184,
+          "19": 189,
+          "20": 197,
+          "21": 147,
+          "22": 9,
+          "23": 241,
+          "24": 208,
+          "25": 139,
+          "26": 49,
+          "27": 22,
+          "28": 190,
+          "29": 56,
+          "30": 240,
+          "31": 86
+        },
+        "attempt_id": 1
+      }
+    ],
+    "payment_hash": "29803fd9610505875bd24639a0b0c3f97c95487c151c03aea32a46e452d2347f",
+    "value": 78893,
+    "creation_date": 1629240562,
+    "fee": 0,
+    "payment_preimage": "234f4aaac71921d0f18530ab516b190d9d48b8bdc59309f1d08b3116be38f056",
+    "value_sat": 78893,
+    "value_msat": 78893000,
+    "payment_request": "LNBC788930N1PS3CW60PP59XQRLKTPQ5ZCWK7JGCU6PVXRL97F2JRUZ5WQ8T4R9FRWG5KJX3LSDYQ235XJUEQWP6HYCMGV9EK2GR9DE6XJARVV4EJQ7T0W5S8GMEQGDHK7UR9WGNHXGZZGFGJQCTXW3JHYGR5DPJJQST4WD6XJM3QGF5HGER9WEEJQNT9V4682UPQDAHZUT3WCQZPGXQZJCSP5HLRDYQ6TZF9JAS9NNPVMUQNS5Y4SK4UWQFZZPP8T7093TAXWR2DS9QY9QSQHV8HAEQ7SUXCJQZR2UPDWVSASRDAQXDGX9AGF02MZS7XF4YU37N899A7VPCE4VK46LQE84RR5LXMQDSX7HA9GCKZPP0KRDMJJNTG2YGQEG3AUJ",
+    "status": "SUCCEEDED",
+    "fee_sat": 0,
+    "fee_msat": 0,
+    "creation_time_ns": 1629240562532538400,
+    "payment_index": 2,
+    "failure_reason": "FAILURE_REASON_NONE",
+    "title": "This purchase entitles you to Cooper's BBQ after the Austin Bitdevs Meetup on...",
+    "type": "PAYMENT_SEND"
+  },
+  {
+    "type": "CHANNEL_OPEN",
+    "creation_date": 1629240340,
+    "title": "Open channel to 03abf6f44c355dec0d5aa155bdbdd6e0c8fefe318eff402de65c6eb2e1be55dc3e",
+    "value_sat": 1000000,
+    "tx": {
+      "txid": "ddb7573d975d045da4abdddec70b9c91502fa2bd54ef6accef4a96e61498aed0",
+      "version": 2,
+      "locktime": 0,
+      "vin": [
+        {
+          "txid": "12aba42fda6bed499d5ec93ff007b5e9e55c5d017d7d714712d2f538339318c2",
+          "vout": 0,
+          "prevout": {
+            "scriptpubkey": "0014d6192d4d75b1ae3809db1cf6f5b6d49c528866e0",
+            "scriptpubkey_asm": "OP_0 OP_PUSHBYTES_20 d6192d4d75b1ae3809db1cf6f5b6d49c528866e0",
+            "scriptpubkey_type": "v0_p2wpkh",
+            "scriptpubkey_address": "bc1q6cvj6nt4kxhrszwmrnm0tdk5n3fgsehq5lfh0c",
+            "value": 10000000
+          },
+          "scriptsig": "",
+          "scriptsig_asm": "",
+          "witness": [
+            "3044022031b0af58b5e5e5c744b0dd1dbf4ea138e033d690a5aa9d6c59b879935c9ce9c0022054735df2b53bdbd6951d8be01df43f8cc0316d4ef40355777203d8c3c4093cd101",
+            "0387b1dfedde1f576cf5a16cd16639ed655b3ad88188706d00b51e0b4633f6c7ac"
+          ],
+          "is_coinbase": false,
+          "sequence": 0
+        }
+      ],
+      "vout": [
+        {
+          "scriptpubkey": "0020db8e0b153a7b3057c48961e78909fdf0d11e50a200050a90410c8183b5d9149d",
+          "scriptpubkey_asm": "OP_0 OP_PUSHBYTES_32 db8e0b153a7b3057c48961e78909fdf0d11e50a200050a90410c8183b5d9149d",
+          "scriptpubkey_type": "v0_p2wsh",
+          "scriptpubkey_address": "bc1qmw8qk9f60vc903yfv8ncjz0a7rg3u59zqqzs4yzppjqc8dwezjwsmsa4e2",
+          "value": 1000000
+        },
+        {
+          "scriptpubkey": "001494c71f71229f14166b893a983c07597e1eca4d12",
+          "scriptpubkey_asm": "OP_0 OP_PUSHBYTES_20 94c71f71229f14166b893a983c07597e1eca4d12",
+          "scriptpubkey_type": "v0_p2wpkh",
+          "scriptpubkey_address": "bc1qjnr37ufznu2pv6uf82vrcp6e0c0v5ngjwqc46a",
+          "value": 8999695
+        }
+      ],
+      "size": 234,
+      "weight": 609,
+      "fee": 305,
+      "status": {
+        "confirmed": true,
+        "block_height": 696299,
+        "block_hash": "00000000000000000010e59646a8c5443b3e4305394c039de43a08049722dedd",
+        "block_time": 1629240340
+      }
+    }
+  },
+  {
+    "route_hints": [],
+    "htlcs": [
+      {
+        "custom_records": {},
+        "chan_id": 739241249851244500,
+        "htlc_index": 0,
+        "amt_msat": 50000000,
+        "accept_height": 680044,
+        "accept_time": 1619029168,
+        "resolve_time": 1619029168,
+        "expiry_height": 680087,
+        "state": "SETTLED",
+        "mpp_total_amt_msat": 50000000,
+        "amp": null
+      }
+    ],
+    "features": {
+      "9": {
+        "name": "tlv-onion",
+        "is_required": false,
+        "is_known": true
+      },
+      "14": {
+        "name": "payment-addr",
+        "is_required": true,
+        "is_known": true
+      },
+      "17": {
+        "name": "multi-path-payments",
+        "is_required": false,
+        "is_known": true
+      }
+    },
+    "memo": "Testing",
+    "r_preimage": {
+      "0": 49,
+      "1": 72,
+      "2": 25,
+      "3": 54,
+      "4": 57,
+      "5": 10,
+      "6": 37,
+      "7": 222,
+      "8": 101,
+      "9": 98,
+      "10": 206,
+      "11": 30,
+      "12": 250,
+      "13": 254,
+      "14": 91,
+      "15": 202,
+      "16": 59,
+      "17": 174,
+      "18": 221,
+      "19": 228,
+      "20": 243,
+      "21": 115,
+      "22": 30,
+      "23": 214,
+      "24": 176,
+      "25": 184,
+      "26": 65,
+      "27": 161,
+      "28": 238,
+      "29": 250,
+      "30": 63,
+      "31": 255
+    },
+    "r_hash": {
+      "0": 60,
+      "1": 57,
+      "2": 143,
+      "3": 74,
+      "4": 130,
+      "5": 141,
+      "6": 162,
+      "7": 98,
+      "8": 11,
+      "9": 146,
+      "10": 205,
+      "11": 229,
+      "12": 17,
+      "13": 208,
+      "14": 44,
+      "15": 169,
+      "16": 64,
+      "17": 212,
+      "18": 52,
+      "19": 8,
+      "20": 248,
+      "21": 216,
+      "22": 108,
+      "23": 245,
+      "24": 174,
+      "25": 46,
+      "26": 175,
+      "27": 121,
+      "28": 230,
+      "29": 63,
+      "30": 99,
+      "31": 0
+    },
+    "value": 50000,
+    "settled": true,
+    "creation_date": 1619029148,
+    "settle_date": 1619029168,
+    "payment_request": "lnbc500u1psgqmyupp58suc7j5z3k3xyzujehj3r5pv49qdgdqglrvxeadw96hhne3lvvqqdqv23jhxarfdenscqzpgxqrrsssp5mgd37me57wldpste0c45a2gagpxvnxs54f9kqcuzv9k5d6xl9g8s9qyyssqnkvgh8yd2va7pwk5mq2mqm3fcgrs4upuhetsfuzd74le2n90d533hj932xk9yh020pvy697adrpzyj8jw0a8hz2aql2z5dj4vscz9hgquh5rxm",
+    "description_hash": {},
+    "expiry": 3600,
+    "fallback_addr": "",
+    "cltv_expiry": 40,
+    "private": false,
+    "add_index": 2,
+    "settle_index": 1,
+    "amt_paid": 50000000,
+    "amt_paid_sat": 50000,
+    "amt_paid_msat": 50000000,
+    "state": "SETTLED",
+    "value_msat": 50000000,
+    "is_keysend": false,
+    "payment_addr": {
+      "0": 218,
+      "1": 27,
+      "2": 31,
+      "3": 111,
+      "4": 52,
+      "5": 243,
+      "6": 190,
+      "7": 208,
+      "8": 193,
+      "9": 121,
+      "10": 126,
+      "11": 43,
+      "12": 78,
+      "13": 169,
+      "14": 29,
+      "15": 64,
+      "16": 76,
+      "17": 201,
+      "18": 154,
+      "19": 20,
+      "20": 170,
+      "21": 75,
+      "22": 96,
+      "23": 99,
+      "24": 130,
+      "25": 97,
+      "26": 109,
+      "27": 70,
+      "28": 232,
+      "29": 223,
+      "30": 42,
+      "31": 15
+    },
+    "is_amp": false,
+    "value_sat": 50000,
+    "title": "Testing",
+    "type": "PAYMENT_RECEIVE"
+  },
+  {
+    "type": "CHANNEL_OPEN",
+    "creation_date": 1614381392,
+    "title": "Open channel to 02afb0e4d55bc00a5526744fef34b2b257cdfd57fa9ceb53caa9b182e648f72a4e",
+    "value_sat": 123456,
+    "tx": {
+      "txid": "364980c4abe62f0134a637d3b6af9dab6e994740b648de099802ad6aa0c654cf",
+      "version": 2,
+      "locktime": 0,
+      "vin": [
+        {
+          "txid": "db2ffe544ac56104fc32c6c4e53df43fef5cc0005cb78d097aaab7485a0b1cd5",
+          "vout": 1,
+          "prevout": {
+            "scriptpubkey": "00200387e2a0f2d6839e1e5bf93d477ccdda106a4a64f7e9e70a1aa80ed4b0337c68",
+            "scriptpubkey_asm": "OP_0 OP_PUSHBYTES_32 0387e2a0f2d6839e1e5bf93d477ccdda106a4a64f7e9e70a1aa80ed4b0337c68",
+            "scriptpubkey_type": "v0_p2wsh",
+            "scriptpubkey_address": "bc1qqwr79g8j66peu8jmly75wlxdmggx5jny7l57wzs64q8dfvpn035q6vp38j",
+            "value": 222910413
+          },
+          "scriptsig": "",
+          "scriptsig_asm": "",
+          "witness": [
+            "",
+            "304402205b4a190f534a2c50cf9f5bb2e733d574ce116a3ca50dc10ef15896407451d0a50220768ea72ede466242ec3d32643e926599e4751c3252e590c43956907b59a8357c01",
+            "3044022030ce6bc8816c2c3ddda1a6d51fea157da0421bab4a903a5f1436c07d754f15ce02201cd0a338888821637449f8d158d755816677ba537a67d1087c0cada62be5a5e301",
+            "3044022075156e767cc7527509aa8dc4e7d826524f75d5523761619b5af1a7dfe0d8c6b10220702d8b6332e1d5cf600a79b722fbc7c161edae37903f67f3ada2847bca597bc601",
+            "532102798c9d6a7fe9661827d8ed54e1bef8f7a1bcd4fb29a5dce97007185a6e1081162102c65e79e651924a3f34d1bbf7e08f7bf87a19ac7919c7628fc0a9640e4a1a62c0210370209584d4e7993dd136588cb899bcc0fe9392ec04d3c4ee6aae8a1c5e3c35e921037fb76dab4718c5f3a54a48430707c8916d4e3c17b50a64cc7b79139eddd609312103e8d64cf8c387f08c53d73c34dc8555c975bcd0d78dfe4c8a586cd895f005acdf55ae"
+          ],
+          "is_coinbase": false,
+          "sequence": 4294967295,
+          "inner_witnessscript_asm": "OP_PUSHNUM_3 OP_PUSHBYTES_33 02798c9d6a7fe9661827d8ed54e1bef8f7a1bcd4fb29a5dce97007185a6e108116 OP_PUSHBYTES_33 02c65e79e651924a3f34d1bbf7e08f7bf87a19ac7919c7628fc0a9640e4a1a62c0 OP_PUSHBYTES_33 0370209584d4e7993dd136588cb899bcc0fe9392ec04d3c4ee6aae8a1c5e3c35e9 OP_PUSHBYTES_33 037fb76dab4718c5f3a54a48430707c8916d4e3c17b50a64cc7b79139eddd60931 OP_PUSHBYTES_33 03e8d64cf8c387f08c53d73c34dc8555c975bcd0d78dfe4c8a586cd895f005acdf OP_PUSHNUM_5 OP_CHECKMULTISIG"
+        }
+      ],
+      "vout": [
+        {
+          "scriptpubkey": "002079f1ff4fc5519a51d70749afa88ff080d22ddde8086e0f7af588945bb9d3b5f3",
+          "scriptpubkey_asm": "OP_0 OP_PUSHBYTES_32 79f1ff4fc5519a51d70749afa88ff080d22ddde8086e0f7af588945bb9d3b5f3",
+          "scriptpubkey_type": "v0_p2wsh",
+          "scriptpubkey_address": "bc1q08cl7n792xd9r4c8fxh63rlssrfzmh0gpphq77h43z29hwwnkhesvk5ak8",
+          "value": 123456
+        },
+        {
+          "scriptpubkey": "00206ab87208a6cca2b62260aae6b4cb1cc77dcdb79ed4c83b068f0ece18de950365",
+          "scriptpubkey_asm": "OP_0 OP_PUSHBYTES_32 6ab87208a6cca2b62260aae6b4cb1cc77dcdb79ed4c83b068f0ece18de950365",
+          "scriptpubkey_type": "v0_p2wsh",
+          "scriptpubkey_address": "bc1qd2u8yz9xej3tvgnq4tntfjcuca7umdu76nyrkp50pm8p3h54qdjswt02jf",
+          "value": 222763357
+        }
+      ],
+      "size": 531,
+      "weight": 942,
+      "fee": 23600,
+      "status": {
+        "confirmed": true,
+        "block_height": 672336,
+        "block_hash": "00000000000000000003d38cda02b2ca7b7bb4cfb0a859a55671da67554ce5f7",
+        "block_time": 1614381392
+      }
+    },
+    "channel": {
+      "resolutions": [],
+      "channel_point": "364980c4abe62f0134a637d3b6af9dab6e994740b648de099802ad6aa0c654cf:0",
+      "chan_id": 739241249851244500,
+      "chain_hash": "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
+      "closing_tx_hash": "583ebc5a220ec65c0eb5a0a6de3d957e65cd1f5146e46dd66f583400ed7c652f",
+      "remote_pubkey": "02afb0e4d55bc00a5526744fef34b2b257cdfd57fa9ceb53caa9b182e648f72a4e",
+      "capacity": 123456,
+      "close_height": 697868,
+      "settled_balance": 50000,
+      "time_locked_balance": 0,
+      "close_type": "COOPERATIVE_CLOSE",
+      "open_initiator": "INITIATOR_REMOTE",
+      "close_initiator": "INITIATOR_LOCAL"
+    }
+  }
+]

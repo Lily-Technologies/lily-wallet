@@ -49,6 +49,11 @@ const Steps = ({ step, setupOption }: Props) => {
           {setupOption === 3 && (
             <StepItemSubText>Connect or import hardware wallet</StepItemSubText>
           )}
+          {setupOption === 4 && (
+            <StepItemSubText>
+              Input your node connection information
+            </StepItemSubText>
+          )}
         </StepItemTextContainer>
       </StepItem>
       <StepItem arrow={false} completed={step > 3} active={step === 3}>

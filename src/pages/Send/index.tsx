@@ -31,6 +31,8 @@ import ConfirmTxPage from "./ConfirmTxPage";
 
 import { AccountMapContext } from "../../AccountMapContext";
 
+import { requireOnchain } from "../../hocs";
+
 import {
   white,
   gray400,
@@ -49,9 +51,16 @@ import {
 import { getUnchainedNetworkFromBjslibNetwork } from "../../utils/files";
 import { mobile } from "../../utils/media";
 
-import { LilyConfig, NodeConfig, FeeRates, SetStatePsbt } from "../../types";
+import {
+  LilyConfig,
+  NodeConfig,
+  FeeRates,
+  SetStatePsbt,
+  LilyOnchainAccount,
+} from "../../types";
 
 interface Props {
+  currentAccount: LilyOnchainAccount;
   config: LilyConfig;
   currentBitcoinNetwork: Network;
   nodeConfig: NodeConfig;
@@ -59,6 +68,7 @@ interface Props {
 }
 
 const Send = ({
+  currentAccount,
   config,
   currentBitcoinNetwork,
   nodeConfig,
@@ -75,7 +85,7 @@ const Send = ({
   const [paymentSuccessful, setPaymentSuccess] = useState(false);
   const history = useHistory();
 
-  const { currentAccount, accountMap } = useContext(AccountMapContext);
+  const { accountMap } = useContext(AccountMapContext);
   const { currentBalance } = currentAccount;
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
@@ -234,6 +244,7 @@ const Send = ({
         )}
         {!currentAccount.loading && finalPsbt && step === 1 && (
           <ConfirmTxPage
+            currentAccount={currentAccount}
             finalPsbt={finalPsbt}
             setFinalPsbt={setFinalPsbt as SetStatePsbt}
             sendTransaction={sendTransaction}
@@ -349,4 +360,4 @@ const ViewTransactionButton = styled.a`
   margin-top: 1em;
 `;
 
-export default Send;
+export default requireOnchain(Send);

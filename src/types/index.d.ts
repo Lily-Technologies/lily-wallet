@@ -17,6 +17,24 @@ declare global {
   }
 }
 
+// see https://stackoverflow.com/questions/40510611/typescript-interface-require-one-of-two-properties-to-exist/49725198#49725198
+type RequireAtLeastOne<T, Keys extends keyof T = keyof T> = Pick<
+  T,
+  Exclude<keyof T, Keys>
+> &
+  {
+    [K in Keys]-?: Required<Pick<T, K>> & Partial<Pick<T, Exclude<Keys, K>>>;
+  }[Keys];
+
+type RequireOnlyOne<T, Keys extends keyof T = keyof T> = Pick<
+  T,
+  Exclude<keyof T, Keys>
+> &
+  {
+    [K in Keys]-?: Required<Pick<T, K>> &
+      Partial<Record<Exclude<Keys, K>, undefined>>;
+  }[Keys];
+
 // React Types
 export type SetStateBoolean = React.Dispatch<React.SetStateAction<boolean>>;
 export type SetStateString = React.Dispatch<React.SetStateAction<string>>;
@@ -109,11 +127,7 @@ export interface PsbtInput {
   bip32Derivation: Bip32Derivation[];
 }
 
-export enum TransactionType {
-  sent = "sent",
-  received = "received",
-  moved = "moved",
-}
+export type TransactionType = "sent" | "received" | "moved";
 
 export enum LicenseTiers {
   basic = "basic",
@@ -145,6 +159,173 @@ export interface Transaction {
   totalValue: number;
   address: string;
   value: number;
+}
+
+export interface LightningChannel {
+  pending_htlcs: HTLC[];
+  alias: string; // added via main.js
+  last_update: number; // added via main.js
+  active: boolean;
+  remote_pubkey: string;
+  channel_point: string;
+  chan_id: number;
+  capacity: number;
+  local_balance: number;
+  remote_balance: number;
+  commit_fee: number;
+  commit_weight: number;
+  fee_per_kw: number;
+  unsettled_balance: number;
+  total_satoshis_sent: number;
+  total_satoshis_received: number;
+  num_updates: number;
+  csv_delay: number;
+  private: boolean;
+  initiator: boolean;
+  chan_status_flags: string;
+  local_chan_reserve_sat: number;
+  remote_chan_reserve_sat: number;
+  static_remote_key: boolean;
+  lifetime: number;
+  uptime: number;
+  close_address: "";
+  commitment_type:
+    | "LEGACY"
+    | "STATIC_REMOTE_KEY"
+    | "ANCHORS"
+    | "UNKNOWN_COMMITMENT_TYPE";
+  push_amount_sat: number;
+  thaw_height: number;
+  local_constraints: {
+    csv_delay: number;
+    chan_reserve_sat: number;
+    dust_limit_sat: number;
+    max_pending_amt_msat: number;
+    min_htlc_msat: number;
+    max_accepted_htlcs: number;
+  };
+  remote_constraints: {
+    csv_delay: number;
+    chan_reserve_sat: number;
+    dust_limit_sat: number;
+    max_pending_amt_msat: number;
+    min_htlc_msat: number;
+    max_accepted_htlcs: number;
+  };
+}
+
+type Initiator =
+  | "INITIATOR_UNKNOWN"
+  | "INITIATOR_LOCAL"
+  | "INITIATOR_REMOTE"
+  | "INITIATOR_BOTH";
+
+export interface ClosedLightningChannel {
+  capacity: number;
+  chain_hash: string;
+  chan_id: number;
+  channel_point: string;
+  close_height: number;
+  close_initiator: Initiator;
+  close_type:
+    | "COOPERATIVE_CLOSE"
+    | "LOCAL_FORCE_CLOSE"
+    | "REMOTE_FORCE_CLOSE"
+    | "BREACH_CLOSE"
+    | "FUNDING_CANCELED"
+    | "ABANDONED";
+  closing_tx_hash: string;
+  open_initiator: Initiator;
+  remote_pubkey: string;
+  resolutions: any[];
+  settled_balance: number;
+  time_locked_balance: number;
+}
+
+export interface LightningTransaction {
+  dest_addresses: string[];
+  tx_hash: string;
+  amount: number;
+  num_confirmations: number;
+  block_hash: string;
+  block_height: number;
+  time_stamp: number;
+  total_fees: number;
+  raw_tx_hex: string;
+  label: string;
+}
+
+export interface LightningPayment {
+  htlcs: HTLC[];
+  payment_hash: string;
+  value: number;
+  creation_date: number;
+  fee: number;
+  payment_preimage: string;
+  value_sat: number;
+  value_msat: number;
+  payment_request: string;
+  status: string;
+  fee_sat: number;
+  fee_msat: number;
+  creation_time_ns: number;
+  payment_index: number;
+  failure_reason: string;
+}
+
+export interface LightningInvoice {
+  route_hints: any[];
+  htlcs: HTLC[];
+  features: any[];
+  memo: string;
+  r_preimage: Buffer;
+  r_hash: Buffer;
+  value: number;
+  settled: boolean;
+  creation_date: number;
+  settle_date: number;
+  payment_request: string;
+  description_hash: Buffer;
+  expiry: number;
+  fallback_addr: string;
+  cltv_expiry: number;
+  private: boolean;
+  add_index: number;
+  settle_index: number;
+  amt_paid: number;
+  amt_paid_sat: number;
+  amt_paid_msat: number;
+  state: "SETTLED" | "CANCELED";
+  value_msat: number;
+  is_keysend: number;
+  payment_addr: Buffer;
+  is_amp: boolean;
+}
+
+export type LightningActivity =
+  | "CHANNEL_OPEN"
+  | "CHANNEL_CLOSE"
+  | "PAYMENT_SEND"
+  | "PAYMENT_RECEIVE";
+
+// either channel open/close, or send/receive payment
+export interface LightningEvent {
+  type: LightningActivity;
+  creation_date: number;
+  title: string;
+  value_sat: number;
+  tx?: Transaction;
+  channel?: ClosedLightningChannel;
+}
+
+export interface HTLC {
+  status: "SUCCEEDED" | "IN_FLIGHT" | "FAILED";
+  route: any;
+  attempt_time_ns: number;
+  resolve_time_ns: number;
+  failure: any;
+  preimage: Buffer;
+  attempt_id: number;
 }
 
 export interface TransactionMap {
@@ -181,9 +362,9 @@ export interface UTXO {
   prevTxHex: string; // added to UTXO when retriving for Trezor HWW
 }
 
-export interface LilyAccount {
+export interface LilyOnchainAccount {
   name: string;
-  config: AccountConfig;
+  config: OnChainConfig;
   addresses: Address[];
   changeAddresses: Address[];
   availableUtxos: UTXO[];
@@ -193,6 +374,53 @@ export interface LilyAccount {
   currentBalance: number;
   loading: boolean | WalletInfo.scanning;
 }
+
+export interface LightningConfig {
+  id: string;
+  type: "lightning";
+  created_at: number;
+  name: string;
+  network: "mainnet" | "testnet";
+  connectionDetails: {
+    lndConnectUri: string;
+  };
+}
+
+export interface LightningBalance {
+  local_balance: LightningAmount;
+  remote_balance: LightningAmount;
+  unsettled_local_balance: LightningAmount;
+  unsettled_remote_balance: LightningAmount;
+  pending_local_balance: LightningAmount;
+  pending_remote_balance: LightningAmount;
+}
+
+export interface LightningAmount {
+  sat: number;
+  msat: number;
+}
+
+export interface LilyLightningAccount {
+  name: string;
+  config: LightningConfig;
+  channels: LightningChannel[];
+  pendingChannels: LightningChannel[];
+  closedChannels: ClosedLightningChannel[];
+  info: any;
+  events: LightningEvent[];
+  payments: LightningPayment[];
+  invoices: LightningInvoice[];
+  currentBalance: LightningBalance;
+  balanceHistory: BalanceHistory[];
+  loading: boolean | WalletInfo.scanning;
+}
+
+export interface BalanceHistory {
+  block_time: number;
+  totalValue: number;
+}
+
+export type LilyAccount = LilyOnchainAccount | LilyLightningAccount;
 
 export interface AccountMap {
   [id: string]: LilyAccount;
@@ -219,9 +447,18 @@ export interface LilyLicense {
 }
 export interface LilyConfig {
   name: string;
+  version: "1.0.8";
+  isEmpty: boolean;
+  wallets: OnChainConfig[];
+  vaults: VaultConfig[];
+  lightning: LightningConfig[];
+}
+
+export interface LilyConfigOneDotSevenConfig {
+  name: string;
   version: "1.0.7";
   isEmpty: boolean;
-  wallets: AccountConfig[];
+  wallets: OnChainConfig[];
   vaults: VaultConfig[];
 }
 
@@ -230,8 +467,8 @@ export interface LilyConfigOneDotFiveConfig {
   version: "1.0.5";
   license: LilyLicense;
   isEmpty: boolean;
-  wallets: AccountConfig[];
-  vaults: AccountConfig[];
+  wallets: OnChainConfig[];
+  vaults: OnChainConfig[];
 }
 
 export interface LilyConfigOneDotZeroConfig {
@@ -239,8 +476,8 @@ export interface LilyConfigOneDotZeroConfig {
   version: "1.0.0";
   license: LilyLicense;
   isEmpty: boolean;
-  wallets: AccountConfig[];
-  vaults: AccountConfig[];
+  wallets: OnChainConfig[];
+  vaults: OnChainConfig[];
 }
 
 export interface LilyZeroDotOneConfig {
@@ -265,7 +502,7 @@ export interface LilyZeroDotOneConfig {
     device: Device;
     mnemonic?: string;
   }[];
-  vaults: AccountConfig[];
+  vaults: OnChainConfig[];
   keys: any[]; // TODO: change
   exchanges: any[]; // TODO: change
 }
@@ -309,8 +546,9 @@ export enum AddressType {
   multisig = "multisig",
 }
 
-export interface AccountConfig {
+export interface OnChainConfig {
   id: string;
+  type: "onchain";
   created_at: number;
   name: string;
   network: "mainnet" | "testnet";
@@ -324,7 +562,7 @@ export interface AccountConfig {
   parentFingerprint?: string;
 }
 
-export interface VaultConfig extends AccountConfig {
+export interface VaultConfig extends OnChainConfig {
   license: LilyLicense;
 }
 
@@ -480,4 +718,17 @@ export interface BitcoinCoreGetRawTransactionResponse {
   confirmations: number;
   time: number;
   blocktime: number;
+}
+
+// Shopping cart types
+interface ShoppingItem {
+  image: any;
+  title: string;
+  price: number;
+  extraInfo?: ExtraInfo[];
+}
+
+interface ExtraInfo {
+  label: string;
+  value: string;
 }

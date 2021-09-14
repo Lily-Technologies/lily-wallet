@@ -7,7 +7,7 @@
     "jsx": "react",
     "target": "es5",
     "allowJs": true,
-    "baseUrl": "src",
+    "baseUrl": ".",
     "lib": [
       "dom",
       "dom.iterable",

@@ -21,10 +21,10 @@ import {
   white,
 } from "../../utils/colors";
 
-import { LilyAccount, UTXO, FeeRates } from "../../types";
+import { LilyOnchainAccount, UTXO, FeeRates } from "../../types";
 
 interface Props {
-  currentAccount: LilyAccount;
+  currentAccount: LilyOnchainAccount;
   finalPsbt: Psbt;
   feeRates: FeeRates;
   availableUtxos: UTXO[];

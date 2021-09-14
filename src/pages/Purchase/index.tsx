@@ -20,6 +20,7 @@ import {
 import ConfirmTxPage from "../../pages/Send/ConfirmTxPage";
 
 import { AccountMapContext } from "../../AccountMapContext";
+import { requireOnchain } from "../../hocs";
 
 import { broadcastTransaction, createTransaction } from "../../utils/send";
 import { saveLicenseToVault } from "../../utils/files";
@@ -35,12 +36,13 @@ import {
   NodeConfig,
   PaymentAddressResponse,
   LilyLicense,
-  LilyAccount,
   AddressType,
   VaultConfig,
+  LilyOnchainAccount,
 } from "../../types";
 
 interface Props {
+  currentAccount: LilyOnchainAccount;
   currentBitcoinNetwork: Network;
   currentBitcoinPrice: any;
   password: string;
@@ -48,6 +50,7 @@ interface Props {
 }
 
 const PurchasePage = ({
+  currentAccount,
   currentBitcoinNetwork,
   currentBitcoinPrice,
   password,
@@ -64,10 +67,10 @@ const PurchasePage = ({
     halfHourFee: 0,
     hourFee: 0,
   });
-  const { currentAccount, accountMap, setCurrentAccountId } =
-    useContext(AccountMapContext);
-  const [licenseResponse, setLicenseResponse] =
-    useState<LilyLicense | undefined>(undefined);
+  const { accountMap, setCurrentAccountId } = useContext(AccountMapContext);
+  const [licenseResponse, setLicenseResponse] = useState<
+    LilyLicense | undefined
+  >(undefined);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
 
@@ -82,7 +85,7 @@ const PurchasePage = ({
   }, []);
 
   const clickRenewLicense = useCallback(
-    async (tier: LicenseTiers, currentAccount: LilyAccount) => {
+    async (tier: LicenseTiers, currentAccount: LilyOnchainAccount) => {
       try {
         let reqBody;
         if (Object.keys(currentAccount.config).length === 0) {
@@ -118,9 +121,6 @@ const PurchasePage = ({
 
         const tierAndTotalSigners =
           `${tier}${totalSigners}` as LicenseResponseTiers;
-
-        console.log("tierAndTotalSigners: ", tierAndTotalSigners);
-        console.log("paymentAddressResponse: ", paymentAddressResponse);
 
         const { psbt, feeRates } = await createTransaction(
           currentAccount,
@@ -197,6 +197,7 @@ const PurchasePage = ({
       for (let i = 0; i < Object.keys(accountMap).length; i++) {
         const tempCurrentAccount = Object.values(accountMap)[i];
         if (
+          tempCurrentAccount.config.type === "onchain" &&
           tempCurrentAccount.config.addressType !== AddressType.p2sh &&
           !tempCurrentAccount.loading
         ) {
@@ -245,6 +246,7 @@ const PurchasePage = ({
             />
             {finalPsbt && (
               <ConfirmTxPage
+                currentAccount={currentAccount}
                 finalPsbt={finalPsbt!}
                 sendTransaction={confirmTxWithLilyThenSend}
                 setFinalPsbt={setFinalPsbt as SetStatePsbt}
@@ -283,4 +285,4 @@ const RenewButton = styled.a`
   marginright: 1em;
 `;
 
-export default PurchasePage;
+export default requireOnchain(PurchasePage);

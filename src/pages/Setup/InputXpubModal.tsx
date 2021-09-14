@@ -52,11 +52,9 @@ const InputXpubModal = ({
   }, [type]);
 
   const addDevice = () => {
-    console.log("onSubmit: ", type, model, path, fingerprint, xpub);
     let valid = true;
     try {
       const node = bip32.fromBase58(xpub);
-      console.log("node: ", node);
     } catch (e) {
       setXpubError("Invalid XPub");
       valid = false;

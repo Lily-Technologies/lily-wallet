@@ -97,6 +97,33 @@ export const NavLinks = ({ currentBitcoinNetwork }: Props) => {
 
       <WalletsHeader>Accounts</WalletsHeader>
       <AccountsContainer>
+        {config.lightning.map((wallet) => (
+          <SidebarItemLink
+            data-cy="nav-item"
+            key={wallet.id}
+            active={pathname.includes(`/lightning/${wallet.id}`)}
+            onClick={() => {
+              setCurrentAccountId(wallet.id);
+            }}
+            to={`/lightning/${wallet.id}`}
+          >
+            <IconSvg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M13 10V3L4 14h7v7l9-11h-7z"
+              />
+            </IconSvg>
+            {wallet.name}
+          </SidebarItemLink>
+        ))}
+
         {config.wallets.map((wallet) => (
           <SidebarItemLink
             data-cy="nav-item"

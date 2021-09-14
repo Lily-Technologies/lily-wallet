@@ -12,7 +12,7 @@ import SettingsTabs from "./SettingsTabs";
 import { Modal } from "../../../components";
 
 import { white } from "../../../utils/colors";
-import { NodeConfig } from "types";
+import { NodeConfig } from "src/types";
 
 interface Props {
   password: string;
@@ -45,12 +45,7 @@ const VaultSettings = ({
         <SettingsHeader>Settings</SettingsHeader>
         <SettingsTabs currentTab={currentTab} setCurrentTab={setCurrentTab} />
       </HeaderContainer>
-      {currentTab === "general" && (
-        <GeneralView
-          password={password}
-          currentBitcoinNetwork={currentBitcoinNetwork}
-        />
-      )}
+      {currentTab === "general" && <GeneralView password={password} />}
       {currentTab === "addresses" && <AddressesView />}
       {currentTab === "utxos" && <UtxosView />}
       {currentTab === "license" && (

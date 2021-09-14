@@ -1,4 +1,4 @@
-import React, { useState, useContext, useRef } from "react";
+import React, { useState, useRef } from "react";
 import styled from "styled-components";
 import { networks, Network, Psbt } from "bitcoinjs-lib";
 import BigNumber from "bignumber.js";
@@ -12,24 +12,25 @@ import {
   Modal,
   ErrorModal,
   Spinner,
-} from "../../components";
-
-import { AccountMapContext } from "../../AccountMapContext";
+} from "src/components";
 
 import PastePsbtModalContent from "./PastePsbtModalContent";
 
-import { bitcoinNetworkEqual } from "../../utils/files";
-import { white, gray400, red500, green600 } from "../../utils/colors";
+import { bitcoinNetworkEqual } from "src/utils/files";
+import { white, gray400, red500, green600 } from "src/utils/colors";
 import {
   validateAddress,
   validateSendAmount,
   getPsbtFromText,
   getFee,
-} from "../../utils/send";
+} from "src/utils/send";
 
-import { SetStateNumber, File } from "../../types";
+import { requireOnchain } from "src/hocs";
+
+import { SetStateNumber, File, LilyOnchainAccount } from "src/types";
 
 interface Props {
+  currentAccount: LilyOnchainAccount;
   setFinalPsbt: React.Dispatch<React.SetStateAction<Psbt | undefined>>;
   finalPsbt: Psbt | undefined;
   setStep: SetStateNumber;
@@ -42,6 +43,7 @@ interface Props {
 }
 
 const SendTxForm = ({
+  currentAccount,
   setFinalPsbt,
   finalPsbt,
   setStep,
@@ -59,7 +61,6 @@ const SendTxForm = ({
   const [isLoading, setIsLoading] = useState(false);
   const [sendAmountError, setSendAmountError] = useState("");
   const [recipientAddressError, setRecipientAddressError] = useState("");
-  const { currentAccount } = useContext(AccountMapContext);
   const fileUploadLabelRef = useRef<HTMLLabelElement>(null);
   const [importTxFromFileError, setImportTxFromFileError] = useState("");
   const [modalIsOpen, setModalIsOpen] = useState(false);
@@ -282,4 +283,4 @@ const ErrorText = styled.div`
   padding-right: 0;
 `;
 
-export default SendTxForm;
+export default requireOnchain(SendTxForm);

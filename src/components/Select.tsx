@@ -28,10 +28,13 @@ export const Select = React.memo(
     const [selected, setSelected] = useState(options[0]);
 
     useEffect(() => {
+      // set initial value
+      options[0].onClick();
+    }, []);
+
+    useEffect(() => {
       setSelected(options[0]);
     }, [options]);
-
-    console.log("Select render: ", label, options);
 
     return (
       <Listbox
@@ -148,7 +151,7 @@ const CheckIconDecorated = styled(CheckIcon)`
   vertical-align: middle;
 `;
 
-const ListboxButton = styled(Listbox.Button)<{
+const ListboxButton = styled(Listbox.Button) <{
   error?: boolean;
   children: React.ReactNode;
   id?: string;

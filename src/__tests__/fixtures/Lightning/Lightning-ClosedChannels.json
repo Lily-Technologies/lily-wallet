@@ -1,0 +1,17 @@
+[
+  {
+    "resolutions": [],
+    "channel_point": "364980c4abe62f0134a637d3b6af9dab6e994740b648de099802ad6aa0c654cf:0",
+    "chan_id": 739241249851244500,
+    "chain_hash": "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
+    "closing_tx_hash": "583ebc5a220ec65c0eb5a0a6de3d957e65cd1f5146e46dd66f583400ed7c652f",
+    "remote_pubkey": "02afb0e4d55bc00a5526744fef34b2b257cdfd57fa9ceb53caa9b182e648f72a4e",
+    "capacity": 123456,
+    "close_height": 697868,
+    "settled_balance": 50000,
+    "time_locked_balance": 0,
+    "close_type": "COOPERATIVE_CLOSE",
+    "open_initiator": "INITIATOR_REMOTE",
+    "close_initiator": "INITIATOR_LOCAL"
+  }
+]

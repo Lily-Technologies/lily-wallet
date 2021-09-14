@@ -17,17 +17,23 @@ import {
 } from "../utils/colors";
 import { sm, md, lg } from "../utils/media";
 
-import { LicenseTiers, LilyAccount } from "../types";
+import { LicenseTiers, LilyOnchainAccount } from "../types";
 
 interface Props {
-  clickRenewLicense: (level: LicenseTiers, currentAccount: LilyAccount) => void;
-  currentAccount: LilyAccount;
+  clickRenewLicense: (
+    level: LicenseTiers,
+    currentAccount: LilyOnchainAccount
+  ) => void;
+  currentAccount: LilyOnchainAccount;
 }
 
 export const PricingTable = ({ clickRenewLicense, currentAccount }: Props) => {
   const [isLoading, setLoading] = useState("");
 
-  const onLicenseClick = async (tier: LicenseTiers, account: LilyAccount) => {
+  const onLicenseClick = async (
+    tier: LicenseTiers,
+    account: LilyOnchainAccount
+  ) => {
     if (!isLoading) {
       setLoading(tier);
       try {

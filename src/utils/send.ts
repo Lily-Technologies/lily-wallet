@@ -27,6 +27,7 @@ import {
   FeeRates,
   NodeConfig,
   ExtendedPublicKey,
+  LilyOnchainAccount,
 } from "../types";
 
 export const combinePsbts = (finalPsbt: Psbt, signedPsbt: Psbt) => {
@@ -46,6 +47,15 @@ export const validateAddress = (
   }
 };
 
+export const truncateAddress = (address: string) => {
+  if (address.length < 40) return address;
+
+  return `${address.substring(0, 15)}...${address.substring(
+    address.length - 15,
+    address.length
+  )}`;
+};
+
 export const validateSendAmount = (
   sendAmountInBTC: string,
   currentBalanceInSatoshi: number
@@ -63,7 +73,7 @@ export const validateSendAmount = (
 
 export const validateTxForAccount = (
   psbt: Psbt,
-  currentAccount: LilyAccount
+  currentAccount: LilyOnchainAccount
 ) => {
   const { availableUtxos } = currentAccount;
   const utxosMap = createUtxoMapFromUtxoArray(availableUtxos);
@@ -237,7 +247,7 @@ export const getSignedDevicesFromPsbt = (
 };
 
 export const createTransaction = async (
-  currentAccount: LilyAccount,
+  currentAccount: LilyOnchainAccount,
   amountInBitcoins: string,
   recipientAddress: string,
   desiredFee: BigNumber,

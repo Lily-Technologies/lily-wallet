@@ -1,4 +1,4 @@
-import { VaultConfig, AccountConfig } from "../../types";
+import { VaultConfig, AccountConfig, LilyLightningAccount } from "../../types";
 
 import HWWAccount from "./HWW/HWW-Account.json";
 import HWWAddresses from "./HWW/HWW-Addresses.json";
@@ -116,4 +116,29 @@ const Multisig = {
   other: MultisigOtherData,
 };
 
-export { HWW, DAS, JB, Sunny, Mnemonic, Multisig };
+import LightningConfig from "./Lightning/Lightning-Config.json";
+import LightningChannels from "./Lightning/Lightning-Channels.json";
+import LightningCurrentBalance from "./Lightning/Lightning-CurrentBalance.json";
+import LightningClosedChannels from "./Lightning/Lightning-ClosedChannels.json";
+import LightningBalanceHistory from "./Lightning/Lightning-BalanceHistory.json";
+import LightningEvents from "./Lightning/Lightning-Events.json";
+import LightningInfo from "./Lightning/Lightning-Info.json";
+import LightningInvoices from "./Lightning/Lightning-Invoices.json";
+import LightningPayments from "./Lightning/Lightning-Payments.json";
+
+const Lightning = {
+  name: LightningConfig.name,
+  currentBalance: LightningCurrentBalance,
+  config: LightningConfig,
+  channels: LightningChannels,
+  pendingChannels: [],
+  closedChannels: LightningClosedChannels,
+  balanceHistory: LightningBalanceHistory,
+  events: LightningEvents,
+  info: LightningInfo,
+  invoices: LightningInvoices,
+  payments: LightningPayments,
+  loading: false,
+} as unknown as LilyLightningAccount;
+
+export { HWW, DAS, JB, Sunny, Mnemonic, Multisig, Lightning };

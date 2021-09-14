@@ -2,6 +2,7 @@
   "id": "2ad7dfab-70c0-4343-abbd-fa91a7a73ae4",
   "created_at": 1620781853571,
   "name": "JB HWW",
+  "type": "onchain",
   "network": "mainnet",
   "addressType": "P2WPKH",
   "quorum": {

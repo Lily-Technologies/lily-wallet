@@ -343,11 +343,11 @@ const LoadingDevicesWrapper = styled.div`
 `;
 
 const NoDevicesHeader = styled.h3`
-  font-weight: 100;
+  font-weight: 500;
 `;
 
 const NoDevicesSubheader = styled.h4`
-  font-weight: 100;
+  font-weight: 500;
 `;
 
 const ConfiguringText = styled.div<{ error?: boolean; warning?: boolean }>`

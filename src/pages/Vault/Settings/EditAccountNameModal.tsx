@@ -23,7 +23,7 @@ import {
 import { saveConfig } from "../../../utils/files";
 
 import { ConfigContext } from "../../../ConfigContext";
-import { VaultConfig } from "types";
+import { VaultConfig } from "src/types";
 
 interface Props {
   password: string;
@@ -50,16 +50,23 @@ const EditAccountNameModal = ({ password, closeModal }: Props) => {
       const currentAccountConfigCopy = { ...currentAccount.config };
       currentAccountConfigCopy.name = accountNameConfirm;
       const configCopy = { ...config };
-      if (currentAccount.config.quorum.totalSigners === 1) {
-        configCopy.wallets = configCopy.wallets.filter(
+      if (currentAccountConfigCopy.type === "onchain") {
+        if (currentAccountConfigCopy.quorum.totalSigners === 1) {
+          configCopy.wallets = configCopy.wallets.filter(
+            (wallet) => wallet.id !== currentAccount.config.id
+          );
+          configCopy.wallets.push(currentAccountConfigCopy);
+        } else {
+          configCopy.vaults = configCopy.vaults.filter(
+            (vault) => vault.id !== currentAccount.config.id
+          );
+          configCopy.vaults.push(currentAccountConfigCopy as VaultConfig);
+        }
+      } else {
+        configCopy.lightning = configCopy.lightning.filter(
           (wallet) => wallet.id !== currentAccount.config.id
         );
-        configCopy.wallets.push(currentAccountConfigCopy);
-      } else {
-        configCopy.vaults = configCopy.vaults.filter(
-          (vault) => vault.id !== currentAccount.config.id
-        );
-        configCopy.vaults.push(currentAccountConfigCopy as VaultConfig);
+        configCopy.lightning.push(currentAccountConfigCopy);
       }
 
       saveConfig(configCopy, password);

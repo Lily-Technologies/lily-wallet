@@ -24,6 +24,7 @@ import {
   updateConfigFileVersionOne,
   updateConfigFileVersionBeta,
   updateConfigFileVersionOneDotFive,
+  updateConfigFileVersionOneDotSeven,
 } from "../../utils/migration";
 
 import { File } from "../../types";
@@ -65,17 +66,20 @@ const Login = ({
     if (encryptedConfigFile) {
       try {
         const bytes = AES.decrypt(encryptedConfigFile.file, localPassword);
-        let decryptedData = JSON.parse(bytes.toString(enc.Utf8));
-        decryptedData = updateConfigFileVersionOneDotFive(
-          updateConfigFileVersionOne(
-            updateConfigFileVersionBeta(decryptedData, currentBlockHeight!)
+        const decryptedData = JSON.parse(bytes.toString(enc.Utf8));
+        const migratedConfig = updateConfigFileVersionOneDotSeven(
+          updateConfigFileVersionOneDotFive(
+            updateConfigFileVersionOne(
+              updateConfigFileVersionBeta(decryptedData, currentBlockHeight!)
+            )
           )
         );
+        console.log("migratedConfig: ", migratedConfig);
         setPasswordError(undefined);
         setTimeout(() => {
-          setConfigFile(decryptedData);
+          setConfigFile(migratedConfig);
           setPassword(localPassword);
-          saveConfig(decryptedData, localPassword); // we resave the file after opening to update the modifiedDate value
+          saveConfig(migratedConfig, localPassword); // we resave the file after opening to update the modifiedDate value
           setIsLoading(false);
           history.replace(`/`);
         }, 2000);

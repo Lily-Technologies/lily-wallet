@@ -54,9 +54,9 @@ export const AccountsSection = () => {
                   {satoshisToBitcoins(account.currentBalance).toFixed(8)} BTC
                 </CurrentBalance>
               )}
-              {!account.loading && (
+              {!account.loading && account.config.type === "onchain" && (
                 <CurrentBalance>
-                  {getLastTransactionTime(account.transactions)}
+                  {getLastTransactionTime((account as any).transactions)}
                 </CurrentBalance>
               )}
             </AccountInfoContainer>

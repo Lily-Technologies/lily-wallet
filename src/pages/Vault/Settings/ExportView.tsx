@@ -1,10 +1,10 @@
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import { Network } from "bitcoinjs-lib";
 import { QRCode } from "react-qr-svg";
 import { CoboVaultSDK } from "@cvbb/sdk";
 
-import { AccountMapContext } from "../../../AccountMapContext";
+import { requireOnchain } from "../../../hocs";
 
 import {
   MnemonicWordsDisplayer,
@@ -14,7 +14,7 @@ import {
 } from "../../../components";
 import { white, black, gray100, green500 } from "../../../utils/colors";
 
-import { CaravanConfig } from "../../../types";
+import { CaravanConfig, LilyOnchainAccount } from "../../../types";
 
 import {
   createColdCardBlob,
@@ -25,11 +25,11 @@ import {
 
 const sdk = new CoboVaultSDK();
 interface Props {
+  currentAccount: LilyOnchainAccount;
   currentBitcoinNetwork: Network;
 }
 
-const ExportView = ({ currentBitcoinNetwork }: Props) => {
-  const { currentAccount } = useContext(AccountMapContext);
+const ExportView = ({ currentAccount, currentBitcoinNetwork }: Props) => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
 
@@ -60,8 +60,11 @@ const ExportView = ({ currentBitcoinNetwork }: Props) => {
 
   const downloadCaravanFile = () => {
     // need to add some properties to our config to use with Caravan
-    const configCopy = { ...currentAccount.config } as CaravanConfig;
-    configCopy.client = { type: "public" };
+    // @ts-ignore-line
+    const configCopy = {
+      ...currentAccount.config,
+      client: { type: "public" },
+    } as CaravanConfig;
     // need to have a name for each pubkey, so just use parentFingerprint
     if (configCopy.extendedPublicKeys !== undefined) {
       for (let i = 0; i < configCopy.extendedPublicKeys.length; i++) {
@@ -297,4 +300,4 @@ const ModalContent = styled.div`
   background: ${gray100};
 `;
 
-export default ExportView;
+export default requireOnchain(ExportView);

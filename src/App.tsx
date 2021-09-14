@@ -9,7 +9,6 @@ import {
 } from "react-router-dom";
 import axios from "axios";
 import BigNumber from "bignumber.js";
-import { networks } from "bitcoinjs-lib";
 
 import { gray50, green700 } from "./utils/colors";
 import { mobile } from "./utils/media";
@@ -21,6 +20,7 @@ import Login from "./pages/Login";
 import Setup from "./pages/Setup";
 import Settings from "./pages/Settings";
 import Vault from "./pages/Vault";
+import Lightning from "./pages/Lightning";
 import Receive from "./pages/Receive";
 import Send from "./pages/Send";
 import Home from "./pages/Home";
@@ -29,26 +29,27 @@ import Purchase from "./pages/Purchase";
 import { AccountMapContext } from "./AccountMapContext";
 import { ConfigContext } from "./ConfigContext";
 
-import { NodeConfig, File, AccountMap, LilyAccount } from "./types";
+import { NodeConfig, File, AccountMap } from "./types";
 
 const App = () => {
-  const [currentBitcoinPrice, setCurrentBitcoinPrice] = useState(
-    new BigNumber(0)
-  );
+  const { setAccountMap, updateAccountMap } = useContext(AccountMapContext);
+  const {
+    config,
+    setCurrentBitcoinPrice,
+    currentBitcoinPrice,
+    currentBitcoinNetwork,
+    setCurrentBitcoinNetwork,
+  } = useContext(ConfigContext);
   const [historicalBitcoinPrice, setHistoricalBitcoinPrice] = useState({});
-  const [encryptedConfigFile, setEncryptedConfigFile] =
-    useState<File | null>(null);
-  const [currentBitcoinNetwork, setCurrentBitcoinNetwork] = useState(
-    networks.bitcoin
+  const [encryptedConfigFile, setEncryptedConfigFile] = useState<File | null>(
+    null
   );
   const [refresh, setRefresh] = useState(false);
   const [flyInAnimation, setInitialFlyInAnimation] = useState(true);
-  const [nodeConfig, setNodeConfig] =
-    useState<NodeConfig | undefined>(undefined);
+  const [nodeConfig, setNodeConfig] = useState<NodeConfig | undefined>(
+    undefined
+  );
   const [password, setPassword] = useState("");
-
-  const { setAccountMap, updateAccountMap } = useContext(AccountMapContext);
-  const { config } = useContext(ConfigContext);
 
   const ConfigRequired = () => {
     const { pathname } = useLocation();
@@ -94,7 +95,7 @@ const App = () => {
             "/get-config"
           );
           setEncryptedConfigFile({ file: file.toString(), modifiedTime });
-        } catch (e) {}
+        } catch (e) { }
       }
     }
     getConfig();
@@ -199,8 +200,64 @@ const App = () => {
         }); // TODO: allow setting nodeConfig to be dynamic later
       }
 
+      for (let i = 0; i < config.lightning.length; i++) {
+        initialAccountMap[config.lightning[i].id] = {
+          name: config.lightning[i].name,
+          config: config.lightning[i],
+          channels: [],
+          pendingChannels: [],
+          closedChannels: [],
+          info: {},
+          events: [],
+          payments: [],
+          invoices: [],
+          balanceHistory: [],
+          currentBalance: {
+            local_balance: {
+              sat: 0,
+              msat: 0,
+            },
+            remote_balance: {
+              sat: 0,
+              msat: 0,
+            },
+            unsettled_local_balance: {
+              sat: 0,
+              msat: 0,
+            },
+            unsettled_remote_balance: {
+              sat: 0,
+              msat: 0,
+            },
+            pending_local_balance: {
+              sat: 0,
+              msat: 0,
+            },
+            pending_remote_balance: {
+              sat: 0,
+              msat: 0,
+            },
+          },
+          loading: true,
+        };
+
+        window.ipcRenderer.send("/lightning-account-data", {
+          config: config.lightning[i],
+        }); // TODO: allow setting nodeConfig to be dynamic later
+      }
+
+      window.ipcRenderer.on(
+        "/lightning-account-data",
+        (_event: any, ...args: any) => {
+          const accountInfo = args[0];
+          updateAccountMap({
+            ...accountInfo,
+          });
+        }
+      );
+
       window.ipcRenderer.on("/account-data", (_event: any, ...args: any) => {
-        const accountInfo = args[0] as LilyAccount;
+        const accountInfo = args[0];
         updateAccountMap({
           ...accountInfo,
         });
@@ -245,6 +302,17 @@ const App = () => {
             path="/vault/:id"
             render={() => (
               <Vault
+                password={password}
+                toggleRefresh={toggleRefresh}
+                currentBitcoinNetwork={currentBitcoinNetwork}
+                nodeConfig={nodeConfig!}
+              />
+            )}
+          />
+          <Route
+            path="/lightning/:id"
+            render={() => (
+              <Lightning
                 password={password}
                 toggleRefresh={toggleRefresh}
                 currentBitcoinNetwork={currentBitcoinNetwork}

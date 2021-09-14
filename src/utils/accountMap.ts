@@ -9,7 +9,7 @@ import {
 } from "unchained-bitcoin";
 
 import {
-  AccountConfig,
+  OnChainConfig,
   Address,
   AddressType,
   AddressMap,
@@ -98,7 +98,7 @@ const getUnchainedNetworkFromBjslibNetwork = (bitcoinJslibNetwork: Network) => {
 
 export const getMultisigDescriptor = async (
   client: any,
-  config: AccountConfig,
+  config: OnChainConfig,
   isChange: boolean
 ) => {
   const descriptor = `wsh(sortedmulti(${
@@ -115,7 +115,7 @@ export const getMultisigDescriptor = async (
 
 export const getWrappedDescriptor = async (
   client: any,
-  config: AccountConfig,
+  config: OnChainConfig,
   isChange: boolean
 ) => {
   const descriptor = `sh(wpkh([${
@@ -127,7 +127,7 @@ export const getWrappedDescriptor = async (
 
 export const getSegwitDescriptor = async (
   client: any,
-  config: AccountConfig,
+  config: OnChainConfig,
   isChange: boolean
 ) => {
   const descriptor = `wpkh([${
@@ -242,7 +242,7 @@ export const serializeTransactions = (
     amountOut = sum(tx.vout, true);
     amountOutChange = sum(tx.vout, true, true);
     if (amountIn === amountOut + (amountIn > 0 ? tx.fee : 0)) {
-      tx.type = TransactionType.moved;
+      tx.type = "moved";
       tx.address = "";
       balance -= tx.fee;
       tx.totalValue = balance;
@@ -253,7 +253,7 @@ export const serializeTransactions = (
     } else {
       const feeContribution = amountIn > 0 ? tx.fee : 0;
       const netAmount = amountIn - amountOut - feeContribution;
-      tx.type = netAmount > 0 ? TransactionType.sent : TransactionType.received;
+      tx.type = netAmount > 0 ? "sent" : "received";
       if (tx.type === "sent") {
         balance -= amountIn - amountOutChange + feeContribution;
         tx.totalValue = balance;
@@ -416,7 +416,7 @@ const getChildPubKeyFromXpub = (
 
 const getMultisigAddressFromPubKeys = (
   pubkeys: PubKey[],
-  config: AccountConfig,
+  config: OnChainConfig,
   currentBitcoinNetwork: Network
 ) => {
   const rawPubkeys = pubkeys.map((publicKey) => publicKey.childPubKey);
@@ -545,6 +545,31 @@ const getAddressFromPubKey = (
   }
 };
 
+export const getTransactionById = async (
+  txId: string,
+  nodeClient: any,
+  currentBitcoinNetwork: Network
+) => {
+  if (nodeClient) {
+    let addressTxs = [];
+    const transaction = await nodeClient.getTransaction(
+      txId, // transasction id
+      true, // include_empty
+      true // include_watchonly
+    );
+    return transaction;
+  } else {
+    return await (
+      await axios.get(
+        blockExplorerAPIURL(
+          `/tx/${txId}`,
+          getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)
+        )
+      )
+    ).data;
+  }
+};
+
 const getTransactionsFromAddress = async (
   address: string,
   nodeClient: any,
@@ -577,7 +602,7 @@ const getTransactionsFromAddress = async (
 };
 
 export const getAddressFromAccount = (
-  account: AccountConfig,
+  account: OnChainConfig,
   path: string,
   currentBitcoinNetwork: Network
 ) => {
@@ -616,7 +641,7 @@ export const getAddressFromAccount = (
 };
 
 const scanForAddressesAndTransactions = async (
-  account: AccountConfig,
+  account: OnChainConfig,
   nodeClient: any,
   currentBitcoinNetwork: Network,
   limitGap: number
@@ -693,7 +718,7 @@ const scanForAddressesAndTransactions = async (
 };
 
 export const getDataFromMultisig = async (
-  account: AccountConfig,
+  account: OnChainConfig,
   nodeClient: any,
   currentBitcoinNetwork: Network
 ) => {
@@ -757,7 +782,7 @@ export const getDataFromMultisig = async (
 };
 
 export const getDataFromXPub = async (
-  account: AccountConfig,
+  account: OnChainConfig,
   nodeClient: any,
   currentBitcoinNetwork: Network
 ) => {
@@ -813,7 +838,7 @@ export const getDataFromXPub = async (
 };
 
 export const loadOrCreateWalletViaRPC = async (
-  config: AccountConfig,
+  config: OnChainConfig,
   nodeClient: any
 ) => {
   const walletList = await nodeClient.listWallets();

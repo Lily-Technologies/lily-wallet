@@ -1,10 +1,4 @@
-import React, {
-  useState,
-  useContext,
-  useEffect,
-  useRef,
-  useCallback,
-} from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Psbt, Network, bip32 } from "bitcoinjs-lib";
 import BigNumber from "bignumber.js";
 import { mnemonicToSeed } from "bip39";
@@ -12,8 +6,6 @@ import { mnemonicToSeed } from "bip39";
 import SignWithDevice from "./SignWithDevice";
 import TransactionDetails from "./TransactionDetails";
 import AddSignatureFromQrCode from "./AddSignatureFromQrCode";
-
-import { AccountMapContext } from "../../AccountMapContext";
 
 import { GridArea, FileUploader, ErrorModal, Modal } from "../../components";
 
@@ -24,6 +16,8 @@ import {
   File,
   FeeRates,
   AddressType,
+  LilyOnchainAccount,
+  ShoppingItem,
 } from "../../types";
 
 import {
@@ -34,6 +28,7 @@ import {
 } from "../../utils/send";
 
 interface Props {
+  currentAccount: LilyOnchainAccount;
   finalPsbt: Psbt;
   setFinalPsbt: SetStatePsbt;
   sendTransaction: () => void;
@@ -46,6 +41,7 @@ interface Props {
     _sendAmount: string,
     _fee: BigNumber
   ) => Promise<Psbt>; // if not passed in, then no adjusting fee
+  shoppingItems?: ShoppingItem[];
 }
 
 const ConfirmTxPage = ({
@@ -57,8 +53,9 @@ const ConfirmTxPage = ({
   currentBitcoinPrice,
   currentBitcoinNetwork,
   createTransactionAndSetState,
+  currentAccount,
+  shoppingItems,
 }: Props) => {
-  const { currentAccount } = useContext(AccountMapContext);
   const [signedDevices, setSignedDevices] = useState<Device[]>([]);
   const fileUploadLabelRef = useRef<HTMLLabelElement>(null);
   const [modalIsOpen, setModalIsOpen] = useState(false);
@@ -190,6 +187,7 @@ const ConfirmTxPage = ({
         currentBitcoinPrice={currentBitcoinPrice}
         currentAccount={currentAccount}
         createTransactionAndSetState={createTransactionAndSetState}
+        shoppingItems={shoppingItems}
       />
 
       {!currentAccount.config.mnemonic && finalPsbt && (

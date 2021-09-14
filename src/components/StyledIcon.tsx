@@ -1,15 +1,15 @@
-import styled, { keyframes } from 'styled-components';
-import rem from '../utils/rem';
+import styled, { keyframes } from "styled-components";
+import rem from "../utils/rem";
 
 const spinning = keyframes`
   from {transform:rotate(0deg);}
-  to {transform:rotate(360deg);
+  to {transform:rotate(360deg);}
 `;
 
 export const StyledIcon = styled.div<{ size?: number }>`
   && {
-    width: ${p => rem(p.size || 20)};
-    height: ${p => rem(p.size || 20)};
+    width: ${(p) => rem(p.size || 20)};
+    height: ${(p) => rem(p.size || 20)};
   }
 `;
 

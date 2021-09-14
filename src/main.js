@@ -7,9 +7,12 @@ const {
   shell,
 } = require("electron");
 const axios = require("axios");
+const unchained = require("unchained-bitcoin");
 const moment = require("moment");
 const { networks } = require("bitcoinjs-lib");
 const BigNumber = require("bignumber.js");
+const LndGrpc = require("lnd-grpc");
+const crypto = require("crypto");
 
 const {
   enumerate,
@@ -29,6 +32,12 @@ const path = require("path");
 const fs = require("fs");
 
 const sleep = async (time) => await new Promise((r) => setTimeout(r, time));
+
+const getTxIdFromChannelPoint = (channelPoint) =>
+  channelPoint.substr(0, channelPoint.indexOf(":"));
+
+const getErrorMessageFromChunk = (chunk) =>
+  chunk.substring(chunk.indexOf("err=") + 4);
 
 // disable showErrorBox
 dialog.showErrorBox = function (title, content) {
@@ -360,6 +369,517 @@ ipcMain.on("/account-data", async (event, args) => {
     event.reply("/account-data", accountData);
   } catch (e) {
     console.log(`(${config.id}) /account-data error: `, e.message);
+  }
+});
+
+ipcMain.on("/open-channel", async (event, args) => {
+  const { lightningAddress, channelAmount, lndConnectUri } = args;
+  try {
+    const grpc = new LndGrpc({
+      lndconnectUri: lndConnectUri,
+    });
+
+    await grpc.connect();
+    const { Lightning } = grpc.services;
+
+    // connect to peer
+    const { peers } = await Lightning.listPeers();
+    const [pubkey, host] = lightningAddress.split("@");
+
+    // if we aren't connected to peer, then connect
+    if (!peers.some((peer) => peer.pub_key === pubkey)) {
+      console.log(`connecting to peer ${lightningAddress}...`);
+      const connectPeerResponse = await Lightning.connectPeer({
+        addr: {
+          pubkey,
+          host,
+        },
+      });
+      console.log(`connected to peer ${lightningAddress}`);
+    }
+
+    const pendingChannelId = crypto.randomBytes(32);
+    const openChannelOptions = {
+      node_pubkey: Buffer.from(pubkey, "hex"),
+      local_funding_amount: channelAmount,
+      push_sat: "0",
+      // private?
+      funding_shim: {
+        psbt_shim: {
+          pending_chan_id: pendingChannelId,
+        },
+      },
+    };
+
+    console.log(`attempting channel open to ${lightningAddress}...`);
+    const openingNodeInfo = await Lightning.getNodeInfo({
+      pub_key: pubkey,
+    });
+
+    const channelResponse = await Lightning.openChannel(openChannelOptions);
+
+    channelResponse.on("data", (chunk) => {
+      try {
+        console.log("chunk: ", chunk);
+        if (chunk.update === "psbt_fund") {
+          const openChannelData = {
+            ...chunk,
+            alias: openingNodeInfo.node.alias,
+            color: openingNodeInfo.node.color,
+          };
+          event.reply("/open-channel", openChannelData);
+        } else if (chunk.update === "chan_pending") {
+          event.reply("/open-channel", chunk);
+        }
+      } catch (e) {
+        event.reply("/open-channel", {
+          error: {
+            message: e.message,
+          },
+        });
+      }
+    });
+    channelResponse.on("error", (chunk) => {
+      console.log("channelResponse error: ", chunk);
+      console.log("channelResponse error.message: ", chunk.message);
+      console.log("channelResponse error.details: ", chunk.details);
+      console.log(
+        "getErrorMessageFromChunk: ",
+        getErrorMessageFromChunk(chunk.details)
+      );
+
+      console.log("channelResponse error.details: ", chunk.details.err);
+      event.reply("/open-channel", {
+        error: {
+          message: getErrorMessageFromChunk(chunk.details),
+        },
+      });
+    });
+    channelResponse.on("end", (chunk) => console.log("end: ", chunk));
+  } catch (e) {
+    console.log("error opening channel: ", e.message);
+    event.reply("/open-channel", {
+      error: {
+        message: e.message,
+      },
+    });
+  }
+});
+
+ipcMain.on("/open-channel-verify", async (event, args) => {
+  const { finalPsbt, pendingChanId, lndConnectUri } = args; // unsigned psbt
+  console.log('hits "/open-channel-verify');
+
+  try {
+    const grpc = new LndGrpc({
+      lndconnectUri: lndConnectUri,
+    });
+
+    await grpc.connect();
+    const { Lightning } = grpc.services;
+
+    const response = await Lightning.fundingStateStep({
+      psbt_verify: {
+        funded_psbt: Buffer.from(finalPsbt, "base64"),
+        pending_chan_id: pendingChanId,
+      },
+    });
+    console.log("/open-channel-verify response: ", response);
+  } catch (e) {
+    console.log("/open-channel-verify error: ", e.message);
+  }
+});
+
+ipcMain.on("/open-channel-finalize", async (event, args) => {
+  const { finalPsbt, pendingChanId, lndConnectUri } = args; // signed psbt
+
+  try {
+    const grpc = new LndGrpc({
+      lndconnectUri: lndConnectUri,
+    });
+
+    await grpc.connect();
+    const { Lightning } = grpc.services;
+
+    console.log("finalPsbt: ", finalPsbt);
+    console.log("pendingChanId: ", pendingChanId);
+
+    const response = await Lightning.fundingStateStep({
+      psbt_finalize: {
+        signed_psbt: Buffer.from(finalPsbt, "base64"),
+        pending_chan_id: pendingChanId,
+      },
+    });
+
+    console.log("/open-channel-finalize response: ", response);
+  } catch (e) {
+    console.log("/open-channel-finalize error: ", e.message);
+  }
+});
+
+ipcMain.on("/close-channel", async (event, args) => {
+  const { channel_point, delivery_address, lndConnectUri } = args;
+  console.log(
+    "/close-channel: channel_point, delivery_address, lndConnectUri",
+    channel_point,
+    delivery_address,
+    lndConnectUri
+  );
+
+  try {
+    const grpc = new LndGrpc({
+      lndconnectUri: lndConnectUri,
+    });
+
+    await grpc.connect();
+    const { Lightning } = grpc.services;
+
+    const closeChannelResponse = await Lightning.closeChannel({
+      channel_point: {
+        funding_txid_str: getTxIdFromChannelPoint(channel_point),
+        output_index: channel_point.substring(channel_point.indexOf(":")),
+      },
+      delivery_address: delivery_address,
+    });
+    console.log("/close-channel response: ", closeChannelResponse);
+    closeChannelResponse.on("data", (chunk) => {
+      console.log("/close-channel data: ", chunk);
+      event.reply("/close-channel", chunk);
+    });
+    closeChannelResponse.on("error", (chunk) => {
+      console.log("/close-channel error: ", chunk);
+      event.reply("/close-channel", {
+        error: {
+          message: getErrorMessageFromChunk(chunk.details),
+        },
+      });
+    });
+
+    closeChannelResponse.on("end", (chunk) => {
+      console.log("/close-channel end: ", chunk);
+    });
+  } catch (e) {
+    console.log("/close-channel error: ", e.message);
+    event.reply("/close-channel", {
+      error: {
+        message: e.message,
+      },
+    });
+  }
+});
+
+ipcMain.on("/lightning-account-data", async (event, args) => {
+  const { config } = args;
+  console.log(`Connecting to ${config.name}...`);
+  try {
+    const grpc = new LndGrpc({
+      lndconnectUri: config.connectionDetails.lndConnectUri,
+    });
+
+    await grpc.connect();
+
+    console.log("grpc.state: ", grpc.state);
+    if (grpc.state === "active") {
+      console.log(`connected to ${config.name}`);
+    } else {
+      console.log(`(${config.id}) not connected. Reconnecting...`);
+      await grpc.connect();
+    }
+
+    if (grpc.state === "locked") {
+      const { WalletUnlocker } = grpc.services;
+      await WalletUnlocker.unlockWallet({
+        wallet_password: Buffer.from("testtest"),
+      });
+      // After unlocking the wallet, activate the Lightning service and all of it's subservices.
+      await WalletUnlocker.activateLightning();
+    }
+
+    grpc.on(`active`, async () => {
+      console.log("active!");
+    });
+
+    const { Lightning } = grpc.services;
+    const { channels } = await Lightning.listChannels();
+    const { channels: closedChannels } = await Lightning.closedChannels();
+    const { pending_open_channels, waiting_close_channels } =
+      await Lightning.pendingChannels();
+    const info = await Lightning.getInfo();
+    const balance = await Lightning.channelBalance();
+    // const { transactions } = await Lightning.getTransactions();
+    const { payments } = await Lightning.listPayments();
+    const { invoices } = await Lightning.listInvoices();
+
+    const incomingTxs = invoices.reduce((filtered, invoice) => {
+      if (invoice.state !== "CANCELED" && invoice.state !== "OPEN") {
+        const decoratedInvoice = {
+          ...invoice,
+          value_sat: invoice.amt_paid_sat,
+          title: invoice.memo,
+          type: "PAYMENT_RECEIVE",
+        };
+        filtered.push(decoratedInvoice);
+      }
+      return filtered;
+    }, []);
+
+    const outgoingTxs = await Promise.all(
+      payments.map(async (payment) => {
+        const decoratedPayment = {
+          ...payment,
+          type: "PAYMENT_SEND",
+        };
+        if (payment.payment_request) {
+          const decodedPaymentRequest = await Lightning.decodePayReq({
+            pay_req: payment.payment_request,
+          });
+          decoratedPayment.title = decodedPaymentRequest.description;
+        }
+
+        return decoratedPayment;
+      })
+    );
+
+    let closedChannelActivity = [];
+    for (let i = 0; i < closedChannels.length; i++) {
+      const txId = getTxIdFromChannelPoint(closedChannels[i].channel_point);
+
+      // TODO: use general method to get tx
+      const channelOpenTx = await (
+        await axios.get(unchained.blockExplorerAPIURL(`/tx/${txId}`, "mainnet"))
+      ).data;
+
+      let alias = closedChannels[i].remote_pubkey;
+      try {
+        const openingNodeInfo = await Lightning.getNodeInfo({
+          pub_key: closedChannels[i].remote_pubkey,
+        });
+        alias = openingNodeInfo.node.alias;
+      } catch (e) {
+        console.log("error getting alias: ", e.message);
+      }
+
+      const channelOpen = {
+        type: "CHANNEL_OPEN",
+        creation_date: channelOpenTx.status.block_time,
+        title: `Open channel to ${alias}`,
+        value_sat: closedChannels[i].capacity,
+        tx: channelOpenTx,
+        channel: closedChannels[i],
+      };
+      closedChannelActivity.push(channelOpen);
+
+      const channelCloseTx = await (
+        await axios.get(
+          unchained.blockExplorerAPIURL(
+            `/tx/${closedChannels[i].closing_tx_hash}`,
+            "mainnet"
+          )
+        )
+      ).data;
+
+      const channelClose = {
+        type: "CHANNEL_CLOSE",
+        creation_date: channelCloseTx.status.block_time,
+        title: `Close channel to ${alias}`,
+        value_sat: closedChannels[i].settled_balance,
+        tx: channelCloseTx,
+        channel: closedChannels[i],
+      };
+      closedChannelActivity.push(channelClose);
+    }
+
+    const pendingChannelOpenActivity = [];
+    for (let i = 0; i < pending_open_channels.length; i++) {
+      const { channel } = pending_open_channels[i];
+      const txId = getTxIdFromChannelPoint(channel.channel_point);
+      const channelOpenTx = await (
+        await axios.get(unchained.blockExplorerAPIURL(`/tx/${txId}`, "mainnet"))
+      ).data;
+
+      const openingNodeInfo = await Lightning.getNodeInfo({
+        pub_key: channel.remote_node_pub,
+      });
+
+      pendingChannelOpenActivity.push({
+        type: "CHANNEL_OPEN",
+        creation_date: undefined,
+        title: `Open channel to ${openingNodeInfo.node.alias}`,
+        value_sat: channel.capacity,
+        tx: channelOpenTx,
+      });
+
+      pending_open_channels[i] = channel;
+      pending_open_channels[i].alias =
+        openingNodeInfo?.node?.alias || channel.remote_node_pub;
+    }
+
+    const pendingChannelCloseActivity = [];
+    for (let i = 0; i < waiting_close_channels.length; i++) {
+      console.log(" waiting_close_channels[i]: ", waiting_close_channels[i]);
+      const { channel } = waiting_close_channels[i];
+
+      const openingNodeInfo = await Lightning.getNodeInfo({
+        pub_key: channel.remote_node_pub,
+      });
+
+      pendingChannelCloseActivity.push({
+        type: "CHANNEL_CLOSE",
+        creation_date: undefined,
+        title: `Close channel to ${openingNodeInfo.node.alias}`,
+        value_sat: channel.capacity,
+      });
+
+      waiting_close_channels[i] = channel;
+      waiting_close_channels[i].alias =
+        openingNodeInfo?.node?.alias || channel.remote_node_pub;
+    }
+
+    const openChannelActivity = [];
+    for (let i = 0; i < channels.length; i++) {
+      const txId = getTxIdFromChannelPoint(channels[i].channel_point);
+      const channelOpenTx = await (
+        await axios.get(unchained.blockExplorerAPIURL(`/tx/${txId}`, "mainnet"))
+      ).data;
+
+      let alias = channels[i].remote_pubkey;
+      try {
+        const openingNodeInfo = await Lightning.getNodeInfo({
+          pub_key: channels[i].remote_pubkey,
+        });
+        alias = openingNodeInfo.node.alias;
+      } catch (e) {
+        console.log("error getting alias: ", e.message);
+      }
+
+      try {
+        const detailedChannelInfo = await Lightning.getChanInfo({
+          chan_id: channels[i].chan_id,
+        });
+        channels[i].last_update = detailedChannelInfo.last_update;
+      } catch (e) {
+        console.log("error (/lightning-account-data) getChanInfo", e.message);
+      }
+
+      channels[i].alias = alias;
+
+      openChannelActivity.push({
+        type: "CHANNEL_OPEN",
+        creation_date: channelOpenTx.status.block_time,
+        title: `Open channel to ${alias}`,
+        value_sat: channels[i].capacity,
+        tx: channelOpenTx,
+      });
+    }
+
+    const sortedEvents = [
+      ...outgoingTxs,
+      ...incomingTxs,
+      ...closedChannelActivity,
+      ...openChannelActivity,
+      ...pendingChannelOpenActivity,
+      ...pendingChannelCloseActivity,
+    ].sort((a, b) => {
+      if (!b.creation_date && !a.creation_date) {
+        return 0;
+      } else if (!b.creation_date) {
+        return -1;
+      } else if (!a.creation_date) {
+        return -1;
+      }
+      return b.creation_date - a.creation_date;
+    });
+
+    let balanceHistory = [];
+    if (sortedEvents.length) {
+      balanceHistory = [
+        {
+          block_time: sortedEvents[sortedEvents.length - 1].creation_date - 1,
+          totalValue: 0,
+        },
+      ];
+
+      for (let i = sortedEvents.length - 1; i >= 0; i--) {
+        const currentEvent = sortedEvents[i];
+        let currentValue = balanceHistory[balanceHistory.length - 1].totalValue;
+        if (
+          currentEvent.type === "CHANNEL_OPEN" ||
+          currentEvent.type === "PAYMENT_RECEIVE"
+        ) {
+          currentValue += currentEvent.value_sat;
+        } else {
+          currentValue -= currentEvent.value_sat;
+        }
+
+        balanceHistory.push({
+          block_time: currentEvent.creation_date,
+          totalValue: new BigNumber(currentValue).toNumber(),
+        });
+      }
+
+      balanceHistory.push({
+        block_time: Math.floor(Date.now() / 1000),
+        totalValue: new BigNumber(
+          balanceHistory[balanceHistory.length - 1].totalValue
+        ).toNumber(),
+      });
+    }
+
+    const accountData = {
+      name: config.name,
+      config: config,
+      channels: channels,
+      pendingChannels: [...pending_open_channels, ...waiting_close_channels],
+      closedChannels: closedChannels,
+      info: info,
+      loading: false,
+      events: sortedEvents,
+      payments: payments,
+      invoices: invoices,
+      currentBalance: balance,
+      balanceHistory: balanceHistory,
+    };
+    event.reply("/lightning-account-data", accountData);
+  } catch (e) {
+    console.log(`(${config.id}) /lightning-account-data: `, e.message);
+  }
+});
+
+ipcMain.handle("/lightning-connect", async (event, args) => {
+  const { lndConnectUri } = args;
+  try {
+    const grpc = new LndGrpc({
+      lndconnectUri: lndConnectUri,
+    });
+
+    await grpc.connect();
+
+    grpc.on(`active`, async () => {
+      console.log("active!!");
+      const { Lightning } = grpc.services;
+      const info = await Lightning.getInfo();
+      return Promise.resolve(info);
+    });
+  } catch (e) {
+    return Promise.reject("fail");
+  }
+});
+
+ipcMain.handle("/lightning-channels", async (event, args) => {
+  const { lndConnectUri } = args;
+  console.log("lndConnectUri: ", lndConnectUri);
+  try {
+    const grpc = new LndGrpc({
+      lndconnectUri: lndConnectUri,
+    });
+
+    await grpc.connect();
+
+    const { Lightning } = grpc.services;
+    const channels = await Lightning.listChannels();
+    return Promise.resolve(channels);
+  } catch (e) {
+    return Promise.reject("fail");
   }
 });
 

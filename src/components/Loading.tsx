@@ -1,27 +1,22 @@
 import React from "react";
 
 import styled, { keyframes } from "styled-components";
-import { green200, gray700 } from "../utils/colors";
+import { green200, gray700 } from "src/utils/colors";
+import { RequireOnlyOne } from "src/types";
 
-interface BaseProps {
+interface Props {
   style?: any;
+  itemText?: string | undefined;
+  message?: string | undefined;
 }
 
-interface MessageProps extends BaseProps {
-  message: string;
-  itemText?: string;
-}
-
-interface ItemTextProps extends BaseProps {
-  itemText: string;
-  message?: string;
-}
+type RequireItemTextOrMessage = RequireOnlyOne<Props, "itemText" | "message">;
 
 export const Loading = ({
   itemText,
   style = {},
   message,
-}: MessageProps | ItemTextProps) => (
+}: RequireItemTextOrMessage) => (
   <LoadingWrapper style={style}>
     <img
       alt="loading placeholder"

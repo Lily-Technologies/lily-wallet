@@ -208,3 +208,7 @@ th {
 .translate-x-0 {
   transform: translateX(0);
 }
+
+dd {
+  margin-inline-start: auto;
+}

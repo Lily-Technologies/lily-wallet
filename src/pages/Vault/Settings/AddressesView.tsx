@@ -1,16 +1,21 @@
-import React, { useContext } from "react";
+import React from "react";
 import styled from "styled-components";
-
-import { AccountMapContext } from "../../../AccountMapContext";
 
 import AddressRow from "./AddressRow";
 
+import { requireOnchain } from "../../../hocs";
+
 import { Table, TableBody } from "../../../components/Table";
 import { SettingsTable } from "../../../components";
+import { LilyOnchainAccount } from "src/types";
 
-const AddressesView = () => {
-  const { currentAccount } = useContext(AccountMapContext);
+interface Props {
+  currentAccount: LilyOnchainAccount;
+}
 
+const AddressesView = ({ currentAccount }: Props) => {
+  const { changeAddresses } = currentAccount;
+  console.log("changeAddresses: ", changeAddresses);
   return (
     <Padding>
       <SettingsTable.HeaderSection>
@@ -65,4 +70,4 @@ const Padding = styled.div`
   padding: 0 1.5em;
 `;
 
-export default AddressesView;
+export default requireOnchain(AddressesView);

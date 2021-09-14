@@ -1,23 +1,26 @@
-import React, { useContext } from "react";
+import React from "react";
 import styled from "styled-components";
-import { Psbt, Network } from "bitcoinjs-lib";
+import { Psbt } from "bitcoinjs-lib";
 import { satoshisToBitcoins } from "unchained-bitcoin";
 
 import { createUtxoMapFromUtxoArray, getFee } from "../../utils/send";
 import { cloneBuffer } from "../../utils/other";
 import { gray100, gray300, gray600, green800 } from "../../utils/colors";
-import { AccountMapContext } from "../../AccountMapContext";
+import { requireOnchain } from "../../hocs";
 
-import { UtxoMap } from "../../types";
+import { LilyOnchainAccount, UtxoMap } from "../../types";
 
 interface Props {
+  currentAccount: LilyOnchainAccount;
   psbt: Psbt;
   currentBitcoinPrice: number;
-  currentBitcoinNetwork: Network;
 }
 
-const TransactionUtxoDetails = ({ psbt, currentBitcoinPrice }: Props) => {
-  const { currentAccount } = useContext(AccountMapContext);
+const TransactionUtxoDetails = ({
+  currentAccount,
+  psbt,
+  currentBitcoinPrice,
+}: Props) => {
   const { availableUtxos, transactions } = currentAccount;
   const _fee = getFee(psbt, transactions);
   let utxosMap: UtxoMap;
@@ -133,4 +136,4 @@ const ModalHeaderContainer = styled.div`
   height: 90px;
 `;
 
-export default TransactionUtxoDetails;
+export default requireOnchain(TransactionUtxoDetails);

@@ -2,6 +2,7 @@
   "id": "af46ea03-226f-4f76-961d-65de559f5df3",
   "created_at": 1603900550961,
   "name": "Coldcard Vault",
+  "type": "onchain",
   "license": {
     "signature": "",
     "license": "trial:728569"

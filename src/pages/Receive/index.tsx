@@ -32,12 +32,19 @@ import {
 } from "../../utils/colors";
 import { mobile } from "../../utils/media";
 
-import { LilyConfig } from "../../types";
+import { LilyConfig, LilyOnchainAccount } from "../../types";
+import { requireOnchain } from "src/hocs";
 
-const Receive = ({ config }: { config: LilyConfig }) => {
+interface Props {
+  currentAccount: LilyOnchainAccount;
+  config: LilyConfig;
+}
+
+const Receive = ({ config, currentAccount }: Props) => {
+  console.log("currentAccount: ", currentAccount);
   document.title = `Receive - Lily Wallet`;
   const [unusedAddressIndex, setUnusedAddressIndex] = useState(0);
-  const { currentAccount, accountMap } = useContext(AccountMapContext);
+  const { accountMap } = useContext(AccountMapContext);
   const { unusedAddresses, currentBalance } = currentAccount;
 
   const getNewAddress = () => {
@@ -209,4 +216,4 @@ const CurrentBalanceValue = styled.div`
   font-size: 2em;
 `;
 
-export default Receive;
+export default requireOnchain(Receive);

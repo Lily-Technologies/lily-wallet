@@ -4,6 +4,7 @@
   "name": "DAS-CC",
   "network": "mainnet",
   "addressType": "p2sh",
+  "type": "onchain",
   "quorum": {
     "requiredSigners": 1,
     "totalSigners": 1
