@@ -1,11 +1,11 @@
 {
   "compilerOptions": {
-    "outDir": "./compiled-ts/",
+    "outDir": "dist",
     "sourceMap": true,
     "strictNullChecks": true,
     "module": "esnext",
     "jsx": "react",
-    "target": "es5",
+    "target": "esnext",
     "allowJs": true,
     "baseUrl": ".",
     "lib": [
@@ -27,13 +27,11 @@
       "jest"
     ]
   },
-  "files": [
-    "./src/utils/accountMap.ts"
-  ],
   "include": [
-    "src"
+    "src/**/*"
   ],
   "exclude": [
-    "src/__tests__/*"
+    "src/__tests__/*",
+    "dist"
   ]
 }

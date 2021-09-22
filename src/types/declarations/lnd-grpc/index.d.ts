@@ -1,9 +1,23 @@
-import { Readable } from "../streams";
-
 declare module "lnd-grpc" {
+  import { Readable } from "../streams";
   interface OptionsShape {
     lndconnectUri: string;
   }
+
+  interface LndGrpc {
+    new (n: OptionsShape);
+    connect: () => {};
+
+    services: {
+      Lightning: LightningService;
+    };
+  }
+
+  class LndGrpc {
+    constructor(n: OptionsShape);
+  }
+
+  export default LndGrpc;
 
   interface Peer {
     pub_key: string;
@@ -73,18 +87,5 @@ declare module "lnd-grpc" {
     connectPeer(args: ConnectPeerRequest): Promise<{}>;
     getNodeInfo(args: NodeInfoRequest): Promise<NodeInfo>;
     openChannel(args: OpenChannelRequest): Readable<OpenStatusUpdate>;
-  }
-
-  interface LndGrpc {
-    new (n: OptionsShape);
-    connect: () => {};
-
-    services: {
-      Lightning: LightningService;
-    };
-  }
-
-  class LndGrpc {
-    constructor(n: OptionsShape);
   }
 }

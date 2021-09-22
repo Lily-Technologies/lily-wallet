@@ -10,11 +10,10 @@ import {
 import { StyledIcon } from "../../../components";
 
 import { green400, gray500, red500 } from "../../../utils/colors";
-
-import { LightningActivity } from "src/types";
+import { LightningEvent } from 'src/types'
 
 interface Props {
-  type: LightningActivity;
+  type: LightningEvent["type"];
 }
 
 const PaymentTypeIcon = ({ type }: Props) => {
@@ -36,8 +35,8 @@ const PaymentTypeIcon = ({ type }: Props) => {
   );
 };
 
-const StyledIconModified = styled(StyledIcon)<{
-  type: LightningActivity;
+const StyledIconModified = styled(StyledIcon) <{
+  type: LightningEvent["type"];
 }>`
   padding: 0.5em;
   margin-right: 0.75em;
@@ -45,9 +44,9 @@ const StyledIconModified = styled(StyledIcon)<{
     p.type === "CHANNEL_OPEN" || p.type === "CHANNEL_CLOSE"
       ? gray500
       : p.type === "PAYMENT_SEND"
-      ? green400
-      : red500};
+        ? green400
+        : red500};
   border-radius: 50%;
-`;
+` as any; // TODO: fix
 
 export default PaymentTypeIcon;

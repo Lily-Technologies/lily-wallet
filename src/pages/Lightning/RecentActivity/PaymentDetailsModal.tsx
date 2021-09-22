@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { satoshisToBitcoins } from "unchained-bitcoin";
+import { Payment } from '@radar/lnrpc'
 
 import { Button } from "src/components";
 
@@ -16,16 +16,14 @@ import {
   gray800,
 } from "src/utils/colors";
 
-import { LightningPayment } from "src/types";
-
 interface Props {
-  payment: LightningPayment;
+  payment: Payment;
 }
 
-const getPaymentType = (transaction: LightningPayment) => {
-  if (transaction.value_sat > 0) {
+const getPaymentType = (transaction: Payment) => {
+  if (Number(transaction.valueSat) > 0) {
     return "PAYMENT_RECEIVE";
-  } else if (transaction.value_sat < 0) {
+  } else if (Number(transaction.valueSat) < 0) {
     return "PAYMENT_SEND";
   } else {
     return "CHANNEL_OPEN";
@@ -39,7 +37,7 @@ const PaymentDetailsModal = ({ payment }: Props) => {
         <PaymentTypeIcon type={getPaymentType(payment)} />
         <HeaderInfo>
           <Header>Payment Details</Header>
-          <PaymentId>{payment.payment_hash}</PaymentId>
+          <PaymentId>{payment.paymentHash}</PaymentId>
         </HeaderInfo>
       </HeaderWrapper>
 
@@ -77,14 +75,14 @@ const PaymentDetailsModal = ({ payment }: Props) => {
       </OverflowSection> */}
       <MoreDetailsSection>
         <MoreDetailsHeader>Status</MoreDetailsHeader>
-        <StatusItem>Date: {payment.creation_time_ns}</StatusItem>
+        <StatusItem>Date: {payment.creationTimeNs}</StatusItem>
       </MoreDetailsSection>
       <Buttons>
         <ViewExplorerButton
           background={green600}
           color={white}
           onClick={
-            () => {}
+            () => { }
             // window.open(
             //   `https://blockstream.info/tx/${payment.tx_hash}`,
             //   "_blank",

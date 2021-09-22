@@ -109,7 +109,7 @@ const App = () => {
       setCurrentBitcoinNetwork(bitcoinNetwork);
     }
     fetchBitcoinNetwork();
-  }, []);
+  }, [setCurrentBitcoinNetwork]);
 
   useEffect(() => {
     if (!config.isEmpty) {
@@ -129,7 +129,7 @@ const App = () => {
       );
     }
     fetchCurrentBitcoinPrice();
-  }, []);
+  }, [setCurrentBitcoinPrice]);
 
   useEffect(() => {
     async function fetchHistoricalBTCPrice() {
@@ -151,7 +151,7 @@ const App = () => {
         const response = await window.ipcRenderer.invoke("/get-node-config");
         setNodeConfig(response);
       } catch (e) {
-        console.log(e.message);
+        console.log(e);
       }
     }
     fetchNodeConfig();
@@ -213,30 +213,8 @@ const App = () => {
           invoices: [],
           balanceHistory: [],
           currentBalance: {
-            local_balance: {
-              sat: 0,
-              msat: 0,
-            },
-            remote_balance: {
-              sat: 0,
-              msat: 0,
-            },
-            unsettled_local_balance: {
-              sat: 0,
-              msat: 0,
-            },
-            unsettled_remote_balance: {
-              sat: 0,
-              msat: 0,
-            },
-            pending_local_balance: {
-              sat: 0,
-              msat: 0,
-            },
-            pending_remote_balance: {
-              sat: 0,
-              msat: 0,
-            },
+            balance: '0',
+            pendingOpenBalance: '0'
           },
           loading: true,
         };

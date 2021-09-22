@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react';
 import styled, { css } from 'styled-components'
-import { Channel } from '@styled-icons/fluentui-system-filled'
+import { Channel } from '@styled-icons/fluentui-system-filled';
+import { CloseStatusUpdate } from '@radar/lnrpc'
 
 import { Select, Button, Spinner, StyledIcon } from 'src/components'
 
@@ -8,12 +9,12 @@ import { AccountMapContext } from "src/AccountMapContext";
 import { white, gray300, gray500, gray600, gray700, gray900, red600, green100, green600 } from 'src/utils/colors';
 import { mobile } from 'src/utils/media';
 
-import { LightningChannel, LilyLightningAccount, LilyOnchainAccount, SetStateString, SetStateNumber } from 'src/types'
+import { DecoratedLightningChannel, LilyLightningAccount, LilyOnchainAccount, SetStateNumber } from 'src/types'
 import { requireLightning } from "src/hocs";
 
 interface Props {
   setStep: SetStateNumber;
-  channel: LightningChannel;
+  channel: DecoratedLightningChannel;
   currentAccount: LilyLightningAccount;
 }
 
@@ -43,7 +44,7 @@ const CloseChannelModal = ({ setStep, channel, currentAccount }: Props) => {
     setError('');
 
     window.ipcRenderer.send("/close-channel", {
-      channel_point: channel.channel_point,
+      channel_point: channel.channelPoint,
       delivery_address: fundingAccount?.addresses[0].address,
       lndConnectUri: currentAccount.config.connectionDetails.lndConnectUri
     });
@@ -51,12 +52,8 @@ const CloseChannelModal = ({ setStep, channel, currentAccount }: Props) => {
     window.ipcRenderer.on(
       "/close-channel",
       async (_event: any, ...args: any) => {
-        console.log('/close-channel resp')
-        const response = args[0];
-        console.log('response: ', response);
-        const { update } = response;
-
-        if (update === 'close_pending') {
+        const response: CloseStatusUpdate = args[0];
+        if (response.closePending) {
           setIsLoading(false);
           setStep(2);
           setTimeout(() => {
@@ -88,7 +85,7 @@ const CloseChannelModal = ({ setStep, channel, currentAccount }: Props) => {
             Closing balance
           </InformationLabel>
           <InformationValue>
-            {channel.local_balance.toLocaleString()} sats
+            {Number(channel.localBalance).toLocaleString()} sats
           </InformationValue>
 
           <InputWrapper data-cy="funding-account">

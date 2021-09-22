@@ -1,6 +1,15 @@
 import { Network, Psbt } from "bitcoinjs-lib";
 import { ACCOUNTMAP_SET, ACCOUNTMAP_UPDATE } from "../reducers/accountMap";
-import { WalletInfo } from "bitcoin-simple-rpc";
+import { WalletInfo, ClientOption } from "bitcoin-simple-rpc";
+import {
+  Channel,
+  PendingChannel,
+  ChannelBalanceResponse,
+  OpenStatusUpdate,
+  ClosedChannel,
+  Payment,
+  Invoice,
+} from "@radar/lnrpc";
 
 declare global {
   namespace NodeJS {
@@ -92,6 +101,24 @@ export interface NodeConfig {
   blocks: number;
 }
 
+export interface BitcoinCoreNodeConfig extends ClientOption {
+  provider: "Bitcoin Core" | "Custom Node";
+}
+
+export interface BlockstreamNodeConfig {
+  provider: "Blockstream";
+}
+
+export interface NodeConfigWithBlockchainInfo
+  extends BitcoinCoreNodeConfig,
+    BlockstreamNodeConfig {
+  provider: BitcoinCoreNodeConfig.provider | BlockstreamNodeConfig.provider;
+  connected: boolean;
+  initialblockdownload?: boolean;
+  verificationprogress?: number;
+  blocks: number;
+}
+
 export type InputOrOutput = Vin | Vout;
 
 export interface Vin {
@@ -161,171 +188,30 @@ export interface Transaction {
   value: number;
 }
 
-export interface LightningChannel {
-  pending_htlcs: HTLC[];
-  alias: string; // added via main.js
-  last_update: number; // added via main.js
-  active: boolean;
-  remote_pubkey: string;
-  channel_point: string;
-  chan_id: number;
-  capacity: number;
-  local_balance: number;
-  remote_balance: number;
-  commit_fee: number;
-  commit_weight: number;
-  fee_per_kw: number;
-  unsettled_balance: number;
-  total_satoshis_sent: number;
-  total_satoshis_received: number;
-  num_updates: number;
-  csv_delay: number;
-  private: boolean;
-  initiator: boolean;
-  chan_status_flags: string;
-  local_chan_reserve_sat: number;
-  remote_chan_reserve_sat: number;
-  static_remote_key: boolean;
-  lifetime: number;
-  uptime: number;
-  close_address: "";
-  commitment_type:
-    | "LEGACY"
-    | "STATIC_REMOTE_KEY"
-    | "ANCHORS"
-    | "UNKNOWN_COMMITMENT_TYPE";
-  push_amount_sat: number;
-  thaw_height: number;
-  local_constraints: {
-    csv_delay: number;
-    chan_reserve_sat: number;
-    dust_limit_sat: number;
-    max_pending_amt_msat: number;
-    min_htlc_msat: number;
-    max_accepted_htlcs: number;
+export interface DecoratedLightningChannel extends Channel {
+  alias: string;
+  lastUpdate: number;
+}
+
+export interface DecoratedPendingLightningChannel extends PendingChannel {
+  alias: string;
+}
+
+export interface DecoratedOpenStatusUpdate extends OpenStatusUpdate {
+  error?: {
+    message: string;
   };
-  remote_constraints: {
-    csv_delay: number;
-    chan_reserve_sat: number;
-    dust_limit_sat: number;
-    max_pending_amt_msat: number;
-    min_htlc_msat: number;
-    max_accepted_htlcs: number;
-  };
+  alias: string;
 }
-
-type Initiator =
-  | "INITIATOR_UNKNOWN"
-  | "INITIATOR_LOCAL"
-  | "INITIATOR_REMOTE"
-  | "INITIATOR_BOTH";
-
-export interface ClosedLightningChannel {
-  capacity: number;
-  chain_hash: string;
-  chan_id: number;
-  channel_point: string;
-  close_height: number;
-  close_initiator: Initiator;
-  close_type:
-    | "COOPERATIVE_CLOSE"
-    | "LOCAL_FORCE_CLOSE"
-    | "REMOTE_FORCE_CLOSE"
-    | "BREACH_CLOSE"
-    | "FUNDING_CANCELED"
-    | "ABANDONED";
-  closing_tx_hash: string;
-  open_initiator: Initiator;
-  remote_pubkey: string;
-  resolutions: any[];
-  settled_balance: number;
-  time_locked_balance: number;
-}
-
-export interface LightningTransaction {
-  dest_addresses: string[];
-  tx_hash: string;
-  amount: number;
-  num_confirmations: number;
-  block_hash: string;
-  block_height: number;
-  time_stamp: number;
-  total_fees: number;
-  raw_tx_hex: string;
-  label: string;
-}
-
-export interface LightningPayment {
-  htlcs: HTLC[];
-  payment_hash: string;
-  value: number;
-  creation_date: number;
-  fee: number;
-  payment_preimage: string;
-  value_sat: number;
-  value_msat: number;
-  payment_request: string;
-  status: string;
-  fee_sat: number;
-  fee_msat: number;
-  creation_time_ns: number;
-  payment_index: number;
-  failure_reason: string;
-}
-
-export interface LightningInvoice {
-  route_hints: any[];
-  htlcs: HTLC[];
-  features: any[];
-  memo: string;
-  r_preimage: Buffer;
-  r_hash: Buffer;
-  value: number;
-  settled: boolean;
-  creation_date: number;
-  settle_date: number;
-  payment_request: string;
-  description_hash: Buffer;
-  expiry: number;
-  fallback_addr: string;
-  cltv_expiry: number;
-  private: boolean;
-  add_index: number;
-  settle_index: number;
-  amt_paid: number;
-  amt_paid_sat: number;
-  amt_paid_msat: number;
-  state: "SETTLED" | "CANCELED";
-  value_msat: number;
-  is_keysend: number;
-  payment_addr: Buffer;
-  is_amp: boolean;
-}
-
-export type LightningActivity =
-  | "CHANNEL_OPEN"
-  | "CHANNEL_CLOSE"
-  | "PAYMENT_SEND"
-  | "PAYMENT_RECEIVE";
 
 // either channel open/close, or send/receive payment
 export interface LightningEvent {
-  type: LightningActivity;
-  creation_date: number;
+  type: "CHANNEL_OPEN" | "CHANNEL_CLOSE" | "PAYMENT_SEND" | "PAYMENT_RECEIVE";
+  creationDate?: string;
   title: string;
-  value_sat: number;
+  valueSat: string;
   tx?: Transaction;
-  channel?: ClosedLightningChannel;
-}
-
-export interface HTLC {
-  status: "SUCCEEDED" | "IN_FLIGHT" | "FAILED";
-  route: any;
-  attempt_time_ns: number;
-  resolve_time_ns: number;
-  failure: any;
-  preimage: Buffer;
-  attempt_id: number;
+  channel?: Channel;
 }
 
 export interface TransactionMap {
@@ -403,20 +289,20 @@ export interface LightningAmount {
 export interface LilyLightningAccount {
   name: string;
   config: LightningConfig;
-  channels: LightningChannel[];
-  pendingChannels: LightningChannel[];
-  closedChannels: ClosedLightningChannel[];
+  channels: DecoratedLightningChannel[];
+  pendingChannels: DecoratedPendingLightningChannel[];
+  closedChannels: ClosedChannel[];
   info: any;
   events: LightningEvent[];
-  payments: LightningPayment[];
-  invoices: LightningInvoice[];
-  currentBalance: LightningBalance;
+  payments: Payment[];
+  invoices: Invoice[];
+  currentBalance: ChannelBalanceResponse;
   balanceHistory: BalanceHistory[];
   loading: boolean | WalletInfo.scanning;
 }
 
 export interface BalanceHistory {
-  block_time: number;
+  blockTime?: number;
   totalValue: number;
 }
 
@@ -731,4 +617,10 @@ interface ShoppingItem {
 interface ExtraInfo {
   label: string;
   value: string;
+}
+
+interface BitcoinCoreConfVariables {
+  rpcuser: string;
+  rpcpassword: string;
+  rpcport: string;
 }

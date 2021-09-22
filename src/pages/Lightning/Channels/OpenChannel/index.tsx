@@ -23,6 +23,7 @@ import {
   LilyOnchainAccount,
   ShoppingItem,
   SetStateBoolean,
+  DecoratedOpenStatusUpdate
 } from "src/types";
 import { requireLightning } from "src/hocs";
 
@@ -48,14 +49,13 @@ const OpenChannel = ({ currentAccount, setViewOpenChannelForm }: Props) => {
     halfHourFee: 0,
     hourFee: 0,
   });
-  const [pendingChannelId, setPendingChannelId] = useState("");
+  const [pendingChannelId, setPendingChannelId] = useState<Buffer>(Buffer.alloc(1));
   const [fundingAccount, setFundingAccount] = useState(
     {} as LilyOnchainAccount
   );
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [shoppingItems, setShoppingItems] = useState<ShoppingItem[]>([]);
-  const [broadcastedTxId, setBroadcastedTxId] = useState("");
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
 
@@ -86,50 +86,50 @@ const OpenChannel = ({ currentAccount, setViewOpenChannelForm }: Props) => {
         async (_event: any, ...args: any) => {
           try {
             console.log("args: ", args);
-            const openChannelResponse = args[0];
+            const openChannelResponse: DecoratedOpenStatusUpdate = args[0];
             console.log("openChannelResponse: ", openChannelResponse);
 
 
             if (openChannelResponse.error) {
               setError(openChannelResponse.error.message);
-            } else if (openChannelResponse.update === 'psbt_fund') {
-              const { psbt_fund, pending_chan_id } = openChannelResponse;
+            } else if (openChannelResponse.psbtFund) {
+              const { psbtFund, pendingChanId } = openChannelResponse;
 
               const { psbt, feeRates } = await createTransaction(
                 fundingAccount,
-                `${satoshisToBitcoins(psbt_fund.funding_amount).toNumber()}`,
-                psbt_fund.funding_address,
+                `${satoshisToBitcoins(psbtFund.fundingAmount).toNumber()}`,
+                psbtFund.fundingAddress,
                 new BigNumber(0),
                 currentBitcoinNetwork
               );
 
               window.ipcRenderer.send("/open-channel-verify", {
                 finalPsbt: psbt.toBase64(),
-                pendingChanId: openChannelResponse.pending_chan_id,
+                pendingChanId: pendingChanId,
                 lndConnectUri:
                   currentAccount.config.connectionDetails.lndConnectUri,
               });
 
-              console.log("pending_chan_id: ", pending_chan_id);
-              setPendingChannelId(pending_chan_id);
+              console.log("pendingChanId: ", pendingChanId);
+              setPendingChannelId(pendingChanId as Buffer);
               setFinalPsbt(psbt);
               setFeeRates(feeRates);
               setShoppingItems([
                 {
                   image: <LightningImage />,
                   title: `Lightning channel with ${openChannelResponse.alias}`,
-                  price: psbt_fund.funding_amount,
+                  price: psbtFund.fundingAmount,
                   extraInfo: [
                     {
                       label: "Outgoing capacity",
-                      value: `${psbt_fund.funding_amount.toLocaleString()} sats`,
+                      value: `${psbtFund.fundingAmount.toLocaleString()} sats`,
                     },
                     { label: "Incoming capacity", value: `0 sats` },
                   ],
                 },
               ]);
               setStep(1);
-            } else if (openChannelResponse.update === 'chan_pending') {
+            } else if (openChannelResponse.chanPending) {
               setTimeout(() => {
                 window.ipcRenderer.send("/lightning-account-data", {
                   config: currentAccount.config,
@@ -138,16 +138,20 @@ const OpenChannel = ({ currentAccount, setViewOpenChannelForm }: Props) => {
               setStep(2);
             }
             setIsLoading(false);
-          } catch (e) {
-            setError(e.message);
-            setIsLoading(false);
+          } catch (e: unknown) {
+            if (e instanceof Error) {
+              setError(e.message);
+              setIsLoading(false);
+            }
           }
         }
       );
-    } catch (e) {
-      console.log("e: ", e.message);
-      setError(e.message);
-      setIsLoading(false);
+    } catch (e: unknown) {
+      if (e instanceof Error) {
+        console.log("e: ", e.message);
+        setError(e.message);
+        setIsLoading(false);
+      }
     }
   };
 
@@ -159,9 +163,11 @@ const OpenChannel = ({ currentAccount, setViewOpenChannelForm }: Props) => {
         pendingChanId: pendingChannelId,
         lndConnectUri: currentAccount.config.connectionDetails.lndConnectUri,
       });
-    } catch (e) {
-      console.log("e: ", e);
-      openInModal(<ErrorModal message={e.message} closeModal={closeModal} />);
+    } catch (e: unknown) {
+      if (e instanceof Error) {
+        console.log("e: ", e);
+        openInModal(<ErrorModal message={e.message} closeModal={closeModal} />);
+      }
     }
   };
 

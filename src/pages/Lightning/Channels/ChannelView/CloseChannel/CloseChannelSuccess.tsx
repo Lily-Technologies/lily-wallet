@@ -7,11 +7,11 @@ import { Button, StyledIcon } from "src/components";
 
 import { requireLightning } from 'src/hocs'
 import { white, green500, gray700, gray900 } from "src/utils/colors";
-import { LightningChannel, LilyLightningAccount } from "src/types";
+import { DecoratedLightningChannel, LilyLightningAccount } from "src/types";
 
 interface Props {
-  channel: LightningChannel;
-  currentAccount: LilyLightningAccount
+  channel: DecoratedLightningChannel;
+  currentAccount: LilyLightningAccount;
 }
 
 const CloseChannelSuccess = ({ channel, currentAccount }: Props) => (

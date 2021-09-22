@@ -93,13 +93,13 @@ const TransactionDetails = ({
         formatFilename("tx", currentBitcoinNetwork, "psbt")
       );
       openInModal(<PsbtDownloadDetails />);
-    } catch (e) {}
+    } catch (e) { }
   };
 
   const viewTxQrCode = () => {
     openInModal(
       <AddSignatureFromQrCode
-        importSignatureFromFile={() => {}}
+        importSignatureFromFile={() => { }}
         psbt={finalPsbt}
         currentBitcoinPrice={currentBitcoinPrice}
         currentBitcoinNetwork={currentBitcoinNetwork}

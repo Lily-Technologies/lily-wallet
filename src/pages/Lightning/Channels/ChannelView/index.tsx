@@ -30,6 +30,7 @@ const ChannelView = ({ currentAccount, setViewOpenChannelForm }: Props) => {
     setModalIsOpen(false);
     setModalContent(null);
   };
+
   return (
     <Padding>
       <HeadingSection>
@@ -58,7 +59,7 @@ const ChannelView = ({ currentAccount, setViewOpenChannelForm }: Props) => {
             <ChannelRow
               key={123}
               alias={channel.alias}
-              capacity={channel.capacity}
+              capacity={Number(channel.capacity)}
               status={'pending'}
               onClick={() => openInModal(<ChannelModal channel={channel} />)}
             />
@@ -67,14 +68,14 @@ const ChannelView = ({ currentAccount, setViewOpenChannelForm }: Props) => {
             <ChannelRow
               key={123}
               alias={channel.alias}
-              capacity={channel.capacity}
+              capacity={Number(channel.capacity)}
               status={channel.active ? 'active' : 'inactive'}
               onClick={() => openInModal(<ChannelModal channel={channel} />)}
             />
           ))}
         </TableBody>
       </Table>
-      <Modal isOpen={modalIsOpen} closeModal={() => setModalIsOpen(false)} style={{ content: { overflow: 'visible' } }}>
+      <Modal isOpen={modalIsOpen} closeModal={() => closeModal()} style={{ content: { overflow: 'visible' } }}>
         {modalContent}
       </Modal>
     </Padding>

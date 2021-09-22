@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { satoshisToBitcoins } from "unchained-bitcoin";
+import { Invoice } from '@radar/lnrpc'
 
 import { Button } from "src/components";
 
@@ -16,10 +16,8 @@ import {
   gray800,
 } from "src/utils/colors";
 
-import { LightningInvoice } from "src/types";
-
 interface Props {
-  invoice: LightningInvoice;
+  invoice: Invoice;
 }
 
 const PaymentDetailsModal = ({ invoice }: Props) => {
@@ -29,7 +27,7 @@ const PaymentDetailsModal = ({ invoice }: Props) => {
         <PaymentTypeIcon type={"PAYMENT_RECEIVE"} />
         <HeaderInfo>
           <Header>Invoice Details</Header>
-          <PaymentId>{invoice.payment_addr}</PaymentId>
+          <PaymentId>{invoice.memo}</PaymentId>
         </HeaderInfo>
       </HeaderWrapper>
 
@@ -67,14 +65,14 @@ const PaymentDetailsModal = ({ invoice }: Props) => {
       </OverflowSection> */}
       <MoreDetailsSection>
         <MoreDetailsHeader>Status</MoreDetailsHeader>
-        <StatusItem>Date: {invoice.creation_date}</StatusItem>
+        <StatusItem>Date: {invoice.creationDate}</StatusItem>
       </MoreDetailsSection>
       <Buttons>
         <ViewExplorerButton
           background={green600}
           color={white}
           onClick={
-            () => {}
+            () => { }
             // window.open(
             //   `https://blockstream.info/tx/${payment.tx_hash}`,
             //   "_blank",

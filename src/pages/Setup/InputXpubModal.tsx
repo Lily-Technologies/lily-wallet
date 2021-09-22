@@ -54,7 +54,8 @@ const InputXpubModal = ({
   const addDevice = () => {
     let valid = true;
     try {
-      const node = bip32.fromBase58(xpub);
+      // check if valid xpub
+      bip32.fromBase58(xpub);
     } catch (e) {
       setXpubError("Invalid XPub");
       valid = false;

@@ -12,7 +12,6 @@ import { PageWrapper } from "src/components";
 import LightningHeader from "./LightningHeader";
 import LightningView from "./LightningView";
 import LightningSettings from "./Settings";
-import OpenChannel from "./Channels/OpenChannel";
 
 import { NodeConfig } from "src/types";
 
@@ -47,12 +46,6 @@ const Lightning = ({
               />
             )}
           />
-          {/* <Route
-            path={`${path}/open-channel`}
-            render={(props: RouteComponentProps) => (
-              <OpenChannel nodeConfig={nodeConfig} />
-            )}
-          /> */}
           <Route path="" render={() => <LightningView />} />
         </Switch>
       </Fragment>

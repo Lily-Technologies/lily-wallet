@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useState, useContext } from "react";
 import styled, { css } from "styled-components";
 
 import { Button, Input, Select, Spinner } from "src/components";

@@ -172,7 +172,7 @@ export const broadcastTransaction = async (
 ) => {
   if (nodeConfig.provider !== "Blockstream") {
     const data = await window.ipcRenderer.invoke("/broadcastTx", {
-      walletName: currentAccount.name,
+      accountId: currentAccount.config.id,
       txHex: psbt.extractTransaction().toHex(),
     });
     return data;

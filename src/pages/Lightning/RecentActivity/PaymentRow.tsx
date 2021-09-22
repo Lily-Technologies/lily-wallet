@@ -6,9 +6,8 @@ import { satoshisToBitcoins } from "unchained-bitcoin";
 import { gray50 } from "../../../utils/colors";
 
 import PaymentTypeIcon from "./PaymentTypeIcon";
-import { LightningActivity } from "src/types";
 
-const getFriendlyType = (type: LightningActivity) => {
+const getFriendlyType = (type: "CHANNEL_OPEN" | "CHANNEL_CLOSE" | "PAYMENT_SEND" | "PAYMENT_RECEIVE") => {
   if (type === "PAYMENT_SEND") {
     return "sent";
   } else if (type === "PAYMENT_RECEIVE") {
@@ -24,7 +23,7 @@ interface Props {
   creation_date: number;
   title: string;
   value_sat: number;
-  type: LightningActivity;
+  type: "CHANNEL_OPEN" | "CHANNEL_CLOSE" | "PAYMENT_SEND" | "PAYMENT_RECEIVE";
   onClick: () => void;
 }
 

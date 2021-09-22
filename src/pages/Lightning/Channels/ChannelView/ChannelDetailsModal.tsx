@@ -1,16 +1,16 @@
 import React from 'react';
 import styled, { css } from "styled-components";
 import moment from "moment";
-import { Channel } from '@styled-icons/fluentui-system-filled'
+import { Channel as ChannelIcon } from '@styled-icons/fluentui-system-filled'
 
 import { Button, StyledIcon } from 'src/components';
 
-import { white, gray300, gray500, gray900, red600, green100, green600 } from "src/utils/colors";
+import { white, gray500, gray900, red600, green100, green600 } from "src/utils/colors";
 import { mobile } from "src/utils/media";
-import { LightningChannel, SetStateNumber } from 'src/types';
+import { DecoratedLightningChannel, DecoratedPendingLightningChannel, SetStateNumber } from 'src/types';
 
 interface Props {
-  channel: LightningChannel
+  channel: DecoratedLightningChannel | DecoratedPendingLightningChannel
   setStep: SetStateNumber
 }
 
@@ -20,13 +20,13 @@ const ChannelDetailsModal = ({ channel, setStep }: Props) => {
     <>
       <DangerIconContainer>
         <StyledIconCircle>
-          <StyledIcon style={{ color: green600 }} as={Channel} size={36} />
+          <StyledIcon style={{ color: green600 }} as={ChannelIcon} size={36} />
         </StyledIconCircle>
       </DangerIconContainer>
       <TextContainer>
         <HeadingText>{channel.alias}</HeadingText>
         <Subtext>
-          Last updated {moment.unix(channel.last_update).fromNow()}
+          Last updated {moment.unix((channel as DecoratedLightningChannel).lastUpdate).fromNow()}
         </Subtext>
         <InformationWrapper>
           <InformationArea>
@@ -35,7 +35,7 @@ const ChannelDetailsModal = ({ channel, setStep }: Props) => {
                 Remote public key
               </InformationLabel>
               <InformationValue>
-                {channel.remote_pubkey || (channel as any).remote_node_pub}
+                {(channel as DecoratedLightningChannel).remotePubkey || (channel as DecoratedPendingLightningChannel).remoteNodePub}
               </InformationValue>
             </div>
             <div>
@@ -43,7 +43,7 @@ const ChannelDetailsModal = ({ channel, setStep }: Props) => {
                 Total capacity
               </InformationLabel>
               <InformationValue>
-                {channel.capacity.toLocaleString()} sats
+                {Number(channel.capacity).toLocaleString()} sats
               </InformationValue>
             </div>
             <div>
@@ -51,7 +51,7 @@ const ChannelDetailsModal = ({ channel, setStep }: Props) => {
                 Channel ID
               </InformationLabel>
               <InformationValue>
-                {channel.chan_id || 'Pending'}
+                {(channel as DecoratedLightningChannel).chanId || 'Pending'}
               </InformationValue>
             </div>
             <div>
@@ -59,7 +59,7 @@ const ChannelDetailsModal = ({ channel, setStep }: Props) => {
                 Local capacity
               </InformationLabel>
               <InformationValue>
-                {channel.local_balance.toLocaleString()} sats
+                {Number(channel.localBalance).toLocaleString()} sats
               </InformationValue>
             </div>
             <div>
@@ -67,7 +67,7 @@ const ChannelDetailsModal = ({ channel, setStep }: Props) => {
                 Remote capacity
               </InformationLabel>
               <InformationValue>
-                {channel.remote_balance.toLocaleString()} sats
+                {Number(channel.remoteBalance).toLocaleString()} sats
               </InformationValue>
             </div>
           </InformationArea>
@@ -138,18 +138,6 @@ const SaveChangesButton = styled.button`
 
   ${mobile(css`
     margin-top: 1.25rem;
-  `)};
-`;
-
-const CancelButton = styled.button`
-  ${Button}
-  margin-top: 1rem;
-  border: 1px solid ${gray300};
-  margin-right: 0.25rem;
-
-  ${mobile(css`
-    margin-top: 1.25rem;
-    margin-right: 0;
   `)};
 `;
 

@@ -11,12 +11,17 @@ import { gray600, gray800, white } from "src/utils/colors";
 import { LightningEvent } from "src/types";
 
 const shouldDisplayDate = (payments: LightningEvent[], index: number) => {
-  const currentItemDate = moment
-    .unix(payments[index]?.creation_date)
-    .format("MMDDYYYY");
-  const prevItemDate = moment
-    .unix(payments[index - 1]?.creation_date)
-    .format("MMDDYYYY");
+  let currentItemDate, prevItemDate;
+  if (payments[index]?.creationDate) {
+    currentItemDate = moment
+      .unix(Number(payments[index]?.creationDate))
+      .format("MMDDYYYY");
+  }
+  if (payments[index - 1]?.creationDate) {
+    prevItemDate = moment
+      .unix(Number(payments[index - 1]?.creationDate))
+      .format("MMDDYYYY");
+  }
 
   if (index === 0) {
     return true;
@@ -57,17 +62,17 @@ const RecentTransactions = ({
             <PaymentRowWrapper key={index}>
               {shouldDisplayDate(events, index) && (
                 <DateWrapper>
-                  {transaction.creation_date
+                  {transaction.creationDate
                     ? moment
-                        .unix(transaction.creation_date)
-                        .format("MMMM DD, YYYY")
+                      .unix(Number(transaction.creationDate))
+                      .format("MMMM DD, YYYY")
                     : "Waiting for confirmation..."}
                 </DateWrapper>
               )}
               <PaymentRow
-                creation_date={transaction.creation_date}
+                creation_date={Number(transaction.creationDate)}
                 title={transaction.title}
-                value_sat={transaction.value_sat}
+                value_sat={Number(transaction.valueSat)}
                 type={type}
                 onClick={
                   () => console.log("foo")
