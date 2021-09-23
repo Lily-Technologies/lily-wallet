@@ -3,8 +3,8 @@ import { Psbt } from "bitcoinjs-lib";
 import styled from "styled-components";
 import { Safe } from "@styled-icons/crypto";
 import { Wallet } from "@styled-icons/entypo";
-
-import { StyledIcon } from ".";
+import { LightningBolt } from '@styled-icons/heroicons-outline'
+import { StyledIcon } from "src/components";
 import {
   white,
   gray100,
@@ -13,11 +13,11 @@ import {
   gray700,
   gray600,
   orange600,
-} from "../utils/colors";
+} from "src/utils/colors";
 
-import { AddressType, LilyConfig } from "../types";
+import { AddressType, LilyConfig } from "src/types";
 
-import { AccountMapContext } from "../AccountMapContext";
+import { AccountMapContext } from "src/AccountMapContext";
 
 interface Props {
   config: LilyConfig;
@@ -41,9 +41,32 @@ export const SelectAccountMenu = ({
 
   return (
     <AccountMenu>
+      {config.lightning.map((wallet, index) => {
+        if (excludeNonSegwitAccounts) {
+          return null;
+        } else {
+          return (
+            <AccountMenuItemWrapper
+              key={wallet.id}
+              active={wallet.id === currentAccount.config.id}
+              onClick={() => {
+                if (setFinalPsbt) {
+                  setFinalPsbt(undefined);
+                }
+                setCurrentAccountId(wallet.id);
+              }}
+            >
+              <IconWrapper active={wallet.id === currentAccount.config.id}>
+                <StyledIcon as={LightningBolt} size={48} />
+              </IconWrapper>
+              <AccountMenuItemName>{wallet.name}</AccountMenuItemName>
+            </AccountMenuItemWrapper>
+          )
+        }
+      })}
       {config.vaults.map((vault, index) => (
         <AccountMenuItemWrapper
-          key={index}
+          key={vault.id}
           active={vault.id === currentAccount.config.id}
           onClick={() => {
             if (setFinalPsbt) {
@@ -67,7 +90,7 @@ export const SelectAccountMenu = ({
         } else {
           return (
             <AccountMenuItemWrapper
-              key={index}
+              key={wallet.id}
               active={wallet.id === currentAccount.config.id}
               onClick={() => {
                 if (setFinalPsbt) {

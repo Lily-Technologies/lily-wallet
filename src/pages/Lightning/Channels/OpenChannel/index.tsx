@@ -10,6 +10,7 @@ import {
   ModalContentWrapper,
   ErrorModal,
   Modal,
+  LightningImage
 } from "src/components";
 
 import { mobile } from "src/utils/media";
@@ -28,8 +29,7 @@ import {
 import { requireLightning } from "src/hocs";
 
 import OpenChannelForm from "./OpenChannelForm";
-import ConfirmTxPage from "src/pages/Send/ConfirmTxPage";
-import LightningImage from "./LightningImage";
+import ConfirmTxPage from "src/pages/Send/Onchain/ConfirmTxPage";
 import OpenChannelSuccess from "./OpenChannelSuccess";
 
 import { ConfigContext } from "src/ConfigContext";

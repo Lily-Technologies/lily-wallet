@@ -10,7 +10,12 @@ import {
   FetchedRawTransaction,
   WalletInfo,
 } from "bitcoin-simple-rpc";
-import createLnRpc, { InvoiceState } from "@radar/lnrpc";
+import {
+  createLnRpc,
+  InvoiceState,
+  createRouterRpc,
+  Payment,
+} from "@radar/lnrpc";
 import { parseLndConnectUri } from "./utils/lightning";
 
 import {
@@ -19,7 +24,8 @@ import {
   signtx,
   promptpin,
   sendpin,
-} from "./server/commands";
+} from "./server/HWI/commands";
+
 import {
   getClientFromNodeConfig,
   getFile,
@@ -783,6 +789,34 @@ ipcMain.on("/lightning-account-data", async (event, args) => {
   }
 });
 
+ipcMain.on("/lightning-send-payment", async (event, args) => {
+  const { config, paymentRequest } = args;
+
+  console.log(`(${config.id}): Sending payment...`);
+  try {
+    const lnRpcClient = await createRouterRpc(
+      parseLndConnectUri(config.connectionDetails.lndConnectUri)
+    );
+
+    const sendPaymentStream = lnRpcClient.sendPaymentV2({
+      paymentRequest: paymentRequest,
+      timeoutSeconds: 15, // TODO: change?
+    });
+
+    sendPaymentStream.on("data", (chunk: Payment) => {
+      console.log("data chunk: ", chunk);
+      console.log("data chunk as string: ", JSON.stringify(chunk));
+      event.reply("/lightning-send-payment", chunk);
+    });
+
+    sendPaymentStream.on("error", (chunk: Payment) => {
+      console.log("data error: ", chunk);
+    });
+  } catch (e) {
+    console.log("/lightning-send-payment e: ", e);
+  }
+});
+
 ipcMain.handle("/lightning-connect", async (event, args) => {
   const { lndConnectUri } = args;
   try {
@@ -791,7 +825,22 @@ ipcMain.handle("/lightning-connect", async (event, args) => {
     const info = await lnRpcClient.getInfo();
     return Promise.resolve(info);
   } catch (e) {
+    console.log("/lightning-connect e: ", e);
     return Promise.reject("fail");
+  }
+});
+
+ipcMain.handle("/lightning-invoice", async (event, args) => {
+  const { lndConnectUri, memo, value } = args;
+  try {
+    const lnRpcClient = await createLnRpc(parseLndConnectUri(lndConnectUri));
+
+    const invoice = await lnRpcClient.addInvoice({ memo, value });
+    console.log("invoice: ", invoice);
+    return Promise.resolve(invoice);
+  } catch (e) {
+    console.log("/lightning-invoice e: ", e);
+    return Promise.reject(e);
   }
 });
 

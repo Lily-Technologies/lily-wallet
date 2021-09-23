@@ -31,5 +31,6 @@ export * from "./ErrorModal";
 export * from "./NoAccountsEmptyState";
 export * from "./SettingsTable";
 export * from "./SupportModal";
+export * from "./LightningImage";
 
 export * from "./layout";

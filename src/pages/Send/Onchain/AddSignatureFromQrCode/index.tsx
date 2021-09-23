@@ -4,11 +4,11 @@ import { Psbt, Network } from "bitcoinjs-lib";
 
 import PsbtQrCode from "./PsbtQrCode";
 import DecodePsbtQrCode from "./DecodePsbtQrCode";
-import TxUtxoDetails from "../TxUtxoDetails";
+import TxUtxoDetails from "../../components/TxUtxoDetails";
 
-import { Button } from "../../../components";
+import { Button } from "../../../../components";
 
-import { white, gray900, green600 } from "../../../utils/colors";
+import { white, gray900, green600 } from "../../../../utils/colors";
 
 interface Props {
   importSignatureFromFile: (file: string) => void;

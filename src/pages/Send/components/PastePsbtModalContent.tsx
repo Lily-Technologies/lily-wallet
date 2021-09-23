@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 
-import { Button } from "../../components";
+import { Button } from "src/components";
 
-import { white, green600, red500, gray500, gray600 } from "../../utils/colors";
+import { white, green600, red500, gray500, gray600 } from "src/utils/colors";
 
-import { SetStateString } from "../../types";
+import { SetStateString } from "src/types";
 
 interface Props {
   closeModal: () => void;

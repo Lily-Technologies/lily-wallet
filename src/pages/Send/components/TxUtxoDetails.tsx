@@ -3,12 +3,12 @@ import styled from "styled-components";
 import { Psbt } from "bitcoinjs-lib";
 import { satoshisToBitcoins } from "unchained-bitcoin";
 
-import { createUtxoMapFromUtxoArray, getFee } from "../../utils/send";
-import { cloneBuffer } from "../../utils/other";
-import { gray100, gray300, gray600, green800 } from "../../utils/colors";
-import { requireOnchain } from "../../hocs";
+import { createUtxoMapFromUtxoArray, getFee } from "src/utils/send";
+import { cloneBuffer } from "src/utils/other";
+import { gray100, gray300, gray600, green800 } from "src/utils/colors";
+import { requireOnchain } from "src/hocs";
 
-import { LilyOnchainAccount, UtxoMap } from "../../types";
+import { LilyOnchainAccount, UtxoMap } from "src/types";
 
 interface Props {
   currentAccount: LilyOnchainAccount;
@@ -40,7 +40,7 @@ const TransactionUtxoDetails = ({
             const inputBuffer = cloneBuffer(input.hash);
             const utxo =
               utxosMap[
-                `${inputBuffer.reverse().toString("hex")}:${input.index}`
+              `${inputBuffer.reverse().toString("hex")}:${input.index}`
               ];
             return (
               <OutputItem>

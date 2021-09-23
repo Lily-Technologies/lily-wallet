@@ -5,8 +5,8 @@ import BigNumber from "bignumber.js";
 import coinSelect from "coinselect";
 import { Psbt } from "bitcoinjs-lib";
 
-import { Button, Input } from "../../components";
-import { getFeeForMultisig, getFee } from "../../utils/send";
+import { Button, Input } from "src/components";
+import { getFeeForMultisig, getFee } from "src/utils/send";
 
 import {
   gray50,
@@ -19,9 +19,9 @@ import {
   green500,
   green600,
   white,
-} from "../../utils/colors";
+} from "src/utils/colors";
 
-import { LilyOnchainAccount, UTXO, FeeRates } from "../../types";
+import { LilyOnchainAccount, UTXO, FeeRates } from "src/types";
 
 interface Props {
   currentAccount: LilyOnchainAccount;
@@ -228,8 +228,8 @@ export const FeeSelector = ({
                 `$${satoshisToBitcoins(customFee)
                   .multipliedBy(currentBitcoinPrice)
                   .toFixed(2)}, ${satoshisToBitcoins(
-                  customFee
-                ).toNumber()} BTC`}
+                    customFee
+                  ).toNumber()} BTC`}
             </FeeSubtext>
           </FeeItem>
         </div>

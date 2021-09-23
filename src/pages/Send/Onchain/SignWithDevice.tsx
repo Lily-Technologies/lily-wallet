@@ -2,10 +2,10 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import { Psbt } from "bitcoinjs-lib";
 
-import { DeviceSelect, Dropdown } from "../../components";
-import { gray800, white } from "../../utils/colors";
+import { DeviceSelect, Dropdown } from "src/components";
+import { gray800, white } from "src/utils/colors";
 
-import { Device, HwiResponseEnumerate } from "../../types";
+import { Device, HwiResponseEnumerate } from "src/types";
 
 interface Props {
   finalPsbt: Psbt;

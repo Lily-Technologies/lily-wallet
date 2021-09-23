@@ -1,5 +1,4 @@
 import runCommand from "./runCommand";
-import { HwiResponseEnumerate } from "src/types";
 
 export const enumerate = async () => {
   return await runCommand(["enumerate"]);

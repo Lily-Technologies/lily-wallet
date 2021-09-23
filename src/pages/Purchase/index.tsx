@@ -17,7 +17,7 @@ import {
   Modal,
 } from "../../components";
 
-import ConfirmTxPage from "../../pages/Send/ConfirmTxPage";
+import ConfirmTxPage from "../Send/Onchain/ConfirmTxPage";
 
 import { AccountMapContext } from "../../AccountMapContext";
 import { requireOnchain } from "../../hocs";
@@ -116,8 +116,8 @@ const PurchasePage = ({
           currentAccount.config.quorum.totalSigners === 3
             ? "Three"
             : currentAccount.config.quorum.totalSigners === 5
-            ? "Five"
-            : "";
+              ? "Five"
+              : "";
 
         const tierAndTotalSigners =
           `${tier}${totalSigners}` as LicenseResponseTiers;
@@ -145,7 +145,7 @@ const PurchasePage = ({
           );
         setLicenseResponse(licenseResponse);
         setStep(1);
-      } catch (e) {
+      } catch (e: any) {
         console.log("e: ", e);
         openInModal(
           <ErrorModal message={`${e.message}`} closeModal={closeModal} />
@@ -174,7 +174,7 @@ const PurchasePage = ({
         );
         setStep(2);
         setConfigFile(newConfig);
-      } catch (e) {
+      } catch (e: any) {
         console.log("e: ", e);
         openInModal(<ErrorModal message={e.message} closeModal={closeModal} />);
       }

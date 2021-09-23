@@ -4,10 +4,10 @@ import BigNumber from "bignumber.js";
 import { mnemonicToSeed } from "bip39";
 
 import SignWithDevice from "./SignWithDevice";
-import TransactionDetails from "./TransactionDetails";
+import TransactionDetails from "../components/TransactionDetails";
 import AddSignatureFromQrCode from "./AddSignatureFromQrCode";
 
-import { GridArea, FileUploader, ErrorModal, Modal } from "../../components";
+import { GridArea, FileUploader, ErrorModal, Modal } from "../../../components";
 
 import {
   SetStateNumber,
@@ -18,14 +18,14 @@ import {
   AddressType,
   LilyOnchainAccount,
   ShoppingItem,
-} from "../../types";
+} from "../../../types";
 
 import {
   getPsbtFromText,
   getSignedDevicesFromPsbt,
   combinePsbts,
   validateTxForAccount,
-} from "../../utils/send";
+} from "../../../utils/send";
 
 interface Props {
   currentAccount: LilyOnchainAccount;
@@ -139,7 +139,7 @@ const ConfirmTxPage = ({
       setSignedDevices(signedDevicesObjects);
       setFinalPsbt(combinedPsbt);
       closeModal();
-    } catch (e) {
+    } catch (e: any) {
       console.log("e: ", e);
       openInModal(<ErrorModal message={e.message} closeModal={closeModal} />);
     }
@@ -147,20 +147,20 @@ const ConfirmTxPage = ({
 
   const phoneAction =
     currentAccount.config.extendedPublicKeys &&
-    currentAccount.config.extendedPublicKeys.filter(
-      (item) =>
-        (item.device && item.device.type === "phone") ||
-        item.device.type === "cobo"
-    ).length
+      currentAccount.config.extendedPublicKeys.filter(
+        (item) =>
+          (item.device && item.device.type === "phone") ||
+          item.device.type === "cobo"
+      ).length
       ? () =>
-          openInModal(
-            <AddSignatureFromQrCode
-              importSignatureFromFile={importSignatureFromFile}
-              psbt={finalPsbt}
-              currentBitcoinPrice={currentBitcoinPrice}
-              currentBitcoinNetwork={currentBitcoinNetwork}
-            />
-          )
+        openInModal(
+          <AddSignatureFromQrCode
+            importSignatureFromFile={importSignatureFromFile}
+            psbt={finalPsbt}
+            currentBitcoinPrice={currentBitcoinPrice}
+            currentBitcoinNetwork={currentBitcoinNetwork}
+          />
+        )
       : undefined;
 
   return (

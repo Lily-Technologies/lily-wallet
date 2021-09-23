@@ -3,9 +3,9 @@ import styled from "styled-components";
 import { Psbt } from "bitcoinjs-lib";
 import { V2 } from "@cvbb/qr-protocol/dist";
 
-import { AnimatedQrCode } from "../../../components";
+import { AnimatedQrCode } from "src/components";
 
-import { gray100 } from "../../../utils/colors";
+import { gray100 } from "src/utils/colors";
 
 interface Props {
   psbt: Psbt;

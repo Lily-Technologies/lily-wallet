@@ -12,7 +12,7 @@ import {
   SidewaysShake,
   Dropdown,
   Modal,
-} from "../../components";
+} from "src/components";
 
 import {
   gray200,
@@ -22,11 +22,11 @@ import {
   green600,
   orange500,
   orange200,
-} from "../../utils/colors";
-import { downloadFile, formatFilename } from "../../utils/files";
-import { getFee, truncateAddress } from "../../utils/send";
+} from "src/utils/colors";
+import { downloadFile, formatFilename } from "src/utils/files";
+import { getFee, truncateAddress } from "src/utils/send";
 import { FeeSelector } from "./FeeSelector";
-import AddSignatureFromQrCode from "./AddSignatureFromQrCode";
+import AddSignatureFromQrCode from "../Onchain/AddSignatureFromQrCode";
 import TransactionUtxoDetails from "./TxUtxoDetails";
 import ShoppingCart from "./ShoppingCart";
 
@@ -35,7 +35,7 @@ import {
   Device,
   FeeRates,
   ShoppingItem,
-} from "../../types";
+} from "src/types";
 
 const ABSURD_FEE = 1000000; // 0.01 BTC
 
