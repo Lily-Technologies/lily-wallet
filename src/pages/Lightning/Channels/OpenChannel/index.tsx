@@ -85,10 +85,7 @@ const OpenChannel = ({ currentAccount, setViewOpenChannelForm }: Props) => {
         "/open-channel",
         async (_event: any, ...args: any) => {
           try {
-            console.log("args: ", args);
             const openChannelResponse: DecoratedOpenStatusUpdate = args[0];
-            console.log("openChannelResponse: ", openChannelResponse);
-
 
             if (openChannelResponse.error) {
               setError(openChannelResponse.error.message);
@@ -110,7 +107,6 @@ const OpenChannel = ({ currentAccount, setViewOpenChannelForm }: Props) => {
                   currentAccount.config.connectionDetails.lndConnectUri,
               });
 
-              console.log("pendingChanId: ", pendingChanId);
               setPendingChannelId(pendingChanId as Buffer);
               setFinalPsbt(psbt);
               setFeeRates(feeRates);

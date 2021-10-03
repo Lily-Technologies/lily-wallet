@@ -4,7 +4,6 @@ import styled from "styled-components";
 import {
   white,
   gray300,
-  gray500,
   gray700,
   red400,
   red500,
@@ -17,31 +16,31 @@ interface Props {
   label: string;
   id?: string;
   placeholder?: string;
-  type: string;
   autoFocus?: boolean;
   onKeyDown?: (e: React.KeyboardEvent<Element>) => void;
-  inputStaticText?: string;
   largeText?: boolean;
   style?: object;
   labelStyle?: object;
   disabled?: boolean;
+  rows?: number
+  onPaste(value: string): void;
 }
 
-export const Input = ({
+export const Textarea = ({
   value,
   onChange,
   error,
   label,
   id,
   placeholder,
-  type,
   autoFocus,
   onKeyDown,
-  inputStaticText,
   style,
   labelStyle,
   largeText = false,
   disabled,
+  rows = 6,
+  onPaste
 }: Props) => (
   <Fragment>
     {label && (
@@ -51,29 +50,24 @@ export const Input = ({
     )}
     <InputAndErrorWrapper>
       <InputWrapper>
-        <StyledInput
-          type={type || "text"}
+        <StyledTextarea
           id={id}
           value={value}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
             onChange(e.target.value)
           }
+          onPaste={(e: React.ClipboardEvent) => {
+            onPaste(e.clipboardData.getData("text"))
+          }}
           onKeyDown={onKeyDown}
           error={!!error}
           autoFocus={autoFocus}
           placeholder={placeholder}
           largeText={largeText}
-          staticText={!!inputStaticText}
           style={style}
           disabled={disabled}
+          rows={rows}
         />
-        {inputStaticText && (
-          <InputStaticText
-            disabled
-            text={inputStaticText}
-            largeText={largeText}
-          ></InputStaticText>
-        )}
       </InputWrapper>
       {!!error && <ErrorText>{error}</ErrorText>}
     </InputAndErrorWrapper>
@@ -114,23 +108,21 @@ const InputWrapper = styled.div`
   }
 `;
 
-const StyledInput = styled.input<{
+const StyledTextarea = styled.textarea<{
   error: boolean | undefined;
   largeText: boolean;
-  staticText: boolean;
   disabled?: boolean;
 }>`
   font-size: ${(p) => (p.largeText ? "1rem" : ".875rem")};
-  line-height: ${(p) => (p.largeText ? "3em" : "1.25em")};
+  line-height: 1.25em;
   width: 100%;
   display: block;
   background-color: ${white};
   border-color: ${(p) => (p.error ? red400 : gray300)};
   border-width: 1px;
   border-radius: 0.375rem;
-  padding: 0.5rem 0.75rem;
-  padding-right: ${(p) => (p.staticText ? "3em" : "0.75em")};
-  text-align: ${(p) => (p.staticText ? "right" : "left")};
+  padding: 1rem 1.25em;
+  text-align: left;
   position: relative;
   cursor: ${(p) => (p.disabled ? "not-allowed" : "text")}
 
@@ -145,23 +137,5 @@ const StyledInput = styled.input<{
     outline: none;
     box-shadow: 0 0 0 3px rgba(164, 202, 254, 0.45);
     border-color: #a4cafe;
-  }
-`;
-
-export const InputStaticText = styled.label<{
-  text: string;
-  disabled: boolean;
-  largeText: boolean;
-}>`
-  &::after {
-    content: "${(p) => p.text}";
-    position: absolute;
-    top: 1.45em;
-    right: 0.75em;
-    font-family: arial, helvetica, sans-serif;
-    font-size: 1em;
-    display: block;
-    color: ${gray500};
-    font-weight: bold;
   }
 `;

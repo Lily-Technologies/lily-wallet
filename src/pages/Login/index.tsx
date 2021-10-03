@@ -74,7 +74,7 @@ const Login = ({
             )
           )
         );
-        console.log("migratedConfig: ", migratedConfig);
+
         setPasswordError(undefined);
         setTimeout(() => {
           setConfigFile(migratedConfig);
@@ -224,10 +224,10 @@ const Login = ({
                 {isLoading && !encryptedConfigFile
                   ? "Loading"
                   : isLoading
-                  ? "Unlocking"
-                  : encryptedConfigFile
-                  ? "Unlock"
-                  : "Continue"}
+                    ? "Unlocking"
+                    : encryptedConfigFile
+                      ? "Unlock"
+                      : "Continue"}
                 {isLoading ? (
                   <LoadingImage
                     alt="loading placeholder"

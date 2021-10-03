@@ -14,8 +14,8 @@ interface Props {
 }
 
 const AddressesView = ({ currentAccount }: Props) => {
-  const { changeAddresses } = currentAccount;
-  console.log("changeAddresses: ", changeAddresses);
+  const { addresses, unusedAddresses, changeAddresses, unusedChangeAddresses } = currentAccount;
+
   return (
     <Padding>
       <SettingsTable.HeaderSection>
@@ -28,7 +28,7 @@ const AddressesView = ({ currentAccount }: Props) => {
       </SettingsTable.HeaderSection>
       <Table>
         <TableBody>
-          {currentAccount.addresses.map((address) => (
+          {addresses.map((address) => (
             <AddressRow
               key={address.address}
               address={address}
@@ -36,7 +36,7 @@ const AddressesView = ({ currentAccount }: Props) => {
               status="used"
             />
           ))}
-          {currentAccount.unusedAddresses.map((address) => (
+          {unusedAddresses.map((address) => (
             <AddressRow
               key={address.address}
               address={address}
@@ -44,7 +44,7 @@ const AddressesView = ({ currentAccount }: Props) => {
               status="unused"
             />
           ))}
-          {currentAccount.changeAddresses.map((address) => (
+          {changeAddresses.map((address) => (
             <AddressRow
               key={address.address}
               address={address}
@@ -52,7 +52,7 @@ const AddressesView = ({ currentAccount }: Props) => {
               status="used"
             />
           ))}
-          {currentAccount.unusedChangeAddresses.map((address) => (
+          {unusedChangeAddresses.map((address) => (
             <AddressRow
               key={address.address}
               address={address}

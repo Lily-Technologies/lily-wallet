@@ -139,6 +139,6 @@ const Lightning = {
   invoices: LightningInvoices,
   payments: LightningPayments,
   loading: false,
-} as unknown as LilyLightningAccount;
+};
 
 export { HWW, DAS, JB, Sunny, Mnemonic, Multisig, Lightning };

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import { QRCode } from "react-qr-svg";
 import CopyToClipboard from "react-copy-to-clipboard";
@@ -7,6 +7,7 @@ import moment from 'moment';
 
 import {
   Button,
+  Countdown
 } from "src/components";
 
 import {
@@ -15,6 +16,8 @@ import {
   gray400,
   green600,
   gray600,
+  red500,
+  yellow600
 } from "src/utils/colors";
 
 import { SetStateNumber } from 'src/types';
@@ -25,8 +28,10 @@ interface Props {
 }
 
 const LightningReceiveQr = ({ paymentRequest, setStep }: Props) => {
+  const [invoiceExpired, setInvoiceExpired] = useState(false);
+
   const decoded = decode(paymentRequest);
-  const description = decoded.tags.filter((item) => item.tagName === 'description')[0].data;
+  const description = decoded.tags.filter((item) => item.tagName === 'description')[0]?.data;
 
   // TODO: screen shows success on payment receive
 
@@ -60,28 +65,24 @@ const LightningReceiveQr = ({ paymentRequest, setStep }: Props) => {
           </TxItemValue>
         </TxItem>
 
-        <TxItem>
-          <TxItemLabel>Expires</TxItemLabel>
-          <TxItemValue>
-            {moment.unix(decoded.timeExpireDate!).fromNow()}
-          </TxItemValue>
-        </TxItem>
-
-        <TxItem
-          style={{
-            paddingTop: "1.5rem",
-            borderTop: "1px solid rgb(229, 231, 235)",
-            fontWeight: 500,
-            fontSize: "1rem",
-            lineHeight: "1.5rem",
-          }}
-        >
-          <TxItemLabel>Total</TxItemLabel>
-          <TxItemValue>
-            {decoded.satoshis} sats
-          </TxItemValue>
-        </TxItem>
+        {!!!invoiceExpired && (
+          <ExpirationContainer>
+            Expires in{" "}
+            <Countdown
+              onExpire={() => setInvoiceExpired(true)}
+              endTimeSeconds={decoded.timeExpireDate!}
+              style={{ marginLeft: "0.25rem" }}
+            />
+          </ExpirationContainer>
+        )}
+        {invoiceExpired && (
+          <ErrorContainer>
+            This invoice has expired
+          </ErrorContainer>
+        )}
       </TxReviewWrapper>
+
+
 
       <ReceiveButtonContainer>
         <CopyToClipboard
@@ -104,7 +105,7 @@ const LightningReceiveQr = ({ paymentRequest, setStep }: Props) => {
 }
 
 const ReceiveButtonContainer = styled.div`
-  margin: 0 24px;
+  margin: 24px;
 `;
 
 const CopyAddressButton = styled.div`
@@ -125,7 +126,6 @@ const QRCodeWrapper = styled.div`
 
 const AccountReceiveContentLeft = styled.div`
   min-height: 400px;
-  padding: 1em;
   display: flex;
   flex-direction: column;
   flex: 1;
@@ -144,6 +144,8 @@ const TxReviewWrapper = styled.div`
   padding-bottom: 1.5rem;
   padding-left: 1rem;
   padding-right: 1rem;
+  border-bottom: 1px solid rgb(229, 231, 235);
+  
 `;
 
 const TxItem = styled.div`
@@ -168,6 +170,22 @@ const HeaderContainer = styled.div`
   justify-content: flex-start;
   font-size: 1.5em;
   height: 90px;
+`;
+
+const ErrorContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: ${red500};
+  margin-top: 24px;
+`;
+
+const ExpirationContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: ${yellow600};
+  margin-top: 24px;
 `;
 
 export default LightningReceiveQr

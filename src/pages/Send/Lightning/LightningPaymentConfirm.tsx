@@ -1,12 +1,9 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { decode } from 'bolt11';
-import moment from 'moment';
+import { decode } from "bolt11";
+import moment from "moment";
 
-import {
-    Button,
-    Modal
-} from "src/components";
+import { Button, Countdown, Modal } from "src/components";
 
 import {
     white,
@@ -15,23 +12,30 @@ import {
     gray600,
     gray800,
     red500,
+    gray300,
+    yellow600,
 } from "src/utils/colors";
 
-import PaymentSuccess from './PaymentSuccess';
+import PaymentSuccess from "./PaymentSuccess";
 
-import { LilyLightningAccount, SetStateNumber } from 'src/types';
+import { LilyLightningAccount, SetStateNumber } from "src/types";
 // import { Payment, PaymentFailureReason, PaymentStatus } from "@radar/lnrpc";
 
 interface Props {
-    paymentRequest: string
-    setStep: SetStateNumber
-    currentAccount: LilyLightningAccount
+    paymentRequest: string;
+    setStep: SetStateNumber;
+    currentAccount: LilyLightningAccount;
 }
 
-const LightningReceiveQr = ({ paymentRequest, setStep, currentAccount }: Props) => {
+const LightningPaymentConfirm = ({
+    paymentRequest,
+    setStep,
+    currentAccount,
+}: Props) => {
     const [modalIsOpen, setModalIsOpen] = useState(false);
     const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
     const [paymentError, setPaymentError] = useState("");
+    const [invoiceExpired, setInvoiceExpired] = useState(false);
 
     const openInModal = (component: JSX.Element) => {
         setModalIsOpen(true);
@@ -44,112 +48,123 @@ const LightningReceiveQr = ({ paymentRequest, setStep, currentAccount }: Props) 
     };
 
     const decoded = decode(paymentRequest);
-    const description = decoded.tags.filter((item) => item.tagName === 'description')[0].data;
+    const description = decoded.tags.filter(
+        (item) => item.tagName === "description"
+    )[0].data;
 
     const sendPayment = () => {
-        console.log('paymentRequest: ', paymentRequest);
-
-        window.ipcRenderer.send('/lightning-send-payment', {
+        window.ipcRenderer.send("/lightning-send-payment", {
             paymentRequest: paymentRequest,
-            config: currentAccount.config
-        })
+            config: currentAccount.config,
+        });
 
-        window.ipcRenderer.on("/lightning-send-payment",
+        window.ipcRenderer.on(
+            "/lightning-send-payment",
             async (_event: any, ...args: any) => {
-                const response = args[0]
+                const response = args[0];
                 try {
                     if (response.status === 2) {
-                        openInModal(<PaymentSuccess currentAccount={currentAccount} payment={response} />)
+                        openInModal(
+                            <PaymentSuccess
+                                currentAccount={currentAccount}
+                                payment={response}
+                            />
+                        );
                     }
 
                     if (response.status === 3) {
                         if (response.failureReason === 2) {
-                            setPaymentError('No route to user')
+                            setPaymentError("No route to user");
                         } else if (response.failureReason === 5) {
-                            setPaymentError('Not enough balance')
+                            setPaymentError("Not enough balance");
                         } else {
-                            setPaymentError("Unkown error making payment. Contact support.")
+                            setPaymentError("Unkown error making payment. Contact support.");
                         }
                     }
-
                 } catch (e) {
-                    console.log('/lightning-send-payment e: ', e)
+                    console.log("/lightning-send-payment e: ", e);
                 }
-            })
-    }
+            }
+        );
+    };
 
     return (
         <AccountReceiveContentLeft>
-            <HeaderContainer>
-                Payment summary
-            </HeaderContainer>
+            <HeaderContainer>Payment summary</HeaderContainer>
             <TxReviewWrapper>
-                <TxItem>
-                    <TxItemLabel>Memo</TxItemLabel>
-                    <TxItemValue>
-                        {description}
-                    </TxItemValue>
+                <TxItem style={{ marginTop: 0 }}>
+                    <TxItemLabel>Description</TxItemLabel>
+                    <TxItemValue>{description}</TxItemValue>
                 </TxItem>
 
                 <TxItem>
                     <TxItemLabel>Amount</TxItemLabel>
-                    <TxItemValue>
-                        {decoded.satoshis} sats
-                    </TxItemValue>
+                    <TxItemValue>{decoded.satoshis} sats</TxItemValue>
                 </TxItem>
 
+                {/* TODO: implement this logic */}
                 <TxItem>
-                    <TxItemLabel>Expires</TxItemLabel>
-                    <TxItemValue>
-                        {moment.unix(decoded.timeExpireDate!).fromNow()}
-                    </TxItemValue>
+                    <TxItemLabel>Estimated fee</TxItemLabel>
+                    <TxItemValue>50 sats</TxItemValue>
                 </TxItem>
-
-                <TxItem
-                    style={{
-                        paddingTop: "1.5rem",
-                        borderTop: "1px solid rgb(229, 231, 235)",
-                        fontWeight: 500,
-                        fontSize: "1rem",
-                        lineHeight: "1.5rem",
-                    }}
-                >
+            </TxReviewWrapper>
+            <TxReviewWrapper
+                style={{
+                    paddingTop: "1.5rem",
+                    borderTop: "1px solid rgb(229, 231, 235)",
+                    fontWeight: 500,
+                    fontSize: "1rem",
+                    lineHeight: "1.5rem",
+                }}
+            >
+                <TxItem style={{ marginTop: 0 }}>
                     <TxItemLabel>Total</TxItemLabel>
-                    <TxItemValue>
-                        {decoded.satoshis} sats
-                    </TxItemValue>
+                    <TxItemValue>{decoded.satoshis} sats</TxItemValue>
                 </TxItem>
-
-                {paymentError && (
-                    <TxItem
-                        style={{
-                            paddingTop: "1.5rem",
-                            color: red500,
-                            fontWeight: 500,
-                            fontSize: "1rem",
-                            lineHeight: "1.5rem",
-                        }}
-                    >
-                        <TxItemLabel>Error</TxItemLabel>
-                        <TxItemValue>
-                            {paymentError}
-                        </TxItemValue>
-                    </TxItem>
-                )}
             </TxReviewWrapper>
 
-            <ReceiveButtonContainer>
-                <SendPaymentButton color={white} background={green600} onClick={() => sendPayment()}>
-                    Send Payment
-                </SendPaymentButton>
-                <NewAddressButton
-                    background="transparent"
-                    color={gray600}
+            {!!!invoiceExpired && (
+                <ExpirationContainer>
+                    Expires in{" "}
+                    <Countdown
+                        onExpire={() => setInvoiceExpired(true)}
+                        endTimeSeconds={decoded.timeExpireDate!}
+                        style={{ marginLeft: "0.25rem" }}
+                    />
+                </ExpirationContainer>
+            )}
+            {invoiceExpired && (
+                <ErrorContainer>
+                    This invoice has expired
+                </ErrorContainer>
+            )}
+            {paymentError && !invoiceExpired && (
+                <ErrorContainer style={{
+                    marginTop: '0.5em',
+                    fontWeight: 500
+                }}>
+                    Error: {paymentError}
+                </ErrorContainer>
+            )}
+            <ActionButtonContainer>
+                <CancelPaymentButton
+                    background={!!invoiceExpired ? green600 : white}
+                    color={!!invoiceExpired ? white : gray600}
                     onClick={() => setStep(0)}
                 >
-                    Cancel payment
-                </NewAddressButton>
-            </ReceiveButtonContainer>
+                    {invoiceExpired ? 'Go back' : 'Cancel'}
+                </CancelPaymentButton>
+                {!!!invoiceExpired && (
+                    <SendPaymentButton
+                        color={white}
+                        background={green600}
+                        disabled={!!invoiceExpired}
+                        onClick={() => sendPayment()}
+                    >
+                        {paymentError ? "Try again" : "Send payment"}
+                    </SendPaymentButton>
+                )}
+            </ActionButtonContainer>
 
             <Modal
                 isOpen={modalIsOpen}
@@ -158,29 +173,44 @@ const LightningReceiveQr = ({ paymentRequest, setStep, currentAccount }: Props) 
             >
                 {modalContent}
             </Modal>
-
         </AccountReceiveContentLeft>
-    )
-}
+    );
+};
 
-const ReceiveButtonContainer = styled.div`
-  margin: 0 24px;
+const ActionButtonContainer = styled.div`
+  padding: 1.5rem 1rem;
+  display: flex;
+`;
+
+const ErrorContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: ${red500};
+`;
+
+const ExpirationContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: ${yellow600};
 `;
 
 const SendPaymentButton = styled.button`
   ${Button};
   font-weight: 500;
   width: 100%;
+  margin-left: 1em;
 `;
 
-const NewAddressButton = styled.div`
+const CancelPaymentButton = styled.div`
   ${Button};
   width: 100%;
+  border: 1px solid ${gray300};
 `;
 
 const AccountReceiveContentLeft = styled.div`
   min-height: 400px;
-  padding: 1em;
   display: flex;
   flex-direction: column;
   flex: 1;
@@ -225,4 +255,4 @@ const HeaderContainer = styled.div`
   height: 90px;
 `;
 
-export default LightningReceiveQr
+export default LightningPaymentConfirm;

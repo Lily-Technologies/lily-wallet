@@ -61,6 +61,7 @@ const LightningReceiveForm = ({
                     value: sendAmount,
                     lndConnectUri: config.connectionDetails.lndConnectUri
                 }) as AddInvoiceResponse;
+
                 setInvoice(paymentRequest)
                 setStep(1);
             } catch (e) {
@@ -95,7 +96,7 @@ const LightningReceiveForm = ({
                     error={sendAmountError}
                     inputStaticText="sats"
                     largeText={true}
-                    id="bitcoin-amount"
+                    id="lightning-amount"
                 />
             </InputContainer>
             <SendButtonContainer>

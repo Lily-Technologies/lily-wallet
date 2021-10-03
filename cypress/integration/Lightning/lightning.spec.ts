@@ -1,6 +1,13 @@
 /* global cy */
 
 import { Lightning, Multisig } from "../../../src/__tests__/fixtures";
+import {
+  CloseStatusUpdate,
+  OpenStatusUpdate,
+  FundingPsbtVerify,
+  FundingPsbtFinalize,
+} from "@radar/lnrpc";
+import { DecoratedOpenStatusUpdate } from "../../../src/types";
 
 describe("Lightning - General", () => {
   beforeEach(() => {
@@ -15,17 +22,16 @@ describe("Lightning - General", () => {
         .callsFake((args, args1) => {
           setTimeout(() => {
             const openChannelResponse = {
-              pending_chan_id: null, // Buffer
-              psbt_fund: {
-                funding_address:
+              pendingChanId: null, // Buffer
+              psbtFund: {
+                fundingAddress:
                   "bc1qc4cmn6jmj5vv4xgwxuvyze2hl5fn8qzx4lma8pvk3y8ckfprxntqmvjlzk",
-                funding_amount: 3000000,
+                fundingAmount: 3000000,
                 psbt: null, // Buffer
               },
-              update: "psbt_fund",
               alias: "Satoshi",
               color: "#000000",
-            };
+            } as DecoratedOpenStatusUpdate;
             openChannelSender = args1;
             args1(undefined, openChannelResponse);
           }, 25);
@@ -38,8 +44,10 @@ describe("Lightning - General", () => {
           setTimeout(() => {
             const openChannelResponse = {
               // should be some other data here too
-              update: "chan_pending",
-            };
+              chanPending: {
+                txid: "abc123",
+              },
+            } as OpenStatusUpdate;
             openChannelSender(undefined, openChannelResponse);
           }, 25);
         })
@@ -118,12 +126,11 @@ describe("Lightning - General", () => {
         .callsFake((args, args1) => {
           setTimeout(() => {
             const closeChannelResponse = {
-              update: "chan_close",
-              chan_close: {
-                closing_txid: "dafafdf",
+              chanClose: {
+                closingTxid: "dafafdf",
                 success: true,
               },
-            };
+            } as CloseStatusUpdate;
             args1(undefined, closeChannelResponse);
           }, 25);
         })
@@ -152,12 +159,11 @@ describe("Lightning - General", () => {
         .callsFake((args, args1) => {
           setTimeout(() => {
             const closeChannelResponse = {
-              update: "chan_close",
-              chan_close: {
-                closing_txid: "dafafdf",
+              chanClose: {
+                closingTxid: "dafafdf",
                 success: false,
               },
-            };
+            } as CloseStatusUpdate;
             args1(undefined, closeChannelResponse);
           }, 25);
         })

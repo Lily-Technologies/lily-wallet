@@ -18,7 +18,7 @@ interface Props {
 
 const PaymentSuccess = ({ currentAccount, payment }: Props) => {
     const decoded = decode(payment.paymentRequest);
-    const description = decoded.tags.filter((item) => item.tagName === 'description')[0].data;
+    const description = decoded.tags.filter((item) => item.tagName === 'description')[0]?.data;
 
     return (
         <Wrapper>

@@ -85,8 +85,6 @@ export const DeviceSelect = ({
         });
       }
 
-      console.log("response: ", response);
-
       // filter out devices that are available but already imported
       const filteredDevices = response.filter((device) => {
         // eslint-disable-line
@@ -140,18 +138,18 @@ export const DeviceSelect = ({
                 device.type === "coldcard"
                   ? require("../assets/coldcard.png")
                   : device.type === "ledger" && device.model === "ledger_nano_s"
-                  ? require("../assets/ledger_nano_s.png")
-                  : device.type === "ledger" && device.model === "ledger_nano_x"
-                  ? require("../assets/ledger_nano_x.png")
-                  : device.type === "trezor" && device.model === "trezor_1"
-                  ? require("../assets/trezor_1.png")
-                  : device.type === "trezor" && device.model === "trezor_t"
-                  ? require("../assets/trezor_t.png")
-                  : device.type === "cobo"
-                  ? require("../assets/cobo.png")
-                  : device.type === "bitbox02"
-                  ? require("../assets/bitbox02.png")
-                  : require("../assets/iphone.png")
+                    ? require("../assets/ledger_nano_s.png")
+                    : device.type === "ledger" && device.model === "ledger_nano_x"
+                      ? require("../assets/ledger_nano_x.png")
+                      : device.type === "trezor" && device.model === "trezor_1"
+                        ? require("../assets/trezor_1.png")
+                        : device.type === "trezor" && device.model === "trezor_t"
+                          ? require("../assets/trezor_t.png")
+                          : device.type === "cobo"
+                            ? require("../assets/cobo.png")
+                            : device.type === "bitbox02"
+                              ? require("../assets/bitbox02.png")
+                              : require("../assets/iphone.png")
               }
             />
             <DeviceInfoWrapper>
@@ -213,19 +211,19 @@ export const DeviceSelect = ({
                     ? require("../assets/coldcard.png")
                     : device.type === "ledger" &&
                       device.model === "ledger_nano_s"
-                    ? require("../assets/ledger_nano_s.png")
-                    : device.type === "ledger" &&
-                      device.model === "ledger_nano_x"
-                    ? require("../assets/ledger_nano_x.png")
-                    : device.type === "trezor" && device.model === "trezor_1"
-                    ? require("../assets/trezor_1.png")
-                    : device.type === "trezor" && device.model === "trezor_t"
-                    ? require("../assets/trezor_t.png")
-                    : device.type === "cobo"
-                    ? require("../assets/cobo.png")
-                    : device.type === "bitbox02"
-                    ? require("../assets/bitbox02.png")
-                    : require("../assets/iphone.png")
+                      ? require("../assets/ledger_nano_s.png")
+                      : device.type === "ledger" &&
+                        device.model === "ledger_nano_x"
+                        ? require("../assets/ledger_nano_x.png")
+                        : device.type === "trezor" && device.model === "trezor_1"
+                          ? require("../assets/trezor_1.png")
+                          : device.type === "trezor" && device.model === "trezor_t"
+                            ? require("../assets/trezor_t.png")
+                            : device.type === "cobo"
+                              ? require("../assets/cobo.png")
+                              : device.type === "bitbox02"
+                                ? require("../assets/bitbox02.png")
+                                : require("../assets/iphone.png")
                 }
               />
               <DeviceInfoWrapper>
@@ -249,8 +247,8 @@ export const DeviceSelect = ({
                       {deviceError
                         ? "Click to Retry"
                         : device.type === "ledger"
-                        ? "Open Bitcoin App on Device"
-                        : "Click to enter PIN"}
+                          ? "Open Bitcoin App on Device"
+                          : "Click to enter PIN"}
                     </ConfiguringText>
                   ) : (
                     <ConfiguringText>{deviceActionText}</ConfiguringText>
@@ -408,10 +406,10 @@ const DeviceWrapper = styled.div<{
     p.imported
       ? `1px solid ${green500}`
       : p.error
-      ? `1px solid ${red500}`
-      : p.warning
-      ? `1px solid ${yellow300}`
-      : "1px solid transparent"};
+        ? `1px solid ${red500}`
+        : p.warning
+          ? `1px solid ${yellow300}`
+          : "1px solid transparent"};
 
   &:hover {
     cursor: ${(p) => (p.displayLoadingCursor ? "wait" : "pointer")};
