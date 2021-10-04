@@ -10,6 +10,7 @@ import {
   FileUploader,
   Dropdown,
   Modal,
+  ErrorModal
 } from "../../components";
 
 import {
@@ -132,7 +133,7 @@ const NewVaultScreen = ({
         ...availableDevices.filter((item) => item.type !== "phone"),
       ]);
       closeModal();
-    } catch (e) {}
+    } catch (e) { }
   };
 
   const importDeviceFromFile = (
@@ -190,14 +191,17 @@ const NewVaultScreen = ({
             accept="*"
             id="localConfigFile"
             onFileLoad={({ file }: File) => {
-              const parsedFile = JSON.parse(file);
-              // TODO: should probably have better checking for files to make sure users aren't uploading "weird" files
-              if (parsedFile.seed_version) {
-                // is a multisig file
-                importMultisigWalletFromFile(parsedFile);
-              } else {
-                // is a wallet export file
-                importDeviceFromFile(parsedFile);
+              try {
+                const parsedFile = JSON.parse(file);
+                if (parsedFile.seed_version) {
+                  // is a multisig file
+                  importMultisigWalletFromFile(parsedFile);
+                } else {
+                  // is a wallet export file
+                  importDeviceFromFile(parsedFile);
+                }
+              } catch (e) {
+                openInModal(<ErrorModal message="Invalid file" closeModal={closeModal} />)
               }
             }}
           />

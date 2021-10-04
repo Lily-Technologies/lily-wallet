@@ -16,7 +16,7 @@ import {
   Dropdown,
   ErrorModal,
   Modal,
-  StyledIcon,
+  StyledIcon
 } from "../../components";
 import {
   InnerWrapper,
@@ -333,9 +333,12 @@ const NewHardwareWalletScreen = ({
             accept="*"
             id="localConfigFile"
             onFileLoad={({ file }: File) => {
-              const parsedFile = JSON.parse(file);
-              // TODO: should probably have better checking for files to make sure users aren't uploading "weird" files
-              importDeviceFromFile(parsedFile);
+              try {
+                const parsedFile = JSON.parse(file);
+                importDeviceFromFile(parsedFile);
+              } catch (e) {
+                openInModal(<ErrorModal message="Invalid file" closeModal={closeModal} />)
+              }
             }}
           />
 
