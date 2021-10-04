@@ -330,7 +330,7 @@ const NewHardwareWalletScreen = ({
       <FormContainer>
         <BoxedWrapper>
           <FileUploader
-            accept="*"
+            accept="application/JSON"
             id="localConfigFile"
             onFileLoad={({ file }: File) => {
               try {

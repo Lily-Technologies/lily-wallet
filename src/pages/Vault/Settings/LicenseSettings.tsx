@@ -121,15 +121,15 @@ const LicenseSettings = ({
                   color: isFreeTrial(accountConfig.license)
                     ? orange400
                     : licenseExpires(accountConfig.license) > nodeConfig.blocks
-                    ? green400
-                    : red500, // accountConfig.license.expires > nodeConfig.blocks
+                      ? green400
+                      : red500, // accountConfig.license.expires > nodeConfig.blocks
                 }}
               />
               {isFreeTrial(accountConfig.license)
                 ? `Free Trial`
                 : licenseExpires(accountConfig.license) > nodeConfig.blocks
-                ? "Active"
-                : "Expired"}
+                  ? "Active"
+                  : "Expired"}
             </StatusContainer>
           </SettingsTable.ValueAction>
         </SettingsTable.ValueColumn>
@@ -192,7 +192,7 @@ const LicenseSettings = ({
         </LicenseButton>
       </Buttons>
       <FileUploader
-        accept=".json"
+        accept="application/JSON"
         id="licenseUploadButton"
         onFileLoad={(file: File) => onLicenseUpload(file)}
       />
