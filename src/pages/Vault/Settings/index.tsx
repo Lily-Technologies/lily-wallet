@@ -9,9 +9,11 @@ import LicenseSettings from "./LicenseSettings";
 import ExportView from "./ExportView";
 import SettingsTabs from "./SettingsTabs";
 
-import { Modal } from "../../../components";
+import { Modal } from "src/components";
 
-import { white } from "../../../utils/colors";
+
+import { white } from "src/utils/colors";
+
 import { NodeConfig } from "src/types";
 
 interface Props {
