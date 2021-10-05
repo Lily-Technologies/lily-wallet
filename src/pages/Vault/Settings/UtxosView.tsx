@@ -1,15 +1,22 @@
-import React, { useContext } from "react";
+import React from "react";
 import styled from "styled-components";
 
-import { AccountMapContext } from "../../../AccountMapContext";
+import { requireOnchain } from "../../../hocs";
 
 import { Table, TableBody } from "../../../components/Table";
 import { SettingsTable } from "../../../components";
 
+import { LilyOnchainAccount } from "../../../types";
+
 import UtxoRow from "./UtxoRow";
 
-const UtxosView = () => {
-  const { currentAccount } = useContext(AccountMapContext);
+interface Props {
+  currentAccount: LilyOnchainAccount;
+}
+
+const UtxosView = ({ currentAccount }: Props) => {
+  const { availableUtxos } = currentAccount;
+  console.log("availableUtxos: ", availableUtxos);
   return (
     <Padding>
       <SettingsTable.HeaderSection>
@@ -34,4 +41,4 @@ const Padding = styled.div`
   padding: 0 1.5em;
 `;
 
-export default UtxosView;
+export default requireOnchain(UtxosView);

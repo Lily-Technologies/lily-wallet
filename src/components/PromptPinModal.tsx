@@ -173,9 +173,7 @@ export const PromptPinModal = ({ device, enumerate, closeModal }: Props) => {
   return (
     <>
       <ModalHeaderContainer>Enter PIN</ModalHeaderContainer>
-      {!!loadingMessage && (
-        <Loading itemText="Pinpad" message={loadingMessage} />
-      )}
+      {!!loadingMessage && <Loading message={loadingMessage} />}
       {!!!loadingMessage && <PinInput />}
     </>
   );

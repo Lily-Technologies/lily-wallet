@@ -1,0 +1,28 @@
+{
+  "balance": 10218005,
+  "pending_open_balance": 0,
+  "local_balance": {
+    "sat": 10218005,
+    "msat": 10218005000
+  },
+  "remote_balance": {
+    "sat": 780085,
+    "msat": 780085000
+  },
+  "unsettled_local_balance": {
+    "sat": 0,
+    "msat": 0
+  },
+  "unsettled_remote_balance": {
+    "sat": 0,
+    "msat": 0
+  },
+  "pending_open_local_balance": {
+    "sat": 0,
+    "msat": 0
+  },
+  "pending_open_remote_balance": {
+    "sat": 0,
+    "msat": 0
+  }
+}

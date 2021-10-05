@@ -8,6 +8,7 @@ import {
   createMultisigConfigFile,
   createSinglesigConfigFile,
   createSinglesigHWWConfigFile,
+  createLightningConfigFile,
   createColdCardBlob,
   downloadFile,
   saveConfig,
@@ -24,6 +25,7 @@ import NewVaultScreen from "./NewVaultScreen";
 import SuccessScreen from "./SuccessScreen";
 import NewWalletScreen from "./NewWalletScreen";
 import NewHardwareWalletScreen from "./NewHardwareWalletScreen";
+import NewLightningScreen from "./NewLightningScreen";
 
 import {
   HwiResponseEnumerate,
@@ -58,6 +60,7 @@ const Setup = ({
   const [path, setPath] = useState(
     getP2wpkhDeriationPathForNetwork(currentBitcoinNetwork)
   );
+  const [lndConnectUri, setLndConnectUri] = useState("");
   const [localConfig, setLocalConfig] = useState(config);
 
   const exportSetupFiles = useCallback(async () => {
@@ -78,7 +81,7 @@ const Setup = ({
         config,
         currentBitcoinNetwork
       );
-    } else {
+    } else if (setupOption === 3) {
       configObject = await createSinglesigHWWConfigFile(
         importedDevices[0],
         addressType,
@@ -87,7 +90,17 @@ const Setup = ({
         config,
         currentBitcoinNetwork
       );
+    } else if (setupOption === 4) {
+      configObject = await createLightningConfigFile(
+        lndConnectUri,
+        accountName,
+        config,
+        currentBitcoinNetwork
+      );
+    } else {
+      throw Error("Invalid setupOption");
     }
+
     saveConfig(configObject, password);
     setLocalConfig(configObject);
   }, [
@@ -102,6 +115,7 @@ const Setup = ({
     password,
     setupOption,
     walletMnemonic,
+    lndConnectUri,
   ]);
 
   const downloadColdcardFile = async () => {
@@ -159,6 +173,8 @@ const Setup = ({
                 ? "Create new wallet"
                 : setupOption === 3
                 ? "Manage hardware wallet"
+                : setupOption === 4
+                ? "Connect lightning wallet"
                 : "Create new vault"
             }`
       }
@@ -210,6 +226,15 @@ const Setup = ({
             currentBitcoinNetwork={currentBitcoinNetwork}
             setAddressType={setAddressType}
             setPath={setPath}
+          />
+        );
+      } else if (setupOption === 4) {
+        screen = (
+          <NewLightningScreen
+            header={Header}
+            setStep={setStep}
+            lndConnectUri={lndConnectUri}
+            setLndConnectUri={setLndConnectUri}
           />
         );
       } else {

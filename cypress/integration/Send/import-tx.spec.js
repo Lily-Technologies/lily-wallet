@@ -1,5 +1,7 @@
 import { Multisig, Mnemonic } from "../../../src/__tests__/fixtures";
 
+import { truncateAddress } from "../../../src/utils/send";
+
 describe("Send - Import transactions", () => {
   beforeEach(() => {
     cy.login();
@@ -34,9 +36,9 @@ describe("Send - Import transactions", () => {
     });
 
     cy.contains("0.01 BTC").should("be.visible");
-    cy.contains("bc1qf9gnplc9fvc6txpcfysfvcznfx6qmhksce0jjk").should(
-      "be.visible"
-    );
+    cy.contains(
+      truncateAddress("bc1qf9gnplc9fvc6txpcfysfvcznfx6qmhksce0jjk")
+    ).should("be.visible");
     cy.contains("No devices detected").should("be.visible");
   });
 
@@ -65,9 +67,9 @@ describe("Send - Import transactions", () => {
     });
 
     cy.contains("0.01 BTC").should("be.visible");
-    cy.contains("bc1qf9gnplc9fvc6txpcfysfvcznfx6qmhksce0jjk").should(
-      "be.visible"
-    );
+    cy.contains(
+      truncateAddress("bc1qf9gnplc9fvc6txpcfysfvcznfx6qmhksce0jjk")
+    ).should("be.visible");
     cy.contains(
       Multisig.config.extendedPublicKeys[1].device.fingerprint
     ).should("be.visible");
@@ -101,9 +103,9 @@ describe("Send - Import transactions", () => {
     });
 
     cy.contains("0.01 BTC").should("be.visible");
-    cy.contains("bc1qf9gnplc9fvc6txpcfysfvcznfx6qmhksce0jjk").should(
-      "be.visible"
-    );
+    cy.contains(
+      truncateAddress("bc1qf9gnplc9fvc6txpcfysfvcznfx6qmhksce0jjk")
+    ).should("be.visible");
     cy.contains(
       Multisig.config.extendedPublicKeys[0].device.fingerprint
     ).should("be.visible");
@@ -131,9 +133,9 @@ describe("Send - Import transactions", () => {
     cy.contains("Import transaction").click();
 
     cy.contains("0.01 BTC").should("be.visible");
-    cy.contains("bc1qf9gnplc9fvc6txpcfysfvcznfx6qmhksce0jjk").should(
-      "be.visible"
-    );
+    cy.contains(
+      truncateAddress("bc1qf9gnplc9fvc6txpcfysfvcznfx6qmhksce0jjk")
+    ).should("be.visible");
     cy.contains("No devices detected").should("be.visible");
 
     cy.get("[data-cy=send-options-dropdown]").click();

@@ -17,6 +17,7 @@ import {
   getSignedFingerprintsFromPsbt,
   getSignedDevicesFromPsbt,
   createTransaction,
+  truncateAddress,
 } from "../../utils/send";
 
 import { AddressType } from "../../types";
@@ -93,7 +94,7 @@ describe("Send Utils", () => {
     expect(combinedPsbts1.txOutputs.length).toEqual(2);
     expect(combinedPsbts1.data.inputs[0].partialSig!.length).toEqual(1);
     expect(combinedPsbts1.txOutputs[0].address).toEqual(
-      "bc1qf9gnplc9fvc6txpcfysfvcznfx6qmhksce0jjk"
+      truncateAddress("bc1qf9gnplc9fvc6txpcfysfvcznfx6qmhksce0jjk")
     );
     expect(combinedPsbts1.txOutputs[0].value).toEqual(1000000);
     expect(combinedPsbts1.txOutputs[1].address).toEqual(
@@ -108,7 +109,7 @@ describe("Send Utils", () => {
     expect(combinedPsbts2.txOutputs.length).toEqual(2);
     expect(combinedPsbts2.data.inputs[0].partialSig!.length).toEqual(2);
     expect(combinedPsbts2.txOutputs[0].address).toEqual(
-      "bc1qf9gnplc9fvc6txpcfysfvcznfx6qmhksce0jjk"
+      truncateAddress("bc1qf9gnplc9fvc6txpcfysfvcznfx6qmhksce0jjk")
     );
     expect(combinedPsbts2.txOutputs[0].value).toEqual(1000000);
     expect(combinedPsbts2.txOutputs[1].address).toEqual(
@@ -180,7 +181,7 @@ describe("Send Utils", () => {
     expect(psbt.txInputs.length).toBe(1);
     expect(psbt.txOutputs.length).toBe(2);
     expect(psbt.txOutputs[0].address).toEqual(
-      "bc1qf9gnplc9fvc6txpcfysfvcznfx6qmhksce0jjk"
+      truncateAddress("bc1qf9gnplc9fvc6txpcfysfvcznfx6qmhksce0jjk")
     );
     expect(psbt.txOutputs[0].value).toEqual(1000000);
     expect(psbt.txOutputs[1].address).toEqual(

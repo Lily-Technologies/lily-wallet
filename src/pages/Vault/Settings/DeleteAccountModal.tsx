@@ -37,13 +37,19 @@ const DeleteAccountModal = ({ password, closeModal }: Props) => {
   const removeAccountAndDownloadConfig = () => {
     if (accountNameConfirm === currentAccount.config.name) {
       const configCopy = { ...config };
-      if (currentAccount.config.quorum.totalSigners === 1) {
-        configCopy.wallets = configCopy.wallets.filter(
-          (wallet) => wallet.id !== currentAccount.config.id
-        );
+      if (currentAccount.config.type === "onchain") {
+        if (currentAccount.config.quorum.totalSigners === 1) {
+          configCopy.wallets = configCopy.wallets.filter(
+            (wallet) => wallet.id !== currentAccount.config.id
+          );
+        } else {
+          configCopy.vaults = configCopy.vaults.filter(
+            (vault) => vault.id !== currentAccount.config.id
+          );
+        }
       } else {
-        configCopy.vaults = configCopy.vaults.filter(
-          (vault) => vault.id !== currentAccount.config.id
+        configCopy.lightning = configCopy.lightning.filter(
+          (wallet) => wallet.id !== currentAccount.config.id
         );
       }
 

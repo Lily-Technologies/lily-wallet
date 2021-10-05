@@ -53,7 +53,7 @@ import {
   ColdcardElectrumExport,
   File,
   AddressType,
-  AccountConfig,
+  OnChainConfig,
 } from "../../types";
 
 interface Props {
@@ -108,7 +108,8 @@ const NewHardwareWalletScreen = ({
 
       const p2wpkhConfig = {
         id: uuidv4(),
-        created_at: 123,
+        created_at: 123, // this is a dumby value bc thrown away later
+        type: "onchain",
         name: "test",
         network: "mainnet",
         addressType: AddressType.P2WPKH,
@@ -131,7 +132,7 @@ const NewHardwareWalletScreen = ({
             },
           },
         ],
-      } as AccountConfig;
+      } as OnChainConfig;
 
       const p2wpkhAddress = getAddressFromAccount(
         p2wpkhConfig,
@@ -155,7 +156,8 @@ const NewHardwareWalletScreen = ({
 
       const p2shConfig = {
         id: uuidv4(),
-        created_at: 123,
+        created_at: 123, /// this gets thrown away later, so set dumby value
+        type: "onchain",
         name: "test",
         network: "mainnet",
         addressType: AddressType.p2sh,
@@ -178,7 +180,7 @@ const NewHardwareWalletScreen = ({
             },
           },
         ],
-      } as AccountConfig;
+      } as OnChainConfig;
 
       const p2shAddress = getAddressFromAccount(
         p2shConfig,

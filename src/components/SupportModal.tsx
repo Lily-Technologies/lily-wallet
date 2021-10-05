@@ -33,8 +33,6 @@ export const SupportModal = ({ closeModal }: Props) => {
   const [supportCode, setSupportCode] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
-  console.log("supportCode: ", supportCode);
-
   useEffect(() => {
     async function getSupportCode() {
       if (!config.isEmpty) {
@@ -45,7 +43,6 @@ export const SupportModal = ({ closeModal }: Props) => {
               license: config.vaults[0].license, // license
             }
           );
-          console.log("data.code: ", data.code);
           setSupportCode(data.code);
           setIsLoading(false);
         } catch (e) {
@@ -71,8 +68,8 @@ export const SupportModal = ({ closeModal }: Props) => {
           {isLoading
             ? ""
             : supportCode
-            ? "When asked, give this code to our support staff to verify your license."
-            : `Upgrade to a paying customer to recieve premium support.`}
+              ? "When asked, give this code to our support staff to verify your license."
+              : `Upgrade to a paying customer to recieve premium support.`}
         </Subtext>
 
         <SupportCodeContainer data-cy="support-code">

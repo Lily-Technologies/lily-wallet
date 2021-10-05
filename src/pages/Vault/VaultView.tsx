@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import styled from "styled-components";
 import {
   AreaChart,
@@ -13,14 +13,13 @@ import { satoshisToBitcoins } from "unchained-bitcoin";
 import moment from "moment";
 import BigNumber from "bignumber.js";
 
-import { AccountMapContext } from "../../AccountMapContext";
-
-import { Loading, Modal } from "../../components";
+import { Loading, Modal } from "src/components";
 
 import RecentTransactions from "./RecentTransactions";
 import { RescanModal } from "./RescanModal";
 
-import { NodeConfig } from "../../types";
+import { NodeConfig, LilyOnchainAccount } from "src/types";
+import { requireOnchain } from "src/hocs";
 
 import {
   white,
@@ -28,7 +27,7 @@ import {
   gray600,
   yellow100,
   yellow500,
-} from "../../utils/colors";
+} from "src/utils/colors";
 
 interface TooltipProps {
   active: boolean;
@@ -54,11 +53,11 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
 interface Props {
   nodeConfig: NodeConfig;
   toggleRefresh: () => void;
+  currentAccount: LilyOnchainAccount;
 }
 
-const VaultView = ({ nodeConfig, toggleRefresh }: Props) => {
+const VaultView = ({ currentAccount, nodeConfig, toggleRefresh }: Props) => {
   const [progress, setProgress] = useState<number>(0);
-  const { currentAccount } = useContext(AccountMapContext);
   const { currentBalance, transactions } = currentAccount;
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
@@ -160,6 +159,7 @@ const VaultView = ({ nodeConfig, toggleRefresh }: Props) => {
       {currentAccount.loading ||
       (progress && currentAccount.transactions.length === 0) ? (
         <ValueWrapper>
+          {/* @ts-ignore-line */}
           <Loading
             style={{ margin: "10em 0" }}
             message={
@@ -171,7 +171,7 @@ const VaultView = ({ nodeConfig, toggleRefresh }: Props) => {
                   )}% complete)`
                 : undefined
             }
-            itemText={"Transaction Data"}
+            itemText={!progress ? "Transaction Data" : undefined}
           />
         </ValueWrapper>
       ) : null}
@@ -282,4 +282,4 @@ const DateTooltip = styled.div`
   font-size: 0.75em;
 `;
 
-export default VaultView;
+export default requireOnchain(VaultView);

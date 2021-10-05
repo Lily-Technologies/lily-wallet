@@ -1,15 +1,20 @@
-import React, { useContext } from "react";
+import React from "react";
 import styled from "styled-components";
-
-import { AccountMapContext } from "../../../AccountMapContext";
 
 import AddressRow from "./AddressRow";
 
+import { requireOnchain } from "../../../hocs";
+
 import { Table, TableBody } from "../../../components/Table";
 import { SettingsTable } from "../../../components";
+import { LilyOnchainAccount } from "src/types";
 
-const AddressesView = () => {
-  const { currentAccount } = useContext(AccountMapContext);
+interface Props {
+  currentAccount: LilyOnchainAccount;
+}
+
+const AddressesView = ({ currentAccount }: Props) => {
+  const { addresses, unusedAddresses, changeAddresses, unusedChangeAddresses } = currentAccount;
 
   return (
     <Padding>
@@ -23,7 +28,7 @@ const AddressesView = () => {
       </SettingsTable.HeaderSection>
       <Table>
         <TableBody>
-          {currentAccount.addresses.map((address) => (
+          {addresses.map((address) => (
             <AddressRow
               key={address.address}
               address={address}
@@ -31,7 +36,7 @@ const AddressesView = () => {
               status="used"
             />
           ))}
-          {currentAccount.unusedAddresses.map((address) => (
+          {unusedAddresses.map((address) => (
             <AddressRow
               key={address.address}
               address={address}
@@ -39,7 +44,7 @@ const AddressesView = () => {
               status="unused"
             />
           ))}
-          {currentAccount.changeAddresses.map((address) => (
+          {changeAddresses.map((address) => (
             <AddressRow
               key={address.address}
               address={address}
@@ -47,7 +52,7 @@ const AddressesView = () => {
               status="used"
             />
           ))}
-          {currentAccount.unusedChangeAddresses.map((address) => (
+          {unusedChangeAddresses.map((address) => (
             <AddressRow
               key={address.address}
               address={address}
@@ -65,4 +70,4 @@ const Padding = styled.div`
   padding: 0 1.5em;
 `;
 
-export default AddressesView;
+export default requireOnchain(AddressesView);

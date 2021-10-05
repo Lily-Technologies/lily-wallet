@@ -1,6 +1,5 @@
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import moment from "moment";
-import { Network } from "bitcoinjs-lib";
 
 import { Modal, SettingsTable } from "../../../components";
 
@@ -8,17 +7,17 @@ import DeleteAccountModal from "./DeleteAccountModal";
 import EditAccountNameModal from "./EditAccountNameModal";
 import DeviceDetailsModal from "./DeviceDetailsModal";
 
-import { AccountMapContext } from "../../../AccountMapContext";
+import { requireOnchain } from "../../../hocs";
 
 import { capitalize } from "../../../utils/other";
 import { white, red500, green500 } from "../../../utils/colors";
+import { LilyOnchainAccount } from "../../../types";
 interface Props {
+  currentAccount: LilyOnchainAccount;
   password: string;
-  currentBitcoinNetwork: Network;
 }
 
-const GeneralView = ({ password, currentBitcoinNetwork }: Props) => {
-  const { currentAccount } = useContext(AccountMapContext);
+const GeneralView = ({ currentAccount, password }: Props) => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
 
@@ -144,4 +143,4 @@ const GeneralView = ({ password, currentBitcoinNetwork }: Props) => {
   );
 };
 
-export default GeneralView;
+export default requireOnchain(GeneralView);

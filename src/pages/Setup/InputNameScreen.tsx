@@ -55,8 +55,10 @@ const InputNameScreen = ({
       option = "vault";
     } else if (setupOption === 2) {
       option = "wallet";
-    } else {
+    } else if (setupOption === 3) {
       option = "hardware wallet";
+    } else {
+      option = "lightning wallet";
     }
 
     if (capitalize === "all") {

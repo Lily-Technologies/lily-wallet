@@ -10,7 +10,7 @@ import {
   red500,
 } from "../utils/colors";
 
-export interface Props {
+interface Props {
   value: string;
   onChange(value: string): void;
   error?: string;
@@ -156,7 +156,7 @@ export const InputStaticText = styled.label<{
   &::after {
     content: "${(p) => p.text}";
     position: absolute;
-    top: 1.5em;
+    top: 1.45em;
     right: 0.75em;
     font-family: arial, helvetica, sans-serif;
     font-size: 1em;

@@ -11,7 +11,9 @@ import SettingsTabs from "./SettingsTabs";
 
 import { Modal } from "src/components";
 
+
 import { white } from "src/utils/colors";
+
 import { NodeConfig } from "src/types";
 
 interface Props {
@@ -45,12 +47,7 @@ const VaultSettings = ({
         <SettingsHeader>Settings</SettingsHeader>
         <SettingsTabs currentTab={currentTab} setCurrentTab={setCurrentTab} />
       </HeaderContainer>
-      {currentTab === "general" && (
-        <GeneralView
-          password={password}
-          currentBitcoinNetwork={currentBitcoinNetwork}
-        />
-      )}
+      {currentTab === "general" && <GeneralView password={password} />}
       {currentTab === "addresses" && <AddressesView />}
       {currentTab === "utxos" && <UtxosView />}
       {currentTab === "license" && (

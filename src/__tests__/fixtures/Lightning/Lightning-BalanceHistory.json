@@ -1,0 +1,42 @@
+[
+  {
+    "block_time": 1614381391,
+    "totalValue": 0
+  },
+  {
+    "block_time": 1614381392,
+    "totalValue": 123456
+  },
+  {
+    "block_time": 1619029148,
+    "totalValue": 173456
+  },
+  {
+    "block_time": 1629240340,
+    "totalValue": 1173456
+  },
+  {
+    "block_time": 1629240562,
+    "totalValue": 1094563
+  },
+  {
+    "block_time": 1629434810,
+    "totalValue": 594563
+  },
+  {
+    "block_time": 1629437648,
+    "totalValue": 394563
+  },
+  {
+    "block_time": 1629508310,
+    "totalValue": 10394563
+  },
+  {
+    "block_time": 1630096053,
+    "totalValue": 10344563
+  },
+  {
+    "block_time": 1630345815,
+    "totalValue": 10344563
+  }
+]

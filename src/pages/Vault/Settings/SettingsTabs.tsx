@@ -40,7 +40,8 @@ const SettingsTabs = ({ currentTab, setCurrentTab }: Props) => {
       >
         UTXOs
       </TabItem>
-      {currentAccount.config.quorum.totalSigners > 1 ? (
+      {currentAccount.config.type === "onchain" &&
+      currentAccount.config.quorum.totalSigners > 1 ? (
         <TabItem
           active={currentTab === "license"}
           onClick={() => setCurrentTab("license")}

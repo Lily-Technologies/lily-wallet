@@ -2,7 +2,7 @@ import { networks } from "bitcoinjs-lib";
 import HistoricalBtcPriceFixture from "../fixtures/historical-btc-price.json";
 import { createConfig } from "./createConfig";
 
-import { Mnemonic, Multisig } from "../../src/__tests__/fixtures";
+import { Mnemonic, Multisig, Lightning } from "../../src/__tests__/fixtures";
 
 // ***********************************************
 // This example commands.js shows you how to
@@ -74,8 +74,10 @@ Cypress.Commands.add("login", () => {
           })
           .as("Estimate Fee");
 
-        const onStub = cy
-          .stub()
+        const onStub = cy.stub();
+
+        onStub
+          .withArgs("/account-data")
           .callsFake((args, args1) => {
             // setTimeout so that initialAccountMap can get set
             // this mimicks a delay for constructing the accountMap
@@ -111,7 +113,30 @@ Cypress.Commands.add("login", () => {
               args1(undefined, mnemonicAccount);
             }, 15);
           })
-          .as("account-data");
+          .as("/account-data");
+
+        onStub
+          .withArgs("/lightning-account-data")
+          .callsFake((args, args1) => {
+            setTimeout(() => {
+              const lightningAccount = {
+                name: Lightning.name,
+                currentBalance: Lightning.currentBalance,
+                config: Lightning.config,
+                channels: Lightning.channels,
+                closedChannels: Lightning.closedChannels,
+                pendingChannels: Lightning.pendingChannels,
+                balanceHistory: Lightning.balanceHistory,
+                events: Lightning.events,
+                info: Lightning.info,
+                invoices: Lightning.invoices,
+                payments: Lightning.payments,
+                loading: Lightning.loading,
+              };
+              args1(undefined, lightningAccount);
+            }, 25);
+          })
+          .as("/lightning-account-data");
 
         win.ipcRenderer = {
           invoke: invokeStub,

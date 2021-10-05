@@ -1,0 +1,78 @@
+{
+  "uris": [
+    "039c013ca5ea646253b9e7c530d630f81d443cb32d42c8a38e8cc0599ba2dfd11f@b4k3lrt66vuu563wig6rvwojnqoucdc62zhgtj5n5ctiqcoobtebziyd.onion:9735"
+  ],
+  "chains": [
+    {
+      "chain": "bitcoin",
+      "network": "mainnet"
+    }
+  ],
+  "features": {
+    "0": {
+      "name": "data-loss-protect",
+      "is_required": true,
+      "is_known": true
+    },
+    "5": {
+      "name": "upfront-shutdown-script",
+      "is_required": false,
+      "is_known": true
+    },
+    "7": {
+      "name": "gossip-queries",
+      "is_required": false,
+      "is_known": true
+    },
+    "9": {
+      "name": "tlv-onion",
+      "is_required": false,
+      "is_known": true
+    },
+    "12": {
+      "name": "static-remote-key",
+      "is_required": true,
+      "is_known": true
+    },
+    "14": {
+      "name": "payment-addr",
+      "is_required": true,
+      "is_known": true
+    },
+    "17": {
+      "name": "multi-path-payments",
+      "is_required": false,
+      "is_known": true
+    },
+    "23": {
+      "name": "anchors-zero-fee-htlc-tx",
+      "is_required": false,
+      "is_known": true
+    },
+    "30": {
+      "name": "amp",
+      "is_required": true,
+      "is_known": true
+    },
+    "31": {
+      "name": "amp",
+      "is_required": false,
+      "is_known": true
+    }
+  },
+  "identity_pubkey": "039c013ca5ea646253b9e7c530d630f81d443cb32d42c8a38e8cc0599ba2dfd11f",
+  "alias": "039c013ca5ea646253b9",
+  "num_pending_channels": 0,
+  "num_active_channels": 2,
+  "num_peers": 4,
+  "block_height": 698292,
+  "block_hash": "000000000000000000024ffedaa4e5e69b5ac18c9039892ad1ae49e3f5815426",
+  "synced_to_chain": true,
+  "testnet": false,
+  "best_header_timestamp": 1630342794,
+  "version": "0.13.1-beta commit=v0.13.1-beta",
+  "num_inactive_channels": 0,
+  "color": "#3399ff",
+  "synced_to_graph": true,
+  "commit_hash": "596fd90ef310cd7abbf2251edaae9ba4d5f8a689"
+}

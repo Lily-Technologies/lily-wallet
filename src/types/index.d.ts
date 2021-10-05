@@ -1,6 +1,15 @@
 import { Network, Psbt } from "bitcoinjs-lib";
 import { ACCOUNTMAP_SET, ACCOUNTMAP_UPDATE } from "../reducers/accountMap";
-import { WalletInfo } from "bitcoin-simple-rpc";
+import { WalletInfo, ClientOption } from "bitcoin-simple-rpc";
+import {
+  Channel,
+  PendingChannel,
+  ChannelBalanceResponse,
+  OpenStatusUpdate,
+  ClosedChannel,
+  Payment,
+  Invoice,
+} from "@radar/lnrpc";
 
 declare global {
   namespace NodeJS {
@@ -16,6 +25,67 @@ declare global {
     ipcRenderer: any;
   }
 }
+
+// see https://stackoverflow.com/questions/40510611/typescript-interface-require-one-of-two-properties-to-exist/49725198#49725198
+type RequireAtLeastOne<T, Keys extends keyof T = keyof T> = Pick<
+  T,
+  Exclude<keyof T, Keys>
+> &
+  {
+    [K in Keys]-?: Required<Pick<T, K>> & Partial<Pick<T, Exclude<Keys, K>>>;
+  }[Keys];
+
+type RequireOnlyOne<T, Keys extends keyof T = keyof T> = Pick<
+  T,
+  Exclude<keyof T, Keys>
+> &
+  {
+    [K in Keys]-?: Required<Pick<T, K>> &
+      Partial<Record<Exclude<Keys, K>, undefined>>;
+  }[Keys];
+
+// Source: https://github.com/emotion-js/emotion/blob/master/packages/styled-base/types/helper.d.ts
+// A more precise version of just React.ComponentPropsWithoutRef on its own
+export type PropsOf<
+  C extends keyof JSX.IntrinsicElements | React.JSXElementConstructor<any>
+> = JSX.LibraryManagedAttributes<C, React.ComponentPropsWithoutRef<C>>;
+
+type AsProp<C extends React.ElementType> = {
+  /**
+   * An override of the default HTML tag.
+   * Can also be another React component.
+   */
+  as?: C;
+};
+
+/**
+ * Allows for extending a set of props (`ExtendedProps`) by an overriding set of props
+ * (`OverrideProps`), ensuring that any duplicates are overridden by the overriding
+ * set of props.
+ */
+export type ExtendableProps<
+  ExtendedProps = {},
+  OverrideProps = {}
+> = OverrideProps & Omit<ExtendedProps, keyof OverrideProps>;
+
+/**
+ * Allows for inheriting the props from the specified element type so that
+ * props like children, className & style work, as well as element-specific
+ * attributes like aria roles. The component (`C`) must be passed in.
+ */
+export type InheritableElementProps<
+  C extends React.ElementType,
+  Props = {}
+> = ExtendableProps<PropsOf<C>, Props>;
+
+/**
+ * A more sophisticated version of `InheritableElementProps` where
+ * the passed in `as` prop will determine which props can be included
+ */
+export type PolymorphicComponentProps<
+  C extends React.ElementType,
+  Props = {}
+> = InheritableElementProps<C, Props & AsProp<C>>;
 
 // React Types
 export type SetStateBoolean = React.Dispatch<React.SetStateAction<boolean>>;
@@ -74,6 +144,24 @@ export interface NodeConfig {
   blocks: number;
 }
 
+export interface BitcoinCoreNodeConfig extends ClientOption {
+  provider: "Bitcoin Core" | "Custom Node";
+}
+
+export interface BlockstreamNodeConfig {
+  provider: "Blockstream";
+}
+
+export interface NodeConfigWithBlockchainInfo
+  extends BitcoinCoreNodeConfig,
+    BlockstreamNodeConfig {
+  provider: BitcoinCoreNodeConfig.provider | BlockstreamNodeConfig.provider;
+  connected: boolean;
+  initialblockdownload?: boolean;
+  verificationprogress?: number;
+  blocks: number;
+}
+
 export type InputOrOutput = Vin | Vout;
 
 export interface Vin {
@@ -109,11 +197,7 @@ export interface PsbtInput {
   bip32Derivation: Bip32Derivation[];
 }
 
-export enum TransactionType {
-  sent = "sent",
-  received = "received",
-  moved = "moved",
-}
+export type TransactionType = "sent" | "received" | "moved";
 
 export enum LicenseTiers {
   basic = "basic",
@@ -145,6 +229,32 @@ export interface Transaction {
   totalValue: number;
   address: string;
   value: number;
+}
+
+export interface DecoratedLightningChannel extends Channel {
+  alias: string;
+  lastUpdate: number;
+}
+
+export interface DecoratedPendingLightningChannel extends PendingChannel {
+  alias: string;
+}
+
+export interface DecoratedOpenStatusUpdate extends OpenStatusUpdate {
+  error?: {
+    message: string;
+  };
+  alias: string;
+}
+
+// either channel open/close, or send/receive payment
+export interface LightningEvent {
+  type: "CHANNEL_OPEN" | "CHANNEL_CLOSE" | "PAYMENT_SEND" | "PAYMENT_RECEIVE";
+  creationDate?: string;
+  title: string;
+  valueSat: string;
+  tx?: Transaction;
+  channel?: Channel;
 }
 
 export interface TransactionMap {
@@ -181,9 +291,9 @@ export interface UTXO {
   prevTxHex: string; // added to UTXO when retriving for Trezor HWW
 }
 
-export interface LilyAccount {
+export interface LilyOnchainAccount {
   name: string;
-  config: AccountConfig;
+  config: OnChainConfig;
   addresses: Address[];
   changeAddresses: Address[];
   availableUtxos: UTXO[];
@@ -193,6 +303,53 @@ export interface LilyAccount {
   currentBalance: number;
   loading: boolean | WalletInfo.scanning;
 }
+
+export interface LightningConfig {
+  id: string;
+  type: "lightning";
+  created_at: number;
+  name: string;
+  network: "mainnet" | "testnet";
+  connectionDetails: {
+    lndConnectUri: string;
+  };
+}
+
+export interface LightningBalance {
+  local_balance: LightningAmount;
+  remote_balance: LightningAmount;
+  unsettled_local_balance: LightningAmount;
+  unsettled_remote_balance: LightningAmount;
+  pending_local_balance: LightningAmount;
+  pending_remote_balance: LightningAmount;
+}
+
+export interface LightningAmount {
+  sat: number;
+  msat: number;
+}
+
+export interface LilyLightningAccount {
+  name: string;
+  config: LightningConfig;
+  channels: DecoratedLightningChannel[];
+  pendingChannels: DecoratedPendingLightningChannel[];
+  closedChannels: ClosedChannel[];
+  info: any;
+  events: LightningEvent[];
+  payments: Payment[];
+  invoices: Invoice[];
+  currentBalance: ChannelBalanceResponse;
+  balanceHistory: BalanceHistory[];
+  loading: boolean | WalletInfo.scanning;
+}
+
+export interface BalanceHistory {
+  blockTime?: number;
+  totalValue: number;
+}
+
+export type LilyAccount = LilyOnchainAccount | LilyLightningAccount;
 
 export interface AccountMap {
   [id: string]: LilyAccount;
@@ -219,9 +376,18 @@ export interface LilyLicense {
 }
 export interface LilyConfig {
   name: string;
+  version: "1.0.8";
+  isEmpty: boolean;
+  wallets: OnChainConfig[];
+  vaults: VaultConfig[];
+  lightning: LightningConfig[];
+}
+
+export interface LilyConfigOneDotSevenConfig {
+  name: string;
   version: "1.0.7";
   isEmpty: boolean;
-  wallets: AccountConfig[];
+  wallets: OnChainConfig[];
   vaults: VaultConfig[];
 }
 
@@ -230,8 +396,8 @@ export interface LilyConfigOneDotFiveConfig {
   version: "1.0.5";
   license: LilyLicense;
   isEmpty: boolean;
-  wallets: AccountConfig[];
-  vaults: AccountConfig[];
+  wallets: OnChainConfig[];
+  vaults: OnChainConfig[];
 }
 
 export interface LilyConfigOneDotZeroConfig {
@@ -239,8 +405,8 @@ export interface LilyConfigOneDotZeroConfig {
   version: "1.0.0";
   license: LilyLicense;
   isEmpty: boolean;
-  wallets: AccountConfig[];
-  vaults: AccountConfig[];
+  wallets: OnChainConfig[];
+  vaults: OnChainConfig[];
 }
 
 export interface LilyZeroDotOneConfig {
@@ -265,7 +431,7 @@ export interface LilyZeroDotOneConfig {
     device: Device;
     mnemonic?: string;
   }[];
-  vaults: AccountConfig[];
+  vaults: OnChainConfig[];
   keys: any[]; // TODO: change
   exchanges: any[]; // TODO: change
 }
@@ -309,8 +475,9 @@ export enum AddressType {
   multisig = "multisig",
 }
 
-export interface AccountConfig {
+export interface OnChainConfig {
   id: string;
+  type: "onchain";
   created_at: number;
   name: string;
   network: "mainnet" | "testnet";
@@ -324,7 +491,7 @@ export interface AccountConfig {
   parentFingerprint?: string;
 }
 
-export interface VaultConfig extends AccountConfig {
+export interface VaultConfig extends OnChainConfig {
   license: LilyLicense;
 }
 
@@ -480,4 +647,23 @@ export interface BitcoinCoreGetRawTransactionResponse {
   confirmations: number;
   time: number;
   blocktime: number;
+}
+
+// Shopping cart types
+interface ShoppingItem {
+  image: any;
+  title: string;
+  price: number;
+  extraInfo?: ExtraInfo[];
+}
+
+interface ExtraInfo {
+  label: string;
+  value: string;
+}
+
+interface BitcoinCoreConfVariables {
+  rpcuser: string;
+  rpcpassword: string;
+  rpcport: string;
 }

@@ -63,15 +63,19 @@ describe("Purchase", () => {
     cy.screenshot("license");
     cy.get("button:visible").contains("Buy Basic").click();
 
-    cy.contains("Transaction Summary").should("be.visible");
+    cy.contains("Transaction summary").should("be.visible");
 
     cy.contains("Confirm on Devices (0/2)").should("be.visible");
 
-    cy.contains("9130C3D6").click();
+    cy.contains(
+      Multisig.config.extendedPublicKeys[0].parentFingerprint
+    ).click();
 
     cy.contains("Confirm on Devices (1/2)").should("be.visible");
 
-    cy.contains("34ECF56B").click();
+    cy.contains(
+      Multisig.config.extendedPublicKeys[1].parentFingerprint
+    ).click();
 
     cy.contains("Broadcast Transaction").should("be.visible");
 

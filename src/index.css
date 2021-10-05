@@ -84,9 +84,16 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-button {
+button,
+input,
+optgroup,
+select,
+textarea {
   background: none;
-  font: inherit;
+  font-family: inherit; /* 1 */
+  font-size: 100%; /* 1 */
+  line-height: 1.15; /* 1 */
+  margin: 0; /* 2 */
 }
 
 code {
@@ -207,4 +214,8 @@ th {
 
 .translate-x-0 {
   transform: translateX(0);
+}
+
+dd {
+  margin-inline-start: auto;
 }

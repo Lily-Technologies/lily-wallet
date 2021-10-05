@@ -1,6 +1,7 @@
 /* global cy */
 
 import { Mnemonic, Multisig } from "../../../src/__tests__/fixtures";
+import { truncateAddress } from "../../../src/utils/send";
 describe("Send - General", () => {
   beforeEach(() => {
     cy.login();
@@ -50,7 +51,7 @@ describe("Send - General", () => {
 
     cy.contains("Preview Transaction").click();
 
-    cy.contains("Transaction Summary").should("be.visible");
+    cy.contains("Transaction summary").should("be.visible");
 
     cy.contains("Confirm on Devices (0/2)").should("be.visible");
 
@@ -83,7 +84,7 @@ describe("Send - General", () => {
 
     cy.contains("Preview Transaction").click();
 
-    cy.contains("Transaction Summary").should("be.visible");
+    cy.contains("Transaction summary").should("be.visible");
 
     cy.get("[data-cy=send-options-dropdown]").click();
 
@@ -115,10 +116,10 @@ describe("Send - General", () => {
 
     cy.contains("Preview Transaction").click();
 
-    cy.contains("Transaction Summary").should("be.visible");
+    cy.contains("Transaction summary").should("be.visible");
 
     cy.contains(sendAmount).should("be.visible");
-    cy.contains(sendAddress).should("be.visible");
+    cy.contains(truncateAddress(sendAddress)).should("be.visible");
 
     cy.get("[data-cy=send-options-dropdown]").click();
 
@@ -130,7 +131,7 @@ describe("Send - General", () => {
 
     cy.contains("Preview Transaction").click();
 
-    cy.contains("Transaction Summary").should("be.visible");
+    cy.contains("Transaction summary").should("be.visible");
 
     cy.contains(replacementSendAddress).should("be.visible");
     cy.contains(replacementSendAmount).should("be.visible");
@@ -150,10 +151,10 @@ describe("Send - General", () => {
 
     cy.contains("Preview Transaction").click();
 
-    cy.contains("Transaction Summary").should("be.visible");
+    cy.contains("Transaction summary").should("be.visible");
 
     cy.contains(sendAmount).should("be.visible");
-    cy.contains(sendAddress).should("be.visible");
+    cy.contains(truncateAddress(sendAddress)).should("be.visible");
     cy.contains("Broadcast Transaction").should("be.visible");
   });
 });

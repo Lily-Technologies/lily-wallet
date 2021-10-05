@@ -12,6 +12,7 @@ import {
   LilyZeroDotOneConfig,
   LilyConfigOneDotFiveConfig,
   LilyConfigOneDotZeroConfig,
+  LilyConfigOneDotSevenConfig,
   AddressType,
 } from "../types";
 
@@ -25,6 +26,7 @@ export const getBjsNetworkFromUnchained = (unchainedNetwork: string) => {
 
 export const updateConfigFileVersionBeta = (
   config:
+    | LilyConfigOneDotSevenConfig
     | LilyConfigOneDotFiveConfig
     | LilyConfigOneDotZeroConfig
     | LilyConfig
@@ -72,13 +74,18 @@ export const updateConfigFileVersionBeta = (
     return updatedConfig;
   }
   return config as unknown as
+    | LilyConfigOneDotSevenConfig
     | LilyConfigOneDotFiveConfig
     | LilyConfigOneDotZeroConfig
     | LilyConfig;
 };
 
 export const updateConfigFileVersionOne = (
-  config: LilyConfigOneDotFiveConfig | LilyConfigOneDotZeroConfig | LilyConfig
+  config:
+    | LilyConfigOneDotSevenConfig
+    | LilyConfigOneDotFiveConfig
+    | LilyConfigOneDotZeroConfig
+    | LilyConfig
 ) => {
   if (config.version === "1.0.0") {
     const updatedConfig = {
@@ -128,6 +135,22 @@ export const updateConfigFileVersionOneDotFive = (
         ...item,
         license: config.license,
       })),
+    } as LilyConfigOneDotSevenConfig;
+    return updatedConfig;
+  }
+  return config as unknown as LilyConfig | LilyConfigOneDotSevenConfig;
+};
+
+export const updateConfigFileVersionOneDotSeven = (
+  config: LilyConfigOneDotSevenConfig | LilyConfig
+) => {
+  if (config.version === "1.0.7") {
+    const updatedConfig = {
+      ...config,
+      vaults: config.vaults.map((item) => ({ ...item, type: "onchain" })),
+      wallets: config.wallets.map((item) => ({ ...item, type: "onchain" })),
+      version: "1.0.8",
+      lightning: [],
     } as LilyConfig;
     return updatedConfig;
   }

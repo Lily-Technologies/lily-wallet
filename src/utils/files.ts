@@ -10,7 +10,7 @@ import { bufferToHex } from "../utils/other";
 import {
   LilyConfig,
   LilyLicense,
-  AccountConfig,
+  OnChainConfig,
   AddressType,
   Device,
   ExtendedPublicKey,
@@ -155,6 +155,7 @@ export const createSinglesigConfigFile = async (
   const newKey = {
     id: uuidv4(),
     created_at: Date.now(),
+    type: "onchain",
     name: accountName,
     network: getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork),
     addressType: AddressType.P2WPKH,
@@ -175,7 +176,7 @@ export const createSinglesigConfigFile = async (
       },
     ],
     mnemonic: walletMnemonic,
-  } as AccountConfig;
+  } as OnChainConfig;
 
   configCopy.wallets.push(newKey);
 
@@ -195,6 +196,7 @@ export const createSinglesigHWWConfigFile = async (
 
   const newKey = {
     id: uuidv4(),
+    type: "onchain",
     created_at: Date.now(),
     name: accountName,
     network: getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork),
@@ -215,7 +217,7 @@ export const createSinglesigHWWConfigFile = async (
         },
       },
     ],
-  } as AccountConfig;
+  } as OnChainConfig;
 
   configCopy.wallets.push(newKey);
 
@@ -251,6 +253,7 @@ export const createMultisigConfigFile = (
 
   configCopy.vaults.push({
     id: uuidv4(),
+    type: "onchain",
     created_at: Date.now(),
     name: accountName,
     license: {
@@ -264,6 +267,29 @@ export const createMultisigConfigFile = (
       totalSigners: importedDevices.length,
     },
     extendedPublicKeys: newKeys,
+  });
+
+  return configCopy;
+};
+
+export const createLightningConfigFile = (
+  lndConnectUri: string,
+  accountName: string,
+  config: LilyConfig,
+  currentBitcoinNetwork: Network
+) => {
+  const configCopy = { ...config };
+  configCopy.isEmpty = false;
+
+  configCopy.lightning.push({
+    id: uuidv4(),
+    type: "lightning",
+    created_at: Date.now(),
+    name: accountName,
+    network: getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork),
+    connectionDetails: {
+      lndConnectUri,
+    },
   });
 
   return configCopy;

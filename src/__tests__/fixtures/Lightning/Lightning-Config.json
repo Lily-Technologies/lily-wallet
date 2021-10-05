@@ -1,0 +1,10 @@
+{
+  "id": "6178d929-9799-4cd0-9321-2f44c51aa258",
+  "type": "lightning",
+  "created_at": 1629983321642,
+  "name": "Umbrel",
+  "network": "mainnet",
+  "connectionDetails": {
+    "lndConnectUri": "lndconnect://umbrel.local:10009?cert=foobar&macaroon=jones"
+  }
+}

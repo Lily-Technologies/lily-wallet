@@ -1,7 +1,12 @@
 import { EMPTY_CONFIG } from "../../src/ConfigContext";
 import { AES } from "crypto-js";
 
-import { Multisig, Mnemonic, HWW } from "../../src/__tests__/fixtures";
+import {
+  Multisig,
+  Mnemonic,
+  HWW,
+  Lightning,
+} from "../../src/__tests__/fixtures";
 
 export const createLilyAccount = (Account) => {
   return {
@@ -23,6 +28,7 @@ export const createConfig = (password) => {
     isEmpty: false,
     wallets: [Mnemonic.config, HWW.account.config],
     vaults: [Multisig.config],
+    lightning: [Lightning.config],
   };
 
   return AES.encrypt(JSON.stringify(configFile), password).toString();

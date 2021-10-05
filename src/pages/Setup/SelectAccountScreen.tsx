@@ -2,6 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { Bank } from "@styled-icons/remix-line";
 import { Calculator } from "@styled-icons/heroicons-outline";
+import { Bolt } from "@styled-icons/open-iconic";
 
 import { StyledIcon, Button } from "../../components";
 import { InnerWrapper } from "./styles";
@@ -18,20 +19,6 @@ const SelectAccountScreen = ({ header, setSetupOption, setStep }: Props) => {
     <InnerWrapper>
       {header}
       <SignupOptionMenu>
-        {/* <SignupOptionItem
-          background={white}
-          color={gray800}
-          style={{ borderTop: `8px solid ${green800}` }}
-          onClick={() => {
-            setSetupOption(2);
-            setStep(1);
-          }}>
-          <StyledIcon as={Wallet} size={48} style={{ marginTop: '0.15em' }} />
-          <SignupOptionTextContainer>
-            <SignupOptionMainText>Wallet</SignupOptionMainText>
-            <SignupOptionSubtext>Create a new Bitcoin wallet with its own mnemonic</SignupOptionSubtext>
-          </SignupOptionTextContainer>
-        </SignupOptionItem> */}
         <SignupOptionItem
           background={white}
           color={gray800}
@@ -69,6 +56,24 @@ const SelectAccountScreen = ({ header, setSetupOption, setStep }: Props) => {
             <SignupOptionSubtext>
               Combine multiple hardware wallets to create a vault for securing
               larger amounts of Bitcoin
+            </SignupOptionSubtext>
+          </SignupOptionTextContainer>
+        </SignupOptionItem>
+
+        <SignupOptionItem
+          background={white}
+          color={gray800}
+          onClick={() => {
+            setSetupOption(4);
+            setStep(1);
+          }}
+        >
+          <StyledIcon as={Bolt} size={48} style={{ marginTop: "0.15em" }} />
+          <SignupOptionTextContainer>
+            <SignupOptionMainText>Lightning Wallet</SignupOptionMainText>
+            <SignupOptionSubtext>
+              Connect to your lightning wallet to manage channels and send
+              payments
             </SignupOptionSubtext>
           </SignupOptionTextContainer>
         </SignupOptionItem>
