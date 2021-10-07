@@ -173,12 +173,7 @@ const SendOnchain = ({
       ) {
         try {
           finalPsbt.finalizeAllInputs();
-          const broadcastId = await broadcastTransaction(
-            currentAccount,
-            finalPsbt,
-            nodeConfig,
-            currentBitcoinNetwork
-          );
+          const broadcastId = await broadcastTransaction(finalPsbt);
           openInModal(
             <BroadcastModalContent
               broadcastedTxId={broadcastId}

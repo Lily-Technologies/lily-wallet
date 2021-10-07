@@ -42,6 +42,12 @@ import {
   loadOrCreateWalletViaRPC,
 } from "./utils/accountMap";
 
+import {
+  BaseProvider,
+  BitcoinCoreProvider,
+  BlockstreamProvider,
+} from "./server/providers";
+
 import path from "path";
 import fs from "fs";
 import {
@@ -61,14 +67,15 @@ dialog.showErrorBox = function (title, content) {
   console.log(`${title}\n${content}`);
 };
 
-const currentBitcoinNetwork =
-  "TESTNET" in process.env ? networks.testnet : networks.bitcoin;
+const currentBitcoinNetwork = !!("TESTNET" in process.env);
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow: BrowserWindow | null;
 
 let currentNodeConfig: NodeConfigWithBlockchainInfo;
+
+let DataProvider: BaseProvider;
 
 function createWindow() {
   // Create the browser window.
@@ -140,92 +147,43 @@ const setupInitialNodeConfig = async () => {
   try {
     console.log("Trying to connect to local Bitcoin Core instance...");
     const nodeConfig = await getBitcoinCoreConfig();
-    const nodeClient = getClientFromNodeConfig(nodeConfig);
-    const blockchainInfo = await nodeClient.getBlockchainInfo(); // if fails, go to catch case
-    currentNodeConfig = {
-      ...blockchainInfo,
-      ...nodeConfig,
-      provider: "Bitcoin Core",
-      connected: true,
-    };
-    console.log("Connected to local Bitcoin Core instance.");
-  } catch (e) {
-    console.log("Failed to connect to local Bitcoin Core instance.");
-    try {
-      try {
-        console.log("Trying to connect to remote Bitcoin Core instance...");
-        const nodeConfigFile = await getFile("node-config.json");
-        const nodeConfig = JSON.parse(nodeConfigFile.file);
-        currentNodeConfig = nodeConfig;
-      } catch (e) {
-        console.log("Failed to retrieve remote Bitcoin Core connection data.");
-        console.log("Connecting to Blockstream.");
-        const blockchainInfo = await getBlockstreamBlockchainInfo();
-        currentNodeConfig = {
-          ...blockchainInfo,
-          provider: "Blockstream",
-        };
-      }
-      const nodeClient = getClientFromNodeConfig(currentNodeConfig);
-      console.log(`Verifying connection to ${currentNodeConfig.baseURL})... `);
-      const blockchainInfo = await nodeClient.getBlockchainInfo(); // if fails, go to catch case
-      console.log(
-        `Connected to remote Bitcoin Core instance. (${currentNodeConfig.baseURL})`
-      );
-    } catch (e) {
-      console.log("Failed to connect to remote Bitcoin Core instance.");
+    DataProvider = new BitcoinCoreProvider(nodeConfig, currentBitcoinNetwork);
+    await DataProvider.initialize();
+    if (DataProvider.connected) {
+      console.log("Connected to local Bitcoin Core instance.");
+    } else {
+      console.log("Failed to connect to local Bitcoin Core instance.");
+      throw new Error(); // throw error to go to catch segment
     }
-  }
-};
-
-const getBitcoinCoreNetworkConnectionInfo = async () => {
-  try {
-    const nodeConfig = await getBitcoinCoreConfig(); // this changes currentNodeConfig
-    const nodeClient = getClientFromNodeConfig(nodeConfig);
-    const blockchainInfo = await nodeClient.getBlockchainInfo();
-    const bitcoinNetworkInfo = {
-      ...blockchainInfo,
-      ...nodeConfig,
-      provider: "Bitcoin Core",
-      connected: true,
-    } as NodeConfigWithBlockchainInfo;
-    return Promise.resolve(bitcoinNetworkInfo);
   } catch (e) {
-    return Promise.reject();
-  }
-};
-
-const getCustomNodeBlockchainInfo = async (nodeConfig: ClientOption) => {
-  try {
-    const nodeClient = getClientFromNodeConfig(nodeConfig);
-    const blockchainInfo = await nodeClient.getBlockchainInfo();
-    const bitcoinNetworkInfo = {
-      ...blockchainInfo,
-      ...nodeConfig,
-      provider: "Custom Node",
-      connected: true,
-    } as NodeConfigWithBlockchainInfo;
-    return Promise.resolve(bitcoinNetworkInfo);
-  } catch (e) {
-    console.log("getCustomNodeBlockchainInfo e: ", e);
-    return Promise.reject("Error getting custom node blockchain info");
-  }
-};
-
-const getBlockstreamBlockchainInfo = async () => {
-  try {
-    const data = await (
-      await axios.get(`https://blockstream.info/api/blocks/tip/height`)
-    ).data;
-    const blockchainInfo = {
-      blocks: data,
-      initialblockdownload: false,
-      provider: "Blockstream",
-      connected: true,
-    } as NodeConfigWithBlockchainInfo;
-    return Promise.resolve(blockchainInfo);
-  } catch (e) {
-    return Promise.reject();
+    try {
+      console.log("Trying to connect to remote Bitcoin Core instance...");
+      const nodeConfigFile = await getFile("node-config.json");
+      const nodeConfig = JSON.parse(nodeConfigFile.file);
+      try {
+        DataProvider = new BitcoinCoreProvider(
+          nodeConfig,
+          currentBitcoinNetwork
+        );
+        await DataProvider.initialize();
+        if (DataProvider.connected) {
+          console.log("Connected to remote Bitcoin Core instance");
+        } else {
+          console.log("Failed to connect to remote Bitcoin Core instance");
+        }
+      } catch (e) {
+        console.log("Failed to connect to remote Bitcoin Core instance");
+      }
+    } catch (e) {
+      console.log("Failed to retrieve remote Bitcoin Core connection data.");
+      try {
+        console.log("Connecting to Blockstream.");
+        DataProvider = new BlockstreamProvider(currentBitcoinNetwork);
+        DataProvider.initialize();
+      } catch (e) {
+        console.log("Failed to connect to Blockstream");
+      }
+    }
   }
 };
 
@@ -259,71 +217,8 @@ ipcMain.on("/account-data", async (event, args) => {
   // load data from cache
   // event.reply("/account-data", accountData);
 
-  // load new data
-  let addresses,
-    changeAddresses,
-    transactions,
-    unusedAddresses,
-    unusedChangeAddresses,
-    availableUtxos;
-  let nodeClient = undefined;
   try {
-    if (currentNodeConfig.provider !== "Blockstream") {
-      const currentConfig = { ...currentNodeConfig };
-      currentConfig.baseURL = `${currentConfig.baseURL}/wallet/lily${config.id}`;
-      nodeClient = getClientFromNodeConfig(currentConfig);
-
-      // load or create wallet via RPC from RPC
-      console.log(`Loading or creating wallet via RPC (${config.id})`);
-      await loadOrCreateWalletViaRPC(config, nodeClient);
-    }
-
-    if (config.quorum.totalSigners > 1) {
-      [
-        addresses,
-        changeAddresses,
-        transactions,
-        unusedAddresses,
-        unusedChangeAddresses,
-        availableUtxos,
-      ] = await getDataFromMultisig(config, nodeClient, currentBitcoinNetwork);
-    } else {
-      [
-        addresses,
-        changeAddresses,
-        transactions,
-        unusedAddresses,
-        unusedChangeAddresses,
-        availableUtxos,
-      ] = await getDataFromXPub(config, nodeClient, currentBitcoinNetwork);
-    }
-
-    console.log(`Calculating current balance for ${config.id}`);
-    const currentBalance = availableUtxos.reduce(
-      (accum, utxo) => accum.plus(utxo.value),
-      new BigNumber(0)
-    );
-
-    let loading: boolean | WalletInfo["scanning"] = false;
-    if (nodeClient) {
-      const resp = await nodeClient.getWalletInfo();
-      // TODO: should check if keypool is > 0
-      loading = resp.scanning;
-    }
-
-    const accountData = {
-      name: config.name,
-      config: config,
-      addresses,
-      changeAddresses,
-      availableUtxos,
-      transactions,
-      unusedAddresses,
-      currentBalance: currentBalance.toNumber(),
-      unusedChangeAddresses,
-      loading,
-    } as LilyOnchainAccount;
-
+    const accountData = await DataProvider.getAccountData(config);
     event.reply("/account-data", accountData);
   } catch (e) {
     console.log(`(${config.id}) /account-data error: `, e);
@@ -936,7 +831,10 @@ ipcMain.handle("/xpub", async (event, args) => {
       deviceType,
       devicePath,
       path,
-      bitcoinNetworkEqual(currentBitcoinNetwork, networks.testnet)
+      bitcoinNetworkEqual(
+        currentBitcoinNetwork ? networks.testnet : networks.bitcoin,
+        networks.testnet
+      )
     )
   ); // responses come back as strings, need to be parsed
   if (resp.error) {
@@ -952,7 +850,10 @@ ipcMain.handle("/sign", async (event, args) => {
       deviceType,
       devicePath,
       psbt,
-      bitcoinNetworkEqual(currentBitcoinNetwork, networks.testnet)
+      bitcoinNetworkEqual(
+        currentBitcoinNetwork ? networks.testnet : networks.bitcoin,
+        networks.testnet
+      )
     )
   );
   if (resp.error) {
@@ -965,6 +866,7 @@ ipcMain.handle("/promptpin", async (event, args) => {
   const { deviceType, devicePath } = args;
   const resp = JSON.parse(await promptpin(deviceType, devicePath));
   if (resp.error) {
+    console.log(resp);
     return Promise.reject(new Error("Error prompting pin"));
   }
   return Promise.resolve(resp);
@@ -980,64 +882,19 @@ ipcMain.handle("/sendpin", async (event, args) => {
 });
 
 ipcMain.handle("/estimate-fee", async (event, args) => {
-  if (currentNodeConfig.provider === "Blockstream") {
-    try {
-      const feeRates = await (
-        await axios.get("https://mempool.space/api/v1/fees/recommended")
-      ).data; // TODO: should catch if URL is down
-      return Promise.resolve(feeRates);
-    } catch (e) {
-      throw new Error(
-        "Error retrieving fees from mempool.space. Please try again."
-      );
-    }
-  } else {
-    const nodeClient = getClientFromNodeConfig(currentNodeConfig);
-    try {
-      const feeRates = {
-        fastestFee: 0,
-        halfHourFee: 0,
-        hourFee: 0,
-      } as FeeRates;
-      const fastestFeeRate = await nodeClient.estimateSmartFee(1);
-      if (fastestFeeRate.feerate) {
-        feeRates.fastestFee = new BigNumber(fastestFeeRate.feerate)
-          .multipliedBy(100000)
-          .integerValue(BigNumber.ROUND_CEIL)
-          .toNumber(); // TODO: this probably needs relooked at
-      }
-      const halfHourFeeRate = await nodeClient.estimateSmartFee(3);
-      if (halfHourFeeRate.feerate) {
-        feeRates.halfHourFee = new BigNumber(halfHourFeeRate.feerate)
-          .multipliedBy(100000)
-          .integerValue(BigNumber.ROUND_CEIL)
-          .toNumber(); // TODO: this probably needs relooked at
-      }
-      const hourFeeRate = await nodeClient.estimateSmartFee(6);
-      if (hourFeeRate.feerate) {
-        feeRates.hourFee = new BigNumber(hourFeeRate.feerate)
-          .multipliedBy(100000)
-          .integerValue(BigNumber.ROUND_CEIL)
-          .toNumber(); // TODO: this probably needs relooked at
-      }
-      return Promise.resolve(feeRates);
-    } catch (e) {
-      console.log(`error /estimate-fee ${e}`);
-      return Promise.reject(new Error("Error retrieving fee"));
-    }
+  try {
+    const feeRates = await DataProvider.estimateFee();
+    return Promise.resolve(feeRates);
+  } catch (e) {
+    console.log(`error /estimate-fee ${e}`);
+    return Promise.reject(new Error("Error retrieving fee"));
   }
 });
 
 ipcMain.handle("/broadcastTx", async (event, args) => {
-  const { accountId, txHex } = args;
+  const { txHex } = args;
   try {
-    const nodeConnection = {
-      ...currentNodeConfig,
-      baseURL: `${currentNodeConfig.baseURL}/wallet/lily${accountId}`,
-    };
-    const nodeClient = getClientFromNodeConfig(nodeConnection);
-    const resp = await nodeClient.sendRawTransaction(txHex);
-    return Promise.resolve(resp);
+    await DataProvider.broadcastTransaction(txHex);
   } catch (e) {
     console.log(`error /broadcastTx ${e}`);
     return Promise.reject(new Error("Error broadcasting transaction"));
@@ -1046,111 +903,26 @@ ipcMain.handle("/broadcastTx", async (event, args) => {
 
 ipcMain.handle("/changeNodeConfig", async (event, args) => {
   const { nodeConfig } = args;
+  console.log("nodeConfig: ", nodeConfig);
   console.log(`Attempting to connect to ${nodeConfig.provider}...`);
   if (nodeConfig.provider === "Bitcoin Core") {
-    try {
-      const temp = await getBitcoinCoreConfig();
-      const blockchainInfo = await getBitcoinCoreNetworkConnectionInfo();
-      console.log(`Connected to ${nodeConfig.provider}.`);
-      currentNodeConfig = {
-        ...temp,
-        provider: "Bitcoin Core",
-        connected: true,
-        blocks: blockchainInfo.blocks,
-      };
-      return Promise.resolve(blockchainInfo);
-    } catch (e) {
-      console.log("Failed to connect to Bitcoin Core");
-      const blockchainInfo = {
-        connected: false,
-        provider: "Bitcoin Core",
-      };
-      return Promise.resolve(blockchainInfo);
-    }
-  } else if (nodeConfig.provider === "Blockstream") {
-    try {
-      currentNodeConfig = nodeConfig;
-      const blockchainInfo = await getBlockstreamBlockchainInfo();
-      console.log(`Connected to ${nodeConfig.provider}.`);
-      return Promise.resolve(blockchainInfo);
-    } catch (e) {
-      console.log("Failed to connect to Blockstream");
-      const blockchainInfo = {
-        connected: false,
-        provider: "Blockstream",
-      };
-      return Promise.resolve(blockchainInfo);
-    }
+    const nodeConfig = await getBitcoinCoreConfig();
+    DataProvider = new BitcoinCoreProvider(nodeConfig, currentBitcoinNetwork);
+    await DataProvider.initialize();
+  } else if (nodeConfig.provider === "Custom Node") {
+    DataProvider = new BitcoinCoreProvider(nodeConfig, currentBitcoinNetwork);
+    await DataProvider.initialize();
   } else {
-    // custom
-    try {
-      console.log(`Attempting to connect to ${nodeConfig.baseURL}`);
-      const nodeClient = getClientFromNodeConfig(nodeConfig);
-      const blockchainInfo = await nodeClient.getBlockchainInfo();
-      saveFile(JSON.stringify(nodeConfig), "node-config.json");
-      const nodeConfigWithChainInfo = {
-        ...blockchainInfo,
-        provider: "Custom Node",
-        baseURL: nodeConfig.baseURL,
-        connected: true,
-      } as NodeConfigWithBlockchainInfo;
-      currentNodeConfig = nodeConfigWithChainInfo;
-      console.log(`Connected to ${nodeConfig.baseURL}`);
-      return Promise.resolve(nodeConfigWithChainInfo);
-    } catch (e) {
-      console.log(`Failed to connect to ${nodeConfig.baseURL} (error: ${e})`);
-      const blockchainInfo = {
-        connected: false,
-        provider: "Custom Node",
-        baseURL: nodeConfig.baseURL,
-      };
-      return Promise.reject(blockchainInfo);
-    }
+    DataProvider = new BlockstreamProvider(currentBitcoinNetwork);
+    await DataProvider.initialize();
   }
+  const config = DataProvider.getConfig();
+  return Promise.resolve(config);
 });
 
 ipcMain.handle("/get-node-config", async (event, args) => {
-  if (currentNodeConfig?.provider === "Bitcoin Core") {
-    try {
-      const blockchainInfo = await getBitcoinCoreNetworkConnectionInfo();
-      return Promise.resolve(blockchainInfo);
-    } catch (e) {
-      const blockchainInfo = {
-        connected: false,
-        provider: "Bitcoin Core",
-      };
-      return Promise.resolve(blockchainInfo);
-    }
-  } else if (currentNodeConfig?.provider === "Blockstream") {
-    try {
-      const blockchainInfo = await getBlockstreamBlockchainInfo();
-      return Promise.resolve(blockchainInfo);
-    } catch (e) {
-      const blockchainInfo = {
-        connected: false,
-        provider: "Blockstream",
-      };
-      return Promise.resolve(blockchainInfo);
-    }
-  } else {
-    try {
-      const blockchainInfo = await getCustomNodeBlockchainInfo(
-        currentNodeConfig
-      );
-      return Promise.resolve({
-        ...blockchainInfo,
-        provider: "Custom Node",
-        baseURL: currentNodeConfig.baseURL,
-      });
-    } catch (e) {
-      const blockchainInfo = {
-        connected: false,
-        provider: "Custom Node",
-      };
-      console.log(`error /get-node-config ${e}`);
-      return Promise.resolve(blockchainInfo);
-    }
-  }
+  const nodeConfig = await DataProvider.getConfig();
+  return Promise.resolve(nodeConfig);
 });
 
 ipcMain.handle("/rescanBlockchain", async (event, args) => {
@@ -1197,26 +969,8 @@ ipcMain.handle("/isConfirmedTransaction", async (event, args) => {
   const { txId } = args;
   if (txId.length === 64) {
     try {
-      if (currentNodeConfig.provider === "Blockstream") {
-        const data = await (
-          await axios.get(`https://blockstream.info/api/tx/${txId}/status`)
-        ).data;
-        if (!!data.confirmed) {
-          return Promise.resolve(true);
-        }
-        throw new Error(`Transaction not confirmed (${txId})`);
-      } else {
-        const currentConfig = { ...currentNodeConfig };
-        const nodeClient = getClientFromNodeConfig(currentConfig);
-        const transaction = (await nodeClient.getRawTransaction(
-          txId,
-          true
-        )) as FetchedRawTransaction;
-        if (transaction.confirmations > 0) {
-          return Promise.resolve(true);
-        }
-        throw new Error(`Transaction not confirmed (${txId})`);
-      }
+      const isConfirmed = await DataProvider.isConfirmedTransaction(txId);
+      return Promise.resolve(isConfirmed);
     } catch (e) {
       console.log(`error /isConfirmedTransaction ${e}`);
       return Promise.reject({ success: false, error: e });

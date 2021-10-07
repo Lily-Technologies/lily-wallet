@@ -114,8 +114,8 @@ const NetworkSettings = ({
                     color: nodeConfig.initialblockdownload
                       ? orange400
                       : nodeConfig.connected
-                      ? green400
-                      : red500, // !nodeConfig.connected
+                        ? green400
+                        : red500, // !nodeConfig.connected
                   }}
                 />
               ) : (
@@ -133,9 +133,10 @@ const NetworkSettings = ({
         <SettingsTable.KeyColumn>Block Height</SettingsTable.KeyColumn>
         <SettingsTable.ValueColumn>
           <SettingsTable.ValueText>
-            {nodeConfig
+            {nodeConfig && nodeConfig?.blocks > 0
               ? nodeConfig?.blocks?.toLocaleString()
-              : "Connecting..."}
+              : nodeConfig?.blocks === 0 ? ""
+                : "Connecting..."}
           </SettingsTable.ValueText>
           <SettingsTable.ValueAction>
             <SettingsTable.ActionButton

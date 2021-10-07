@@ -17,13 +17,13 @@ import {
   Vin,
   Vout,
   Transaction,
-  TransactionType,
   TransactionMap,
   PubKey,
   ExtendedPublicKey,
+  GetOnchainDataResponse,
   BitcoinCoreGetTransactionResponse,
   BitcoinCoreGetRawTransactionResponse,
-} from "../types";
+} from "src/types";
 
 export const bitcoinNetworkEqual = (a: Network, b: Network): boolean => {
   return a.bech32 === b.bech32;
@@ -88,7 +88,9 @@ const getP2wpkhDeriationPathForNetwork = (network: Network) => {
   }
 };
 
-const getUnchainedNetworkFromBjslibNetwork = (bitcoinJslibNetwork: Network) => {
+export const getUnchainedNetworkFromBjslibNetwork = (
+  bitcoinJslibNetwork: Network
+) => {
   if (bitcoinNetworkEqual(bitcoinJslibNetwork, networks.bitcoin)) {
     return "mainnet";
   } else {
@@ -137,7 +139,7 @@ export const getSegwitDescriptor = async (
   return descriptorWithChecksum.descriptor;
 };
 
-const createAddressMapFromAddressArray = (
+export const createAddressMapFromAddressArray = (
   addressArray: Address[],
   isChange: boolean
 ) => {
@@ -608,23 +610,18 @@ export const getAddressFromAccount = (
 ) => {
   if (account.quorum.totalSigners > 1) {
     // multisig
-    if (account.extendedPublicKeys) {
-      // should always be true
-      const childPubKeys = account.extendedPublicKeys.map(
-        (extendedPublicKey) => {
-          return getChildPubKeyFromXpub(
-            extendedPublicKey,
-            path,
-            currentBitcoinNetwork
-          );
-        }
-      );
-      return getMultisigAddressFromPubKeys(
-        childPubKeys,
-        account,
+    const childPubKeys = account.extendedPublicKeys.map((extendedPublicKey) => {
+      return getChildPubKeyFromXpub(
+        extendedPublicKey,
+        path,
         currentBitcoinNetwork
       );
-    }
+    });
+    return getMultisigAddressFromPubKeys(
+      childPubKeys,
+      account,
+      currentBitcoinNetwork
+    );
   } else {
     // single sig
     const receivePubKey = getChildPubKeyFromXpub(
@@ -721,7 +718,7 @@ export const getDataFromMultisig = async (
   account: OnChainConfig,
   nodeClient: any,
   currentBitcoinNetwork: Network
-) => {
+): Promise<GetOnchainDataResponse> => {
   const {
     receiveAddresses,
     changeAddresses,
@@ -771,21 +768,21 @@ export const getDataFromMultisig = async (
     );
   }
 
-  return [
-    receiveAddresses,
+  return {
+    addresses: receiveAddresses,
     changeAddresses,
-    organizedTransactions,
-    unusedReceiveAddresses,
+    transactions: organizedTransactions,
+    unusedAddresses: unusedReceiveAddresses,
     unusedChangeAddresses,
     availableUtxos,
-  ];
+  };
 };
 
 export const getDataFromXPub = async (
   account: OnChainConfig,
   nodeClient: any,
   currentBitcoinNetwork: Network
-) => {
+): Promise<GetOnchainDataResponse> => {
   const {
     receiveAddresses,
     changeAddresses,
@@ -827,14 +824,14 @@ export const getDataFromXPub = async (
     );
   }
 
-  return [
-    receiveAddresses,
+  return {
+    addresses: receiveAddresses,
     changeAddresses,
-    organizedTransactions,
-    unusedReceiveAddresses,
+    transactions: organizedTransactions,
+    unusedAddresses: unusedReceiveAddresses,
     unusedChangeAddresses,
     availableUtxos,
-  ];
+  };
 };
 
 export const loadOrCreateWalletViaRPC = async (

@@ -491,6 +491,15 @@ export interface OnChainConfig {
   parentFingerprint?: string;
 }
 
+export interface GetOnchainDataResponse {
+  addresses: Address[];
+  changeAddresses: Address[];
+  transactions: Transaction[];
+  unusedAddresses: Address[];
+  unusedChangeAddresses: Address[];
+  availableUtxos: UTXO[];
+}
+
 export interface VaultConfig extends OnChainConfig {
   license: LilyLicense;
 }
