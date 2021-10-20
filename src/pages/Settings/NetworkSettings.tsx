@@ -50,6 +50,16 @@ const NetworkSettings = ({
     setNodeConfig(response);
   };
 
+  const connectToElectrum = async () => {
+    setNodeConfig(undefined);
+    const response = await window.ipcRenderer.invoke("/changeNodeConfig", {
+      nodeConfig: {
+        provider: "Electrum",
+      },
+    });
+    setNodeConfig(response);
+  };
+
   const connectToBitcoinCore = async () => {
     setNodeConfig(undefined);
     try {
@@ -66,6 +76,11 @@ const NetworkSettings = ({
   };
 
   const nodeConfigDropdownItems = [];
+
+  nodeConfigDropdownItems.push({
+    label: 'Connect to Electrum',
+    onClick: async () => await connectToElectrum()
+  })
 
   if (nodeConfig && nodeConfig.provider !== "Bitcoin Core") {
     nodeConfigDropdownItems.push({

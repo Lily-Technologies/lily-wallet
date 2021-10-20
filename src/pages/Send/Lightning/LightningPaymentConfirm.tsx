@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { decode } from "bolt11";
-import moment from "moment";
 
 import { Button, Countdown, Modal } from "src/components";
 
@@ -10,7 +9,6 @@ import {
     gray400,
     green600,
     gray600,
-    gray800,
     red500,
     gray300,
     yellow600,

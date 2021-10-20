@@ -6,16 +6,12 @@ import { networks } from "bitcoinjs-lib";
 import BigNumber from "bignumber.js";
 import crypto from "crypto";
 import {
-  ClientOption,
-  FetchedRawTransaction,
-  WalletInfo,
-} from "bitcoin-simple-rpc";
-import {
   createLnRpc,
   InvoiceState,
   createRouterRpc,
   Payment,
 } from "@radar/lnrpc";
+
 import { parseLndConnectUri } from "./utils/lightning";
 
 import {
@@ -36,16 +32,12 @@ import {
   sleep,
   getErrorMessageFromChunk,
 } from "./server/utils";
-import {
-  getDataFromMultisig,
-  getDataFromXPub,
-  loadOrCreateWalletViaRPC,
-} from "./utils/accountMap";
 
 import {
   BaseProvider,
   BitcoinCoreProvider,
   BlockstreamProvider,
+  ElectrumProvider,
 } from "./server/providers";
 
 import path from "path";
@@ -53,13 +45,10 @@ import fs from "fs";
 import {
   BalanceHistory,
   NodeConfigWithBlockchainInfo,
-  LilyOnchainAccount,
-  NodeConfig,
   LightningEvent,
   DecoratedPendingLightningChannel,
   DecoratedLightningChannel,
   HwiResponseEnumerate,
-  FeeRates,
 } from "./types";
 
 // disable showErrorBox
@@ -177,11 +166,21 @@ const setupInitialNodeConfig = async () => {
     } catch (e) {
       console.log("Failed to retrieve remote Bitcoin Core connection data.");
       try {
-        console.log("Connecting to Blockstream.");
-        DataProvider = new BlockstreamProvider(currentBitcoinNetwork);
+        console.log("Connecting to Electrum...");
+        DataProvider = new ElectrumProvider(currentBitcoinNetwork);
         DataProvider.initialize();
+        console.log('Connected to Electrum')
       } catch (e) {
-        console.log("Failed to connect to Blockstream");
+        console.log("Failed to connect to Electrum");
+
+        try {
+          console.log("Connecting to Blockstream...");
+          DataProvider = new BlockstreamProvider(currentBitcoinNetwork);
+          DataProvider.initialize();
+          console.log("Connected to Blockstream");
+        } catch (e) {
+          console.log("Failed to connect to Blockstream");
+        }
       }
     }
   }
@@ -268,7 +267,6 @@ ipcMain.on("/open-channel", async (event, args) => {
 
     channelResponse.on("data", (chunk) => {
       try {
-        console.log("chunk: ", chunk);
         if (chunk.psbtFund) {
           const openChannelData = {
             ...chunk,
@@ -311,7 +309,6 @@ ipcMain.on("/open-channel", async (event, args) => {
 
 ipcMain.on("/open-channel-verify", async (event, args) => {
   const { finalPsbt, pendingChanId, lndConnectUri } = args; // unsigned psbt
-  console.log('hits "/open-channel-verify');
 
   try {
     const lnRpcClient = await createLnRpc(parseLndConnectUri(lndConnectUri));
@@ -458,16 +455,10 @@ ipcMain.on("/lightning-account-data", async (event, args) => {
     for (let i = 0; i < closedChannels.length; i++) {
       const txId = getTxIdFromChannelPoint(closedChannels[i].channelPoint);
 
-      console.log(
-        "closedChannels[i].channelPoint: ",
-        closedChannels[i].channelPoint
-      );
-      console.log("txId: ", txId);
       // TODO: use general method to get tx
       const channelOpenTx = await (
         await axios.get(blockExplorerAPIURL(`/tx/${txId}`, "mainnet"))
       ).data;
-      console.log("channelOpenTx: ", channelOpenTx);
 
       let alias = closedChannels[i].remotePubkey;
       try {
@@ -497,7 +488,6 @@ ipcMain.on("/lightning-account-data", async (event, args) => {
         )
       ).data;
 
-      console.log("closedChannels[i]: ", closedChannels[i]);
       const channelClose = {
         type: "CHANNEL_CLOSE",
         creationDate: channelCloseTx.status.block_time,
@@ -677,7 +667,7 @@ ipcMain.on("/lightning-account-data", async (event, args) => {
       currentBalance: balance,
       balanceHistory: balanceHistory,
     };
-    console.log("accountData: ", accountData);
+
     event.reply("/lightning-account-data", accountData);
   } catch (e) {
     console.log(`(${config.id}) /lightning-account-data: `, e);
@@ -894,7 +884,8 @@ ipcMain.handle("/estimate-fee", async (event, args) => {
 ipcMain.handle("/broadcastTx", async (event, args) => {
   const { txHex } = args;
   try {
-    await DataProvider.broadcastTransaction(txHex);
+    const txId = await DataProvider.broadcastTransaction(txHex);
+    return Promise.resolve(txId);
   } catch (e) {
     console.log(`error /broadcastTx ${e}`);
     return Promise.reject(new Error("Error broadcasting transaction"));
@@ -911,6 +902,9 @@ ipcMain.handle("/changeNodeConfig", async (event, args) => {
     await DataProvider.initialize();
   } else if (nodeConfig.provider === "Custom Node") {
     DataProvider = new BitcoinCoreProvider(nodeConfig, currentBitcoinNetwork);
+    await DataProvider.initialize();
+  } else if (nodeConfig.provider === "Electrum") {
+    DataProvider = new ElectrumProvider(currentBitcoinNetwork);
     await DataProvider.initialize();
   } else {
     DataProvider = new BlockstreamProvider(currentBitcoinNetwork);

@@ -17,12 +17,13 @@ import {
   Vin,
   Vout,
   Transaction,
-  TransactionMap,
   PubKey,
   ExtendedPublicKey,
   GetOnchainDataResponse,
   BitcoinCoreGetTransactionResponse,
   BitcoinCoreGetRawTransactionResponse,
+  EsploraTransactionResponse,
+  TransactionType,
 } from "src/types";
 
 export const bitcoinNetworkEqual = (a: Network, b: Network): boolean => {
@@ -195,7 +196,7 @@ const sum = (items: (Vin | Vout)[], isMine: boolean, isChange?: boolean) => {
  * @param {Map} changeMap - Map of change addresses.
  */
 const decorateTx = (
-  tx: Transaction,
+  tx: EsploraTransactionResponse,
   externalMap: AddressMap,
   changeMap: AddressMap
 ) => {
@@ -213,7 +214,7 @@ const decorateTx = (
 };
 
 export const serializeTransactions = (
-  transactionsFromBlockstream: Transaction[],
+  transactionsFromBlockstream: EsploraTransactionResponse[],
   addresses: Address[],
   changeAddresses: Address[]
 ): Transaction[] => {
@@ -226,7 +227,8 @@ export const serializeTransactions = (
     changeAddresses,
     true
   );
-  const txMap: TransactionMap = {};
+
+  const txMap: { [txid: string]: EsploraTransactionResponse } = {};
   const txs = transactionsFromBlockstream
     .map((tx) => decorateTx(tx, addressesMap, changeAddressesMap))
     .filter((tx) => {
@@ -238,46 +240,57 @@ export const serializeTransactions = (
     });
 
   let balance = 0;
-  txs.forEach((tx) => {
-    let amountIn, amountOut, amountOutChange;
+  const serializedTxs = txs.map((tx) => {
+    let amountIn: number, amountOut: number, amountOutChange: number;
     amountIn = sum(tx.vin, true);
     amountOut = sum(tx.vout, true);
     amountOutChange = sum(tx.vout, true, true);
+
+    let type: TransactionType;
+    let address: string;
+    let totalValue: number;
+    let value: number;
+    // TODO: this is broken when Electrum is Provider
     if (amountIn === amountOut + (amountIn > 0 ? tx.fee : 0)) {
-      tx.type = "moved";
-      tx.address = "";
+      type = "moved";
+      address = "";
       balance -= tx.fee;
-      tx.totalValue = balance;
-      tx.address = tx.vout.filter(
-        (vout) => vout.isChange
-      )[0].scriptpubkey_address;
-      tx.value = tx.vout.reduce((accum, item) => accum + item.value, 0);
+      totalValue = balance;
+      address = tx.vout.filter((vout) => vout.isChange)[0].scriptpubkey_address;
+      value = tx.vout.reduce((accum, item) => accum + item.value, 0);
     } else {
       const feeContribution = amountIn > 0 ? tx.fee : 0;
       const netAmount = amountIn - amountOut - feeContribution;
-      tx.type = netAmount > 0 ? "sent" : "received";
-      if (tx.type === "sent") {
+      type = netAmount > 0 ? "sent" : "received";
+      if (type === "sent") {
         balance -= amountIn - amountOutChange + feeContribution;
-        tx.totalValue = balance;
-        tx.address = tx.vout.filter(
-          (vout) => !vout.isMine
-        )[0].scriptpubkey_address;
-        tx.value = tx.vout
+        totalValue = balance;
+        address = tx.vout.filter((vout) => !vout.isMine)[0]
+          .scriptpubkey_address;
+        value = tx.vout
           .filter((vout) => !vout.isMine)
           .reduce((accum, item) => accum + item.value, 0);
       } else {
         balance += amountOut;
-        tx.totalValue = balance;
-        tx.address = tx.vout.filter(
-          (vout) => vout.isMine
-        )[0].scriptpubkey_address;
-        tx.value = tx.vout
+        totalValue = balance;
+        address = tx.vout.filter((vout) => vout.isMine)[0].scriptpubkey_address;
+        value = tx.vout
           .filter((vout) => vout.isMine)
           .reduce((accum, item) => accum + item.value, 0);
       }
     }
+    return {
+      ...tx,
+      type,
+      address,
+      totalValue,
+      value,
+    } as Transaction;
   });
-  return txs.sort((a, b) => b.status.block_time - a.status.block_time);
+
+  return serializedTxs.sort(
+    (a, b) => b.status.block_time - a.status.block_time
+  );
 };
 
 const serializeTransactionsFromNode = async (
@@ -420,7 +433,7 @@ const getMultisigAddressFromPubKeys = (
   pubkeys: PubKey[],
   config: OnChainConfig,
   currentBitcoinNetwork: Network
-) => {
+): Address => {
   const rawPubkeys = pubkeys.map((publicKey) => publicKey.childPubKey);
   rawPubkeys.sort();
 

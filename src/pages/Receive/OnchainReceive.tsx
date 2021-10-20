@@ -1,10 +1,8 @@
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import styled, { css } from "styled-components";
 import { QRCode } from "react-qr-svg";
 import CopyToClipboard from "react-copy-to-clipboard";
 import { satoshisToBitcoins } from "unchained-bitcoin";
-
-import { AccountMapContext } from "src/AccountMapContext";
 
 import {
   Button,

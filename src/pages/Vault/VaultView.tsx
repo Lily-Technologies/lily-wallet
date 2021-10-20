@@ -104,7 +104,10 @@ const VaultView = ({ currentAccount, nodeConfig, toggleRefresh }: Props) => {
 
   const scanProgress = useCallback(async () => {
     try {
-      if (nodeConfig.provider !== "Blockstream") {
+      if (
+        nodeConfig.provider === "Custom Node" ||
+        nodeConfig.provider === "Bitcoin Core"
+      ) {
         const { scanning } = await window.ipcRenderer.invoke("/getWalletInfo", {
           currentAccount,
         });

@@ -153,11 +153,4 @@ const ScanInvoiceFromQRButton = styled.button`
   padding-bottom: 0.75rem;
 `;
 
-const ErrorText = styled.div`
-  color: ${red500};
-  text-align: center;
-  padding-left: 0;
-  padding-right: 0;
-`;
-
 export default SendTxForm;

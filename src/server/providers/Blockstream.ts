@@ -39,48 +39,7 @@ export class BlockstreamProvider extends BaseProvider {
     }
   }
 
-  async getDataFromXPub(account: OnChainConfig): Promise<LilyOnchainAccount> {
-    const {
-      receiveAddresses,
-      changeAddresses,
-      unusedReceiveAddresses,
-      unusedChangeAddresses,
-      transactions,
-    } = await this.scanForAddressesAndTransactions(account, 10);
-
-    const availableUtxos = await this.getUtxosForAddresses(
-      receiveAddresses.concat(changeAddresses)
-    );
-    console.log(`(${account.id}): Serializing transactions...`);
-    const organizedTransactions = serializeTransactions(
-      transactions as Transaction[],
-      receiveAddresses,
-      changeAddresses
-    );
-
-    console.log(`Calculating current balance for ${account.id}`);
-    const currentBalance = availableUtxos.reduce(
-      (accum, utxo) => accum.plus(utxo.value),
-      new BigNumber(0)
-    );
-
-    return {
-      name: account.name,
-      config: account,
-      loading: false,
-      addresses: receiveAddresses,
-      changeAddresses,
-      transactions: organizedTransactions,
-      unusedAddresses: unusedReceiveAddresses,
-      unusedChangeAddresses,
-      availableUtxos,
-      currentBalance: currentBalance.toNumber(),
-    };
-  }
-
-  async getDataFromMultisig(
-    account: OnChainConfig
-  ): Promise<LilyOnchainAccount> {
+  async getAccountData(account: OnChainConfig): Promise<LilyOnchainAccount> {
     const {
       receiveAddresses,
       changeAddresses,
@@ -119,16 +78,6 @@ export class BlockstreamProvider extends BaseProvider {
       availableUtxos,
       currentBalance: currentBalance.toNumber(),
     };
-  }
-
-  async getAccountData(account: OnChainConfig): Promise<LilyOnchainAccount> {
-    if (account.quorum.totalSigners > 1) {
-      const data = await this.getDataFromMultisig(account);
-      return data;
-    } else {
-      const data = this.getDataFromXPub(account);
-      return data;
-    }
   }
 
   async broadcastTransaction(txHex: string): Promise<string> {

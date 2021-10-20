@@ -301,7 +301,7 @@ export const createTransaction = async (
     const currentInput = {
       hash: utxo.txid,
       index: utxo.vout,
-      sequence: 0xffffffff,
+      sequence: 0xfffffffd, // always enable RBF
       nonWitnessUtxo: Buffer.from(utxo.prevTxHex, "hex"),
       bip32Derivation: utxo.address.bip32derivation.map((derivation) => ({
         masterFingerprint: Buffer.from(

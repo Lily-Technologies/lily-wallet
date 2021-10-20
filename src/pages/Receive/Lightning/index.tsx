@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import styled, { css } from "styled-components";
 import { satoshisToBitcoins } from "unchained-bitcoin";
-import { Invoice } from '@radar/lnrpc'
 
 import {
   GridArea,

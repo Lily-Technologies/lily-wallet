@@ -8,10 +8,8 @@ export type Providers =
   | "Custom Node";
 
 export interface ProviderInterface {
-  getDataFromXPub: (account: OnChainConfig) => Promise<LilyOnchainAccount>;
-  getDataFromMultisig: (account: OnChainConfig) => Promise<LilyOnchainAccount>;
   getAccountData: (account: OnChainConfig) => Promise<LilyOnchainAccount>;
-  broadcastTransaction: (txHex: string) => void;
+  broadcastTransaction: (txHex: string) => Promise<string>;
   estimateFee: () => Promise<FeeRates>;
 }
 
@@ -71,12 +69,6 @@ export abstract class BaseProvider implements ProviderInterface {
   }
 
   abstract initialize(): void;
-
-  abstract getDataFromXPub(account: OnChainConfig): Promise<LilyOnchainAccount>;
-
-  abstract getDataFromMultisig(
-    account: OnChainConfig
-  ): Promise<LilyOnchainAccount>;
 
   abstract getAccountData(account: OnChainConfig): Promise<LilyOnchainAccount>;
 
