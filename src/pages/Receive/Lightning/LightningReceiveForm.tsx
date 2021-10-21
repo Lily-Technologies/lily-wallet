@@ -28,7 +28,7 @@ const LightningReceiveForm = ({
     const [sendAmount, setSendAmount] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [sendAmountError, setSendAmountError] = useState("");
-    const [recipientAddressError, setMemoError] = useState("");
+    const [memoError, setMemoError] = useState("");
     const { config } = currentAccount;
 
     const validateForm = (
@@ -36,15 +36,10 @@ const LightningReceiveForm = ({
         _sendAmount: string,
     ): boolean => {
         let valid = true;
-        // if (!validateAddress(_recipientAddress, currentBitcoinNetwork)) {
-        //     valid = false;
-        //     setMemoError("Invalid address");
-        // }
-        // if (!validateSendAmount(_sendAmount, _currentBalance)) {
-        //     valid = false;
-        //     setSendAmountError("Not enough funds");
-        // }
-
+        if (memo.length > 50) {
+            valid = false;
+            setMemoError("Memo too long");
+        }
         return valid;
     };
 
@@ -80,7 +75,7 @@ const LightningReceiveForm = ({
                     onChange={setMemo}
                     value={memo}
                     placeholder={"Morning coffee"}
-                    error={recipientAddressError}
+                    error={memoError}
                     largeText={true}
                     id="lightning-memo"
                     style={{ textAlign: "right" }}
@@ -153,13 +148,6 @@ const CopyAddressButton = styled.button`
   padding-right: 1rem;
   padding-top: 0.75rem;
   padding-bottom: 0.75rem;
-`;
-
-const ErrorText = styled.div`
-  color: ${red500};
-  text-align: center;
-  padding-left: 0;
-  padding-right: 0;
 `;
 
 export default requireLightning(LightningReceiveForm);

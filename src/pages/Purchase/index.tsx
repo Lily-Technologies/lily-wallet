@@ -156,15 +156,10 @@ const PurchasePage = ({
   );
 
   const confirmTxWithLilyThenSend = async () => {
-    if (licenseResponse) {
+    if (licenseResponse && finalPsbt) {
       try {
-        finalPsbt!.finalizeAllInputs();
-        await broadcastTransaction(
-          currentAccount,
-          finalPsbt!,
-          nodeConfig,
-          currentBitcoinNetwork
-        );
+        finalPsbt.finalizeAllInputs();
+        await broadcastTransaction(finalPsbt);
 
         const newConfig = await saveLicenseToVault(
           currentAccount.config as VaultConfig,

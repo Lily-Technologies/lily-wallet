@@ -1,15 +1,11 @@
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import styled, { css } from "styled-components";
 import { satoshisToBitcoins } from "unchained-bitcoin";
 
 import { GridArea } from "src/components";
 
-import { Button } from "src/components";
-
 import LightningSendTxForm from "./LightningSendTxForm";
 import LightningPaymentConfirm from "./LightningPaymentConfirm";
-
-import { AccountMapContext } from "src/AccountMapContext";
 
 import { requireLightning } from "src/hocs";
 
@@ -18,9 +14,6 @@ import {
   gray400,
   gray500,
   gray600,
-  gray800,
-  green500,
-  red500,
 } from "src/utils/colors";
 
 import { mobile } from "src/utils/media";
@@ -39,8 +32,6 @@ const SendLightning = ({
   document.title = `Send - Lily Wallet`;
   const [step, setStep] = useState(0);
   const [paymentRequest, setPaymentRequest] = useState("");
-
-  const { accountMap } = useContext(AccountMapContext);
   const { currentBalance } = currentAccount;
 
 
@@ -51,7 +42,6 @@ const SendLightning = ({
           setStep={setStep}
           setPaymentRequest={setPaymentRequest}
           paymentRequest={paymentRequest}
-          currentAccount={currentAccount}
         />
       )}
 
@@ -137,39 +127,6 @@ export const InputStaticText = styled.label<{
     color: rgba(0, 0, 0, 0.6);
     font-weight: bold;
   }
-`;
-
-const ModalHeaderContainer = styled.div`
-  border-bottom: 1px solid rgb(229, 231, 235);
-  padding-top: 1.75rem;
-  padding-bottom: 1.75rem;
-  padding-left: 1.5rem;
-  padding-right: 1.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 1.5em;
-  height: 90px;
-`;
-
-const ModalBody = styled.div`
-  display: flex;
-  flex-direction: column;
-  padding: 2.5rem;
-  align-items: center;
-  justify-content: center;
-`;
-
-const IconWrapper = styled.div``;
-
-const ModalSubtext = styled.div`
-  color: ${gray800};
-  margin-top: 1rem;
-`;
-
-const ViewTransactionButton = styled.a`
-  ${Button}
-  margin-top: 1em;
 `;
 
 export default requireLightning(SendLightning);

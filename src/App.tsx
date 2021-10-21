@@ -30,6 +30,7 @@ import { AccountMapContext } from "./AccountMapContext";
 import { ConfigContext } from "./ConfigContext";
 
 import { NodeConfig, File, AccountMap } from "./types";
+import { networks } from "bitcoinjs-lib";
 
 const App = () => {
   const { setAccountMap, updateAccountMap } = useContext(AccountMapContext);
@@ -103,10 +104,10 @@ const App = () => {
 
   useEffect(() => {
     async function fetchBitcoinNetwork() {
-      const bitcoinNetwork = await window.ipcRenderer.invoke(
+      const isTestnet: boolean = await window.ipcRenderer.invoke(
         "/bitcoin-network"
       );
-      setCurrentBitcoinNetwork(bitcoinNetwork);
+      setCurrentBitcoinNetwork(isTestnet ? networks.testnet : networks.bitcoin);
     }
     fetchBitcoinNetwork();
   }, [setCurrentBitcoinNetwork]);
@@ -194,10 +195,10 @@ const App = () => {
           currentBalance: 0,
           loading: true,
         };
-        window.ipcRenderer.send("/account-data", {
-          config: config.vaults[i],
-          nodeConfig,
-        }); // TODO: allow setting nodeConfig to be dynamic later
+          window.ipcRenderer.send("/account-data", {
+            config: config.vaults[i],
+            nodeConfig,
+          }); // TODO: allow setting nodeConfig to be dynamic later
       }
 
       for (let i = 0; i < config.lightning.length; i++) {

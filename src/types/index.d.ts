@@ -11,6 +11,11 @@ import {
   Invoice,
 } from "@radar/lnrpc";
 
+import {
+  blockchainTransaction_getBatchResponse,
+  ElectrumVin,
+} from "@mempool/electrum-client";
+
 declare global {
   namespace NodeJS {
     interface Global {
@@ -168,23 +173,23 @@ export interface Vin {
   txid: string;
   vout: number;
   prevout: Vout;
-  scriptsig: string;
-  scriptsig_asm: string;
+  scriptsig?: string;
+  scriptsig_asm?: string;
   witness: string[];
-  is_coinbase: boolean;
+  is_coinbase?: boolean;
   sequence: number;
-  isChange: boolean;
-  isMine: boolean;
+  isChange?: boolean;
+  isMine?: boolean;
 }
 
 export interface Vout {
-  scriptpubkey: string;
-  scriptpubkey_asm: string;
-  scriptpubkey_type: string;
+  scriptpubkey?: string;
+  scriptpubkey_asm?: string;
+  scriptpubkey_type?: string;
   scriptpubkey_address: string;
   value: number;
-  isChange: boolean;
-  isMine: boolean;
+  isChange?: boolean;
+  isMine?: boolean;
 }
 
 export interface PsbtInput {
@@ -210,21 +215,7 @@ export enum LicenseResponseTiers {
   premium = "premium",
 }
 
-export interface Transaction {
-  txid: string;
-  version: number;
-  locktime: number;
-  vin: Vin[];
-  vout: Vout[];
-  size: number;
-  weight: number;
-  fee: number;
-  status: {
-    confirmed: boolean;
-    block_height?: number;
-    block_hash?: string;
-    block_time: number;
-  };
+export interface Transaction extends EsploraTransactionResponse {
   type: TransactionType;
   totalValue: number;
   address: string;
@@ -491,6 +482,15 @@ export interface OnChainConfig {
   parentFingerprint?: string;
 }
 
+export interface GetOnchainDataResponse {
+  addresses: Address[];
+  changeAddresses: Address[];
+  transactions: Transaction[];
+  unusedAddresses: Address[];
+  unusedChangeAddresses: Address[];
+  availableUtxos: UTXO[];
+}
+
 export interface VaultConfig extends OnChainConfig {
   license: LilyLicense;
 }
@@ -666,4 +666,42 @@ interface BitcoinCoreConfVariables {
   rpcuser: string;
   rpcpassword: string;
   rpcport: string;
+}
+
+interface ElectrumVinWithPrevout extends ElectrumVin {
+  prevout: {
+    scriptpubkey_address: string;
+    value: number;
+  };
+}
+export interface ElectrumTxToEsploraTx
+  extends blockchainTransaction_getBatchResponse {
+  vout: {
+    scriptpubkey_address: string;
+    value: number;
+  }[];
+  vin: ElectrumVinWithPrevout[];
+  status: {
+    confirmed: boolean;
+    block_height: number;
+    block_hash: string;
+    block_time: number;
+  };
+}
+
+export interface EsploraTransactionResponse {
+  txid: string;
+  version: number;
+  locktime: number;
+  vin: Vin[];
+  vout: Vout[];
+  size: number;
+  weight: number;
+  fee: number;
+  status: {
+    confirmed: boolean;
+    block_height: number;
+    block_hash: string;
+    block_time: number;
+  };
 }

@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import styled, { css } from "styled-components";
 import { useHistory } from "react-router-dom";
 import BigNumber from "bignumber.js";
@@ -18,10 +18,8 @@ import {
   Button,
 } from "src/components";
 
-import SendTxForm from "../components/SendTxForm";
+import SendTxForm from "../components/OnchainSendTxForm";
 import ConfirmTxPage from "./ConfirmTxPage";
-
-import { AccountMapContext } from "src/AccountMapContext";
 
 import { requireOnchain } from "src/hocs";
 
@@ -61,9 +59,7 @@ interface Props {
 
 const SendOnchain = ({
   currentAccount,
-  config,
   currentBitcoinNetwork,
-  nodeConfig,
   currentBitcoinPrice,
 }: Props) => {
   document.title = `Send - Lily Wallet`;
@@ -77,7 +73,6 @@ const SendOnchain = ({
   const [paymentSuccessful, setPaymentSuccess] = useState(false);
   const history = useHistory();
 
-  const { accountMap } = useContext(AccountMapContext);
   const { currentBalance } = currentAccount;
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
@@ -173,12 +168,7 @@ const SendOnchain = ({
       ) {
         try {
           finalPsbt.finalizeAllInputs();
-          const broadcastId = await broadcastTransaction(
-            currentAccount,
-            finalPsbt,
-            nodeConfig,
-            currentBitcoinNetwork
-          );
+          const broadcastId = await broadcastTransaction(finalPsbt);
           openInModal(
             <BroadcastModalContent
               broadcastedTxId={broadcastId}

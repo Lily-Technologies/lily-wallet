@@ -112,32 +112,36 @@ export const getTxIdFromChannelPoint = (channelPoint: string) =>
 export const getErrorMessageFromChunk = (chunk: string) =>
   chunk.substring(chunk.indexOf("err=") + 4);
 
-export const bitcoinNetworkEqual = (a: Network, b: Network) => {
-  return a.bech32 === b.bech32;
-};
-
 export const getBitcoinCoreConfig = async () => {
   try {
     const rpcInfo = await getRpcInfo();
     // TODO: check for testnet
     if (rpcInfo) {
-      try {
-        const nodeConfig = {
-          baseURL: "localhost",
-          username: rpcInfo.rpcuser,
-          password: rpcInfo.rpcpassword,
-          port: rpcInfo.rpcport || "8332",
-          version: "0.20.1",
-        };
-        return Promise.resolve(nodeConfig);
-      } catch (e) {
-        return Promise.reject(
-          "getBitcoinCoreConfig: RPC Info invalid. Make sure node is running."
-        );
-      }
+      const nodeConfig = {
+        baseURL: "localhost",
+        username: rpcInfo.rpcuser,
+        password: rpcInfo.rpcpassword,
+        port: rpcInfo.rpcport || "8332",
+        version: "0.20.1",
+      };
+      return Promise.resolve(nodeConfig);
     }
-    return Promise.reject("getBitcoinCoreConfig: No RPC Info found");
+    console.log("getBitcoinCoreConfig: No RPC Info found");
+    return Promise.resolve({
+      baseURL: "localhost",
+      username: undefined,
+      password: undefined,
+      port: "8332",
+      version: "0.20.1",
+    });
   } catch (e) {
-    return Promise.reject("getBitcoinCoreConfig: No RPC Info found");
+    console.log("getBitcoinCoreConfig: No RPC Info found");
+    return Promise.resolve({
+      baseURL: "localhost",
+      username: undefined,
+      password: undefined,
+      port: "8332",
+      version: "0.20.1",
+    });
   }
 };

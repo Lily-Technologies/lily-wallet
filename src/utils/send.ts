@@ -1,13 +1,8 @@
-import axios from "axios";
-
 import {
   satoshisToBitcoins,
   bitcoinsToSatoshis,
   multisigWitnessScript,
-  blockExplorerAPIURL,
   estimateMultisigTransactionFee,
-  MAINNET,
-  TESTNET,
 } from "unchained-bitcoin";
 import { Psbt, address, Network } from "bitcoinjs-lib";
 
@@ -17,7 +12,6 @@ import coinSelect from "coinselect";
 import { cloneBuffer, bufferToHex } from "./other";
 
 import {
-  LilyAccount,
   UTXO,
   UtxoMap,
   AddressType,
@@ -25,7 +19,6 @@ import {
   Transaction,
   TransactionMap,
   FeeRates,
-  NodeConfig,
   ExtendedPublicKey,
   LilyOnchainAccount,
 } from "../types";
@@ -164,27 +157,11 @@ export const coinSelection = (amountInSats: number, availableUtxos: UTXO[]) => {
   return { spendingUtxos, currentTotal };
 };
 
-export const broadcastTransaction = async (
-  currentAccount: LilyAccount,
-  psbt: Psbt,
-  nodeConfig: NodeConfig,
-  currentBitcoinNetwork: Network
-) => {
-  if (nodeConfig.provider !== "Blockstream") {
-    const data = await window.ipcRenderer.invoke("/broadcastTx", {
-      accountId: currentAccount.config.id,
-      txHex: psbt.extractTransaction().toHex(),
-    });
-    return data;
-  } else {
-    const txBody = psbt.extractTransaction().toHex();
-    const network = currentBitcoinNetwork.bech32 === "bc" ? MAINNET : TESTNET;
-    const { data } = await axios.post(
-      blockExplorerAPIURL("/tx", network),
-      txBody
-    );
-    return data;
-  }
+export const broadcastTransaction = async (psbt: Psbt) => {
+  const data = await window.ipcRenderer.invoke("/broadcastTx", {
+    txHex: psbt.extractTransaction().toHex(),
+  });
+  return data;
 };
 
 export const getPsbtFromText = (file: string) => {
@@ -324,7 +301,7 @@ export const createTransaction = async (
     const currentInput = {
       hash: utxo.txid,
       index: utxo.vout,
-      sequence: 0xffffffff,
+      sequence: 0xfffffffd, // always enable RBF
       nonWitnessUtxo: Buffer.from(utxo.prevTxHex, "hex"),
       bip32Derivation: utxo.address.bip32derivation.map((derivation) => ({
         masterFingerprint: Buffer.from(

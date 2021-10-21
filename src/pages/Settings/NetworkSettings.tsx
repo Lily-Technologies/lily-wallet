@@ -50,6 +50,16 @@ const NetworkSettings = ({
     setNodeConfig(response);
   };
 
+  const connectToElectrum = async () => {
+    setNodeConfig(undefined);
+    const response = await window.ipcRenderer.invoke("/changeNodeConfig", {
+      nodeConfig: {
+        provider: "Electrum",
+      },
+    });
+    setNodeConfig(response);
+  };
+
   const connectToBitcoinCore = async () => {
     setNodeConfig(undefined);
     try {
@@ -66,6 +76,11 @@ const NetworkSettings = ({
   };
 
   const nodeConfigDropdownItems = [];
+
+  nodeConfigDropdownItems.push({
+    label: 'Connect to Electrum',
+    onClick: async () => await connectToElectrum()
+  })
 
   if (nodeConfig && nodeConfig.provider !== "Bitcoin Core") {
     nodeConfigDropdownItems.push({
@@ -114,8 +129,8 @@ const NetworkSettings = ({
                     color: nodeConfig.initialblockdownload
                       ? orange400
                       : nodeConfig.connected
-                      ? green400
-                      : red500, // !nodeConfig.connected
+                        ? green400
+                        : red500, // !nodeConfig.connected
                   }}
                 />
               ) : (
@@ -133,9 +148,10 @@ const NetworkSettings = ({
         <SettingsTable.KeyColumn>Block Height</SettingsTable.KeyColumn>
         <SettingsTable.ValueColumn>
           <SettingsTable.ValueText>
-            {nodeConfig
+            {nodeConfig && nodeConfig?.blocks > 0
               ? nodeConfig?.blocks?.toLocaleString()
-              : "Connecting..."}
+              : nodeConfig?.blocks === 0 ? ""
+                : "Connecting..."}
           </SettingsTable.ValueText>
           <SettingsTable.ValueAction>
             <SettingsTable.ActionButton

@@ -8,21 +8,19 @@ import {
     Modal
 } from "src/components";
 
-import { white, gray400, gray600, red500, green600 } from "src/utils/colors";
+import { white, gray400, gray600, green600 } from "src/utils/colors";
 
-import { LilyLightningAccount, SetStateNumber, SetStateString } from "src/types";
+import {  SetStateNumber, SetStateString } from "src/types";
 
 import ScanLightningQrCode from './ScanLightningQrCode';
 
 interface Props {
-    currentAccount: LilyLightningAccount;
     setStep: SetStateNumber;
     setPaymentRequest: SetStateString;
     paymentRequest: string;
 }
 
-const SendTxForm = ({
-    currentAccount,
+const LightningSendTxForm = ({
     setStep,
     setPaymentRequest,
     paymentRequest
@@ -43,7 +41,7 @@ const SendTxForm = ({
 
     const sendPayment = (payReq: string) => {
         try {
-            const decoded = decode(payReq);
+            decode(payReq); // if this fails, goes to catch case
             setStep(1)
         } catch (e) {
             setInvoiceError('Invalid invoice')
@@ -153,11 +151,4 @@ const ScanInvoiceFromQRButton = styled.button`
   padding-bottom: 0.75rem;
 `;
 
-const ErrorText = styled.div`
-  color: ${red500};
-  text-align: center;
-  padding-left: 0;
-  padding-right: 0;
-`;
-
-export default SendTxForm;
+export default LightningSendTxForm;

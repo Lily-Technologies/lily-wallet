@@ -3,7 +3,6 @@ import styled from "styled-components";
 import { QRCode } from "react-qr-svg";
 import CopyToClipboard from "react-copy-to-clipboard";
 import { decode } from 'bolt11';
-import moment from 'moment';
 
 import {
   Button,

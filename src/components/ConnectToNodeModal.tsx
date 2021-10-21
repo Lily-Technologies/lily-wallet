@@ -35,6 +35,7 @@ export const ConnectToNodeModal = ({
       setIsLoading(true);
       const response = await window.ipcRenderer.invoke("/changeNodeConfig", {
         nodeConfig: {
+          provider: 'Custom Node',
           baseURL: host,
           auth: {
             username,
