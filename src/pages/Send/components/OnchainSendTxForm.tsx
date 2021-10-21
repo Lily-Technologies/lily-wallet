@@ -42,7 +42,7 @@ interface Props {
   currentBitcoinNetwork: Network;
 }
 
-const SendTxForm = ({
+const OnchainSendTxForm = ({
   currentAccount,
   setFinalPsbt,
   finalPsbt,
@@ -283,4 +283,4 @@ const ErrorText = styled.div`
   padding-right: 0;
 `;
 
-export default requireOnchain(SendTxForm);
+export default requireOnchain(OnchainSendTxForm);

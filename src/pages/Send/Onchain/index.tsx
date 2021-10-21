@@ -18,7 +18,7 @@ import {
   Button,
 } from "src/components";
 
-import SendTxForm from "../components/SendTxForm";
+import SendTxForm from "../components/OnchainSendTxForm";
 import ConfirmTxPage from "./ConfirmTxPage";
 
 import { requireOnchain } from "src/hocs";

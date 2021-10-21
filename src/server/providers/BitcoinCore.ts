@@ -16,6 +16,47 @@ import {
 
 import { OnChainConfig, LilyOnchainAccount, FeeRates, UTXO } from "src/types";
 
+export const getMultisigDescriptor = async (
+  client: any,
+  config: OnChainConfig,
+  isChange: boolean
+) => {
+  const descriptor = `wsh(sortedmulti(${
+    config.quorum.requiredSigners
+  },${config.extendedPublicKeys.map(
+    (xpub) =>
+      `[${xpub.device.fingerprint}/48h/0h/0h/2h]${xpub.xpub}/${
+        isChange ? "1" : "0"
+      }/*`
+  )}))`;
+  const descriptorWithChecksum = await client.getDescriptorInfo(descriptor);
+  return descriptorWithChecksum.descriptor;
+};
+
+export const getWrappedDescriptor = async (
+  client: any,
+  config: OnChainConfig,
+  isChange: boolean
+) => {
+  const descriptor = `sh(wpkh([${
+    config.extendedPublicKeys[0].device.fingerprint
+  }/49h/0h/0h]${config.extendedPublicKeys[0].xpub}/${isChange ? "1" : "0"}/*))`;
+  const descriptorWithChecksum = await client.getDescriptorInfo(descriptor);
+  return descriptorWithChecksum.descriptor;
+};
+
+export const getSegwitDescriptor = async (
+  client: any,
+  config: OnChainConfig,
+  isChange: boolean
+) => {
+  const descriptor = `wpkh([${
+    config.extendedPublicKeys[0].device.fingerprint
+  }/84h/0h/0h]${config.extendedPublicKeys[0].xpub}/${isChange ? "1" : "0"}/*)`;
+  const descriptorWithChecksum = await client.getDescriptorInfo(descriptor);
+  return descriptorWithChecksum.descriptor;
+};
+
 export class BitcoinCoreProvider extends BaseProvider {
   client: Client;
 
@@ -37,7 +78,7 @@ export class BitcoinCoreProvider extends BaseProvider {
       this.client = new Client(nodeConfig);
     }
     // currentConfig.baseURL = `${currentConfig.baseURL}/wallet/lily${config.id}`;
-    // await loadOrCreateWalletViaRPC(config, nodeClient);
+    // await this.loadOrCreateWalletViaRPC(config, nodeClient);
   }
 
   async initialize() {
@@ -401,4 +442,113 @@ export class BitcoinCoreProvider extends BaseProvider {
     }
     throw new Error(`Transaction not confirmed (${txId})`);
   }
+
+  async loadOrCreateWalletViaRPC  (
+    config: OnChainConfig,
+    nodeClient: any
+  )  {
+    const walletList = await nodeClient.listWallets();
+    console.log("walletList: ", walletList);
+  
+    if (!walletList.includes(`lily${config.id}`)) {
+      console.log(`Wallet lily${config.id} isn't loaded.`);
+      try {
+        console.log(`Attempting to load lily${config.id}...`);
+        const walletResp = await nodeClient.loadWallet(
+          `lily${config.id}` // filename
+        );
+      } catch (e) {
+        console.log(`Couldn't load lily${config.id}...`);
+        console.log(`Creating lily${config.id}...`);
+        // if failed to load wallet, then probably doesnt exist so let's create one and import
+        await nodeClient.createWallet(
+          `lily${config.id}`, // wallet_name
+          true, // disable_private_keys
+          true, //blank
+          "", // passphrase
+          true // avoid_reuse
+        );
+        if (config.quorum.totalSigners === 1) {
+          if (config.addressType === "p2sh") {
+            console.log(`Importing ${config.addressType} addresses...`);
+            await nodeClient.importMulti(
+              [
+                {
+                  desc: await getWrappedDescriptor(nodeClient, config, false),
+                  range: [0, 1000],
+                  timestamp: 1503446400,
+                  internal: false,
+                  watchonly: true,
+                  keypool: true,
+                },
+                {
+                  desc: await getWrappedDescriptor(nodeClient, config, true),
+                  range: [0, 1000],
+                  timestamp: 1503446400,
+                  internal: false,
+                  watchonly: true,
+                  keypool: true,
+                },
+              ],
+              {
+                rescan: true,
+              }
+            );
+          } else {
+            console.log(`Importing ${config.addressType} addresses...`);
+            await nodeClient.importMulti(
+              [
+                {
+                  desc: await getSegwitDescriptor(nodeClient, config, false),
+                  range: [0, 1000],
+                  timestamp: 1503446400,
+                  internal: false,
+                  watchonly: true,
+                  keypool: true,
+                },
+                {
+                  desc: await getSegwitDescriptor(nodeClient, config, true),
+                  range: [0, 1000],
+                  timestamp: 1503446400,
+                  internal: false,
+                  watchonly: true,
+                  keypool: true,
+                },
+              ],
+              {
+                rescan: true,
+              }
+            );
+          }
+        } else {
+          console.log(`Importing ${config.addressType} addresses...`);
+          // multisig
+          //  import receive addresses
+          await nodeClient.importMulti(
+            [
+              {
+                desc: await getMultisigDescriptor(nodeClient, config, false),
+                range: [0, 1000],
+                timestamp: 1503446400,
+                internal: false,
+                watchonly: true,
+                keypool: true,
+              },
+              {
+                desc: await getMultisigDescriptor(nodeClient, config, true),
+                range: [0, 1000],
+                timestamp: 1503446400,
+                internal: false,
+                watchonly: true,
+                keypool: true,
+              },
+            ],
+            {
+              rescan: true,
+            }
+          );
+        }
+      }
+    }
+  };  
 }

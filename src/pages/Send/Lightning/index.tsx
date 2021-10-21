@@ -42,7 +42,6 @@ const SendLightning = ({
           setStep={setStep}
           setPaymentRequest={setPaymentRequest}
           paymentRequest={paymentRequest}
-          currentAccount={currentAccount}
         />
       )}
 
