@@ -18,9 +18,7 @@ import {
   TransactionType,
 } from "src/types";
 
-export const bitcoinNetworkEqual = (a: Network, b: Network): boolean => {
-  return a.bech32 === b.bech32;
-};
+import { bitcoinNetworkEqual } from 'src/utils/files';
 
 function isVout(item: Vin | Vout): item is Vout {
   return (item as Vout).value !== undefined;

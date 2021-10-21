@@ -28,7 +28,6 @@ import {
   saveFile,
   getTxIdFromChannelPoint,
   getBitcoinCoreConfig,
-  bitcoinNetworkEqual,
   sleep,
   getErrorMessageFromChunk,
 } from "./server/utils";
@@ -56,7 +55,7 @@ dialog.showErrorBox = function (title, content) {
   console.log(`${title}\n${content}`);
 };
 
-const currentBitcoinNetwork = !!("TESTNET" in process.env);
+const isTestnet = !!("TESTNET" in process.env);
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -136,7 +135,7 @@ const setupInitialNodeConfig = async () => {
   try {
     console.log("Trying to connect to local Bitcoin Core instance...");
     const nodeConfig = await getBitcoinCoreConfig();
-    DataProvider = new BitcoinCoreProvider(nodeConfig, currentBitcoinNetwork);
+    DataProvider = new BitcoinCoreProvider(nodeConfig, isTestnet);
     await DataProvider.initialize();
     if (DataProvider.connected) {
       console.log("Connected to local Bitcoin Core instance.");
@@ -152,7 +151,7 @@ const setupInitialNodeConfig = async () => {
       try {
         DataProvider = new BitcoinCoreProvider(
           nodeConfig,
-          currentBitcoinNetwork
+          isTestnet
         );
         await DataProvider.initialize();
         if (DataProvider.connected) {
@@ -167,7 +166,7 @@ const setupInitialNodeConfig = async () => {
       console.log("Failed to retrieve remote Bitcoin Core connection data.");
       try {
         console.log("Connecting to Electrum...");
-        DataProvider = new ElectrumProvider(currentBitcoinNetwork);
+        DataProvider = new ElectrumProvider(isTestnet);
         DataProvider.initialize();
         console.log('Connected to Electrum')
       } catch (e) {
@@ -175,7 +174,7 @@ const setupInitialNodeConfig = async () => {
 
         try {
           console.log("Connecting to Blockstream...");
-          DataProvider = new BlockstreamProvider(currentBitcoinNetwork);
+          DataProvider = new BlockstreamProvider(isTestnet);
           DataProvider.initialize();
           console.log("Connected to Blockstream");
         } catch (e) {
@@ -821,10 +820,7 @@ ipcMain.handle("/xpub", async (event, args) => {
       deviceType,
       devicePath,
       path,
-      bitcoinNetworkEqual(
-        currentBitcoinNetwork ? networks.testnet : networks.bitcoin,
-        networks.testnet
-      )
+      isTestnet
     )
   ); // responses come back as strings, need to be parsed
   if (resp.error) {
@@ -840,10 +836,7 @@ ipcMain.handle("/sign", async (event, args) => {
       deviceType,
       devicePath,
       psbt,
-      bitcoinNetworkEqual(
-        currentBitcoinNetwork ? networks.testnet : networks.bitcoin,
-        networks.testnet
-      )
+      isTestnet
     )
   );
   if (resp.error) {
@@ -898,16 +891,16 @@ ipcMain.handle("/changeNodeConfig", async (event, args) => {
   console.log(`Attempting to connect to ${nodeConfig.provider}...`);
   if (nodeConfig.provider === "Bitcoin Core") {
     const nodeConfig = await getBitcoinCoreConfig();
-    DataProvider = new BitcoinCoreProvider(nodeConfig, currentBitcoinNetwork);
+    DataProvider = new BitcoinCoreProvider(nodeConfig, isTestnet);
     await DataProvider.initialize();
   } else if (nodeConfig.provider === "Custom Node") {
-    DataProvider = new BitcoinCoreProvider(nodeConfig, currentBitcoinNetwork);
+    DataProvider = new BitcoinCoreProvider(nodeConfig, isTestnet);
     await DataProvider.initialize();
   } else if (nodeConfig.provider === "Electrum") {
-    DataProvider = new ElectrumProvider(currentBitcoinNetwork);
+    DataProvider = new ElectrumProvider(isTestnet);
     await DataProvider.initialize();
   } else {
-    DataProvider = new BlockstreamProvider(currentBitcoinNetwork);
+    DataProvider = new BlockstreamProvider(isTestnet);
     await DataProvider.initialize();
   }
   const config = DataProvider.getConfig();

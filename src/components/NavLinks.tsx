@@ -12,7 +12,7 @@ import { networks, Network } from "bitcoinjs-lib";
 
 import { StyledIcon } from ".";
 
-import { AccountMapContext } from "../AccountMapContext";
+import { AccountMapContext } from "src/AccountMapContext";
 
 import {
   white,
@@ -23,9 +23,9 @@ import {
   green100,
   green700,
 } from "../utils/colors";
-import { bitcoinNetworkEqual } from "../utils/files";
+import { bitcoinNetworkEqual } from "src/utils/files";
 
-import { ConfigContext } from "../ConfigContext";
+import { ConfigContext } from "src/ConfigContext";
 
 interface Props {
   currentBitcoinNetwork: Network;

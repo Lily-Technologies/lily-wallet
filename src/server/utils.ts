@@ -112,10 +112,6 @@ export const getTxIdFromChannelPoint = (channelPoint: string) =>
 export const getErrorMessageFromChunk = (chunk: string) =>
   chunk.substring(chunk.indexOf("err=") + 4);
 
-export const bitcoinNetworkEqual = (a: Network, b: Network) => {
-  return a.bech32 === b.bech32;
-};
-
 export const getBitcoinCoreConfig = async () => {
   try {
     const rpcInfo = await getRpcInfo();

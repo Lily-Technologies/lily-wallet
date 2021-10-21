@@ -6,7 +6,7 @@ import moment from "moment";
 import { AES, enc } from "crypto-js";
 import { ArrowIosForwardOutline } from "@styled-icons/evaicons-outline";
 
-import { StyledIcon, FileUploader, Button, Input } from "../../components";
+import { StyledIcon, FileUploader, Button, Input } from "src/components";
 
 import {
   black,
@@ -16,19 +16,19 @@ import {
   gray900,
   green500,
   green600,
-} from "../../utils/colors";
-import { bitcoinNetworkEqual } from "../../utils/files";
-import { mobile } from "../../utils/media";
-import { saveConfig } from "../../utils/files";
+} from "src/utils/colors";
+import { bitcoinNetworkEqual } from "src/utils/files";
+import { mobile } from "src/utils/media";
+import { saveConfig } from "src/utils/files";
 import {
   updateConfigFileVersionOne,
   updateConfigFileVersionBeta,
   updateConfigFileVersionOneDotFive,
   updateConfigFileVersionOneDotSeven,
-} from "../../utils/migration";
+} from "src/utils/migration";
 
-import { File } from "../../types";
-import { ConfigContext } from "../../ConfigContext";
+import { File } from "src/types";
+import { ConfigContext } from "src/ConfigContext";
 
 const MIN_PASSWORD_LENGTH = 8;
 
