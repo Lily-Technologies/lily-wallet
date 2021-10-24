@@ -1,74 +1,51 @@
-import React, { useState } from "react";
-import styled, { css } from "styled-components";
-import { useHistory } from "react-router-dom";
-import BigNumber from "bignumber.js";
-import {
-  satoshisToBitcoins,
-  blockExplorerTransactionURL,
-} from "unchained-bitcoin";
-import { Psbt, Network } from "bitcoinjs-lib";
-import { CheckCircle, RemoveCircle } from "@styled-icons/material";
+import React, { useState, useContext } from 'react';
+import styled, { css } from 'styled-components';
+import { useHistory } from 'react-router-dom';
+import BigNumber from 'bignumber.js';
+import { satoshisToBitcoins, blockExplorerTransactionURL } from 'unchained-bitcoin';
+import { Psbt, Network } from 'bitcoinjs-lib';
+import { CheckCircle, RemoveCircle } from '@styled-icons/material';
 
-import {
-  GridArea,
-  Modal,
-} from "src/components";
-import {
-  StyledIcon,
-  Button,
-} from "src/components";
+import { GridArea, Modal } from 'src/components';
+import { StyledIcon, Button } from 'src/components';
 
-import SendTxForm from "../components/OnchainSendTxForm";
-import ConfirmTxPage from "./ConfirmTxPage";
+import SendTxForm from '../components/OnchainSendTxForm';
+import ConfirmTxPage from './ConfirmTxPage';
 
-import { requireOnchain } from "src/hocs";
+import { requireOnchain } from 'src/hocs';
 
-import {
-  white,
-  gray400,
-  gray500,
-  gray600,
-  gray800,
-  green500,
-  red500,
-} from "src/utils/colors";
+import { white, gray400, gray500, gray600, gray800, green500, red500 } from 'src/utils/colors';
 
-import {
-  createTransaction,
-  getSignedDevicesFromPsbt,
-  broadcastTransaction,
-} from "src/utils/send";
-import { getUnchainedNetworkFromBjslibNetwork } from "src/utils/files";
-import { mobile } from "src/utils/media";
+import { createTransaction, getSignedDevicesFromPsbt, broadcastTransaction } from 'src/utils/send';
+import { getUnchainedNetworkFromBjslibNetwork } from 'src/utils/files';
+import { mobile } from 'src/utils/media';
 
 import {
   LilyConfig,
-  NodeConfig,
+  NodeConfigWithBlockchainInfo,
   FeeRates,
   SetStatePsbt,
-  LilyOnchainAccount,
-} from "src/types";
+  LilyOnchainAccount
+} from 'src/types';
+
+import { PlatformContext } from 'src/context';
 
 interface Props {
   currentAccount: LilyOnchainAccount;
   config: LilyConfig;
   currentBitcoinNetwork: Network;
-  nodeConfig: NodeConfig;
+  nodeConfig: NodeConfigWithBlockchainInfo;
   currentBitcoinPrice: any; // KBC-TODO: more specific type
 }
 
-const SendOnchain = ({
-  currentAccount,
-  currentBitcoinNetwork,
-  currentBitcoinPrice,
-}: Props) => {
+const SendOnchain = ({ currentAccount, currentBitcoinNetwork, currentBitcoinPrice }: Props) => {
   document.title = `Send - Lily Wallet`;
   const [step, setStep] = useState(0);
   const [finalPsbt, setFinalPsbt] = useState<Psbt | undefined>(undefined);
   const [feeRates, setFeeRates] = useState<FeeRates>({
     fastestFee: 0,
     halfHourFee: 0,
-    hourFee: 0,
+    hourFee: 0
   });
   const [paymentSuccessful, setPaymentSuccess] = useState(false);
   const history = useHistory();
@@ -76,6 +53,7 @@ const SendOnchain = ({
   const { currentBalance } = currentAccount;
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
+  const { platform } = useContext(PlatformContext);
 
   const openInModal = (component: JSX.Element) => {
     setModalIsOpen(true);
@@ -86,7 +64,7 @@ const SendOnchain = ({
     setModalIsOpen(false);
     setModalContent(null);
     if (paymentSuccessful) {
-      history.push("/");
+      history.push('/');
     }
   };
 
@@ -101,20 +79,21 @@ const SendOnchain = ({
         _sendAmount,
         _recipientAddress,
         _fee,
+        () => platform.estimateFee(),
         currentBitcoinNetwork
       );
       setFinalPsbt(psbt);
       setFeeRates(feeRates);
       return psbt;
     } catch (e: any) {
-      console.log("error: ", e);
+      console.log('error: ', e);
       throw new Error(e.message);
     }
   };
 
   const BroadcastModalContent = ({
     broadcastedTxId,
-    message,
+    message
   }: {
     broadcastedTxId?: string;
     message: string;
@@ -125,10 +104,7 @@ const SendOnchain = ({
       </ModalHeaderContainer>
       <ModalBody>
         <IconWrapper style={{ color: broadcastedTxId ? green500 : red500 }}>
-          <StyledIcon
-            as={broadcastedTxId ? CheckCircle : RemoveCircle}
-            size={100}
-          />
+          <StyledIcon as={broadcastedTxId ? CheckCircle : RemoveCircle} size={100} />
         </IconWrapper>
         <ModalSubtext>{message}</ModalSubtext>
         {broadcastedTxId && (
@@ -139,17 +115,13 @@ const SendOnchain = ({
               broadcastedTxId,
               getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)
             )}
-            target="_blank"
+            target='_blank'
           >
             View Transaction
           </ViewTransactionButton>
         )}
         {!broadcastedTxId && (
-          <ViewTransactionButton
-            color={white}
-            background={red500}
-            onClick={() => closeModal()}
-          >
+          <ViewTransactionButton color={white} background={red500} onClick={() => closeModal()}>
             Try Again
           </ViewTransactionButton>
         )}
@@ -163,16 +135,14 @@ const SendOnchain = ({
         finalPsbt,
         currentAccount.config.extendedPublicKeys!
       );
-      if (
-        signedDevices.length === currentAccount.config.quorum.requiredSigners
-      ) {
+      if (signedDevices.length === currentAccount.config.quorum.requiredSigners) {
         try {
           finalPsbt.finalizeAllInputs();
-          const broadcastId = await broadcastTransaction(finalPsbt);
+          const broadcastId = await broadcastTransaction(finalPsbt, platform);
           openInModal(
             <BroadcastModalContent
               broadcastedTxId={broadcastId}
-              message={"Your transaction has been broadcast."}
+              message={'Your transaction has been broadcast.'}
             />
           );
           setPaymentSuccess(true);
@@ -247,7 +217,7 @@ const SendContentRight = styled.div`
 
 const CurrentBalanceWrapper = styled.div`
   padding: 1.5em;
-  display: "flex";
+  display: 'flex';
   flex-direction: column;
   border-radius: 0.385em;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);

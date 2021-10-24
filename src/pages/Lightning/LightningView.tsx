@@ -1,5 +1,5 @@
-import React from "react";
-import styled from "styled-components";
+import React from 'react';
+import styled from 'styled-components';
 import {
   AreaChart,
   Area,
@@ -7,26 +7,20 @@ import {
   XAxis,
   YAxis,
   Tooltip,
-  TooltipPayload,
-} from "recharts";
-import { satoshisToBitcoins } from "unchained-bitcoin";
-import moment from "moment";
+  TooltipPayload
+} from 'recharts';
+import { satoshisToBitcoins } from 'unchained-bitcoin';
+import moment from 'moment';
 
-import { Loading } from "../../components";
+import { Loading } from 'src/components';
 
-import RecentActivity from "./RecentActivity";
+import RecentActivity from './RecentActivity';
 
-import { LilyLightningAccount } from "../../types";
+import { LilyLightningAccount } from 'src/types';
 
-import { requireLightning } from "../../hocs";
+import { requireLightning } from 'src/hocs';
 
-import {
-  white,
-  gray500,
-  gray600,
-  yellow100,
-  yellow500,
-} from "../../utils/colors";
+import { white, gray500, gray600, yellow100, yellow500 } from 'src/utils/colors';
 
 interface TooltipProps {
   active: boolean;
@@ -38,9 +32,10 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
   if (active) {
     return (
       <TooltipContainer>
-        <PriceTooltip>{`${payload[0].value ? satoshisToBitcoins(payload[0].value as number) : 0
-          } BTC`}</PriceTooltip>
-        <DateTooltip>{moment.unix(label).format("MMMM DD, YYYY")}</DateTooltip>
+        <PriceTooltip>{`${
+          payload[0].value ? satoshisToBitcoins(payload[0].value as number) : 0
+        } BTC`}</PriceTooltip>
+        <DateTooltip>{moment.unix(label).format('MMMM DD, YYYY')}</DateTooltip>
       </TooltipContainer>
     );
   }
@@ -54,44 +49,37 @@ interface Props {
 
 const LightningView = ({ currentAccount }: Props) => {
   const { currentBalance, payments, events, balanceHistory } = currentAccount;
-  console.log("currentAccount: ", currentAccount);
+  console.log('currentAccount: ', currentAccount);
 
   return (
     <>
       {currentAccount.loading ? (
         <ValueWrapper>
-          <Loading style={{ margin: "10em 0" }} itemText={"Transaction Data"} />
+          <Loading style={{ margin: '10em 0' }} itemText={'Transaction Data'} />
         </ValueWrapper>
       ) : null}
       {events.length > 0 && !currentAccount.loading ? (
         <ValueWrapper>
           <CurrentBalanceContainer>
             <CurrentBalanceText>Current Balance:</CurrentBalanceText>
-            {satoshisToBitcoins(currentBalance.balance).toFixed(
-              8
-            )}{" "}
-            BTC
+            {satoshisToBitcoins(currentBalance.balance).toFixed(8)} BTC
           </CurrentBalanceContainer>
           <ChartContainer>
-            <ResponsiveContainer width="100%" height={400}>
+            <ResponsiveContainer width='100%' height={400}>
               <AreaChart width={400} height={400} data={balanceHistory}>
-                <YAxis
-                  dataKey="totalValue"
-                  hide={true}
-                  domain={["dataMin", "dataMax + 10000"]}
-                />
+                <YAxis dataKey='totalValue' hide={true} domain={['dataMin', 'dataMax + 10000']} />
                 <XAxis
-                  dataKey="blockTime"
+                  dataKey='blockTime'
                   height={50}
-                  interval={"preserveStartEnd"}
+                  interval={'preserveStartEnd'}
                   tickCount={payments.length > 10 ? 5 : payments.length}
                   tickFormatter={(blocktime) => {
-                    return moment.unix(blocktime).format("MMM D");
+                    return moment.unix(blocktime).format('MMM D');
                   }}
                 />
                 <Area
-                  type="monotone"
-                  dataKey="totalValue"
+                  type='monotone'
+                  dataKey='totalValue'
                   stroke={yellow500}
                   strokeWidth={2}
                   isAnimationActive={false}
@@ -102,7 +90,7 @@ const LightningView = ({ currentAccount }: Props) => {
                   cursor={false}
                   allowEscapeViewBox={{ x: true, y: true }}
                   wrapperStyle={{
-                    marginLeft: -10,
+                    marginLeft: -10
                   }}
                   content={CustomTooltip}
                 />
@@ -111,11 +99,7 @@ const LightningView = ({ currentAccount }: Props) => {
           </ChartContainer>
         </ValueWrapper>
       ) : null}
-      <RecentActivity
-        events={events}
-        loading={!!currentAccount.loading}
-        flat={false}
-      />
+      <RecentActivity events={events} loading={!!currentAccount.loading} flat={false} />
     </>
   );
 };

@@ -6,13 +6,13 @@ import { AddCircleOutline } from "@styled-icons/material";
 import { satoshisToBitcoins } from "unchained-bitcoin";
 import moment from "moment";
 
-import { AccountMapContext } from "../../AccountMapContext";
+import { AccountMapContext } from "src/context/AccountMapContext";
 
-import { StyledIcon } from "../../components";
+import { StyledIcon } from "src/components";
 
-import { white, gray500, gray600, black } from "../../utils/colors";
+import { white, gray500, gray600, black } from "src/utils/colors";
 
-import { Transaction } from "../../types";
+import { Transaction } from "src/types";
 
 const getLastTransactionTime = (transactions: Transaction[]) => {
   if (transactions.length === 0) {

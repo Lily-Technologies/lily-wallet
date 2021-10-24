@@ -1,24 +1,22 @@
-import React from "react";
-import styled from "styled-components";
-import moment from "moment";
+import React from 'react';
+import styled from 'styled-components';
+import moment from 'moment';
 
-import { gray500, gray900 } from "../utils/colors";
-import { licenseExpires, licenseTxId, licenseTier } from "../utils/license";
-import { capitalize } from "../utils/other";
+import { gray500, gray900 } from '../utils/colors';
+import { licenseExpires, licenseTxId, licenseTier } from '../utils/license';
+import { capitalize } from '../utils/other';
 
-import { NodeConfig, VaultConfig } from "../types";
+import { NodeConfigWithBlockchainInfo, VaultConfig } from '../types';
 
 interface Props {
   config: VaultConfig;
-  nodeConfig: NodeConfig;
+  nodeConfig: NodeConfigWithBlockchainInfo;
 }
 
 export const LicenseInformation = ({ config, nodeConfig }: Props) => {
   const blockDiff = licenseExpires(config.license) - nodeConfig.blocks;
   const blockDiffTimeEst = blockDiff * 10;
-  const expireAsDate = moment()
-    .add(blockDiffTimeEst, "minutes")
-    .format("MMMM Do YYYY, h:mma");
+  const expireAsDate = moment().add(blockDiffTimeEst, 'minutes').format('MMMM Do YYYY, h:mma');
 
   return (
     <Wrapper>
@@ -28,9 +26,7 @@ export const LicenseInformation = ({ config, nodeConfig }: Props) => {
       </ItemContainer>
       <ItemContainer>
         <ItemLabel>License Expires</ItemLabel>
-        <ItemValue>
-          Block {licenseExpires(config.license).toLocaleString()}
-        </ItemValue>
+        <ItemValue>Block {licenseExpires(config.license).toLocaleString()}</ItemValue>
       </ItemContainer>
       <ItemContainer>
         <ItemLabel>Approximate Expire Date</ItemLabel>

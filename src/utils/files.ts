@@ -1,11 +1,11 @@
-import { v4 as uuidv4 } from "uuid";
-import { networks, Network } from "bitcoinjs-lib";
-import { bip32 } from "bitcoinjs-lib";
-import { mnemonicToSeed } from "bip39";
-import { AES } from "crypto-js";
-import moment from "moment";
+import { v4 as uuidv4 } from 'uuid';
+import { networks, Network } from 'bitcoinjs-lib';
+import { bip32 } from 'bitcoinjs-lib';
+import { mnemonicToSeed } from 'bip39';
+import { AES } from 'crypto-js';
+import moment from 'moment';
 
-import { bufferToHex } from "../utils/other";
+import { bufferToHex } from '../utils/other';
 
 import {
   LilyConfig,
@@ -15,8 +15,9 @@ import {
   Device,
   ExtendedPublicKey,
   HwiResponseEnumerate,
-  VaultConfig,
-} from "../types";
+  VaultConfig
+} from '../types';
+import { BasePlatform } from 'src/frontend-middleware';
 
 export const bitcoinNetworkEqual = (a: Network, b: Network) => {
   return a.bech32 === b.bech32;
@@ -55,19 +56,17 @@ export const getP2wpkhDeriationPathForNetwork = (network: Network) => {
   }
 };
 
-export const getUnchainedNetworkFromBjslibNetwork = (
-  bitcoinJslibNetwork: Network
-) => {
+export const getUnchainedNetworkFromBjslibNetwork = (bitcoinJslibNetwork: Network) => {
   if (bitcoinNetworkEqual(bitcoinJslibNetwork, networks.bitcoin)) {
-    return "mainnet";
+    return 'mainnet';
   } else {
-    return "testnet";
+    return 'testnet';
   }
 };
 
 export const containsColdcard = (devices: Device[]) => {
   for (let i = 0; i < devices.length; i++) {
-    if (devices[i].type === "coldcard") {
+    if (devices[i].type === 'coldcard') {
       return true;
     }
   }
@@ -80,38 +79,30 @@ export const formatFilename = (
   fileType: string
 ) => {
   if (bitcoinNetworkEqual(currentBitcoinNetwork, networks.bitcoin)) {
-    return `${fileName}-bitcoin-${moment().format(
-      "MMDDYY-hhmmss"
-    )}.${fileType}`;
+    return `${fileName}-bitcoin-${moment().format('MMDDYY-hhmmss')}.${fileType}`;
   } else {
-    return `${fileName}-testnet-${moment().format(
-      "MMDDYY-hhmmss"
-    )}.${fileType}`;
+    return `${fileName}-testnet-${moment().format('MMDDYY-hhmmss')}.${fileType}`;
   }
 };
 
-export const downloadFile = async (file: string, filename: string) => {
+export const downloadFile = async (file: string, filename: string, platform: BasePlatform) => {
   try {
-    await window.ipcRenderer.invoke("/download-item", {
-      data: file,
-      filename: filename,
-    });
+    await platform.downloadFile(file, filename);
   } catch (e) {
-    console.log("e: ", e);
+    console.log('e: ', e);
   }
 };
 
-export const saveConfig = async (configFile: LilyConfig, password: string) => {
-  const encryptedConfigObject = AES.encrypt(
-    JSON.stringify(configFile),
-    password
-  ).toString();
+export const saveConfig = async (
+  configFile: LilyConfig,
+  password: string,
+  platform: BasePlatform
+) => {
+  const encryptedConfigObject = AES.encrypt(JSON.stringify(configFile), password).toString();
   try {
-    await window.ipcRenderer.invoke("/save-config", {
-      encryptedConfigFile: encryptedConfigObject,
-    });
+    await platform.saveConfig(encryptedConfigObject);
   } catch (e) {
-    console.log("e: ", e);
+    console.log('e: ', e);
   }
 };
 
@@ -119,20 +110,19 @@ export const saveLicenseToVault = async (
   accountConfig: VaultConfig,
   license: LilyLicense,
   config: LilyConfig,
-  password: string
+  password: string,
+  platform: BasePlatform
 ) => {
   const configCopy = { ...config };
 
-  configCopy.vaults = configCopy.vaults.filter(
-    (item) => item.id !== accountConfig.id
-  );
+  configCopy.vaults = configCopy.vaults.filter((item) => item.id !== accountConfig.id);
 
   const updatedAccountConfig = {
     ...accountConfig,
-    license: license,
+    license: license
   };
   configCopy.vaults.push(updatedAccountConfig);
-  await saveConfig(configCopy, password);
+  await saveConfig(configCopy, password, platform);
   return configCopy;
 };
 
@@ -155,7 +145,7 @@ export const createSinglesigConfigFile = async (
   const newKey = {
     id: uuidv4(),
     created_at: Date.now(),
-    type: "onchain",
+    type: 'onchain',
     name: accountName,
     network: getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork),
     addressType: AddressType.P2WPKH,
@@ -169,13 +159,13 @@ export const createSinglesigConfigFile = async (
         xpub: xpubString,
         parentFingerprint: bufferToHex(root.fingerprint),
         device: {
-          type: "lily",
-          model: "lily",
-          fingerprint: bufferToHex(root.fingerprint),
-        },
-      },
+          type: 'lily',
+          model: 'lily',
+          fingerprint: bufferToHex(root.fingerprint)
+        }
+      }
     ],
-    mnemonic: walletMnemonic,
+    mnemonic: walletMnemonic
   } as OnChainConfig;
 
   configCopy.wallets.push(newKey);
@@ -196,7 +186,7 @@ export const createSinglesigHWWConfigFile = async (
 
   const newKey = {
     id: uuidv4(),
-    type: "onchain",
+    type: 'onchain',
     created_at: Date.now(),
     name: accountName,
     network: getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork),
@@ -213,10 +203,10 @@ export const createSinglesigHWWConfigFile = async (
         device: {
           type: device.type,
           model: device.model,
-          fingerprint: device.fingerprint,
-        },
-      },
-    ],
+          fingerprint: device.fingerprint
+        }
+      }
+    ]
   } as OnChainConfig;
 
   configCopy.wallets.push(newKey);
@@ -246,27 +236,27 @@ export const createMultisigConfigFile = (
       device: {
         type: device.type,
         model: device.model,
-        fingerprint: device.fingerprint,
-      },
+        fingerprint: device.fingerprint
+      }
     } as ExtendedPublicKey;
   });
 
   configCopy.vaults.push({
     id: uuidv4(),
-    type: "onchain",
+    type: 'onchain',
     created_at: Date.now(),
     name: accountName,
     license: {
       license: `trial:${currentBlockHeight + 4320}`, // one month free trial (6 * 24 * 30)
-      signature: "",
+      signature: ''
     },
     network: getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork),
     addressType: AddressType.P2WSH,
     quorum: {
       requiredSigners: requiredSigners,
-      totalSigners: importedDevices.length,
+      totalSigners: importedDevices.length
     },
-    extendedPublicKeys: newKeys,
+    extendedPublicKeys: newKeys
   });
 
   return configCopy;
@@ -283,13 +273,13 @@ export const createLightningConfigFile = (
 
   configCopy.lightning.push({
     id: uuidv4(),
-    type: "lightning",
+    type: 'lightning',
     created_at: Date.now(),
     name: accountName,
     network: getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork),
     connectionDetails: {
-      lndConnectUri,
-    },
+      lndConnectUri
+    }
   });
 
   return configCopy;
@@ -302,19 +292,15 @@ export const createColdCardBlob = (
   importedDevices: ExtendedPublicKey[],
   currentBitcoinNetwork: Network
 ) => {
-  let derivationPath = getMultisigDeriationPathForNetwork(
-    currentBitcoinNetwork
-  );
-  return `# Coldcard Multisig setup file (created by Lily Wallet on ${moment(
-    Date.now()
-  ).format("MM/DD/YYYY")})
+  let derivationPath = getMultisigDeriationPathForNetwork(currentBitcoinNetwork);
+  return `# Coldcard Multisig setup file (created by Lily Wallet on ${moment(Date.now()).format(
+    'MM/DD/YYYY'
+  )})
 #
 Name: ${accountName}
 Policy: ${requiredSigners} of ${totalSigners}
 Derivation: ${derivationPath}
 Format: P2WSH
-${importedDevices
-  .map((device) => `\n${device.parentFingerprint}: ${device.xpub}`)
-  .join("")}
+${importedDevices.map((device) => `\n${device.parentFingerprint}: ${device.xpub}`).join('')}
 `;
 };

@@ -1,178 +1,146 @@
-import React, { useState } from "react";
-import styled from "styled-components";
-import { decode } from "bolt11";
+import React, { useState, useContext } from 'react';
+import styled from 'styled-components';
+import { decode } from 'bolt11';
+import { Payment } from '@radar/lnrpc';
 
-import { Button, Countdown, Modal } from "src/components";
+import { Button, Countdown, Modal } from 'src/components';
 
-import {
-    white,
-    gray400,
-    green600,
-    gray600,
-    red500,
-    gray300,
-    yellow600,
-} from "src/utils/colors";
+import { white, gray400, green600, gray600, red500, gray300, yellow600 } from 'src/utils/colors';
 
-import PaymentSuccess from "./PaymentSuccess";
+import PaymentSuccess from './PaymentSuccess';
 
-import { LilyLightningAccount, SetStateNumber } from "src/types";
-// import { Payment, PaymentFailureReason, PaymentStatus } from "@radar/lnrpc";
+import { LilyLightningAccount, SetStateNumber } from 'src/types';
+
+import { PlatformContext } from 'src/context';
 
 interface Props {
-    paymentRequest: string;
-    setStep: SetStateNumber;
-    currentAccount: LilyLightningAccount;
+  paymentRequest: string;
+  setStep: SetStateNumber;
+  currentAccount: LilyLightningAccount;
 }
 
-const LightningPaymentConfirm = ({
-    paymentRequest,
-    setStep,
-    currentAccount,
-}: Props) => {
-    const [modalIsOpen, setModalIsOpen] = useState(false);
-    const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
-    const [paymentError, setPaymentError] = useState("");
-    const [invoiceExpired, setInvoiceExpired] = useState(false);
+const LightningPaymentConfirm = ({ paymentRequest, setStep, currentAccount }: Props) => {
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
+  const [paymentError, setPaymentError] = useState('');
+  const [invoiceExpired, setInvoiceExpired] = useState(false);
+  const { platform } = useContext(PlatformContext);
 
-    const openInModal = (component: JSX.Element) => {
-        setModalIsOpen(true);
-        setModalContent(component);
-    };
+  const openInModal = (component: JSX.Element) => {
+    setModalIsOpen(true);
+    setModalContent(component);
+  };
 
-    const closeModal = () => {
-        setModalIsOpen(false);
-        setModalContent(null);
-    };
+  const decoded = decode(paymentRequest);
+  const description = decoded.tags.filter((item) => item.tagName === 'description')[0].data;
 
-    const decoded = decode(paymentRequest);
-    const description = decoded.tags.filter(
-        (item) => item.tagName === "description"
-    )[0].data;
+  const sendPayment = () => {
+    platform.sendLightningPayment(paymentRequest, currentAccount.config, (response: Payment) => {
+      try {
+        if (response.status === 2) {
+          openInModal(<PaymentSuccess currentAccount={currentAccount} payment={response} />);
+        }
 
-    const sendPayment = () => {
-        window.ipcRenderer.send("/lightning-send-payment", {
-            paymentRequest: paymentRequest,
-            config: currentAccount.config,
-        });
+        if (response.status === 3) {
+          if (response.failureReason === 2) {
+            setPaymentError('No route to user');
+          } else if (response.failureReason === 5) {
+            setPaymentError('Not enough balance');
+          } else {
+            setPaymentError('Unkown error making payment. Contact support.');
+          }
+        }
+      } catch (e) {
+        console.log('/lightning-send-payment e: ', e);
+      }
+    });
+  };
 
-        window.ipcRenderer.on(
-            "/lightning-send-payment",
-            async (_event: any, ...args: any) => {
-                const response = args[0];
-                try {
-                    if (response.status === 2) {
-                        openInModal(
-                            <PaymentSuccess
-                                currentAccount={currentAccount}
-                                payment={response}
-                            />
-                        );
-                    }
+  return (
+    <AccountReceiveContentLeft>
+      <HeaderContainer>Payment summary</HeaderContainer>
+      <TxReviewWrapper>
+        <TxItem style={{ marginTop: 0 }}>
+          <TxItemLabel>Description</TxItemLabel>
+          <TxItemValue>{description}</TxItemValue>
+        </TxItem>
 
-                    if (response.status === 3) {
-                        if (response.failureReason === 2) {
-                            setPaymentError("No route to user");
-                        } else if (response.failureReason === 5) {
-                            setPaymentError("Not enough balance");
-                        } else {
-                            setPaymentError("Unkown error making payment. Contact support.");
-                        }
-                    }
-                } catch (e) {
-                    console.log("/lightning-send-payment e: ", e);
-                }
-            }
-        );
-    };
+        <TxItem>
+          <TxItemLabel>Amount</TxItemLabel>
+          <TxItemValue>{decoded.satoshis} sats</TxItemValue>
+        </TxItem>
 
-    return (
-        <AccountReceiveContentLeft>
-            <HeaderContainer>Payment summary</HeaderContainer>
-            <TxReviewWrapper>
-                <TxItem style={{ marginTop: 0 }}>
-                    <TxItemLabel>Description</TxItemLabel>
-                    <TxItemValue>{description}</TxItemValue>
-                </TxItem>
+        {/* TODO: implement this logic */}
+        <TxItem>
+          <TxItemLabel>Estimated fee</TxItemLabel>
+          <TxItemValue>50 sats</TxItemValue>
+        </TxItem>
+      </TxReviewWrapper>
+      <TxReviewWrapper
+        style={{
+          paddingTop: '1.5rem',
+          borderTop: '1px solid rgb(229, 231, 235)',
+          fontWeight: 500,
+          fontSize: '1rem',
+          lineHeight: '1.5rem'
+        }}
+      >
+        <TxItem style={{ marginTop: 0 }}>
+          <TxItemLabel>Total</TxItemLabel>
+          <TxItemValue>{decoded.satoshis} sats</TxItemValue>
+        </TxItem>
+      </TxReviewWrapper>
 
-                <TxItem>
-                    <TxItemLabel>Amount</TxItemLabel>
-                    <TxItemValue>{decoded.satoshis} sats</TxItemValue>
-                </TxItem>
+      {!!!invoiceExpired && (
+        <ExpirationContainer>
+          Expires in{' '}
+          <Countdown
+            onExpire={() => setInvoiceExpired(true)}
+            endTimeSeconds={decoded.timeExpireDate!}
+            style={{ marginLeft: '0.25rem' }}
+          />
+        </ExpirationContainer>
+      )}
+      {invoiceExpired && <ErrorContainer>This invoice has expired</ErrorContainer>}
+      {paymentError && !invoiceExpired && (
+        <ErrorContainer
+          style={{
+            marginTop: '0.5em',
+            fontWeight: 500
+          }}
+        >
+          Error: {paymentError}
+        </ErrorContainer>
+      )}
+      <ActionButtonContainer>
+        <CancelPaymentButton
+          background={!!invoiceExpired ? green600 : white}
+          color={!!invoiceExpired ? white : gray600}
+          onClick={() => setStep(0)}
+        >
+          {invoiceExpired ? 'Go back' : 'Cancel'}
+        </CancelPaymentButton>
+        {!!!invoiceExpired && (
+          <SendPaymentButton
+            color={white}
+            background={green600}
+            disabled={!!invoiceExpired}
+            onClick={() => sendPayment()}
+          >
+            {paymentError ? 'Try again' : 'Send payment'}
+          </SendPaymentButton>
+        )}
+      </ActionButtonContainer>
 
-                {/* TODO: implement this logic */}
-                <TxItem>
-                    <TxItemLabel>Estimated fee</TxItemLabel>
-                    <TxItemValue>50 sats</TxItemValue>
-                </TxItem>
-            </TxReviewWrapper>
-            <TxReviewWrapper
-                style={{
-                    paddingTop: "1.5rem",
-                    borderTop: "1px solid rgb(229, 231, 235)",
-                    fontWeight: 500,
-                    fontSize: "1rem",
-                    lineHeight: "1.5rem",
-                }}
-            >
-                <TxItem style={{ marginTop: 0 }}>
-                    <TxItemLabel>Total</TxItemLabel>
-                    <TxItemValue>{decoded.satoshis} sats</TxItemValue>
-                </TxItem>
-            </TxReviewWrapper>
-
-            {!!!invoiceExpired && (
-                <ExpirationContainer>
-                    Expires in{" "}
-                    <Countdown
-                        onExpire={() => setInvoiceExpired(true)}
-                        endTimeSeconds={decoded.timeExpireDate!}
-                        style={{ marginLeft: "0.25rem" }}
-                    />
-                </ExpirationContainer>
-            )}
-            {invoiceExpired && (
-                <ErrorContainer>
-                    This invoice has expired
-                </ErrorContainer>
-            )}
-            {paymentError && !invoiceExpired && (
-                <ErrorContainer style={{
-                    marginTop: '0.5em',
-                    fontWeight: 500
-                }}>
-                    Error: {paymentError}
-                </ErrorContainer>
-            )}
-            <ActionButtonContainer>
-                <CancelPaymentButton
-                    background={!!invoiceExpired ? green600 : white}
-                    color={!!invoiceExpired ? white : gray600}
-                    onClick={() => setStep(0)}
-                >
-                    {invoiceExpired ? 'Go back' : 'Cancel'}
-                </CancelPaymentButton>
-                {!!!invoiceExpired && (
-                    <SendPaymentButton
-                        color={white}
-                        background={green600}
-                        disabled={!!invoiceExpired}
-                        onClick={() => sendPayment()}
-                    >
-                        {paymentError ? "Try again" : "Send payment"}
-                    </SendPaymentButton>
-                )}
-            </ActionButtonContainer>
-
-            <Modal
-                isOpen={modalIsOpen}
-                closeModal={() => setModalIsOpen(false)}
-                style={{ content: { overflow: "inherit" } }}
-            >
-                {modalContent}
-            </Modal>
-        </AccountReceiveContentLeft>
-    );
+      <Modal
+        isOpen={modalIsOpen}
+        closeModal={() => setModalIsOpen(false)}
+        style={{ content: { overflow: 'inherit' } }}
+      >
+        {modalContent}
+      </Modal>
+    </AccountReceiveContentLeft>
+  );
 };
 
 const ActionButtonContainer = styled.div`

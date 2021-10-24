@@ -7,11 +7,11 @@ import {
   gray300,
   gray500,
   gray700,
-} from "../../../utils/colors";
+} from "src/utils/colors";
 
-import { AccountMapContext } from "../../../AccountMapContext";
+import { AccountMapContext } from "src/context/AccountMapContext";
 
-import { SetStateString } from "../../../types";
+import { SetStateString } from "src/types";
 
 interface Props {
   currentTab: string;

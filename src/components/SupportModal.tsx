@@ -8,9 +8,9 @@ import {
   Button,
   ModalContentWrapper,
   Loading,
-} from "../components";
+} from "src/components";
 
-import { mobile } from "../utils/media";
+import { mobile } from "src/utils/media";
 import {
   white,
   green100,
@@ -20,9 +20,9 @@ import {
   gray400,
   gray600,
   gray700,
-} from "../utils/colors";
+} from "src/utils/colors";
 
-import { ConfigContext } from "../ConfigContext";
+import { ConfigContext } from "src/context/ConfigContext";
 
 interface Props {
   closeModal: () => void;

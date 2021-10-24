@@ -1,16 +1,16 @@
-import React from "react";
-import styled from "styled-components";
-import { CheckCircle } from "@styled-icons/material";
+import React from 'react';
+import styled from 'styled-components';
+import { CheckCircle } from '@styled-icons/material';
 
-import { LicenseInformation, StyledIcon } from ".";
+import { LicenseInformation, StyledIcon } from '.';
 
-import { white, green500, gray700 } from "../utils/colors";
+import { white, green500, gray700 } from 'src/utils/colors';
 
-import { NodeConfig, VaultConfig } from "../types";
+import { NodeConfigWithBlockchainInfo, VaultConfig } from 'src/types';
 
 interface Props {
   config: VaultConfig;
-  nodeConfig: NodeConfig;
+  nodeConfig: NodeConfigWithBlockchainInfo;
 }
 
 export const PurchaseLicenseSuccess = ({ config, nodeConfig }: Props) => {
@@ -24,8 +24,7 @@ export const PurchaseLicenseSuccess = ({ config, nodeConfig }: Props) => {
         Thank you so much for purchasing a license for Lily Wallet!
         <br />
         <br />
-        Your payment helps fund the development and maitanance of this open
-        source software.
+        Your payment helps fund the development and maitanance of this open source software.
       </SuccessSubtext>
       <LicenseInformation config={config} nodeConfig={nodeConfig} />
     </Wrapper>

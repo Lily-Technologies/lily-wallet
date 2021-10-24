@@ -8,7 +8,7 @@ import {
   Refresh,
 } from "@styled-icons/material";
 
-import { AccountMapContext } from "../../AccountMapContext";
+import { AccountMapContext } from "src/context/AccountMapContext";
 
 import {
   StyledIcon,
@@ -17,9 +17,9 @@ import {
   Header,
   HeaderRight,
   HeaderLeft,
-} from "../../components";
+} from "src/components";
 
-import { white, gray300, green900 } from "../../utils/colors";
+import { white, gray300, green900 } from "src/utils/colors";
 
 interface Props {
   toggleRefresh(): void;

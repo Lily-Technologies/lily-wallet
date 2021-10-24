@@ -17,7 +17,7 @@ import {
 
 import { AddressType, LilyConfig } from "src/types";
 
-import { AccountMapContext } from "src/AccountMapContext";
+import { AccountMapContext } from "src/context/AccountMapContext";
 
 interface Props {
   config: LilyConfig;

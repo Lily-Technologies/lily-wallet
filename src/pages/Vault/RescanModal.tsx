@@ -1,27 +1,14 @@
-import React, { useState } from "react";
-import styled, { css } from "styled-components";
-import { PermScanWifi } from "@styled-icons/material-rounded";
+import React, { useState, useContext } from 'react';
+import styled, { css } from 'styled-components';
+import { PermScanWifi } from '@styled-icons/material-rounded';
 
-import {
-  StyledIcon,
-  Input,
-  Button,
-  Spinner,
-  ModalContentWrapper,
-} from "../../components";
+import { StyledIcon, Input, Button, Spinner, ModalContentWrapper } from '../../components';
 
-import { mobile } from "../../utils/media";
-import {
-  white,
-  green600,
-  red100,
-  gray400,
-  gray700,
-  gray500,
-  gray900,
-} from "../../utils/colors";
+import { mobile } from '../../utils/media';
+import { white, green600, red100, gray400, gray700, gray500, gray900 } from '../../utils/colors';
 
-import { LilyAccount } from "../../types";
+import { LilyAccount } from '../../types';
+import { PlatformContext } from 'src/context';
 
 interface RescanProps {
   startHeight: string;
@@ -34,40 +21,28 @@ interface Props {
   toggleRefresh: () => void;
 }
 
-export const RescanModal = ({
-  closeModal,
-  currentAccount,
-  toggleRefresh,
-}: Props) => {
-  const [startHeight, setStartHeight] = useState("");
-  const [error, setError] = useState("");
+export const RescanModal = ({ closeModal, currentAccount, toggleRefresh }: Props) => {
+  const { platform } = useContext(PlatformContext);
+  const [startHeight, setStartHeight] = useState('');
+  const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const rescanBlockchain = async ({
-    startHeight,
-    currentAccount,
-  }: RescanProps) => {
+  const rescanBlockchain = async ({ startHeight, currentAccount }: RescanProps) => {
     try {
       setIsLoading(true);
-      const { success } = await window.ipcRenderer.invoke("/rescanBlockchain", {
-        startHeight,
-        currentAccount,
-      });
+      const { success } = await platform.rescanBlockchain(startHeight, currentAccount);
       if (success) {
         toggleRefresh();
         closeModal();
       } else {
-        setError(
-          "Error rescanning. Try again or manually rescanning using bitcoin-cli."
-        );
+        setError('Error rescanning. Try again or manually rescanning using bitcoin-cli.');
       }
     } catch (e) {
-      setError(
-        "Error rescanning. Try again or manually rescanning using bitcoin-cli."
-      );
+      setError('Error rescanning. Try again or manually rescanning using bitcoin-cli.');
     }
     setIsLoading(false);
   };
+
   return (
     <ModalContentWrapper>
       <DangerIconContainer>
@@ -78,19 +53,18 @@ export const RescanModal = ({
       <DangerTextContainer>
         <DangerText>Rescan Blockchain</DangerText>
         <DangerSubtext>
-          To rescan the blockchain for previous transactions, provide a
-          blockheight.
+          To rescan the blockchain for previous transactions, provide a blockheight.
         </DangerSubtext>
         <Input
-          label="Rescan from blockheight"
-          type="number"
+          label='Rescan from blockheight'
+          type='number'
           value={startHeight}
           onChange={setStartHeight}
           error={error}
         />
         <Buttons>
           <ActionButton
-            style={{ border: `1px solid ${gray400}`, marginRight: "1em" }}
+            style={{ border: `1px solid ${gray400}`, marginRight: '1em' }}
             color={gray900}
             background={white}
             onClick={() => closeModal()}
@@ -102,7 +76,7 @@ export const RescanModal = ({
             color={white}
             background={green600}
           >
-            {isLoading ? <Spinner /> : "Rescan Blockchain"}
+            {isLoading ? <Spinner /> : 'Rescan Blockchain'}
           </ActionButton>
         </Buttons>
       </DangerTextContainer>

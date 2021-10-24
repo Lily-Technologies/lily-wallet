@@ -1,8 +1,8 @@
-import React, { useState, useContext } from "react";
-import styled from "styled-components";
-import { Network } from "bitcoinjs-lib";
-import { Link } from "react-router-dom";
-import { RightArrowAlt } from "@styled-icons/boxicons-regular";
+import React, { useState, useContext } from 'react';
+import styled from 'styled-components';
+import { Network } from 'bitcoinjs-lib';
+import { Link } from 'react-router-dom';
+import { RightArrowAlt } from '@styled-icons/boxicons-regular';
 
 import {
   PageWrapper,
@@ -11,25 +11,25 @@ import {
   HeaderLeft,
   HeaderRight,
   StyledIcon,
-  Modal,
-} from "../../components";
+  Modal
+} from 'src/components';
 
-import Tabs from "./Tabs";
-import BackupSettings from "./BackupSettings";
-import NetworkSettings from "./NetworkSettings";
-import About from "./About";
+import Tabs from './Tabs';
+import BackupSettings from './BackupSettings';
+import NetworkSettings from './NetworkSettings';
+import About from './About';
 
-import { white } from "../../utils/colors";
+import { white } from 'src/utils/colors';
 
-import { NodeConfig } from "../../types";
+import { NodeConfigWithBlockchainInfo } from 'src/types';
 
-import { ConfigContext } from "../../ConfigContext";
+import { ConfigContext } from 'src/context/ConfigContext';
 
 interface Props {
-  nodeConfig: NodeConfig;
+  nodeConfig: NodeConfigWithBlockchainInfo;
   currentBitcoinNetwork: Network;
   getNodeConfig: () => void;
-  setNodeConfig: React.Dispatch<React.SetStateAction<NodeConfig | undefined>>; // KBC-TODO: NodeConfig should be defined, even if we are connected to blockstream, yeah? No?
+  setNodeConfig: React.Dispatch<React.SetStateAction<NodeConfigWithBlockchainInfo | undefined>>; // KBC-TODO: NodeConfig should be defined, even if we are connected to blockstream, yeah? No?
   password: string;
 }
 
@@ -38,10 +38,10 @@ const Settings = ({
   currentBitcoinNetwork,
   getNodeConfig,
   setNodeConfig,
-  password,
+  password
 }: Props) => {
   const { config } = useContext(ConfigContext);
-  const [currentTab, setCurrentTab] = useState("network");
+  const [currentTab, setCurrentTab] = useState('network');
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
 
@@ -64,19 +64,15 @@ const Settings = ({
           </HeaderLeft>
           {config.isEmpty && (
             <HeaderRight>
-              <DecoratedLink to="/login">
+              <DecoratedLink to='/login'>
                 Return to Login <StyledIcon as={RightArrowAlt} />
               </DecoratedLink>
             </HeaderRight>
           )}
         </Header>
         <Wrapper>
-          <Tabs
-            currentTab={currentTab}
-            setCurrentTab={setCurrentTab}
-            config={config}
-          />
-          {currentTab === "network" && (
+          <Tabs currentTab={currentTab} setCurrentTab={setCurrentTab} config={config} />
+          {currentTab === 'network' && (
             <NetworkSettings
               nodeConfig={nodeConfig}
               getNodeConfig={getNodeConfig}
@@ -85,13 +81,10 @@ const Settings = ({
               closeModal={closeModal}
             />
           )}
-          {currentTab === "backup" && (
-            <BackupSettings
-              config={config}
-              currentBitcoinNetwork={currentBitcoinNetwork}
-            />
+          {currentTab === 'backup' && (
+            <BackupSettings config={config} currentBitcoinNetwork={currentBitcoinNetwork} />
           )}
-          {currentTab === "about" && <About />}
+          {currentTab === 'about' && <About />}
         </Wrapper>
         <Modal isOpen={modalIsOpen} closeModal={() => setModalIsOpen(false)}>
           {modalContent}

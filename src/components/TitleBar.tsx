@@ -1,33 +1,27 @@
-import React, { useState, Fragment, useContext } from "react";
-import { useHistory } from "react-router-dom";
-import styled from "styled-components";
-import { Circle } from "@styled-icons/boxicons-solid";
+import React, { useState, Fragment, useContext } from 'react';
+import { useHistory } from 'react-router-dom';
+import styled from 'styled-components';
+import { Circle } from '@styled-icons/boxicons-solid';
 
-import {
-  white,
-  green400,
-  orange400,
-  red500,
-  green800,
-  green900,
-} from "../utils/colors";
+import { white, green400, orange400, red500, green800, green900 } from 'src/utils/colors';
 
-import { AccountMapContext } from "../AccountMapContext";
+import { AccountMapContext, PlatformContext } from 'src/context';
 
-import { getNodeStatus } from "../utils/other";
+import { getNodeStatus } from 'src/utils/other';
 
-import { StyledIcon, Dropdown, Modal, SupportModal } from ".";
+import { StyledIcon, Dropdown, Modal, SupportModal } from '.';
 
-import { NodeConfig, LilyConfig } from "../types";
+import { NodeConfigWithBlockchainInfo, LilyConfig } from 'src/types';
 
 interface Props {
-  nodeConfig: NodeConfig | undefined; // KBC-TODO: NodeConfig should be defined, even if we are connected to blockstream, yeah? No?
+  nodeConfig: NodeConfigWithBlockchainInfo | undefined; // KBC-TODO: NodeConfig should be defined, even if we are connected to blockstream, yeah? No?
   config: LilyConfig;
 }
 
 export const TitleBar = ({ nodeConfig, config }: Props) => {
   const history = useHistory();
   const { setCurrentAccountId } = useContext(AccountMapContext);
+  const { platform } = useContext(PlatformContext);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
 
@@ -49,52 +43,52 @@ export const TitleBar = ({ nodeConfig, config }: Props) => {
         Network Status: <br />
         {getNodeStatus(nodeConfig)}
       </Fragment>
-    ),
+    )
   });
 
   nodeConfigDropdownItems.push({});
   nodeConfigDropdownItems.push({
-    label: "Network Settings",
-    onClick: () => history.push("/settings", { currentTab: "network" }),
+    label: 'Network Settings',
+    onClick: () => history.push('/settings', { currentTab: 'network' })
   });
 
   const moreOptionsDropdownItems = [
     {
-      label: "Support",
+      label: 'Support',
       onClick: () => {
         openInModal(<SupportModal closeModal={closeModal} />);
         // window.open("https://lily-wallet.com/support", "_blank");
-      },
+      }
     },
     {
-      label: "View source code",
+      label: 'View source code',
       onClick: () => {
-        window.open("https://github.com/KayBeSee/lily-wallet", "_blank");
-      },
-    },
+        window.open('https://github.com/KayBeSee/lily-wallet', '_blank');
+      }
+    }
   ] as { label?: string; onClick?: () => void; onlyMobile?: boolean }[];
 
   if (!config.isEmpty) {
     moreOptionsDropdownItems.unshift(
       {
-        label: "Home",
-        onClick: () => history.push("/"),
-        onlyMobile: true,
+        label: 'Home',
+        onClick: () => history.push('/'),
+        onlyMobile: true
       },
       {
-        label: "Send",
-        onClick: () => history.push("/send"),
-        onlyMobile: true,
+        label: 'Send',
+        onClick: () => history.push('/send'),
+        onlyMobile: true
       },
       {
-        label: "Receive",
-        onClick: () => history.push("/receive"),
-        onlyMobile: true,
+        label: 'Receive',
+        onClick: () => history.push('/receive'),
+        onlyMobile: true
       },
       {
-        label: "Settings",
-        onClick: () => history.push("/settings"),
-        onlyMobile: true,
+        label: 'Settings',
+        onClick: () => history.push('/settings'),
+        onlyMobile: true
       },
       { onlyMobile: true },
       ...config.wallets.map((wallet) => ({
@@ -103,7 +97,7 @@ export const TitleBar = ({ nodeConfig, config }: Props) => {
           history.push(`/vault/${wallet.id}`);
           setCurrentAccountId(wallet.id);
         },
-        onlyMobile: true,
+        onlyMobile: true
       })),
       ...config.vaults.map((vault) => ({
         label: vault.name,
@@ -111,13 +105,13 @@ export const TitleBar = ({ nodeConfig, config }: Props) => {
           history.push(`/vault/${vault.id}`);
           setCurrentAccountId(vault.id);
         },
-        onlyMobile: true,
+        onlyMobile: true
       })),
       { onlyMobile: true },
       {
-        label: "New Account",
-        onClick: () => history.push("/setup"),
-        onlyMobile: true,
+        label: 'New Account',
+        onClick: () => history.push('/setup'),
+        onlyMobile: true
       },
       { onlyMobile: true }
     );
@@ -126,10 +120,10 @@ export const TitleBar = ({ nodeConfig, config }: Props) => {
   moreOptionsDropdownItems.push(
     {},
     {
-      label: "Quit Lily Wallet",
+      label: 'Quit Lily Wallet',
       onClick: async () => {
-        window.ipcRenderer.invoke("/quit");
-      },
+        platform.quit();
+      }
     }
   );
 
@@ -145,11 +139,11 @@ export const TitleBar = ({ nodeConfig, config }: Props) => {
               style={{
                 background: green900,
                 color: white,
-                padding: "0.35em 1em",
-                border: "none",
-                fontFamily: "Montserrat, sans-serif",
-                display: "flex",
-                alignItems: "center",
+                padding: '0.35em 1em',
+                border: 'none',
+                fontFamily: 'Montserrat, sans-serif',
+                display: 'flex',
+                alignItems: 'center'
               }}
               buttonLabel={
                 <Fragment>
@@ -161,20 +155,20 @@ export const TitleBar = ({ nodeConfig, config }: Props) => {
                           ? orange400
                           : nodeConfig.connected
                           ? green400
-                          : red500, // !nodeConfig.connected
+                          : red500 // !nodeConfig.connected
                       }}
                     />
                   ) : (
                     <LoadingImage
-                      alt="loading placeholder"
-                      src={require("../assets/flower-loading.svg")}
+                      alt='loading placeholder'
+                      src={require('../assets/flower-loading.svg')}
                     />
                   )}
                   {nodeConfig && nodeConfig.connected
                     ? null
                     : nodeConfig && !nodeConfig.connected
                     ? null
-                    : "Connecting..."}
+                    : 'Connecting...'}
                 </Fragment>
               }
               dropdownItems={nodeConfigDropdownItems}

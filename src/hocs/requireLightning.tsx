@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import { LilyLightningAccount } from "src/types";
-import { AccountMapContext } from "../AccountMapContext";
-import { ConfigContext } from "../ConfigContext";
+import { AccountMapContext } from "src/context/AccountMapContext";
+import { ConfigContext } from "src/context/ConfigContext";
 
 interface RequireLightningProps {
   currentAccount: LilyLightningAccount;

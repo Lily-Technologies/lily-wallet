@@ -1,27 +1,23 @@
-import React, { useState } from "react";
-import styled from "styled-components";
-import { Network } from "bitcoinjs-lib";
-import { QRCode } from "react-qr-svg";
-import { CoboVaultSDK } from "@cvbb/sdk";
+import React, { useState, useContext } from 'react';
+import styled from 'styled-components';
+import { Network } from 'bitcoinjs-lib';
+import { QRCode } from 'react-qr-svg';
+import { CoboVaultSDK } from '@cvbb/sdk';
 
-import { requireOnchain } from "../../../hocs";
+import { requireOnchain } from 'src/hocs';
 
-import {
-  MnemonicWordsDisplayer,
-  AnimatedQrCode,
-  Modal,
-  SettingsTable,
-} from "../../../components";
-import { white, black, gray100, green500 } from "../../../utils/colors";
+import { MnemonicWordsDisplayer, AnimatedQrCode, Modal, SettingsTable } from 'src/components';
+import { white, black, gray100, green500 } from 'src/utils/colors';
 
-import { CaravanConfig, LilyOnchainAccount } from "../../../types";
+import { CaravanConfig, LilyOnchainAccount } from 'src/types';
 
 import {
   createColdCardBlob,
   downloadFile,
   formatFilename,
-  getMultisigDeriationPathForNetwork,
-} from "../../../utils/files";
+  getMultisigDeriationPathForNetwork
+} from 'src/utils/files';
+import { PlatformContext } from 'src/context';
 
 const sdk = new CoboVaultSDK();
 interface Props {
@@ -30,6 +26,7 @@ interface Props {
 }
 
 const ExportView = ({ currentAccount, currentBitcoinNetwork }: Props) => {
+  const { platform } = useContext(PlatformContext);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
 
@@ -52,8 +49,9 @@ const ExportView = ({ currentAccount, currentBitcoinNetwork }: Props) => {
         formatFilename(
           `${currentAccount.config.name}-lily-coldcard-file`,
           currentBitcoinNetwork,
-          "txt"
-        )
+          'txt'
+        ),
+        platform
       );
     }
   };
@@ -63,33 +61,32 @@ const ExportView = ({ currentAccount, currentBitcoinNetwork }: Props) => {
     // @ts-ignore-line
     const configCopy = {
       ...currentAccount.config,
-      client: { type: "public" },
+      client: { type: 'public' }
     } as CaravanConfig;
     // need to have a name for each pubkey, so just use parentFingerprint
     if (configCopy.extendedPublicKeys !== undefined) {
       for (let i = 0; i < configCopy.extendedPublicKeys.length; i++) {
-        configCopy.extendedPublicKeys[i].name =
-          configCopy.extendedPublicKeys[i].parentFingerprint;
+        configCopy.extendedPublicKeys[i].name = configCopy.extendedPublicKeys[i].parentFingerprint;
 
         // we need to populate the method field for caravan. if the device is of type trezor or ledger, put that in. else just put xpub.
         if (
           configCopy.extendedPublicKeys[i].device &&
-          (configCopy.extendedPublicKeys[i].device.type === "trezor" ||
-            configCopy.extendedPublicKeys[i].device.type === "ledger")
+          (configCopy.extendedPublicKeys[i].device.type === 'trezor' ||
+            configCopy.extendedPublicKeys[i].device.type === 'ledger')
         ) {
-          configCopy.extendedPublicKeys[i].method =
-            configCopy.extendedPublicKeys[i].device.type;
+          configCopy.extendedPublicKeys[i].method = configCopy.extendedPublicKeys[i].device.type;
           configCopy.extendedPublicKeys[i].bip32Path =
             getMultisigDeriationPathForNetwork(currentBitcoinNetwork);
         } else {
-          configCopy.extendedPublicKeys[i].method = "xpub";
+          configCopy.extendedPublicKeys[i].method = 'xpub';
         }
       }
     }
     const caravanFile = JSON.stringify(configCopy);
     downloadFile(
       caravanFile,
-      formatFilename("lily-caravan-file", currentBitcoinNetwork, "json")
+      formatFilename('lily-caravan-file', currentBitcoinNetwork, 'json'),
+      platform
     );
   };
 
@@ -125,7 +122,7 @@ const ExportView = ({ currentAccount, currentBitcoinNetwork }: Props) => {
         <QRCode
           bgColor={white}
           fgColor={black}
-          level="Q"
+          level='Q'
           style={{ width: 256 }}
           value={currentAccount.config.extendedPublicKeys[0].xpub as string}
         />
@@ -140,7 +137,7 @@ const ExportView = ({ currentAccount, currentBitcoinNetwork }: Props) => {
         <QRCode
           bgColor={white}
           fgColor={black}
-          level="Q"
+          level='Q'
           style={{ width: 256 }}
           value={currentAccount.config.mnemonic as string}
         />
@@ -153,8 +150,7 @@ const ExportView = ({ currentAccount, currentBitcoinNetwork }: Props) => {
       <SettingsTable.HeaderSection>
         <SettingsTable.HeaderTitle>Export Account</SettingsTable.HeaderTitle>
         <SettingsTable.HeaderSubtitle>
-          Use the options below to use other software to verify the information
-          in Lily.
+          Use the options below to use other software to verify the information in Lily.
         </SettingsTable.HeaderSubtitle>
       </SettingsTable.HeaderSection>
       {currentAccount.config.mnemonic && (
@@ -162,7 +158,7 @@ const ExportView = ({ currentAccount, currentBitcoinNetwork }: Props) => {
           <SettingsTable.KeyColumn>Mnemonic Words</SettingsTable.KeyColumn>
           <SettingsTable.ValueColumn>
             <SettingsTable.ValueText></SettingsTable.ValueText>
-            <SettingsTable.ValueAction style={{ display: "flex" }}>
+            <SettingsTable.ValueAction style={{ display: 'flex' }}>
               <SettingsTable.ActionButton
                 background={white}
                 color={green500}
@@ -182,9 +178,7 @@ const ExportView = ({ currentAccount, currentBitcoinNetwork }: Props) => {
                         Do not share these words with anyone.
                       </ModalHeaderContainer>
                       <ModalContent>
-                        <MnemonicWordsDisplayer
-                          mnemonicWords={currentAccount.config.mnemonic!}
-                        />
+                        <MnemonicWordsDisplayer mnemonicWords={currentAccount.config.mnemonic!} />
                       </ModalContent>
                     </Container>
                   )
@@ -199,9 +193,7 @@ const ExportView = ({ currentAccount, currentBitcoinNetwork }: Props) => {
       {currentAccount.config.quorum.totalSigners > 1 && (
         <>
           <SettingsTable.Row>
-            <SettingsTable.KeyColumn>
-              Coldcard Export File
-            </SettingsTable.KeyColumn>
+            <SettingsTable.KeyColumn>Coldcard Export File</SettingsTable.KeyColumn>
             <SettingsTable.ValueColumn>
               <SettingsTable.ValueText></SettingsTable.ValueText>
               <SettingsTable.ValueAction>
@@ -255,9 +247,7 @@ const ExportView = ({ currentAccount, currentBitcoinNetwork }: Props) => {
       )}
       {currentAccount.config.quorum.totalSigners === 1 && (
         <SettingsTable.Row>
-          <SettingsTable.KeyColumn>
-            Extended Public Key (XPub)
-          </SettingsTable.KeyColumn>
+          <SettingsTable.KeyColumn>Extended Public Key (XPub)</SettingsTable.KeyColumn>
           <SettingsTable.ValueColumn>
             <SettingsTable.ValueText></SettingsTable.ValueText>
             <SettingsTable.ValueAction>

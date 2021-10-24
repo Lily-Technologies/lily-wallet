@@ -1,36 +1,35 @@
-import React, { useEffect, useState, useRef, useContext } from "react";
-import styled, { css } from "styled-components";
-import {
-  HashRouter as Router,
-  Switch,
-  Route,
-  useLocation,
-  useHistory,
-} from "react-router-dom";
-import axios from "axios";
-import BigNumber from "bignumber.js";
+import React, { useEffect, useState, useRef, useContext } from 'react';
+import styled, { css } from 'styled-components';
+import { HashRouter as Router, Switch, Route, useLocation, useHistory } from 'react-router-dom';
+import { networks } from 'bitcoinjs-lib';
+import BigNumber from 'bignumber.js';
 
-import { gray50, green700 } from "./utils/colors";
-import { mobile } from "./utils/media";
+import { gray50, green700 } from 'src/utils/colors';
+import { mobile } from 'src/utils/media';
 
-import { Sidebar, TitleBar, ScrollToTop, AlertBar } from "./components";
+import { Sidebar, TitleBar, ScrollToTop, AlertBar } from 'src/components';
 
 // Pages
-import Login from "./pages/Login";
-import Setup from "./pages/Setup";
-import Settings from "./pages/Settings";
-import Vault from "./pages/Vault";
-import Lightning from "./pages/Lightning";
-import Receive from "./pages/Receive";
-import Send from "./pages/Send";
-import Home from "./pages/Home";
-import Purchase from "./pages/Purchase";
+import Login from 'src/pages/Login';
+import Setup from 'src/pages/Setup';
+import Settings from 'src/pages/Settings';
+import Vault from 'src/pages/Vault';
+import Lightning from 'src/pages/Lightning';
+import Receive from 'src/pages/Receive';
+import Send from 'src/pages/Send';
+import Home from 'src/pages/Home';
+import Purchase from 'src/pages/Purchase';
 
-import { AccountMapContext } from "./AccountMapContext";
-import { ConfigContext } from "./ConfigContext";
+import { AccountMapContext, ConfigContext, PlatformContext } from 'src/context';
 
-import { NodeConfig, File, AccountMap } from "./types";
-import { networks } from "bitcoinjs-lib";
+import {
+  NodeConfigWithBlockchainInfo,
+  File,
+  AccountMap,
+  LilyAccount,
+  LilyLightningAccount,
+  LilyOnchainAccount
+} from 'src/types';
 
 const App = () => {
   const { setAccountMap, updateAccountMap } = useContext(AccountMapContext);
@@ -39,36 +38,30 @@ const App = () => {
     setCurrentBitcoinPrice,
     currentBitcoinPrice,
     currentBitcoinNetwork,
-    setCurrentBitcoinNetwork,
+    setCurrentBitcoinNetwork
   } = useContext(ConfigContext);
+  const { platform } = useContext(PlatformContext);
   const [historicalBitcoinPrice, setHistoricalBitcoinPrice] = useState({});
-  const [encryptedConfigFile, setEncryptedConfigFile] = useState<File | null>(
-    null
-  );
+  const [encryptedConfigFile, setEncryptedConfigFile] = useState<File | null>(null);
   const [refresh, setRefresh] = useState(false);
   const [flyInAnimation, setInitialFlyInAnimation] = useState(true);
-  const [nodeConfig, setNodeConfig] = useState<NodeConfig | undefined>(
-    undefined
-  );
-  const [password, setPassword] = useState("");
+  const [nodeConfig, setNodeConfig] = useState<NodeConfigWithBlockchainInfo | undefined>(undefined);
+  const [password, setPassword] = useState('');
 
   const ConfigRequired = () => {
     const { pathname } = useLocation();
     const history = useHistory();
-    if (
-      config.isEmpty &&
-      !(pathname === "/login" || pathname === "/settings")
-    ) {
-      history.push("/login");
+    if (config.isEmpty && !(pathname === '/login' || pathname === '/settings')) {
+      history.push('/login');
     }
     return null;
   };
 
   const Overlay = () => {
     const { pathname } = useLocation();
-    if (!config.isEmpty && pathname !== "/setup") {
+    if (!config.isEmpty && pathname !== '/setup') {
       return <ColorOverlap />;
-    } else if (config.isEmpty && pathname === "/settings") {
+    } else if (config.isEmpty && pathname === '/settings') {
       return <ColorOverlap />;
     }
     return null;
@@ -79,7 +72,7 @@ const App = () => {
   };
 
   const getNodeConfig = async () => {
-    const response = await window.ipcRenderer.invoke("/get-node-config");
+    const response = await platform.getNodeConfig();
     setNodeConfig(response);
   };
 
@@ -89,24 +82,20 @@ const App = () => {
   });
 
   useEffect(() => {
-    async function getConfig() {
+    async function retrieveConfig() {
       if (config.isEmpty) {
         try {
-          const { file, modifiedTime } = await window.ipcRenderer.invoke(
-            "/get-config"
-          );
+          const { file, modifiedTime } = await platform.getConfig();
           setEncryptedConfigFile({ file: file.toString(), modifiedTime });
-        } catch (e) { }
+        } catch (e) {}
       }
     }
-    getConfig();
+    retrieveConfig();
   }, [config.isEmpty]);
 
   useEffect(() => {
     async function fetchBitcoinNetwork() {
-      const isTestnet: boolean = await window.ipcRenderer.invoke(
-        "/bitcoin-network"
-      );
+      const isTestnet = await platform.isTestnet();
       setCurrentBitcoinNetwork(isTestnet ? networks.testnet : networks.bitcoin);
     }
     fetchBitcoinNetwork();
@@ -122,12 +111,8 @@ const App = () => {
 
   useEffect(() => {
     async function fetchCurrentBitcoinPrice() {
-      const currentBitcoinPrice = await (
-        await axios.get("https://api.coindesk.com/v1/bpi/currentprice.json")
-      ).data.bpi.USD.rate;
-      setCurrentBitcoinPrice(
-        new BigNumber(currentBitcoinPrice.replace(",", ""))
-      );
+      const currentBitcoinPrice = await platform.getCurrentBitcoinPrice();
+      setCurrentBitcoinPrice(new BigNumber(currentBitcoinPrice));
     }
     fetchCurrentBitcoinPrice();
   }, [setCurrentBitcoinPrice]);
@@ -135,12 +120,10 @@ const App = () => {
   useEffect(() => {
     async function fetchHistoricalBTCPrice() {
       try {
-        const response = await window.ipcRenderer.invoke(
-          "/historical-btc-price"
-        );
+        const response = await platform.getHistoricalBitcoinPrice();
         setHistoricalBitcoinPrice(response);
       } catch (e) {
-        console.log("Error retrieving historical bitcoin price");
+        console.log('Error retrieving historical bitcoin price');
       }
     }
     fetchHistoricalBTCPrice();
@@ -149,8 +132,7 @@ const App = () => {
   useEffect(() => {
     async function fetchNodeConfig() {
       try {
-        const response = await window.ipcRenderer.invoke("/get-node-config");
-        setNodeConfig(response);
+        await getNodeConfig();
       } catch (e) {
         console.log(e);
       }
@@ -160,90 +142,76 @@ const App = () => {
 
   // fetch/build account data from config file
   useEffect(() => {
-    if (config.wallets.length || config.vaults.length) {
-      const initialAccountMap = {} as AccountMap;
+    const initialAccountMap: AccountMap = {};
 
-      for (let i = 0; i < config.wallets.length; i++) {
-        initialAccountMap[config.wallets[i].id] = {
-          name: config.wallets[i].name,
-          config: config.wallets[i],
-          transactions: [],
-          unusedAddresses: [],
-          addresses: [],
-          changeAddresses: [],
-          availableUtxos: [],
-          unusedChangeAddresses: [],
-          currentBalance: 0,
-          loading: true,
-        };
-        window.ipcRenderer.send("/account-data", {
-          config: config.wallets[i],
-          nodeConfig,
-        }); // TODO: allow setting nodeConfig to be dynamic later
-      }
+    for (let i = 0; i < config.wallets.length; i++) {
+      initialAccountMap[config.wallets[i].id] = {
+        name: config.wallets[i].name,
+        config: config.wallets[i],
+        transactions: [],
+        unusedAddresses: [],
+        addresses: [],
+        changeAddresses: [],
+        availableUtxos: [],
+        unusedChangeAddresses: [],
+        currentBalance: 0,
+        loading: true
+      };
 
-      for (let i = 0; i < config.vaults.length; i++) {
-        initialAccountMap[config.vaults[i].id] = {
-          name: config.vaults[i].name,
-          config: config.vaults[i],
-          transactions: [],
-          unusedAddresses: [],
-          addresses: [],
-          changeAddresses: [],
-          availableUtxos: [],
-          unusedChangeAddresses: [],
-          currentBalance: 0,
-          loading: true,
-        };
-          window.ipcRenderer.send("/account-data", {
-            config: config.vaults[i],
-            nodeConfig,
-          }); // TODO: allow setting nodeConfig to be dynamic later
-      }
-
-      for (let i = 0; i < config.lightning.length; i++) {
-        initialAccountMap[config.lightning[i].id] = {
-          name: config.lightning[i].name,
-          config: config.lightning[i],
-          channels: [],
-          pendingChannels: [],
-          closedChannels: [],
-          info: {},
-          events: [],
-          payments: [],
-          invoices: [],
-          balanceHistory: [],
-          currentBalance: {
-            balance: '0',
-            pendingOpenBalance: '0'
-          },
-          loading: true,
-        };
-
-        window.ipcRenderer.send("/lightning-account-data", {
-          config: config.lightning[i],
-        }); // TODO: allow setting nodeConfig to be dynamic later
-      }
-
-      window.ipcRenderer.on(
-        "/lightning-account-data",
-        (_event: any, ...args: any) => {
-          const accountInfo = args[0];
-          updateAccountMap({
-            ...accountInfo,
-          });
-        }
-      );
-
-      window.ipcRenderer.on("/account-data", (_event: any, ...args: any) => {
-        const accountInfo = args[0];
+      platform.getOnchainData(config.wallets[i], (accountInfo: LilyAccount) => {
         updateAccountMap({
-          ...accountInfo,
+          ...accountInfo
         });
       });
-
-      setAccountMap(initialAccountMap);
     }
+
+    for (let i = 0; i < config.vaults.length; i++) {
+      initialAccountMap[config.vaults[i].id] = {
+        name: config.vaults[i].name,
+        config: config.vaults[i],
+        transactions: [],
+        unusedAddresses: [],
+        addresses: [],
+        changeAddresses: [],
+        availableUtxos: [],
+        unusedChangeAddresses: [],
+        currentBalance: 0,
+        loading: true
+      };
+      platform.getOnchainData(config.vaults[i], (accountInfo: LilyOnchainAccount) => {
+        updateAccountMap({
+          ...accountInfo
+        });
+      });
+    }
+
+    for (let i = 0; i < config.lightning.length; i++) {
+      initialAccountMap[config.lightning[i].id] = {
+        name: config.lightning[i].name,
+        config: config.lightning[i],
+        channels: [],
+        pendingChannels: [],
+        closedChannels: [],
+        info: {},
+        events: [],
+        payments: [],
+        invoices: [],
+        balanceHistory: [],
+        currentBalance: {
+          balance: '0',
+          pendingOpenBalance: '0'
+        },
+        loading: true
+      };
+
+      platform.getLightningData(config.lightning[i], (accountInfo: LilyLightningAccount) => {
+        updateAccountMap({
+          ...accountInfo
+        });
+      });
+    }
+
+    setAccountMap(initialAccountMap);
   }, [config, refresh, nodeConfig, setAccountMap, updateAccountMap]);
 
   return (
@@ -251,23 +219,17 @@ const App = () => {
       <ScrollToTop />
       <TitleBar nodeConfig={nodeConfig} config={config} />
       {!config.isEmpty && (
-        <AlertBar
-          nodeConfig={nodeConfig}
-          currentBitcoinNetwork={currentBitcoinNetwork}
-        />
+        <AlertBar nodeConfig={nodeConfig} currentBitcoinNetwork={currentBitcoinNetwork} />
       )}
-      <PageWrapper id="page-wrapper">
+      <PageWrapper id='page-wrapper'>
         <ConfigRequired />
         <Overlay />
         {!config.isEmpty && (
-          <Sidebar
-            flyInAnimation={flyInAnimation}
-            currentBitcoinNetwork={currentBitcoinNetwork}
-          />
+          <Sidebar flyInAnimation={flyInAnimation} currentBitcoinNetwork={currentBitcoinNetwork} />
         )}
         <Switch>
           <Route
-            path="/vault/:id/purchase"
+            path='/vault/:id/purchase'
             render={() => (
               <Purchase
                 currentBitcoinPrice={currentBitcoinPrice}
@@ -278,7 +240,7 @@ const App = () => {
             )}
           />
           <Route
-            path="/vault/:id"
+            path='/vault/:id'
             render={() => (
               <Vault
                 password={password}
@@ -289,7 +251,7 @@ const App = () => {
             )}
           />
           <Route
-            path="/lightning/:id"
+            path='/lightning/:id'
             render={() => (
               <Lightning
                 password={password}
@@ -299,10 +261,10 @@ const App = () => {
               />
             )}
           />
-          <Route path="/receive" render={() => <Receive config={config} />} />
+          <Route path='/receive' render={() => <Receive config={config} />} />
           {nodeConfig && (
             <Route
-              path="/send"
+              path='/send'
               render={() => (
                 <Send
                   config={config}
@@ -314,7 +276,7 @@ const App = () => {
             />
           )}
           <Route
-            path="/setup"
+            path='/setup'
             render={() => (
               <Setup
                 password={password}
@@ -324,7 +286,7 @@ const App = () => {
             )}
           />
           <Route
-            path="/login"
+            path='/login'
             render={() => (
               <Login
                 setPassword={setPassword}
@@ -336,7 +298,7 @@ const App = () => {
             )}
           />
           <Route
-            path="/settings"
+            path='/settings'
             render={() => (
               <Settings
                 nodeConfig={nodeConfig!}
@@ -348,7 +310,7 @@ const App = () => {
             )}
           />
           <Route
-            path="/"
+            path='/'
             render={() => (
               <Home
                 flyInAnimation={flyInAnimation}
@@ -358,7 +320,7 @@ const App = () => {
               />
             )}
           />
-          <Route path="/" render={() => <div>Not Found</div>} />
+          <Route path='/' render={() => <div>Not Found</div>} />
         </Switch>
       </PageWrapper>
     </Router>
@@ -383,7 +345,7 @@ const ColorOverlap = styled.div`
 const PageWrapper = styled.div`
   height: 100%;
   display: flex;
-  font-family: "Raleway", sans-serif;
+  font-family: 'Raleway', sans-serif;
   flex: 1;
   background: ${gray50};
 

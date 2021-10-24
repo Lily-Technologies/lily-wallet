@@ -1,8 +1,5 @@
-import { payments, networks, Network } from "bitcoinjs-lib";
-import {
-  deriveChildPublicKey,
-  generateMultisigFromPublicKeys,
-} from "unchained-bitcoin";
+import { payments, networks, Network } from 'bitcoinjs-lib';
+import { deriveChildPublicKey, generateMultisigFromPublicKeys } from 'unchained-bitcoin';
 
 import {
   OnChainConfig,
@@ -15,29 +12,24 @@ import {
   PubKey,
   ExtendedPublicKey,
   EsploraTransactionResponse,
-  TransactionType,
-} from "src/types";
+  TransactionType
+} from 'src/types';
 
-import { bitcoinNetworkEqual } from 'src/utils/files';
+import { bitcoinNetworkEqual } from './files';
 
 function isVout(item: Vin | Vout): item is Vout {
   return (item as Vout).value !== undefined;
 }
 
-export const getUnchainedNetworkFromBjslibNetwork = (
-  bitcoinJslibNetwork: Network
-) => {
+export const getUnchainedNetworkFromBjslibNetwork = (bitcoinJslibNetwork: Network) => {
   if (bitcoinNetworkEqual(bitcoinJslibNetwork, networks.bitcoin)) {
-    return "mainnet";
+    return 'mainnet';
   } else {
-    return "testnet";
+    return 'testnet';
   }
 };
 
-export const createAddressMapFromAddressArray = (
-  addressArray: Address[],
-  isChange: boolean
-) => {
+export const createAddressMapFromAddressArray = (addressArray: Address[], isChange: boolean) => {
   const addressMap: AddressMap = {};
   addressArray.forEach((addr) => {
     addressMap[addr.address!] = { ...addr, isChange: !!isChange };
@@ -55,9 +47,8 @@ export const createAddressMapFromAddressArray = (
  */
 const sum = (items: (Vin | Vout)[], isMine: boolean, isChange?: boolean) => {
   let filtered = items;
-  if (typeof isMine === "boolean")
-    filtered = filtered.filter((item) => item.isMine === isMine);
-  if (typeof isChange === "boolean")
+  if (typeof isMine === 'boolean') filtered = filtered.filter((item) => item.isMine === isMine);
+  if (typeof isChange === 'boolean')
     filtered = filtered.filter((item) => item.isChange === isChange);
   let total = filtered.reduce((accum: number, item: Vin | Vout) => {
     if (isVout(item)) {
@@ -100,15 +91,10 @@ export const serializeTransactions = (
   addresses: Address[],
   changeAddresses: Address[]
 ): Transaction[] => {
-  transactionsFromBlockstream.sort(
-    (a, b) => a.status.block_time - b.status.block_time
-  );
+  transactionsFromBlockstream.sort((a, b) => a.status.block_time - b.status.block_time);
 
   const addressesMap = createAddressMapFromAddressArray(addresses, false);
-  const changeAddressesMap = createAddressMapFromAddressArray(
-    changeAddresses,
-    true
-  );
+  const changeAddressesMap = createAddressMapFromAddressArray(changeAddresses, true);
 
   const txMap: { [txid: string]: EsploraTransactionResponse } = {};
   const txs = transactionsFromBlockstream
@@ -134,8 +120,8 @@ export const serializeTransactions = (
     let value: number;
     // TODO: this is broken when Electrum is Provider
     if (amountIn === amountOut + (amountIn > 0 ? tx.fee : 0)) {
-      type = "moved";
-      address = "";
+      type = 'moved';
+      address = '';
       balance -= tx.fee;
       totalValue = balance;
       address = tx.vout.filter((vout) => vout.isChange)[0].scriptpubkey_address;
@@ -143,12 +129,11 @@ export const serializeTransactions = (
     } else {
       const feeContribution = amountIn > 0 ? tx.fee : 0;
       const netAmount = amountIn - amountOut - feeContribution;
-      type = netAmount > 0 ? "sent" : "received";
-      if (type === "sent") {
+      type = netAmount > 0 ? 'sent' : 'received';
+      if (type === 'sent') {
         balance -= amountIn - amountOutChange + feeContribution;
         totalValue = balance;
-        address = tx.vout.filter((vout) => !vout.isMine)[0]
-          .scriptpubkey_address;
+        address = tx.vout.filter((vout) => !vout.isMine)[0].scriptpubkey_address;
         value = tx.vout
           .filter((vout) => !vout.isMine)
           .reduce((accum, item) => accum + item.value, 0);
@@ -166,13 +151,11 @@ export const serializeTransactions = (
       type,
       address,
       totalValue,
-      value,
+      value
     } as Transaction;
   });
 
-  return serializedTxs.sort(
-    (a, b) => b.status.block_time - a.status.block_time
-  );
+  return serializedTxs.sort((a, b) => b.status.block_time - a.status.block_time);
 };
 
 const getChildPubKeyFromXpub = (
@@ -181,7 +164,7 @@ const getChildPubKeyFromXpub = (
   currentBitcoinNetwork: Network
 ) => {
   const childPubKeysBip32Path = bip32Path;
-  let bip32derivationPath = `${xpub.bip32Path}/${bip32Path.replace("m/", "")}`;
+  let bip32derivationPath = `${xpub.bip32Path}/${bip32Path.replace('m/', '')}`;
 
   return {
     childPubKey: deriveChildPublicKey(
@@ -190,17 +173,17 @@ const getChildPubKeyFromXpub = (
       getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)
     ),
     bip32derivation: {
-      masterFingerprint: Buffer.from(xpub.parentFingerprint as string, "hex"),
+      masterFingerprint: Buffer.from(xpub.parentFingerprint as string, 'hex'),
       pubkey: Buffer.from(
         deriveChildPublicKey(
           xpub.xpub!,
           childPubKeysBip32Path,
           getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)
         ),
-        "hex"
+        'hex'
       ),
-      path: bip32derivationPath,
-    },
+      path: bip32derivationPath
+    }
   };
 };
 
@@ -218,9 +201,7 @@ const getMultisigAddressFromPubKeys = (
     config.quorum.requiredSigners,
     ...rawPubkeys
   );
-  address.bip32derivation = pubkeys.map(
-    (publicKey) => publicKey.bip32derivation
-  );
+  address.bip32derivation = pubkeys.map((publicKey) => publicKey.bip32derivation);
   return address;
 };
 
@@ -229,7 +210,7 @@ const getAddressFromPubKey = (
   addressType: AddressType,
   currentBitcoinNetwork: Network
 ): Address => {
-  if (addressType === "p2sh") {
+  if (addressType === 'p2sh') {
     const {
       // network,
       address: _address,
@@ -237,13 +218,13 @@ const getAddressFromPubKey = (
       output,
       redeem,
       input,
-      witness,
+      witness
     } = payments.p2sh({
       redeem: payments.p2wpkh({
-        pubkey: Buffer.from(childPubKey.childPubKey, "hex"),
-        network: currentBitcoinNetwork,
+        pubkey: Buffer.from(childPubKey.childPubKey, 'hex'),
+        network: currentBitcoinNetwork
       }),
-      network: currentBitcoinNetwork,
+      network: currentBitcoinNetwork
     });
     return {
       network: currentBitcoinNetwork,
@@ -253,7 +234,7 @@ const getAddressFromPubKey = (
       redeem,
       input,
       witness,
-      bip32derivation: [childPubKey.bip32derivation],
+      bip32derivation: [childPubKey.bip32derivation]
     };
   } else {
     // p2wpkh
@@ -264,10 +245,10 @@ const getAddressFromPubKey = (
       output,
       redeem,
       input,
-      witness,
+      witness
     } = payments.p2wpkh({
-      pubkey: Buffer.from(childPubKey.childPubKey, "hex"),
-      network: currentBitcoinNetwork,
+      pubkey: Buffer.from(childPubKey.childPubKey, 'hex'),
+      network: currentBitcoinNetwork
     });
     return {
       network: currentBitcoinNetwork,
@@ -277,7 +258,7 @@ const getAddressFromPubKey = (
       redeem,
       input,
       witness,
-      bip32derivation: [childPubKey.bip32derivation],
+      bip32derivation: [childPubKey.bip32derivation]
     };
   }
 };
@@ -290,17 +271,9 @@ export const getAddressFromAccount = (
   if (account.quorum.totalSigners > 1) {
     // multisig
     const childPubKeys = account.extendedPublicKeys.map((extendedPublicKey) => {
-      return getChildPubKeyFromXpub(
-        extendedPublicKey,
-        path,
-        currentBitcoinNetwork
-      );
+      return getChildPubKeyFromXpub(extendedPublicKey, path, currentBitcoinNetwork);
     });
-    return getMultisigAddressFromPubKeys(
-      childPubKeys,
-      account,
-      currentBitcoinNetwork
-    );
+    return getMultisigAddressFromPubKeys(childPubKeys, account, currentBitcoinNetwork);
   } else {
     // single sig
     const receivePubKey = getChildPubKeyFromXpub(
@@ -308,10 +281,6 @@ export const getAddressFromAccount = (
       path,
       currentBitcoinNetwork
     );
-    return getAddressFromPubKey(
-      receivePubKey,
-      account.addressType,
-      currentBitcoinNetwork
-    );
+    return getAddressFromPubKey(receivePubKey, account.addressType, currentBitcoinNetwork);
   }
 };

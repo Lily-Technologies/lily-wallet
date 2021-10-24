@@ -1,5 +1,8 @@
-import React, { useState, useEffect, useCallback } from "react";
-import styled from "styled-components";
+import React, { useState, useEffect, useCallback, useContext } from 'react';
+import styled from 'styled-components';
+import { satoshisToBitcoins } from 'unchained-bitcoin';
+import moment from 'moment';
+import BigNumber from 'bignumber.js';
 import {
   AreaChart,
   Area,
@@ -7,27 +10,19 @@ import {
   XAxis,
   YAxis,
   Tooltip,
-  TooltipPayload,
-} from "recharts";
-import { satoshisToBitcoins } from "unchained-bitcoin";
-import moment from "moment";
-import BigNumber from "bignumber.js";
+  TooltipPayload
+} from 'recharts';
 
-import { Loading, Modal } from "src/components";
+import { Loading, Modal } from 'src/components';
 
-import RecentTransactions from "./RecentTransactions";
-import { RescanModal } from "./RescanModal";
+import RecentTransactions from './RecentTransactions';
+import { RescanModal } from './RescanModal';
 
-import { NodeConfig, LilyOnchainAccount } from "src/types";
-import { requireOnchain } from "src/hocs";
+import { NodeConfigWithBlockchainInfo, LilyOnchainAccount } from 'src/types';
+import { requireOnchain } from 'src/hocs';
 
-import {
-  white,
-  gray500,
-  gray600,
-  yellow100,
-  yellow500,
-} from "src/utils/colors";
+import { white, gray500, gray600, yellow100, yellow500 } from 'src/utils/colors';
+import { PlatformContext } from 'src/context';
 
 interface TooltipProps {
   active: boolean;
@@ -42,7 +37,7 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
         <PriceTooltip>{`${
           payload[0].value ? satoshisToBitcoins(payload[0].value as number) : 0
         } BTC`}</PriceTooltip>
-        <DateTooltip>{moment.unix(label).format("MMMM DD, YYYY")}</DateTooltip>
+        <DateTooltip>{moment.unix(label).format('MMMM DD, YYYY')}</DateTooltip>
       </TooltipContainer>
     );
   }
@@ -51,12 +46,13 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
 };
 
 interface Props {
-  nodeConfig: NodeConfig;
+  nodeConfig: NodeConfigWithBlockchainInfo;
   toggleRefresh: () => void;
   currentAccount: LilyOnchainAccount;
 }
 
 const VaultView = ({ currentAccount, nodeConfig, toggleRefresh }: Props) => {
+  const { platform } = useContext(PlatformContext);
   const [progress, setProgress] = useState<number>(0);
   const { currentBalance, transactions } = currentAccount;
   const [modalIsOpen, setModalIsOpen] = useState(false);
@@ -73,14 +69,14 @@ const VaultView = ({ currentAccount, nodeConfig, toggleRefresh }: Props) => {
     dataForChart = [
       {
         block_time: sortedTransactions[0].status.block_time - 1,
-        totalValue: 0,
-      },
+        totalValue: 0
+      }
     ];
 
     for (let i = 0; i < sortedTransactions.length; i++) {
       dataForChart.push({
         block_time: sortedTransactions[i].status.block_time,
-        totalValue: new BigNumber(sortedTransactions[i].totalValue).toNumber(),
+        totalValue: new BigNumber(sortedTransactions[i].totalValue).toNumber()
       });
     }
 
@@ -88,7 +84,7 @@ const VaultView = ({ currentAccount, nodeConfig, toggleRefresh }: Props) => {
       block_time: Math.floor(Date.now() / 1000),
       totalValue: new BigNumber(
         sortedTransactions[sortedTransactions.length - 1].totalValue
-      ).toNumber(),
+      ).toNumber()
     });
   }
 
@@ -104,13 +100,9 @@ const VaultView = ({ currentAccount, nodeConfig, toggleRefresh }: Props) => {
 
   const scanProgress = useCallback(async () => {
     try {
-      if (
-        nodeConfig.provider === "Custom Node" ||
-        nodeConfig.provider === "Bitcoin Core"
-      ) {
-        const { scanning } = await window.ipcRenderer.invoke("/getWalletInfo", {
-          currentAccount,
-        });
+      if (nodeConfig.provider === 'Custom Node' || nodeConfig.provider === 'Bitcoin Core') {
+        const { scanning } = await platform.getWalletInfo(currentAccount);
+
         if (scanning) {
           setProgress(scanning.progress);
         } else if (progress < 100) {
@@ -129,7 +121,7 @@ const VaultView = ({ currentAccount, nodeConfig, toggleRefresh }: Props) => {
         }
       }
     } catch (e) {
-      console.log("e: ", e);
+      console.log('e: ', e);
     }
   }, [currentAccount, nodeConfig.provider, toggleRefresh]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -146,10 +138,7 @@ const VaultView = ({ currentAccount, nodeConfig, toggleRefresh }: Props) => {
   useEffect(() => {
     const interval = setInterval(async () => {
       scanProgress();
-      if (
-        progress > 100 &&
-        (!!!currentAccount.loading || !!currentAccount.loading.progress)
-      ) {
+      if (progress > 100 && (!!!currentAccount.loading || !!currentAccount.loading.progress)) {
         setProgress(0);
         clearInterval(interval);
       }
@@ -159,22 +148,19 @@ const VaultView = ({ currentAccount, nodeConfig, toggleRefresh }: Props) => {
 
   return (
     <>
-      {currentAccount.loading ||
-      (progress && currentAccount.transactions.length === 0) ? (
+      {currentAccount.loading || (progress && currentAccount.transactions.length === 0) ? (
         <ValueWrapper>
           {/* @ts-ignore-line */}
           <Loading
-            style={{ margin: "10em 0" }}
+            style={{ margin: '10em 0' }}
             message={
               progress > 100
-                ? "Fetching newly scanned transactions"
+                ? 'Fetching newly scanned transactions'
                 : progress
-                ? `Scanning for transactions \n (${(progress * 100).toFixed(
-                    2
-                  )}% complete)`
+                ? `Scanning for transactions \n (${(progress * 100).toFixed(2)}% complete)`
                 : undefined
             }
-            itemText={!progress ? "Transaction Data" : undefined}
+            itemText={!progress ? 'Transaction Data' : undefined}
           />
         </ValueWrapper>
       ) : null}
@@ -185,25 +171,21 @@ const VaultView = ({ currentAccount, nodeConfig, toggleRefresh }: Props) => {
             {satoshisToBitcoins(currentBalance).toFixed(8)} BTC
           </CurrentBalanceContainer>
           <ChartContainer>
-            <ResponsiveContainer width="100%" height={400}>
+            <ResponsiveContainer width='100%' height={400}>
               <AreaChart width={400} height={400} data={dataForChart}>
-                <YAxis
-                  dataKey="totalValue"
-                  hide={true}
-                  domain={["dataMin", "dataMax + 10000"]}
-                />
+                <YAxis dataKey='totalValue' hide={true} domain={['dataMin', 'dataMax + 10000']} />
                 <XAxis
-                  dataKey="block_time"
+                  dataKey='block_time'
                   height={50}
-                  interval={"preserveStartEnd"}
+                  interval={'preserveStartEnd'}
                   tickCount={transactions.length > 10 ? 5 : transactions.length}
                   tickFormatter={(blocktime) => {
-                    return moment.unix(blocktime).format("MMM D");
+                    return moment.unix(blocktime).format('MMM D');
                   }}
                 />
                 <Area
-                  type="monotone"
-                  dataKey="totalValue"
+                  type='monotone'
+                  dataKey='totalValue'
                   stroke={yellow500}
                   strokeWidth={2}
                   isAnimationActive={false}
@@ -214,7 +196,7 @@ const VaultView = ({ currentAccount, nodeConfig, toggleRefresh }: Props) => {
                   cursor={false}
                   allowEscapeViewBox={{ x: true, y: true }}
                   wrapperStyle={{
-                    marginLeft: -10,
+                    marginLeft: -10
                   }}
                   content={CustomTooltip}
                 />
@@ -237,9 +219,7 @@ const VaultView = ({ currentAccount, nodeConfig, toggleRefresh }: Props) => {
         loading={!!currentAccount.loading || progress > 0}
         flat={false}
         openRescanModal={
-          nodeConfig?.provider === "Blockstream"
-            ? undefined
-            : () => openRescanModal()
+          nodeConfig?.provider === 'Blockstream' ? undefined : () => openRescanModal()
         }
       />
       <Modal isOpen={modalIsOpen} closeModal={() => setModalIsOpen(false)}>

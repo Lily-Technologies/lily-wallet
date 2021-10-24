@@ -1,21 +1,24 @@
-import React, { useState } from "react";
-import { Network } from "bitcoinjs-lib";
-import { AES } from "crypto-js";
+import React, { useState, useContext } from 'react';
+import { Network } from 'bitcoinjs-lib';
+import { AES } from 'crypto-js';
 
-import { Modal, SettingsTable } from "../../components";
+import { Modal, SettingsTable } from 'src/components';
 
-import { PasswordModal } from "./PasswordModal";
+import { PasswordModal } from './PasswordModal';
 
-import { LilyConfig } from "../../types";
+import { LilyConfig } from 'src/types';
 
-import { downloadFile, formatFilename } from "../../utils/files";
-import { white, green500 } from "../../utils/colors";
+import { downloadFile, formatFilename } from 'src/utils/files';
+import { white, green500 } from 'src/utils/colors';
+
+import { PlatformContext } from 'src/context';
 interface Props {
   config: LilyConfig;
   currentBitcoinNetwork: Network;
 }
 
 const BackupSettings = ({ config, currentBitcoinNetwork }: Props) => {
+  const { platform } = useContext(PlatformContext);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
 
@@ -25,20 +28,19 @@ const BackupSettings = ({ config, currentBitcoinNetwork }: Props) => {
   };
 
   const downloadEncryptedCurrentConfig = (password: string) => {
-    const encryptedConfigObject = AES.encrypt(
-      JSON.stringify(config),
-      password
-    ).toString();
+    const encryptedConfigObject = AES.encrypt(JSON.stringify(config), password).toString();
     downloadFile(
       encryptedConfigObject,
-      formatFilename("lily_wallet_config", currentBitcoinNetwork, "txt")
+      formatFilename('lily_wallet_config', currentBitcoinNetwork, 'txt'),
+      platform
     );
   };
 
   const downloadUnencryptedCurrentConfig = () => {
     downloadFile(
       JSON.stringify(config),
-      formatFilename("lily_wallet_config", currentBitcoinNetwork, "json")
+      formatFilename('lily_wallet_config', currentBitcoinNetwork, 'json'),
+      platform
     );
   };
 
@@ -62,12 +64,8 @@ const BackupSettings = ({ config, currentBitcoinNetwork }: Props) => {
               onClick={() =>
                 openInModal(
                   <PasswordModal
-                    downloadEncryptedCurrentConfig={
-                      downloadEncryptedCurrentConfig
-                    }
-                    downloadUnencryptedCurrentConfig={
-                      downloadUnencryptedCurrentConfig
-                    }
+                    downloadEncryptedCurrentConfig={downloadEncryptedCurrentConfig}
+                    downloadUnencryptedCurrentConfig={downloadUnencryptedCurrentConfig}
                   />
                 )
               }

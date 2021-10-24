@@ -1,34 +1,32 @@
-import React, { Fragment, useContext, useRef, useEffect } from "react";
-import styled, { css } from "styled-components";
-import { blockExplorerTransactionURL } from "unchained-bitcoin";
-import { Network } from "bitcoinjs-lib";
-import { useHistory } from "react-router-dom";
-import { Alert } from "@styled-icons/ionicons-outline";
+import React, { Fragment, useContext, useRef, useEffect } from 'react';
+import styled, { css } from 'styled-components';
+import { blockExplorerTransactionURL } from 'unchained-bitcoin';
+import { Network } from 'bitcoinjs-lib';
+import { useHistory } from 'react-router-dom';
+import { Alert } from '@styled-icons/ionicons-outline';
 
-import { Button } from ".";
+import { Button } from '.';
 
-import { white, yellow500, yellow600 } from "../utils/colors";
+import { AccountMapContext, ConfigContext, PlatformContext } from 'src/context';
+import { NodeConfigWithBlockchainInfo, VaultConfig } from 'src/types';
 
-import { NodeConfig, VaultConfig } from "../types";
-
-import { getLicenseBannerMessage, licenseTxId } from "../utils/license";
-import { mobile } from "../utils/media";
-import { getUnchainedNetworkFromBjslibNetwork } from "../utils/files";
-
-import { ConfigContext } from "../ConfigContext";
-import { AccountMapContext } from "../AccountMapContext";
+import { getLicenseBannerMessage, licenseTxId } from 'src/utils/license';
+import { mobile } from 'src/utils/media';
+import { getUnchainedNetworkFromBjslibNetwork } from 'src/utils/files';
+import { white, yellow500, yellow600 } from 'src/utils/colors';
 
 interface Props {
-  nodeConfig: NodeConfig | undefined;
+  nodeConfig: NodeConfigWithBlockchainInfo | undefined;
   currentBitcoinNetwork: Network;
 }
 
 export const AlertBar = ({ nodeConfig, currentBitcoinNetwork }: Props) => {
   const { config } = useContext(ConfigContext);
+  const { platform } = useContext(PlatformContext);
   const { setCurrentAccountId } = useContext(AccountMapContext);
   const history = useHistory();
 
-  let licenseBannerMessage = useRef({ message: "", promptBuy: false });
+  let licenseBannerMessage = useRef({ message: '', promptBuy: false });
   let licenseBannerAccount = useRef({} as VaultConfig);
 
   useEffect(() => {
@@ -39,14 +37,11 @@ export const AlertBar = ({ nodeConfig, currentBitcoinNetwork }: Props) => {
           try {
             const txId = licenseTxId(vault.license);
             if (txId) {
-              licenseTxConfirmed = await window.ipcRenderer.invoke(
-                "/isConfirmedTransaction",
-                { txId }
-              );
+              licenseTxConfirmed = await platform.isConfirmedTransaction(txId);
             }
           } catch (e) {
             licenseTxConfirmed = false;
-            console.log("AlertBar: Error retriving license transaction");
+            console.log('AlertBar: Error retriving license transaction');
           }
           licenseBannerMessage.current = getLicenseBannerMessage(
             vault,
@@ -58,7 +53,7 @@ export const AlertBar = ({ nodeConfig, currentBitcoinNetwork }: Props) => {
       }
     }
     checkLicenseTxConfirmed();
-  }, [config, nodeConfig]);
+  }, [config, nodeConfig, platform]);
 
   if (licenseBannerMessage.current.message) {
     return (
@@ -78,9 +73,7 @@ export const AlertBar = ({ nodeConfig, currentBitcoinNetwork }: Props) => {
                 color={yellow500}
                 onClick={() => {
                   setCurrentAccountId(licenseBannerAccount.current.id);
-                  history.push(
-                    `/vault/${licenseBannerAccount.current.id}/purchase`
-                  );
+                  history.push(`/vault/${licenseBannerAccount.current.id}/purchase`);
                 }}
               >
                 Buy a License
@@ -93,7 +86,7 @@ export const AlertBar = ({ nodeConfig, currentBitcoinNetwork }: Props) => {
                   licenseTxId(licenseBannerAccount.current.license) as string,
                   getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)
                 )}
-                target="_blank"
+                target='_blank'
               >
                 View transaction
               </ViewTransactionButton>

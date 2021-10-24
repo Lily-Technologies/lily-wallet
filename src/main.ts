@@ -1,26 +1,16 @@
-import { app, BrowserWindow, ipcMain, dialog, shell } from "electron";
-import axios from "axios";
-import { blockExplorerAPIURL } from "unchained-bitcoin";
-import moment from "moment";
-import { networks } from "bitcoinjs-lib";
-import BigNumber from "bignumber.js";
-import crypto from "crypto";
-import {
-  createLnRpc,
-  InvoiceState,
-  createRouterRpc,
-  Payment,
-} from "@radar/lnrpc";
+import { app, BrowserWindow, ipcMain, dialog, shell } from 'electron';
+import axios from 'axios';
+import path from 'path';
+import fs from 'fs';
+import { blockExplorerAPIURL } from 'unchained-bitcoin';
+import moment from 'moment';
+import BigNumber from 'bignumber.js';
+import crypto from 'crypto';
+import { createLnRpc, InvoiceState, createRouterRpc, Payment } from '@radar/lnrpc';
 
-import { parseLndConnectUri } from "./utils/lightning";
+import { parseLndConnectUri } from './utils/lightning';
 
-import {
-  enumerate,
-  getXPub,
-  signtx,
-  promptpin,
-  sendpin,
-} from "./server/HWI/commands";
+import { enumerate, getXPub, signtx, promptpin, sendpin } from './server/HWI/commands';
 
 import {
   getClientFromNodeConfig,
@@ -29,18 +19,16 @@ import {
   getTxIdFromChannelPoint,
   getBitcoinCoreConfig,
   sleep,
-  getErrorMessageFromChunk,
-} from "./server/utils";
+  getErrorMessageFromChunk
+} from './server/utils';
 
 import {
   BaseProvider,
   BitcoinCoreProvider,
   BlockstreamProvider,
-  ElectrumProvider,
-} from "./server/providers";
+  ElectrumProvider
+} from './server/providers';
 
-import path from "path";
-import fs from "fs";
 import {
   BalanceHistory,
   NodeConfigWithBlockchainInfo,
@@ -48,14 +36,16 @@ import {
   DecoratedPendingLightningChannel,
   DecoratedLightningChannel,
   HwiResponseEnumerate,
-} from "./types";
+  CoindeskHistoricPriceResponse,
+  CoindeskCurrentPriceResponse
+} from './types';
 
 // disable showErrorBox
 dialog.showErrorBox = function (title, content) {
   console.log(`${title}\n${content}`);
 };
 
-const isTestnet = !!("TESTNET" in process.env);
+const isTestnet = !!('TESTNET' in process.env);
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -70,25 +60,25 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1100,
     height: 600,
-    backgroundColor: "rgb(245, 247, 250)",
+    backgroundColor: 'rgb(245, 247, 250)',
     transparent: true,
     frame: false,
     // icon: path.join(__dirname, '/assets/AppIcon.icns'),
-    titleBarStyle: "hidden",
+    titleBarStyle: 'hidden',
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      preload: path.resolve(__dirname, "preload.js"),
-    },
+      preload: path.resolve(__dirname, 'preload.js')
+    }
   });
 
   mainWindow.setTrafficLightPosition &&
     mainWindow.setTrafficLightPosition({
       x: 10,
-      y: 10,
+      y: 10
     });
 
-  if ("DEVURL" in process.env) {
+  if ('DEVURL' in process.env) {
     // load dev url
     mainWindow.loadURL(`http://localhost:3001/`);
   } else {
@@ -104,18 +94,18 @@ function createWindow() {
   // })
 
   mainWindow.webContents.on(
-    "new-window",
+    'new-window',
     (event, url, frameName, disposition, options, additionalFeatures) => {
       event.preventDefault();
 
       shell.openExternal(url);
-      if (frameName === "modal") {
+      if (frameName === 'modal') {
         // open window as modal
         Object.assign(options, {
           modal: true,
           parent: mainWindow,
           width: 100,
-          height: 100,
+          height: 100
         });
         event.newGuest = new BrowserWindow(options);
       }
@@ -123,7 +113,7 @@ function createWindow() {
   );
 
   // Emitted when the window is closed.
-  mainWindow.on("closed", function () {
+  mainWindow.on('closed', function () {
     // Dereference the window object, usually you would store windows
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
@@ -133,52 +123,49 @@ function createWindow() {
 
 const setupInitialNodeConfig = async () => {
   try {
-    console.log("Trying to connect to local Bitcoin Core instance...");
+    console.log('Trying to connect to local Bitcoin Core instance...');
     const nodeConfig = await getBitcoinCoreConfig();
     DataProvider = new BitcoinCoreProvider(nodeConfig, isTestnet);
     await DataProvider.initialize();
     if (DataProvider.connected) {
-      console.log("Connected to local Bitcoin Core instance.");
+      console.log('Connected to local Bitcoin Core instance.');
     } else {
-      console.log("Failed to connect to local Bitcoin Core instance.");
+      console.log('Failed to connect to local Bitcoin Core instance.');
       throw new Error(); // throw error to go to catch segment
     }
   } catch (e) {
     try {
-      console.log("Trying to connect to remote Bitcoin Core instance...");
-      const nodeConfigFile = await getFile("node-config.json");
+      console.log('Trying to connect to remote Bitcoin Core instance...');
+      const nodeConfigFile = await getFile('node-config.json');
       const nodeConfig = JSON.parse(nodeConfigFile.file);
       try {
-        DataProvider = new BitcoinCoreProvider(
-          nodeConfig,
-          isTestnet
-        );
+        DataProvider = new BitcoinCoreProvider(nodeConfig, isTestnet);
         await DataProvider.initialize();
         if (DataProvider.connected) {
-          console.log("Connected to remote Bitcoin Core instance");
+          console.log('Connected to remote Bitcoin Core instance');
         } else {
-          console.log("Failed to connect to remote Bitcoin Core instance");
+          console.log('Failed to connect to remote Bitcoin Core instance');
         }
       } catch (e) {
-        console.log("Failed to connect to remote Bitcoin Core instance");
+        console.log('Failed to connect to remote Bitcoin Core instance');
       }
     } catch (e) {
-      console.log("Failed to retrieve remote Bitcoin Core connection data.");
+      console.log('Failed to retrieve remote Bitcoin Core connection data.');
       try {
-        console.log("Connecting to Electrum...");
+        console.log('Connecting to Electrum...');
         DataProvider = new ElectrumProvider(isTestnet);
         DataProvider.initialize();
-        console.log('Connected to Electrum')
+        console.log('Connected to Electrum');
       } catch (e) {
-        console.log("Failed to connect to Electrum");
+        console.log('Failed to connect to Electrum');
 
         try {
-          console.log("Connecting to Blockstream...");
+          console.log('Connecting to Blockstream...');
           DataProvider = new BlockstreamProvider(isTestnet);
           DataProvider.initialize();
-          console.log("Connected to Blockstream");
+          console.log('Connected to Blockstream');
         } catch (e) {
-          console.log("Failed to connect to Blockstream");
+          console.log('Failed to connect to Blockstream');
         }
       }
     }
@@ -188,20 +175,20 @@ const setupInitialNodeConfig = async () => {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on("ready", createWindow);
+app.on('ready', createWindow);
 
-app.on("ready", setupInitialNodeConfig);
+app.on('ready', setupInitialNodeConfig);
 
 // Quit when all windows are closed.
-app.on("window-all-closed", function () {
+app.on('window-all-closed', function () {
   // On OS X it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
-  if (process.platform !== "darwin") {
+  if (process.platform !== 'darwin') {
     app.quit();
   }
 });
 
-app.on("activate", function () {
+app.on('activate', function () {
   // On OS X it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
   if (mainWindow === null) {
@@ -209,7 +196,7 @@ app.on("activate", function () {
   }
 });
 
-ipcMain.on("/account-data", async (event, args) => {
+ipcMain.on('/account-data', async (event, args) => {
   const { config } = args;
 
   // load data from cache
@@ -217,20 +204,20 @@ ipcMain.on("/account-data", async (event, args) => {
 
   try {
     const accountData = await DataProvider.getAccountData(config);
-    event.reply("/account-data", accountData);
+    event.reply('/account-data', accountData);
   } catch (e) {
     console.log(`(${config.id}) /account-data error: `, e);
   }
 });
 
-ipcMain.on("/open-channel", async (event, args) => {
+ipcMain.on('/open-channel', async (event, args) => {
   const { lightningAddress, channelAmount, lndConnectUri } = args;
   try {
     const lnRpcClient = await createLnRpc(parseLndConnectUri(lndConnectUri));
 
     // connect to peer
     const { peers } = await lnRpcClient.listPeers();
-    const [pubkey, host] = lightningAddress.split("@");
+    const [pubkey, host] = lightningAddress.split('@');
 
     // if we aren't connected to peer, then connect
     if (!peers.some((peer) => peer.pubKey === pubkey)) {
@@ -238,75 +225,72 @@ ipcMain.on("/open-channel", async (event, args) => {
       const connectPeerResponse = await lnRpcClient.connectPeer({
         addr: {
           pubkey,
-          host,
-        },
+          host
+        }
       });
       console.log(`connected to peer ${lightningAddress}`);
     }
 
     const pendingChannelId = crypto.randomBytes(32);
     const openChannelOptions = {
-      nodePubkey: Buffer.from(pubkey, "hex"),
+      nodePubkey: Buffer.from(pubkey, 'hex'),
       localFundingAmount: channelAmount,
-      pushSat: "0",
+      pushSat: '0',
       // private?
       fundingShim: {
         psbtShim: {
-          pendingChanId: pendingChannelId,
-        },
-      },
+          pendingChanId: pendingChannelId
+        }
+      }
     };
 
     console.log(`attempting channel open to ${lightningAddress}...`);
     const openingNodeInfo = await lnRpcClient.getNodeInfo({
-      pubKey: pubkey,
+      pubKey: pubkey
     });
 
     const channelResponse = await lnRpcClient.openChannel(openChannelOptions);
 
-    channelResponse.on("data", (chunk) => {
+    channelResponse.on('data', (chunk) => {
       try {
         if (chunk.psbtFund) {
           const openChannelData = {
             ...chunk,
             alias: openingNodeInfo.node!.alias,
-            color: openingNodeInfo.node!.color,
+            color: openingNodeInfo.node!.color
           };
-          event.reply("/open-channel", openChannelData);
+          event.reply('/open-channel', openChannelData);
         } else if (chunk.chanPending) {
-          event.reply("/open-channel", chunk);
+          event.reply('/open-channel', chunk);
         }
       } catch (e) {
-        event.reply("/open-channel", {
+        event.reply('/open-channel', {
           error: {
-            message: e,
-          },
+            message: e
+          }
         });
       }
     });
-    channelResponse.on("error", (chunk) => {
-      console.log(
-        "channelResponse error.message: ",
-        getErrorMessageFromChunk(chunk.message)
-      );
-      event.reply("/open-channel", {
+    channelResponse.on('error', (chunk) => {
+      console.log('channelResponse error.message: ', getErrorMessageFromChunk(chunk.message));
+      event.reply('/open-channel', {
         error: {
-          message: getErrorMessageFromChunk(chunk.message),
-        },
+          message: getErrorMessageFromChunk(chunk.message)
+        }
       });
     });
-    channelResponse.on("end", () => console.log("/open-channel end"));
+    channelResponse.on('end', () => console.log('/open-channel end'));
   } catch (e) {
-    console.log("error opening channel: ", e);
-    event.reply("/open-channel", {
+    console.log('error opening channel: ', e);
+    event.reply('/open-channel', {
       error: {
-        message: e,
-      },
+        message: e
+      }
     });
   }
 });
 
-ipcMain.on("/open-channel-verify", async (event, args) => {
+ipcMain.on('/open-channel-verify', async (event, args) => {
   const { finalPsbt, pendingChanId, lndConnectUri } = args; // unsigned psbt
 
   try {
@@ -314,17 +298,17 @@ ipcMain.on("/open-channel-verify", async (event, args) => {
 
     const response = await lnRpcClient.fundingStateStep({
       psbtVerify: {
-        fundedPsbt: Buffer.from(finalPsbt, "base64"),
-        pendingChanId: pendingChanId,
-      },
+        fundedPsbt: Buffer.from(finalPsbt, 'base64'),
+        pendingChanId: pendingChanId
+      }
     });
-    console.log("/open-channel-verify response: ", response);
+    console.log('/open-channel-verify response: ', response);
   } catch (e) {
-    console.log("/open-channel-verify error: ", e);
+    console.log('/open-channel-verify error: ', e);
   }
 });
 
-ipcMain.on("/open-channel-finalize", async (event, args) => {
+ipcMain.on('/open-channel-finalize', async (event, args) => {
   const { finalPsbt, pendingChanId, lndConnectUri } = args; // signed psbt
 
   try {
@@ -332,21 +316,21 @@ ipcMain.on("/open-channel-finalize", async (event, args) => {
 
     const response = await lnRpcClient.fundingStateStep({
       psbtFinalize: {
-        signedPsbt: Buffer.from(finalPsbt, "base64"),
-        pendingChanId: pendingChanId,
-      },
+        signedPsbt: Buffer.from(finalPsbt, 'base64'),
+        pendingChanId: pendingChanId
+      }
     });
 
-    console.log("/open-channel-finalize response: ", response);
+    console.log('/open-channel-finalize response: ', response);
   } catch (e) {
-    console.log("/open-channel-finalize error: ", e);
+    console.log('/open-channel-finalize error: ', e);
   }
 });
 
-ipcMain.on("/close-channel", async (event, args) => {
+ipcMain.on('/close-channel', async (event, args) => {
   const { channel_point, delivery_address, lndConnectUri } = args;
   console.log(
-    "/close-channel: channel_point, delivery_address, lndConnectUri",
+    '/close-channel: channel_point, delivery_address, lndConnectUri',
     channel_point,
     delivery_address,
     lndConnectUri
@@ -358,39 +342,39 @@ ipcMain.on("/close-channel", async (event, args) => {
     const closeChannelResponse = await lnRpcClient.closeChannel({
       channelPoint: {
         fundingTxidStr: getTxIdFromChannelPoint(channel_point),
-        outputIndex: channel_point.substring(channel_point.indexOf(":")),
+        outputIndex: channel_point.substring(channel_point.indexOf(':'))
       },
-      deliveryAddress: delivery_address,
+      deliveryAddress: delivery_address
     });
 
-    closeChannelResponse.on("data", (chunk) => {
-      console.log("/close-channel data: ", chunk);
-      event.reply("/close-channel", chunk);
+    closeChannelResponse.on('data', (chunk) => {
+      console.log('/close-channel data: ', chunk);
+      event.reply('/close-channel', chunk);
     });
 
-    closeChannelResponse.on("error", (chunk) => {
-      console.log("/close-channel error: ", chunk);
-      event.reply("/close-channel", {
+    closeChannelResponse.on('error', (chunk) => {
+      console.log('/close-channel error: ', chunk);
+      event.reply('/close-channel', {
         error: {
-          message: getErrorMessageFromChunk(chunk.message),
-        },
+          message: getErrorMessageFromChunk(chunk.message)
+        }
       });
     });
 
-    closeChannelResponse.on("end", () => {
-      console.log("/close-channel end");
+    closeChannelResponse.on('end', () => {
+      console.log('/close-channel end');
     });
   } catch (e) {
-    console.log("/close-channel error: ", e);
-    event.reply("/close-channel", {
+    console.log('/close-channel error: ', e);
+    event.reply('/close-channel', {
       error: {
-        message: e,
-      },
+        message: e
+      }
     });
   }
 });
 
-ipcMain.on("/lightning-account-data", async (event, args) => {
+ipcMain.on('/lightning-account-data', async (event, args) => {
   const { config } = args;
   console.log(`Connecting to ${config.name}...`);
   try {
@@ -400,8 +384,7 @@ ipcMain.on("/lightning-account-data", async (event, args) => {
 
     const { channels } = await lnRpcClient.listChannels();
     const { channels: closedChannels } = await lnRpcClient.closedChannels();
-    let { pendingOpenChannels, waitingCloseChannels } =
-      await lnRpcClient.pendingChannels();
+    let { pendingOpenChannels, waitingCloseChannels } = await lnRpcClient.pendingChannels();
     const info = await lnRpcClient.getInfo();
     const balance = await lnRpcClient.channelBalance();
     // const { transactions } = await lnRpcClient.getTransactions();
@@ -417,15 +400,12 @@ ipcMain.on("/lightning-account-data", async (event, args) => {
     }
 
     const incomingTxs = invoices.reduce((filtered, invoice) => {
-      if (
-        invoice.state !== InvoiceState.CANCELED &&
-        invoice.state !== InvoiceState.OPEN
-      ) {
+      if (invoice.state !== InvoiceState.CANCELED && invoice.state !== InvoiceState.OPEN) {
         const decoratedInvoice = {
           ...invoice,
           valueSat: invoice.amtPaidSat,
           title: invoice.memo,
-          type: "PAYMENT_RECEIVE",
+          type: 'PAYMENT_RECEIVE'
         } as LightningEvent;
         filtered.push(decoratedInvoice);
       }
@@ -436,12 +416,12 @@ ipcMain.on("/lightning-account-data", async (event, args) => {
       payments.map(async (payment) => {
         const decoratedPayment = {
           ...payment,
-          type: "PAYMENT_SEND",
-          title: "",
+          type: 'PAYMENT_SEND',
+          title: ''
         } as LightningEvent;
         if (payment.paymentRequest) {
           const decodedPaymentRequest = await lnRpcClient.decodePayReq({
-            payReq: payment.paymentRequest,
+            payReq: payment.paymentRequest
           });
           decoratedPayment.title = decodedPaymentRequest.description;
         }
@@ -456,44 +436,38 @@ ipcMain.on("/lightning-account-data", async (event, args) => {
 
       // TODO: use general method to get tx
       const channelOpenTx = await (
-        await axios.get(blockExplorerAPIURL(`/tx/${txId}`, "mainnet"))
+        await axios.get(blockExplorerAPIURL(`/tx/${txId}`, 'mainnet'))
       ).data;
 
       let alias = closedChannels[i].remotePubkey;
       try {
         const openingNodeInfo = await lnRpcClient.getNodeInfo({
-          pubKey: closedChannels[i].remotePubkey,
+          pubKey: closedChannels[i].remotePubkey
         });
         alias = openingNodeInfo!.node!.alias;
       } catch (e) {
-        console.log("error getting alias: ", e);
+        console.log('error getting alias: ', e);
       }
 
       const channelOpen = {
-        type: "CHANNEL_OPEN",
+        type: 'CHANNEL_OPEN',
         creationDate: channelOpenTx.status.block_time,
         title: `Open channel to ${alias}`,
         valueSat: closedChannels[i].capacity,
-        tx: channelOpenTx,
+        tx: channelOpenTx
       } as LightningEvent;
       closedChannelActivity.push(channelOpen);
 
       const channelCloseTx = await (
-        await axios.get(
-          blockExplorerAPIURL(
-            `/tx/${closedChannels[i].closingTxHash}`,
-            "mainnet"
-          )
-        )
+        await axios.get(blockExplorerAPIURL(`/tx/${closedChannels[i].closingTxHash}`, 'mainnet'))
       ).data;
 
       const channelClose = {
-        type: "CHANNEL_CLOSE",
+        type: 'CHANNEL_CLOSE',
         creationDate: channelCloseTx.status.block_time,
         title: `Close channel to ${alias}`,
-        valueSat:
-          closedChannels[i].settledBalance || closedChannels[i].capacity,
-        tx: channelCloseTx,
+        valueSat: closedChannels[i].settledBalance || closedChannels[i].capacity,
+        tx: channelCloseTx
       } as LightningEvent;
       closedChannelActivity.push(channelClose);
     }
@@ -505,48 +479,47 @@ ipcMain.on("/lightning-account-data", async (event, args) => {
       if (channel) {
         const txId = getTxIdFromChannelPoint(channel.channelPoint);
         const channelOpenTx = await (
-          await axios.get(blockExplorerAPIURL(`/tx/${txId}`, "mainnet"))
+          await axios.get(blockExplorerAPIURL(`/tx/${txId}`, 'mainnet'))
         ).data;
 
         const openingNodeInfo = await lnRpcClient.getNodeInfo({
-          pubKey: channel.remoteNodePub,
+          pubKey: channel.remoteNodePub
         });
 
         pendingChannelOpenActivity.push({
-          type: "CHANNEL_OPEN",
+          type: 'CHANNEL_OPEN',
           creationDate: undefined,
           title: `Open channel to ${openingNodeInfo?.node?.alias}`,
           valueSat: channel.capacity,
-          tx: channelOpenTx,
+          tx: channelOpenTx
         });
 
         pendingOpenChannelsDecorated.push({
           ...channel,
-          alias: openingNodeInfo?.node?.alias || channel.remoteNodePub,
+          alias: openingNodeInfo?.node?.alias || channel.remoteNodePub
         });
       }
     }
 
-    const pendingCloseChannelsDecorated: DecoratedPendingLightningChannel[] =
-      [];
+    const pendingCloseChannelsDecorated: DecoratedPendingLightningChannel[] = [];
     const pendingChannelCloseActivity: LightningEvent[] = [];
     for (let i = 0; i < waitingCloseChannels.length; i++) {
       const { channel } = waitingCloseChannels[i];
       if (channel) {
         const openingNodeInfo = await lnRpcClient.getNodeInfo({
-          pubKey: channel.remoteNodePub,
+          pubKey: channel.remoteNodePub
         });
 
         pendingChannelCloseActivity.push({
-          type: "CHANNEL_CLOSE",
+          type: 'CHANNEL_CLOSE',
           creationDate: undefined,
           title: `Close channel to ${openingNodeInfo?.node?.alias}`,
-          valueSat: channel.capacity,
+          valueSat: channel.capacity
         });
 
         pendingCloseChannelsDecorated.push({
           ...channel,
-          alias: openingNodeInfo?.node?.alias || channel.remoteNodePub,
+          alias: openingNodeInfo?.node?.alias || channel.remoteNodePub
         });
       }
     }
@@ -556,40 +529,40 @@ ipcMain.on("/lightning-account-data", async (event, args) => {
     for (let i = 0; i < channels.length; i++) {
       const txId = getTxIdFromChannelPoint(channels[i].channelPoint);
       const channelOpenTx = await (
-        await axios.get(blockExplorerAPIURL(`/tx/${txId}`, "mainnet"))
+        await axios.get(blockExplorerAPIURL(`/tx/${txId}`, 'mainnet'))
       ).data;
 
       let alias = channels[i].remotePubkey;
       try {
         const openingNodeInfo = await lnRpcClient.getNodeInfo({
-          pubKey: channels[i].remotePubkey,
+          pubKey: channels[i].remotePubkey
         });
         if (openingNodeInfo?.node?.alias) {
           alias = openingNodeInfo.node.alias;
         }
       } catch (e) {
-        console.log("error getting alias: ", e);
+        console.log('error getting alias: ', e);
       }
 
       try {
         const detailedChannelInfo = await lnRpcClient.getChanInfo({
-          chanId: channels[i].chanId,
+          chanId: channels[i].chanId
         });
         decoratedOpenChannels.push({
           ...channels[i],
           lastUpdate: detailedChannelInfo.lastUpdate,
-          alias: alias,
+          alias: alias
         });
       } catch (e) {
-        console.log("error (/lightning-account-data) getChanInfo", e);
+        console.log('error (/lightning-account-data) getChanInfo', e);
       }
 
       openChannelActivity.push({
-        type: "CHANNEL_OPEN",
+        type: 'CHANNEL_OPEN',
         creationDate: channelOpenTx.status.block_time,
         title: `Open channel to ${alias}`,
         valueSat: channels[i].capacity,
-        tx: channelOpenTx,
+        tx: channelOpenTx
       });
     }
 
@@ -599,7 +572,7 @@ ipcMain.on("/lightning-account-data", async (event, args) => {
       ...closedChannelActivity,
       ...openChannelActivity,
       ...pendingChannelOpenActivity,
-      ...pendingChannelCloseActivity,
+      ...pendingChannelCloseActivity
     ].sort((a, b) => {
       if (!b.creationDate && !a.creationDate) {
         return 0;
@@ -615,37 +588,29 @@ ipcMain.on("/lightning-account-data", async (event, args) => {
     if (sortedEvents.length) {
       balanceHistory = [
         {
-          blockTime:
-            Number(sortedEvents[sortedEvents.length - 1].creationDate) - 1,
-          totalValue: 0,
-        },
+          blockTime: Number(sortedEvents[sortedEvents.length - 1].creationDate) - 1,
+          totalValue: 0
+        }
       ];
 
       for (let i = sortedEvents.length - 1; i >= 0; i--) {
         const currentEvent = sortedEvents[i];
         let currentValue = balanceHistory[balanceHistory.length - 1].totalValue;
-        if (
-          currentEvent.type === "CHANNEL_OPEN" ||
-          currentEvent.type === "PAYMENT_RECEIVE"
-        ) {
+        if (currentEvent.type === 'CHANNEL_OPEN' || currentEvent.type === 'PAYMENT_RECEIVE') {
           currentValue += Number(currentEvent.valueSat);
         } else {
           currentValue -= Number(currentEvent.valueSat);
         }
 
         balanceHistory.push({
-          blockTime: currentEvent.creationDate
-            ? Number(currentEvent.creationDate)
-            : undefined,
-          totalValue: new BigNumber(currentValue).toNumber(),
+          blockTime: currentEvent.creationDate ? Number(currentEvent.creationDate) : undefined,
+          totalValue: new BigNumber(currentValue).toNumber()
         });
       }
 
       balanceHistory.push({
         blockTime: Math.floor(Date.now() / 1000),
-        totalValue: new BigNumber(
-          balanceHistory[balanceHistory.length - 1].totalValue
-        ).toNumber(),
+        totalValue: new BigNumber(balanceHistory[balanceHistory.length - 1].totalValue).toNumber()
       });
     }
 
@@ -653,10 +618,7 @@ ipcMain.on("/lightning-account-data", async (event, args) => {
       name: config.name,
       config: config,
       channels: decoratedOpenChannels,
-      pendingChannels: [
-        ...pendingOpenChannelsDecorated,
-        ...pendingCloseChannelsDecorated,
-      ],
+      pendingChannels: [...pendingOpenChannelsDecorated, ...pendingCloseChannelsDecorated],
       closedChannels: closedChannels,
       info: info,
       loading: false,
@@ -664,16 +626,16 @@ ipcMain.on("/lightning-account-data", async (event, args) => {
       payments: payments,
       invoices: invoices,
       currentBalance: balance,
-      balanceHistory: balanceHistory,
+      balanceHistory: balanceHistory
     };
 
-    event.reply("/lightning-account-data", accountData);
+    event.reply('/lightning-account-data', accountData);
   } catch (e) {
     console.log(`(${config.id}) /lightning-account-data: `, e);
   }
 });
 
-ipcMain.on("/lightning-send-payment", async (event, args) => {
+ipcMain.on('/lightning-send-payment', async (event, args) => {
   const { config, paymentRequest } = args;
 
   console.log(`(${config.id}): Sending payment...`);
@@ -684,24 +646,24 @@ ipcMain.on("/lightning-send-payment", async (event, args) => {
 
     const sendPaymentStream = lnRpcClient.sendPaymentV2({
       paymentRequest: paymentRequest,
-      timeoutSeconds: 15, // TODO: change?
+      timeoutSeconds: 15 // TODO: change?
     });
 
-    sendPaymentStream.on("data", (chunk: Payment) => {
-      console.log("data chunk: ", chunk);
-      console.log("data chunk as string: ", JSON.stringify(chunk));
-      event.reply("/lightning-send-payment", chunk);
+    sendPaymentStream.on('data', (chunk: Payment) => {
+      console.log('data chunk: ', chunk);
+      console.log('data chunk as string: ', JSON.stringify(chunk));
+      event.reply('/lightning-send-payment', chunk);
     });
 
-    sendPaymentStream.on("error", (chunk: Payment) => {
-      console.log("data error: ", chunk);
+    sendPaymentStream.on('error', (chunk: Payment) => {
+      console.log('data error: ', chunk);
     });
   } catch (e) {
-    console.log("/lightning-send-payment e: ", e);
+    console.log('/lightning-send-payment e: ', e);
   }
 });
 
-ipcMain.handle("/lightning-connect", async (event, args) => {
+ipcMain.handle('/lightning-connect', async (event, args) => {
   const { lndConnectUri } = args;
   try {
     const lnRpcClient = await createLnRpc(parseLndConnectUri(lndConnectUri));
@@ -709,49 +671,49 @@ ipcMain.handle("/lightning-connect", async (event, args) => {
     const info = await lnRpcClient.getInfo();
     return Promise.resolve(info);
   } catch (e) {
-    console.log("/lightning-connect e: ", e);
-    return Promise.reject("fail");
+    console.log('/lightning-connect e: ', e);
+    return Promise.reject('fail');
   }
 });
 
-ipcMain.handle("/lightning-invoice", async (event, args) => {
+ipcMain.handle('/lightning-invoice', async (event, args) => {
   const { lndConnectUri, memo, value } = args;
   try {
     const lnRpcClient = await createLnRpc(parseLndConnectUri(lndConnectUri));
 
     const invoice = await lnRpcClient.addInvoice({ memo, value });
-    console.log("invoice: ", invoice);
+    console.log('invoice: ', invoice);
     return Promise.resolve(invoice);
   } catch (e) {
-    console.log("/lightning-invoice e: ", e);
+    console.log('/lightning-invoice e: ', e);
     return Promise.reject(e);
   }
 });
 
-ipcMain.handle("/quit", () => {
+ipcMain.handle('/quit', () => {
   app.quit();
 });
 
-ipcMain.handle("/get-config", async (event, args) => {
+ipcMain.handle('/get-config', async (event, args) => {
   try {
-    const file = await getFile("lily-config-encrypted.txt");
+    const file = await getFile('lily-config-encrypted.txt');
     return file;
   } catch (e) {
-    console.log("Failed to get Lily config");
+    console.log('Failed to get Lily config');
   }
 });
 
-ipcMain.handle("/save-config", async (event, args) => {
+ipcMain.handle('/save-config', async (event, args) => {
   const { encryptedConfigFile } = args;
-  return saveFile(encryptedConfigFile, "lily-config-encrypted.txt");
+  return saveFile(encryptedConfigFile, 'lily-config-encrypted.txt');
 });
 
-ipcMain.handle("/download-item", async (event, { data, filename }) => {
+ipcMain.handle('/download-item', async (event, { data, filename }) => {
   try {
     const win = BrowserWindow.getFocusedWindow();
 
     const { canceled, filePath } = await dialog.showSaveDialog(win!, {
-      defaultPath: filename,
+      defaultPath: filename
     });
 
     if (filePath) {
@@ -768,135 +730,125 @@ ipcMain.handle("/download-item", async (event, { data, filename }) => {
   }
 });
 
-ipcMain.handle("/bitcoin-network", async (event, args) => {
-  return Promise.resolve(currentBitcoinNetwork);
+ipcMain.handle('/bitcoin-network', async (event, args) => {
+  return Promise.resolve(isTestnet);
 });
 
-ipcMain.handle("/historical-btc-price", async (event, args) => {
-  let historicalBitcoinPrice = await (
-    await axios.get(
-      `https://api.coindesk.com/v1/bpi/historical/close.json?start=2014-01-01&end=${moment().format(
-        "YYYY-MM-DD"
-      )}`
-    )
-  ).data;
-  historicalBitcoinPrice = historicalBitcoinPrice.bpi;
+ipcMain.handle('/current-btc-price', async (event, args) => {
+  const { data }: { data: CoindeskCurrentPriceResponse } = await axios.get(
+    'https://api.coindesk.com/v1/bpi/currentprice.json'
+  );
+  const currentPriceWithCommasStrippedOut = data.bpi.USD.rate.replace(',', '');
+  return Promise.resolve(currentPriceWithCommasStrippedOut);
+});
+
+ipcMain.handle('/historical-btc-price', async (event, args) => {
+  const { data }: { data: CoindeskHistoricPriceResponse } = await axios.get(
+    `https://api.coindesk.com/v1/bpi/historical/close.json?start=2014-01-01&end=${moment().format(
+      'YYYY-MM-DD'
+    )}`
+  );
+  const historicalBitcoinPrice = data.bpi;
   let priceForChart = [];
   for (let i = 0; i < Object.keys(historicalBitcoinPrice).length; i++) {
     priceForChart.push({
       price: Object.values(historicalBitcoinPrice)[i],
-      date: Object.keys(historicalBitcoinPrice)[i],
+      date: Object.keys(historicalBitcoinPrice)[i]
     });
   }
   return Promise.resolve(priceForChart);
 });
 
-ipcMain.handle("/enumerate", async (event, args) => {
+ipcMain.handle('/enumerate', async (event, args) => {
   try {
     const resp = JSON.parse(await enumerate());
     if (resp.error) {
-      return Promise.reject(new Error("Error enumerating hardware wallets"));
+      return Promise.reject(new Error('Error enumerating hardware wallets'));
     }
-    const filteredDevices = (resp as HwiResponseEnumerate[]).filter(
-      (device) => {
-        return (
-          device.type === "coldcard" ||
-          device.type === "ledger" ||
-          device.type === "trezor" ||
-          device.type === "bitbox02"
-        );
-      }
-    );
+    const filteredDevices = (resp as HwiResponseEnumerate[]).filter((device) => {
+      return (
+        device.type === 'coldcard' ||
+        device.type === 'ledger' ||
+        device.type === 'trezor' ||
+        device.type === 'bitbox02'
+      );
+    });
     return Promise.resolve(filteredDevices);
   } catch (e) {
-    console.log("/enumerate error: ", e);
+    console.log('/enumerate error: ', e);
   }
 });
 
-ipcMain.handle("/xpub", async (event, args) => {
+ipcMain.handle('/xpub', async (event, args) => {
   const { deviceType, devicePath, path } = args;
-  const resp = JSON.parse(
-    await getXPub(
-      deviceType,
-      devicePath,
-      path,
-      isTestnet
-    )
-  ); // responses come back as strings, need to be parsed
+  const resp = JSON.parse(await getXPub(deviceType, devicePath, path, isTestnet)); // responses come back as strings, need to be parsed
   if (resp.error) {
-    return Promise.reject(new Error("Error extracting xpub"));
+    return Promise.reject(new Error('Error extracting xpub'));
   }
   return Promise.resolve(resp);
 });
 
-ipcMain.handle("/sign", async (event, args) => {
+ipcMain.handle('/sign', async (event, args) => {
   const { deviceType, devicePath, psbt } = args;
-  const resp = JSON.parse(
-    await signtx(
-      deviceType,
-      devicePath,
-      psbt,
-      isTestnet
-    )
-  );
+  const resp = JSON.parse(await signtx(deviceType, devicePath, psbt, isTestnet));
   if (resp.error) {
-    return Promise.reject(new Error("Error signing transaction"));
+    return Promise.reject(new Error('Error signing transaction'));
   }
   return Promise.resolve(resp);
 });
 
-ipcMain.handle("/promptpin", async (event, args) => {
+ipcMain.handle('/promptpin', async (event, args) => {
   const { deviceType, devicePath } = args;
   const resp = JSON.parse(await promptpin(deviceType, devicePath));
   if (resp.error) {
     console.log(resp);
-    return Promise.reject(new Error("Error prompting pin"));
+    return Promise.reject(new Error('Error prompting pin'));
   }
   return Promise.resolve(resp);
 });
 
-ipcMain.handle("/sendpin", async (event, args) => {
+ipcMain.handle('/sendpin', async (event, args) => {
   const { deviceType, devicePath, pin } = args;
   const resp = JSON.parse(await sendpin(deviceType, devicePath, pin));
   if (resp.error) {
-    return Promise.reject(new Error("Error sending pin"));
+    return Promise.reject(new Error('Error sending pin'));
   }
   return Promise.resolve(resp);
 });
 
-ipcMain.handle("/estimate-fee", async (event, args) => {
+ipcMain.handle('/estimate-fee', async (event, args) => {
   try {
     const feeRates = await DataProvider.estimateFee();
     return Promise.resolve(feeRates);
   } catch (e) {
     console.log(`error /estimate-fee ${e}`);
-    return Promise.reject(new Error("Error retrieving fee"));
+    return Promise.reject(new Error('Error retrieving fee'));
   }
 });
 
-ipcMain.handle("/broadcastTx", async (event, args) => {
+ipcMain.handle('/broadcastTx', async (event, args) => {
   const { txHex } = args;
   try {
     const txId = await DataProvider.broadcastTransaction(txHex);
     return Promise.resolve(txId);
   } catch (e) {
     console.log(`error /broadcastTx ${e}`);
-    return Promise.reject(new Error("Error broadcasting transaction"));
+    return Promise.reject(new Error('Error broadcasting transaction'));
   }
 });
 
-ipcMain.handle("/changeNodeConfig", async (event, args) => {
+ipcMain.handle('/changeNodeConfig', async (event, args) => {
   const { nodeConfig } = args;
-  console.log("nodeConfig: ", nodeConfig);
+  console.log('nodeConfig: ', nodeConfig);
   console.log(`Attempting to connect to ${nodeConfig.provider}...`);
-  if (nodeConfig.provider === "Bitcoin Core") {
+  if (nodeConfig.provider === 'Bitcoin Core') {
     const nodeConfig = await getBitcoinCoreConfig();
     DataProvider = new BitcoinCoreProvider(nodeConfig, isTestnet);
     await DataProvider.initialize();
-  } else if (nodeConfig.provider === "Custom Node") {
+  } else if (nodeConfig.provider === 'Custom Node') {
     DataProvider = new BitcoinCoreProvider(nodeConfig, isTestnet);
     await DataProvider.initialize();
-  } else if (nodeConfig.provider === "Electrum") {
+  } else if (nodeConfig.provider === 'Electrum') {
     DataProvider = new ElectrumProvider(isTestnet);
     await DataProvider.initialize();
   } else {
@@ -907,15 +859,15 @@ ipcMain.handle("/changeNodeConfig", async (event, args) => {
   return Promise.resolve(config);
 });
 
-ipcMain.handle("/get-node-config", async (event, args) => {
+ipcMain.handle('/get-node-config', async (event, args) => {
   const nodeConfig = await DataProvider.getConfig();
   return Promise.resolve(nodeConfig);
 });
 
-ipcMain.handle("/rescanBlockchain", async (event, args) => {
+ipcMain.handle('/rescanBlockchain', async (event, args) => {
   const { currentAccount, startHeight } = args;
   try {
-    if (currentNodeConfig.provider !== "Blockstream") {
+    if (currentNodeConfig.provider !== 'Blockstream') {
       const currentConfig = { ...currentNodeConfig };
       currentConfig.baseURL = `${currentNodeConfig.baseURL}/wallet/lily${currentAccount.config.id}`;
       const nodeClient = getClientFromNodeConfig(currentConfig);
@@ -938,7 +890,7 @@ ipcMain.handle("/rescanBlockchain", async (event, args) => {
   }
 });
 
-ipcMain.handle("/getWalletInfo", async (event, args) => {
+ipcMain.handle('/getWalletInfo', async (event, args) => {
   const { currentAccount } = args;
   try {
     const currentConfig = { ...currentNodeConfig };
@@ -952,7 +904,7 @@ ipcMain.handle("/getWalletInfo", async (event, args) => {
   }
 });
 
-ipcMain.handle("/isConfirmedTransaction", async (event, args) => {
+ipcMain.handle('/isConfirmedTransaction', async (event, args) => {
   const { txId } = args;
   if (txId.length === 64) {
     try {

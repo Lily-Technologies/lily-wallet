@@ -1,14 +1,14 @@
 import React, { useState, useContext } from "react";
 import moment from "moment";
 
-import { Modal, SettingsTable } from "../../../components";
+import { Modal, SettingsTable } from "src/components";
 
 import DeleteAccountModal from "./DeleteAccountModal";
 import EditAccountNameModal from "./EditAccountNameModal";
 
-import { AccountMapContext } from "../../../AccountMapContext";
+import { AccountMapContext } from "src/context/AccountMapContext";
 
-import { white, red500, green500 } from "../../../utils/colors";
+import { white, red500, green500 } from "src/utils/colors";
 interface Props {
   password: string;
 }

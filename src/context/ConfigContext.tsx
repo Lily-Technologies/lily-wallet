@@ -2,7 +2,7 @@ import React, { createContext, useState } from "react";
 import { networks, Network } from "bitcoinjs-lib";
 import BigNumber from "bignumber.js";
 
-import { LilyConfig } from "./types";
+import { LilyConfig } from "src/types";
 
 export const EMPTY_CONFIG = {
   name: "",

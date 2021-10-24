@@ -1,33 +1,23 @@
-import React, { Fragment } from "react";
-import { Network } from "bitcoinjs-lib";
-import {
-  Switch,
-  Route,
-  useRouteMatch,
-  RouteComponentProps,
-} from "react-router-dom";
+import React, { Fragment } from 'react';
+import { Network } from 'bitcoinjs-lib';
+import { Switch, Route, useRouteMatch, RouteComponentProps } from 'react-router-dom';
 
-import { PageWrapper } from "../../components";
+import { PageWrapper } from '../../components';
 
-import VaultView from "./VaultView";
-import VaultSettings from "./Settings";
-import VaultHeader from "./VaultHeader";
+import VaultView from './VaultView';
+import VaultSettings from './Settings';
+import VaultHeader from './VaultHeader';
 
-import { NodeConfig } from "../../types";
+import { NodeConfigWithBlockchainInfo } from '../../types';
 
 interface Props {
-  nodeConfig: NodeConfig;
+  nodeConfig: NodeConfigWithBlockchainInfo;
   password: string;
   toggleRefresh(): void;
   currentBitcoinNetwork: Network;
 }
 
-const Vault = ({
-  nodeConfig,
-  password,
-  toggleRefresh,
-  currentBitcoinNetwork,
-}: Props) => {
+const Vault = ({ nodeConfig, password, toggleRefresh, currentBitcoinNetwork }: Props) => {
   document.title = `Vault - Lily Wallet`;
   let { path } = useRouteMatch();
 
@@ -47,13 +37,8 @@ const Vault = ({
             )}
           />
           <Route
-            path=""
-            render={() => (
-              <VaultView
-                nodeConfig={nodeConfig}
-                toggleRefresh={toggleRefresh}
-              />
-            )}
+            path=''
+            render={() => <VaultView nodeConfig={nodeConfig} toggleRefresh={toggleRefresh} />}
           />
         </Switch>
       </Fragment>

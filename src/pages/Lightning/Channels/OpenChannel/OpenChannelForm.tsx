@@ -1,14 +1,14 @@
-import React, { useState, useContext } from "react";
-import styled, { css } from "styled-components";
+import React, { useState, useContext } from 'react';
+import styled, { css } from 'styled-components';
 
-import { Button, Input, Select, Spinner } from "src/components";
+import { Button, Input, Select, Spinner } from 'src/components';
 
-import { white, gray300, gray700, green600 } from "src/utils/colors";
-import { mobile } from "src/utils/media";
+import { white, gray300, gray700, green600 } from 'src/utils/colors';
+import { mobile } from 'src/utils/media';
 
-import { LilyOnchainAccount, SetStateBoolean } from "src/types";
+import { LilyOnchainAccount, SetStateBoolean } from 'src/types';
 
-import { AccountMapContext } from "src/AccountMapContext";
+import { AccountMapContext } from 'src/context/AccountMapContext';
 
 interface Props {
   openChannel: (lightningAddress: string, channelAmount: string) => {};
@@ -23,52 +23,50 @@ const OpenChannelForm = ({
   setFundingAccount,
   isLoading,
   error,
-  setViewOpenChannelForm,
+  setViewOpenChannelForm
 }: Props) => {
-  const [lightningAddress, setLightningAddress] = useState("");
-  const [channelAmount, setChannelAmount] = useState("");
+  const [lightningAddress, setLightningAddress] = useState('');
+  const [channelAmount, setChannelAmount] = useState('');
   const { accountMap } = useContext(AccountMapContext);
-
+  console.log('error: ', error);
 
   const accountOptions = Object.values(accountMap)
-    .filter((account) => account.config.type === "onchain" && !!!account.loading)
+    .filter((account) => account.config.type === 'onchain' && !!!account.loading)
     .map((account) => {
       return {
         label: account.name,
         onClick: () => {
-          if (account.config.type === "onchain") {
-            setFundingAccount(
-              accountMap[account.config.id] as LilyOnchainAccount
-            );
+          if (account.config.type === 'onchain') {
+            setFundingAccount(accountMap[account.config.id] as LilyOnchainAccount);
           }
-        },
+        }
       };
     });
 
   return (
     <>
-      <InputWrapper data-cy="lightning-address">
+      <InputWrapper data-cy='lightning-address'>
         <Input
-          label="Lightning address"
+          label='Lightning address'
           autoFocus
-          type="text"
+          type='text'
           value={lightningAddress}
           onChange={setLightningAddress}
         />
       </InputWrapper>
 
-      <InputWrapper data-cy="channel-amount">
+      <InputWrapper data-cy='channel-amount'>
         <Input
-          label="Channel amount"
-          type="text"
+          label='Channel amount'
+          type='text'
           value={channelAmount}
           onChange={setChannelAmount}
           error={error}
         />
       </InputWrapper>
 
-      <InputWrapper data-cy="funding-account">
-        <Select label="Funding account" options={accountOptions} />
+      <InputWrapper data-cy='funding-account'>
+        <Select label='Funding account' options={accountOptions} />
       </InputWrapper>
 
       <Buttons>
@@ -90,10 +88,10 @@ const OpenChannelForm = ({
         >
           {isLoading ? (
             <>
-              <Spinner style={{ marginRight: "1em" }} /> Creating transaction
+              <Spinner style={{ marginRight: '1em' }} /> Creating transaction...
             </>
           ) : (
-            "Create funding transaction"
+            'Create funding transaction'
           )}
         </SaveChangesButton>
       </Buttons>

@@ -4,9 +4,9 @@ import styled from "styled-components";
 import { AnimatedQrCode } from "./AnimatedQrCode"; // can't import from index https://github.com/styled-components/styled-components/issues/1449
 import { Button } from ".";
 
-import { white, black, green600 } from "../utils/colors";
+import { white, black, green600 } from "src/utils/colors";
 
-import { ConfigContext } from "../ConfigContext";
+import { ConfigContext } from "src/context/ConfigContext";
 
 const getChunks = (value: string, parts: number) => {
   const chunkLength = Math.ceil(value.length / parts);
