@@ -1,58 +1,47 @@
-import React, { useState } from "react";
-import styled, { css } from "styled-components";
-import { Connection } from "@styled-icons/icomoon";
+import React, { useState, useContext } from 'react';
+import styled, { css } from 'styled-components';
+import { Connection } from '@styled-icons/icomoon';
 
-import { Button, Input, Spinner, StyledIcon, ModalContentWrapper } from ".";
+import { Button, Input, Spinner, StyledIcon, ModalContentWrapper } from '.';
+import { PlatformContext } from 'src/context';
 
-import { mobile } from "../utils/media";
-import {
-  white,
-  gray500,
-  green600,
-  yellow200,
-  yellow600,
-} from "../utils/colors";
+import { mobile } from 'src/utils/media';
+import { white, gray500, green600, yellow200, yellow600 } from 'src/utils/colors';
 
-import { NodeConfig } from "../types";
+import { NodeConfigWithBlockchainInfo } from 'src/types';
 
 interface Props {
   onRequestClose: () => void;
-  setNodeConfig: React.Dispatch<React.SetStateAction<NodeConfig | undefined>>; // KBC-TODO: NodeConfig should be defined, even if we are connected to blockstream, yeah?
+  setNodeConfig: React.Dispatch<React.SetStateAction<NodeConfigWithBlockchainInfo | undefined>>; // KBC-TODO: NodeConfig should be defined, even if we are connected to blockstream, yeah?
 }
 
-export const ConnectToNodeModal = ({
-  onRequestClose,
-  setNodeConfig,
-}: Props) => {
-  const [host, setHost] = useState("");
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [nodeConnectError, setNodeConnectError] = useState("");
+export const ConnectToNodeModal = ({ onRequestClose, setNodeConfig }: Props) => {
+  const [host, setHost] = useState('');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [nodeConnectError, setNodeConnectError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const { platform } = useContext(PlatformContext);
 
   const configureNode = async () => {
     try {
       setIsLoading(true);
-      const response = await window.ipcRenderer.invoke("/changeNodeConfig", {
-        nodeConfig: {
-          provider: 'Custom Node',
-          baseURL: host,
-          auth: {
-            username,
-            password,
-          },
-        },
+      const response = await platform.changeNodeConfig({
+        provider: 'Custom Node',
+        host,
+        username,
+        password
       });
       setNodeConfig(response);
       onRequestClose();
     } catch (e) {
-      setNodeConnectError("Error connecting to node.");
+      setNodeConnectError('Error connecting to node.');
     }
     setIsLoading(false);
   };
 
   const onInputEnter = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
+    if (e.key === 'Enter') {
       configureNode();
     }
   };
@@ -67,41 +56,40 @@ export const ConnectToNodeModal = ({
       <ContentContainer>
         <ModalHeader>Connect to a specific node</ModalHeader>
         <ModalSubtext>
-          Enter your connection information to get transaction data directly
-          from your node.
+          Enter your connection information to get transaction data directly from your node.
         </ModalSubtext>
         <InputsWrapper>
-          <InputContainer style={{ marginTop: "1em" }}>
+          <InputContainer style={{ marginTop: '1em' }}>
             <Input
-              label="Host"
-              type="text"
+              label='Host'
+              type='text'
               value={host}
-              id="node-host"
+              id='node-host'
               onChange={setHost}
               onKeyDown={(e) => onInputEnter(e)}
-              placeholder="http://mynode.local:8332"
+              placeholder='http://mynode.local:8332'
             />
           </InputContainer>
           <InputContainer>
             <Input
-              label="Username"
-              type="text"
-              id="node-username"
+              label='Username'
+              type='text'
+              id='node-username'
               value={username}
               onChange={setUsername}
               onKeyDown={(e) => onInputEnter(e)}
-              placeholder="mynode"
+              placeholder='mynode'
             />
           </InputContainer>
           <InputContainer>
             <Input
-              label="Password"
-              type="password"
-              id="node-password"
+              label='Password'
+              type='password'
+              id='node-password'
               value={password}
               onChange={setPassword}
               onKeyDown={(e) => onInputEnter(e)}
-              placeholder="••••••••••••••••"
+              placeholder='••••••••••••••••'
               error={nodeConnectError}
             />
           </InputContainer>
@@ -113,7 +101,7 @@ export const ConnectToNodeModal = ({
                 await configureNode();
               }}
             >
-              {isLoading ? <Spinner /> : "Connect to node"}
+              {isLoading ? <Spinner /> : 'Connect to node'}
             </SaveButton>
           </Buttons>
         </InputsWrapper>

@@ -1,43 +1,24 @@
-import React, { useContext } from "react";
-import { Network } from "bitcoinjs-lib";
+import React, { useContext } from 'react';
+import { Network } from 'bitcoinjs-lib';
 
+import { PageWrapper, PageTitle, Header, HeaderRight, HeaderLeft, Loading } from 'src/components';
+import { SelectAccountMenu, NoAccountsEmptyState } from 'src/components';
 
-import {
-  PageWrapper,
-  PageTitle,
-  Header,
-  HeaderRight,
-  HeaderLeft,
-  Loading,
-} from "src/components";
-import {
-  SelectAccountMenu,
-  NoAccountsEmptyState,
-} from "src/components";
-
-import { AccountMapContext } from "src/AccountMapContext";
+import { AccountMapContext } from 'src/context/AccountMapContext';
 
 import SendOnchain from './Onchain';
 import SendLightning from './Lightning';
 
-import {
-  LilyConfig,
-  NodeConfig,
-} from "src/types";
+import { LilyConfig, NodeConfigWithBlockchainInfo } from 'src/types';
 
 interface Props {
   config: LilyConfig;
   currentBitcoinNetwork: Network;
-  nodeConfig: NodeConfig;
+  nodeConfig: NodeConfigWithBlockchainInfo;
   currentBitcoinPrice: any; // KBC-TODO: more specific type
 }
 
-const Send = ({
-  config,
-  currentBitcoinNetwork,
-  nodeConfig,
-  currentBitcoinPrice
-}: Props) => {
+const Send = ({ config, currentBitcoinNetwork, nodeConfig, currentBitcoinPrice }: Props) => {
   document.title = `Send - Lily Wallet`;
 
   const { accountMap, currentAccount } = useContext(AccountMapContext);
@@ -56,7 +37,7 @@ const Send = ({
         )}
         {Object.keys(accountMap).length === 0 && <NoAccountsEmptyState />}
         {Object.keys(accountMap).length > 0 && currentAccount.loading && (
-          <Loading itemText={"Send Information"} />
+          <Loading itemText={'Send Information'} />
         )}
 
         {currentAccount.config.type === 'onchain' && (

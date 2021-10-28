@@ -1,17 +1,10 @@
-import React, { useState, useRef } from "react";
-import styled from "styled-components";
-import { decode } from "bs58check";
-import BarcodeScannerComponent from "react-webcam-barcode-scanner";
-import { Network } from "bitcoinjs-lib";
+import React, { useState, useRef, useContext } from 'react';
+import styled from 'styled-components';
+import { decode } from 'bs58check';
+import BarcodeScannerComponent from 'react-webcam-barcode-scanner';
+import { Network } from 'bitcoinjs-lib';
 
-import {
-  Button,
-  DeviceSelect,
-  FileUploader,
-  Dropdown,
-  Modal,
-  ErrorModal
-} from "../../components";
+import { Button, DeviceSelect, FileUploader, Dropdown, Modal, ErrorModal } from 'src/components';
 
 import {
   InnerWrapper,
@@ -20,30 +13,31 @@ import {
   SetupExplainerText,
   FormContainer,
   BoxedWrapper,
-  SetupHeader,
-} from "./styles";
-import { zpubToXpub } from "../../utils/other";
-import RequiredDevicesModal from "./RequiredDevicesModal";
-import InputXpubModal from "./InputXpubModal";
+  SetupHeader
+} from './styles';
 
-import { white, green600 } from "../../utils/colors";
+import RequiredDevicesModal from './RequiredDevicesModal';
+import InputXpubModal from './InputXpubModal';
 
-import { getMultisigDeriationPathForNetwork } from "../../utils/files";
+import { white, green600 } from 'src/utils/colors';
+
+import { getMultisigDeriationPathForNetwork } from 'src/utils/files';
+import { zpubToXpub } from 'src/utils/other';
+
+import { PlatformContext } from 'src/context';
 
 import {
   HwiResponseEnumerate,
   File,
   ColdcardDeviceMultisigExportFile,
-  ColdcardMultisigExportFile,
-} from "../../types";
+  ColdcardMultisigExportFile
+} from 'src/types';
 
 interface Props {
   header: JSX.Element;
   setStep: React.Dispatch<React.SetStateAction<number>>;
   importedDevices: HwiResponseEnumerate[];
-  setImportedDevices: React.Dispatch<
-    React.SetStateAction<HwiResponseEnumerate[]>
-  >;
+  setImportedDevices: React.Dispatch<React.SetStateAction<HwiResponseEnumerate[]>>;
   setConfigRequiredSigners: React.Dispatch<React.SetStateAction<number>>;
   configRequiredSigners: number;
   currentBitcoinNetwork: Network;
@@ -56,14 +50,13 @@ const NewVaultScreen = ({
   setImportedDevices,
   setConfigRequiredSigners,
   configRequiredSigners,
-  currentBitcoinNetwork,
+  currentBitcoinNetwork
 }: Props) => {
-  const [availableDevices, setAvailableDevices] = useState<
-    HwiResponseEnumerate[]
-  >([]);
+  const [availableDevices, setAvailableDevices] = useState<HwiResponseEnumerate[]>([]);
   const [errorDevices, setErrorDevices] = useState<string[]>([]);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
+  const { platform } = useContext(PlatformContext);
 
   const importDeviceFromFileRef = useRef<HTMLLabelElement>(null);
 
@@ -77,16 +70,13 @@ const NewVaultScreen = ({
     setModalContent(null);
   };
 
-  const importMultisigDevice = async (
-    device: HwiResponseEnumerate,
-    index: number
-  ) => {
+  const importMultisigDevice = async (device: HwiResponseEnumerate, index: number) => {
     try {
-      const response = await window.ipcRenderer.invoke("/xpub", {
+      const response = await platform.getXpub({
         deviceType: device.type,
         devicePath: device.path,
-        path: getMultisigDeriationPathForNetwork(currentBitcoinNetwork), // we are assuming BIP48 P2WSH wallet
-      }); // KBC-TODO: add type for HwiXpubResponse
+        path: getMultisigDeriationPathForNetwork(currentBitcoinNetwork) // we are assuming BIP48 P2WSH wallet
+      });
 
       setImportedDevices([...importedDevices, { ...device, ...response }]);
       availableDevices.splice(index, 1);
@@ -110,56 +100,48 @@ const NewVaultScreen = ({
       let newDevice: HwiResponseEnumerate;
       if (lilyMobile) {
         newDevice = {
-          type: "phone",
+          type: 'phone',
           fingerprint: xfp,
           xpub: xpub,
-          model: "unknown",
-          path: path,
+          model: 'unknown',
+          path: path
         };
       } else {
         const xpubFromZpub = zpubToXpub(decode(xpub));
         newDevice = {
-          type: "cobo",
+          type: 'cobo',
           fingerprint: xfp,
           xpub: xpubFromZpub,
-          model: "unknown",
-          path: path,
+          model: 'unknown',
+          path: path
         };
       }
 
       const updatedImportedDevices = [...importedDevices, newDevice];
       setImportedDevices(updatedImportedDevices);
-      setAvailableDevices([
-        ...availableDevices.filter((item) => item.type !== "phone"),
-      ]);
+      setAvailableDevices([...availableDevices.filter((item) => item.type !== 'phone')]);
       closeModal();
-    } catch (e) { }
+    } catch (e) {}
   };
 
-  const importDeviceFromFile = (
-    parsedFile: ColdcardDeviceMultisigExportFile
-  ) => {
+  const importDeviceFromFile = (parsedFile: ColdcardDeviceMultisigExportFile) => {
     const zpub = decode(parsedFile.p2wsh);
     const xpub = zpubToXpub(zpub);
 
     const newDevice = {
-      type: "coldcard",
+      type: 'coldcard',
       fingerprint: parsedFile.xfp,
       xpub: xpub,
-      path: "unknown",
-      model: "unknown",
+      path: 'unknown',
+      model: 'unknown'
     } as HwiResponseEnumerate;
 
     const updatedImportedDevices = [...importedDevices, newDevice];
     setImportedDevices(updatedImportedDevices);
   };
 
-  const importMultisigWalletFromFile = (
-    parsedFile: ColdcardMultisigExportFile
-  ) => {
-    const numPubKeys = Object.keys(parsedFile).filter((key) =>
-      key.startsWith("x")
-    ).length; // all exports start with x
+  const importMultisigWalletFromFile = (parsedFile: ColdcardMultisigExportFile) => {
+    const numPubKeys = Object.keys(parsedFile).filter((key) => key.startsWith('x')).length; // all exports start with x
     const devicesFromFile = [];
 
     for (let i = 1; i < numPubKeys + 1; i++) {
@@ -169,11 +151,11 @@ const NewVaultScreen = ({
       const newDevice = {
         type: parsedFile[`x${i}/`].hw_type,
         fingerprint: parsedFile[`x${i}/`].label.substring(
-          parsedFile[`x${i}/`].label.indexOf("Coldcard ") + "Coldcard ".length
+          parsedFile[`x${i}/`].label.indexOf('Coldcard ') + 'Coldcard '.length
         ),
         xpub: xpub,
-        model: "unknown",
-        path: "none",
+        model: 'unknown',
+        path: 'none'
       } as HwiResponseEnumerate;
 
       devicesFromFile.push(newDevice);
@@ -188,8 +170,8 @@ const NewVaultScreen = ({
       <FormContainer>
         <BoxedWrapper>
           <FileUploader
-            accept="application/JSON"
-            id="localConfigFile"
+            accept='application/JSON'
+            id='localConfigFile'
             onFileLoad={({ file }: File) => {
               try {
                 const parsedFile = JSON.parse(file);
@@ -201,12 +183,12 @@ const NewVaultScreen = ({
                   importDeviceFromFile(parsedFile);
                 }
               } catch (e) {
-                openInModal(<ErrorModal message="Invalid file" closeModal={closeModal} />)
+                openInModal(<ErrorModal message='Invalid file' closeModal={closeModal} />);
               }
             }}
           />
           <ImportFromFileLabel
-            htmlFor="localConfigFile"
+            htmlFor='localConfigFile'
             ref={importDeviceFromFileRef}
           ></ImportFromFileLabel>
 
@@ -215,43 +197,40 @@ const NewVaultScreen = ({
               <div>
                 <SetupHeader>Connect devices to computer</SetupHeader>
                 <SetupExplainerText>
-                  Devices unlocked and connected to your computer will appear
-                  here. Click on them to include them in your vault. You may
-                  disconnect a device from your computer after it has been
-                  imported.
+                  Devices unlocked and connected to your computer will appear here. Click on them to
+                  include them in your vault. You may disconnect a device from your computer after
+                  it has been imported.
                 </SetupExplainerText>
               </div>
               <Dropdown
                 minimal={true}
-                data-cy="advanced-import-dropdown"
+                data-cy='advanced-import-dropdown'
                 dropdownItems={[
                   {
-                    label: "Import from File",
+                    label: 'Import from File',
                     onClick: () => {
-                      const importDeviceFromFile =
-                        importDeviceFromFileRef.current;
+                      const importDeviceFromFile = importDeviceFromFileRef.current;
                       if (importDeviceFromFile) {
                         importDeviceFromFile.click();
                       }
-                    },
+                    }
                   },
                   {
-                    label: "Import from QR Code",
+                    label: 'Import from QR Code',
                     onClick: () =>
                       openInModal(
                         <BarcodeScannerComponent
                           // @ts-ignore
-                          width={"100%"}
+                          width={'100%'}
                           onUpdate={(err, result) => {
-                            if (result)
-                              importDeviceFromQR({ data: result.getText() });
+                            if (result) importDeviceFromQR({ data: result.getText() });
                             else return;
                           }}
                         />
-                      ),
+                      )
                   },
                   {
-                    label: "Manually add device",
+                    label: 'Manually add device',
                     onClick: () =>
                       openInModal(
                         <InputXpubModal
@@ -259,16 +238,16 @@ const NewVaultScreen = ({
                           setImportedDevices={setImportedDevices}
                           closeModal={closeModal}
                         />
-                      ),
-                  },
+                      )
+                  }
                 ]}
               />
             </SetupHeaderWrapper>
           </XPubHeaderWrapper>
           <DeviceSelect
             deviceAction={importMultisigDevice}
-            deviceActionText={"Click to Configure"}
-            deviceActionLoadingText={"Configuring"}
+            deviceActionText={'Click to Configure'}
+            deviceActionLoadingText={'Configuring'}
             configuredDevices={importedDevices}
             unconfiguredDevices={availableDevices}
             errorDevices={errorDevices}
@@ -299,7 +278,7 @@ const NewVaultScreen = ({
       <Modal
         isOpen={modalIsOpen}
         closeModal={() => setModalIsOpen(false)}
-        style={{ content: { overflow: "inherit" } }}
+        style={{ content: { overflow: 'inherit' } }}
       >
         {modalContent}
       </Modal>

@@ -1,21 +1,15 @@
-import React, { useState, useContext, useCallback } from "react";
-import { Psbt } from "bitcoinjs-lib";
-import BigNumber from "bignumber.js";
-import styled, { css } from "styled-components";
-import { satoshisToBitcoins } from "unchained-bitcoin";
-import { EditAlt } from "@styled-icons/boxicons-regular";
+import React, { useState, useContext, useCallback } from 'react';
+import { Psbt } from 'bitcoinjs-lib';
+import BigNumber from 'bignumber.js';
+import styled, { css } from 'styled-components';
+import { satoshisToBitcoins } from 'unchained-bitcoin';
+import { EditAlt } from '@styled-icons/boxicons-regular';
 
-import {
-  StyledIcon,
-  ModalContentWrapper,
-  ErrorModal,
-  Modal,
-  LightningImage
-} from "src/components";
+import { StyledIcon, ModalContentWrapper, ErrorModal, Modal, LightningImage } from 'src/components';
 
-import { mobile } from "src/utils/media";
-import { green100, green600, gray500 } from "src/utils/colors";
-import { createTransaction } from "src/utils/send";
+import { mobile } from 'src/utils/media';
+import { green100, green600, gray500 } from 'src/utils/colors';
+import { createTransaction } from 'src/utils/send';
 
 import {
   LilyLightningAccount,
@@ -23,16 +17,15 @@ import {
   SetStatePsbt,
   LilyOnchainAccount,
   ShoppingItem,
-  SetStateBoolean,
-  DecoratedOpenStatusUpdate
-} from "src/types";
-import { requireLightning } from "src/hocs";
+  SetStateBoolean
+} from 'src/types';
+import { requireLightning } from 'src/hocs';
 
-import OpenChannelForm from "./OpenChannelForm";
-import ConfirmTxPage from "src/pages/Send/Onchain/ConfirmTxPage";
-import OpenChannelSuccess from "./OpenChannelSuccess";
+import OpenChannelForm from './OpenChannelForm';
+import ConfirmTxPage from 'src/pages/Send/Onchain/ConfirmTxPage';
+import OpenChannelSuccess from './OpenChannelSuccess';
 
-import { ConfigContext } from "src/ConfigContext";
+import { ConfigContext, PlatformContext } from 'src/context';
 
 interface Props {
   currentAccount: LilyLightningAccount;
@@ -40,24 +33,22 @@ interface Props {
 }
 
 const OpenChannel = ({ currentAccount, setViewOpenChannelForm }: Props) => {
-  const { currentBitcoinPrice, currentBitcoinNetwork } =
-    useContext(ConfigContext);
+  const { currentBitcoinPrice, currentBitcoinNetwork } = useContext(ConfigContext);
   const [step, setStep] = useState(0);
   const [finalPsbt, setFinalPsbt] = useState<Psbt | undefined>(undefined);
   const [feeRates, setFeeRates] = useState<FeeRates>({
     fastestFee: 0,
     halfHourFee: 0,
-    hourFee: 0,
+    hourFee: 0
   });
   const [pendingChannelId, setPendingChannelId] = useState<Buffer>(Buffer.alloc(1));
-  const [fundingAccount, setFundingAccount] = useState(
-    {} as LilyOnchainAccount
-  );
+  const [fundingAccount, setFundingAccount] = useState({} as LilyOnchainAccount);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   const [shoppingItems, setShoppingItems] = useState<ShoppingItem[]>([]);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
+  const { platform } = useContext(PlatformContext);
 
   const openInModal = useCallback((component: JSX.Element) => {
     setModalIsOpen(true);
@@ -69,82 +60,66 @@ const OpenChannel = ({ currentAccount, setViewOpenChannelForm }: Props) => {
     setModalContent(null);
   }, []);
 
-  const openChannel = async (
-    lightningAddress: string,
-    channelAmount: string
-  ) => {
+  const openChannel = async (lightningAddress: string, channelAmount: string) => {
     setIsLoading(true);
     try {
-      window.ipcRenderer.send("/open-channel", {
-        lightningAddress: lightningAddress,
-        channelAmount,
-        lndConnectUri: currentAccount.config.connectionDetails.lndConnectUri,
-      });
+      platform.openChannelInitiate(
+        {
+          lightningAddress: lightningAddress,
+          channelAmount,
+          lndConnectUri: currentAccount.config.connectionDetails.lndConnectUri
+        },
+        async (openChannelResponse) => {
+          if (openChannelResponse.error) {
+            setError(openChannelResponse.error.message);
+          } else if (openChannelResponse.psbtFund) {
+            const { psbtFund, pendingChanId } = openChannelResponse;
 
-      window.ipcRenderer.on(
-        "/open-channel",
-        async (_event: any, ...args: any) => {
-          try {
-            const openChannelResponse: DecoratedOpenStatusUpdate = args[0];
+            const { psbt, feeRates } = await createTransaction(
+              fundingAccount,
+              `${satoshisToBitcoins(psbtFund.fundingAmount).toNumber()}`,
+              psbtFund.fundingAddress,
+              new BigNumber(0),
+              () => platform.estimateFee(),
+              currentBitcoinNetwork
+            );
 
-            if (openChannelResponse.error) {
-              setError(openChannelResponse.error.message);
-            } else if (openChannelResponse.psbtFund) {
-              const { psbtFund, pendingChanId } = openChannelResponse;
+            platform.openChannelVerify({
+              finalPsbt: psbt.toBase64(),
+              pendingChanId: pendingChanId,
+              lndConnectUri: currentAccount.config.connectionDetails.lndConnectUri
+            });
 
-              const { psbt, feeRates } = await createTransaction(
-                fundingAccount,
-                `${satoshisToBitcoins(psbtFund.fundingAmount).toNumber()}`,
-                psbtFund.fundingAddress,
-                new BigNumber(0),
-                currentBitcoinNetwork
-              );
-
-              window.ipcRenderer.send("/open-channel-verify", {
-                finalPsbt: psbt.toBase64(),
-                pendingChanId: pendingChanId,
-                lndConnectUri:
-                  currentAccount.config.connectionDetails.lndConnectUri,
-              });
-
-              setPendingChannelId(pendingChanId as Buffer);
-              setFinalPsbt(psbt);
-              setFeeRates(feeRates);
-              setShoppingItems([
-                {
-                  image: <LightningImage />,
-                  title: `Lightning channel with ${openChannelResponse.alias}`,
-                  price: psbtFund.fundingAmount,
-                  extraInfo: [
-                    {
-                      label: "Outgoing capacity",
-                      value: `${psbtFund.fundingAmount.toLocaleString()} sats`,
-                    },
-                    { label: "Incoming capacity", value: `0 sats` },
-                  ],
-                },
-              ]);
-              setStep(1);
-            } else if (openChannelResponse.chanPending) {
-              setTimeout(() => {
-                window.ipcRenderer.send("/lightning-account-data", {
-                  config: currentAccount.config,
-                });
-              }, 200)
-              setStep(2);
-            }
-            setIsLoading(false);
-          } catch (e: unknown) {
-            if (e instanceof Error) {
-              setError(e.message);
-              setIsLoading(false);
-            }
+            setPendingChannelId(pendingChanId as Buffer);
+            setFinalPsbt(psbt);
+            setFeeRates(feeRates);
+            setShoppingItems([
+              {
+                image: <LightningImage />,
+                title: `Lightning channel with ${openChannelResponse.alias}`,
+                price: psbtFund.fundingAmount,
+                extraInfo: [
+                  {
+                    label: 'Outgoing capacity',
+                    value: `${psbtFund.fundingAmount.toLocaleString()} sats`
+                  },
+                  { label: 'Incoming capacity', value: `0 sats` }
+                ]
+              }
+            ]);
+            setStep(1);
+          } else if (openChannelResponse.chanPending) {
+            setTimeout(() => {
+              platform.getLightningData(currentAccount.config);
+            }, 200);
+            setStep(2);
           }
+          setIsLoading(false);
         }
       );
     } catch (e: unknown) {
       if (e instanceof Error) {
-        console.log("e: ", e.message);
+        console.log('e: ', e.message);
         setError(e.message);
         setIsLoading(false);
       }
@@ -154,14 +129,14 @@ const OpenChannel = ({ currentAccount, setViewOpenChannelForm }: Props) => {
   const confirmTxWithLilyThenSend = async () => {
     try {
       const finalizedPsbt = finalPsbt!.finalizeAllInputs();
-      window.ipcRenderer.send("/open-channel-finalize", {
+      platform.openChannelFinalize({
         finalPsbt: finalizedPsbt.toBase64(),
         pendingChanId: pendingChannelId,
-        lndConnectUri: currentAccount.config.connectionDetails.lndConnectUri,
+        lndConnectUri: currentAccount.config.connectionDetails.lndConnectUri
       });
     } catch (e: unknown) {
       if (e instanceof Error) {
-        console.log("e: ", e);
+        console.log('e: ', e);
         openInModal(<ErrorModal message={e.message} closeModal={closeModal} />);
       }
     }
@@ -179,8 +154,8 @@ const OpenChannel = ({ currentAccount, setViewOpenChannelForm }: Props) => {
           <TextContainer>
             <HeadingText>Open a new channel</HeadingText>
             <Subtext>
-              Channels allow you to send payments to other nodes on the
-              lightning network with low fees.
+              Channels allow you to send payments to other nodes on the lightning network with low
+              fees.
             </Subtext>
             <OpenChannelForm
               openChannel={openChannel}
@@ -197,18 +172,12 @@ const OpenChannel = ({ currentAccount, setViewOpenChannelForm }: Props) => {
           <FormHeaderWrapper>
             <DangerIconContainer>
               <StyledIconCircle>
-                <StyledIcon
-                  style={{ color: green600 }}
-                  as={EditAlt}
-                  size={36}
-                />
+                <StyledIcon style={{ color: green600 }} as={EditAlt} size={36} />
               </StyledIconCircle>
             </DangerIconContainer>
             <TextContainer>
               <HeadingText>Open a new channel</HeadingText>
-              <Subtext>
-                Confirm your funding transaction on your hardware wallet(s).
-              </Subtext>
+              <Subtext>Confirm your funding transaction on your hardware wallet(s).</Subtext>
             </TextContainer>
           </FormHeaderWrapper>
           {finalPsbt && (

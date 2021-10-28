@@ -1,13 +1,13 @@
-import React, { useState, useRef } from "react";
-import styled, { css } from "styled-components";
-import axios from "axios";
-import { decode } from "bs58check";
-import BarcodeScannerComponent from "react-webcam-barcode-scanner";
-import { Network } from "bitcoinjs-lib";
-import { v4 as uuidv4 } from "uuid";
-import { blockExplorerAPIURL } from "unchained-bitcoin";
+import React, { useState, useRef, useContext } from 'react';
+import styled, { css } from 'styled-components';
+import axios from 'axios';
+import { decode } from 'bs58check';
+import BarcodeScannerComponent from 'react-webcam-barcode-scanner';
+import { Network } from 'bitcoinjs-lib';
+import { v4 as uuidv4 } from 'uuid';
+import { blockExplorerAPIURL } from 'unchained-bitcoin';
 
-import { CursorClick } from "@styled-icons/heroicons-solid";
+import { CursorClick } from '@styled-icons/heroicons-solid';
 
 import {
   Button,
@@ -17,7 +17,7 @@ import {
   ErrorModal,
   Modal,
   StyledIcon
-} from "../../components";
+} from 'src/components';
 import {
   InnerWrapper,
   XPubHeaderWrapper,
@@ -25,17 +25,17 @@ import {
   SetupExplainerText,
   FormContainer,
   BoxedWrapper,
-  SetupHeader,
-} from "./styles";
-import { zpubToXpub } from "../../utils/other";
-import { mobile } from "../../utils/media";
+  SetupHeader
+} from './styles';
+import { zpubToXpub } from 'src/utils/other';
+import { mobile } from 'src/utils/media';
 import {
   getP2shDeriationPathForNetwork,
   getP2wpkhDeriationPathForNetwork,
-  getUnchainedNetworkFromBjslibNetwork,
-} from "../../utils/files";
+  getUnchainedNetworkFromBjslibNetwork
+} from 'src/utils/files';
 
-import { getAddressFromAccount } from "../../utils/accountMap";
+import { getAddressFromAccount } from 'src/utils/accountMap';
 
 import {
   white,
@@ -45,24 +45,24 @@ import {
   gray900,
   green100,
   green700,
-  green600,
-} from "../../utils/colors";
+  green600
+} from 'src/utils/colors';
 
 import {
   HwiResponseEnumerate,
   ColdcardElectrumExport,
   File,
   AddressType,
-  OnChainConfig,
-} from "../../types";
+  OnChainConfig
+} from 'src/types';
+
+import { PlatformContext } from 'src/context';
 
 interface Props {
   header: JSX.Element;
   setStep: React.Dispatch<React.SetStateAction<number>>;
   importedDevices: HwiResponseEnumerate[];
-  setImportedDevices: React.Dispatch<
-    React.SetStateAction<HwiResponseEnumerate[]>
-  >;
+  setImportedDevices: React.Dispatch<React.SetStateAction<HwiResponseEnumerate[]>>;
   currentBitcoinNetwork: Network;
   setPath: React.Dispatch<React.SetStateAction<string>>;
   setAddressType: React.Dispatch<React.SetStateAction<AddressType>>;
@@ -75,15 +75,14 @@ const NewHardwareWalletScreen = ({
   setImportedDevices,
   currentBitcoinNetwork,
   setPath,
-  setAddressType,
+  setAddressType
 }: Props) => {
-  const [availableDevices, setAvailableDevices] = useState<
-    HwiResponseEnumerate[]
-  >([]);
+  const [availableDevices, setAvailableDevices] = useState<HwiResponseEnumerate[]>([]);
   const [errorDevices, setErrorDevices] = useState<string[]>([]);
   const importDeviceFromFileRef = useRef<HTMLLabelElement>(null);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
+  const { platform } = useContext(PlatformContext);
 
   const openInModal = (component: JSX.Element) => {
     setModalIsOpen(true);
@@ -95,51 +94,45 @@ const NewHardwareWalletScreen = ({
     setModalContent(null);
   };
 
-  const importSingleSigDevice = async (
-    device: HwiResponseEnumerate,
-    index: number
-  ) => {
+  const importSingleSigDevice = async (device: HwiResponseEnumerate, index: number) => {
     try {
-      const p2wpkhXpub = await window.ipcRenderer.invoke("/xpub", {
+      const p2wpkhXpub = await platform.getXpub({
         deviceType: device.type,
         devicePath: device.path,
-        path: getP2wpkhDeriationPathForNetwork(currentBitcoinNetwork), // we are assuming BIP48 P2WSH wallet
-      }); // KBC-TODO: hwi xpub response type
+        path: getP2wpkhDeriationPathForNetwork(currentBitcoinNetwork) // we are assuming BIP48 P2WSH wallet
+      });
 
       const p2wpkhConfig = {
         id: uuidv4(),
         created_at: 123, // this is a dumby value bc thrown away later
-        type: "onchain",
-        name: "test",
-        network: "mainnet",
+        type: 'onchain',
+        name: 'test',
+        network: 'mainnet',
         addressType: AddressType.P2WPKH,
         quorum: {
           requiredSigners: 1,
-          totalSigners: 1,
+          totalSigners: 1
         },
         extendedPublicKeys: [
           {
             id: uuidv4(),
             created_at: Date.now(),
             parentFingerprint: device.fingerprint,
-            network: "mainnet",
+            network: 'mainnet',
             bip32Path: getP2wpkhDeriationPathForNetwork(currentBitcoinNetwork),
             xpub: p2wpkhXpub.xpub,
             device: {
               type: device.type,
               fingerprint: device.fingerprint,
-              model: device.model,
-            },
-          },
-        ],
+              model: device.model
+            }
+          }
+        ]
       } as OnChainConfig;
 
-      const p2wpkhAddress = getAddressFromAccount(
-        p2wpkhConfig,
-        "m/0/0",
-        currentBitcoinNetwork
-      );
+      const p2wpkhAddress = getAddressFromAccount(p2wpkhConfig, 'm/0/0', currentBitcoinNetwork);
 
+      // TODO: this needs removed
       let { data: p2wpkhTxs } = await axios.get(
         blockExplorerAPIURL(
           `/address/${p2wpkhAddress.address}/txs`,
@@ -148,45 +141,41 @@ const NewHardwareWalletScreen = ({
       );
 
       // check for P2SH(P2WPK) transactions too
-      const p2shXpub = await window.ipcRenderer.invoke("/xpub", {
+      const p2shXpub = await platform.getXpub({
         deviceType: device.type,
         devicePath: device.path,
-        path: getP2shDeriationPathForNetwork(currentBitcoinNetwork), // we are assuming BIP48 P2WSH wallet
-      }); // KBC-TODO: hwi xpub response type
+        path: getP2shDeriationPathForNetwork(currentBitcoinNetwork) // we are assuming BIP48 P2WSH wallet
+      });
 
       const p2shConfig = {
         id: uuidv4(),
         created_at: 123, /// this gets thrown away later, so set dumby value
-        type: "onchain",
-        name: "test",
-        network: "mainnet",
+        type: 'onchain',
+        name: 'test',
+        network: 'mainnet',
         addressType: AddressType.p2sh,
         quorum: {
           requiredSigners: 1,
-          totalSigners: 1,
+          totalSigners: 1
         },
         extendedPublicKeys: [
           {
             id: uuidv4(),
             created_at: Date.now(),
             parentFingerprint: device.fingerprint,
-            network: "mainnet",
+            network: 'mainnet',
             bip32Path: getP2shDeriationPathForNetwork(currentBitcoinNetwork),
             xpub: p2shXpub.xpub,
             device: {
               type: device.type,
               fingerprint: device.fingerprint,
-              model: device.model,
-            },
-          },
-        ],
+              model: device.model
+            }
+          }
+        ]
       } as OnChainConfig;
 
-      const p2shAddress = getAddressFromAccount(
-        p2shConfig,
-        "m/0/0",
-        currentBitcoinNetwork
-      );
+      const p2shAddress = getAddressFromAccount(p2shConfig, 'm/0/0', currentBitcoinNetwork);
 
       let { data: p2shTxs } = await axios.get(
         blockExplorerAPIURL(
@@ -199,50 +188,35 @@ const NewHardwareWalletScreen = ({
         openInModal(
           <ModalWrapper>
             <StyledIconCircle>
-              <StyledIcon
-                style={{ color: green600 }}
-                as={CursorClick}
-                size={36}
-              />
+              <StyledIcon style={{ color: green600 }} as={CursorClick} size={36} />
             </StyledIconCircle>
             <ModalHeader>Select address type</ModalHeader>
             <ModalSubtext>
-              We detected transaction history for two different address types
-              with this device. Please choose which address type you would like
-              to use.
+              We detected transaction history for two different address types with this device.
+              Please choose which address type you would like to use.
             </ModalSubtext>
             <ButtonContainer>
               <SecondaryOptionButton
-                data-cy="p2sh-button"
+                data-cy='p2sh-button'
                 color={gray700}
                 background={white}
                 onClick={() => {
-                  setPath(
-                    getP2shDeriationPathForNetwork(currentBitcoinNetwork)
-                  );
+                  setPath(getP2shDeriationPathForNetwork(currentBitcoinNetwork));
                   setAddressType(AddressType.p2sh);
-                  setImportedDevices([
-                    ...importedDevices,
-                    { ...device, ...p2shXpub },
-                  ]);
+                  setImportedDevices([...importedDevices, { ...device, ...p2shXpub }]);
                   closeModal();
                 }}
               >
                 P2SH(P2WPKH)
               </SecondaryOptionButton>
               <OptionButton
-                data-cy="p2wpkh-button"
+                data-cy='p2wpkh-button'
                 color={white}
                 background={green700}
                 onClick={() => {
-                  setPath(
-                    getP2wpkhDeriationPathForNetwork(currentBitcoinNetwork)
-                  );
+                  setPath(getP2wpkhDeriationPathForNetwork(currentBitcoinNetwork));
                   setAddressType(AddressType.P2WPKH);
-                  setImportedDevices([
-                    ...importedDevices,
-                    { ...device, ...p2wpkhXpub },
-                  ]);
+                  setImportedDevices([...importedDevices, { ...device, ...p2wpkhXpub }]);
                   closeModal();
                 }}
               >
@@ -278,7 +252,7 @@ const NewHardwareWalletScreen = ({
   const importDeviceFromFile = (parsedFile: ColdcardElectrumExport) => {
     try {
       if (parsedFile.keystore.derivation !== "m/49'/0'/0'") {
-        throw new Error("Invalid file");
+        throw new Error('Invalid file');
       }
 
       const xpub = zpubToXpub(decode(parsedFile.keystore.xpub));
@@ -286,12 +260,12 @@ const NewHardwareWalletScreen = ({
       const newDevice = {
         type: parsedFile.keystore.hw_type,
         fingerprint: parsedFile.keystore.label.substring(
-          "Coldcard Import ".length,
+          'Coldcard Import '.length,
           parsedFile.keystore.label.length
         ),
         xpub: xpub,
-        model: "unknown",
-        path: "unknown",
+        model: 'unknown',
+        path: 'unknown'
       } as HwiResponseEnumerate;
 
       const updatedImportedDevices = [...importedDevices, newDevice];
@@ -308,18 +282,16 @@ const NewHardwareWalletScreen = ({
       const xpubFromZpub = zpubToXpub(decode(xpub));
 
       const newDevice = {
-        type: "cobo",
+        type: 'cobo',
         fingerprint: xfp,
         xpub: xpubFromZpub,
-        model: "unknown",
-        path: path,
+        model: 'unknown',
+        path: path
       } as HwiResponseEnumerate;
 
       const updatedImportedDevices = [...importedDevices, newDevice];
       setImportedDevices(updatedImportedDevices);
-      setAvailableDevices([
-        ...availableDevices.filter((item) => item.type !== "phone"),
-      ]);
+      setAvailableDevices([...availableDevices.filter((item) => item.type !== 'phone')]);
       closeModal();
     } catch (e) {
       openInModal(<ErrorModal message={e.message} closeModal={closeModal} />);
@@ -332,20 +304,20 @@ const NewHardwareWalletScreen = ({
       <FormContainer>
         <BoxedWrapper>
           <FileUploader
-            accept="application/JSON"
-            id="localConfigFile"
+            accept='application/JSON'
+            id='localConfigFile'
             onFileLoad={({ file }: File) => {
               try {
                 const parsedFile = JSON.parse(file);
                 importDeviceFromFile(parsedFile);
               } catch (e) {
-                openInModal(<ErrorModal message="Invalid file" closeModal={closeModal} />)
+                openInModal(<ErrorModal message='Invalid file' closeModal={closeModal} />);
               }
             }}
           />
 
           <ImportFromFileLabel
-            htmlFor="localConfigFile"
+            htmlFor='localConfigFile'
             ref={importDeviceFromFileRef}
           ></ImportFromFileLabel>
 
@@ -354,42 +326,39 @@ const NewHardwareWalletScreen = ({
               <div>
                 <SetupHeader>Connect hardware wallet to computer</SetupHeader>
                 <SetupExplainerText>
-                  Plug your hardware wallet into your computer and unlock it. If
-                  you're using a Ledger, you will need to open the Bitcoin app
-                  to access it. You can also add your hardware wallet like
-                  Coldcard by importing the file from an SD card.
+                  Plug your hardware wallet into your computer and unlock it. If you're using a
+                  Ledger, you will need to open the Bitcoin app to access it. You can also add your
+                  hardware wallet like Coldcard by importing the file from an SD card.
                 </SetupExplainerText>
               </div>
               <Dropdown
                 minimal={true}
                 dropdownItems={[
                   {
-                    label: "Import from File",
+                    label: 'Import from File',
                     onClick: () => {
-                      const importDeviceFromFile =
-                        importDeviceFromFileRef.current;
+                      const importDeviceFromFile = importDeviceFromFileRef.current;
                       if (importDeviceFromFile) {
                         importDeviceFromFile.click();
                       }
-                    },
+                    }
                   },
                   {
-                    label: "Import from QR Code",
+                    label: 'Import from QR Code',
                     onClick: () =>
                       openInModal(
                         <BarcodeScannerComponent
                           // @ts-ignore
-                          width={"100%"}
+                          width={'100%'}
                           // @ts-ignore
-                          height={"100%"}
+                          height={'100%'}
                           onUpdate={(err, result) => {
-                            if (result)
-                              importDeviceFromQR({ data: result.getText() });
+                            if (result) importDeviceFromQR({ data: result.getText() });
                             else return;
                           }}
                         />
-                      ),
-                  },
+                      )
+                  }
                 ]}
               />
               {/* <ImportFromFileButton htmlFor="localConfigFile" background={white} color={darkGray}>Import from File</ImportFromFileButton> */}
@@ -397,8 +366,8 @@ const NewHardwareWalletScreen = ({
           </XPubHeaderWrapper>
           <DeviceSelect
             deviceAction={importSingleSigDevice}
-            deviceActionText={"Click to Configure"}
-            deviceActionLoadingText={"Configuring"}
+            deviceActionText={'Click to Configure'}
+            deviceActionLoadingText={'Configuring'}
             configuredDevices={importedDevices}
             unconfiguredDevices={availableDevices}
             errorDevices={errorDevices}

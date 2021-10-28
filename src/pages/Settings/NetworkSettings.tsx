@@ -1,30 +1,19 @@
-import React from "react";
-import styled from "styled-components";
-import { Circle } from "@styled-icons/boxicons-solid";
+import React, { useContext } from 'react';
+import styled from 'styled-components';
+import { Circle } from '@styled-icons/boxicons-solid';
 
-import {
-  ConnectToNodeModal,
-  Dropdown,
-  StyledIcon,
-  SettingsTable,
-} from "../../components";
+import { ConnectToNodeModal, Dropdown, StyledIcon, SettingsTable } from 'src/components';
 
-import { NodeConfig } from "../../types";
+import { NodeConfigWithBlockchainInfo } from 'src/types';
 
-import { getNodeStatus } from "../../utils/other";
-import {
-  white,
-  green400,
-  green500,
-  gray700,
-  orange400,
-  red500,
-} from "../../utils/colors";
+import { getNodeStatus } from 'src/utils/other';
+import { white, green400, green500, gray700, orange400, red500 } from 'src/utils/colors';
+import { PlatformContext } from 'src/context';
 
 interface Props {
-  nodeConfig: NodeConfig;
+  nodeConfig: NodeConfigWithBlockchainInfo;
   getNodeConfig: () => void;
-  setNodeConfig: React.Dispatch<React.SetStateAction<NodeConfig | undefined>>; // KBC-TODO: NodeConfig should be defined, even if we are connected to blockstream, yeah? No?
+  setNodeConfig: React.Dispatch<React.SetStateAction<NodeConfigWithBlockchainInfo | undefined>>; // KBC-TODO: NodeConfig should be defined, even if we are connected to blockstream, yeah? No?
   openInModal: (component: JSX.Element) => void;
   closeModal: () => void;
 }
@@ -34,28 +23,26 @@ const NetworkSettings = ({
   getNodeConfig,
   setNodeConfig,
   openInModal,
-  closeModal,
+  closeModal
 }: Props) => {
+  const { platform } = useContext(PlatformContext);
+
   const refreshNodeData = async () => {
     await getNodeConfig();
   };
 
   const connectToBlockstream = async () => {
     setNodeConfig(undefined);
-    const response = await window.ipcRenderer.invoke("/changeNodeConfig", {
-      nodeConfig: {
-        provider: "Blockstream",
-      },
+    const response = await platform.changeNodeConfig({
+      provider: 'Blockstream'
     });
     setNodeConfig(response);
   };
 
   const connectToElectrum = async () => {
     setNodeConfig(undefined);
-    const response = await window.ipcRenderer.invoke("/changeNodeConfig", {
-      nodeConfig: {
-        provider: "Electrum",
-      },
+    const response = await platform.changeNodeConfig({
+      provider: 'Electrum'
     });
     setNodeConfig(response);
   };
@@ -63,14 +50,12 @@ const NetworkSettings = ({
   const connectToBitcoinCore = async () => {
     setNodeConfig(undefined);
     try {
-      const response = await window.ipcRenderer.invoke("/changeNodeConfig", {
-        nodeConfig: {
-          provider: "Bitcoin Core",
-        },
+      const response = await platform.changeNodeConfig({
+        provider: 'Bitcoin Core'
       });
       setNodeConfig(response);
     } catch (e) {
-      console.log("e: ", JSON.stringify(e));
+      console.log('e: ', JSON.stringify(e));
       // setNodeConfig(response);
     }
   };
@@ -80,37 +65,30 @@ const NetworkSettings = ({
   nodeConfigDropdownItems.push({
     label: 'Connect to Electrum',
     onClick: async () => await connectToElectrum()
-  })
+  });
 
-  if (nodeConfig && nodeConfig.provider !== "Bitcoin Core") {
+  if (nodeConfig && nodeConfig.provider !== 'Bitcoin Core') {
     nodeConfigDropdownItems.push({
-      label: "Connect to Bitcoin Core",
-      onClick: async () => await connectToBitcoinCore(),
+      label: 'Connect to Bitcoin Core',
+      onClick: async () => await connectToBitcoinCore()
     });
   }
-  if (nodeConfig && nodeConfig.provider !== "Blockstream") {
+  if (nodeConfig && nodeConfig.provider !== 'Blockstream') {
     nodeConfigDropdownItems.push({
-      label: "Connect to Blockstream",
-      onClick: async () => await connectToBlockstream(),
+      label: 'Connect to Blockstream',
+      onClick: async () => await connectToBlockstream()
     });
   }
   nodeConfigDropdownItems.push({
-    label: "Connect to specific node",
+    label: 'Connect to specific node',
     onClick: () =>
-      openInModal(
-        <ConnectToNodeModal
-          setNodeConfig={setNodeConfig}
-          onRequestClose={closeModal}
-        />
-      ),
+      openInModal(<ConnectToNodeModal setNodeConfig={setNodeConfig} onRequestClose={closeModal} />)
   });
 
   return (
     <SettingsTable.Wrapper>
       <SettingsTable.HeaderSection>
-        <SettingsTable.HeaderTitle>
-          Network configuration
-        </SettingsTable.HeaderTitle>
+        <SettingsTable.HeaderTitle>Network configuration</SettingsTable.HeaderTitle>
         <SettingsTable.HeaderSubtitle>
           This information is private and only seen by you.
         </SettingsTable.HeaderSubtitle>
@@ -125,18 +103,18 @@ const NetworkSettings = ({
                 <StyledIcon
                   as={Circle}
                   style={{
-                    marginRight: "0.35em",
+                    marginRight: '0.35em',
                     color: nodeConfig.initialblockdownload
                       ? orange400
                       : nodeConfig.connected
-                        ? green400
-                        : red500, // !nodeConfig.connected
+                      ? green400
+                      : red500 // !nodeConfig.connected
                   }}
                 />
               ) : (
                 <LoadingImage
-                  alt="loading placeholder"
-                  src={require("../../assets/flower-loading.svg")}
+                  alt='loading placeholder'
+                  src={require('../../assets/flower-loading.svg')}
                 />
               )}
               {getNodeStatus(nodeConfig)}
@@ -150,8 +128,9 @@ const NetworkSettings = ({
           <SettingsTable.ValueText>
             {nodeConfig && nodeConfig?.blocks > 0
               ? nodeConfig?.blocks?.toLocaleString()
-              : nodeConfig?.blocks === 0 ? ""
-                : "Connecting..."}
+              : nodeConfig?.blocks === 0
+              ? ''
+              : 'Connecting...'}
           </SettingsTable.ValueText>
           <SettingsTable.ValueAction>
             <SettingsTable.ActionButton

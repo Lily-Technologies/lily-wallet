@@ -1,34 +1,26 @@
-import React, { useState, Fragment, useContext } from "react";
-import { useHistory } from "react-router-dom";
-import styled, { css } from "styled-components";
-import { networks, Network } from "bitcoinjs-lib";
-import moment from "moment";
-import { AES, enc } from "crypto-js";
-import { ArrowIosForwardOutline } from "@styled-icons/evaicons-outline";
+import React, { useState, Fragment, useContext } from 'react';
+import { useHistory } from 'react-router-dom';
+import styled, { css } from 'styled-components';
+import { networks, Network } from 'bitcoinjs-lib';
+import moment from 'moment';
+import { AES, enc } from 'crypto-js';
+import { ArrowIosForwardOutline } from '@styled-icons/evaicons-outline';
 
-import { StyledIcon, FileUploader, Button, Input } from "src/components";
+import { StyledIcon, FileUploader, Button, Input } from 'src/components';
 
-import {
-  black,
-  white,
-  gray500,
-  gray600,
-  gray900,
-  green500,
-  green600,
-} from "src/utils/colors";
-import { bitcoinNetworkEqual } from "src/utils/files";
-import { mobile } from "src/utils/media";
-import { saveConfig } from "src/utils/files";
+import { black, white, gray500, gray600, gray900, green500, green600 } from 'src/utils/colors';
+import { bitcoinNetworkEqual } from 'src/utils/files';
+import { mobile } from 'src/utils/media';
+import { saveConfig } from 'src/utils/files';
 import {
   updateConfigFileVersionOne,
   updateConfigFileVersionBeta,
   updateConfigFileVersionOneDotFive,
-  updateConfigFileVersionOneDotSeven,
-} from "src/utils/migration";
+  updateConfigFileVersionOneDotSeven
+} from 'src/utils/migration';
 
-import { File } from "src/types";
-import { ConfigContext } from "src/ConfigContext";
+import { File } from 'src/types';
+import { ConfigContext, PlatformContext } from 'src/context';
 
 const MIN_PASSWORD_LENGTH = 8;
 
@@ -45,18 +37,15 @@ const Login = ({
   encryptedConfigFile,
   setEncryptedConfigFile,
   setPassword,
-  currentBlockHeight,
+  currentBlockHeight
 }: Props) => {
-  const { config, setConfigFile } = useContext(ConfigContext);
   document.title = `Login - Lily Wallet`;
-  const [localPassword, setLocalPassword] = useState("");
-  const [passwordError, setPasswordError] = useState<string | undefined>(
-    undefined
-  );
-  const [confirmation, setConfirmation] = useState("");
-  const [confirmationError, setConfirmationError] = useState<
-    string | undefined
-  >(undefined);
+  const { config, setConfigFile } = useContext(ConfigContext);
+  const { platform } = useContext(PlatformContext);
+  const [localPassword, setLocalPassword] = useState('');
+  const [passwordError, setPasswordError] = useState<string | undefined>(undefined);
+  const [confirmation, setConfirmation] = useState('');
+  const [confirmationError, setConfirmationError] = useState<string | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
   const [step, setStep] = useState(0);
   const history = useHistory();
@@ -79,12 +68,12 @@ const Login = ({
         setTimeout(() => {
           setConfigFile(migratedConfig);
           setPassword(localPassword);
-          saveConfig(migratedConfig, localPassword); // we resave the file after opening to update the modifiedDate value
+          saveConfig(migratedConfig, localPassword, platform); // we resave the file after opening to update the modifiedDate value
           setIsLoading(false);
           history.replace(`/`);
         }, 2000);
       } catch (e) {
-        setPasswordError("Incorrect Password");
+        setPasswordError('Incorrect Password');
         setIsLoading(false);
       }
     } else {
@@ -93,35 +82,33 @@ const Login = ({
         configCopy.isEmpty = false;
         setTimeout(() => {
           setConfigFile(configCopy);
-          saveConfig(configCopy, localPassword); // we save a blank config file
+          saveConfig(configCopy, localPassword, platform); // we save a blank config file
           setPassword(localPassword);
           setIsLoading(false);
           history.replace(`/`);
         }, 2000);
       } catch (e) {
-        setPasswordError("Error. Try again.");
+        setPasswordError('Error. Try again.');
         setIsLoading(false);
       }
     }
   };
 
   const onClickCreateNew = () => {
-    setLocalPassword("");
+    setLocalPassword('');
     setPasswordError(undefined);
     setEncryptedConfigFile(null);
   };
 
   const onInputEnter = (e: React.KeyboardEvent) => {
-    if (encryptedConfigFile && e.key === "Enter") {
+    if (encryptedConfigFile && e.key === 'Enter') {
       unlockFile();
     }
   };
 
   const validateInput = () => {
     if (!!localPassword && localPassword.length < MIN_PASSWORD_LENGTH) {
-      setPasswordError(
-        `Password must be at least ${MIN_PASSWORD_LENGTH} characters long`
-      );
+      setPasswordError(`Password must be at least ${MIN_PASSWORD_LENGTH} characters long`);
       return false;
     } else if (!!passwordError) {
       setPasswordError(undefined);
@@ -142,34 +129,27 @@ const Login = ({
       <Wrapper>
         <MainText>
           {bitcoinNetworkEqual(currentBitcoinNetwork, networks.testnet) ? (
-            <LilyLogoGray src={require("../../assets/flower.svg")} />
+            <LilyLogoGray src={require('../../assets/flower.svg')} />
           ) : (
-            <LilyLogo src={require("../../assets/flower.svg")} />
+            <LilyLogo src={require('../../assets/flower.svg')} />
           )}
           <TextContainer>
-            <div>
-              {encryptedConfigFile
-                ? "Unlock your account"
-                : "Welcome to Lily Wallet"}
-            </div>
+            <div>{encryptedConfigFile ? 'Unlock your account' : 'Welcome to Lily Wallet'}</div>
             <Subtext>
               {encryptedConfigFile ? (
                 <Fragment>
-                  or{" "}
-                  <SubTextLink onClick={() => onClickCreateNew()}>
-                    create a new one
-                  </SubTextLink>
+                  or <SubTextLink onClick={() => onClickCreateNew()}>create a new one</SubTextLink>
                 </Fragment>
               ) : (
-                "The best way to secure your bitcoin"
+                'The best way to secure your bitcoin'
               )}
             </Subtext>
           </TextContainer>
         </MainText>
 
         <FileUploader
-          accept=".txt"
-          id="localConfigFile"
+          accept='.txt'
+          id='localConfigFile'
           onFileLoad={(file: File) => {
             setEncryptedConfigFile(file);
           }}
@@ -180,31 +160,30 @@ const Login = ({
             <SignupOptionItem>
               {!encryptedConfigFile && (
                 <ExplainerText>
-                  Lily encrypts the information about your account on your local
-                  machine. This password will be used to decrypt this
-                  information when you use Lily in the future.
+                  Lily encrypts the information about your account on your local machine. This
+                  password will be used to decrypt this information when you use Lily in the future.
                 </ExplainerText>
               )}
               <InputContainer>
                 <Input
                   autoFocus
-                  label="Password"
+                  label='Password'
                   value={localPassword}
                   onKeyDown={(e) => onInputEnter(e)}
                   onChange={setLocalPassword}
                   error={passwordError}
-                  type="password"
+                  type='password'
                 />
               </InputContainer>
               {!encryptedConfigFile && (
-                <InputContainer style={{ paddingBottom: ".5em" }}>
+                <InputContainer style={{ paddingBottom: '.5em' }}>
                   <Input
-                    label="Confirm Password"
+                    label='Confirm Password'
                     value={confirmation}
                     onKeyDown={(e) => onInputEnter(e)}
                     onChange={setConfirmation}
                     error={confirmationError}
-                    type="password"
+                    type='password'
                   />
                 </InputContainer>
               )}
@@ -222,16 +201,16 @@ const Login = ({
                 }}
               >
                 {isLoading && !encryptedConfigFile
-                  ? "Loading"
+                  ? 'Loading'
                   : isLoading
-                    ? "Unlocking"
-                    : encryptedConfigFile
-                      ? "Unlock"
-                      : "Continue"}
+                  ? 'Unlocking'
+                  : encryptedConfigFile
+                  ? 'Unlock'
+                  : 'Continue'}
                 {isLoading ? (
                   <LoadingImage
-                    alt="loading placeholder"
-                    src={require("../../assets/flower-loading.svg")}
+                    alt='loading placeholder'
+                    src={require('../../assets/flower-loading.svg')}
                   />
                 ) : (
                   <StyledIcon as={ArrowIosForwardOutline} size={24} />
@@ -239,34 +218,28 @@ const Login = ({
               </SignInButton>
               {encryptedConfigFile && (
                 <SignupOptionSubtext>
-                  Last accessed on{" "}
+                  Last accessed on{' '}
                   {encryptedConfigFile &&
-                    moment(encryptedConfigFile.modifiedTime).format(
-                      "MM/DD/YYYY"
-                    )}
+                    moment(encryptedConfigFile.modifiedTime).format('MM/DD/YYYY')}
                 </SignupOptionSubtext>
               )}
             </SignupOptionItem>
           ) : (
-            <CreateNewAccountButton
-              background={green500}
-              color={white}
-              onClick={() => setStep(1)}
-            >
+            <CreateNewAccountButton background={green500} color={white} onClick={() => setStep(1)}>
               Get Started
             </CreateNewAccountButton>
           )}
 
           <LoadFromFile>
-            You can also restore a wallet{" "}
-            <LabelOverlay htmlFor="localConfigFile">
+            You can also restore a wallet{' '}
+            <LabelOverlay htmlFor='localConfigFile'>
               <SubTextLink>from a backup file</SubTextLink>
             </LabelOverlay>
           </LoadFromFile>
         </SignupOptionMenu>
       </Wrapper>
       <LilyImageContainer>
-        <LilyImage src={require("../../assets/lily-image.jpg")} />
+        <LilyImage src={require('../../assets/lily-image.jpg')} />
       </LilyImageContainer>
     </PageWrapper>
   );
@@ -375,7 +348,7 @@ const LilyImageContainer = styled.div`
 
 const Wrapper = styled.div`
   text-align: center;
-  font-family: "Montserrat", sans-serif;
+  font-family: 'Montserrat', sans-serif;
   color: ${black};
   align-items: center;
   display: flex;

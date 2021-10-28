@@ -1,19 +1,22 @@
-import React from "react";
-import ReactDOM from "react-dom";
-import "./index.css";
-import App from "./App";
+import React from 'react';
+import ReactDOM from 'react-dom';
+import './index.css';
+import App from './App';
 
-import { AccountMapProvider } from "./AccountMapContext";
-import { ConfigProvider } from "./ConfigContext";
-import { ModalProvider } from "./ModalContext";
+import { AccountMapProvider } from './context/AccountMapContext';
+import { ConfigProvider } from './context/ConfigContext';
+import { ModalProvider } from './context/ModalContext';
+import { PlatformProvider } from './context/PlatformContext';
 
 ReactDOM.render(
-  <ConfigProvider>
-    <AccountMapProvider>
-      <ModalProvider>
-        <App />
-      </ModalProvider>
-    </AccountMapProvider>
-  </ConfigProvider>,
-  document.getElementById("root")
+  <PlatformProvider>
+    <ConfigProvider>
+      <AccountMapProvider>
+        <ModalProvider>
+          <App />
+        </ModalProvider>
+      </AccountMapProvider>
+    </ConfigProvider>
+  </PlatformProvider>,
+  document.getElementById('root')
 );

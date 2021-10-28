@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
-import styled from "styled-components";
-import { DotSingle } from "@styled-icons/entypo";
-import { StarOfLife } from "@styled-icons/fa-solid";
-import { Backspace } from "@styled-icons/ionicons-solid";
+import React, { useEffect, useState, useContext } from 'react';
+import styled from 'styled-components';
+import { DotSingle } from '@styled-icons/entypo';
+import { StarOfLife } from '@styled-icons/fa-solid';
+import { Backspace } from '@styled-icons/ionicons-solid';
 
-import { Button, Loading, StyledIcon } from ".";
+import { Button, Loading, StyledIcon } from '.';
 
 import {
   white,
@@ -15,10 +15,11 @@ import {
   gray200,
   gray300,
   gray900,
-  red500,
-} from "../utils/colors";
+  red500
+} from '../utils/colors';
 
-import { HwiResponseEnumerate } from "../types";
+import { HwiResponseEnumerate } from '../types';
+import { PlatformContext } from 'src/context';
 
 interface Props {
   device: HwiResponseEnumerate;
@@ -27,73 +28,74 @@ interface Props {
 }
 
 export const PromptPinModal = ({ device, enumerate, closeModal }: Props) => {
-  const [currentPin, setCurrentPin] = useState("");
-  const [loadingMessage, setLoadingMessage] = useState("");
-  const [promptPinError, setPromptPinError] = useState("");
+  const [currentPin, setCurrentPin] = useState('');
+  const [loadingMessage, setLoadingMessage] = useState('');
+  const [promptPinError, setPromptPinError] = useState('');
+  const { platform } = useContext(PlatformContext);
 
   useEffect(() => {
     async function promptPin() {
-      setLoadingMessage("Loading Keypad");
+      setLoadingMessage('Loading Keypad');
       try {
-        await window.ipcRenderer.invoke("/promptpin", {
+        await platform.promptPin({
           deviceType: device.type,
-          devicePath: device.path,
+          devicePath: device.path
         });
       } catch (e) {
         setPromptPinError(
-          "Something went wrong. Please unplug and re-plug in your device until no keypad appears on the screen."
+          'Something went wrong. Please unplug and re-plug in your device until no keypad appears on the screen.'
         );
         setTimeout(() => {
           closeModal();
         }, 10000);
       }
 
-      setLoadingMessage("");
+      setLoadingMessage('');
     }
 
     if (device) {
       promptPin();
     }
-  }, [device, closeModal]);
+  }, [device, closeModal, platform]);
 
   const addToPin = (number: number) => {
     if (promptPinError) {
-      setPromptPinError("");
+      setPromptPinError('');
     }
     setCurrentPin(currentPin.concat(number.toString()));
   };
 
   const backspacePin = () => {
     if (promptPinError) {
-      setPromptPinError("");
+      setPromptPinError('');
     }
     setCurrentPin(currentPin.substring(0, currentPin.length - 1));
   };
 
   const sendPin = async () => {
-    setLoadingMessage("Unlocking Device");
+    setLoadingMessage('Unlocking Device');
     // TODO: this needs a try/catch.
     // TODO: figure out flow for if Trezor prompt comes up
-    const response = await window.ipcRenderer.invoke("/sendpin", {
+    const response = await platform.sendPin({
       deviceType: device.type,
       devicePath: device.path,
-      pin: currentPin,
+      pin: currentPin
     });
-    setCurrentPin("");
+    setCurrentPin('');
     if (response.success) {
       await enumerate();
       closeModal();
     } else {
-      setPromptPinError("Incorrect Pin");
-      await window.ipcRenderer.invoke("/promptpin", {
+      setPromptPinError('Incorrect Pin');
+      await platform.promptPin({
         deviceType: device.type,
-        devicePath: device.path,
+        devicePath: device.path
       });
-      setLoadingMessage("");
+      setLoadingMessage('');
     }
   };
 
-  const pinItems: any[] = []; // KBC-TODO: give this a correct type
+  const pinItems: React.ReactNode[] = []; // KBC-TODO: give this a correct type
   pinItems.push(
     <PinItem onClick={() => addToPin(7)}>
       <StyledIcon as={DotSingle} size={25} />
@@ -144,27 +146,19 @@ export const PromptPinModal = ({ device, enumerate, closeModal }: Props) => {
     <>
       <PinInputWrapper>
         <CurrentInput>
-          {currentPin.split("").map((item) => (
+          {currentPin.split('').map((item) => (
             <StyledIcon as={StarOfLife} size={25} />
           ))}
         </CurrentInput>
         {currentPin.length > 0 && (
           <BackspaceWrapper onClick={() => backspacePin()}>
-            <StyledIcon
-              style={{ cursor: "pointer" }}
-              as={Backspace}
-              size={25}
-            />
+            <StyledIcon style={{ cursor: 'pointer' }} as={Backspace} size={25} />
           </BackspaceWrapper>
         )}
       </PinInputWrapper>
       <PinItemsWrapper>{pinItems}</PinItemsWrapper>
       {promptPinError && <ErrorText>{promptPinError}</ErrorText>}
-      <UnlockButton
-        background={green600}
-        color={white}
-        onClick={() => sendPin()}
-      >
+      <UnlockButton background={green600} color={white} onClick={() => sendPin()}>
         Unlock Device
       </UnlockButton>
     </>

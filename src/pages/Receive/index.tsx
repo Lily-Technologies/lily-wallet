@@ -9,11 +9,11 @@ import {
   Loading,
   SelectAccountMenu,
   NoAccountsEmptyState,
-} from "../../components";
+} from "src/components";
 
-import { AccountMapContext } from "../../AccountMapContext";
+import { AccountMapContext } from "src/context/AccountMapContext";
 
-import { LilyConfig } from "../../types";
+import { LilyConfig } from "src/types";
 
 import OnchainReceive from './OnchainReceive'
 import LightningReceive from './Lightning'

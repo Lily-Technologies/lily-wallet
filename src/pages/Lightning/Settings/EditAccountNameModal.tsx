@@ -1,30 +1,16 @@
 // @ts-ignore
-import React, { useContext, useState } from "react";
-import styled, { css } from "styled-components";
-import { EditAlt } from "@styled-icons/boxicons-regular";
+import React, { useContext, useState } from 'react';
+import styled, { css } from 'styled-components';
+import { EditAlt } from '@styled-icons/boxicons-regular';
 
-import { AccountMapContext } from "../../../AccountMapContext";
+import { Input, StyledIcon, Button, ModalContentWrapper } from 'src/components';
 
-import {
-  Input,
-  StyledIcon,
-  Button,
-  ModalContentWrapper,
-} from "../../../components";
+import { mobile } from 'src/utils/media';
+import { white, green100, green600, gray300, gray500, gray700 } from 'src/utils/colors';
+import { saveConfig } from 'src/utils/files';
 
-import { mobile } from "../../../utils/media";
-import {
-  white,
-  green100,
-  green600,
-  gray300,
-  gray500,
-  gray700,
-} from "../../../utils/colors";
-import { saveConfig } from "../../../utils/files";
-
-import { ConfigContext } from "../../../ConfigContext";
-import { VaultConfig, OnChainConfig } from "src/types";
+import { AccountMapContext, ConfigContext, PlatformContext } from 'src/context';
+import { VaultConfig, OnChainConfig } from 'src/types';
 
 interface Props {
   password: string;
@@ -33,20 +19,21 @@ interface Props {
 
 const EditAccountNameModal = ({ password, closeModal }: Props) => {
   const { config, setConfigFile } = useContext(ConfigContext);
+  const { platform } = useContext(PlatformContext);
   const { currentAccount } = useContext(AccountMapContext);
-  const [accountNameConfirm, setAccountNameConfirm] = useState("");
-  const [accountNameConfirmError, setAccountNameConfirmError] = useState("");
+  const [accountNameConfirm, setAccountNameConfirm] = useState('');
+  const [accountNameConfirmError, setAccountNameConfirmError] = useState('');
 
   const onInputEnter = (e: React.KeyboardEvent<Element>) => {
-    if (e.key === "Enter") {
+    if (e.key === 'Enter') {
       editNameAndUpdateConfig();
     }
   };
 
   const editNameAndUpdateConfig = () => {
     try {
-      if (accountNameConfirm === "") {
-        throw Error("Invalid account name");
+      if (accountNameConfirm === '') {
+        throw Error('Invalid account name');
       }
       const currentAccountConfigCopy = { ...currentAccount.config };
       currentAccountConfigCopy.name = accountNameConfirm;
@@ -63,7 +50,7 @@ const EditAccountNameModal = ({ password, closeModal }: Props) => {
         configCopy.vaults.push(currentAccountConfigCopy as VaultConfig);
       }
 
-      saveConfig(configCopy, password);
+      saveConfig(configCopy, password, platform);
       setConfigFile({ ...configCopy });
       closeModal();
     } catch (e) {
@@ -80,13 +67,11 @@ const EditAccountNameModal = ({ password, closeModal }: Props) => {
       </DangerIconContainer>
       <TextContainer>
         <HeadingText>Edit Account Name</HeadingText>
-        <Subtext>
-          This information is private and only viewable within the Lily App.
-        </Subtext>
+        <Subtext>This information is private and only viewable within the Lily App.</Subtext>
         <Input
-          label="Account Name"
+          label='Account Name'
           autoFocus
-          type="text"
+          type='text'
           value={accountNameConfirm}
           onChange={setAccountNameConfirm}
           onKeyDown={(e) => onInputEnter(e)}

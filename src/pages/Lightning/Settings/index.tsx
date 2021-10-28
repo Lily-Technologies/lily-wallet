@@ -1,23 +1,23 @@
-import React, { useState } from "react";
-import styled from "styled-components";
-import { Network } from "bitcoinjs-lib";
+import React, { useState } from 'react';
+import styled from 'styled-components';
+import { Network } from 'bitcoinjs-lib';
 
-import GeneralView from "./GeneralView";
-import ChannelsView from "../Channels";
-import ExportView from "./ExportView";
-import SettingsTabs from "./SettingsTabs";
+import GeneralView from './GeneralView';
+import ChannelsView from '../Channels';
+import ExportView from './ExportView';
+import SettingsTabs from './SettingsTabs';
 
-import { white } from "../../../utils/colors";
-import { NodeConfig } from "src/types";
+import { white } from '../../../utils/colors';
+import { NodeConfigWithBlockchainInfo } from 'src/types';
 
 interface Props {
   password: string;
-  nodeConfig: NodeConfig;
+  nodeConfig: NodeConfigWithBlockchainInfo;
   currentBitcoinNetwork: Network;
 }
 
 const LightningSettings = ({ password, nodeConfig }: Props) => {
-  const [currentTab, setCurrentTab] = useState("general");
+  const [currentTab, setCurrentTab] = useState('general');
 
   return (
     <Wrapper>
@@ -25,9 +25,9 @@ const LightningSettings = ({ password, nodeConfig }: Props) => {
         <SettingsHeader>Settings</SettingsHeader>
         <SettingsTabs currentTab={currentTab} setCurrentTab={setCurrentTab} />
       </HeaderContainer>
-      {currentTab === "general" && <GeneralView password={password} />}
-      {currentTab === "channels" && <ChannelsView nodeConfig={nodeConfig} />}
-      {currentTab === "export" && <ExportView />}
+      {currentTab === 'general' && <GeneralView password={password} />}
+      {currentTab === 'channels' && <ChannelsView />}
+      {currentTab === 'export' && <ExportView />}
     </Wrapper>
   );
 };

@@ -1,11 +1,12 @@
-import { LilyOnchainAccount, FeeRates, OnChainConfig } from "src/types";
-import { Network, networks } from "bitcoinjs-lib";
+import {
+  LilyOnchainAccount,
+  FeeRates,
+  OnChainConfig,
+  NodeConfigWithBlockchainInfo
+} from 'src/types';
+import { Network, networks } from 'bitcoinjs-lib';
 
-export type Providers =
-  | "Blockstream"
-  | "Electrum"
-  | "Bitcoin Core"
-  | "Custom Node";
+export type Providers = 'Blockstream' | 'Electrum' | 'Bitcoin Core' | 'Custom Node';
 
 export interface ProviderInterface {
   getAccountData: (account: OnChainConfig) => Promise<LilyOnchainAccount>;
@@ -30,13 +31,14 @@ export abstract class BaseProvider implements ProviderInterface {
     this.network = testnet ? networks.testnet : networks.bitcoin;
   }
 
-  getConfig() {
+  getConfig(): NodeConfigWithBlockchainInfo {
     return {
+      baseURL: '',
       provider: this.provider,
       connected: this.connected,
       blocks: this.blocks,
       initialblockdownload: this.initialblockdownload,
-      verificationprogress: this.verificationprogress,
+      verificationprogress: this.verificationprogress
     };
   }
 

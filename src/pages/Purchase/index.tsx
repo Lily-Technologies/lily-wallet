@@ -1,8 +1,8 @@
-import React, { useState, useContext, useEffect, useCallback } from "react";
-import styled from "styled-components";
-import axios from "axios";
-import { Psbt, Network } from "bitcoinjs-lib";
-import BigNumber from "bignumber.js";
+import React, { useState, useContext, useEffect, useCallback } from 'react';
+import styled from 'styled-components';
+import axios from 'axios';
+import { Psbt, Network } from 'bitcoinjs-lib';
+import BigNumber from 'bignumber.js';
 
 import {
   PricingTable,
@@ -14,39 +14,38 @@ import {
   Button,
   HeaderLeft,
   SelectAccountMenu,
-  Modal,
-} from "../../components";
+  Modal
+} from 'src/components';
 
-import ConfirmTxPage from "../Send/Onchain/ConfirmTxPage";
+import ConfirmTxPage from 'src/pages/Send/Onchain/ConfirmTxPage';
 
-import { AccountMapContext } from "../../AccountMapContext";
-import { requireOnchain } from "../../hocs";
+import { AccountMapContext } from 'src/context/AccountMapContext';
+import { requireOnchain } from 'src/hocs';
 
-import { broadcastTransaction, createTransaction } from "../../utils/send";
-import { saveLicenseToVault } from "../../utils/files";
-import { white, gray400, gray900 } from "../../utils/colors";
-
-import { ConfigContext } from "../../ConfigContext";
+import { broadcastTransaction, createTransaction } from 'src/utils/send';
+import { saveLicenseToVault } from 'src/utils/files';
+import { white, gray400, gray900 } from 'src/utils/colors';
 
 import {
   SetStatePsbt,
   FeeRates,
   LicenseTiers,
   LicenseResponseTiers,
-  NodeConfig,
+  NodeConfigWithBlockchainInfo,
   PaymentAddressResponse,
   LilyLicense,
   AddressType,
   VaultConfig,
-  LilyOnchainAccount,
-} from "../../types";
+  LilyOnchainAccount
+} from 'src/types';
+import { ConfigContext, PlatformContext } from 'src/context';
 
 interface Props {
   currentAccount: LilyOnchainAccount;
   currentBitcoinNetwork: Network;
   currentBitcoinPrice: any;
   password: string;
-  nodeConfig: NodeConfig;
+  nodeConfig: NodeConfigWithBlockchainInfo;
 }
 
 const PurchasePage = ({
@@ -54,25 +53,22 @@ const PurchasePage = ({
   currentBitcoinNetwork,
   currentBitcoinPrice,
   password,
-  nodeConfig,
+  nodeConfig
 }: Props) => {
   const { config, setConfigFile } = useContext(ConfigContext);
   const [step, setStep] = useState(0);
   const [finalPsbt, setFinalPsbt] = useState<Psbt | undefined>(undefined);
-  const [selectedLicenseTier, setSelectedLicenseTier] = useState<LicenseTiers>(
-    LicenseTiers.basic
-  );
+  const [selectedLicenseTier, setSelectedLicenseTier] = useState<LicenseTiers>(LicenseTiers.basic);
   const [feeRates, setFeeRates] = useState<FeeRates>({
     fastestFee: 0,
     halfHourFee: 0,
-    hourFee: 0,
+    hourFee: 0
   });
   const { accountMap, setCurrentAccountId } = useContext(AccountMapContext);
-  const [licenseResponse, setLicenseResponse] = useState<
-    LilyLicense | undefined
-  >(undefined);
+  const [licenseResponse, setLicenseResponse] = useState<LilyLicense | undefined>(undefined);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
+  const { platform } = useContext(PlatformContext);
 
   const openInModal = useCallback((component: JSX.Element) => {
     setModalIsOpen(true);
@@ -96,37 +92,35 @@ const PurchasePage = ({
 
         if (currentAccount.loading) {
           throw Error(
-            "Your current account is loading. Please wait for account to finish loading data or select a different account and try again."
+            'Your current account is loading. Please wait for account to finish loading data or select a different account and try again.'
           );
         }
 
         if (currentAccount.config.addressType === AddressType.p2sh) {
           throw Error(
-            "An invalid account type (P2SH) was being used to create this payment transaction. Please try making the payment again."
+            'An invalid account type (P2SH) was being used to create this payment transaction. Please try making the payment again.'
           );
         }
 
-        const {
-          data: paymentAddressResponse,
-        }: { data: PaymentAddressResponse } = await axios.get(
+        const { data: paymentAddressResponse }: { data: PaymentAddressResponse } = await axios.get(
           `${process.env.REACT_APP_LILY_ENDPOINT}/get-payment-address`
         );
 
         const totalSigners =
           currentAccount.config.quorum.totalSigners === 3
-            ? "Three"
+            ? 'Three'
             : currentAccount.config.quorum.totalSigners === 5
-              ? "Five"
-              : "";
+            ? 'Five'
+            : '';
 
-        const tierAndTotalSigners =
-          `${tier}${totalSigners}` as LicenseResponseTiers;
+        const tierAndTotalSigners = `${tier}${totalSigners}` as LicenseResponseTiers;
 
         const { psbt, feeRates } = await createTransaction(
           currentAccount,
           paymentAddressResponse[tierAndTotalSigners].toString(),
           paymentAddressResponse.address,
           new BigNumber(0),
+          () => platform.estimateFee(),
           currentBitcoinNetwork
         );
         setSelectedLicenseTier(tier);
@@ -135,21 +129,18 @@ const PurchasePage = ({
         reqBody = {
           childPath: paymentAddressResponse.childPath,
           tx: psbt!.toBase64(),
-          tier: tier,
+          tier: tier
         };
 
-        const { data: licenseResponse }: { data: LilyLicense } =
-          await axios.post(
-            `${process.env.REACT_APP_LILY_ENDPOINT}/get-license`,
-            reqBody
-          );
+        const { data: licenseResponse }: { data: LilyLicense } = await axios.post(
+          `${process.env.REACT_APP_LILY_ENDPOINT}/get-license`,
+          reqBody
+        );
         setLicenseResponse(licenseResponse);
         setStep(1);
       } catch (e: any) {
-        console.log("e: ", e);
-        openInModal(
-          <ErrorModal message={`${e.message}`} closeModal={closeModal} />
-        );
+        console.log('e: ', e);
+        openInModal(<ErrorModal message={`${e.message}`} closeModal={closeModal} />);
       }
     },
     [currentBitcoinNetwork, config, password, setConfigFile, openInModal]
@@ -159,18 +150,19 @@ const PurchasePage = ({
     if (licenseResponse && finalPsbt) {
       try {
         finalPsbt.finalizeAllInputs();
-        await broadcastTransaction(finalPsbt);
+        await broadcastTransaction(finalPsbt, platform);
 
         const newConfig = await saveLicenseToVault(
           currentAccount.config as VaultConfig,
           licenseResponse,
           config,
-          password
+          password,
+          platform
         );
         setStep(2);
         setConfigFile(newConfig);
       } catch (e: any) {
-        console.log("e: ", e);
+        console.log('e: ', e);
         openInModal(<ErrorModal message={e.message} closeModal={closeModal} />);
       }
     }
@@ -192,7 +184,7 @@ const PurchasePage = ({
       for (let i = 0; i < Object.keys(accountMap).length; i++) {
         const tempCurrentAccount = Object.values(accountMap)[i];
         if (
-          tempCurrentAccount.config.type === "onchain" &&
+          tempCurrentAccount.config.type === 'onchain' &&
           tempCurrentAccount.config.addressType !== AddressType.p2sh &&
           !tempCurrentAccount.loading
         ) {
@@ -205,7 +197,7 @@ const PurchasePage = ({
     accountMap,
     currentAccount.config.id,
     currentAccount.config.addressType,
-    setCurrentAccountId,
+    setCurrentAccountId
   ]);
 
   return (
@@ -219,18 +211,15 @@ const PurchasePage = ({
             <RenewButton
               color={gray900}
               background={white}
-              href="https://lily-wallet.com/support"
-              target="_blank"
+              href='https://lily-wallet.com/support'
+              target='_blank'
             >
               Questions? Click here for support.
             </RenewButton>
           </Buttons>
         </Header>
         {step === 0 && (
-          <PricingTable
-            clickRenewLicense={clickRenewLicense}
-            currentAccount={currentAccount}
-          />
+          <PricingTable clickRenewLicense={clickRenewLicense} currentAccount={currentAccount} />
         )}
         {step === 1 && (
           <>

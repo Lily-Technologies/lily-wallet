@@ -2,14 +2,14 @@ import {
   satoshisToBitcoins,
   bitcoinsToSatoshis,
   multisigWitnessScript,
-  estimateMultisigTransactionFee,
-} from "unchained-bitcoin";
-import { Psbt, address, Network } from "bitcoinjs-lib";
+  estimateMultisigTransactionFee
+} from 'unchained-bitcoin';
+import { Psbt, address, Network } from 'bitcoinjs-lib';
 
-import BigNumber from "bignumber.js";
-import coinSelect from "coinselect";
+import BigNumber from 'bignumber.js';
+import coinSelect from 'coinselect';
 
-import { cloneBuffer, bufferToHex } from "./other";
+import { cloneBuffer, bufferToHex } from './other';
 
 import {
   UTXO,
@@ -20,18 +20,17 @@ import {
   TransactionMap,
   FeeRates,
   ExtendedPublicKey,
-  LilyOnchainAccount,
-} from "../types";
+  LilyOnchainAccount
+} from '../types';
+
+import { BasePlatform } from 'src/frontend-middleware';
 
 export const combinePsbts = (finalPsbt: Psbt, signedPsbt: Psbt) => {
   const combinedPsbt = finalPsbt.combine(signedPsbt);
   return combinedPsbt;
 };
 
-export const validateAddress = (
-  recipientAddress: string,
-  currentBitcoinNetwork: Network
-) => {
+export const validateAddress = (recipientAddress: string, currentBitcoinNetwork: Network) => {
   try {
     address.toOutputScript(recipientAddress, currentBitcoinNetwork);
     return true;
@@ -43,40 +42,24 @@ export const validateAddress = (
 export const truncateAddress = (address: string) => {
   if (address.length < 40) return address;
 
-  return `${address.substring(0, 15)}...${address.substring(
-    address.length - 15,
-    address.length
-  )}`;
+  return `${address.substring(0, 15)}...${address.substring(address.length - 15, address.length)}`;
 };
 
-export const validateSendAmount = (
-  sendAmountInBTC: string,
-  currentBalanceInSatoshi: number
-) => {
-  if (
-    satoshisToBitcoins(new BigNumber(currentBalanceInSatoshi)).isGreaterThan(
-      sendAmountInBTC
-    )
-  ) {
+export const validateSendAmount = (sendAmountInBTC: string, currentBalanceInSatoshi: number) => {
+  if (satoshisToBitcoins(new BigNumber(currentBalanceInSatoshi)).isGreaterThan(sendAmountInBTC)) {
     return true;
   } else {
     return false;
   }
 };
 
-export const validateTxForAccount = (
-  psbt: Psbt,
-  currentAccount: LilyOnchainAccount
-) => {
+export const validateTxForAccount = (psbt: Psbt, currentAccount: LilyOnchainAccount) => {
   const { availableUtxos } = currentAccount;
   const utxosMap = createUtxoMapFromUtxoArray(availableUtxos);
   for (let i = 0; i < psbt.txInputs.length; i++) {
     const currentInput = psbt.txInputs[i];
     const inputBuffer = cloneBuffer(currentInput.hash);
-    const currentUtxo =
-      utxosMap[
-        `${inputBuffer.reverse().toString("hex")}:${currentInput.index}`
-      ];
+    const currentUtxo = utxosMap[`${inputBuffer.reverse().toString('hex')}:${currentInput.index}`];
     if (!currentUtxo) {
       throw new Error("This transaction isn't associated with this wallet");
     }
@@ -92,9 +75,7 @@ export const createUtxoMapFromUtxoArray = (utxosArray: UTXO[]) => {
   return utxoMap;
 };
 
-export const createTransactionMapFromTransactionArray = (
-  transactionsArray: Transaction[]
-) => {
+export const createTransactionMapFromTransactionArray = (transactionsArray: Transaction[]) => {
   const transactionMap: TransactionMap = {};
   transactionsArray.forEach((tx) => {
     transactionMap[tx.txid] = tx;
@@ -118,7 +99,7 @@ export const getFeeForMultisig = (
     numOutputs: numOutputs,
     m: requiredSigners,
     n: totalSigners,
-    feesPerByteInSatoshis: feeRateString,
+    feesPerByteInSatoshis: feeRateString
   });
 };
 
@@ -128,7 +109,7 @@ export const getFee = (psbt: Psbt, transactions: Transaction[]) => {
     const txMap = createTransactionMapFromTransactionArray(transactions);
     const inputSum = psbt.txInputs.reduce((acc, cur) => {
       const inputBuffer = cloneBuffer(cur.hash);
-      const txId = inputBuffer.reverse().toString("hex"); // careful, this reverses in place.
+      const txId = inputBuffer.reverse().toString('hex'); // careful, this reverses in place.
       const currentUtxo = txMap[txId];
       return Math.abs(currentUtxo.vout[cur.index].value) + acc;
     }, 0);
@@ -143,24 +124,20 @@ export const coinSelection = (amountInSats: number, availableUtxos: UTXO[]) => {
   let currentTotal = new BigNumber(0);
   const spendingUtxos = [];
   let index = 0;
-  while (
-    currentTotal.isLessThan(amountInSats) &&
-    index < availableUtxos.length
-  ) {
+  while (currentTotal.isLessThan(amountInSats) && index < availableUtxos.length) {
     currentTotal = currentTotal.plus(availableUtxos[index].value);
     spendingUtxos.push(availableUtxos[index]);
     index++;
   }
   if (currentTotal.isLessThan(amountInSats)) {
-    throw Error("Not enough funds to complete transaction.");
+    throw Error('Not enough funds to complete transaction.');
   }
   return { spendingUtxos, currentTotal };
 };
 
-export const broadcastTransaction = async (psbt: Psbt) => {
-  const data = await window.ipcRenderer.invoke("/broadcastTx", {
-    txHex: psbt.extractTransaction().toHex(),
-  });
+export const broadcastTransaction = async (psbt: Psbt, platform: BasePlatform) => {
+  const txHex = psbt.extractTransaction().toHex();
+  const data = await platform.broadcastTransaction(txHex);
   return data;
 };
 
@@ -172,7 +149,7 @@ export const getPsbtFromText = (file: string) => {
       // try getting hex encoded tx
       return Psbt.fromHex(file);
     } catch (e) {
-      throw new Error("Invalid Transaction");
+      throw new Error('Invalid Transaction');
     }
   }
 };
@@ -186,14 +163,9 @@ export const getSignedFingerprintsFromPsbt = (psbt: Psbt) => {
       for (let j = 0; j < currentInput.partialSig.length; j++) {
         for (let k = 0; k < currentInput.bip32Derivation!.length; k++) {
           const currentBipItem = currentInput.bip32Derivation![k];
-          const currentBipItemFingerprint = bufferToHex(
-            currentBipItem.masterFingerprint
-          );
+          const currentBipItemFingerprint = bufferToHex(currentBipItem.masterFingerprint);
           if (
-            Buffer.compare(
-              currentInput.partialSig![j].pubkey,
-              currentBipItem.pubkey
-            ) === 0 &&
+            Buffer.compare(currentInput.partialSig![j].pubkey, currentBipItem.pubkey) === 0 &&
             !signedFingerprints.includes(currentBipItemFingerprint)
           ) {
             signedFingerprints.push(currentBipItemFingerprint);
@@ -205,18 +177,11 @@ export const getSignedFingerprintsFromPsbt = (psbt: Psbt) => {
   return signedFingerprints;
 };
 
-export const getSignedDevicesFromPsbt = (
-  psbt: Psbt,
-  extendedPublicKeys: ExtendedPublicKey[]
-) => {
+export const getSignedDevicesFromPsbt = (psbt: Psbt, extendedPublicKeys: ExtendedPublicKey[]) => {
   const signedDevicesObjects = [];
   const signedFingerprints = getSignedFingerprintsFromPsbt(psbt);
   for (let i = 0; i < extendedPublicKeys!.length; i++) {
-    if (
-      signedFingerprints.includes(
-        extendedPublicKeys[i].device.fingerprint.toLowerCase()
-      )
-    ) {
+    if (signedFingerprints.includes(extendedPublicKeys[i].device.fingerprint.toLowerCase())) {
       signedDevicesObjects.push(extendedPublicKeys![i].device);
     }
   }
@@ -228,12 +193,14 @@ export const createTransaction = async (
   amountInBitcoins: string,
   recipientAddress: string,
   desiredFee: BigNumber,
+  estimateFee: () => Promise<FeeRates>,
   currentBitcoinNetwork: Network
 ) => {
   const { availableUtxos, unusedChangeAddresses, config } = currentAccount;
 
   let fee: BigNumber;
-  const feeRates: FeeRates = await window.ipcRenderer.invoke("/estimate-fee");
+  const feeRates = await estimateFee();
+
   if (desiredFee.toNumber() !== 0) {
     // if no fee specified, pick halfhour
     fee = new BigNumber(desiredFee);
@@ -252,27 +219,21 @@ export const createTransaction = async (
       [
         {
           address: recipientAddress,
-          value: bitcoinsToSatoshis(amountInBitcoins).toNumber(),
-        },
+          value: bitcoinsToSatoshis(amountInBitcoins).toNumber()
+        }
       ],
       feeRates.halfHourFee
     );
     fee = new BigNumber(coinSelectResult.fee);
   }
 
-  let outputTotal = new BigNumber(bitcoinsToSatoshis(amountInBitcoins))
-    .plus(fee)
-    .toNumber();
+  let outputTotal = new BigNumber(bitcoinsToSatoshis(amountInBitcoins)).plus(fee).toNumber();
   let { spendingUtxos, currentTotal: spendingUtxosTotal } = coinSelection(
     outputTotal,
     availableUtxos
   );
 
-  if (
-    spendingUtxos.length > 1 &&
-    !desiredFee &&
-    config.quorum.totalSigners > 1
-  ) {
+  if (spendingUtxos.length > 1 && !desiredFee && config.quorum.totalSigners > 1) {
     // we assumed 1 input utxo when first calculating fee, if more inputs then readjust fee
     fee = getFeeForMultisig(
       feeRates.halfHourFee,
@@ -282,9 +243,7 @@ export const createTransaction = async (
       config.quorum.requiredSigners,
       config.quorum.totalSigners
     ).integerValue(BigNumber.ROUND_CEIL);
-    outputTotal = new BigNumber(bitcoinsToSatoshis(amountInBitcoins))
-      .plus(fee)
-      .toNumber();
+    outputTotal = new BigNumber(bitcoinsToSatoshis(amountInBitcoins)).plus(fee).toNumber();
     ({ spendingUtxos, currentTotal: spendingUtxosTotal } = coinSelection(
       outputTotal,
       availableUtxos
@@ -302,14 +261,12 @@ export const createTransaction = async (
       hash: utxo.txid,
       index: utxo.vout,
       sequence: 0xfffffffd, // always enable RBF
-      nonWitnessUtxo: Buffer.from(utxo.prevTxHex, "hex"),
+      nonWitnessUtxo: Buffer.from(utxo.prevTxHex, 'hex'),
       bip32Derivation: utxo.address.bip32derivation.map((derivation) => ({
-        masterFingerprint: Buffer.from(
-          Object.values(derivation.masterFingerprint)
-        ),
+        masterFingerprint: Buffer.from(Object.values(derivation.masterFingerprint)),
         pubkey: Buffer.from(Object.values(derivation.pubkey)),
-        path: derivation.path,
-      })),
+        path: derivation.path
+      }))
     } as PsbtInput;
 
     if (config.quorum.totalSigners > 1) {
@@ -330,13 +287,13 @@ export const createTransaction = async (
 
   psbt.addOutput({
     script: address.toOutputScript(recipientAddress, currentBitcoinNetwork),
-    value: bitcoinsToSatoshis(amountInBitcoins).toNumber(),
+    value: bitcoinsToSatoshis(amountInBitcoins).toNumber()
   });
 
   if (spendingUtxosTotal.isGreaterThan(outputTotal)) {
     psbt.addOutput({
       ...unusedChangeAddresses[0],
-      value: spendingUtxosTotal.minus(outputTotal).toNumber(),
+      value: spendingUtxosTotal.minus(outputTotal).toNumber()
     });
   }
 

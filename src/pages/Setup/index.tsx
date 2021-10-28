@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useCallback, useContext } from "react";
-import styled from "styled-components";
-import moment from "moment";
-import { generateMnemonic } from "bip39";
-import { Network } from "bitcoinjs-lib";
+import React, { useState, useEffect, useCallback, useContext } from 'react';
+import styled from 'styled-components';
+import moment from 'moment';
+import { generateMnemonic } from 'bip39';
+import { Network } from 'bitcoinjs-lib';
 
 import {
   createMultisigConfigFile,
@@ -13,27 +13,23 @@ import {
   downloadFile,
   saveConfig,
   containsColdcard,
-  getP2wpkhDeriationPathForNetwork,
-} from "../../utils/files";
-import { black } from "../../utils/colors";
+  getP2wpkhDeriationPathForNetwork
+} from 'src/utils/files';
+import { black } from 'src/utils/colors';
 
-import StepGroups from "./Steps";
-import PageHeader from "./PageHeader";
-import SelectAccountScreen from "./SelectAccountScreen";
-import InputNameScreen from "./InputNameScreen";
-import NewVaultScreen from "./NewVaultScreen";
-import SuccessScreen from "./SuccessScreen";
-import NewWalletScreen from "./NewWalletScreen";
-import NewHardwareWalletScreen from "./NewHardwareWalletScreen";
-import NewLightningScreen from "./NewLightningScreen";
+import StepGroups from './Steps';
+import PageHeader from './PageHeader';
+import SelectAccountScreen from './SelectAccountScreen';
+import InputNameScreen from './InputNameScreen';
+import NewVaultScreen from './NewVaultScreen';
+import SuccessScreen from './SuccessScreen';
+import NewWalletScreen from './NewWalletScreen';
+import NewHardwareWalletScreen from './NewHardwareWalletScreen';
+import NewLightningScreen from './NewLightningScreen';
 
-import {
-  HwiResponseEnumerate,
-  ExtendedPublicKey,
-  AddressType,
-} from "../../types";
+import { HwiResponseEnumerate, ExtendedPublicKey, AddressType } from 'src/types';
 
-import { ConfigContext } from "../../ConfigContext";
+import { ConfigContext, PlatformContext } from 'src/context';
 
 interface Props {
   password: string;
@@ -41,26 +37,19 @@ interface Props {
   currentBitcoinNetwork: Network;
 }
 
-const Setup = ({
-  password,
-  currentBlockHeight,
-  currentBitcoinNetwork,
-}: Props) => {
+const Setup = ({ password, currentBlockHeight, currentBitcoinNetwork }: Props) => {
   document.title = `Setup - Lily Wallet`;
   const { config, setConfigFile } = useContext(ConfigContext);
+  const { platform } = useContext(PlatformContext);
   const [setupOption, setSetupOption] = useState(0);
   const [step, setStep] = useState(0);
-  const [accountName, setAccountName] = useState("");
-  const [importedDevices, setImportedDevices] = useState<
-    HwiResponseEnumerate[]
-  >([]);
-  const [walletMnemonic, setWalletMnemonic] = useState("");
+  const [accountName, setAccountName] = useState('');
+  const [importedDevices, setImportedDevices] = useState<HwiResponseEnumerate[]>([]);
+  const [walletMnemonic, setWalletMnemonic] = useState('');
   const [configRequiredSigners, setConfigRequiredSigners] = useState(1);
   const [addressType, setAddressType] = useState(AddressType.P2WPKH);
-  const [path, setPath] = useState(
-    getP2wpkhDeriationPathForNetwork(currentBitcoinNetwork)
-  );
-  const [lndConnectUri, setLndConnectUri] = useState("");
+  const [path, setPath] = useState(getP2wpkhDeriationPathForNetwork(currentBitcoinNetwork));
+  const [lndConnectUri, setLndConnectUri] = useState('');
   const [localConfig, setLocalConfig] = useState(config);
 
   const exportSetupFiles = useCallback(async () => {
@@ -98,10 +87,10 @@ const Setup = ({
         currentBitcoinNetwork
       );
     } else {
-      throw Error("Invalid setupOption");
+      throw Error('Invalid setupOption');
     }
 
-    saveConfig(configObject, password);
+    saveConfig(configObject, password, platform);
     setLocalConfig(configObject);
   }, [
     accountName,
@@ -115,7 +104,7 @@ const Setup = ({
     password,
     setupOption,
     walletMnemonic,
-    lndConnectUri,
+    lndConnectUri
   ]);
 
   const downloadColdcardFile = async () => {
@@ -123,13 +112,13 @@ const Setup = ({
       const devicesForCCFile = importedDevices.map((device) => {
         // KBC-TODO: this is a hack to get the cc function to work
         return {
-          id: "abc123",
+          id: 'abc123',
           created_at: 1231006505,
-          parentFingerprint: "abc123",
-          network: "mainnet",
-          bip32Path: "abc123",
-          xpub: "abcs123",
-          device: device,
+          parentFingerprint: 'abc123',
+          network: 'mainnet',
+          bip32Path: 'abc123',
+          xpub: 'abcs123',
+          device: device
         } as ExtendedPublicKey;
       });
 
@@ -142,7 +131,8 @@ const Setup = ({
       );
       await downloadFile(
         ccFile,
-        `${accountName}-lily-coldcard-file-${moment().format("MMDDYYYY")}.txt`
+        `${accountName}-lily-coldcard-file-${moment().format('MMDDYYYY')}.txt`,
+        platform
       );
     }
   };
@@ -167,15 +157,15 @@ const Setup = ({
     <PageHeader
       headerText={
         step === 0
-          ? "Select account type"
+          ? 'Select account type'
           : `${
               setupOption === 2
-                ? "Create new wallet"
+                ? 'Create new wallet'
                 : setupOption === 3
-                ? "Manage hardware wallet"
+                ? 'Manage hardware wallet'
                 : setupOption === 4
-                ? "Connect lightning wallet"
-                : "Create new vault"
+                ? 'Connect lightning wallet'
+                : 'Create new vault'
             }`
       }
       setStep={setStep}
@@ -189,11 +179,7 @@ const Setup = ({
   switch (step) {
     case 0:
       screen = (
-        <SelectAccountScreen
-          header={Header}
-          setSetupOption={setSetupOption}
-          setStep={setStep}
-        />
+        <SelectAccountScreen header={Header} setSetupOption={setSetupOption} setStep={setStep} />
       );
       break;
     case 1:
@@ -210,11 +196,7 @@ const Setup = ({
     case 2:
       if (setupOption === 2) {
         screen = (
-          <NewWalletScreen
-            header={Header}
-            walletMnemonic={walletMnemonic}
-            setStep={setStep}
-          />
+          <NewWalletScreen header={Header} walletMnemonic={walletMnemonic} setStep={setStep} />
         );
       } else if (setupOption === 3) {
         screen = (
@@ -252,16 +234,7 @@ const Setup = ({
       }
       break;
     case 3:
-      screen = (
-        <SuccessScreen
-          config={localConfig}
-          downloadColdcardFile={
-            containsColdcard(importedDevices) && importedDevices.length > 1
-              ? downloadColdcardFile
-              : undefined
-          }
-        />
-      );
+      screen = <SuccessScreen config={localConfig} />;
       break;
     default:
       screen = <div>Unexpected error</div>;
@@ -277,12 +250,12 @@ const Setup = ({
 
 const Wrapper = styled.div<{ step: number }>`
   text-align: left;
-  font-family: "Montserrat", sans-serif;
+  font-family: 'Montserrat', sans-serif;
   color: ${black};
   align-items: center;
   display: flex;
   flex: 1;
-  justify-content: ${(p) => (p.step === 0 ? "center" : "flex-start")};
+  justify-content: ${(p) => (p.step === 0 ? 'center' : 'flex-start')};
   flex-direction: column;
   padding: 0 3em;
 `;

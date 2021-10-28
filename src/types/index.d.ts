@@ -1,6 +1,6 @@
-import { Network, Psbt } from "bitcoinjs-lib";
-import { ACCOUNTMAP_SET, ACCOUNTMAP_UPDATE } from "../reducers/accountMap";
-import { WalletInfo, ClientOption } from "bitcoin-simple-rpc";
+import { Network, Psbt } from 'bitcoinjs-lib';
+import { ACCOUNTMAP_SET, ACCOUNTMAP_UPDATE } from '../reducers/accountMap';
+import { WalletInfo, ClientOption } from 'bitcoin-simple-rpc';
 import {
   Channel,
   PendingChannel,
@@ -8,13 +8,12 @@ import {
   OpenStatusUpdate,
   ClosedChannel,
   Payment,
-  Invoice,
-} from "@radar/lnrpc";
+  Invoice
+} from '@radar/lnrpc';
 
-import {
-  blockchainTransaction_getBatchResponse,
-  ElectrumVin,
-} from "@mempool/electrum-client";
+import { blockchainTransaction_getBatchResponse, ElectrumVin } from '@mempool/electrum-client';
+
+import { IpcRenderer } from 'electron';
 
 declare global {
   namespace NodeJS {
@@ -27,33 +26,25 @@ declare global {
     }
   }
   interface Window {
-    ipcRenderer: any;
+    ipcRenderer: IpcRenderer;
   }
 }
 
 // see https://stackoverflow.com/questions/40510611/typescript-interface-require-one-of-two-properties-to-exist/49725198#49725198
-type RequireAtLeastOne<T, Keys extends keyof T = keyof T> = Pick<
-  T,
-  Exclude<keyof T, Keys>
-> &
+type RequireAtLeastOne<T, Keys extends keyof T = keyof T> = Pick<T, Exclude<keyof T, Keys>> &
   {
     [K in Keys]-?: Required<Pick<T, K>> & Partial<Pick<T, Exclude<Keys, K>>>;
   }[Keys];
 
-type RequireOnlyOne<T, Keys extends keyof T = keyof T> = Pick<
-  T,
-  Exclude<keyof T, Keys>
-> &
+type RequireOnlyOne<T, Keys extends keyof T = keyof T> = Pick<T, Exclude<keyof T, Keys>> &
   {
-    [K in Keys]-?: Required<Pick<T, K>> &
-      Partial<Record<Exclude<Keys, K>, undefined>>;
+    [K in Keys]-?: Required<Pick<T, K>> & Partial<Record<Exclude<Keys, K>, undefined>>;
   }[Keys];
 
 // Source: https://github.com/emotion-js/emotion/blob/master/packages/styled-base/types/helper.d.ts
 // A more precise version of just React.ComponentPropsWithoutRef on its own
-export type PropsOf<
-  C extends keyof JSX.IntrinsicElements | React.JSXElementConstructor<any>
-> = JSX.LibraryManagedAttributes<C, React.ComponentPropsWithoutRef<C>>;
+export type PropsOf<C extends keyof JSX.IntrinsicElements | React.JSXElementConstructor<any>> =
+  JSX.LibraryManagedAttributes<C, React.ComponentPropsWithoutRef<C>>;
 
 type AsProp<C extends React.ElementType> = {
   /**
@@ -68,20 +59,18 @@ type AsProp<C extends React.ElementType> = {
  * (`OverrideProps`), ensuring that any duplicates are overridden by the overriding
  * set of props.
  */
-export type ExtendableProps<
-  ExtendedProps = {},
-  OverrideProps = {}
-> = OverrideProps & Omit<ExtendedProps, keyof OverrideProps>;
+export type ExtendableProps<ExtendedProps = {}, OverrideProps = {}> = OverrideProps &
+  Omit<ExtendedProps, keyof OverrideProps>;
 
 /**
  * Allows for inheriting the props from the specified element type so that
  * props like children, className & style work, as well as element-specific
  * attributes like aria roles. The component (`C`) must be passed in.
  */
-export type InheritableElementProps<
-  C extends React.ElementType,
-  Props = {}
-> = ExtendableProps<PropsOf<C>, Props>;
+export type InheritableElementProps<C extends React.ElementType, Props = {}> = ExtendableProps<
+  PropsOf<C>,
+  Props
+>;
 
 /**
  * A more sophisticated version of `InheritableElementProps` where
@@ -113,7 +102,7 @@ export interface CaravanConfig {
   id: string;
   created_at: number;
   name: string;
-  network: "mainnet" | "testnet";
+  network: 'mainnet' | 'testnet';
   addressType: AddressType;
   quorum: {
     requiredSigners: number;
@@ -125,7 +114,7 @@ export interface CaravanConfig {
     method: string;
     created_at: number;
     parentFingerprint: string;
-    network: "mainnet" | "testnet";
+    network: 'mainnet' | 'testnet';
     bip32Path: string;
     xpub: string;
     device: Device;
@@ -149,17 +138,22 @@ export interface NodeConfig {
   blocks: number;
 }
 
+export interface ChangeNodeConfigParams {
+  provider: NodeConfigWithBlockchainInfo['provider'];
+  host?: string;
+  username?: string;
+  password?: string;
+}
+
 export interface BitcoinCoreNodeConfig extends ClientOption {
-  provider: "Bitcoin Core" | "Custom Node";
+  provider: 'Bitcoin Core' | 'Custom Node';
 }
 
 export interface BlockstreamNodeConfig {
-  provider: "Blockstream";
+  provider: 'Blockstream';
 }
 
-export interface NodeConfigWithBlockchainInfo
-  extends BitcoinCoreNodeConfig,
-    BlockstreamNodeConfig {
+export interface NodeConfigWithBlockchainInfo extends BitcoinCoreNodeConfig, BlockstreamNodeConfig {
   provider: BitcoinCoreNodeConfig.provider | BlockstreamNodeConfig.provider;
   connected: boolean;
   initialblockdownload?: boolean;
@@ -202,17 +196,17 @@ export interface PsbtInput {
   bip32Derivation: Bip32Derivation[];
 }
 
-export type TransactionType = "sent" | "received" | "moved";
+export type TransactionType = 'sent' | 'received' | 'moved';
 
 export enum LicenseTiers {
-  basic = "basic",
-  premium = "premium",
+  basic = 'basic',
+  premium = 'premium'
 }
 
 export enum LicenseResponseTiers {
-  basicThree = "basicThree",
-  basicFive = "basicFive",
-  premium = "premium",
+  basicThree = 'basicThree',
+  basicFive = 'basicFive',
+  premium = 'premium'
 }
 
 export interface Transaction extends EsploraTransactionResponse {
@@ -240,12 +234,36 @@ export interface DecoratedOpenStatusUpdate extends OpenStatusUpdate {
 
 // either channel open/close, or send/receive payment
 export interface LightningEvent {
-  type: "CHANNEL_OPEN" | "CHANNEL_CLOSE" | "PAYMENT_SEND" | "PAYMENT_RECEIVE";
+  type: 'CHANNEL_OPEN' | 'CHANNEL_CLOSE' | 'PAYMENT_SEND' | 'PAYMENT_RECEIVE';
   creationDate?: string;
   title: string;
   valueSat: string;
   tx?: Transaction;
   channel?: Channel;
+}
+
+export interface CloseChannelRequest {
+  channel_point: string;
+  delivery_address: string;
+  lndConnectUri: string;
+}
+
+export interface OpenChannelRequest {
+  lightningAddress: string;
+  channelAmount: string;
+  lndConnectUri: string;
+}
+
+export interface OpenChannelVerifyRequest {
+  finalPsbt: string;
+  pendingChanId: string | Buffer | undefined;
+  lndConnectUri: string;
+}
+
+export interface GetLightningInvoiceRequest {
+  memo: string;
+  value: string;
+  lndConnectUri: string;
 }
 
 export interface TransactionMap {
@@ -297,10 +315,10 @@ export interface LilyOnchainAccount {
 
 export interface LightningConfig {
   id: string;
-  type: "lightning";
+  type: 'lightning';
   created_at: number;
   name: string;
-  network: "mainnet" | "testnet";
+  network: 'mainnet' | 'testnet';
   connectionDetails: {
     lndConnectUri: string;
   };
@@ -367,7 +385,7 @@ export interface LilyLicense {
 }
 export interface LilyConfig {
   name: string;
-  version: "1.0.8";
+  version: '1.0.8';
   isEmpty: boolean;
   wallets: OnChainConfig[];
   vaults: VaultConfig[];
@@ -376,7 +394,7 @@ export interface LilyConfig {
 
 export interface LilyConfigOneDotSevenConfig {
   name: string;
-  version: "1.0.7";
+  version: '1.0.7';
   isEmpty: boolean;
   wallets: OnChainConfig[];
   vaults: VaultConfig[];
@@ -384,7 +402,7 @@ export interface LilyConfigOneDotSevenConfig {
 
 export interface LilyConfigOneDotFiveConfig {
   name: string;
-  version: "1.0.5";
+  version: '1.0.5';
   license: LilyLicense;
   isEmpty: boolean;
   wallets: OnChainConfig[];
@@ -393,7 +411,7 @@ export interface LilyConfigOneDotFiveConfig {
 
 export interface LilyConfigOneDotZeroConfig {
   name: string;
-  version: "1.0.0";
+  version: '1.0.0';
   license: LilyLicense;
   isEmpty: boolean;
   wallets: OnChainConfig[];
@@ -402,7 +420,7 @@ export interface LilyConfigOneDotZeroConfig {
 
 export interface LilyZeroDotOneConfig {
   name: string;
-  version: "0.0.1" | "0.0.2";
+  version: '0.0.1' | '0.0.2';
   isEmpty: boolean;
   backup_options: {
     gDrive: boolean;
@@ -428,50 +446,82 @@ export interface LilyZeroDotOneConfig {
 }
 
 export interface Device {
-  type:
-    | "coldcard"
-    | "trezor"
-    | "ledger"
-    | "phone"
-    | "lily"
-    | "cobo"
-    | "bitbox02";
+  type: 'coldcard' | 'trezor' | 'ledger' | 'phone' | 'lily' | 'cobo' | 'bitbox02';
   fingerprint: string;
   model: string; // KBC-TODO: get more specific with this
 }
 
 export interface HwiResponseEnumerate {
   // device responses from HWI
-  type: Device["type"];
+  type: Device['type'];
   model: string; // KBC-TODO: get more specific with this
   path: string;
   fingerprint: string;
   xpub: string;
 }
 
+export interface HwiRequestXpub {
+  deviceType: HwiResponseEnumerate[type];
+  devicePath: HwiResponseEnumerate[path];
+  path: string;
+}
+
+export interface HwiResponseXpub {
+  xpub: string;
+}
+
+export interface HwiRequestSignTransaction {
+  deviceType: HwiResponseEnumerate[type];
+  devicePath: HwiResponseEnumerate[path];
+  psbt: string;
+}
+
+export interface HwiResponseSignTransaction {
+  psbt: string;
+}
+
+export interface HwiRequestPromptPin {
+  deviceType: HwiResponseEnumerate[type];
+  devicePath: HwiResponseEnumerate[path];
+}
+
+export interface HwiResponsePromptPin {
+  error?: string;
+}
+
+export interface HwiRequestSendPin {
+  deviceType: HwiResponseEnumerate[type];
+  devicePath: HwiResponseEnumerate[path];
+  pin: string;
+}
+
+export interface HwiResponseSendPin {
+  success: boolean;
+}
+
 export interface ExtendedPublicKey {
   id: string;
   created_at: number;
   parentFingerprint: string;
-  network: "mainnet" | "testnet";
+  network: 'mainnet' | 'testnet';
   bip32Path: string;
   xpub: string;
   device: Device;
 }
 
 export enum AddressType {
-  P2WSH = "P2WSH",
-  P2WPKH = "P2WPKH",
-  p2sh = "p2sh",
-  multisig = "multisig",
+  P2WSH = 'P2WSH',
+  P2WPKH = 'P2WPKH',
+  p2sh = 'p2sh',
+  multisig = 'multisig'
 }
 
 export interface OnChainConfig {
   id: string;
-  type: "onchain";
+  type: 'onchain';
   created_at: number;
   name: string;
-  network: "mainnet" | "testnet";
+  network: 'mainnet' | 'testnet';
   addressType: AddressType;
   quorum: {
     requiredSigners: number;
@@ -674,8 +724,7 @@ interface ElectrumVinWithPrevout extends ElectrumVin {
     value: number;
   };
 }
-export interface ElectrumTxToEsploraTx
-  extends blockchainTransaction_getBatchResponse {
+export interface ElectrumTxToEsploraTx extends blockchainTransaction_getBatchResponse {
   vout: {
     scriptpubkey_address: string;
     value: number;
@@ -703,5 +752,38 @@ export interface EsploraTransactionResponse {
     block_height: number;
     block_hash: string;
     block_time: number;
+  };
+}
+
+export interface CoindeskHistoricPriceResponse {
+  bpi: { [date: string]: [price: number] };
+  disclaimer: string;
+  time: {
+    updated: string;
+    updatedISO: string;
+  };
+}
+
+export interface PriceForChart {
+  price: [price: number];
+  date: string;
+}
+
+export interface CoindeskCurrentPriceResponse {
+  time: {
+    updated: string;
+    updatedISO: string;
+    updateduk: string;
+  };
+  disclaimer: string;
+  chartName: 'Bitcoin';
+  bpi: {
+    [currency: string]: {
+      code: string;
+      symbol: string;
+      rate: string;
+      description: string;
+      rate_float: number;
+    };
   };
 }

@@ -1,16 +1,31 @@
 import React, { useContext, useState } from 'react';
-import styled, { css } from 'styled-components'
+import styled, { css } from 'styled-components';
 import { Channel } from '@styled-icons/fluentui-system-filled';
-import { CloseStatusUpdate } from '@radar/lnrpc'
+import { CloseStatusUpdate } from '@radar/lnrpc';
 
-import { Select, Button, Spinner, StyledIcon } from 'src/components'
+import { Select, Button, Spinner, StyledIcon } from 'src/components';
 
-import { AccountMapContext } from "src/AccountMapContext";
-import { white, gray300, gray500, gray600, gray700, gray900, red600, green100, green600 } from 'src/utils/colors';
+import { AccountMapContext, PlatformContext } from 'src/context';
+import {
+  white,
+  gray300,
+  gray500,
+  gray600,
+  gray700,
+  gray900,
+  red600,
+  green100,
+  green600
+} from 'src/utils/colors';
 import { mobile } from 'src/utils/media';
 
-import { DecoratedLightningChannel, LilyLightningAccount, LilyOnchainAccount, SetStateNumber } from 'src/types'
-import { requireLightning } from "src/hocs";
+import {
+  DecoratedLightningChannel,
+  LilyLightningAccount,
+  LilyOnchainAccount,
+  SetStateNumber
+} from 'src/types';
+import { requireLightning } from 'src/hocs';
 
 interface Props {
   setStep: SetStateNumber;
@@ -20,22 +35,21 @@ interface Props {
 
 const CloseChannelModal = ({ setStep, channel, currentAccount }: Props) => {
   const { accountMap } = useContext(AccountMapContext);
+  const { platform } = useContext(PlatformContext);
   const [fundingAccount, setFundingAccount] = useState<LilyOnchainAccount>();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
   const accountOptions = Object.values(accountMap)
-    .filter((account) => account.config.type === "onchain" && !!!account.loading)
+    .filter((account) => account.config.type === 'onchain' && !!!account.loading)
     .map((account) => {
       return {
         label: account.name,
         onClick: () => {
-          if (account.config.type === "onchain") {
-            setFundingAccount(
-              accountMap[account.config.id] as LilyOnchainAccount
-            );
+          if (account.config.type === 'onchain') {
+            setFundingAccount(accountMap[account.config.id] as LilyOnchainAccount);
           }
-        },
+        }
       };
     });
 
@@ -43,30 +57,24 @@ const CloseChannelModal = ({ setStep, channel, currentAccount }: Props) => {
     setIsLoading(true);
     setError('');
 
-    window.ipcRenderer.send("/close-channel", {
-      channel_point: channel.channelPoint,
-      delivery_address: fundingAccount?.addresses[0].address,
-      lndConnectUri: currentAccount.config.connectionDetails.lndConnectUri
-    });
-
-    window.ipcRenderer.on(
-      "/close-channel",
-      async (_event: any, ...args: any) => {
-        const response: CloseStatusUpdate = args[0];
+    platform.closeChannel(
+      {
+        channel_point: channel.channelPoint,
+        delivery_address: fundingAccount?.addresses[0].address!,
+        lndConnectUri: currentAccount.config.connectionDetails.lndConnectUri
+      },
+      (response: CloseStatusUpdate) => {
         if (response.closePending) {
           setIsLoading(false);
           setStep(2);
           setTimeout(() => {
-            window.ipcRenderer.send("/lightning-account-data", {
-              config: currentAccount.config,
-            });
-          }, 200)
+            platform.getLightningData(currentAccount.config);
+          }, 200);
         }
         // TODO: check for errors
       }
     );
-  }
-
+  };
 
   return (
     <>
@@ -77,19 +85,13 @@ const CloseChannelModal = ({ setStep, channel, currentAccount }: Props) => {
       </DangerIconContainer>
       <TextContainer>
         <HeadingText>{channel.alias}</HeadingText>
-        <Subtext>
-          Are you sure you want to close this channel?
-        </Subtext>
+        <Subtext>Are you sure you want to close this channel?</Subtext>
         <SelectAccountContainer>
-          <InformationLabel>
-            Closing balance
-          </InformationLabel>
-          <InformationValue>
-            {Number(channel.localBalance).toLocaleString()} sats
-          </InformationValue>
+          <InformationLabel>Closing balance</InformationLabel>
+          <InformationValue>{Number(channel.localBalance).toLocaleString()} sats</InformationValue>
 
-          <InputWrapper data-cy="funding-account">
-            <Select label="Send closing balance to" options={accountOptions} />
+          <InputWrapper data-cy='funding-account'>
+            <Select label='Send closing balance to' options={accountOptions} />
           </InputWrapper>
 
           {error && <ErrorText>{error}</ErrorText>}
@@ -109,83 +111,89 @@ const CloseChannelModal = ({ setStep, channel, currentAccount }: Props) => {
             background={red600}
             color={white}
             onClick={() => {
-              closeChannel()
+              closeChannel();
             }}
           >
-            {isLoading ? <><Spinner style={{ marginRight: "1em" }} /> Closing channel...</> : "Close channel"}
+            {isLoading ? (
+              <>
+                <Spinner style={{ marginRight: '1em' }} /> Closing channel...
+              </>
+            ) : (
+              'Close channel'
+            )}
           </SaveChangesButton>
         </Buttons>
       </TextContainer>
     </>
-  )
-}
+  );
+};
 
 const Subtext = styled.div`
-      padding-bottom: 2em;
-      margin-top: 0.5rem;
-      color: ${gray500};
-      `;
+  padding-bottom: 2em;
+  margin-top: 0.5rem;
+  color: ${gray500};
+`;
 
 const InputWrapper = styled.div`
-      margin-top: 1.25rem;
-      width: 100%;
-      `;
+  margin-top: 1.25rem;
+  width: 100%;
+`;
 
 const SelectAccountContainer = styled.div``;
 
 const InformationLabel = styled.dt`
-      font-weight: 500;
-      font-size: .875rem;
-      line-height: 1.25rem;
-      color: ${gray600}
-      `;
+  font-weight: 500;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: ${gray600};
+`;
 
 const InformationValue = styled.dd`
-      font-weight: 500;
-      font-size: .875rem;
-      line-height: 1.25rem;
-      color: ${gray900};
-      margin-top: 0.25rem;
-      margin-bottom: 1rem;
-      `;
+  font-weight: 500;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: ${gray900};
+  margin-top: 0.25rem;
+  margin-bottom: 1rem;
+`;
 
 const Buttons = styled.div`
-      display: flex;
-      width: 100%;
-      align-items: center;
-      justify-content: flex-end;
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: flex-end;
 
-      ${mobile(css`
+  ${mobile(css`
     flex-direction: column;
   `)}
-      `;
+`;
 
 const ErrorText = styled.div`
-      color: ${red600};
-      font-size: .875rem;
-    line-height: 1.25rem;
+  color: ${red600};
+  font-size: 0.875rem;
+  line-height: 1.25rem;
 `;
 
 const SaveChangesButton = styled.button`
-      ${Button}
-      margin-top: 1rem;
+  ${Button}
+  margin-top: 1rem;
 
-      ${mobile(css`
+  ${mobile(css`
     margin-top: 1.25rem;
   `)};
-      `;
+`;
 
 const CancelButton = styled.button`
-      ${Button}
-      margin-top: 1rem;
-      border: 1px solid ${gray300};
-      margin-right: 0.5rem;
+  ${Button}
+  margin-top: 1rem;
+  border: 1px solid ${gray300};
+  margin-right: 0.5rem;
 
-      ${mobile(css`
+  ${mobile(css`
     margin-top: 1.25rem;
     margin-right: 0;
   `)}
-      `;
+`;
 
 const DangerIconContainer = styled.div``;
 
@@ -218,4 +226,4 @@ const HeadingText = styled.div`
   font-weight: 500;
 `;
 
-export default requireLightning(CloseChannelModal)
+export default requireLightning(CloseChannelModal);

@@ -1,30 +1,24 @@
-import React from "react";
-import styled from "styled-components";
-import { useHistory } from "react-router-dom";
-import { CheckCircle } from "@styled-icons/material";
+import React, { useContext } from 'react';
+import styled from 'styled-components';
+import { useHistory } from 'react-router-dom';
+import { CheckCircle } from '@styled-icons/material';
 
-import { StyledIcon, Button } from "../../components";
-import {
-  white,
-  green500,
-  green600,
-  gray500,
-  gray600,
-  gray700,
-} from "../../utils/colors";
-import { FormContainer, InnerWrapper, BoxedWrapper } from "./styles";
+import { StyledIcon, Button } from 'src/components';
+import { white, green500, green600, gray500, gray600, gray700 } from 'src/utils/colors';
+import { FormContainer, InnerWrapper, BoxedWrapper } from './styles';
 
-import { downloadFile } from "../../utils/files";
+import { downloadFile } from 'src/utils/files';
 
-import { LilyConfig } from "../../types";
+import { LilyConfig } from 'src/types';
+import { PlatformContext } from 'src/context';
 
 interface Props {
   config: LilyConfig;
-  downloadColdcardFile?: () => Promise<void>;
 }
 
-const SuccessScreen = ({ config, downloadColdcardFile }: Props) => {
+const SuccessScreen = ({ config }: Props) => {
   const history = useHistory();
+  const { platform } = useContext(PlatformContext);
 
   return (
     <InnerWrapper>
@@ -37,18 +31,15 @@ const SuccessScreen = ({ config, downloadColdcardFile }: Props) => {
           <SuccessSubtext>
             Your account configuration has been saved to this computer. <br />
             <br />
-            You may backup this file to another location for safe keeping now{" "}
-            <br /> or later via Settings &gt; Download Backup Configuration.
+            You may backup this file to another location for safe keeping now <br /> or later via
+            Settings &gt; Download Backup Configuration.
           </SuccessSubtext>
           <Buttons>
             <SaveBackupButton
               background={white}
               color={gray600}
               onClick={() => {
-                downloadFile(
-                  JSON.stringify(config),
-                  "lily-config-encrypted.json"
-                );
+                downloadFile(JSON.stringify(config), 'lily-config-encrypted.json', platform);
               }}
             >
               Save Backup File

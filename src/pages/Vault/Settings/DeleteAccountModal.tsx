@@ -1,21 +1,15 @@
-import React, { useContext, useState } from "react";
-import styled, { css } from "styled-components";
-import { ExclamationDiamond } from "@styled-icons/bootstrap";
-import { useHistory } from "react-router-dom";
+import React, { useContext, useState } from 'react';
+import styled, { css } from 'styled-components';
+import { ExclamationDiamond } from '@styled-icons/bootstrap';
+import { useHistory } from 'react-router-dom';
 
-import {
-  Input,
-  StyledIcon,
-  Button,
-  ModalContentWrapper,
-} from "../../../components";
+import { Input, StyledIcon, Button, ModalContentWrapper } from 'src/components';
 
-import { mobile } from "../../../utils/media";
-import { white, red100, red600, gray500 } from "../../../utils/colors";
-import { saveConfig } from "../../../utils/files";
+import { mobile } from 'src/utils/media';
+import { white, red100, red600, gray500 } from 'src/utils/colors';
+import { saveConfig } from 'src/utils/files';
 
-import { ConfigContext } from "../../../ConfigContext";
-import { AccountMapContext } from "../../../AccountMapContext";
+import { AccountMapContext, ConfigContext, PlatformContext } from 'src/context';
 interface Props {
   password: string;
   closeModal: () => void;
@@ -24,12 +18,14 @@ interface Props {
 const DeleteAccountModal = ({ password, closeModal }: Props) => {
   const { config, setConfigFile } = useContext(ConfigContext);
   const { currentAccount } = useContext(AccountMapContext);
-  const [accountNameConfirm, setAccountNameConfirm] = useState("");
-  const [accountNameConfirmError, setAccountNameConfirmError] = useState("");
+  const { platform } = useContext(PlatformContext);
+
+  const [accountNameConfirm, setAccountNameConfirm] = useState('');
+  const [accountNameConfirmError, setAccountNameConfirmError] = useState('');
   const history = useHistory();
 
   const onInputEnter = (e: React.KeyboardEvent<Element>) => {
-    if (e.key === "Enter") {
+    if (e.key === 'Enter') {
       removeAccountAndDownloadConfig();
     }
   };
@@ -37,7 +33,7 @@ const DeleteAccountModal = ({ password, closeModal }: Props) => {
   const removeAccountAndDownloadConfig = () => {
     if (accountNameConfirm === currentAccount.config.name) {
       const configCopy = { ...config };
-      if (currentAccount.config.type === "onchain") {
+      if (currentAccount.config.type === 'onchain') {
         if (currentAccount.config.quorum.totalSigners === 1) {
           configCopy.wallets = configCopy.wallets.filter(
             (wallet) => wallet.id !== currentAccount.config.id
@@ -53,10 +49,10 @@ const DeleteAccountModal = ({ password, closeModal }: Props) => {
         );
       }
 
-      saveConfig(configCopy, password);
+      saveConfig(configCopy, password, platform);
       setConfigFile({ ...configCopy });
       closeModal();
-      history.push("/");
+      history.push('/');
     } else {
       setAccountNameConfirmError("Account name doesn't match");
     }
@@ -66,11 +62,7 @@ const DeleteAccountModal = ({ password, closeModal }: Props) => {
     <ModalContentWrapper>
       <DangerIconContainer>
         <StyledIconCircle>
-          <StyledIcon
-            style={{ color: red600 }}
-            as={ExclamationDiamond}
-            size={36}
-          />
+          <StyledIcon style={{ color: red600 }} as={ExclamationDiamond} size={36} />
         </StyledIconCircle>
       </DangerIconContainer>
       <DangerTextContainer>
@@ -78,13 +70,12 @@ const DeleteAccountModal = ({ password, closeModal }: Props) => {
         <DangerSubtext>
           You are about to delete an account from your Lily Wallet.
           <br />
-          If there are any funds remaining in this account, make sure you have
-          your backup.
+          If there are any funds remaining in this account, make sure you have your backup.
         </DangerSubtext>
         <Input
           label="Type in the account's name to delete"
           autoFocus
-          type="text"
+          type='text'
           value={accountNameConfirm}
           onChange={setAccountNameConfirm}
           onKeyDown={(e) => onInputEnter(e)}

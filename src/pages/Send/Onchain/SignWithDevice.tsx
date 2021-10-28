@@ -1,11 +1,13 @@
-import React, { useState } from "react";
-import styled from "styled-components";
-import { Psbt } from "bitcoinjs-lib";
+import React, { useState, useContext } from 'react';
+import styled from 'styled-components';
+import { Psbt } from 'bitcoinjs-lib';
 
-import { DeviceSelect, Dropdown } from "src/components";
-import { gray800, white } from "src/utils/colors";
+import { DeviceSelect, Dropdown } from 'src/components';
+import { gray800, white } from 'src/utils/colors';
 
-import { Device, HwiResponseEnumerate } from "src/types";
+import { Device, HwiResponseEnumerate } from 'src/types';
+
+import { PlatformContext } from 'src/context';
 
 interface Props {
   finalPsbt: Psbt;
@@ -22,23 +24,19 @@ const SignWithDevice = ({
   signedDevices,
   signThreshold,
   fileUploadLabelRef,
-  phoneAction,
+  phoneAction
 }: Props) => {
-  const [unsignedDevices, setUnsignedDevices] = useState<
-    HwiResponseEnumerate[]
-  >([]);
+  const [unsignedDevices, setUnsignedDevices] = useState<HwiResponseEnumerate[]>([]);
   const [errorDevices, setErrorDevices] = useState<string[]>([]); // stores fingerprint of error devices
+  const { platform } = useContext(PlatformContext);
 
   // KBC-TODO: add a test
-  const signWithDevice = async (
-    device: HwiResponseEnumerate,
-    index: number
-  ) => {
+  const signWithDevice = async (device: HwiResponseEnumerate, index: number) => {
     try {
-      const response = await window.ipcRenderer.invoke("/sign", {
+      const response = await platform.signTransaction({
         deviceType: device.type,
         devicePath: device.path,
-        psbt: finalPsbt.toBase64(),
+        psbt: finalPsbt.toBase64()
       });
 
       setFinalPsbt(Psbt.fromBase64(response.psbt));
@@ -58,14 +56,14 @@ const SignWithDevice = ({
 
   const dropdownItems = [
     {
-      label: "Add signature from file",
+      label: 'Add signature from file',
       onClick: () => {
         const txFileUploadButton = fileUploadLabelRef.current;
         if (txFileUploadButton !== null) {
           txFileUploadButton.click();
         }
-      },
-    },
+      }
+    }
   ];
 
   return (
@@ -87,8 +85,8 @@ const SignWithDevice = ({
         configuredDevices={signedDevices}
         unconfiguredDevices={unsignedDevices}
         deviceAction={signWithDevice}
-        deviceActionText={"Click to Approve"}
-        deviceActionLoadingText={"Approve on device"}
+        deviceActionText={'Click to Approve'}
+        deviceActionLoadingText={'Approve on device'}
         setUnconfiguredDevices={setUnsignedDevices}
         errorDevices={errorDevices}
         configuredThreshold={signThreshold}

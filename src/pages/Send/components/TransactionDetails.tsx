@@ -1,18 +1,12 @@
-import React, { useState, Fragment } from "react";
-import styled from "styled-components";
-import BigNumber from "bignumber.js";
-import { ArrowIosForwardOutline } from "@styled-icons/evaicons-outline";
-import { CheckCircle } from "@styled-icons/material";
-import { satoshisToBitcoins } from "unchained-bitcoin";
-import { Psbt, Network } from "bitcoinjs-lib";
+import React, { useContext, useState } from 'react';
+import styled from 'styled-components';
+import BigNumber from 'bignumber.js';
+import { ArrowIosForwardOutline } from '@styled-icons/evaicons-outline';
+import { CheckCircle } from '@styled-icons/material';
+import { satoshisToBitcoins } from 'unchained-bitcoin';
+import { Psbt, Network } from 'bitcoinjs-lib';
 
-import {
-  StyledIcon,
-  Button,
-  SidewaysShake,
-  Dropdown,
-  Modal,
-} from "src/components";
+import { StyledIcon, Button, SidewaysShake, Dropdown, Modal } from 'src/components';
 
 import {
   gray200,
@@ -21,21 +15,18 @@ import {
   green500,
   green600,
   orange500,
-  orange200,
-} from "src/utils/colors";
-import { downloadFile, formatFilename } from "src/utils/files";
-import { getFee, truncateAddress } from "src/utils/send";
-import { FeeSelector } from "./FeeSelector";
-import AddSignatureFromQrCode from "../Onchain/AddSignatureFromQrCode";
-import TransactionUtxoDetails from "./TxUtxoDetails";
-import ShoppingCart from "./ShoppingCart";
+  orange200
+} from 'src/utils/colors';
+import { downloadFile, formatFilename } from 'src/utils/files';
+import { getFee, truncateAddress } from 'src/utils/send';
+import { FeeSelector } from './FeeSelector';
+import AddSignatureFromQrCode from '../Onchain/AddSignatureFromQrCode';
+import TransactionUtxoDetails from './TxUtxoDetails';
+import ShoppingCart from './ShoppingCart';
 
-import {
-  LilyOnchainAccount,
-  Device,
-  FeeRates,
-  ShoppingItem,
-} from "src/types";
+import { LilyOnchainAccount, Device, FeeRates, ShoppingItem } from 'src/types';
+
+import { PlatformContext } from 'src/context';
 
 const ABSURD_FEE = 1000000; // 0.01 BTC
 
@@ -66,8 +57,9 @@ const TransactionDetails = ({
   currentBitcoinPrice,
   createTransactionAndSetState,
   currentBitcoinNetwork,
-  shoppingItems,
+  shoppingItems
 }: Props) => {
+  const { platform } = useContext(PlatformContext);
   const signThreshold = currentAccount.config.quorum.requiredSigners;
   const { availableUtxos, transactions } = currentAccount;
   const [modalIsOpen, setModalIsOpen] = useState(false);
@@ -90,16 +82,17 @@ const TransactionDetails = ({
       const psbtForDownload = finalPsbt.toBase64();
       await downloadFile(
         psbtForDownload,
-        formatFilename("tx", currentBitcoinNetwork, "psbt")
+        formatFilename('tx', currentBitcoinNetwork, 'psbt'),
+        platform
       );
       openInModal(<PsbtDownloadDetails />);
-    } catch (e) { }
+    } catch (e) {}
   };
 
   const viewTxQrCode = () => {
     openInModal(
       <AddSignatureFromQrCode
-        importSignatureFromFile={() => { }}
+        importSignatureFromFile={() => {}}
         psbt={finalPsbt}
         currentBitcoinPrice={currentBitcoinPrice}
         currentBitcoinNetwork={currentBitcoinNetwork}
@@ -110,17 +103,17 @@ const TransactionDetails = ({
   const TransactionOptionsDropdown = () => {
     const dropdownItems = [
       {
-        label: "Save transaction to file",
+        label: 'Save transaction to file',
         onClick: () => {
           downloadPsbt();
-        },
+        }
       },
       {
-        label: "View transaction QR code",
+        label: 'View transaction QR code',
         onClick: () => {
           viewTxQrCode();
-        },
-      },
+        }
+      }
     ];
 
     if (
@@ -129,7 +122,7 @@ const TransactionDetails = ({
       (!signedDevices.length || currentAccount.config.mnemonic)
     ) {
       dropdownItems.unshift({
-        label: "Adjust transaction fee",
+        label: 'Adjust transaction fee',
         onClick: () => {
           openInModal(
             <FeeSelector
@@ -138,52 +131,40 @@ const TransactionDetails = ({
               feeRates={feeRates}
               availableUtxos={availableUtxos}
               recipientAddress={finalPsbt.txOutputs[0].address!}
-              sendAmount={satoshisToBitcoins(
-                finalPsbt.txOutputs[0].value
-              ).toString()}
+              sendAmount={satoshisToBitcoins(finalPsbt.txOutputs[0].value).toString()}
               closeModal={closeModal}
               createTransactionAndSetState={createTransactionAndSetState}
               currentBitcoinPrice={currentBitcoinPrice}
             />
           );
-        },
+        }
       });
     }
 
     // if we are creating the transaction ourselves, give options for adjustment
     if (setStep !== undefined) {
       dropdownItems.unshift({
-        label: "View transaction details",
+        label: 'View transaction details',
         onClick: () => {
           openInModal(
-            <TransactionUtxoDetails
-              psbt={finalPsbt}
-              currentBitcoinPrice={currentBitcoinPrice}
-            />
+            <TransactionUtxoDetails psbt={finalPsbt} currentBitcoinPrice={currentBitcoinPrice} />
           );
-        },
+        }
       });
     }
 
-    if (
-      (setStep !== undefined && !signedDevices.length) ||
-      currentAccount.config.mnemonic
-    ) {
+    if ((setStep !== undefined && !signedDevices.length) || currentAccount.config.mnemonic) {
       // eslint-disable-line
       dropdownItems.unshift({
-        label: "Edit transaction",
-        onClick: () => setStep && setStep(0),
+        label: 'Edit transaction',
+        onClick: () => setStep && setStep(0)
       });
     }
 
     return (
-      <Fragment>
-        <Dropdown
-          data-cy="send-options-dropdown"
-          minimal={true}
-          dropdownItems={dropdownItems}
-        />
-      </Fragment>
+      <>
+        <Dropdown data-cy='send-options-dropdown' minimal={true} dropdownItems={dropdownItems} />
+      </>
     );
   };
 
@@ -211,9 +192,7 @@ const TransactionDetails = ({
           <TxReviewWrapper>
             <TxItem>
               <TxItemLabel>To</TxItemLabel>
-              <TxItemValue>
-                {truncateAddress(finalPsbt.txOutputs[0].address!)}
-              </TxItemValue>
+              <TxItemValue>{truncateAddress(finalPsbt.txOutputs[0].address!)}</TxItemValue>
             </TxItem>
 
             <TxItem>
@@ -223,47 +202,37 @@ const TransactionDetails = ({
 
             <TxItem>
               <TxItemLabel>Amount</TxItemLabel>
-              <TxItemValue>
-                {`${satoshisToBitcoins(finalPsbt.txOutputs[0].value)} BTC`}
-              </TxItemValue>
+              <TxItemValue>{`${satoshisToBitcoins(finalPsbt.txOutputs[0].value)} BTC`}</TxItemValue>
             </TxItem>
 
             <TxItem>
               <TxItemLabel>Network fee</TxItemLabel>
               <TxItemValue>
-                <span data-cy="transactionFeeBtc">
-                  {satoshisToBitcoins(_fee).toNumber()}
-                </span>
+                <span data-cy='transactionFeeBtc'>{satoshisToBitcoins(_fee).toNumber()}</span>
                 <span>
-                  {" "}
+                  {' '}
                   BTC ($
-                  <span data-cy="transactionFeeUsd">
-                    {satoshisToBitcoins(_fee)
-                      .multipliedBy(currentBitcoinPrice)
-                      .toFixed(2)}
+                  <span data-cy='transactionFeeUsd'>
+                    {satoshisToBitcoins(_fee).multipliedBy(currentBitcoinPrice).toFixed(2)}
                   </span>
                   )
                 </span>
               </TxItemValue>
             </TxItem>
-            {_fee >= ABSURD_FEE && (
-              <WarningBox>Warning: transaction fee is very high</WarningBox>
-            )}
+            {_fee >= ABSURD_FEE && <WarningBox>Warning: transaction fee is very high</WarningBox>}
 
             <TxItem
               style={{
-                paddingTop: "1.5rem",
-                borderTop: "1px solid rgb(229, 231, 235)",
+                paddingTop: '1.5rem',
+                borderTop: '1px solid rgb(229, 231, 235)',
                 fontWeight: 500,
-                fontSize: "1rem",
-                lineHeight: "1.5rem",
+                fontSize: '1rem',
+                lineHeight: '1.5rem'
               }}
             >
               <TxItemLabel>Total</TxItemLabel>
               <TxItemValue>
-                {`${satoshisToBitcoins(
-                  finalPsbt.txOutputs[0].value + _fee
-                )} BTC`}
+                {`${satoshisToBitcoins(finalPsbt.txOutputs[0].value + _fee)} BTC`}
               </TxItemValue>
             </TxItem>
           </TxReviewWrapper>
@@ -276,7 +245,7 @@ const TransactionDetails = ({
             >
               {signedDevices.length < signThreshold
                 ? `Confirm on Devices (${signedDevices.length}/${signThreshold})`
-                : "Broadcast Transaction"}
+                : 'Broadcast Transaction'}
               {signedDevices.length < signThreshold ? null : (
                 <SendButtonCheckmark>
                   <StyledIcon as={ArrowIosForwardOutline} size={16} />
@@ -386,8 +355,7 @@ const SendButton = styled.button<{
   padding-top: 0.75rem;
   padding-bottom: 0.75rem;
   width: 100%;
-  box-shadow: ${(p) =>
-    p.sendable ? `inset 1000px 0 0 0 ${green600}` : "none"};
+  box-shadow: ${(p) => (p.sendable ? `inset 1000px 0 0 0 ${green600}` : 'none')};
 `;
 
 const SendButtonCheckmark = styled.div`

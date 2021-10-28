@@ -4,9 +4,9 @@ import {
   accountMapReducer,
   ACCOUNTMAP_UPDATE,
   ACCOUNTMAP_SET,
-} from "./reducers/accountMap";
+} from "src/reducers/accountMap";
 
-import { AccountMap, LilyAccount } from "./types";
+import { AccountMap, LilyAccount } from "src/types";
 
 export const AccountMapContext = createContext({
   setAccountMap: (accountMap: AccountMap) => {},

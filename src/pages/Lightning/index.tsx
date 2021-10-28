@@ -1,33 +1,23 @@
-import React, { Fragment } from "react";
-import { Network } from "bitcoinjs-lib";
-import {
-  Switch,
-  Route,
-  useRouteMatch,
-  RouteComponentProps,
-} from "react-router-dom";
+import React, { Fragment } from 'react';
+import { Network } from 'bitcoinjs-lib';
+import { Switch, Route, useRouteMatch, RouteComponentProps } from 'react-router-dom';
 
-import { PageWrapper } from "src/components";
+import { PageWrapper } from 'src/components';
 
-import LightningHeader from "./LightningHeader";
-import LightningView from "./LightningView";
-import LightningSettings from "./Settings";
+import LightningHeader from './LightningHeader';
+import LightningView from './LightningView';
+import LightningSettings from './Settings';
 
-import { NodeConfig } from "src/types";
+import { NodeConfigWithBlockchainInfo } from 'src/types';
 
 interface Props {
-  nodeConfig: NodeConfig;
+  nodeConfig: NodeConfigWithBlockchainInfo;
   password: string;
   toggleRefresh(): void;
   currentBitcoinNetwork: Network;
 }
 
-const Lightning = ({
-  nodeConfig,
-  password,
-  toggleRefresh,
-  currentBitcoinNetwork,
-}: Props) => {
+const Lightning = ({ nodeConfig, password, toggleRefresh, currentBitcoinNetwork }: Props) => {
   document.title = `Lightning - Lily Wallet`;
   let { path } = useRouteMatch();
 
@@ -46,7 +36,7 @@ const Lightning = ({
               />
             )}
           />
-          <Route path="" render={() => <LightningView />} />
+          <Route path='' render={() => <LightningView />} />
         </Switch>
       </Fragment>
     </PageWrapper>
