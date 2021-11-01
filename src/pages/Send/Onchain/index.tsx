@@ -1,7 +1,6 @@
 import React, { useState, useContext } from 'react';
 import styled, { css } from 'styled-components';
 import { useHistory } from 'react-router-dom';
-import BigNumber from 'bignumber.js';
 import { satoshisToBitcoins, blockExplorerTransactionURL } from 'unchained-bitcoin';
 import { Psbt, Network } from 'bitcoinjs-lib';
 import { CheckCircle, RemoveCircle } from '@styled-icons/material';
@@ -71,14 +70,14 @@ const SendOnchain = ({ currentAccount, currentBitcoinNetwork, currentBitcoinPric
   const createTransactionAndSetState = async (
     _recipientAddress: string,
     _sendAmount: string,
-    _fee: BigNumber
+    _feeRate: number
   ) => {
     try {
       const { psbt, feeRates } = await createTransaction(
         currentAccount,
         _sendAmount,
         _recipientAddress,
-        _fee,
+        _feeRate,
         () => platform.estimateFee(),
         currentBitcoinNetwork
       );
@@ -87,7 +86,7 @@ const SendOnchain = ({ currentAccount, currentBitcoinNetwork, currentBitcoinPric
       return psbt;
     } catch (e: any) {
       console.log('error: ', e);
-      throw new Error(e.message);
+      throw new Error(e);
     }
   };
 

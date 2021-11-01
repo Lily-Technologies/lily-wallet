@@ -1,12 +1,18 @@
 declare module 'coinselect' {
-  import { UTXO } from '../../index';
-  function coinSelect(utxos: UTXO[], outputs: any[], feeRate: number): CoinSelectResposne
+  import { UTXO } from 'src/types';
 
-  interface CoinSelectResposne {
-    inputs: any[]
-    outputs: any[]
-    fee: number
+  function coinSelect(utxos: UTXO[], outputs: Output[], feeRate: number): CoinSelectResponse;
+
+  interface Output {
+    address?: string;
+    value: number;
   }
 
-  export = coinSelect
+  interface CoinSelectResponse {
+    inputs: UTXO[];
+    outputs: Output[];
+    fee: number;
+  }
+
+  export = coinSelect;
 }
