@@ -388,8 +388,35 @@ ipcMain.on('/lightning-account-data', async (event, args) => {
     const info = await lnRpcClient.getInfo();
     const balance = await lnRpcClient.channelBalance();
     // const { transactions } = await lnRpcClient.getTransactions();
-    const { payments } = await lnRpcClient.listPayments();
-    const { invoices } = await lnRpcClient.listInvoices();
+
+    const paymentsAccum = [];
+    let allPaymentsRetrieved = false;
+    let index = 0;
+    while (!allPaymentsRetrieved) {
+      const { payments } = await lnRpcClient.listPayments({
+        indexOffset: index * 100
+      });
+      paymentsAccum.push(...payments);
+      index++;
+      if (payments.length < 100) {
+        allPaymentsRetrieved = true;
+        index = 0;
+      }
+    }
+
+    const invoicesAccum = [];
+    let allInvoicesRetrieved = false;
+    while (!allInvoicesRetrieved) {
+      const { invoices } = await lnRpcClient.listInvoices({
+        indexOffset: (index * 100).toString()
+      });
+      invoicesAccum.push(...invoices);
+      index++;
+      if (invoices.length < 100) {
+        allInvoicesRetrieved = true;
+        index = 0;
+      }
+    }
 
     if (!pendingOpenChannels) {
       pendingOpenChannels = [];
@@ -399,7 +426,7 @@ ipcMain.on('/lightning-account-data', async (event, args) => {
       waitingCloseChannels = [];
     }
 
-    const incomingTxs = invoices.reduce((filtered, invoice) => {
+    const incomingTxs = invoicesAccum.reduce((filtered, invoice) => {
       if (invoice.state !== InvoiceState.CANCELED && invoice.state !== InvoiceState.OPEN) {
         const decoratedInvoice = {
           ...invoice,
@@ -413,7 +440,7 @@ ipcMain.on('/lightning-account-data', async (event, args) => {
     }, [] as LightningEvent[]);
 
     const outgoingTxs = await Promise.all(
-      payments.map(async (payment) => {
+      paymentsAccum.map(async (payment) => {
         const decoratedPayment = {
           ...payment,
           type: 'PAYMENT_SEND',
@@ -623,8 +650,8 @@ ipcMain.on('/lightning-account-data', async (event, args) => {
       info: info,
       loading: false,
       events: sortedEvents,
-      payments: payments,
-      invoices: invoices,
+      payments: paymentsAccum,
+      invoices: invoicesAccum,
       currentBalance: balance,
       balanceHistory: balanceHistory
     };
@@ -839,7 +866,6 @@ ipcMain.handle('/broadcastTx', async (event, args) => {
 
 ipcMain.handle('/changeNodeConfig', async (event, args) => {
   const { nodeConfig } = args;
-  console.log('nodeConfig: ', nodeConfig);
   console.log(`Attempting to connect to ${nodeConfig.provider}...`);
   if (nodeConfig.provider === 'Bitcoin Core') {
     const nodeConfig = await getBitcoinCoreConfig();
