@@ -1,12 +1,10 @@
-import React, { useState } from "react";
-import styled from "styled-components";
-import { satoshisToBitcoins, bitcoinsToSatoshis } from "unchained-bitcoin";
-import BigNumber from "bignumber.js";
-import coinSelect from "coinselect";
-import { Psbt } from "bitcoinjs-lib";
+import React, { useState } from 'react';
+import styled from 'styled-components';
+import { satoshisToBitcoins } from 'unchained-bitcoin';
+import { Psbt } from 'bitcoinjs-lib';
 
-import { Button, Input } from "src/components";
-import { getFeeForMultisig, getFee } from "src/utils/send";
+import { Button, Input } from 'src/components';
+import { getFee } from 'src/utils/send';
 
 import {
   gray50,
@@ -18,24 +16,23 @@ import {
   green200,
   green500,
   green600,
-  white,
-} from "src/utils/colors";
+  white
+} from 'src/utils/colors';
 
-import { LilyOnchainAccount, UTXO, FeeRates } from "src/types";
+import { LilyOnchainAccount, FeeRates } from 'src/types';
 
 interface Props {
   currentAccount: LilyOnchainAccount;
   finalPsbt: Psbt;
   feeRates: FeeRates;
-  availableUtxos: UTXO[];
   recipientAddress: string;
   sendAmount: string;
   closeModal(): void;
   createTransactionAndSetState(
     _recipientAddress: string,
     _sendAmount: string,
-    _fee: BigNumber
-  ): void;
+    _fee: number
+  ): Promise<Psbt>;
   currentBitcoinPrice: any; // KBC-TODO: change to be more specific
 }
 
@@ -43,221 +40,129 @@ export const FeeSelector = ({
   currentAccount,
   finalPsbt,
   feeRates,
-  availableUtxos,
   recipientAddress,
   sendAmount,
   closeModal,
   createTransactionAndSetState,
-  currentBitcoinPrice,
+  currentBitcoinPrice
 }: Props) => {
   const fee = getFee(finalPsbt, currentAccount.transactions); // in sats
-  const [customFee, setCustomFee] = useState(fee);
-  const [customFeeError, setCustomFeeError] = useState("");
-  const [customFeeBtc, setCustomFeeBtc] = useState(satoshisToBitcoins(fee));
-  const [showEditCustomFee, setShowEditCustomFee] = useState(false);
-
-  let fastestFee: number;
-  let normalFee: number;
-  let slowFee: number;
-  if (currentAccount.config.quorum.totalSigners > 1) {
-    fastestFee = getFeeForMultisig(
-      feeRates.fastestFee,
-      currentAccount.config.addressType,
-      finalPsbt.txInputs.length,
-      finalPsbt.txOutputs.length,
-      currentAccount.config.quorum.requiredSigners,
-      currentAccount.config.quorum.totalSigners
-    )
-      .integerValue(BigNumber.ROUND_CEIL)
-      .toNumber();
-    normalFee = getFeeForMultisig(
-      feeRates.halfHourFee,
-      currentAccount.config.addressType,
-      finalPsbt.txInputs.length,
-      finalPsbt.txOutputs.length,
-      currentAccount.config.quorum.requiredSigners,
-      currentAccount.config.quorum.totalSigners
-    )
-      .integerValue(BigNumber.ROUND_CEIL)
-      .toNumber();
-    slowFee = getFeeForMultisig(
-      feeRates.hourFee,
-      currentAccount.config.addressType,
-      finalPsbt.txInputs.length,
-      finalPsbt.txOutputs.length,
-      currentAccount.config.quorum.requiredSigners,
-      currentAccount.config.quorum.totalSigners
-    )
-      .integerValue(BigNumber.ROUND_CEIL)
-      .toNumber();
-  } else {
-    fastestFee = coinSelect(
-      availableUtxos,
-      [
-        {
-          address: recipientAddress,
-          value: bitcoinsToSatoshis(sendAmount).toNumber(),
-        },
-      ],
-      feeRates.fastestFee
-    ).fee;
-    normalFee = coinSelect(
-      availableUtxos,
-      [
-        {
-          address: recipientAddress,
-          value: bitcoinsToSatoshis(sendAmount).toNumber(),
-        },
-      ],
-      feeRates.halfHourFee
-    ).fee;
-    slowFee = coinSelect(
-      availableUtxos,
-      [
-        {
-          address: recipientAddress,
-          value: bitcoinsToSatoshis(sendAmount).toNumber(),
-        },
-      ],
-      feeRates.hourFee
-    ).fee;
-  }
+  const [customFeeRate, setCustomFeeRate] = useState(fee);
+  const [customFeeRateError, setCustomFeeRateError] = useState('');
+  const [customFeeBtc, setCustomFeeBtc] = useState(fee);
+  const [showEditCustomFeeRate, setShowEditCustomFeeRate] = useState(false);
 
   const validateCustomFee = () => {
-    if (!satoshisToBitcoins(customFee).isGreaterThan(0)) {
-      setCustomFeeError("Cannot set a negative fee!");
+    if (customFeeRate < 0) {
+      setCustomFeeRateError('Cannot set a negative fee!');
       return false;
     }
-    if (satoshisToBitcoins(customFee).isGreaterThan(0) && customFeeError) {
-      setCustomFeeError("");
+    if (customFeeRate > 0 && customFeeRateError) {
+      setCustomFeeRateError('');
     }
     return true;
   };
 
-  const selectFee = (fee: number) => {
-    createTransactionAndSetState(
-      recipientAddress,
-      sendAmount,
-      new BigNumber(fee)
-    );
-    closeModal();
+  const selectFee = async (feeRate: number) => {
+    try {
+      await createTransactionAndSetState(recipientAddress, sendAmount, feeRate);
+      closeModal();
+    } catch (e) {
+      console.log('e: ', e);
+      setCustomFeeRateError(e.message);
+    }
   };
+
+  const { fastestFee, halfHourFee, hourFee } = feeRates;
 
   return (
     <>
       <ModalHeaderContainer>Adjust Transaction Fee</ModalHeaderContainer>
-      {!showEditCustomFee ? (
-        <div style={{ padding: "1.5em" }}>
+      {!showEditCustomFeeRate ? (
+        <div style={{ padding: '1.5em' }}>
           <FeeItem
-            data-cy="fastFeeItem"
+            data-cy='fastFeeItem'
             onClick={() => selectFee(fastestFee)}
             selected={fastestFee === fee}
           >
             <FeeMainText>Fast: ~10 minutes</FeeMainText>
             <FeeSubtext>
               $
-              <span data-cy="fastFeePrice">
-                {satoshisToBitcoins(fastestFee)
-                  .multipliedBy(currentBitcoinPrice)
-                  .toFixed(2)}
+              <span data-cy='fastFeePrice'>
+                {satoshisToBitcoins(fastestFee).multipliedBy(currentBitcoinPrice).toFixed(2)}
               </span>
-              ,{" "}
-              <span data-cy="fastFeeBTC">
-                {satoshisToBitcoins(fastestFee).toNumber()}
-              </span>{" "}
-              BTC
+              , <span data-cy='fastFeeBTC'>{satoshisToBitcoins(fastestFee).toNumber()}</span> BTC
             </FeeSubtext>
           </FeeItem>
-          {normalFee !== fastestFee && (
-            <FeeItem
-              onClick={() => selectFee(normalFee)}
-              selected={normalFee === fee}
-            >
+          {halfHourFee !== fastestFee && (
+            <FeeItem onClick={() => selectFee(halfHourFee)} selected={halfHourFee === fee}>
               <FeeMainText>Normal: ~30 minutes</FeeMainText>
               <FeeSubtext>
                 $
-                <span data-cy="normalFeePrice">
-                  {satoshisToBitcoins(normalFee)
-                    .multipliedBy(currentBitcoinPrice)
-                    .toFixed(2)}
+                <span data-cy='normalFeePrice'>
+                  {satoshisToBitcoins(halfHourFee).multipliedBy(currentBitcoinPrice).toFixed(2)}
                 </span>
-                ,{" "}
-                <span data-cy="normalFeeBTC">
-                  {satoshisToBitcoins(normalFee).toNumber()}
-                </span>{" "}
+                , <span data-cy='normalFeeBTC'>{satoshisToBitcoins(halfHourFee).toNumber()}</span>{' '}
                 BTC
               </FeeSubtext>
             </FeeItem>
           )}
-          {slowFee !== normalFee && ( //  remove slow option if same as normal (mempool isnt very full)
+          {hourFee !== halfHourFee && ( //  remove slow option if same as normal (mempool isnt very full)
             <FeeItem
-              data-cy="slowFeeItem"
-              onClick={() => selectFee(slowFee)}
-              selected={slowFee === fee}
+              data-cy='slowFeeItem'
+              onClick={() => selectFee(hourFee)}
+              selected={hourFee === fee}
             >
               <FeeMainText>Slow: ~1 hour</FeeMainText>
               <FeeSubtext>
                 $
-                <span data-cy="slowFeePrice">
-                  {satoshisToBitcoins(slowFee)
-                    .multipliedBy(currentBitcoinPrice)
-                    .toFixed(2)}
+                <span data-cy='slowFeePrice'>
+                  {satoshisToBitcoins(hourFee).multipliedBy(currentBitcoinPrice).toFixed(2)}
                 </span>
-                ,{" "}
-                <span data-cy="slowFeeBTC">
-                  {satoshisToBitcoins(slowFee).toNumber()}
-                </span>{" "}
-                BTC
+                , <span data-cy='slowFeeBTC'>{satoshisToBitcoins(hourFee).toNumber()}</span> BTC
               </FeeSubtext>
             </FeeItem>
           )}
           <FeeItem
-            data-cy="customFeeItem"
+            data-cy='customFeeItem'
             onClick={() => {
-              setShowEditCustomFee(true);
+              setShowEditCustomFeeRate(true);
             }}
-            selected={
-              slowFee !== fee && normalFee !== fee && fastestFee !== fee
-            }
+            selected={hourFee !== fee && halfHourFee !== fee && fastestFee !== fee}
           >
             <FeeMainText>Set custom fee</FeeMainText>
             <FeeSubtext>
-              {slowFee !== fee &&
-                normalFee !== fee &&
+              {hourFee !== fee &&
+                halfHourFee !== fee &&
                 fastestFee !== fee &&
-                `$${satoshisToBitcoins(customFee)
+                `$${satoshisToBitcoins(customFeeRate)
                   .multipliedBy(currentBitcoinPrice)
-                  .toFixed(2)}, ${satoshisToBitcoins(
-                    customFee
-                  ).toNumber()} BTC`}
+                  .toFixed(2)}, ${satoshisToBitcoins(customFeeRate).toNumber()} BTC`}
             </FeeSubtext>
           </FeeItem>
         </div>
       ) : (
         <CustomFeeContainer>
           <Input
-            label="Custom Fee"
-            type="text"
+            label='Custom Fee'
+            type='text'
             onChange={(value) => {
-              setCustomFeeBtc(value);
-              setCustomFee(bitcoinsToSatoshis(value));
+              setCustomFeeBtc(Number(value));
+              setCustomFeeRate(Number(value));
               validateCustomFee();
             }}
-            value={customFeeBtc}
-            placeholder={"0.00001"}
-            error={customFeeError}
-            inputStaticText="BTC"
+            value={customFeeBtc.toString()}
+            placeholder={'5'}
+            error={customFeeRateError}
+            inputStaticText='sat/vB'
             largeText={true}
-            id="custom-fee"
+            id='custom-fee'
+            style={{ paddingRight: '4em' }}
           />
-          <InputStaticText disabled text="BTC">
-            BTC
-          </InputStaticText>
-
           <ButtonGroup>
             <CancelButton
               onClick={() => {
-                setShowEditCustomFee(false);
+                setShowEditCustomFeeRate(false);
               }}
             >
               Cancel
@@ -267,12 +172,7 @@ export const FeeSelector = ({
               color={white}
               onClick={() => {
                 if (validateCustomFee()) {
-                  createTransactionAndSetState(
-                    recipientAddress,
-                    sendAmount,
-                    new BigNumber(customFee)
-                  );
-                  closeModal();
+                  selectFee(customFeeRate);
                 }
               }}
             >
@@ -291,6 +191,7 @@ const CustomFeeContainer = styled.div`
 
 const ButtonGroup = styled.div`
   display: flex;
+  margin-top: 1em;
 `;
 
 const CancelButton = styled.div`
@@ -299,7 +200,7 @@ const CancelButton = styled.div`
   border-radius: 0.375rem;
   flex: 1;
   text-align: center;
-  font-family: "Montserrat", sans-serif;
+  font-family: 'Montserrat', sans-serif;
   margin-right: 1em;
 
   &:hover {
@@ -314,7 +215,7 @@ const SaveFeeButton = styled.button`
   border-radius: 0.375rem;
   flex: 1;
   text-align: center;
-  font-family: "Montserrat", sans-serif;
+  font-family: 'Montserrat', sans-serif;
 `;
 
 const FeeMainText = styled.div`

@@ -192,77 +192,56 @@ export const createTransaction = async (
   currentAccount: LilyOnchainAccount,
   amountInBitcoins: string,
   recipientAddress: string,
-  desiredFee: BigNumber,
+  desiredFee: number,
   estimateFee: () => Promise<FeeRates>,
   currentBitcoinNetwork: Network
 ) => {
   const { availableUtxos, unusedChangeAddresses, config } = currentAccount;
 
-  let fee: BigNumber;
   const feeRates = await estimateFee();
-
-  if (desiredFee.toNumber() !== 0) {
-    // if no fee specified, pick halfhour
-    fee = new BigNumber(desiredFee);
-  } else if (config.quorum.totalSigners > 1) {
-    fee = getFeeForMultisig(
-      feeRates.halfHourFee,
-      config.addressType,
-      1,
-      2,
-      config.quorum.requiredSigners,
-      config.quorum.totalSigners
-    ).integerValue(BigNumber.ROUND_CEIL);
+  let feeRate: number;
+  if (desiredFee) {
+    feeRate = desiredFee;
   } else {
-    const coinSelectResult = coinSelect(
-      availableUtxos,
-      [
-        {
-          address: recipientAddress,
-          value: bitcoinsToSatoshis(amountInBitcoins).toNumber()
-        }
-      ],
-      feeRates.halfHourFee
-    );
-    fee = new BigNumber(coinSelectResult.fee);
+    // if no specified, use halfHour
+    feeRate = feeRates.halfHourFee;
   }
 
-  let outputTotal = new BigNumber(bitcoinsToSatoshis(amountInBitcoins)).plus(fee).toNumber();
-  let { spendingUtxos, currentTotal: spendingUtxosTotal } = coinSelection(
-    outputTotal,
-    availableUtxos
+  const { inputs, outputs, fee } = coinSelect(
+    availableUtxos,
+    [
+      {
+        address: recipientAddress,
+        value: bitcoinsToSatoshis(amountInBitcoins).toNumber()
+      }
+    ],
+    feeRate
   );
 
-  if (spendingUtxos.length > 1 && !desiredFee && config.quorum.totalSigners > 1) {
-    // we assumed 1 input utxo when first calculating fee, if more inputs then readjust fee
-    fee = getFeeForMultisig(
-      feeRates.halfHourFee,
-      config.addressType,
-      spendingUtxos.length,
-      2,
-      config.quorum.requiredSigners,
-      config.quorum.totalSigners
-    ).integerValue(BigNumber.ROUND_CEIL);
-    outputTotal = new BigNumber(bitcoinsToSatoshis(amountInBitcoins)).plus(fee).toNumber();
-    ({ spendingUtxos, currentTotal: spendingUtxosTotal } = coinSelection(
-      outputTotal,
-      availableUtxos
-    ));
-  }
+  console.log(
+    'feeRate, feeRates, fee, inputs, outputs: ',
+    feeRate,
+    feeRates,
+    fee,
+    JSON.stringify(inputs),
+    JSON.stringify(outputs)
+  );
+
+  if (!inputs || !outputs) throw new Error('Unable to construct transaction');
+  // TODO: This should be proportional to amount being sent
+  if (fee > 50000) throw new Error('Fee too large');
 
   const psbt = new Psbt({ network: currentBitcoinNetwork });
   psbt.setVersion(2); // These are defaults. This line is not needed.
   psbt.setLocktime(0); // These are defaults. This line is not needed.
 
-  for (let i = 0; i < spendingUtxos.length; i++) {
-    const utxo = spendingUtxos[i];
-
+  inputs.forEach((input) => {
     const currentInput = {
-      hash: utxo.txid,
-      index: utxo.vout,
+      hash: input.txid,
+      index: input.vout,
       sequence: 0xfffffffd, // always enable RBF
-      nonWitnessUtxo: Buffer.from(utxo.prevTxHex, 'hex'),
-      bip32Derivation: utxo.address.bip32derivation.map((derivation) => ({
+      nonWitnessUtxo: Buffer.from(input.prevTxHex, 'hex'),
+      bip32Derivation: input.address.bip32derivation.map((derivation) => ({
         masterFingerprint: Buffer.from(Object.values(derivation.masterFingerprint)),
         pubkey: Buffer.from(Object.values(derivation.pubkey)),
         path: derivation.path
@@ -272,30 +251,30 @@ export const createTransaction = async (
     if (config.quorum.totalSigners > 1) {
       // multisig p2wsh requires witnessScript
       currentInput.witnessScript = Buffer.from(
-        Object.values(multisigWitnessScript(utxo.address).output)
+        Object.values(multisigWitnessScript(input.address).output)
       );
     } else if (config.mnemonic === undefined) {
       // hardware wallet, add redeemScript
       // KBC-TODO: clean this up
       currentInput.redeemScript = Buffer.from(
-        Object.values(utxo.address.redeem.output) as unknown as Buffer
+        Object.values(input.address.redeem.output) as unknown as Buffer
       );
     }
 
     psbt.addInput(currentInput);
-  }
-
-  psbt.addOutput({
-    script: address.toOutputScript(recipientAddress, currentBitcoinNetwork),
-    value: bitcoinsToSatoshis(amountInBitcoins).toNumber()
   });
 
-  if (spendingUtxosTotal.isGreaterThan(outputTotal)) {
+  outputs.forEach((output) => {
+    // coinselect doesnt apply address to change output, so add it
+    if (!output.address) {
+      output.address = unusedChangeAddresses[0].address;
+    }
+
     psbt.addOutput({
-      ...unusedChangeAddresses[0],
-      value: spendingUtxosTotal.minus(outputTotal).toNumber()
+      address: output.address,
+      value: output.value
     });
-  }
+  });
 
   return { psbt, feeRates };
 };

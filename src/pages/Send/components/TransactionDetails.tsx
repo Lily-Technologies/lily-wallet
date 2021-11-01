@@ -1,6 +1,5 @@
 import React, { useContext, useState } from 'react';
 import styled from 'styled-components';
-import BigNumber from 'bignumber.js';
 import { ArrowIosForwardOutline } from '@styled-icons/evaicons-outline';
 import { CheckCircle } from '@styled-icons/material';
 import { satoshisToBitcoins } from 'unchained-bitcoin';
@@ -41,7 +40,7 @@ interface Props {
   createTransactionAndSetState?: (
     _recipientAddress: string,
     _sendAmount: string,
-    _fee: BigNumber
+    _fee: number
   ) => Promise<Psbt>;
   currentBitcoinNetwork: Network;
   shoppingItems?: ShoppingItem[];
@@ -61,7 +60,7 @@ const TransactionDetails = ({
 }: Props) => {
   const { platform } = useContext(PlatformContext);
   const signThreshold = currentAccount.config.quorum.requiredSigners;
-  const { availableUtxos, transactions } = currentAccount;
+  const { transactions } = currentAccount;
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
 
@@ -129,7 +128,6 @@ const TransactionDetails = ({
               currentAccount={currentAccount}
               finalPsbt={finalPsbt}
               feeRates={feeRates}
-              availableUtxos={availableUtxos}
               recipientAddress={finalPsbt.txOutputs[0].address!}
               sendAmount={satoshisToBitcoins(finalPsbt.txOutputs[0].value).toString()}
               closeModal={closeModal}

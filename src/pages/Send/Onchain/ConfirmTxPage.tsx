@@ -1,13 +1,12 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
-import { Psbt, Network, bip32 } from "bitcoinjs-lib";
-import BigNumber from "bignumber.js";
-import { mnemonicToSeed } from "bip39";
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { Psbt, Network, bip32 } from 'bitcoinjs-lib';
+import { mnemonicToSeed } from 'bip39';
 
-import SignWithDevice from "./SignWithDevice";
-import TransactionDetails from "../components/TransactionDetails";
-import AddSignatureFromQrCode from "./AddSignatureFromQrCode";
+import SignWithDevice from './SignWithDevice';
+import TransactionDetails from '../components/TransactionDetails';
+import AddSignatureFromQrCode from './AddSignatureFromQrCode';
 
-import { GridArea, FileUploader, ErrorModal, Modal } from "../../../components";
+import { GridArea, FileUploader, ErrorModal, Modal } from '../../../components';
 
 import {
   SetStateNumber,
@@ -17,15 +16,15 @@ import {
   FeeRates,
   AddressType,
   LilyOnchainAccount,
-  ShoppingItem,
-} from "../../../types";
+  ShoppingItem
+} from '../../../types';
 
 import {
   getPsbtFromText,
   getSignedDevicesFromPsbt,
   combinePsbts,
-  validateTxForAccount,
-} from "../../../utils/send";
+  validateTxForAccount
+} from '../../../utils/send';
 
 interface Props {
   currentAccount: LilyOnchainAccount;
@@ -39,7 +38,7 @@ interface Props {
   createTransactionAndSetState?: (
     _recipientAddress: string,
     _sendAmount: string,
-    _fee: BigNumber
+    _fee: number
   ) => Promise<Psbt>; // if not passed in, then no adjusting fee
   shoppingItems?: ShoppingItem[];
 }
@@ -54,7 +53,7 @@ const ConfirmTxPage = ({
   currentBitcoinNetwork,
   createTransactionAndSetState,
   currentAccount,
-  shoppingItems,
+  shoppingItems
 }: Props) => {
   const [signedDevices, setSignedDevices] = useState<Device[]>([]);
   const fileUploadLabelRef = useRef<HTMLLabelElement>(null);
@@ -84,16 +83,12 @@ const ConfirmTxPage = ({
     } catch (e) {
       openInModal(
         <ErrorModal
-          message="Something went wrong. Make sure you are importing a transaction from the right account. If this problem persists, contact support."
+          message='Something went wrong. Make sure you are importing a transaction from the right account. If this problem persists, contact support.'
           closeModal={closeModal}
         />
       );
     }
-  }, [
-    currentAccount.config.addressType,
-    currentAccount.config.extendedPublicKeys,
-    finalPsbt,
-  ]);
+  }, [currentAccount.config.addressType, currentAccount.config.extendedPublicKeys, finalPsbt]);
 
   // KBC-TODO: add test
   const signTransactionIfSingleSigner = useCallback(
@@ -110,10 +105,10 @@ const ConfirmTxPage = ({
         setSignedDevices([
           {
             // we need to set a signed device for flow to continue, so set it as lily
-            model: "lily",
-            type: "lily",
-            fingerprint: "whatever",
-          },
+            model: 'lily',
+            type: 'lily',
+            fingerprint: 'whatever'
+          }
         ]); // this could probably have better information in it but...
         setFinalPsbt(psbt);
       }
@@ -140,43 +135,37 @@ const ConfirmTxPage = ({
       setFinalPsbt(combinedPsbt);
       closeModal();
     } catch (e: any) {
-      console.log("e: ", e);
+      console.log('e: ', e);
       openInModal(<ErrorModal message={e.message} closeModal={closeModal} />);
     }
   };
 
   const phoneAction =
     currentAccount.config.extendedPublicKeys &&
-      currentAccount.config.extendedPublicKeys.filter(
-        (item) =>
-          (item.device && item.device.type === "phone") ||
-          item.device.type === "cobo"
-      ).length
+    currentAccount.config.extendedPublicKeys.filter(
+      (item) => (item.device && item.device.type === 'phone') || item.device.type === 'cobo'
+    ).length
       ? () =>
-        openInModal(
-          <AddSignatureFromQrCode
-            importSignatureFromFile={importSignatureFromFile}
-            psbt={finalPsbt}
-            currentBitcoinPrice={currentBitcoinPrice}
-            currentBitcoinNetwork={currentBitcoinNetwork}
-          />
-        )
+          openInModal(
+            <AddSignatureFromQrCode
+              importSignatureFromFile={importSignatureFromFile}
+              psbt={finalPsbt}
+              currentBitcoinPrice={currentBitcoinPrice}
+              currentBitcoinNetwork={currentBitcoinNetwork}
+            />
+          )
       : undefined;
 
   return (
     <GridArea>
       <FileUploader
-        accept="*"
-        id="txFile"
+        accept='*'
+        id='txFile'
         onFileLoad={({ file }: File) => {
           importSignatureFromFile(file);
         }}
       />
-      <label
-        style={{ display: "none" }}
-        ref={fileUploadLabelRef}
-        htmlFor="txFile"
-      ></label>
+      <label style={{ display: 'none' }} ref={fileUploadLabelRef} htmlFor='txFile'></label>
       <TransactionDetails
         finalPsbt={finalPsbt}
         sendTransaction={sendTransaction}

@@ -29,12 +29,11 @@ export const getUnchainedNetworkFromBjslibNetwork = (bitcoinJslibNetwork: Networ
   }
 };
 
-export const createAddressMapFromAddressArray = (addressArray: Address[], isChange: boolean) => {
-  const addressMap: AddressMap = {};
-  addressArray.forEach((addr) => {
-    addressMap[addr.address!] = { ...addr, isChange: !!isChange };
-  });
-  return addressMap;
+export const createMap = <T extends { [key: string]: any }>(items: T[], key: string) => {
+  return items.reduce((map: { [key: string]: T }, object: T) => {
+    map[object[key]] = object;
+    return map;
+  }, {});
 };
 
 /**
@@ -47,9 +46,8 @@ export const createAddressMapFromAddressArray = (addressArray: Address[], isChan
  */
 const sum = (items: (Vin | Vout)[], isMine: boolean, isChange?: boolean) => {
   let filtered = items;
-  if (typeof isMine === 'boolean') filtered = filtered.filter((item) => item.isMine === isMine);
-  if (typeof isChange === 'boolean')
-    filtered = filtered.filter((item) => item.isChange === isChange);
+  if (isMine) filtered = filtered.filter((item) => item.isMine === isMine);
+  if (isChange) filtered = filtered.filter((item) => item.isChange === isChange);
   let total = filtered.reduce((accum: number, item: Vin | Vout) => {
     if (isVout(item)) {
       return accum + item.value;
@@ -93,22 +91,16 @@ export const serializeTransactions = (
 ): Transaction[] => {
   transactionsFromBlockstream.sort((a, b) => a.status.block_time - b.status.block_time);
 
-  const addressesMap = createAddressMapFromAddressArray(addresses, false);
-  const changeAddressesMap = createAddressMapFromAddressArray(changeAddresses, true);
+  const addressesMap = createMap(addresses, 'address');
+  const changeAddressesMap = createMap(changeAddresses, 'address');
 
-  const txMap: { [txid: string]: EsploraTransactionResponse } = {};
-  const txs = transactionsFromBlockstream
-    .map((tx) => decorateTx(tx, addressesMap, changeAddressesMap))
-    .filter((tx) => {
-      if (!txMap[tx.txid]) {
-        txMap[tx.txid] = tx;
-        return true;
-      }
-      return false;
-    });
+  const txMap = createMap(transactionsFromBlockstream, 'txid');
+  const decoratedTxs = Object.values(txMap).map((tx) =>
+    decorateTx(tx, addressesMap, changeAddressesMap)
+  );
 
   let balance = 0;
-  const serializedTxs = txs.map((tx) => {
+  const serializedTxs = decoratedTxs.map((tx) => {
     let amountIn: number, amountOut: number, amountOutChange: number;
     amountIn = sum(tx.vin, true);
     amountOut = sum(tx.vout, true);

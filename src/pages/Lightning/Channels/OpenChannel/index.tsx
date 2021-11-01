@@ -1,6 +1,5 @@
 import React, { useState, useContext, useCallback } from 'react';
 import { Psbt } from 'bitcoinjs-lib';
-import BigNumber from 'bignumber.js';
 import styled, { css } from 'styled-components';
 import { satoshisToBitcoins } from 'unchained-bitcoin';
 import { EditAlt } from '@styled-icons/boxicons-regular';
@@ -79,7 +78,7 @@ const OpenChannel = ({ currentAccount, setViewOpenChannelForm }: Props) => {
               fundingAccount,
               `${satoshisToBitcoins(psbtFund.fundingAmount).toNumber()}`,
               psbtFund.fundingAddress,
-              new BigNumber(0),
+              0,
               () => platform.estimateFee(),
               currentBitcoinNetwork
             );

@@ -2,7 +2,6 @@ import React, { useState, useContext, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
 import { Psbt, Network } from 'bitcoinjs-lib';
-import BigNumber from 'bignumber.js';
 
 import {
   PricingTable,
@@ -119,7 +118,7 @@ const PurchasePage = ({
           currentAccount,
           paymentAddressResponse[tierAndTotalSigners].toString(),
           paymentAddressResponse.address,
-          new BigNumber(0),
+          0,
           () => platform.estimateFee(),
           currentBitcoinNetwork
         );

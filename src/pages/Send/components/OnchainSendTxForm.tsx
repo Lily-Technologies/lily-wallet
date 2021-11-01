@@ -1,33 +1,19 @@
-import React, { useState, useRef } from "react";
-import styled from "styled-components";
-import { networks, Network, Psbt } from "bitcoinjs-lib";
-import BigNumber from "bignumber.js";
-import { satoshisToBitcoins } from "unchained-bitcoin";
+import React, { useState, useRef } from 'react';
+import styled from 'styled-components';
+import { networks, Network, Psbt } from 'bitcoinjs-lib';
+import { satoshisToBitcoins } from 'unchained-bitcoin';
 
-import {
-  Button,
-  Input,
-  Dropdown,
-  FileUploader,
-  Modal,
-  ErrorModal,
-  Spinner,
-} from "src/components";
+import { Button, Input, Dropdown, FileUploader, Modal, ErrorModal, Spinner } from 'src/components';
 
-import PastePsbtModalContent from "./PastePsbtModalContent";
+import PastePsbtModalContent from './PastePsbtModalContent';
 
-import { bitcoinNetworkEqual } from "src/utils/files";
-import { white, gray400, red500, green600 } from "src/utils/colors";
-import {
-  validateAddress,
-  validateSendAmount,
-  getPsbtFromText,
-  getFee,
-} from "src/utils/send";
+import { bitcoinNetworkEqual } from 'src/utils/files';
+import { white, gray400, red500, green600 } from 'src/utils/colors';
+import { validateAddress, validateSendAmount, getPsbtFromText, getFee } from 'src/utils/send';
 
-import { requireOnchain } from "src/hocs";
+import { requireOnchain } from 'src/hocs';
 
-import { SetStateNumber, File, LilyOnchainAccount } from "src/types";
+import { SetStateNumber, File, LilyOnchainAccount } from 'src/types';
 
 interface Props {
   currentAccount: LilyOnchainAccount;
@@ -37,7 +23,7 @@ interface Props {
   createTransactionAndSetState: (
     _recipientAddress: string,
     _sendAmount: string,
-    _fee: BigNumber
+    _fee: number
   ) => Promise<Psbt>;
   currentBitcoinNetwork: Network;
 }
@@ -48,21 +34,19 @@ const OnchainSendTxForm = ({
   finalPsbt,
   setStep,
   createTransactionAndSetState,
-  currentBitcoinNetwork,
+  currentBitcoinNetwork
 }: Props) => {
   const [recipientAddress, setRecipientAddress] = useState(
-    (finalPsbt && finalPsbt.txOutputs[0].address) || ""
+    (finalPsbt && finalPsbt.txOutputs[0].address) || ''
   ); // eslint-disable-line
   const [sendAmount, setSendAmount] = useState(
-    (finalPsbt &&
-      satoshisToBitcoins(finalPsbt.txOutputs[0].value).toString()) ||
-      ""
+    (finalPsbt && satoshisToBitcoins(finalPsbt.txOutputs[0].value).toString()) || ''
   ); // eslint-disable-line
   const [isLoading, setIsLoading] = useState(false);
-  const [sendAmountError, setSendAmountError] = useState("");
-  const [recipientAddressError, setRecipientAddressError] = useState("");
+  const [sendAmountError, setSendAmountError] = useState('');
+  const [recipientAddressError, setRecipientAddressError] = useState('');
   const fileUploadLabelRef = useRef<HTMLLabelElement>(null);
-  const [importTxFromFileError, setImportTxFromFileError] = useState("");
+  const [importTxFromFileError, setImportTxFromFileError] = useState('');
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
 
@@ -82,12 +66,10 @@ const OnchainSendTxForm = ({
       try {
         getFee(tx, currentAccount.transactions); // this verifies that the tx is for currentAccount
       } catch (e) {
-        throw new Error(
-          "This transaction does not belong to the currently selected account."
-        );
+        throw new Error('This transaction does not belong to the currently selected account.');
       }
       setFinalPsbt(tx);
-      setImportTxFromFileError("");
+      setImportTxFromFileError('');
       setStep(1);
     } catch (e) {
       openInModal(<ErrorModal message={e.message} closeModal={closeModal} />);
@@ -102,11 +84,11 @@ const OnchainSendTxForm = ({
     let valid = true;
     if (!validateAddress(_recipientAddress, currentBitcoinNetwork)) {
       valid = false;
-      setRecipientAddressError("Invalid address");
+      setRecipientAddressError('Invalid address');
     }
     if (!validateSendAmount(_sendAmount, _currentBalance)) {
       valid = false;
-      setSendAmountError("Not enough funds");
+      setSendAmountError('Not enough funds');
     }
 
     return valid;
@@ -121,14 +103,11 @@ const OnchainSendTxForm = ({
     if (valid) {
       try {
         setIsLoading(true);
-        await createTransactionAndSetState(
-          _recipientAddress,
-          _sendAmount,
-          new BigNumber(0)
-        );
+        const success = await createTransactionAndSetState(_recipientAddress, _sendAmount, 0);
+        if (!success) throw new Error();
         setStep(1);
       } catch (e) {
-        setSendAmountError("Unable to create transaction");
+        setSendAmountError('Unable to create transaction');
         setIsLoading(false);
       }
     }
@@ -136,18 +115,18 @@ const OnchainSendTxForm = ({
 
   const dropdownItems = [
     {
-      label: "Import from file",
+      label: 'Import from file',
       onClick: () => {
         const txFileUploadButton = fileUploadLabelRef.current;
         if (txFileUploadButton !== null) {
           txFileUploadButton.click();
         }
-      },
+      }
     },
     {
-      label: "Import from clipboard",
+      label: 'Import from clipboard',
       onClick: () => {
-        setImportTxFromFileError("");
+        setImportTxFromFileError('');
         openInModal(
           <PastePsbtModalContent
             setImportTxFromFileError={setImportTxFromFileError}
@@ -156,77 +135,61 @@ const OnchainSendTxForm = ({
             importTxFromFile={importTxFromFile}
           />
         );
-      },
-    },
+      }
+    }
   ];
 
   return (
-    <SentTxFormContainer data-cy="send-form">
+    <SentTxFormContainer data-cy='send-form'>
       <FileUploader
-        accept="*"
-        id="txFile"
+        accept='*'
+        id='txFile'
         onFileLoad={({ file }: File) => {
           importTxFromFile(file);
         }}
       />
-      <label
-        style={{ display: "none" }}
-        ref={fileUploadLabelRef}
-        htmlFor="txFile"
-      ></label>
+      <label style={{ display: 'none' }} ref={fileUploadLabelRef} htmlFor='txFile'></label>
       <InputContainer>
-        <Dropdown
-          minimal={true}
-          style={{ alignSelf: "flex-end" }}
-          dropdownItems={dropdownItems}
-        />
+        <Dropdown minimal={true} style={{ alignSelf: 'flex-end' }} dropdownItems={dropdownItems} />
         <Input
-          label="Send bitcoin to"
-          type="text"
+          label='Send bitcoin to'
+          type='text'
           onChange={setRecipientAddress}
           value={recipientAddress}
           placeholder={
             bitcoinNetworkEqual(currentBitcoinNetwork, networks.testnet)
-              ? "tb1q4h5xd5wsalmes2496y8dtphc609rt0un3gl69r"
-              : "bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4"
+              ? 'tb1q4h5xd5wsalmes2496y8dtphc609rt0un3gl69r'
+              : 'bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4'
           }
           error={recipientAddressError}
           largeText={true}
-          id="bitcoin-receipt"
-          style={{ textAlign: "right" }}
+          id='bitcoin-receipt'
+          style={{ textAlign: 'right' }}
         />
       </InputContainer>
       <InputContainer>
         <Input
-          label="Amount of bitcoin to send"
-          type="text"
+          label='Amount of bitcoin to send'
+          type='text'
           value={sendAmount}
           onChange={setSendAmount}
-          placeholder="0.0025"
+          placeholder='0.0025'
           error={sendAmountError}
-          inputStaticText="BTC"
+          inputStaticText='BTC'
           largeText={true}
-          id="bitcoin-amount"
+          id='bitcoin-amount'
         />
       </InputContainer>
       <SendButtonContainer>
         <CopyAddressButton
           background={green600}
           color={white}
-          onClick={() =>
-            submitForm(
-              recipientAddress,
-              sendAmount,
-              currentAccount.currentBalance
-            )
-          }
+          onClick={() => submitForm(recipientAddress, sendAmount, currentAccount.currentBalance)}
         >
-          {isLoading ? <Spinner /> : "Preview Transaction"}
+          {isLoading ? <Spinner /> : 'Preview Transaction'}
         </CopyAddressButton>
         {importTxFromFileError && !modalIsOpen && (
-          <ErrorText style={{ paddingTop: "1em" }}>
-            {importTxFromFileError}
-          </ErrorText>
+          <ErrorText style={{ paddingTop: '1em' }}>{importTxFromFileError}</ErrorText>
         )}
       </SendButtonContainer>
       <Modal isOpen={modalIsOpen} closeModal={() => setModalIsOpen(false)}>
