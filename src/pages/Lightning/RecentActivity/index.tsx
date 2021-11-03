@@ -1,26 +1,21 @@
-import React, { useState } from "react";
-import styled from "styled-components";
-import moment from "moment";
-import { Modal } from "src/components";
+import React from 'react';
+import styled from 'styled-components';
+import moment from 'moment';
 
-import PaymentRow from "./PaymentRow";
-import PaymentRowLoading from "./PaymentRowLoading";
+import PaymentRow from './PaymentRow';
+import PaymentRowLoading from './PaymentRowLoading';
 
-import { gray600, gray800, white } from "src/utils/colors";
+import { gray600, gray800, white } from 'src/utils/colors';
 
-import { LightningEvent } from "src/types";
+import { LightningEvent } from 'src/types';
 
 const shouldDisplayDate = (payments: LightningEvent[], index: number) => {
   let currentItemDate, prevItemDate;
   if (payments[index]?.creationDate) {
-    currentItemDate = moment
-      .unix(Number(payments[index]?.creationDate))
-      .format("MMDDYYYY");
+    currentItemDate = moment.unix(Number(payments[index]?.creationDate)).format('MMDDYYYY');
   }
   if (payments[index - 1]?.creationDate) {
-    prevItemDate = moment
-      .unix(Number(payments[index - 1]?.creationDate))
-      .format("MMDDYYYY");
+    prevItemDate = moment.unix(Number(payments[index - 1]?.creationDate)).format('MMDDYYYY');
   }
 
   if (index === 0) {
@@ -40,15 +35,7 @@ interface Props {
   maxItems?: number;
 }
 
-const RecentTransactions = ({
-  events,
-  loading,
-  flat = false,
-  maxItems = Infinity,
-}: Props) => {
-  const [modalIsOpen, setModalIsOpen] = useState(false);
-  const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
-
+const RecentTransactions = ({ events, loading, flat = false, maxItems = Infinity }: Props) => {
   return (
     <RecentTransactionsWrapper>
       {(loading || events.length > 0) && (
@@ -63,10 +50,8 @@ const RecentTransactions = ({
               {shouldDisplayDate(events, index) && (
                 <DateWrapper>
                   {transaction.creationDate
-                    ? moment
-                      .unix(Number(transaction.creationDate))
-                      .format("MMMM DD, YYYY")
-                    : "Waiting for confirmation..."}
+                    ? moment.unix(Number(transaction.creationDate)).format('MMMM DD, YYYY')
+                    : 'Waiting for confirmation...'}
                 </DateWrapper>
               )}
               <PaymentRow
@@ -75,12 +60,8 @@ const RecentTransactions = ({
                 value_sat={Number(transaction.valueSat)}
                 type={type}
                 onClick={
-                  () => console.log("foo")
-                  // openInModal(
-                  //   <PaymentDetailsModal
-                  //   // payment={transaction as LightningPayment}
-                  //   />
-                  // )
+                  // TODO: modal or flyout
+                  () => console.log('foo')
                 }
               />
             </PaymentRowWrapper>
@@ -88,16 +69,13 @@ const RecentTransactions = ({
         {!loading && events.length === 0 && (
           <NoPaymentsSection flat={flat}>
             <NoPaymentsHeader>No activity</NoPaymentsHeader>
-            <DeadFlower src={require("src/assets/dead-flower.svg")} />
+            <DeadFlower src={require('src/assets/dead-flower.svg')} />
             <NoPaymentsSubtext>
               No activity has been detected on this account yet.
             </NoPaymentsSubtext>
           </NoPaymentsSection>
         )}
       </PaymentsWrapper>
-      <Modal isOpen={modalIsOpen} closeModal={() => setModalIsOpen(false)}>
-        {modalContent}
-      </Modal>
     </RecentTransactionsWrapper>
   );
 };
@@ -135,11 +113,9 @@ const NoPaymentsSection = styled.div<{ flat: boolean }>`
   justify-content: center;
   align-items: center;
   font-weight: 100;
-  background: ${(p) => (p.flat ? "transparent" : white)};
+  background: ${(p) => (p.flat ? 'transparent' : white)};
   box-shadow: ${(p) =>
-    p.flat
-      ? "none"
-      : "0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06);"};
+    p.flat ? 'none' : '0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06);'};
   border-radius: 0.385em;
 `;
 

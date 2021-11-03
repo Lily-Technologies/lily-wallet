@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback, useContext } from 'react';
 import styled from 'styled-components';
-import moment from 'moment';
 import { generateMnemonic } from 'bip39';
 import { Network } from 'bitcoinjs-lib';
 
@@ -9,10 +8,7 @@ import {
   createSinglesigConfigFile,
   createSinglesigHWWConfigFile,
   createLightningConfigFile,
-  createColdCardBlob,
-  downloadFile,
   saveConfig,
-  containsColdcard,
   getP2wpkhDeriationPathForNetwork
 } from 'src/utils/files';
 import { black } from 'src/utils/colors';
@@ -27,7 +23,7 @@ import NewWalletScreen from './NewWalletScreen';
 import NewHardwareWalletScreen from './NewHardwareWalletScreen';
 import NewLightningScreen from './NewLightningScreen';
 
-import { HwiResponseEnumerate, ExtendedPublicKey, AddressType } from 'src/types';
+import { HwiResponseEnumerate, AddressType } from 'src/types';
 
 import { ConfigContext, PlatformContext } from 'src/context';
 
@@ -104,38 +100,9 @@ const Setup = ({ password, currentBlockHeight, currentBitcoinNetwork }: Props) =
     password,
     setupOption,
     walletMnemonic,
-    lndConnectUri
+    lndConnectUri,
+    platform
   ]);
-
-  const downloadColdcardFile = async () => {
-    if (containsColdcard(importedDevices)) {
-      const devicesForCCFile = importedDevices.map((device) => {
-        // KBC-TODO: this is a hack to get the cc function to work
-        return {
-          id: 'abc123',
-          created_at: 1231006505,
-          parentFingerprint: 'abc123',
-          network: 'mainnet',
-          bip32Path: 'abc123',
-          xpub: 'abcs123',
-          device: device
-        } as ExtendedPublicKey;
-      });
-
-      const ccFile = createColdCardBlob(
-        configRequiredSigners,
-        importedDevices.length,
-        accountName,
-        devicesForCCFile,
-        currentBitcoinNetwork
-      );
-      await downloadFile(
-        ccFile,
-        `${accountName}-lily-coldcard-file-${moment().format('MMDDYYYY')}.txt`,
-        platform
-      );
-    }
-  };
 
   useEffect(() => {
     setWalletMnemonic(generateMnemonic(256));

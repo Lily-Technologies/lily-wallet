@@ -2,20 +2,14 @@ import ElectrumClient, {
   JSONRPCParamResponse,
   blockchainTransaction_getBatchResponse,
   ElectrumVin,
-  blockchainScripthash_listunspentBatch,
-} from "@mempool/electrum-client";
-import {
-  address as bitcoinjsAddress,
-  crypto as bitcoinjsCrypto,
-} from "bitcoinjs-lib";
-import { bitcoinsToSatoshis } from "unchained-bitcoin";
+  blockchainScripthash_listunspentBatch
+} from '@mempool/electrum-client';
+import { address as bitcoinjsAddress, crypto as bitcoinjsCrypto } from 'bitcoinjs-lib';
+import { bitcoinsToSatoshis } from 'unchained-bitcoin';
 
-import { BaseProvider } from ".";
+import { OnchainBaseProvider } from '.';
 
-import {
-  getAddressFromAccount,
-  serializeTransactions,
-} from "../../utils/accountMap";
+import { getAddressFromAccount, serializeTransactions } from '../../utils/accountMap';
 
 import {
   LilyOnchainAccount,
@@ -24,30 +18,28 @@ import {
   Address,
   ElectrumTxToEsploraTx,
   EsploraTransactionResponse,
-  UTXO,
-} from "../..//types";
+  UTXO
+} from '../../types';
 
 const sortAddress = (a: Address, b: Address) => {
   const aPath = a.bip32derivation[0].path;
   const bPath = b.bip32derivation[0].path;
-  
+
   const aIndex = aPath.substring(aPath.lastIndexOf('/') + 1);
   const bIndex = bPath.substring(bPath.lastIndexOf('/') + 1);
 
   const result = Number(aIndex) - Number(bIndex);
   return result;
-}
+};
 
 const getScriptHash = (address: string) => {
   const script = bitcoinjsAddress.toOutputScript(address);
   const hash = bitcoinjsCrypto.sha256(script);
   const reversedHash = Buffer.from(hash.reverse());
-  return reversedHash.toString("hex");
+  return reversedHash.toString('hex');
 };
 
-const createTxMap = (
-  response: JSONRPCParamResponse<blockchainTransaction_getBatchResponse>[]
-) => {
+const createTxMap = (response: JSONRPCParamResponse<blockchainTransaction_getBatchResponse>[]) => {
   const txMap: { [txid: string]: blockchainTransaction_getBatchResponse } = {};
   response.forEach((txResp) => {
     txMap[txResp.result.txid] = txResp.result;
@@ -55,30 +47,27 @@ const createTxMap = (
   return txMap;
 };
 
-const getPrevOut = (
-  prevTx: blockchainTransaction_getBatchResponse,
-  index: number
-) => {
+const getPrevOut = (prevTx: blockchainTransaction_getBatchResponse, index: number) => {
   const output = prevTx.vout[index];
   return {
     scriptpubkey_address: output.scriptPubKey.addresses[0],
-    value: bitcoinsToSatoshis(output.value),
+    value: bitcoinsToSatoshis(output.value)
   };
 };
 
-export class ElectrumProvider extends BaseProvider {
+export class ElectrumProvider extends OnchainBaseProvider {
   client: ElectrumClient;
 
   constructor(testnet: boolean) {
-    super("Electrum", testnet);
-    this.client = new ElectrumClient(50001, "electrum1.bluewallet.io", "tcp");
+    super('Electrum', testnet);
+    this.client = new ElectrumClient(50001, 'electrum1.bluewallet.io', 'tcp');
   }
 
   async initialize() {
     try {
       const ver = await this.client.initElectrum({
-        client: "lilywallet",
-        version: "1.4",
+        client: 'lilywallet',
+        version: '1.4'
       });
 
       const blockheight = await this.client.blockchainHeaders_subscribe();
@@ -98,7 +87,7 @@ export class ElectrumProvider extends BaseProvider {
       unusedReceiveAddresses,
       unusedChangeAddresses,
       transactions,
-      utxos,
+      utxos
     } = await this.scanForAddressesAndTransactions(account, 10);
 
     const currentBalance = utxos.reduce((acum, cur) => acum + cur.value, 0);
@@ -120,7 +109,7 @@ export class ElectrumProvider extends BaseProvider {
       unusedAddresses: unusedReceiveAddresses,
       unusedChangeAddresses,
       availableUtxos: utxos,
-      currentBalance: currentBalance,
+      currentBalance: currentBalance
     };
   }
 
@@ -128,8 +117,8 @@ export class ElectrumProvider extends BaseProvider {
     let txHash = '';
     try {
       txHash = await this.client.blockchainTransaction_broadcast(txHex);
-    } catch(e) {
-      console.log('broadcastTransaction e: ', e)
+    } catch (e) {
+      console.log('broadcastTransaction e: ', e);
     }
     return txHash;
   }
@@ -139,33 +128,33 @@ export class ElectrumProvider extends BaseProvider {
       fastestFee: 0,
       halfHourFee: 0,
       hourFee: 0
-    } as FeeRates
+    } as FeeRates;
     try {
       // TODO: electrum returns totals, not sat/vbyte as expected from mempool (https://electrumx-spesmilo.readthedocs.io/en/latest/protocol-methods.html#blockchain-estimatefee)
       // TODO: better optimize this / fees in general
-      feeRates.fastestFee =  Math.ceil(bitcoinsToSatoshis(await this.client.blockchainEstimatefee(1)).toNumber() / 5000),
-      feeRates.halfHourFee= Math.ceil(bitcoinsToSatoshis(await this.client.blockchainEstimatefee(3)).toNumber() / 5000),
-      feeRates.hourFee= Math.ceil(bitcoinsToSatoshis(await this.client.blockchainEstimatefee(6)).toNumber() / 5000)
-      } catch(e) {
-        console.log('estimateFee e: ', e)
-      }
-      return feeRates;
-
+      (feeRates.fastestFee = Math.ceil(
+        bitcoinsToSatoshis(await this.client.blockchainEstimatefee(1)).toNumber() / 5000
+      )),
+        (feeRates.halfHourFee = Math.ceil(
+          bitcoinsToSatoshis(await this.client.blockchainEstimatefee(3)).toNumber() / 5000
+        )),
+        (feeRates.hourFee = Math.ceil(
+          bitcoinsToSatoshis(await this.client.blockchainEstimatefee(6)).toNumber() / 5000
+        ));
+    } catch (e) {
+      console.log('estimateFee e: ', e);
+    }
+    return feeRates;
   }
 
   async isConfirmedTransaction(txId: string): Promise<boolean> {
     const response = await this.client.blockchainTransaction_get(txId, true);
-    if(response.confirmations > 0) return true;
-    return false
+    if (response.confirmations > 0) return true;
+    return false;
   }
 
-  async scanForAddressesAndTransactions(
-    account: OnChainConfig,
-    limitGap: number
-  ) {
-    console.log(
-      `(${account.id}): Deriving addresses and checking for transactions...`
-    );
+  async scanForAddressesAndTransactions(account: OnChainConfig, limitGap: number) {
+    console.log(`(${account.id}): Deriving addresses and checking for transactions...`);
     const receiveAddresses: Address[] = [];
     const changeAddresses: Address[] = [];
     const transactions: EsploraTransactionResponse[] = [];
@@ -187,18 +176,10 @@ export class ElectrumProvider extends BaseProvider {
         const pos = cycles * BATCH_SIZE;
         // derive a batch of receive/change addresses
         for (let i = pos; i < pos + BATCH_SIZE; i++) {
-          const receiveAddress = getAddressFromAccount(
-            account,
-            `m/0/${i}`,
-            this.network
-          );
+          const receiveAddress = getAddressFromAccount(account, `m/0/${i}`, this.network);
           currentReceiveAddressBatch.push(receiveAddress);
 
-          const changeAddress = getAddressFromAccount(
-            account,
-            `m/1/${i}`,
-            this.network
-          );
+          const changeAddress = getAddressFromAccount(account, `m/1/${i}`, this.network);
           currentChangeAddressBatch.push(changeAddress);
         }
 
@@ -221,10 +202,9 @@ export class ElectrumProvider extends BaseProvider {
         // if gap limit isn't hit (this saves unnecessary network requests)
         if (receiveGap < limitGap) {
           // get balance history for receive addresses
-          const recieveHistory =
-            await this.client.blockchainScripthash_getHistoryBatch(
-              currentReceiveScriptHashBatch
-            );
+          const recieveHistory = await this.client.blockchainScripthash_getHistoryBatch(
+            currentReceiveScriptHashBatch
+          );
 
           // sort receive addresses into used/unused buckets
           recieveHistory.forEach((item) => {
@@ -243,10 +223,9 @@ export class ElectrumProvider extends BaseProvider {
         // if gap limit isn't hit (this saves unnecessary network requests)
         if (changeGap < limitGap) {
           // get balance history for change addresses
-          const changeHistory =
-            await this.client.blockchainScripthash_getHistoryBatch(
-              currentChangeScriptHashBatch
-            );
+          const changeHistory = await this.client.blockchainScripthash_getHistoryBatch(
+            currentChangeScriptHashBatch
+          );
 
           // sort change addresses into used/unused buckets
           changeHistory.forEach((item) => {
@@ -262,48 +241,40 @@ export class ElectrumProvider extends BaseProvider {
           });
         }
 
-        let txHexMap = {} as { [txId: string] : string};
+        let txHexMap = {} as { [txId: string]: string };
         if (txIdsWithHistory.length) {
-          const rawTxs = await this.client.blockchainTransaction_getBatch(
-            txIdsWithHistory,
-            true
-          );
+          const rawTxs = await this.client.blockchainTransaction_getBatch(txIdsWithHistory, true);
 
           rawTxs.forEach((tx) => {
             txHexMap[tx.param] = tx.result.hex;
-          })
+          });
 
           const decoratedTxs = await this.decorateTxs(rawTxs);
           transactions.push(...decoratedTxs);
         }
 
         if (scriptHashesWithHistory.length) {
-          const rawUtxos =
-            await this.client.blockchainScripthash_listunspentBatch(
-              scriptHashesWithHistory
-            );
-
-          const decoratedUtxos = this.decorateUtxos(
-            rawUtxos,
-            scriptHashToAddressMap,
-            txHexMap
+          const rawUtxos = await this.client.blockchainScripthash_listunspentBatch(
+            scriptHashesWithHistory
           );
+
+          const decoratedUtxos = this.decorateUtxos(rawUtxos, scriptHashToAddressMap, txHexMap);
 
           utxos.push(...decoratedUtxos);
         }
 
         cycles = cycles + 1;
       } catch (e) {
-        console.log("scanForAddressesAndTransactions e: ", e);
+        console.log('scanForAddressesAndTransactions e: ', e);
       }
     }
 
-    // electrum doesn't return batch calls in same order as was received, 
+    // electrum doesn't return batch calls in same order as was received,
     // so sort by derivation path
-    receiveAddresses.sort((a,b) => sortAddress(a,b))
-    changeAddresses.sort((a,b) => sortAddress(a,b))
-    unusedReceiveAddresses.sort((a,b) => sortAddress(a,b))
-    unusedChangeAddresses.sort((a,b) => sortAddress(a,b))
+    receiveAddresses.sort((a, b) => sortAddress(a, b));
+    changeAddresses.sort((a, b) => sortAddress(a, b));
+    unusedReceiveAddresses.sort((a, b) => sortAddress(a, b));
+    unusedChangeAddresses.sort((a, b) => sortAddress(a, b));
 
     return {
       receiveAddresses,
@@ -311,14 +282,12 @@ export class ElectrumProvider extends BaseProvider {
       unusedReceiveAddresses,
       unusedChangeAddresses,
       transactions,
-      utxos,
+      utxos
     };
   }
 
   decorateUtxos(
-    utxoResponse: JSONRPCParamResponse<
-      blockchainScripthash_listunspentBatch[]
-    >[],
+    utxoResponse: JSONRPCParamResponse<blockchainScripthash_listunspentBatch[]>[],
     scriptHashToAddressMap: { [scriptHash: string]: Address } = {},
     txMap: { [txId: string]: string }
   ) {
@@ -335,8 +304,8 @@ export class ElectrumProvider extends BaseProvider {
               confirmed: !!item.height,
               block_height: item.height,
               block_hash: undefined, // TODO: find this?
-              block_time: undefined, // TODO: find this?
-            },
+              block_time: undefined // TODO: find this?
+            }
           };
 
           return decoratedUtxo;
@@ -345,16 +314,14 @@ export class ElectrumProvider extends BaseProvider {
     }, [] as UTXO[]);
   }
 
-  async decorateTxs(
-    txsResponse: JSONRPCParamResponse<blockchainTransaction_getBatchResponse>[]
-  ) {
+  async decorateTxs(txsResponse: JSONRPCParamResponse<blockchainTransaction_getBatchResponse>[]) {
     const vins = txsResponse.reduce((acc, cur) => {
       return acc.concat(cur.result.vin);
     }, [] as ElectrumVin[]);
 
     const prevOuts = await this.getPrevOutTxs(vins);
 
-    const decoratedTxs: EsploraTransactionResponse[] = []
+    const decoratedTxs: EsploraTransactionResponse[] = [];
     txsResponse.forEach((tx) => {
       const electrumTxDecorated = {
         ...tx.result,
@@ -362,26 +329,26 @@ export class ElectrumProvider extends BaseProvider {
           return {
             ...vin,
             prevout: getPrevOut(prevOuts[vin.txid], vin.vout),
-            witness: vin.txinwitness,
+            witness: vin.txinwitness
           };
         }),
         vout: tx.result.vout.map((vout) => {
           return {
             scriptpubkey_address: vout.scriptPubKey.addresses[0],
-            value: bitcoinsToSatoshis(vout.value).toNumber(),
+            value: bitcoinsToSatoshis(vout.value).toNumber()
           };
         }),
         status: {
           confirmed: tx.result.confirmations > 0,
           block_height: tx.result.confirmations, // TODO: need to subtract current blockheight from confirmations
           block_hash: tx.result.blockhash,
-          block_time: tx.result.blocktime,
-        },
+          block_time: tx.result.blocktime
+        }
       };
 
       const electrumTxWithFee = {
         ...electrumTxDecorated,
-        fee: this.getFee(electrumTxDecorated),
+        fee: this.getFee(electrumTxDecorated)
       };
 
       decoratedTxs.push(electrumTxWithFee);
@@ -392,25 +359,16 @@ export class ElectrumProvider extends BaseProvider {
 
   async getPrevOutTxs(vins: ElectrumVin[]) {
     const txIds = vins.map((vin) => vin.txid);
-    const rawTxs = await this.client.blockchainTransaction_getBatch(
-      txIds,
-      true
-    );
+    const rawTxs = await this.client.blockchainTransaction_getBatch(txIds, true);
 
     const txMap = createTxMap(rawTxs);
     return txMap;
   }
 
   getFee(tx: ElectrumTxToEsploraTx) {
-    const inputTotal = tx.vin.reduce(
-      (accum, curVin) => accum + curVin.prevout.value,
-      0
-    );
+    const inputTotal = tx.vin.reduce((accum, curVin) => accum + curVin.prevout.value, 0);
 
-    const outputTotal = tx.vout.reduce(
-      (accum, curVout) => accum + curVout.value,
-      0
-    );
+    const outputTotal = tx.vout.reduce((accum, curVout) => accum + curVout.value, 0);
 
     return inputTotal - outputTotal;
   }

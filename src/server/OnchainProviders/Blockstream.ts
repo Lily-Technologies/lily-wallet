@@ -1,15 +1,15 @@
-import axios from "axios";
-import { Network } from "bitcoinjs-lib";
-import { blockExplorerAPIURL, MAINNET, TESTNET } from "unchained-bitcoin";
-import BigNumber from "bignumber.js";
+import axios from 'axios';
+import { Network } from 'bitcoinjs-lib';
+import { blockExplorerAPIURL, MAINNET, TESTNET } from 'unchained-bitcoin';
+import BigNumber from 'bignumber.js';
 
-import { BaseProvider } from ".";
+import { OnchainBaseProvider } from '.';
 
 import {
   getAddressFromAccount,
   getUnchainedNetworkFromBjslibNetwork,
-  serializeTransactions,
-} from "../../utils/accountMap";
+  serializeTransactions
+} from '../../utils/accountMap';
 
 import {
   LilyOnchainAccount,
@@ -17,19 +17,17 @@ import {
   Address,
   OnChainConfig,
   Transaction,
-  UTXO,
-} from "../..//types";
+  UTXO
+} from '../../types';
 
-export class BlockstreamProvider extends BaseProvider {
+export class BlockstreamProvider extends OnchainBaseProvider {
   constructor(testnet: boolean) {
-    super("Blockstream", testnet);
+    super('Blockstream', testnet);
   }
 
   async initialize() {
     try {
-      const { data } = await await axios.get(
-        `https://blockstream.info/api/blocks/tip/height`
-      );
+      const { data } = await await axios.get(`https://blockstream.info/api/blocks/tip/height`);
 
       this.setCurrentBlockHeight(data);
       this.setConnected(true);
@@ -45,7 +43,7 @@ export class BlockstreamProvider extends BaseProvider {
       changeAddresses,
       unusedReceiveAddresses,
       unusedChangeAddresses,
-      transactions,
+      transactions
     } = await this.scanForAddressesAndTransactions(account, 10);
 
     console.log(`(${account.id}): Serializing transactions...`);
@@ -76,39 +74,32 @@ export class BlockstreamProvider extends BaseProvider {
       unusedAddresses: unusedReceiveAddresses,
       unusedChangeAddresses,
       availableUtxos,
-      currentBalance: currentBalance.toNumber(),
+      currentBalance: currentBalance.toNumber()
     };
   }
 
   async broadcastTransaction(txHex: string): Promise<string> {
-    const network = this.network.bech32 === "bc" ? MAINNET : TESTNET;
-    const { data } = await axios.post(
-      blockExplorerAPIURL("/tx", network),
-      txHex
-    );
+    const network = this.network.bech32 === 'bc' ? MAINNET : TESTNET;
+    console.log('txHex: ', txHex);
+    console.log('network: ', network);
+    const { data } = await axios.post(blockExplorerAPIURL('/tx', network), txHex);
+    console.log('data: ', data);
     return data;
   }
 
   async estimateFee(): Promise<FeeRates> {
     try {
       const { data: feeRates } = await await axios.get(
-        "https://mempool.space/api/v1/fees/recommended"
+        'https://mempool.space/api/v1/fees/recommended'
       ); // TODO: should catch if URL is down
       return Promise.resolve(feeRates);
     } catch (e) {
-      throw new Error(
-        "Error retrieving fees from mempool.space. Please try again."
-      );
+      throw new Error('Error retrieving fees from mempool.space. Please try again.');
     }
   }
 
-  async scanForAddressesAndTransactions(
-    account: OnChainConfig,
-    limitGap: number
-  ) {
-    console.log(
-      `(${account.id}): Deriving addresses and checking for transactions...`
-    );
+  async scanForAddressesAndTransactions(account: OnChainConfig, limitGap: number) {
+    console.log(`(${account.id}): Deriving addresses and checking for transactions...`);
     const receiveAddresses = [];
     const changeAddresses = [];
     let transactions: Transaction[] = [];
@@ -120,15 +111,9 @@ export class BlockstreamProvider extends BaseProvider {
     let i = 0;
 
     while (gap < limitGap) {
-      const receiveAddress = getAddressFromAccount(
-        account,
-        `m/0/${i}`,
-        this.network
-      );
+      const receiveAddress = getAddressFromAccount(account, `m/0/${i}`, this.network);
 
-      const receiveTxs = await this.getTransactionsFromAddress(
-        receiveAddress.address
-      );
+      const receiveTxs = await this.getTransactionsFromAddress(receiveAddress.address);
       if (!receiveTxs.length) {
         unusedReceiveAddresses.push(receiveAddress);
       } else {
@@ -136,15 +121,9 @@ export class BlockstreamProvider extends BaseProvider {
         transactions = [...transactions, ...receiveTxs];
       }
 
-      const changeAddress = getAddressFromAccount(
-        account,
-        `m/1/${i}`,
-        this.network
-      );
+      const changeAddress = getAddressFromAccount(account, `m/1/${i}`, this.network);
 
-      const changeTxs = await this.getTransactionsFromAddress(
-        changeAddress.address
-      );
+      const changeTxs = await this.getTransactionsFromAddress(changeAddress.address);
       if (!changeTxs.length) {
         unusedChangeAddresses.push(changeAddress);
       } else {
@@ -161,15 +140,13 @@ export class BlockstreamProvider extends BaseProvider {
       i = i + 1;
     }
 
-    console.log(
-      `(${account.id}): Finished deriving addresses and checking for transactions.`
-    );
+    console.log(`(${account.id}): Finished deriving addresses and checking for transactions.`);
     return {
       receiveAddresses,
       changeAddresses,
       unusedReceiveAddresses,
       unusedChangeAddresses,
-      transactions,
+      transactions
     };
   }
 
@@ -204,10 +181,7 @@ export class BlockstreamProvider extends BaseProvider {
     return transactions;
   }
 
-  async getTxHex(
-    txid: string,
-    currentBitcoinNetwork: Network
-  ): Promise<string> {
+  async getTxHex(txid: string, currentBitcoinNetwork: Network): Promise<string> {
     const { data: txHex } = await await axios.get(
       blockExplorerAPIURL(
         `/tx/${txid}/hex`,
@@ -218,9 +192,7 @@ export class BlockstreamProvider extends BaseProvider {
   }
 
   async isConfirmedTransaction(txId: string) {
-    const { data } = await await axios.get(
-      `https://blockstream.info/api/tx/${txId}/status`
-    );
+    const { data } = await await axios.get(`https://blockstream.info/api/tx/${txId}/status`);
     if (!!data.confirmed) {
       return Promise.resolve(true);
     }

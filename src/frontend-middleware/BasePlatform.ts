@@ -20,14 +20,19 @@ import {
   FeeRates,
   ChangeNodeConfigParams,
   NodeConfigWithBlockchainInfo,
-  CloseChannelRequest,
   OpenChannelRequest,
   DecoratedOpenStatusUpdate,
-  OpenChannelVerifyRequest,
   GetLightningInvoiceRequest
 } from 'src/types';
 
-import { Payment, CloseStatusUpdate, AddInvoiceResponse } from '@radar/lnrpc';
+import {
+  Payment,
+  CloseStatusUpdate,
+  AddInvoiceResponse,
+  CloseChannelRequest,
+  FundingPsbtVerify,
+  FundingPsbtFinalize
+} from '@radar/lnrpc';
 
 import { WalletInfo } from 'bitcoin-simple-rpc';
 
@@ -76,17 +81,17 @@ export interface PlatformInterface {
   ): void;
 
   closeChannel(
-    { channel_point, delivery_address, lndConnectUri }: CloseChannelRequest,
+    { channelPoint, deliveryAddress }: CloseChannelRequest,
     callback: (response: CloseStatusUpdate) => void
   ): void;
 
   openChannelInitiate(
-    { lightningAddress, channelAmount, lndConnectUri }: OpenChannelRequest,
+    { lightningAddress, channelAmount }: OpenChannelRequest,
     callback: (response: DecoratedOpenStatusUpdate) => void
   ): void;
 
-  openChannelVerify({ finalPsbt, pendingChanId, lndConnectUri }: OpenChannelVerifyRequest): void;
-  openChannelFinalize({ finalPsbt, pendingChanId, lndConnectUri }: OpenChannelVerifyRequest): void;
+  openChannelVerify({ fundedPsbt, pendingChanId }: FundingPsbtVerify): void;
+  openChannelFinalize({ signedPsbt, pendingChanId }: FundingPsbtFinalize): void;
   getLightningInvoice({
     memo,
     value,
@@ -177,26 +182,18 @@ export abstract class BasePlatform implements PlatformInterface {
   ): void;
 
   abstract closeChannel(
-    { channel_point, delivery_address, lndConnectUri }: CloseChannelRequest,
+    { channelPoint, deliveryAddress }: CloseChannelRequest,
     callback: (response: CloseStatusUpdate) => void
   ): void;
 
   abstract openChannelInitiate(
-    { lightningAddress, channelAmount, lndConnectUri }: OpenChannelRequest,
+    { lightningAddress, channelAmount }: OpenChannelRequest,
     callback: (response: DecoratedOpenStatusUpdate) => void
   ): void;
 
-  abstract openChannelVerify({
-    finalPsbt,
-    pendingChanId,
-    lndConnectUri
-  }: OpenChannelVerifyRequest): void;
+  abstract openChannelVerify({ fundedPsbt, pendingChanId }: FundingPsbtVerify): void;
 
-  abstract openChannelFinalize({
-    finalPsbt,
-    pendingChanId,
-    lndConnectUri
-  }: OpenChannelVerifyRequest): void;
+  abstract openChannelFinalize({ signedPsbt, pendingChanId }: FundingPsbtFinalize): void;
 
   abstract getLightningInvoice({
     memo,

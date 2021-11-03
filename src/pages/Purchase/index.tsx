@@ -142,7 +142,7 @@ const PurchasePage = ({
         openInModal(<ErrorModal message={`${e.message}`} closeModal={closeModal} />);
       }
     },
-    [currentBitcoinNetwork, config, password, setConfigFile, openInModal]
+    [currentBitcoinNetwork, openInModal, closeModal, platform]
   );
 
   const confirmTxWithLilyThenSend = async () => {
@@ -171,7 +171,7 @@ const PurchasePage = ({
     if (step === 1) {
       clickRenewLicense(selectedLicenseTier, currentAccount);
     }
-  }, [currentAccount, clickRenewLicense, selectedLicenseTier]);
+  }, [currentAccount, clickRenewLicense, selectedLicenseTier, step]);
 
   useEffect(() => {
     // make sure there is a currentAccount selected

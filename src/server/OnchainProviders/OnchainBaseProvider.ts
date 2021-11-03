@@ -8,13 +8,13 @@ import { Network, networks } from 'bitcoinjs-lib';
 
 export type Providers = 'Blockstream' | 'Electrum' | 'Bitcoin Core' | 'Custom Node';
 
-export interface ProviderInterface {
+export interface OnchainProviderInterface {
   getAccountData: (account: OnChainConfig) => Promise<LilyOnchainAccount>;
   broadcastTransaction: (txHex: string) => Promise<string>;
   estimateFee: () => Promise<FeeRates>;
 }
 
-export abstract class BaseProvider implements ProviderInterface {
+export abstract class OnchainBaseProvider implements OnchainProviderInterface {
   provider: Providers;
   connected: boolean;
   blocks: number;

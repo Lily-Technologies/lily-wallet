@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useContext } from 'react';
+import React, { useEffect, useState, useRef, useContext, useCallback } from 'react';
 import styled, { css } from 'styled-components';
 import { HashRouter as Router, Switch, Route, useLocation, useHistory } from 'react-router-dom';
 import { networks } from 'bitcoinjs-lib';
@@ -71,10 +71,10 @@ const App = () => {
     setRefresh(!refresh);
   };
 
-  const getNodeConfig = async () => {
+  const getNodeConfig = useCallback(async () => {
     const response = await platform.getNodeConfig();
     setNodeConfig(response);
-  };
+  }, [platform]);
 
   const prevSetFlyInAnimation = useRef() as { current: boolean };
   useEffect(() => {
@@ -91,7 +91,7 @@ const App = () => {
       }
     }
     retrieveConfig();
-  }, [config.isEmpty]);
+  }, [config.isEmpty, platform]);
 
   useEffect(() => {
     async function fetchBitcoinNetwork() {
@@ -99,7 +99,7 @@ const App = () => {
       setCurrentBitcoinNetwork(isTestnet ? networks.testnet : networks.bitcoin);
     }
     fetchBitcoinNetwork();
-  }, [setCurrentBitcoinNetwork]);
+  }, [setCurrentBitcoinNetwork, platform]);
 
   useEffect(() => {
     if (!config.isEmpty) {
@@ -115,7 +115,7 @@ const App = () => {
       setCurrentBitcoinPrice(new BigNumber(currentBitcoinPrice));
     }
     fetchCurrentBitcoinPrice();
-  }, [setCurrentBitcoinPrice]);
+  }, [setCurrentBitcoinPrice, platform]);
 
   useEffect(() => {
     async function fetchHistoricalBTCPrice() {
@@ -127,7 +127,7 @@ const App = () => {
       }
     }
     fetchHistoricalBTCPrice();
-  }, []);
+  }, [platform]);
 
   useEffect(() => {
     async function fetchNodeConfig() {
@@ -138,7 +138,7 @@ const App = () => {
       }
     }
     fetchNodeConfig();
-  }, []);
+  }, [getNodeConfig]);
 
   // fetch/build account data from config file
   useEffect(() => {
@@ -212,7 +212,7 @@ const App = () => {
     }
 
     setAccountMap(initialAccountMap);
-  }, [config, refresh, nodeConfig, setAccountMap, updateAccountMap]);
+  }, [config, refresh, nodeConfig, setAccountMap, updateAccountMap, platform]);
 
   return (
     <Router>

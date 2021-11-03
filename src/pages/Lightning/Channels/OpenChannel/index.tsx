@@ -65,8 +65,7 @@ const OpenChannel = ({ currentAccount, setViewOpenChannelForm }: Props) => {
       platform.openChannelInitiate(
         {
           lightningAddress: lightningAddress,
-          channelAmount,
-          lndConnectUri: currentAccount.config.connectionDetails.lndConnectUri
+          channelAmount
         },
         async (openChannelResponse) => {
           if (openChannelResponse.error) {
@@ -84,9 +83,8 @@ const OpenChannel = ({ currentAccount, setViewOpenChannelForm }: Props) => {
             );
 
             platform.openChannelVerify({
-              finalPsbt: psbt.toBase64(),
-              pendingChanId: pendingChanId,
-              lndConnectUri: currentAccount.config.connectionDetails.lndConnectUri
+              fundedPsbt: psbt.toBase64(),
+              pendingChanId: pendingChanId!
             });
 
             setPendingChannelId(pendingChanId as Buffer);
@@ -129,9 +127,8 @@ const OpenChannel = ({ currentAccount, setViewOpenChannelForm }: Props) => {
     try {
       const finalizedPsbt = finalPsbt!.finalizeAllInputs();
       platform.openChannelFinalize({
-        finalPsbt: finalizedPsbt.toBase64(),
-        pendingChanId: pendingChannelId,
-        lndConnectUri: currentAccount.config.connectionDetails.lndConnectUri
+        signedPsbt: finalizedPsbt.toBase64(),
+        pendingChanId: pendingChannelId
       });
     } catch (e: unknown) {
       if (e instanceof Error) {

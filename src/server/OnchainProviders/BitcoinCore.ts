@@ -1,20 +1,13 @@
-import {
-  Client,
-  ClientOption,
-  FetchedRawTransaction,
-} from "bitcoin-simple-rpc";
-import { SocksProxyAgent } from "socks-proxy-agent";
-import BigNumber from "bignumber.js";
-import { bitcoinsToSatoshis } from "unchained-bitcoin";
+import { Client, ClientOption, FetchedRawTransaction } from 'bitcoin-simple-rpc';
+import { SocksProxyAgent } from 'socks-proxy-agent';
+import BigNumber from 'bignumber.js';
+import { bitcoinsToSatoshis } from 'unchained-bitcoin';
 
-import { BaseProvider } from ".";
+import { OnchainBaseProvider } from '.';
 
-import {
-  getAddressFromAccount,
-  createAddressMapFromAddressArray,
-} from "../../utils/accountMap";
+import { getAddressFromAccount, createMap } from '../../utils/accountMap';
 
-import { OnChainConfig, LilyOnchainAccount, FeeRates, UTXO } from "src/types";
+import { OnChainConfig, LilyOnchainAccount, FeeRates, UTXO } from 'src/types';
 
 export const getMultisigDescriptor = async (
   client: any,
@@ -24,10 +17,7 @@ export const getMultisigDescriptor = async (
   const descriptor = `wsh(sortedmulti(${
     config.quorum.requiredSigners
   },${config.extendedPublicKeys.map(
-    (xpub) =>
-      `[${xpub.device.fingerprint}/48h/0h/0h/2h]${xpub.xpub}/${
-        isChange ? "1" : "0"
-      }/*`
+    (xpub) => `[${xpub.device.fingerprint}/48h/0h/0h/2h]${xpub.xpub}/${isChange ? '1' : '0'}/*`
   )}))`;
   const descriptorWithChecksum = await client.getDescriptorInfo(descriptor);
   return descriptorWithChecksum.descriptor;
@@ -38,9 +28,9 @@ export const getWrappedDescriptor = async (
   config: OnChainConfig,
   isChange: boolean
 ) => {
-  const descriptor = `sh(wpkh([${
-    config.extendedPublicKeys[0].device.fingerprint
-  }/49h/0h/0h]${config.extendedPublicKeys[0].xpub}/${isChange ? "1" : "0"}/*))`;
+  const descriptor = `sh(wpkh([${config.extendedPublicKeys[0].device.fingerprint}/49h/0h/0h]${
+    config.extendedPublicKeys[0].xpub
+  }/${isChange ? '1' : '0'}/*))`;
   const descriptorWithChecksum = await client.getDescriptorInfo(descriptor);
   return descriptorWithChecksum.descriptor;
 };
@@ -50,29 +40,29 @@ export const getSegwitDescriptor = async (
   config: OnChainConfig,
   isChange: boolean
 ) => {
-  const descriptor = `wpkh([${
-    config.extendedPublicKeys[0].device.fingerprint
-  }/84h/0h/0h]${config.extendedPublicKeys[0].xpub}/${isChange ? "1" : "0"}/*)`;
+  const descriptor = `wpkh([${config.extendedPublicKeys[0].device.fingerprint}/84h/0h/0h]${
+    config.extendedPublicKeys[0].xpub
+  }/${isChange ? '1' : '0'}/*)`;
   const descriptorWithChecksum = await client.getDescriptorInfo(descriptor);
   return descriptorWithChecksum.descriptor;
 };
 
-export class BitcoinCoreProvider extends BaseProvider {
+export class BitcoinCoreProvider extends OnchainBaseProvider {
   client: Client;
 
   constructor(nodeConfig: ClientOption, testnet: boolean) {
-    super("Bitcoin Core", testnet);
+    super('Bitcoin Core', testnet);
 
-    if (nodeConfig.baseURL && nodeConfig.baseURL !== "localhost") {
-      this.setProvider("Custom Node");
+    if (nodeConfig.baseURL && nodeConfig.baseURL !== 'localhost') {
+      this.setProvider('Custom Node');
     }
 
-    if (nodeConfig.baseURL && nodeConfig.baseURL.includes(".onion")) {
-      const proxyOptions = "socks5h://127.0.0.1:9050";
+    if (nodeConfig.baseURL && nodeConfig.baseURL.includes('.onion')) {
+      const proxyOptions = 'socks5h://127.0.0.1:9050';
       const httpsAgent = new SocksProxyAgent(proxyOptions);
       this.client = new Client({
         ...nodeConfig,
-        httpAgent: httpsAgent,
+        httpAgent: httpsAgent
       });
     } else {
       this.client = new Client(nodeConfig);
@@ -97,13 +87,11 @@ export class BitcoinCoreProvider extends BaseProvider {
   }
 
   async getDataFromXPub(account: OnChainConfig): Promise<LilyOnchainAccount> {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
 
-  async getDataFromMultisig(
-    account: OnChainConfig
-  ): Promise<LilyOnchainAccount> {
-    throw new Error("Method not implemented.");
+  async getDataFromMultisig(account: OnChainConfig): Promise<LilyOnchainAccount> {
+    throw new Error('Method not implemented.');
     // const {
     //   receiveAddresses,
     //   changeAddresses,
@@ -154,7 +142,7 @@ export class BitcoinCoreProvider extends BaseProvider {
   }
 
   getAccountData(account: OnChainConfig): Promise<LilyOnchainAccount> {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
 
   async broadcastTransaction(txHex: string): Promise<string> {
@@ -167,7 +155,7 @@ export class BitcoinCoreProvider extends BaseProvider {
       const feeRates = {
         fastestFee: 0,
         halfHourFee: 0,
-        hourFee: 0,
+        hourFee: 0
       } as FeeRates;
 
       const fastestFeeRate = await this.client.estimateSmartFee(1);
@@ -194,12 +182,12 @@ export class BitcoinCoreProvider extends BaseProvider {
       return Promise.resolve(feeRates);
     } catch (e) {
       console.log(`error /estimate-fee ${e}`);
-      return Promise.reject(new Error("Error retrieving fee"));
+      return Promise.reject(new Error('Error retrieving fee'));
     }
   }
 
   async serializeTransactionsFromNode(transactions: FetchedRawTransaction[]) {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
     // transactions.sort((a, b) => a.blocktime - b.blocktime!);
 
     // let currentAccountTotal = new BigNumber(0);
@@ -304,13 +292,8 @@ export class BitcoinCoreProvider extends BaseProvider {
     // return decoratedTxArray;
   }
 
-  async scanForAddressesAndTransactions(
-    account: OnChainConfig,
-    limitGap: number
-  ) {
-    console.log(
-      `(${account.id}): Deriving addresses and checking for transactions...`
-    );
+  async scanForAddressesAndTransactions(account: OnChainConfig, limitGap: number) {
+    console.log(`(${account.id}): Deriving addresses and checking for transactions...`);
     const receiveAddresses = [];
     const changeAddresses = [];
     let transactions: FetchedRawTransaction[] = [];
@@ -322,15 +305,9 @@ export class BitcoinCoreProvider extends BaseProvider {
     let i = 0;
 
     while (gap < limitGap) {
-      const receiveAddress = getAddressFromAccount(
-        account,
-        `m/0/${i}`,
-        this.network
-      );
+      const receiveAddress = getAddressFromAccount(account, `m/0/${i}`, this.network);
 
-      const receiveTxs = await this.getTransactionsFromAddress(
-        receiveAddress.address
-      );
+      const receiveTxs = await this.getTransactionsFromAddress(receiveAddress.address);
       if (!receiveTxs.length) {
         unusedReceiveAddresses.push(receiveAddress);
       } else {
@@ -338,15 +315,9 @@ export class BitcoinCoreProvider extends BaseProvider {
         transactions = [...transactions, ...receiveTxs];
       }
 
-      const changeAddress = getAddressFromAccount(
-        account,
-        `m/1/${i}`,
-        this.network
-      );
+      const changeAddress = getAddressFromAccount(account, `m/1/${i}`, this.network);
 
-      const changeTxs = await this.getTransactionsFromAddress(
-        changeAddress.address
-      );
+      const changeTxs = await this.getTransactionsFromAddress(changeAddress.address);
       if (!changeTxs.length) {
         unusedChangeAddresses.push(changeAddress);
       } else {
@@ -363,15 +334,13 @@ export class BitcoinCoreProvider extends BaseProvider {
       i = i + 1;
     }
 
-    console.log(
-      `(${account.id}): Finished deriving addresses and checking for transactions.`
-    );
+    console.log(`(${account.id}): Finished deriving addresses and checking for transactions.`);
     return {
       receiveAddresses,
       changeAddresses,
       unusedReceiveAddresses,
       unusedChangeAddresses,
-      transactions,
+      transactions
     };
   }
 
@@ -396,14 +365,8 @@ export class BitcoinCoreProvider extends BaseProvider {
 
   async getUtxosFromNode(receiveAddresses: any[], changeAddresses: any[]) {
     const availableUtxos = await this.client.listUnspent();
-    const receiveAddressMap = createAddressMapFromAddressArray(
-      receiveAddresses,
-      false
-    );
-    const changeAddressMap = createAddressMapFromAddressArray(
-      changeAddresses,
-      true
-    );
+    const receiveAddressMap = createMap(receiveAddresses, 'address');
+    const changeAddressMap = createMap(changeAddresses, 'address');
     const addressMap = { ...receiveAddressMap, ...changeAddressMap };
     const decoratedUtxos: UTXO[] = [];
     for (let i = 0; i < availableUtxos.length; i++) {
@@ -424,32 +387,26 @@ export class BitcoinCoreProvider extends BaseProvider {
           // TODO: make these real values
           confirmed: true,
           block_height: 0,
-          block_hash: "abc123",
-          block_time: 0,
-        },
+          block_hash: 'abc123',
+          block_time: 0
+        }
       });
     }
     return decoratedUtxos;
   }
 
   async isConfirmedTransaction(txId: string) {
-    const transaction = (await this.client.getRawTransaction(
-      txId,
-      true
-    )) as FetchedRawTransaction;
+    const transaction = (await this.client.getRawTransaction(txId, true)) as FetchedRawTransaction;
     if (transaction.confirmations > 0) {
       return Promise.resolve(true);
     }
     throw new Error(`Transaction not confirmed (${txId})`);
   }
 
-  async loadOrCreateWalletViaRPC  (
-    config: OnChainConfig,
-    nodeClient: any
-  )  {
+  async loadOrCreateWalletViaRPC(config: OnChainConfig, nodeClient: any) {
     const walletList = await nodeClient.listWallets();
-    console.log("walletList: ", walletList);
-  
+    console.log('walletList: ', walletList);
+
     if (!walletList.includes(`lily${config.id}`)) {
       console.log(`Wallet lily${config.id} isn't loaded.`);
       try {
@@ -465,11 +422,11 @@ export class BitcoinCoreProvider extends BaseProvider {
           `lily${config.id}`, // wallet_name
           true, // disable_private_keys
           true, //blank
-          "", // passphrase
+          '', // passphrase
           true // avoid_reuse
         );
         if (config.quorum.totalSigners === 1) {
-          if (config.addressType === "p2sh") {
+          if (config.addressType === 'p2sh') {
             console.log(`Importing ${config.addressType} addresses...`);
             await nodeClient.importMulti(
               [
@@ -479,7 +436,7 @@ export class BitcoinCoreProvider extends BaseProvider {
                   timestamp: 1503446400,
                   internal: false,
                   watchonly: true,
-                  keypool: true,
+                  keypool: true
                 },
                 {
                   desc: await getWrappedDescriptor(nodeClient, config, true),
@@ -487,11 +444,11 @@ export class BitcoinCoreProvider extends BaseProvider {
                   timestamp: 1503446400,
                   internal: false,
                   watchonly: true,
-                  keypool: true,
-                },
+                  keypool: true
+                }
               ],
               {
-                rescan: true,
+                rescan: true
               }
             );
           } else {
@@ -504,7 +461,7 @@ export class BitcoinCoreProvider extends BaseProvider {
                   timestamp: 1503446400,
                   internal: false,
                   watchonly: true,
-                  keypool: true,
+                  keypool: true
                 },
                 {
                   desc: await getSegwitDescriptor(nodeClient, config, true),
@@ -512,11 +469,11 @@ export class BitcoinCoreProvider extends BaseProvider {
                   timestamp: 1503446400,
                   internal: false,
                   watchonly: true,
-                  keypool: true,
-                },
+                  keypool: true
+                }
               ],
               {
-                rescan: true,
+                rescan: true
               }
             );
           }
@@ -532,7 +489,7 @@ export class BitcoinCoreProvider extends BaseProvider {
                 timestamp: 1503446400,
                 internal: false,
                 watchonly: true,
-                keypool: true,
+                keypool: true
               },
               {
                 desc: await getMultisigDescriptor(nodeClient, config, true),
@@ -540,15 +497,15 @@ export class BitcoinCoreProvider extends BaseProvider {
                 timestamp: 1503446400,
                 internal: false,
                 watchonly: true,
-                keypool: true,
-              },
+                keypool: true
+              }
             ],
             {
-              rescan: true,
+              rescan: true
             }
           );
         }
       }
     }
-  };  
+  }
 }

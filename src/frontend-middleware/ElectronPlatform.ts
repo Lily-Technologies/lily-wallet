@@ -19,14 +19,19 @@ import {
   ChangeNodeConfigParams,
   NodeConfigWithBlockchainInfo,
   DecoratedOpenStatusUpdate,
-  CloseChannelRequest,
   OpenChannelRequest,
-  OpenChannelVerifyRequest,
   GetLightningInvoiceRequest,
   LilyAccount
 } from 'src/types';
 
-import { Payment, CloseStatusUpdate, AddInvoiceResponse } from '@radar/lnrpc';
+import {
+  Payment,
+  CloseStatusUpdate,
+  AddInvoiceResponse,
+  CloseChannelRequest,
+  FundingPsbtVerify,
+  FundingPsbtFinalize
+} from '@radar/lnrpc';
 
 import { WalletInfo } from 'bitcoin-simple-rpc';
 
@@ -65,9 +70,7 @@ export class ElectronPlatform extends BasePlatform {
     config: VaultConfig | OnChainConfig,
     callback: (accountInfo: LilyOnchainAccount) => void
   ) {
-    window.ipcRenderer.send('/account-data', {
-      config
-    });
+    window.ipcRenderer.send('/account-data', config);
 
     window.ipcRenderer.on('/account-data', (_event, ...args) => {
       const accountInfo = args[0];
@@ -76,9 +79,7 @@ export class ElectronPlatform extends BasePlatform {
   }
 
   getLightningData(config: LightningConfig, callback: (accountInfo: LilyLightningAccount) => void) {
-    window.ipcRenderer.send('/lightning-account-data', {
-      config
-    });
+    window.ipcRenderer.send('/lightning-account-data', config);
 
     window.ipcRenderer.on('/lightning-account-data', (_event, ...args) => {
       const accountInfo: LilyLightningAccount = args[0];
@@ -198,13 +199,12 @@ export class ElectronPlatform extends BasePlatform {
   }
 
   async closeChannel(
-    { channel_point, delivery_address, lndConnectUri }: CloseChannelRequest,
+    { channelPoint, deliveryAddress }: CloseChannelRequest,
     callback: (response: CloseStatusUpdate) => void
   ) {
     window.ipcRenderer.send('/close-channel', {
-      channel_point,
-      delivery_address,
-      lndConnectUri
+      channelPoint,
+      deliveryAddress
     });
 
     window.ipcRenderer.on('/close-channel', async (_event: any, ...args: any) => {
@@ -215,13 +215,12 @@ export class ElectronPlatform extends BasePlatform {
   }
 
   async openChannelInitiate(
-    { lightningAddress, channelAmount, lndConnectUri }: OpenChannelRequest,
+    { lightningAddress, channelAmount }: OpenChannelRequest,
     callback: (response: DecoratedOpenStatusUpdate) => void
   ) {
     window.ipcRenderer.send('/open-channel', {
       lightningAddress,
-      channelAmount,
-      lndConnectUri
+      channelAmount
     });
 
     window.ipcRenderer.on('/open-channel', async (_event: any, ...args: any) => {
@@ -230,19 +229,17 @@ export class ElectronPlatform extends BasePlatform {
     });
   }
 
-  async openChannelVerify({ finalPsbt, pendingChanId, lndConnectUri }: OpenChannelVerifyRequest) {
+  async openChannelVerify({ fundedPsbt, pendingChanId }: FundingPsbtVerify) {
     window.ipcRenderer.send('/open-channel-verify', {
-      finalPsbt,
-      pendingChanId,
-      lndConnectUri
+      fundedPsbt,
+      pendingChanId
     });
   }
 
-  async openChannelFinalize({ finalPsbt, pendingChanId, lndConnectUri }: OpenChannelVerifyRequest) {
+  async openChannelFinalize({ signedPsbt, pendingChanId }: FundingPsbtFinalize) {
     window.ipcRenderer.send('/open-channel-finalize', {
-      finalPsbt,
-      pendingChanId,
-      lndConnectUri
+      signedPsbt,
+      pendingChanId
     });
   }
 

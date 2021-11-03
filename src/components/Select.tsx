@@ -1,17 +1,9 @@
-import React, { Fragment, useState, useEffect } from "react";
-import styled from "styled-components";
-import { Listbox, Transition } from "@headlessui/react";
-import { CheckIcon, SelectorIcon } from "@heroicons/react/solid";
+import React, { Fragment, useState, useEffect } from 'react';
+import styled from 'styled-components';
+import { Listbox, Transition } from '@headlessui/react';
+import { CheckIcon, SelectorIcon } from '@heroicons/react/solid';
 
-import {
-  white,
-  red600,
-  gray300,
-  gray400,
-  gray700,
-  gray900,
-  green500,
-} from "../utils/colors";
+import { white, red600, gray300, gray400, gray700, gray900, green500 } from '../utils/colors';
 
 interface Props {
   label: string;
@@ -30,7 +22,7 @@ export const Select = React.memo(
     useEffect(() => {
       // set initial value
       options[0].onClick();
-    }, []);
+    }, [options]);
 
     useEffect(() => {
       setSelected(options[0]);
@@ -51,35 +43,27 @@ export const Select = React.memo(
               <ListboxButton error={error} id={id}>
                 <SelectionContainer>{selected.label}</SelectionContainer>
                 <SelectorIconContainer>
-                  <SelectorIconDecorated aria-hidden="true" />
+                  <SelectorIconDecorated aria-hidden='true' />
                 </SelectorIconContainer>
               </ListboxButton>
 
               <Transition
                 show={open}
                 as={Fragment}
-                leave="transition ease-in duration-100"
-                leaveFrom="opacity-100"
-                leaveTo="opacity-0"
+                leave='transition ease-in duration-100'
+                leaveFrom='opacity-100'
+                leaveTo='opacity-0'
               >
                 <ListboxOptions>
                   {options.map((option, index) => (
                     <ListboxOption key={index} value={option}>
-                      {({
-                        selected,
-                        active,
-                      }: {
-                        selected: boolean;
-                        active: boolean;
-                      }) => (
+                      {({ selected, active }: { selected: boolean; active: boolean }) => (
                         <OptionContainer active={active}>
-                          <DropdownItemLabel selected={selected}>
-                            {option.label}
-                          </DropdownItemLabel>
+                          <DropdownItemLabel selected={selected}>{option.label}</DropdownItemLabel>
 
                           {selected ? (
                             <CheckIconContainer active={active}>
-                              <CheckIconDecorated aria-hidden="true" />
+                              <CheckIconDecorated aria-hidden='true' />
                             </CheckIconContainer>
                           ) : null}
                         </OptionContainer>
@@ -122,8 +106,7 @@ const ListboxOptions = styled(Listbox.Options)`
   overflow: auto;
   border-radius: 0.375rem;
   background: ${white};
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
-    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
   font-size: 0.875rem;
   line-height: 1.25rem;
   list-style: none;
@@ -151,7 +134,7 @@ const CheckIconDecorated = styled(CheckIcon)`
   vertical-align: middle;
 `;
 
-const ListboxButton = styled(Listbox.Button) <{
+const ListboxButton = styled(Listbox.Button)<{
   error?: boolean;
   children: React.ReactNode;
   id?: string;
@@ -169,7 +152,7 @@ const ListboxButton = styled(Listbox.Button) <{
   border-radius: 0.375rem;
   position: relative;
 
-  border-color: ${(p) => (p.error ? red600 : "inherit")}
+  border-color: ${(p) => (p.error ? red600 : 'inherit')}
 
   *,
   &:after,

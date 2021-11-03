@@ -242,22 +242,9 @@ export interface LightningEvent {
   channel?: Channel;
 }
 
-export interface CloseChannelRequest {
-  channel_point: string;
-  delivery_address: string;
-  lndConnectUri: string;
-}
-
 export interface OpenChannelRequest {
   lightningAddress: string;
   channelAmount: string;
-  lndConnectUri: string;
-}
-
-export interface OpenChannelVerifyRequest {
-  finalPsbt: string;
-  pendingChanId: string | Buffer | undefined;
-  lndConnectUri: string;
 }
 
 export interface GetLightningInvoiceRequest {
@@ -343,7 +330,7 @@ export interface LilyLightningAccount {
   config: LightningConfig;
   channels: DecoratedLightningChannel[];
   pendingChannels: DecoratedPendingLightningChannel[];
-  closedChannels: ClosedChannel[];
+  closedChannels: ChannelCloseSummary[];
   info: any;
   events: LightningEvent[];
   payments: Payment[];
