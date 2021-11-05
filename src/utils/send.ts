@@ -1,7 +1,6 @@
 import {
   satoshisToBitcoins,
   bitcoinsToSatoshis,
-  multisigWitnessScript,
   estimateMultisigTransactionFee
 } from 'unchained-bitcoin';
 import { Psbt, address, Network } from 'bitcoinjs-lib';
@@ -11,13 +10,14 @@ import coinSelect from 'coinselect';
 
 import { cloneBuffer, bufferToHex } from './other';
 
+import { createMap } from 'src/utils/accountMap';
+
 import {
   UTXO,
   UtxoMap,
   AddressType,
   PsbtInput,
   Transaction,
-  TransactionMap,
   FeeRates,
   ExtendedPublicKey,
   LilyOnchainAccount
@@ -75,14 +75,6 @@ export const createUtxoMapFromUtxoArray = (utxosArray: UTXO[]) => {
   return utxoMap;
 };
 
-export const createTransactionMapFromTransactionArray = (transactionsArray: Transaction[]) => {
-  const transactionMap: TransactionMap = {};
-  transactionsArray.forEach((tx) => {
-    transactionMap[tx.txid] = tx;
-  });
-  return transactionMap;
-};
-
 // freeRate is in sats/byte
 export const getFeeForMultisig = (
   feesPerByteInSatoshis: number,
@@ -104,19 +96,15 @@ export const getFeeForMultisig = (
 };
 
 export const getFee = (psbt: Psbt, transactions: Transaction[]) => {
-  try {
-    const outputSum = psbt.txOutputs.reduce((acc, cur) => acc + cur.value, 0);
-    const txMap = createTransactionMapFromTransactionArray(transactions);
-    const inputSum = psbt.txInputs.reduce((acc, cur) => {
-      const inputBuffer = cloneBuffer(cur.hash);
-      const txId = inputBuffer.reverse().toString('hex'); // careful, this reverses in place.
-      const currentUtxo = txMap[txId];
-      return Math.abs(currentUtxo.vout[cur.index].value) + acc;
-    }, 0);
-    return inputSum - outputSum;
-  } catch (e) {
-    throw new Error(e);
-  }
+  const outputSum = psbt.txOutputs.reduce((acc, cur) => acc + cur.value, 0);
+  const txMap = createMap(transactions, 'txid');
+  const inputSum = psbt.txInputs.reduce((acc, cur) => {
+    const inputBuffer = cloneBuffer(cur.hash);
+    const txId = inputBuffer.reverse().toString('hex'); // careful, this reverses in place.
+    const currentUtxo = txMap[txId];
+    return Math.abs(currentUtxo.vout[cur.index].value) + acc;
+  }, 0);
+  return inputSum - outputSum;
 };
 
 export const coinSelection = (amountInSats: number, availableUtxos: UTXO[]) => {
@@ -248,18 +236,23 @@ export const createTransaction = async (
       }))
     } as PsbtInput;
 
-    if (config.quorum.totalSigners > 1) {
+    // TODO: clean this up
+    if (config.addressType === 'P2WSH') {
       // multisig p2wsh requires witnessScript
-      currentInput.witnessScript = Buffer.from(
-        Object.values(multisigWitnessScript(input.address).output)
-      );
-    } else if (config.mnemonic === undefined) {
-      // hardware wallet, add redeemScript
-      // KBC-TODO: clean this up
-      currentInput.redeemScript = Buffer.from(
-        Object.values(input.address.redeem.output) as unknown as Buffer
-      );
+      // @ts-ignore-line
+      currentInput.witnessScript = Buffer.from(Object.values(input.address.redeem));
+    } else if (config.addressType === 'P2WPKH') {
+      // @ts-ignore-line
+      currentInput.witnessUtxo = {
+        value: input.value,
+        // @ts-ignore-line
+        script: Buffer.from(Object.values(input.address.output))
+      };
+    } else if (config.addressType === 'p2sh') {
+      // @ts-ignore-line
+      currentInput.redeemScript = Buffer.from(Object.values(input.address.redeem));
     }
+    console.log('currentInput: ', currentInput);
 
     psbt.addInput(currentInput);
   });

@@ -60,7 +60,9 @@ const EditAccountNameModal = ({ password, closeModal }: Props) => {
       setConfigFile({ ...configCopy });
       closeModal();
     } catch (e) {
-      setAccountNameConfirmError(e.message);
+      if (e instanceof Error) {
+        setAccountNameConfirmError(e.message);
+      }
     }
   };
 

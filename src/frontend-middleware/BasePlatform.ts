@@ -20,7 +20,7 @@ import {
   FeeRates,
   ChangeNodeConfigParams,
   NodeConfigWithBlockchainInfo,
-  OpenChannelRequest,
+  OpenChannelRequestArgs,
   DecoratedOpenStatusUpdate,
   GetLightningInvoiceRequest
 } from 'src/types';
@@ -86,7 +86,7 @@ export interface PlatformInterface {
   ): void;
 
   openChannelInitiate(
-    { lightningAddress, channelAmount }: OpenChannelRequest,
+    { lightningAddress, channelAmount }: OpenChannelRequestArgs,
     callback: (response: DecoratedOpenStatusUpdate) => void
   ): void;
 
@@ -187,7 +187,7 @@ export abstract class BasePlatform implements PlatformInterface {
   ): void;
 
   abstract openChannelInitiate(
-    { lightningAddress, channelAmount }: OpenChannelRequest,
+    { lightningAddress, channelAmount }: OpenChannelRequestArgs,
     callback: (response: DecoratedOpenStatusUpdate) => void
   ): void;
 

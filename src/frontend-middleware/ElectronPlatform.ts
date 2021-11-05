@@ -19,7 +19,7 @@ import {
   ChangeNodeConfigParams,
   NodeConfigWithBlockchainInfo,
   DecoratedOpenStatusUpdate,
-  OpenChannelRequest,
+  OpenChannelRequestArgs,
   GetLightningInvoiceRequest,
   LilyAccount
 } from 'src/types';
@@ -215,7 +215,7 @@ export class ElectronPlatform extends BasePlatform {
   }
 
   async openChannelInitiate(
-    { lightningAddress, channelAmount }: OpenChannelRequest,
+    { lightningAddress, channelAmount }: OpenChannelRequestArgs,
     callback: (response: DecoratedOpenStatusUpdate) => void
   ) {
     window.ipcRenderer.send('/open-channel', {

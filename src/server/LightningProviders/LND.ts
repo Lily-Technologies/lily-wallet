@@ -1,7 +1,6 @@
 import axios from 'axios';
 import crypto from 'crypto';
-import {
-  createLnRpc,
+import createLnRpc, {
   InvoiceState,
   LnRpc,
   Invoice,
@@ -11,7 +10,8 @@ import {
   CloseChannelRequest,
   CloseStatusUpdate,
   FundingPsbtVerify,
-  FundingPsbtFinalize
+  FundingPsbtFinalize,
+  OpenChannelRequest
 } from '@radar/lnrpc';
 import { blockExplorerAPIURL } from 'unchained-bitcoin';
 import BigNumber from 'bignumber.js';
@@ -27,33 +27,29 @@ import {
   DecoratedPendingLightningChannel,
   DecoratedLightningChannel,
   BalanceHistory,
-  OpenChannelRequest
+  OpenChannelRequestArgs
 } from '../..//types';
 
-import {
-  getClientFromNodeConfig,
-  getFile,
-  saveFile,
-  getTxIdFromChannelPoint,
-  getBitcoinCoreConfig,
-  sleep,
-  getErrorMessageFromChunk
-} from '../utils';
+import { getTxIdFromChannelPoint, getErrorMessageFromChunk } from '../utils';
 
 export class LND extends LightningBaseProvider {
-  client!: LnRpc;
-
   constructor(lndConnectUri: string) {
     super('LND', lndConnectUri);
   }
 
+  async getClient(): Promise<LnRpc> {
+    const client = await createLnRpc(parseLndConnectUri(this.lndConnectUri));
+    return client;
+  }
+
   async initialize() {
     try {
-      this.client = await createLnRpc(parseLndConnectUri(this.lndConnectUri));
-      const info = await this.client.getInfo();
+      const client = await this.getClient();
+      const info = await client.getInfo();
       this.setConnected(true);
       return info;
     } catch (e) {
+      console.log('initialize e: ', e);
       this.setConnected(false);
       throw new Error('Failed to connect');
     }
@@ -67,20 +63,46 @@ export class LND extends LightningBaseProvider {
       parseLndConnectUri(config.connectionDetails.lndConnectUri)
     );
 
-    const { channels } = await lnRpcClient.listChannels();
-    const { channels: closedChannels } = await lnRpcClient.closedChannels();
+    let { channels } = await lnRpcClient.listChannels();
+    if (!channels) {
+      channels = [];
+    }
+    let { channels: closedChannels } = await lnRpcClient.closedChannels();
+    if (!closedChannels) {
+      closedChannels = [];
+    }
+
     let { pendingOpenChannels, waitingCloseChannels } = await lnRpcClient.pendingChannels();
+
+    if (!pendingOpenChannels) {
+      pendingOpenChannels = [];
+    }
+
+    if (!waitingCloseChannels) {
+      waitingCloseChannels = [];
+    }
     const info = await lnRpcClient.getInfo();
-    const balance = await lnRpcClient.channelBalance();
+    let balance = await lnRpcClient.channelBalance();
+    if (!balance) {
+      balance = {
+        balance: '0',
+        pendingOpenBalance: '0'
+      };
+    }
     // const { transactions } = await lnRpcClient.getTransactions();
 
-    const paymentsAccum = [];
+    const paymentsAccum: Payment[] = [];
     let allPaymentsRetrieved = false;
     let index = 0;
     while (!allPaymentsRetrieved) {
-      const { payments } = await lnRpcClient.listPayments({
+      let { payments } = await lnRpcClient.listPayments({
         indexOffset: index * 100
       });
+
+      if (!payments) {
+        payments = [];
+      }
+
       paymentsAccum.push(...payments);
       index++;
       if (payments.length < 100) {
@@ -89,26 +111,23 @@ export class LND extends LightningBaseProvider {
       }
     }
 
-    const invoicesAccum = [];
+    const invoicesAccum: Invoice[] = [];
     let allInvoicesRetrieved = false;
     while (!allInvoicesRetrieved) {
-      const { invoices } = await lnRpcClient.listInvoices({
+      let { invoices } = await lnRpcClient.listInvoices({
         indexOffset: (index * 100).toString()
       });
+
+      if (!invoices) {
+        invoices = [];
+      }
+
       invoicesAccum.push(...invoices);
       index++;
       if (invoices.length < 100) {
         allInvoicesRetrieved = true;
         index = 0;
       }
-    }
-
-    if (!pendingOpenChannels) {
-      pendingOpenChannels = [];
-    }
-
-    if (!waitingCloseChannels) {
-      waitingCloseChannels = [];
     }
 
     const incomingTxs = invoicesAccum.reduce((filtered, invoice) => {
@@ -345,7 +364,8 @@ export class LND extends LightningBaseProvider {
   }
 
   async getInvoice({ memo, value }: Invoice) {
-    const invoice = await this.client.addInvoice({ memo, value });
+    const client = await this.getClient();
+    const invoice = await client.addInvoice({ memo, value });
     return invoice;
   }
 
@@ -358,8 +378,6 @@ export class LND extends LightningBaseProvider {
     });
 
     sendPaymentStream.on('data', (chunk: Payment) => {
-      console.log('data chunk: ', chunk);
-      console.log('data chunk as string: ', JSON.stringify(chunk));
       callback(chunk);
     });
 
@@ -369,17 +387,18 @@ export class LND extends LightningBaseProvider {
   }
 
   async openChannelInitialize(
-    { lightningAddress, channelAmount }: OpenChannelRequest,
+    { lightningAddress, channelAmount }: OpenChannelRequestArgs,
     callback: (data: OpenStatusUpdate) => void
   ) {
+    const client = await this.getClient();
     // connect to peer
-    const { peers } = await this.client.listPeers();
+    const { peers } = await client.listPeers();
     const [pubkey, host] = lightningAddress.split('@');
 
     // if we aren't connected to peer, then connect
     if (!peers.some((peer) => peer.pubKey === pubkey)) {
       console.log(`connecting to peer ${lightningAddress}...`);
-      await this.client.connectPeer({
+      await client.connectPeer({
         addr: {
           pubkey,
           host
@@ -399,14 +418,14 @@ export class LND extends LightningBaseProvider {
           pendingChanId: pendingChannelId
         }
       }
-    };
+    } as OpenChannelRequest;
 
     console.log(`attempting channel open to ${lightningAddress}...`);
-    const openingNodeInfo = await this.client.getNodeInfo({
+    const openingNodeInfo = await client.getNodeInfo({
       pubKey: pubkey
     });
 
-    const channelResponse = await this.client.openChannel(openChannelOptions);
+    const channelResponse = await client.openChannel(openChannelOptions);
 
     channelResponse.on('data', (chunk) => {
       if (chunk.psbtFund) {
@@ -428,25 +447,42 @@ export class LND extends LightningBaseProvider {
   }
 
   async openChannelVerify({ fundedPsbt, pendingChanId }: FundingPsbtVerify) {
-    this.client.fundingStateStep({
-      psbtVerify: {
-        fundedPsbt,
-        pendingChanId
+    try {
+      const client = await this.getClient();
+      await client.fundingStateStep({
+        psbtVerify: {
+          fundedPsbt,
+          pendingChanId
+        }
+      });
+    } catch (e) {
+      console.log('openChannelVerify error: ', e);
+      if (e instanceof Error) {
+        throw new Error(e.message);
       }
-    });
+    }
   }
 
   async openChannelFinalize(psbtFinalize: FundingPsbtFinalize) {
-    await this.client.fundingStateStep({
-      psbtFinalize
-    });
+    try {
+      const client = await this.getClient();
+      await client.fundingStateStep({
+        psbtFinalize
+      });
+    } catch (e) {
+      console.log('openChannelFinalize: ', e);
+      if (e instanceof Error) {
+        throw new Error(e.message);
+      }
+    }
   }
 
   async closeChannel(
     { channelPoint, deliveryAddress }: CloseChannelRequest,
     callback: (data: CloseStatusUpdate) => void
   ) {
-    const closeChannelResponse = await this.client.closeChannel({
+    const client = await this.getClient();
+    const closeChannelResponse = await client.closeChannel({
       channelPoint,
       deliveryAddress
     });

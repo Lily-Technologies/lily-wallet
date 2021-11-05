@@ -272,7 +272,9 @@ const NewHardwareWalletScreen = ({
       setImportedDevices(updatedImportedDevices);
       setStep(3);
     } catch (e) {
-      openInModal(<ErrorModal message={e.message} closeModal={closeModal} />);
+      if (e instanceof Error) {
+        openInModal(<ErrorModal message={e.message} closeModal={closeModal} />);
+      }
     }
   };
 
@@ -294,7 +296,9 @@ const NewHardwareWalletScreen = ({
       setAvailableDevices([...availableDevices.filter((item) => item.type !== 'phone')]);
       closeModal();
     } catch (e) {
-      openInModal(<ErrorModal message={e.message} closeModal={closeModal} />);
+      if (e instanceof Error) {
+        openInModal(<ErrorModal message={e.message} closeModal={closeModal} />);
+      }
     }
   };
 

@@ -30,7 +30,7 @@ import {
   CoindeskHistoricPriceResponse,
   CoindeskCurrentPriceResponse,
   LightningConfig,
-  OpenChannelRequest,
+  OpenChannelRequestArgs,
   OnChainConfig
 } from './types';
 
@@ -215,7 +215,7 @@ ipcMain.on('/lightning-account-data', async (event, config: LightningConfig) => 
   }
 });
 
-ipcMain.on('/open-channel', async (event, args: OpenChannelRequest) => {
+ipcMain.on('/open-channel', async (event, args: OpenChannelRequestArgs) => {
   const { lightningAddress, channelAmount } = args;
   try {
     LightningDataProvider.openChannelInitialize({ lightningAddress, channelAmount }, (data) => {
@@ -285,7 +285,7 @@ ipcMain.handle('/lightning-connect', async (event, args) => {
   const { lndConnectUri } = args;
   try {
     LightningDataProvider = new LND(lndConnectUri);
-    const info = LightningDataProvider.initialize();
+    const info = await LightningDataProvider.initialize();
     return Promise.resolve(info);
   } catch (e) {
     console.log('/lightning-connect e: ', e);

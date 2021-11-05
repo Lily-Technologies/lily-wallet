@@ -9,7 +9,7 @@ import {
   FundingPsbtVerify,
   FundingPsbtFinalize
 } from '@radar/lnrpc';
-import { LightningConfig, LilyLightningAccount, OpenChannelRequest } from 'src/types';
+import { LightningConfig, LilyLightningAccount, OpenChannelRequestArgs } from 'src/types';
 
 export type Providers = 'LND';
 
@@ -53,7 +53,7 @@ export abstract class LightningBaseProvider implements LightningProviderInterfac
   abstract sendPayment(paymentRequest: string, callback: (data: Payment) => void): void;
 
   abstract openChannelInitialize(
-    { lightningAddress, channelAmount }: OpenChannelRequest,
+    { lightningAddress, channelAmount }: OpenChannelRequestArgs,
     callback: (data: OpenStatusUpdate) => void
   ): Promise<void>;
 

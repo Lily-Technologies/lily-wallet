@@ -35,9 +35,11 @@ const NewLightningScreen = ({ header, setStep, lndConnectUri, setLndConnectUri }
       await platform.lightningConnect(lndConnectUri);
       setStep(3);
     } catch (e) {
-      console.log('/lightning-connect error: ', e.message);
-      setError(e.message);
-      setIsLoading(false);
+      if (e instanceof Error) {
+        console.log('/lightning-connect error: ', e.message);
+        setError(e.message);
+        setIsLoading(false);
+      }
     }
   };
 

@@ -242,7 +242,7 @@ export interface LightningEvent {
   channel?: Channel;
 }
 
-export interface OpenChannelRequest {
+export interface OpenChannelRequestArgs {
   lightningAddress: string;
   channelAmount: string;
 }

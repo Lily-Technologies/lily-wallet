@@ -72,7 +72,9 @@ const OnchainSendTxForm = ({
       setImportTxFromFileError('');
       setStep(1);
     } catch (e) {
-      openInModal(<ErrorModal message={e.message} closeModal={closeModal} />);
+      if (e instanceof Error) {
+        openInModal(<ErrorModal message={e.message} closeModal={closeModal} />);
+      }
     }
   };
 

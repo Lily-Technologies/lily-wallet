@@ -53,11 +53,11 @@ export const FeeSelector = ({
   const [showEditCustomFeeRate, setShowEditCustomFeeRate] = useState(false);
 
   const validateCustomFee = () => {
-    if (customFeeRate < 0) {
+    if (customFeeRate! < 0) {
       setCustomFeeRateError('Cannot set a negative fee!');
       return false;
     }
-    if (customFeeRate > 0 && customFeeRateError) {
+    if (customFeeRate! > 0 && customFeeRateError) {
       setCustomFeeRateError('');
     }
     return true;
@@ -69,7 +69,9 @@ export const FeeSelector = ({
       closeModal();
     } catch (e) {
       console.log('e: ', e);
-      setCustomFeeRateError(e.message);
+      if (e instanceof Error) {
+        setCustomFeeRateError(e.message);
+      }
     }
   };
 
@@ -151,7 +153,7 @@ export const FeeSelector = ({
               setCustomFeeRate(Number(value));
               validateCustomFee();
             }}
-            value={customFeeBtc.toString()}
+            value={customFeeBtc!.toString()}
             placeholder={'5'}
             error={customFeeRateError}
             inputStaticText='sat/vB'
@@ -172,7 +174,7 @@ export const FeeSelector = ({
               color={white}
               onClick={() => {
                 if (validateCustomFee()) {
-                  selectFee(customFeeRate);
+                  selectFee(customFeeRate!);
                 }
               }}
             >
