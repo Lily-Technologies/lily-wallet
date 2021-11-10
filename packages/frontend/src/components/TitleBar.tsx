@@ -9,7 +9,7 @@ import { AccountMapContext, PlatformContext } from 'src/context';
 
 import { getNodeStatus } from 'src/utils/other';
 
-import { StyledIcon, Dropdown, Modal, SupportModal } from '.';
+import { StyledIcon, Dropdown, Modal, SupportModal, DropdownItem } from '.';
 
 import { NodeConfigWithBlockchainInfo, LilyConfig } from '@lily/types';
 
@@ -25,7 +25,7 @@ export const TitleBar = ({ nodeConfig, config }: Props) => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
 
-  const nodeConfigDropdownItems = [];
+  const nodeConfigDropdownItems: DropdownItem[] = [];
 
   const openInModal = (component: JSX.Element) => {
     setModalIsOpen(true);

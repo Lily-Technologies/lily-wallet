@@ -141,7 +141,7 @@ const Setup = ({ password, currentBlockHeight, currentBitcoinNetwork }: Props) =
     />
   );
 
-  let screen = null;
+  let screen: JSX.Element | null = null;
 
   switch (step) {
     case 0:

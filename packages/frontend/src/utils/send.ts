@@ -20,7 +20,8 @@ import {
   Transaction,
   FeeRates,
   ExtendedPublicKey,
-  LilyOnchainAccount
+  LilyOnchainAccount,
+  Device
 } from '@lily/types';
 
 import { BasePlatform } from 'src/frontend-middleware';
@@ -110,7 +111,7 @@ export const getFee = (psbt: Psbt, transactions: Transaction[]) => {
 export const coinSelection = (amountInSats: number, availableUtxos: UTXO[]) => {
   availableUtxos.sort((a, b) => b.value - a.value); // sort available utxos from largest size to smallest size to minimize inputs
   let currentTotal = new BigNumber(0);
-  const spendingUtxos = [];
+  const spendingUtxos: UTXO[] = [];
   let index = 0;
   while (currentTotal.isLessThan(amountInSats) && index < availableUtxos.length) {
     currentTotal = currentTotal.plus(availableUtxos[index].value);
@@ -166,7 +167,7 @@ export const getSignedFingerprintsFromPsbt = (psbt: Psbt) => {
 };
 
 export const getSignedDevicesFromPsbt = (psbt: Psbt, extendedPublicKeys: ExtendedPublicKey[]) => {
-  const signedDevicesObjects = [];
+  const signedDevicesObjects: Device[] = [];
   const signedFingerprints = getSignedFingerprintsFromPsbt(psbt);
   for (let i = 0; i < extendedPublicKeys!.length; i++) {
     if (signedFingerprints.includes(extendedPublicKeys[i].device.fingerprint.toLowerCase())) {

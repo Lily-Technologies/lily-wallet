@@ -9,7 +9,7 @@ import {
   getAddressFromAccount,
   getUnchainedNetworkFromBjslibNetwork,
   serializeTransactions
-} from '..//utils/accountMap';
+} from '../utils/accountMap';
 
 import {
   LilyOnchainAccount,

@@ -10,7 +10,7 @@ import { ConfigContext } from 'src/context/ConfigContext';
 
 const getChunks = (value: string, parts: number) => {
   const chunkLength = Math.ceil(value.length / parts);
-  const result = [];
+  const result: string[] = [];
   for (let i = 1; i <= parts; i++) {
     result.push(`${i}/${parts}(:)${value.slice(chunkLength * (i - 1), chunkLength * i)}`);
   }

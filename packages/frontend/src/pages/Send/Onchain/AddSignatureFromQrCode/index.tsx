@@ -25,7 +25,7 @@ const AddSignatureFromQrCode = ({
 }: Props) => {
   const [step, setStep] = useState(0);
 
-  let screen = null;
+  let screen: JSX.Element | string = 'Ooops, error';
   switch (step) {
     case 0:
       screen = <PsbtQrCode psbt={psbt} />;

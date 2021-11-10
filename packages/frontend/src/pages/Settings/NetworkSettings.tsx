@@ -2,7 +2,13 @@ import React, { useContext } from 'react';
 import styled from 'styled-components';
 import { Circle } from '@styled-icons/boxicons-solid';
 
-import { ConnectToNodeModal, Dropdown, StyledIcon, SettingsTable } from 'src/components';
+import {
+  ConnectToNodeModal,
+  Dropdown,
+  StyledIcon,
+  SettingsTable,
+  DropdownItem
+} from 'src/components';
 
 import { getNodeStatus } from 'src/utils/other';
 import { white, green400, green500, gray700, orange400, red500 } from 'src/utils/colors';
@@ -60,7 +66,7 @@ const NetworkSettings = ({
     }
   };
 
-  const nodeConfigDropdownItems = [];
+  const nodeConfigDropdownItems: DropdownItem[] = [];
 
   nodeConfigDropdownItems.push({
     label: 'Connect to Electrum',

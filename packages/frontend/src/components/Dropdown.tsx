@@ -25,7 +25,7 @@ import { mobile } from 'src/utils/media';
 
 */
 
-type DropdownItem = {
+export type DropdownItem = {
   label?: string | JSX.Element;
   onClick?: () => void;
   onlyMobile?: boolean;

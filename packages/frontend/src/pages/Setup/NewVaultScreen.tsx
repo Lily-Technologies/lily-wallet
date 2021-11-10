@@ -142,7 +142,7 @@ const NewVaultScreen = ({
 
   const importMultisigWalletFromFile = (parsedFile: ColdcardMultisigExportFile) => {
     const numPubKeys = Object.keys(parsedFile).filter((key) => key.startsWith('x')).length; // all exports start with x
-    const devicesFromFile = [];
+    const devicesFromFile: HwiResponseEnumerate[] = [];
 
     for (let i = 1; i < numPubKeys + 1; i++) {
       const zpub = decode(parsedFile[`x${i}/`].xpub);
