@@ -1,0 +1,113 @@
+{
+  "name": "LilyWallet",
+  "author": "Lily Technologies, Inc. <help@lily-wallet.com> (https://lily-wallet.com)",
+  "description": "Lily is the best way to secure your Bitcoin",
+  "license": "Custom",
+  "version": "1.0.8",
+  "private": true,
+  "main": "./dist/main.js",
+  "homepage": "./",
+  "scripts": {
+    "start": "electron .",
+    "start-dev": "DEVURL=true electron .",
+    "start-testnet": "TESTNET=true electron .",
+    "build": "tsc -b",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder -mwl"
+  },
+  "build": {
+    "productName": "Lily Wallet",
+    "appId": "com.lily-wallet.lily",
+    "extends": null,
+    "afterSign": "./afterSignHook.js",
+    "mac": {
+      "category": "public.app-category.finance",
+      "icon": "./src/assets/AppIcon.icns",
+      "target": [
+        "dmg"
+      ],
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "./build/entitlements.mac.inherit.plist",
+      "extendInfo": {
+        "NSCameraUsageDescription": "Allow your camera to scan QR codes during account setup and transaction signing."
+      },
+      "files": [
+        "./build/**/*",
+        "./src/main.js",
+        "./src/types/*",
+        "./src/preload.js",
+        "./src/server/**/*",
+        "./src/utils/**/*",
+        "./HWIs/HWI_MAC"
+      ]
+    },
+    "dmg": {
+      "background": "./public/background.png",
+      "sign": false
+    },
+    "linux": {
+      "category": "Finance",
+      "packageCategory": "wallet",
+      "icon": "./src/assets/icon.png",
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": "x64"
+        }
+      ],
+      "files": [
+        "./build/**/*",
+        "./src/main.js",
+        "./src/types/*",
+        "./src/preload.js",
+        "./src/server/**/*",
+        "./src/utils/**/*",
+        "./HWIs/HWI_LINUX"
+      ]
+    },
+    "win": {
+      "files": [
+        "./build/**/*",
+        "./src/main.js",
+        "./src/types/*",
+        "./src/preload.js",
+        "./src/server/**/*",
+        "./src/utils/**/*",
+        "./HWIs/hwi.exe"
+      ]
+    }
+  },
+  "dependencies": {
+    "@lily/shared-server": "workspace:^",
+    "@radar/lnrpc": "^0.11.1-beta.1",
+    "axios": "^0.21.1",
+    "electron-notarize": "^1.0.0",
+    "moment": "^2.29.1"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "electron": "^15.3.0",
+    "electron-builder": "^22.7.0",
+    "electron-installer-dmg": "^3.0.0",
+    "electron-mock-ipc": "^0.3.8",
+    "electron-packager": "^14.2.1",
+    "electron-winstaller": "^4.0.0"
+  },
+  "jest": {
+    "moduleNameMapper": {
+      "^electron$": "<rootDir>/src/__tests__/mock/electron-mock.ts"
+    }
+  }
+}

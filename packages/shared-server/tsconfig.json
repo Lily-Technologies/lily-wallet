@@ -1,0 +1,29 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "sourceMap": true,
+    // "strictNullChecks": true,
+    "module": "commonjs",
+    "target": "esnext",
+    "rootDir": "./src",
+    "allowJs": true,
+    "baseUrl": ".",
+    "composite": true,
+    "lib": ["esnext"],
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": false,
+    "types": ["node"],
+    "typeRoots": ["node_modules/@types", "../types/dist/**"]
+  },
+  "references": [{ "path": "../types" }],
+  "include": ["src/**/*"],
+  "exclude": ["./dist"]
+}
