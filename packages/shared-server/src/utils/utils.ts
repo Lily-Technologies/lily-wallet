@@ -2,13 +2,11 @@ import { writeFile, readFileSync, statSync, existsSync, createReadStream } from 
 import { createInterface } from 'readline';
 import { Client, ClientOption } from 'bitcoin-simple-rpc';
 import { SocksProxyAgent } from 'socks-proxy-agent';
-import { app } from 'electron';
 import { join } from 'path';
 
 import { BitcoinCoreConfVariables } from '@lily/types';
 
-export const saveFile = async (file: string, filename: string) => {
-  const userDataPath = app.getPath('userData');
+export const saveFile = async (file: string, filename: string, userDataPath: string) => {
   const filePath = join(userDataPath, filename);
   writeFile(filePath, file, (err) => {
     if (err) {
@@ -29,11 +27,8 @@ export const saveFile = async (file: string, filename: string) => {
   });
 };
 
-export const getFile = async (filename: string) => {
-  const userDataPath = app.getPath('userData');
-  console.log('userDataPath: ', userDataPath);
+export const getFile = async (filename: string, userDataPath: string) => {
   const filePath = join(userDataPath, filename);
-  console.log('filePath: ', filePath);
   const fileContents = readFileSync(filePath);
   if (fileContents) {
     const stats = statSync(filePath);

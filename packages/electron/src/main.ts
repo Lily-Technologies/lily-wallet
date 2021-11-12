@@ -304,7 +304,8 @@ ipcMain.handle('/quit', () => {
 
 ipcMain.handle('/get-config', async (event, args) => {
   try {
-    const file = await getFile('lily-config-encrypted.txt');
+    const userDataPath = app.getPath('userData');
+    const file = await getFile('lily-config-encrypted.txt', userDataPath);
     return file;
   } catch (e) {
     console.log('Failed to get Lily config');
@@ -313,7 +314,8 @@ ipcMain.handle('/get-config', async (event, args) => {
 
 ipcMain.handle('/save-config', async (event, args) => {
   const { encryptedConfigFile } = args;
-  return saveFile(encryptedConfigFile, 'lily-config-encrypted.txt');
+  const userDataPath = app.getPath('userData');
+  return saveFile(encryptedConfigFile, 'lily-config-encrypted.txt', userDataPath);
 });
 
 ipcMain.handle('/download-item', async (event, { data, filename }) => {
