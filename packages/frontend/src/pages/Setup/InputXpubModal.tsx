@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { bip32 } from 'bitcoinjs-lib';
+import * as ecc from 'tiny-secp256k1';
+import BIP32Factory from 'bip32';
 
 import { Button, Input, Select } from 'src/components';
 import { green600, white } from 'src/utils/colors';
@@ -22,6 +23,7 @@ const types = {
   lily: ['lily']
 };
 
+const bip32 = BIP32Factory(ecc);
 interface Props {
   importedDevices: HwiResponseEnumerate[];
   setImportedDevices: React.Dispatch<React.SetStateAction<HwiResponseEnumerate[]>>;

@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Psbt, Network, bip32 } from 'bitcoinjs-lib';
+import { Psbt, Network } from 'bitcoinjs-lib';
 import { mnemonicToSeed } from 'bip39';
+import * as ecc from 'tiny-secp256k1';
+import BIP32Factory from 'bip32';
 
 import SignWithDevice from './SignWithDevice';
 import TransactionDetails from '../components/TransactionDetails';
@@ -18,6 +20,7 @@ import {
   validateTxForAccount
 } from 'src/utils/send';
 
+const bip32 = BIP32Factory(ecc);
 interface Props {
   currentAccount: LilyOnchainAccount;
   finalPsbt: Psbt;

@@ -39,7 +39,7 @@ import {
   NodeConfig
 } from '@lily/types';
 
-const HOST = 'http://localhost:8080';
+const HOST = 'http://localhost:49160';
 
 export class WebPlatform extends BasePlatform {
   constructor() {

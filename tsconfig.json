@@ -10,7 +10,7 @@
     // "strictNullChecks": true,
     // "noImplicitReturns": true,
     "noImplicitThis": true,
-    "noImplicitAny": false,
+    // "noImplicitAny": false,
     // "noUnusedLocals": true,
     "resolveJsonModule": true
   },

@@ -1,5 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
-import { networks, Network, bip32 } from 'bitcoinjs-lib';
+import { networks, Network } from 'bitcoinjs-lib';
+import * as ecc from 'tiny-secp256k1';
+import BIP32Factory from 'bip32';
 import { mnemonicToSeed } from 'bip39';
 import { AES } from 'crypto-js';
 import moment from 'moment';
@@ -18,6 +20,8 @@ import {
 } from '@lily/types';
 
 import { BasePlatform } from 'src/frontend-middleware';
+
+const bip32 = BIP32Factory(ecc);
 
 export const bitcoinNetworkEqual = (a: Network, b: Network) => {
   return a.bech32 === b.bech32;
