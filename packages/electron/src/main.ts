@@ -125,7 +125,8 @@ const setupInitialNodeConfig = async () => {
   } catch (e) {
     try {
       console.log('Trying to connect to remote Bitcoin Core instance...');
-      const nodeConfigFile = await getFile('node-config.json');
+      const userDataPath = app.getPath('userData');
+      const nodeConfigFile = await getFile('node-config.json', userDataPath);
       const nodeConfig = JSON.parse(nodeConfigFile.file);
       try {
         OnchainDataProvider = new BitcoinCoreProvider(nodeConfig, isTestnet);
