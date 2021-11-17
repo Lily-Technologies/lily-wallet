@@ -5,6 +5,7 @@ import { networks, Network } from 'bitcoinjs-lib';
 import moment from 'moment';
 import { AES, enc } from 'crypto-js';
 import { ArrowIosForwardOutline } from '@styled-icons/evaicons-outline';
+import FlowerLogo from 'src/assets/flower.svg';
 
 import { StyledIcon, FileUploader, Button, Input } from 'src/components';
 
@@ -129,9 +130,9 @@ const Login = ({
       <Wrapper>
         <MainText>
           {bitcoinNetworkEqual(currentBitcoinNetwork, networks.testnet) ? (
-            <LilyLogoGray src={require('../../assets/flower.svg')} />
+            <LilyLogoGray src={FlowerLogo} />
           ) : (
-            <LilyLogo src={require('../../assets/flower.svg')} />
+            <LilyLogo src={FlowerLogo} />
           )}
           <TextContainer>
             <div>{encryptedConfigFile ? 'Unlock your account' : 'Welcome to Lily Wallet'}</div>

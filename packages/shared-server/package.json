@@ -11,6 +11,7 @@
     "build": "tsc -b"
   },
   "dependencies": {
+    "@lily/types": "workspace:*",
     "@mempool/electrum-client": "^1.1.8",
     "@radar/lnrpc": "^0.11.1-beta.1",
     "axios": "^0.24.0",

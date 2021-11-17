@@ -228,7 +228,7 @@ const App = () => {
           <Sidebar flyInAnimation={flyInAnimation} currentBitcoinNetwork={currentBitcoinNetwork} />
         )}
         <Switch>
-          <Route
+          {/* <Route
             path='/vault/:id/purchase'
             render={() => (
               <Purchase
@@ -238,7 +238,7 @@ const App = () => {
                 currentBitcoinNetwork={currentBitcoinNetwork}
               />
             )}
-          />
+          /> */}
           <Route
             path='/vault/:id'
             render={() => (

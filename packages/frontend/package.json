@@ -1,5 +1,5 @@
 {
-  "name": "lily-frontend",
+  "name": "@lily/frontend",
   "author": "Lily Technologies, Inc. <help@lily-wallet.com> (https://lily-wallet.com)",
   "description": "Lily is the best way to secure your Bitcoin",
   "license": "Custom",
@@ -55,7 +55,7 @@
     "coinselect": "^3.1.12",
     "cors": "^2.8.5",
     "crypto": "^1.0.1",
-    "crypto-js": "^4.0.0",
+    "crypto-js": "^4.1.1",
     "csstype": "^3.0.9",
     "dotenv": "^8.2.0",
     "http2": "^3.3.7",
@@ -64,22 +64,22 @@
     "polished": "^3.5.1",
     "react": "^16.13.1",
     "react-copy-to-clipboard": "^5.0.2",
-    "react-dom": "^16.13.1",
+    "react-dom": "^16.14.0",
     "react-is": "^17.0.2",
     "react-modal": "^3.11.2",
     "react-qr-svg": "^2.2.2",
     "react-router-dom": "^5.2.0",
-    "react-scripts": "3.4.0",
+    "react-scripts": "4.0.3",
     "react-spring": "^8.0.27",
     "react-transition-group": "^4.4.2",
     "react-webcam-barcode-scanner": "0.0.2-rc2",
     "recharts": "^1.8.5",
     "safe-buffer": "^5.2.1",
+    "src": "link:./src",
     "styled-components": "^5.1.0",
     "styled-icons": "^10.45.0",
-    "tiny-secp256k1": "^2.1.0",
-    "uint8array-tools": "^0.0.6",
-    "unchained-bitcoin": "0.0.9",
+    "tiny-secp256k1": "^1.1.6",
+    "unchained-bitcoin": "kaybesee/unchained-bitcoin",
     "uuid": "^8.0.0"
   },
   "browserslist": {
@@ -99,23 +99,30 @@
     "@cypress/instrument-cra": "^1.4.0",
     "@cypress/react": "^5.4.2",
     "@cypress/webpack-dev-server": "^1.1.6",
-    "@types/crypto-js": "^4.0.1",
+    "@types/crypto-js": "^4.0.2",
+    "@types/history": "^4.7.9",
     "@types/jest": "^26.0.15",
-    "@types/react": "^16.9.53",
+    "@types/prop-types": "^15.7.4",
+    "@types/react": "^16.14.21",
     "@types/react-copy-to-clipboard": "^4.3.0",
-    "@types/react-dom": "^16.9.8",
+    "@types/react-dom": "^16.9.14",
     "@types/react-is": "^17",
     "@types/react-modal": "^3.10.6",
+    "@types/react-router": "^5.1.17",
     "@types/react-router-dom": "^5.1.6",
     "@types/react-transition-group": "^4",
     "@types/recharts": "^1.8.16",
     "@types/rewire": "^2.5.28",
+    "@types/scheduler": "^0.16.2",
     "@types/styled-components": "^5.1.4",
     "@types/uuid": "^8.3.0",
+    "@typescript-eslint/parser": "^5.4.0",
     "babel-cli": "^6.26.0",
     "babel-preset-env": "^1.7.0",
     "chai-colors": "^1.0.1",
     "cypress": "^7.2.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^4.0.0",
     "jest-when": "^3.0.0",
     "mocha": "^8.1.3",
     "prettier": "^2.4.1",
@@ -123,11 +130,19 @@
     "rewire": "^5.0.0",
     "source-map-loader": "^1.1.1",
     "ts-loader": "^8.0.7",
+    "tsconfig-paths": "^3.11.0",
+    "tslint-config-prettier": "^1.18.0",
     "typescript": "^4.4.4"
   },
   "jest": {
     "moduleNameMapper": {
       "^electron$": "<rootDir>/src/__tests__/mock/electron-mock.ts"
     }
+  },
+  "workspaces": {
+    "nohoist": [
+      "react-scripts",
+      "react-scripts/**"
+    ]
   }
 }

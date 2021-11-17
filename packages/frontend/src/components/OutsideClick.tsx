@@ -1,5 +1,4 @@
 import React, { useRef, useEffect } from "react";
-import PropTypes from "prop-types";
 
 /**
  * Hook that alerts clicks outside of the passed ref
@@ -32,9 +31,5 @@ function OutsideAlerter({ onOutsideClick, children }: { onOutsideClick: () => vo
 
   return <div ref={wrapperRef}>{children}</div>;
 }
-
-OutsideAlerter.propTypes = {
-  children: PropTypes.element.isRequired
-};
 
 export default OutsideAlerter;

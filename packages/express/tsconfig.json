@@ -8,10 +8,15 @@
     "sourceMap": true,
     "outDir": "dist",
     "baseUrl": ".",
-    "paths": {
-      "*": ["node_modules/*"]
-    },
     "skipLibCheck": true
   },
+  "references": [
+    {
+      "path": "../shared-server"
+    },
+    {
+      "path": "../types"
+    }
+  ],
   "include": ["src/**/*"]
 }

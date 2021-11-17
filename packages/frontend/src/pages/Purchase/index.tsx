@@ -2,6 +2,7 @@ import React, { useState, useContext, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
 import { Psbt, Network } from 'bitcoinjs-lib';
+import BigNumber from 'bignumber.js';
 
 import {
   PricingTable,
@@ -43,7 +44,7 @@ import { SetStatePsbt } from 'src/types';
 interface Props {
   currentAccount: LilyOnchainAccount;
   currentBitcoinNetwork: Network;
-  currentBitcoinPrice: any;
+  currentBitcoinPrice: BigNumber;
   password: string;
   nodeConfig: NodeConfigWithBlockchainInfo;
 }

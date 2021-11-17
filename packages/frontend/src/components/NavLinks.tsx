@@ -5,6 +5,7 @@ import { VerticalAlignBottom, AddCircleOutline, Settings } from '@styled-icons/m
 import { Home } from '@styled-icons/fa-solid';
 import { SendPlane } from '@styled-icons/remix-fill';
 import { networks, Network } from 'bitcoinjs-lib';
+import FlowerLogo from 'src/assets/flower.svg';
 
 import { StyledIcon } from '.';
 
@@ -26,9 +27,9 @@ export const NavLinks = ({ currentBitcoinNetwork }: Props) => {
     <Fragment>
       <WalletTitle>
         {bitcoinNetworkEqual(currentBitcoinNetwork, networks.testnet) ? (
-          <LilyImageGray src={require('../assets/flower.svg')} />
+          <LilyImageGray src={FlowerLogo} />
         ) : (
-          <LilyImage src={require('../assets/flower.svg')} />
+          <LilyImage src={FlowerLogo} />
         )}
         <WalletTitleText>
           Lily Wallet

@@ -34,7 +34,7 @@ const TransactionUtxoDetails = ({ currentAccount, psbt, currentBitcoinPrice }: P
           <MoreDetailsHeader>Inputs</MoreDetailsHeader>
           {psbt.txInputs.map((input) => {
             const inputBuffer = cloneBuffer(input.hash);
-            const utxo = utxosMap[`${inputBuffer.reverse().toString('hex')}:${input.index}`];
+            const utxo = utxosMap[`${Buffer.from(inputBuffer.reverse()).toString('hex')}:${input.index}`];
             return (
               <OutputItem>
                 <OutputAddress>{utxo.address.address}</OutputAddress>

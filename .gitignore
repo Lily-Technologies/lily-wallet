@@ -10,5 +10,12 @@ cypress/videos
 cypress/screenshots
 .nyc_output
 
-.yarn
 .vscode
+
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions

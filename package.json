@@ -11,10 +11,10 @@
   },
   "scripts": {
     "electron": "yarn workspace LilyWallet start",
-    "frontend": "yarn workspace lily-frontend run start",
+    "frontend": "yarn workspace @lily/frontend run start",
     "express": "yarn workspace express run start",
     "build:electron": "yarn workspace LilyWallet build",
-    "build:frontend": "yarn workspace lily-frontend run build",
+    "build:frontend": "yarn workspace @lily/frontend run build",
     "build:express": "yarn workspace express run build",
     "build:types": "yarn workspace @lily/types run build",
     "build:shared-server": "yarn workspace @lily/shared-server run build"
@@ -24,10 +24,15 @@
     "./packages/*"
   ],
   "nohoist": [
-    "**/types"
+    "**/react-scripts",
+    "**/react-scripts/**"
   ],
   "dependencies": {
     "@lily/shared-server": "workspace:^",
     "@lily/types": "workspace:^"
+  },
+  "devDependencies": {
+    "@typescript-eslint/parser": "^5.4.0",
+    "typescript": "^4.4.4"
   }
 }

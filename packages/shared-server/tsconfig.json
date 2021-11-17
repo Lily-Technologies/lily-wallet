@@ -21,7 +21,6 @@
     "isolatedModules": true,
     "noEmit": false,
     "noImplicitAny": false,
-    "types": ["node"],
     "typeRoots": ["node_modules/@types", "../types/dist/**"]
   },
   "references": [{ "path": "../types" }],

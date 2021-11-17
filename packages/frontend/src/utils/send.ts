@@ -60,7 +60,7 @@ export const validateTxForAccount = (psbt: Psbt, currentAccount: LilyOnchainAcco
   for (let i = 0; i < psbt.txInputs.length; i++) {
     const currentInput = psbt.txInputs[i];
     const inputBuffer = cloneBuffer(currentInput.hash);
-    const currentUtxo = utxosMap[`${inputBuffer.reverse().toString('hex')}:${currentInput.index}`];
+    const currentUtxo = utxosMap[`${Buffer.from(inputBuffer.reverse()).toString('hex')}:${currentInput.index}`];
     if (!currentUtxo) {
       throw new Error("This transaction isn't associated with this wallet");
     }
@@ -101,7 +101,7 @@ export const getFee = (psbt: Psbt, transactions: Transaction[]) => {
   const txMap = createMap(transactions, 'txid');
   const inputSum = psbt.txInputs.reduce((acc, cur) => {
     const inputBuffer = cloneBuffer(cur.hash);
-    const txId = inputBuffer.reverse().toString('hex'); // careful, this reverses in place.
+    const txId = Buffer.from(inputBuffer.reverse()).toString('hex'); // careful, this reverses in place.
     const currentUtxo = txMap[txId];
     return Math.abs(currentUtxo.vout[cur.index].value) + acc;
   }, 0);

@@ -25,18 +25,18 @@ import { mobile } from 'src/utils/media';
 
 */
 
-export type DropdownItem = {
+export type DropdownItemProps = {
   label?: string | JSX.Element;
   onClick?: () => void;
   onlyMobile?: boolean;
 };
 
-type Divider = {
+type DividerProps = {
   onlyMobile?: boolean;
 };
 interface Props {
   buttonLabel?: string | React.ReactNode;
-  dropdownItems: (DropdownItem | Divider)[];
+  dropdownItems: (DropdownItemProps | DividerProps)[];
   minimal: boolean;
   style?: {};
 }

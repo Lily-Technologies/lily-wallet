@@ -7,7 +7,7 @@ import {
   Dropdown,
   StyledIcon,
   SettingsTable,
-  DropdownItem
+  DropdownItemProps
 } from 'src/components';
 
 import { getNodeStatus } from 'src/utils/other';
@@ -66,7 +66,7 @@ const NetworkSettings = ({
     }
   };
 
-  const nodeConfigDropdownItems: DropdownItem[] = [];
+  const nodeConfigDropdownItems: DropdownItemProps[] = [];
 
   nodeConfigDropdownItems.push({
     label: 'Connect to Electrum',

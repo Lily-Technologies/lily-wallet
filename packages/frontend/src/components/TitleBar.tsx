@@ -2,6 +2,7 @@ import React, { useState, Fragment, useContext } from 'react';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { Circle } from '@styled-icons/boxicons-solid';
+import FlowerLoading from 'src/assets/flower-loading.svg';
 
 import { white, green400, orange400, red500, green800, green900 } from 'src/utils/colors';
 
@@ -9,7 +10,7 @@ import { AccountMapContext, PlatformContext } from 'src/context';
 
 import { getNodeStatus } from 'src/utils/other';
 
-import { StyledIcon, Dropdown, Modal, SupportModal, DropdownItem } from '.';
+import { StyledIcon, Dropdown, Modal, SupportModal, DropdownItemProps } from '.';
 
 import { NodeConfigWithBlockchainInfo, LilyConfig } from '@lily/types';
 
@@ -25,7 +26,7 @@ export const TitleBar = ({ nodeConfig, config }: Props) => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
 
-  const nodeConfigDropdownItems: DropdownItem[] = [];
+  const nodeConfigDropdownItems: DropdownItemProps[] = [];
 
   const openInModal = (component: JSX.Element) => {
     setModalIsOpen(true);
@@ -161,7 +162,7 @@ export const TitleBar = ({ nodeConfig, config }: Props) => {
                   ) : (
                     <LoadingImage
                       alt='loading placeholder'
-                      src={require('../assets/flower-loading.svg')}
+                      src={FlowerLoading}
                     />
                   )}
                   {nodeConfig && nodeConfig.connected

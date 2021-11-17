@@ -3,17 +3,17 @@
   "parserOptions": {
     "project": "./tsconfig.json"
   },
-  "extends": [
-    "eslint:recommended",
-    "standard",
-    "prettier",
-    "plugin:@typescript-eslint/recommended",
-    "prettier/@typescript-eslint"
-  ],
+  "extends": ["eslint:recommended"],
   "plugins": ["@typescript-eslint"],
   "env": {
     "es6": true,
     "node": true
+  },
+  "rules": {
+    "no-undef": "off",
+    "no-unused-vars": "off",
+    "no-empty": "off",
+    "no-extra-boolean-cast": "off"
   },
   "ignorePatterns": ["dist", "node_modules", "examples", "scripts"]
 }
