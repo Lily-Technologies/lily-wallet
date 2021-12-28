@@ -11,8 +11,8 @@
     "build": "tsc -b"
   },
   "dependencies": {
-    "@lily/types": "workspace:*",
-    "@mempool/electrum-client": "^1.1.8",
+    "@lily/types": "*",
+    "@lily-technologies/electrum-client": "^1.1.8",
     "@radar/lnrpc": "^0.11.1-beta.1",
     "axios": "^0.24.0",
     "bignumber.js": "^9.0.1",
@@ -21,6 +21,6 @@
     "lndconnect": "^0.2.10",
     "socks-proxy-agent": "^6.1.0",
     "typescript": "^4.4.4",
-    "unchained-bitcoin": "kaybesee/unchained-bitcoin"
+    "unchained-bitcoin": "^0.1.8"
   }
 }

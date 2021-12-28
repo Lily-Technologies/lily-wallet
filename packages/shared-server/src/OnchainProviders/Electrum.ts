@@ -3,7 +3,7 @@ import ElectrumClient, {
   blockchainTransaction_getBatchResponse,
   ElectrumVin,
   blockchainScripthash_listunspentBatch
-} from '@mempool/electrum-client';
+} from '@lily-technologies/electrum-client';
 import { address as bitcoinjsAddress, crypto as bitcoinjsCrypto } from 'bitcoinjs-lib';
 import { bitcoinsToSatoshis } from 'unchained-bitcoin';
 
@@ -66,15 +66,19 @@ export class ElectrumProvider extends OnchainBaseProvider {
   async initialize() {
     try {
       const ver = await this.client.initElectrum({
-        client: 'lilywallet',
+        client: 'bluewallet',
         version: '1.4'
       });
 
+      console.log('ver: ', ver);
+
       const blockheight = await this.client.blockchainHeaders_subscribe();
+      console.log('blockheight: ', blockheight);
 
       this.setCurrentBlockHeight(blockheight.height);
       this.setConnected(true);
     } catch (e) {
+      console.log('e: ', e);
       this.setCurrentBlockHeight(0);
       this.setConnected(false);
     }

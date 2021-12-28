@@ -35,11 +35,11 @@ import {
   DecoratedOpenStatusUpdate,
   OpenChannelRequestArgs,
   GetLightningInvoiceRequest,
-  LilyAccount,
-  NodeConfig
+  LilyAccount
 } from '@lily/types';
 
-const HOST = 'http://localhost:49160';
+const HOST = `${process.env.REACT_APP_BACKEND_HOST}:${process.env.REACT_APP_BACKEND_PORT}`;
+console.log('WebPlatform HOST: ', HOST);
 
 export class WebPlatform extends BasePlatform {
   constructor() {

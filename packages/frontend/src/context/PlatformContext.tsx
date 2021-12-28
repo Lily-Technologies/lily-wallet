@@ -7,6 +7,7 @@ export const PlatformContext = createContext({
 });
 
 export const PlatformProvider = ({ children }: { children: React.ReactChild }) => {
+  console.log('process.env: ', process.env);
   let platform: BasePlatform;
   if (process.env.REACT_APP_IS_ELECTRON) {
     platform = new ElectronPlatform();

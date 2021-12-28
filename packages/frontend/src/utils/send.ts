@@ -1,8 +1,4 @@
-import {
-  satoshisToBitcoins,
-  bitcoinsToSatoshis,
-  estimateMultisigTransactionFee
-} from 'unchained-bitcoin';
+import { satoshisToBitcoins, bitcoinsToSatoshis } from 'unchained-bitcoin';
 import { Psbt, address, Network } from 'bitcoinjs-lib';
 
 import BigNumber from 'bignumber.js';
@@ -47,7 +43,7 @@ export const truncateAddress = (address: string) => {
 };
 
 export const validateSendAmount = (sendAmountInBTC: string, currentBalanceInSatoshi: number) => {
-  if (satoshisToBitcoins(new BigNumber(currentBalanceInSatoshi)).isGreaterThan(sendAmountInBTC)) {
+  if (satoshisToBitcoins(currentBalanceInSatoshi).isGreaterThan(sendAmountInBTC)) {
     return true;
   } else {
     return false;
@@ -60,7 +56,8 @@ export const validateTxForAccount = (psbt: Psbt, currentAccount: LilyOnchainAcco
   for (let i = 0; i < psbt.txInputs.length; i++) {
     const currentInput = psbt.txInputs[i];
     const inputBuffer = cloneBuffer(currentInput.hash);
-    const currentUtxo = utxosMap[`${Buffer.from(inputBuffer.reverse()).toString('hex')}:${currentInput.index}`];
+    const currentUtxo =
+      utxosMap[`${Buffer.from(inputBuffer.reverse()).toString('hex')}:${currentInput.index}`];
     if (!currentUtxo) {
       throw new Error("This transaction isn't associated with this wallet");
     }
@@ -74,26 +71,6 @@ export const createUtxoMapFromUtxoArray = (utxosArray: UTXO[]) => {
     utxoMap[`${utxo.txid}:${utxo.vout}`] = utxo;
   });
   return utxoMap;
-};
-
-// freeRate is in sats/byte
-export const getFeeForMultisig = (
-  feesPerByteInSatoshis: number,
-  addressType: AddressType,
-  numInputs: number,
-  numOutputs: number,
-  requiredSigners: number,
-  totalSigners: number
-): BigNumber => {
-  const feeRateString = feesPerByteInSatoshis.toString();
-  return estimateMultisigTransactionFee({
-    addressType: addressType,
-    numInputs: numInputs,
-    numOutputs: numOutputs,
-    m: requiredSigners,
-    n: totalSigners,
-    feesPerByteInSatoshis: feeRateString
-  });
 };
 
 export const getFee = (psbt: Psbt, transactions: Transaction[]) => {

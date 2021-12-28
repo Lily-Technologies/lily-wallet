@@ -1,48 +1,26 @@
-FROM node:16-buster-slim as build
-ARG BUILD_CONTEXT
-WORKDIR /usr/src/app
-RUN yarn set version berry
+FROM node:16-buster-slim as install
 
+WORKDIR /install
+COPY package.json .
 COPY packages/types ./packages/types
-COPY yarn.lock ./packages/types
-
 COPY packages/shared-server ./packages/shared-server
-COPY yarn.lock ./packages/shared-server
+COPY packages/express ./packages/express
 
-WORKDIR /usr/src/app/packages/types
 RUN yarn
-RUN yarn build
 
-WORKDIR /usr/src/app/packages/shared-server
-RUN yarn
-RUN yarn build
+FROM node:16-buster-slim as build
+WORKDIR /build
+
+COPY --from=install /install .
+
+RUN npm run build:types
+RUN npm run build:shared-server
+RUN npm run build:express
 
 FROM node:16-buster-slim
 
-WORKDIR /usr/src/app
-RUN yarn set version berry
-
-COPY package.json  .
-COPY yarn.lock .
-
-ARG BUILD_CONTEXT
-
-COPY --from=build /usr/src/app/packages/types/package.json /usr/src/app/packages/types/package.json
-COPY --from=build /usr/src/app/packages/types/dist /usr/src/app/packages/types/dist
-
-COPY --from=build /usr/src/app/packages/shared-server/package.json /usr/src/app/packages/shared-server/package.json
-COPY --from=build /usr/src/app/packages/shared-server/dist /usr/src/app/packages/shared-server/dist
-
-RUN yarn
-
-COPY packages/$BUILD_CONTEXT ./packages/$BUILD_CONTEXT
-WORKDIR /usr/src/app/packages/$BUILD_CONTEXT
-RUN yarn install
-
-WORKDIR /usr/src/app
-
-RUN yarn build:$BUILD_CONTEXT
+COPY --from=build /build .
 
 EXPOSE 8080
 
-CMD ["yarn", "express"]
+CMD ["npm", "run", "express"]

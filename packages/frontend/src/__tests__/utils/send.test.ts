@@ -9,7 +9,6 @@ import {
   validateSendAmount,
   validateTxForAccount,
   createUtxoMapFromUtxoArray,
-  getFeeForMultisig,
   getFee,
   coinSelection,
   getPsbtFromText,
@@ -124,24 +123,6 @@ describe('Send Utils', () => {
   test('createMap', () => {
     const TransactionMap = createMap(Multisig.transactions as any, 'txid');
     expect(Object.keys(TransactionMap).length).toEqual(Multisig.transactions.length);
-  });
-
-  test('getFeeForMultisig', () => {
-    const FEE_RATE = 10;
-    const ADDRESS_TYPE = AddressType.P2WSH;
-    const NUM_INPUTS = 2;
-    const NUM_OUTPUTS = 2;
-    const REQ_SIGNERS = 2;
-    const TOTAL_SIGNERS = 3;
-    const multisigFee = getFeeForMultisig(
-      FEE_RATE,
-      ADDRESS_TYPE,
-      NUM_INPUTS,
-      NUM_OUTPUTS,
-      REQ_SIGNERS,
-      TOTAL_SIGNERS
-    );
-    expect(multisigFee.toNumber()).toEqual(3050);
   });
 
   test('getFee', () => {

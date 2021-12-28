@@ -1,48 +1,41 @@
+FROM node:16-buster-slim as install
+
+WORKDIR /install
+# TODO: this should only copy package.jsons in appropriate folders
+COPY . .
+
+# Use yarn for correct webpack version hoisting
+RUN yarn
+
 FROM node:16-buster-slim as build
-ARG BUILD_CONTEXT
-WORKDIR /usr/src/app
-RUN yarn set version berry
+WORKDIR /build
 
-COPY packages/types ./packages/types
-COPY yarn.lock ./packages/types
+COPY --from=install /install .
 
-COPY packages/shared-server ./packages/shared-server
-COPY yarn.lock ./packages/shared-server
+ENV GENERATE_SOURCEMAP false
 
-WORKDIR /usr/src/app/packages/types
-RUN yarn
-RUN yarn build
+# ARG EXPRESS_PORT
+# ENV EXPRESS_PORT $EXPRESS_PORT
 
-WORKDIR /usr/src/app/packages/shared-server
-RUN yarn
-RUN yarn build
+# ARG REACT_APP_KEYSERVER_SIGNING_ADDRESS
+# ENV REACT_APP_KEYSERVER_SIGNING_ADDRESS $REACT_APP_KEYSERVER_SIGNING_ADDRESS
 
-FROM node:16-buster-slim
+# ARG REACT_APP_LILY_ENDPOINT
+# ENV REACT_APP_LILY_ENDPOINT $REACT_APP_LILY_ENDPOINT
 
-WORKDIR /usr/src/app
-RUN yarn set version berry
+# ARG REACT_APP_BACKEND_HOST
+# ENV REACT_APP_BACKEND_HOST $REACT_APP_BACKEND_HOST
 
-COPY package.json  .
-COPY yarn.lock .
+# ARG REACT_APP_BACKEND_PORT
+# ENV REACT_APP_BACKEND_PORT $REACT_APP_BACKEND_PORT
 
-ARG BUILD_CONTEXT
 
-COPY --from=build /usr/src/app/packages/types/package.json /usr/src/app/packages/types/package.json
-COPY --from=build /usr/src/app/packages/types/dist /usr/src/app/packages/types/dist
+RUN npm run build:types
+RUN npm run build:frontend
 
-COPY --from=build /usr/src/app/packages/shared-server/package.json /usr/src/app/packages/shared-server/package.json
-COPY --from=build /usr/src/app/packages/shared-server/dist /usr/src/app/packages/shared-server/dist
-
-RUN yarn
-
-COPY packages/$BUILD_CONTEXT ./packages/$BUILD_CONTEXT
-WORKDIR /usr/src/app/packages/$BUILD_CONTEXT
-RUN yarn install
-
-WORKDIR /usr/src/app
-
-RUN yarn build:$BUILD_CONTEXT
-
-EXPOSE 8080
-
-CMD ["yarn", $BUILD_CONTEXT]
+# # production environment
+FROM nginx:stable-alpine
+WORKDIR /app
+COPY --from=build build/packages/frontend/build /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]

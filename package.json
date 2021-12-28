@@ -5,34 +5,28 @@
   "author": "Lily Technologies, Inc. <help@lily-wallet.com> (https://lily-wallet.com)",
   "description": "Lily is the best way to secure your Bitcoin",
   "license": "Custom",
-  "packageManager": "yarn@3.1.0",
   "engines": {
-    "node": "16.13.0"
+    "node": "16.13.1"
   },
   "scripts": {
-    "electron": "yarn workspace LilyWallet start",
-    "frontend": "yarn workspace @lily/frontend run start",
-    "express": "yarn workspace express run start",
-    "build:electron": "yarn workspace LilyWallet build",
-    "build:frontend": "yarn workspace @lily/frontend run build",
-    "build:express": "yarn workspace express run build",
-    "build:types": "yarn workspace @lily/types run build",
-    "build:shared-server": "yarn workspace @lily/shared-server run build"
+    "electron": "npm run start -w LilyWallet",
+    "frontend": "npm run start -w @lily/frontend",
+    "express": "npm run start -w express",
+    "build:electron": "npm run build -w LilyWallet",
+    "build:frontend": "npm run build -w @lily/frontend",
+    "build:electron:frontend": "npm run electron:build -w @lily/frontend",
+    "build:express": "npm run build -w express",
+    "build:types": "npm run build -w @lily/types",
+    "build:shared-server": "npm run build -w @lily/shared-server"
   },
   "homepage": "./",
   "workspaces": [
-    "./packages/*"
+    "packages/*"
   ],
-  "nohoist": [
-    "**/react-scripts",
-    "**/react-scripts/**"
-  ],
-  "dependencies": {
-    "@lily/shared-server": "workspace:^",
-    "@lily/types": "workspace:^"
-  },
   "devDependencies": {
-    "@typescript-eslint/parser": "^5.4.0",
     "typescript": "^4.4.4"
+  },
+  "dependencies": {
+    "@lily-technologies/electrum-client": "^1.1.8"
   }
 }

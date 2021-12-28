@@ -79,8 +79,8 @@
     }
   },
   "dependencies": {
-    "@lily/shared-server": "workspace:*",
-    "@lily/types": "workspace:*",
+    "@lily/shared-server": "1.0.0",
+    "@lily/types": "*",
     "@radar/lnrpc": "^0.11.1-beta.1",
     "axios": "^0.21.1",
     "electron-notarize": "^1.0.0",

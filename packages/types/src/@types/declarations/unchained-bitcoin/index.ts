@@ -5,7 +5,6 @@ declare module 'unchained-bitcoin' {
   function satoshisToBitcoins(n: number | string | BigNumber): BigNumber;
   function bitcoinsToSatoshis(n: number | string | BigNumber): BigNumber;
   function multisigWitnessScript(multisig: Payment): WitnessScript;
-  function estimateMultisigTransactionFee(config: MultisigConfig): BigNumber;
   function blockExplorerAPIURL(path: string, network: string): string;
   function blockExplorerTransactionURL(txid: string, network: 'mainnet' | 'testnet'): string;
   function deriveChildPublicKey(xpub: string, path: string, network: 'mainnet' | 'testnet'): string;

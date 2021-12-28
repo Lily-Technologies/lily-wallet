@@ -21,13 +21,13 @@ import {
 import { FundingPsbtVerify, FundingPsbtFinalize, CloseChannelRequest } from '@radar/lnrpc';
 
 const app = express();
-const port = 8080; // default port to listen
+const port = process.env.EXPRESS_PORT; // default port to listen
 
 const isTestnet = !!('TESTNET' in process.env);
 const OnchainDataProvider = new ElectrumProvider(isTestnet);
 let LightningDataProvider: LightningBaseProvider;
 OnchainDataProvider.initialize();
-const USER_DATA_DIRECTORY = `/Users/kevinmulcrone/Library/Application Support/LilyWallet`;
+const USER_DATA_DIRECTORY = process.env.USER_DATA_DIRECTORY;
 
 app.use(cors());
 app.use(bodyParser.json());

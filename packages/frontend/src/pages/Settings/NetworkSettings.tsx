@@ -152,7 +152,7 @@ const NetworkSettings = ({
       <SettingsTable.Row>
         <SettingsTable.KeyColumn>Data Source</SettingsTable.KeyColumn>
         <SettingsTable.ValueColumn>
-          <SettingsTable.ValueText>{nodeConfig.provider}</SettingsTable.ValueText>
+          <SettingsTable.ValueText>{nodeConfig && nodeConfig.provider}</SettingsTable.ValueText>
           <SettingsTable.ValueAction>
             <Dropdown
               minimal={false}

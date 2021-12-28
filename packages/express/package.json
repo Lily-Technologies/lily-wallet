@@ -5,13 +5,13 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
-    "prestart": "npm install && npm run build",
     "start": "node .",
+    "docker:build": "",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "@lily/shared-server": "workspace:*",
-    "@lily/types": "workspace:*",
+    "@lily/shared-server": "1.0.0",
+    "@lily/types": "*",
     "@radar/lnrpc": "^0.11.1-beta.1",
     "axios": "^0.24.0",
     "body-parser": "^1.19.0",

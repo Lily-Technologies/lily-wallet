@@ -6,6 +6,7 @@ import moment from 'moment';
 import { AES, enc } from 'crypto-js';
 import { ArrowIosForwardOutline } from '@styled-icons/evaicons-outline';
 import FlowerLogo from 'src/assets/flower.svg';
+import FlowerHeroImage from 'src/assets/lily-image.jpg';
 
 import { StyledIcon, FileUploader, Button, Input } from 'src/components';
 
@@ -240,7 +241,7 @@ const Login = ({
         </SignupOptionMenu>
       </Wrapper>
       <LilyImageContainer>
-        <LilyImage src={require('../../assets/lily-image.jpg')} />
+        <LilyImage src={FlowerHeroImage} />
       </LilyImageContainer>
     </PageWrapper>
   );
