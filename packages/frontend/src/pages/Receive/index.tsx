@@ -23,7 +23,6 @@ interface Props {
 }
 
 const Receive = ({ config }: Props) => {
-  document.title = `Receive - Lily Wallet`;
   const { accountMap, currentAccount } = useContext(AccountMapContext);
 
   return (

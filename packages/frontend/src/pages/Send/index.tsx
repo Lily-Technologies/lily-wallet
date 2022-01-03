@@ -19,8 +19,6 @@ interface Props {
 }
 
 const Send = ({ config, currentBitcoinNetwork, nodeConfig, currentBitcoinPrice }: Props) => {
-  document.title = `Send - Lily Wallet`;
-
   const { accountMap, currentAccount } = useContext(AccountMapContext);
 
   return (

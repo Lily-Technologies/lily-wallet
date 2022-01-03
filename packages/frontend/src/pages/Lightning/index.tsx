@@ -18,7 +18,6 @@ interface Props {
 }
 
 const Lightning = ({ nodeConfig, password, toggleRefresh, currentBitcoinNetwork }: Props) => {
-  document.title = `Lightning - Lily Wallet`;
   let { path } = useRouteMatch();
 
   return (

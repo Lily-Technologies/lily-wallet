@@ -34,7 +34,6 @@ interface Props {
 }
 
 const Setup = ({ password, currentBlockHeight, currentBitcoinNetwork }: Props) => {
-  document.title = `Setup - Lily Wallet`;
   const { config, setConfigFile } = useContext(ConfigContext);
   const { platform } = useContext(PlatformContext);
   const [setupOption, setSetupOption] = useState(0);

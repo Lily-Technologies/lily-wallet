@@ -42,7 +42,6 @@ const Login = ({
   setPassword,
   currentBlockHeight
 }: Props) => {
-  document.title = `Login - Lily Wallet`;
   const { config, setConfigFile } = useContext(ConfigContext);
   const { platform } = useContext(PlatformContext);
   const [localPassword, setLocalPassword] = useState('');

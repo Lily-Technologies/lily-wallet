@@ -32,6 +32,7 @@ import {
 } from '@lily/types';
 
 const App = () => {
+  document.title = `Lily Wallet`;
   const { setAccountMap, updateAccountMap } = useContext(AccountMapContext);
   const {
     config,

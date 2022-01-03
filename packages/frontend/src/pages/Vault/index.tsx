@@ -18,7 +18,6 @@ interface Props {
 }
 
 const Vault = ({ nodeConfig, password, toggleRefresh, currentBitcoinNetwork }: Props) => {
-  document.title = `Vault - Lily Wallet`;
   let { path } = useRouteMatch();
 
   return (

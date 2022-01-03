@@ -39,7 +39,6 @@ interface Props {
 }
 
 const SendOnchain = ({ currentAccount, currentBitcoinNetwork, currentBitcoinPrice }: Props) => {
-  document.title = `Send - Lily Wallet`;
   const [step, setStep] = useState(0);
   const [finalPsbt, setFinalPsbt] = useState<Psbt | undefined>(undefined);
   const [feeRates, setFeeRates] = useState<FeeRates>({

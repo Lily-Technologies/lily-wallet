@@ -20,7 +20,6 @@ interface Props {
 }
 
 const SendLightning = ({ currentAccount }: Props) => {
-  document.title = `Send - Lily Wallet`;
   const [step, setStep] = useState(0);
   const [paymentRequest, setPaymentRequest] = useState('');
   const { currentBalance } = currentAccount;
