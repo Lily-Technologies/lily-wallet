@@ -3,6 +3,8 @@ import styled from 'styled-components';
 import moment from 'moment';
 import { Button, Modal } from 'src/components';
 
+import DeadFlowerImage from 'src/assets/dead-flower.svg';
+
 import TxDetailsModal from './TxDetailsModal';
 import TransactionRow from './TransactionRow';
 import TransactionRowLoading from './TransactionRowLoading';
@@ -81,7 +83,7 @@ const RecentTransactions = ({
         {!loading && transactions.length === 0 && (
           <NoTransasctionsSection flat={flat}>
             <NoTransactionsHeader>No Transactions</NoTransactionsHeader>
-            <DeadFlower src={require('../../../assets/dead-flower.svg')} />
+            <DeadFlower src={DeadFlowerImage} />
             <NoTransactionsSubtext>
               No activity has been detected on this account yet.
             </NoTransactionsSubtext>

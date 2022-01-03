@@ -7,6 +7,7 @@ import { AES, enc } from 'crypto-js';
 import { ArrowIosForwardOutline } from '@styled-icons/evaicons-outline';
 import FlowerLogo from 'src/assets/flower.svg';
 import FlowerHeroImage from 'src/assets/lily-image.jpg';
+import FlowerLoading from 'src/assets/flower-loading.svg';
 
 import { StyledIcon, FileUploader, Button, Input } from 'src/components';
 
@@ -210,10 +211,7 @@ const Login = ({
                   ? 'Unlock'
                   : 'Continue'}
                 {isLoading ? (
-                  <LoadingImage
-                    alt='loading placeholder'
-                    src={require('../../assets/flower-loading.svg')}
-                  />
+                  <LoadingImage alt='loading placeholder' src={FlowerLoading} />
                 ) : (
                   <StyledIcon as={ArrowIosForwardOutline} size={24} />
                 )}

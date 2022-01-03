@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import styled from 'styled-components';
 import { Link, useRouteMatch, useHistory } from 'react-router-dom';
 import { VerticalAlignBottom, ArrowUpward, Settings, Refresh } from '@styled-icons/material';
+import FlowerLoading from 'src/assets/flower-loading.svg';
 
 import { AccountMapContext } from 'src/context/AccountMapContext';
 
@@ -63,12 +64,7 @@ const LightningHeader = ({ toggleRefresh }: Props) => {
             <StyledIcon as={Refresh} size={36} />
           </RefreshButton>
         )}
-        {currentAccount.loading && (
-          <LoadingImage
-            alt='loading placeholder'
-            src={require('../../assets/flower-loading.svg')}
-          />
-        )}
+        {currentAccount.loading && <LoadingImage alt='loading placeholder' src={FlowerLoading} />}
         <SettingsButton
           to={`${url}/settings`}
           color={white}

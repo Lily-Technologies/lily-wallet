@@ -1,5 +1,5 @@
 import React from 'react';
-import FlowerLogo from 'src/assets/flower.svg';
+import FlowerLoading from 'src/assets/flower-loading.svg';
 
 import styled, { keyframes } from 'styled-components';
 import { green200, gray700 } from 'src/utils/colors';
@@ -15,11 +15,7 @@ type RequireItemTextOrMessage = RequireOnlyOne<Props, 'itemText' | 'message'>;
 
 export const Loading = ({ itemText, style = {}, message }: RequireItemTextOrMessage) => (
   <LoadingWrapper style={style}>
-    <img
-      alt='loading placeholder'
-      src={FlowerLogo}
-      style={{ maxWidth: '6.25em' }}
-    />
+    <img alt='loading placeholder' src={FlowerLoading} style={{ maxWidth: '6.25em' }} />
     {itemText && <LoadingText>Loading {itemText}</LoadingText>}
     {message && <LoadingText>{message}</LoadingText>}
     <LoadingSubText>Please wait...</LoadingSubText>

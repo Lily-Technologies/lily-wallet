@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import styled from 'styled-components';
 import { Circle } from '@styled-icons/boxicons-solid';
+import FlowerLoading from 'src/assets/flower-loading.svg';
 
 import {
   ConnectToNodeModal,
@@ -118,10 +119,7 @@ const NetworkSettings = ({
                   }}
                 />
               ) : (
-                <LoadingImage
-                  alt='loading placeholder'
-                  src={require('../../assets/flower-loading.svg')}
-                />
+                <LoadingImage alt='loading placeholder' src={FlowerLoading} />
               )}
               {getNodeStatus(nodeConfig)}
             </StatusContainer>
