@@ -1,15 +1,9 @@
 import axios from 'axios';
 import moment from 'moment';
-import {
-  ElectrumProvider,
-  LND,
-  getFile,
-  saveFile,
-  LightningBaseProvider
-} from '@lily/shared-server';
 import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
+import { FundingPsbtVerify, FundingPsbtFinalize, CloseChannelRequest } from '@radar/lnrpc';
 
 import {
   OnChainConfig,
@@ -18,24 +12,39 @@ import {
   CoindeskHistoricPriceResponse,
   OpenChannelRequestArgs
 } from '@lily/types';
-import { FundingPsbtVerify, FundingPsbtFinalize, CloseChannelRequest } from '@radar/lnrpc';
+
+import {
+  ElectrumProvider,
+  LND,
+  getFile,
+  saveFile,
+  LightningBaseProvider
+} from '@lily/shared-server';
 
 const app = express();
+app.use(cors());
+
 const port = process.env.EXPRESS_PORT; // default port to listen
 
-const isTestnet = !!('TESTNET' in process.env);
-const OnchainDataProvider = new ElectrumProvider(isTestnet);
-let LightningDataProvider: LightningBaseProvider;
-OnchainDataProvider.initialize();
 const USER_DATA_DIRECTORY = process.env.USER_DATA_DIRECTORY;
 
-app.use(cors());
-app.use(bodyParser.json());
+const isTestnet = !!('TESTNET' in process.env);
+const OnchainDataProvider = new ElectrumProvider(
+  process.env.ELECTRUM_IP,
+  Number(process.env.ELECTRUM_PORT),
+  isTestnet
+);
+OnchainDataProvider.initialize();
 
-// define a route handler for the default home page
-app.get('/', (req, res) => {
-  res.send('Hello world!');
+let LightningDataProvider: LightningBaseProvider;
+
+app.use(function (req, res, next) {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  next();
 });
+
+app.use(bodyParser.json());
 
 app.get('/bitcoin-network', async (req, res) => {
   res.send(isTestnet);
@@ -155,7 +164,7 @@ app.post('/lightning-send-payment', async (req, res) => {
 app.post(`/lightning-connect`, async (req, res) => {
   const { lndConnectUri } = req.body;
   try {
-    const LightningDataProvider = new LND(lndConnectUri);
+    LightningDataProvider = new LND(lndConnectUri);
     const info = await LightningDataProvider.initialize();
     res.send(info);
   } catch (e) {
