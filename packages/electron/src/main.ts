@@ -7,16 +7,17 @@ import { FundingPsbtFinalize, FundingPsbtVerify, CloseChannelRequest, Invoice } 
 
 import { enumerate, getXPub, signtx, promptpin, sendpin } from '@lily/shared-server';
 
-import { getFile, saveFile, getBitcoinCoreConfig } from '@lily/shared-server';
-
 import {
+  getFile,
+  saveFile,
+  getBitcoinCoreConfig,
+  LightningBaseProvider,
+  LND,
   OnchainBaseProvider,
   BitcoinCoreProvider,
   BlockstreamProvider,
   ElectrumProvider
 } from '@lily/shared-server';
-
-import { LightningBaseProvider, LND } from '@lily/shared-server';
 
 import {
   NodeConfigWithBlockchainInfo,
@@ -143,7 +144,7 @@ const setupInitialNodeConfig = async () => {
       console.log('Failed to retrieve remote Bitcoin Core connection data.');
       try {
         console.log('Connecting to Electrum...');
-        OnchainDataProvider = new ElectrumProvider(isTestnet);
+        OnchainDataProvider = new ElectrumProvider('electrum1.bluewallet.io', 50001, isTestnet);
         OnchainDataProvider.initialize();
         console.log('Connected to Electrum');
       } catch (e) {
@@ -459,7 +460,7 @@ ipcMain.handle('/changeNodeConfig', async (event, args) => {
     OnchainDataProvider = new BitcoinCoreProvider(nodeConfig, isTestnet);
     await OnchainDataProvider.initialize();
   } else if (nodeConfig.provider === 'Electrum') {
-    OnchainDataProvider = new ElectrumProvider(isTestnet);
+    OnchainDataProvider = new ElectrumProvider('electrum1.bluewallet.io', 50001, isTestnet);
     await OnchainDataProvider.initialize();
   } else {
     OnchainDataProvider = new BlockstreamProvider(isTestnet);

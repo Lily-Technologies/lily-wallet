@@ -58,9 +58,9 @@ const getPrevOut = (prevTx: blockchainTransaction_getBatchResponse, index: numbe
 export class ElectrumProvider extends OnchainBaseProvider {
   client: ElectrumClient;
 
-  constructor(testnet: boolean) {
+  constructor(url: string, port: number, testnet: boolean) {
     super('Electrum', testnet);
-    this.client = new ElectrumClient(50001, 'electrum1.bluewallet.io', 'tcp');
+    this.client = new ElectrumClient(port, url, 'tcp');
   }
 
   async initialize() {
@@ -69,8 +69,6 @@ export class ElectrumProvider extends OnchainBaseProvider {
         client: 'bluewallet',
         version: '1.4'
       });
-
-      console.log('ver: ', ver);
 
       const blockheight = await this.client.blockchainHeaders_subscribe();
       console.log('blockheight: ', blockheight);
@@ -270,6 +268,7 @@ export class ElectrumProvider extends OnchainBaseProvider {
         cycles = cycles + 1;
       } catch (e) {
         console.log('scanForAddressesAndTransactions e: ', e);
+        await this.initialize();
       }
     }
 
