@@ -104,7 +104,7 @@ const Wrapper = styled.div`
   background: ${yellow500};
   z-index: 2;
   position: fixed;
-  top: 2.5em;
+  top: ${process.env.REACT_APP_IS_ELECTRON ? '2.5em' : '0'};
   width: 100%;
 `;
 

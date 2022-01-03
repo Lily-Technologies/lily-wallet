@@ -217,7 +217,9 @@ const App = () => {
   return (
     <Router>
       <ScrollToTop />
-      <TitleBar nodeConfig={nodeConfig} config={config} />
+      {process.env.REACT_APP_IS_ELECTRON ? (
+        <TitleBar nodeConfig={nodeConfig} config={config} />
+      ) : null}
       {!config.isEmpty && (
         <AlertBar nodeConfig={nodeConfig} currentBitcoinNetwork={currentBitcoinNetwork} />
       )}

@@ -14,7 +14,7 @@
     "express": "npm run start -w express",
     "build:electron": "npm run build -w LilyWallet",
     "build:frontend": "npm run build -w @lily/frontend",
-    "build:electron:frontend": "npm run electron:build -w @lily/frontend",
+    "build:frontend:electron": "npm run electron:build -w @lily/frontend",
     "build:express": "npm run build -w express",
     "build:types": "npm run build -w @lily/types",
     "build:shared-server": "npm run build -w @lily/shared-server"
