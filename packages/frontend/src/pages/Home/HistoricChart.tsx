@@ -12,6 +12,8 @@ import {
   TooltipPayload
 } from 'recharts';
 
+import { ChartEmptyState } from './ChartEmptyState';
+
 import { green700, gray600, white, gray500, yellow100, yellow500 } from 'src/utils/colors';
 
 var formatter = new Intl.NumberFormat('en-US', {
@@ -143,7 +145,7 @@ export const HistoricChart = ({
             />
           </AreaChart>
         ) : (
-          <div>Error Loading</div>
+          <ChartEmptyState />
         )}
       </ResponsiveContainer>
     </ChartContainer>
