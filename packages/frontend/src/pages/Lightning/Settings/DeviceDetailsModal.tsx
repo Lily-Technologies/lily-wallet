@@ -2,7 +2,7 @@ import React from 'react';
 import styled, { css } from 'styled-components';
 import { Calculator } from '@styled-icons/heroicons-outline';
 
-import { StyledIcon } from 'src/components';
+import { StyledIcon, DeviceImage } from 'src/components';
 
 import { mobile } from 'src/utils/media';
 import { capitalize } from 'src/utils/other';
@@ -26,25 +26,7 @@ const DeviceDetailsModal = ({ item }: Props) => {
         <HeadingText>Device Information</HeadingText>
         <InformationContainer>
           <ImageContainer>
-            <DeviceImage
-              src={
-                item.device.type === 'coldcard'
-                  ? require('../../../assets/coldcard.png')
-                  : item.device.type === 'ledger' && item.device.model === 'ledger_nano_s'
-                  ? require('../../../assets/ledger_nano_s.png')
-                  : item.device.type === 'ledger' && item.device.model === 'ledger_nano_x'
-                  ? require('../../../assets/ledger_nano_x.png')
-                  : item.device.type === 'trezor' && item.device.model === 'trezor_1'
-                  ? require('../../../assets/trezor_1.png')
-                  : item.device.type === 'trezor' && item.device.model === 'trezor_t'
-                  ? require('../../../assets/trezor_t.png')
-                  : item.device.type === 'cobo'
-                  ? require('../../../assets/cobo.png')
-                  : item.device.type === 'bitbox02'
-                  ? require('../../../assets/bitbox02.png')
-                  : require('../../../assets/iphone.png')
-              }
-            />
+            <DeviceImage device={item.device} />
           </ImageContainer>
           <Rows>
             <ProfileRow>
@@ -189,14 +171,6 @@ const HeadingText = styled.div`
   font-size: 1.125rem;
   text-align: center;
   font-weight: 600;
-`;
-
-const DeviceImage = styled.img`
-  display: block;
-  width: auto;
-  height: auto;
-  max-height: 250px;
-  max-width: 6.25em;
 `;
 
 export default DeviceDetailsModal;
