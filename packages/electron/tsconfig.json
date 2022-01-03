@@ -1,27 +1,22 @@
 {
-  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "outDir": "dist",
-    "sourceMap": true,
-    // "strictNullChecks": true,
     "module": "commonjs",
-    "target": "esnext",
-    "rootDir": "./src",
-    "allowJs": true,
-    "baseUrl": ".",
-    "lib": ["esnext"],
-    "skipLibCheck": true,
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "strict": true,
-    "forceConsistentCasingInFileNames": true,
+    "target": "es6",
+    "noImplicitAny": true,
     "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": false,
-    "typeRoots": ["node_modules/@types", "../types/dist/**", "../shared-server/dist/**"]
+    "sourceMap": true,
+    "outDir": "dist",
+    "baseUrl": ".",
+    "skipLibCheck": true
   },
-  "references": [{ "path": "../types" }, { "path": "../shared-server" }],
-  "include": ["src/**/*", "../shared-server/dist/**/*.ts", "../types/dist/**/*.ts"],
-  "exclude": ["./dist"]
+  "references": [
+    {
+      "path": "../shared-server"
+    },
+    {
+      "path": "../types"
+    }
+  ],
+  "include": ["src/**/*"]
 }
