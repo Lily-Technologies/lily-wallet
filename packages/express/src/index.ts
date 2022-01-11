@@ -1,16 +1,23 @@
+require('dotenv').config();
 import axios from 'axios';
 import moment from 'moment';
 import express from 'express';
 import cors from 'cors';
-import bodyParser from 'body-parser';
 import { FundingPsbtVerify, FundingPsbtFinalize, CloseChannelRequest } from '@radar/lnrpc';
+import { readFileSync, existsSync } from 'fs';
+import { v4 as uuidv4 } from 'uuid';
+import bodyParser from 'body-parser';
+// @ts-ignore
+import { encode } from 'lndconnect';
+import { AES } from 'crypto-js';
 
 import {
   OnChainConfig,
   LightningConfig,
   CoindeskCurrentPriceResponse,
   CoindeskHistoricPriceResponse,
-  OpenChannelRequestArgs
+  OpenChannelRequestArgs,
+  EMPTY_CONFIG
 } from '@lily/types';
 
 import {
@@ -23,10 +30,65 @@ import {
 
 const app = express();
 app.use(cors());
+app.use(bodyParser.json());
+
+const APP_DATA_DIRECTORY = process.env.APP_DATA_DIR;
+const CONFIG_FILE_NAME = 'lily-config-encrypted.txt';
+
+process.on('unhandledRejection', (error) => {
+  console.error('unhandledRejection', error);
+});
+
+const setInitialConfig = async () => {
+  let configExists = false;
+  try {
+    const configFile = await getFile(CONFIG_FILE_NAME, APP_DATA_DIRECTORY);
+    configExists = !!configFile;
+  } catch (e) {
+    console.log('No config file exists');
+  }
+
+  if (!configExists && process.env.APP_PASSWORD) {
+    try {
+      const { file: macaroon } = await getFile(
+        'admin.macaroon',
+        '/lnd/data/chain/bitcoin/mainnet', // TODO: make dynamic for other platforms
+        'hex'
+      );
+      const { file: tlsCert } = await getFile('tls.cert', '/lnd', 'utf8');
+
+      const emptyConfig = EMPTY_CONFIG;
+      emptyConfig.isEmpty = false;
+      emptyConfig.lightning[0] = {
+        id: uuidv4(),
+        type: 'lightning',
+        created_at: Date.now(),
+        name: 'Umbrel', // TODO: make dynamic for other platforms
+        network: 'mainnet',
+        connectionDetails: {
+          lndConnectUri: encode({
+            host: `${process.env.LND_IP}:${process.env.LND_GRPC_PORT}`,
+            cert: tlsCert,
+            macaroon: macaroon
+          })
+        }
+      };
+
+      const encryptedConfigObject = AES.encrypt(
+        JSON.stringify(emptyConfig),
+        process.env.APP_PASSWORD
+      ).toString();
+
+      await saveFile(encryptedConfigObject, CONFIG_FILE_NAME, APP_DATA_DIRECTORY);
+    } catch (e) {
+      console.log('error: ', e);
+    }
+  }
+};
+
+setInitialConfig();
 
 const port = process.env.EXPRESS_PORT; // default port to listen
-
-const USER_DATA_DIRECTORY = process.env.USER_DATA_DIRECTORY;
 
 const isTestnet = !!('TESTNET' in process.env);
 const OnchainDataProvider = new ElectrumProvider(
@@ -34,6 +96,7 @@ const OnchainDataProvider = new ElectrumProvider(
   Number(process.env.ELECTRUM_PORT),
   isTestnet
 );
+
 OnchainDataProvider.initialize();
 
 let LightningDataProvider: LightningBaseProvider;
@@ -44,15 +107,13 @@ app.use(function (req, res, next) {
   next();
 });
 
-app.use(bodyParser.json());
-
 app.get('/bitcoin-network', async (req, res) => {
   res.send(isTestnet);
 });
 
 app.get('/get-config', async (req, res) => {
   try {
-    const file = await getFile('lily-config-encrypted.txt', USER_DATA_DIRECTORY);
+    const file = await getFile('lily-config-encrypted.txt', APP_DATA_DIRECTORY);
     res.send(JSON.stringify(file));
   } catch (e) {
     console.log('Failed to get Lily config');
@@ -61,7 +122,7 @@ app.get('/get-config', async (req, res) => {
 
 app.post('/save-config', async (req, res) => {
   const { encryptedConfigFile } = req.body;
-  return saveFile(encryptedConfigFile, 'lily-config-encrypted.txt', USER_DATA_DIRECTORY);
+  return saveFile(encryptedConfigFile, 'lily-config-encrypted.txt', APP_DATA_DIRECTORY);
 });
 
 app.post('/account-data', async (req, res) => {

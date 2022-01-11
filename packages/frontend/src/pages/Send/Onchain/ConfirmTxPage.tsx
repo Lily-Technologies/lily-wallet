@@ -3,7 +3,6 @@ import { Psbt, Network } from 'bitcoinjs-lib';
 import { mnemonicToSeed } from 'bip39';
 import * as ecc from 'tiny-secp256k1';
 import BIP32Factory from 'bip32';
-
 import SignWithDevice from './SignWithDevice';
 import TransactionDetails from '../components/TransactionDetails';
 import AddSignatureFromQrCode from './AddSignatureFromQrCode';
@@ -17,7 +16,8 @@ import {
   getPsbtFromText,
   getSignedDevicesFromPsbt,
   combinePsbts,
-  validateTxForAccount
+  validateTxForAccount,
+  inputValidator
 } from 'src/utils/send';
 
 const bip32 = BIP32Factory(ecc);
@@ -94,7 +94,7 @@ const ConfirmTxPage = ({
         const root = bip32.fromSeed(seed, currentBitcoinNetwork);
 
         psbt.signAllInputsHD(root);
-        psbt.validateSignaturesOfAllInputs();
+        psbt.validateSignaturesOfAllInputs(inputValidator);
         psbt.finalizeAllInputs();
 
         setSignedDevices([

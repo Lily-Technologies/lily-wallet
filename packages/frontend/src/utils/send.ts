@@ -1,8 +1,10 @@
 import { satoshisToBitcoins, bitcoinsToSatoshis } from 'unchained-bitcoin';
 import { Psbt, address, Network } from 'bitcoinjs-lib';
-
+import * as ecc from 'tiny-secp256k1';
+import ECPairFactory from 'ecpair';
 import BigNumber from 'bignumber.js';
 import coinSelect from 'coinselect';
+import { Buffer } from 'buffer';
 
 import { cloneBuffer, bufferToHex } from './other';
 
@@ -22,6 +24,8 @@ import {
 
 import { BasePlatform } from 'src/frontend-middleware';
 
+const ECPair = ECPairFactory(ecc);
+
 export const combinePsbts = (finalPsbt: Psbt, signedPsbt: Psbt) => {
   const combinedPsbt = finalPsbt.combine(signedPsbt);
   return combinedPsbt;
@@ -35,6 +39,9 @@ export const validateAddress = (recipientAddress: string, currentBitcoinNetwork:
     return false;
   }
 };
+
+export const inputValidator = (pubkey: Buffer, msghash: Buffer, signature: Buffer): boolean =>
+  ECPair.fromPublicKey(pubkey).verify(msghash, signature);
 
 export const truncateAddress = (address: string) => {
   if (address.length < 40) return address;
@@ -208,7 +215,9 @@ export const createTransaction = async (
       sequence: 0xfffffffd, // always enable RBF
       nonWitnessUtxo: Buffer.from(input.prevTxHex, 'hex'),
       bip32Derivation: input.address.bip32derivation.map((derivation) => ({
+        // @ts-ignore
         masterFingerprint: Buffer.from(Object.values(derivation.masterFingerprint)),
+        // @ts-ignore
         pubkey: Buffer.from(Object.values(derivation.pubkey)),
         path: derivation.path
       }))

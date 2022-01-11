@@ -3,6 +3,7 @@ import { Psbt } from 'bitcoinjs-lib';
 import styled, { css } from 'styled-components';
 import { satoshisToBitcoins } from 'unchained-bitcoin';
 import { EditAlt } from '@styled-icons/boxicons-regular';
+import { Buffer } from 'buffer';
 
 import { StyledIcon, ModalContentWrapper, ErrorModal, Modal, LightningImage } from 'src/components';
 

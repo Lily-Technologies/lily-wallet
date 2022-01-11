@@ -5,7 +5,7 @@ WORKDIR /install
 COPY . .
 
 # Use yarn for correct webpack version hoisting
-RUN yarn
+RUN npm install
 
 FROM node:16-buster-slim as build
 WORKDIR /build
@@ -31,7 +31,7 @@ ENV GENERATE_SOURCEMAP false
 
 
 RUN npm run build:types
-RUN npm run build:frontend
+RUN npm run build:frontend:umbrel
 
 # # production environment
 FROM nginx:stable-alpine

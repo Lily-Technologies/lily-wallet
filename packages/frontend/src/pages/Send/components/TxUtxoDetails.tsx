@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { Psbt } from 'bitcoinjs-lib';
 import { satoshisToBitcoins } from 'unchained-bitcoin';
+import { Buffer } from 'buffer';
 
 import { createUtxoMapFromUtxoArray, getFee } from 'src/utils/send';
 import { cloneBuffer } from 'src/utils/other';
@@ -34,7 +35,8 @@ const TransactionUtxoDetails = ({ currentAccount, psbt, currentBitcoinPrice }: P
           <MoreDetailsHeader>Inputs</MoreDetailsHeader>
           {psbt.txInputs.map((input) => {
             const inputBuffer = cloneBuffer(input.hash);
-            const utxo = utxosMap[`${Buffer.from(inputBuffer.reverse()).toString('hex')}:${input.index}`];
+            const utxo =
+              utxosMap[`${Buffer.from(inputBuffer.reverse()).toString('hex')}:${input.index}`];
             return (
               <OutputItem>
                 <OutputAddress>{utxo.address.address}</OutputAddress>

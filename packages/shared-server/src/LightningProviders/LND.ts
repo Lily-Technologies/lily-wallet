@@ -15,6 +15,7 @@ import createLnRpc, {
 } from '@radar/lnrpc';
 import { blockExplorerAPIURL } from 'unchained-bitcoin';
 import BigNumber from 'bignumber.js';
+import { Buffer } from 'buffer';
 
 import { LightningBaseProvider } from '.';
 

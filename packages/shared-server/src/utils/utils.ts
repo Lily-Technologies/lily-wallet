@@ -6,13 +6,15 @@ import { join } from 'path';
 
 import { BitcoinCoreConfVariables } from '@lily/types';
 
-export const saveFile = async (file: string, filename: string, userDataPath: string) => {
-  const filePath = join(userDataPath, filename);
+export const saveFile = async (file: string, filename: string, path: string) => {
+  const filePath = join(path, filename);
+  console.log(`Saving ${filePath}...`);
   writeFile(filePath, file, (err) => {
     if (err) {
+      console.log('Saving failed.');
       return Promise.reject();
     }
-
+    console.log(`Saved ${filePath} successfully`);
     const fileContents = readFileSync(filePath);
     if (fileContents) {
       const stats = statSync(filePath);
@@ -22,14 +24,19 @@ export const saveFile = async (file: string, filename: string, userDataPath: str
         modifiedTime: mtime
       });
     } else {
+      console.log('Saving failed.');
       return Promise.reject();
     }
   });
 };
 
-export const getFile = async (filename: string, userDataPath: string) => {
+export const getFile = async (
+  filename: string,
+  userDataPath: string,
+  encoding?: 'utf8' | 'hex'
+) => {
   const filePath = join(userDataPath, filename);
-  const fileContents = readFileSync(filePath);
+  const fileContents = readFileSync(filePath, encoding);
   if (fileContents) {
     const stats = statSync(filePath);
     const mtime = stats.mtime;

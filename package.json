@@ -11,22 +11,23 @@
   "scripts": {
     "electron": "npm run start -w LilyWallet",
     "frontend": "npm run start -w @lily/frontend",
-    "express": "npm run start -w express",
+    "express": "npm run start -w @lily/express",
     "build:electron": "npm run build -w LilyWallet",
-    "build:frontend": "npm run build -w @lily/frontend",
-    "build:frontend:electron": "npm run electron:build -w @lily/frontend",
-    "build:express": "npm run build -w express",
+    "build:frontend:electron": "npm run build:electron -w @lily/frontend",
+    "build:frontend:umbrel": "npm run build:umbrel -w @lily/frontend",
+    "build:express": "npm run build -w @lily/express",
     "build:types": "npm run build -w @lily/types",
-    "build:shared-server": "npm run build -w @lily/shared-server"
+    "build:shared-server": "npm run build -w @lily/shared-server",
+    "dist:electron": "npm run dist -w LilyWallet",
+    "pack:electron": "npm run pack -w LilyWallet"
   },
   "homepage": "./",
   "workspaces": [
     "packages/*"
   ],
   "devDependencies": {
-    "typescript": "^4.4.4"
+    "typescript": "^4.5.4"
   },
   "dependencies": {
-    "@lily-technologies/electrum-client": "^1.1.8"
   }
 }

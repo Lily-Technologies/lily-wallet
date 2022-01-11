@@ -2,21 +2,7 @@ import React, { createContext, useState } from 'react';
 import { networks, Network } from 'bitcoinjs-lib';
 import BigNumber from 'bignumber.js';
 
-import { LilyConfig } from '@lily/types';
-
-export const EMPTY_CONFIG = {
-  name: '',
-  version: '1.0.8',
-  isEmpty: true,
-  backup_options: {
-    gDrive: false
-  },
-  wallets: [],
-  vaults: [],
-  lightning: [],
-  keys: [],
-  exchanges: []
-} as LilyConfig;
+import { LilyConfig, EMPTY_CONFIG } from '@lily/types';
 
 export const ConfigContext = createContext({
   setConfigFile: (config: LilyConfig) => {},

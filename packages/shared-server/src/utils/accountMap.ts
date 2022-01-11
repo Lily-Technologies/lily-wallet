@@ -1,5 +1,6 @@
 import { payments, networks, Network } from 'bitcoinjs-lib';
 import { deriveChildPublicKey, generateMultisigFromPublicKeys } from 'unchained-bitcoin';
+import { Buffer } from 'buffer';
 
 import {
   OnChainConfig,

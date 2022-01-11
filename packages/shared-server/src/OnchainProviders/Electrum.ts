@@ -71,8 +71,6 @@ export class ElectrumProvider extends OnchainBaseProvider {
       });
 
       const blockheight = await this.client.blockchainHeaders_subscribe();
-      console.log('blockheight: ', blockheight);
-
       this.setCurrentBlockHeight(blockheight.height);
       this.setConnected(true);
     } catch (e) {

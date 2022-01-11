@@ -12,6 +12,15 @@ import {
 
 import { blockchainTransaction_getBatchResponse, ElectrumVin } from '@mempool/electrum-client';
 
+export const EMPTY_CONFIG: LilyConfig = {
+  name: '',
+  version: '1.0.8',
+  isEmpty: true,
+  wallets: [],
+  vaults: [],
+  lightning: []
+};
+
 export interface File {
   file: string;
   modifiedTime: number;

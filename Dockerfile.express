@@ -6,7 +6,7 @@ COPY packages/types ./packages/types
 COPY packages/shared-server ./packages/shared-server
 COPY packages/express ./packages/express
 
-RUN yarn
+RUN npm install
 
 FROM node:16-buster-slim as build
 WORKDIR /build

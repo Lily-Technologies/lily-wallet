@@ -5,6 +5,7 @@ import { Bitcoin } from '@styled-icons/boxicons-logos';
 import { AddCircleOutline } from '@styled-icons/material';
 import { satoshisToBitcoins } from 'unchained-bitcoin';
 import moment from 'moment';
+import { ChannelBalanceResponse } from '@radar/lnrpc';
 
 import { AccountMapContext } from 'src/context/AccountMapContext';
 
@@ -51,7 +52,9 @@ export const AccountsSection = () => {
                   Current Balance:{' '}
                   {account.config.type === 'onchain'
                     ? `${satoshisToBitcoins(account.currentBalance as number).toFixed(8)} BTC`
-                    : `${account.currentBalance.toLocaleString()} sats`}
+                    : `${(
+                        account.currentBalance as ChannelBalanceResponse
+                      ).balance.toLocaleString()} sats`}
                 </CurrentBalance>
               )}
               {!account.loading && account.config.type === 'onchain' && (

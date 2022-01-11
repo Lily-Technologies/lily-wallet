@@ -41,7 +41,7 @@ const AcvitityRow = ({ onClick, type, creation_date, title, value_sat }: Props) 
           </TxTypeTextWrapper>
         </TxTypeIcon>
         <AddressWrapper>{title}</AddressWrapper>
-        <AmountWrapper>{satoshisToBitcoins(value_sat).toNumber()} BTC</AmountWrapper>
+        <AmountWrapper>{value_sat.toLocaleString()} sats</AmountWrapper>
       </AcvitityRowContainer>
     </AcvitityRowWrapper>
   );

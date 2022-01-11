@@ -1,12 +1,13 @@
-import bs58check from "bs58check";
-import BigNumber from "bignumber.js";
+import bs58check from 'bs58check';
+import BigNumber from 'bignumber.js';
+import { Buffer } from 'buffer';
 
 export function capitalize(word) {
   return word.charAt(0).toUpperCase() + word.slice(1);
 }
 
 export function capitalizeAllAndReplaceUnderscore(word) {
-  return word.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
+  return word.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase());
 }
 
 export function isOnlyLettersAndNumbers(word) {
@@ -21,38 +22,29 @@ export function cloneBuffer(buffer) {
 }
 
 export function bufferToHex(buffer) {
-  return [...new Uint8Array(buffer)]
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
+  return [...new Uint8Array(buffer)].map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
-export function formatMoney(
-  amount,
-  decimalCount = 2,
-  decimal = ".",
-  thousands = ","
-) {
+export function formatMoney(amount, decimalCount = 2, decimal = '.', thousands = ',') {
   try {
     decimalCount = Math.abs(decimalCount);
     decimalCount = isNaN(decimalCount) ? 2 : decimalCount;
 
-    const negativeSign = amount < 0 ? "-" : "";
+    const negativeSign = amount < 0 ? '-' : '';
 
-    let i = parseInt(
-      (amount = Math.abs(Number(amount) || 0).toFixed(decimalCount))
-    ).toString();
+    let i = parseInt((amount = Math.abs(Number(amount) || 0).toFixed(decimalCount))).toString();
     let j = i.length > 3 ? i.length % 3 : 0;
 
     return (
       negativeSign +
-      (j ? i.substr(0, j) + thousands : "") +
-      i.substr(j).replace(/(\d{3})(?=\d)/g, "$1" + thousands) +
+      (j ? i.substr(0, j) + thousands : '') +
+      i.substr(j).replace(/(\d{3})(?=\d)/g, '$1' + thousands) +
       (decimalCount
         ? decimal +
-          Math.abs(amount - i)
+          Math.abs(amount - Number(i))
             .toFixed(decimalCount)
             .slice(2)
-        : "")
+        : '')
     );
   } catch (e) {
     console.log(e);
@@ -61,10 +53,7 @@ export function formatMoney(
 
 export function zpubToXpub(zpub) {
   const zpubRemovedPrefix = zpub.slice(4);
-  const xpubBuffer = Buffer.concat([
-    Buffer.from("0488b21e", "hex"),
-    zpubRemovedPrefix,
-  ]);
+  const xpubBuffer = Buffer.concat([Buffer.from('0488b21e', 'hex'), zpubRemovedPrefix]);
   const xpub = bs58check.encode(xpubBuffer);
   return xpub;
 }
@@ -80,8 +69,8 @@ export function getNodeStatus(nodeConfig) {
     } else if (!nodeConfig.connected) {
       return `Disconnected`;
     } else {
-      return "Connecting...";
+      return 'Connecting...';
     }
   }
-  return "Connecting...";
+  return 'Connecting...';
 }

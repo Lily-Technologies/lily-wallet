@@ -11,9 +11,10 @@
     "build": "tsc -b"
   },
   "dependencies": {
-    "@lily/types": "*",
     "@lily-technologies/electrum-client": "^1.1.8",
+    "@lily/types": "*",
     "@radar/lnrpc": "^0.11.1-beta.1",
+    "agent-base": "^6.0.2",
     "axios": "^0.24.0",
     "bignumber.js": "^9.0.1",
     "bitcoin-simple-rpc": "^0.0.3",

@@ -5,19 +5,21 @@
   "license": "Custom",
   "version": "1.0.8",
   "private": true,
-  "main": "./dist/main.js",
+  "main": "./build/main.js",
   "homepage": "./",
   "scripts": {
     "start": "electron .",
     "start-dev": "DEVURL=true electron .",
     "start-testnet": "TESTNET=true electron .",
-    "build": "tsc -b",
+    "build": "tsc -b && cp -R ../frontend/build/ ./build/frontend",
     "pack": "electron-builder --dir",
-    "dist": "electron-builder -mwl"
+    "dist": "electron-builder -m"
   },
   "build": {
     "productName": "Lily Wallet",
     "appId": "com.lily-wallet.lily",
+    "npmRebuild": false,
+    "electronVersion": "16.0.6",
     "extends": null,
     "afterSign": "./afterSignHook.js",
     "mac": {
@@ -28,22 +30,18 @@
       ],
       "hardenedRuntime": true,
       "gatekeeperAssess": false,
-      "entitlements": "./build/entitlements.mac.inherit.plist",
+      "entitlements": "./entitlements.mac.inherit.plist",
       "extendInfo": {
         "NSCameraUsageDescription": "Allow your camera to scan QR codes during account setup and transaction signing."
       },
       "files": [
         "./build/**/*",
-        "./src/main.js",
-        "./src/types/*",
         "./src/preload.js",
-        "./src/server/**/*",
-        "./src/utils/**/*",
-        "./HWIs/HWI_MAC"
+        "../HWIs/HWI_MAC"
       ]
     },
     "dmg": {
-      "background": "./public/background.png",
+      "background": "./src/assets/background.png",
       "sign": false
     },
     "linux": {
@@ -58,32 +56,25 @@
       ],
       "files": [
         "./build/**/*",
-        "./src/main.js",
-        "./src/types/*",
         "./src/preload.js",
-        "./src/server/**/*",
-        "./src/utils/**/*",
         "./HWIs/HWI_LINUX"
       ]
     },
     "win": {
+      "icon": "./src/assets/AppIcon.icns",
       "files": [
         "./build/**/*",
-        "./src/main.js",
-        "./src/types/*",
         "./src/preload.js",
-        "./src/server/**/*",
-        "./src/utils/**/*",
         "./HWIs/hwi.exe"
       ]
     }
   },
   "dependencies": {
-    "@lily/shared-server": "1.0.0",
+    "@lily/shared-server": "*",
     "@lily/types": "*",
     "@radar/lnrpc": "^0.11.1-beta.1",
-    "axios": "^0.21.1",
-    "electron-notarize": "^1.0.0",
+    "axios": "^0.24.0",
+    "electron-notarize": "^1.1.1",
     "moment": "^2.29.1"
   },
   "browserslist": {
@@ -99,12 +90,12 @@
     ]
   },
   "devDependencies": {
-    "electron": "^15.3.0",
-    "electron-builder": "^22.7.0",
+    "electron": "^16.0.6",
+    "electron-builder": "^22.14.5",
     "electron-installer-dmg": "^3.0.0",
-    "electron-mock-ipc": "^0.3.8",
-    "electron-packager": "^14.2.1",
-    "electron-winstaller": "^4.0.0"
+    "electron-mock-ipc": "^0.3.11",
+    "electron-packager": "^15.4.0",
+    "electron-winstaller": "^5.0.0"
   },
   "jest": {
     "moduleNameMapper": {

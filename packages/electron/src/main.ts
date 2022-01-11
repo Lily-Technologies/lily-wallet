@@ -53,7 +53,6 @@ function createWindow() {
     backgroundColor: 'rgb(245, 247, 250)',
     transparent: true,
     frame: false,
-    // icon: path.join(__dirname, '/assets/AppIcon.icns'),
     titleBarStyle: 'hidden',
     webPreferences: {
       nodeIntegration: false,
@@ -73,7 +72,7 @@ function createWindow() {
     mainWindow.loadURL(`http://localhost:3001/`);
   } else {
     // load production url
-    mainWindow.loadURL(`file://${__dirname}/../../frontend/build/index.html`);
+    mainWindow.loadURL(`file://${__dirname}/frontend/index.html`);
   }
 
   // Open the DevTools.
