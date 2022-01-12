@@ -51,7 +51,7 @@ const getPrevOut = (prevTx: blockchainTransaction_getBatchResponse, index: numbe
   const output = prevTx.vout[index];
   return {
     scriptpubkey_address: output.scriptPubKey.addresses[0],
-    value: bitcoinsToSatoshis(output.value)
+    value: bitcoinsToSatoshis(output.value).toNumber()
   };
 };
 
