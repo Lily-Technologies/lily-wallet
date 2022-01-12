@@ -12,7 +12,7 @@ import createLnRpc, {
   FundingPsbtVerify,
   FundingPsbtFinalize,
   OpenChannelRequest
-} from '@radar/lnrpc';
+} from '@lily-technologies/lnrpc';
 import { blockExplorerAPIURL } from 'unchained-bitcoin';
 import BigNumber from 'bignumber.js';
 import { Buffer } from 'buffer';
@@ -403,7 +403,8 @@ export class LND extends LightningBaseProvider {
         addr: {
           pubkey,
           host
-        }
+        },
+        timeout: 60
       });
       console.log(`connected to peer ${lightningAddress}`);
     }
@@ -453,7 +454,8 @@ export class LND extends LightningBaseProvider {
       await client.fundingStateStep({
         psbtVerify: {
           fundedPsbt,
-          pendingChanId
+          pendingChanId,
+          skipFinalize: false
         }
       });
     } catch (e) {

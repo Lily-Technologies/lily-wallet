@@ -3,8 +3,12 @@ import axios from 'axios';
 import moment from 'moment';
 import express from 'express';
 import cors from 'cors';
-import { FundingPsbtVerify, FundingPsbtFinalize, CloseChannelRequest } from '@radar/lnrpc';
-import { readFileSync, existsSync } from 'fs';
+import {
+  FundingPsbtVerify,
+  FundingPsbtFinalize,
+  CloseChannelRequest,
+  createWalletRpc
+} from '@lily-technologies/lnrpc';
 import { v4 as uuidv4 } from 'uuid';
 import bodyParser from 'body-parser';
 // @ts-ignore
@@ -17,7 +21,8 @@ import {
   CoindeskCurrentPriceResponse,
   CoindeskHistoricPriceResponse,
   OpenChannelRequestArgs,
-  EMPTY_CONFIG
+  EMPTY_CONFIG,
+  AddressType
 } from '@lily/types';
 
 import {
@@ -56,6 +61,7 @@ const setInitialConfig = async () => {
         'hex'
       );
       const { file: tlsCert } = await getFile('tls.cert', '/lnd', 'utf8');
+      const lndHost = `${process.env.LND_IP}:${process.env.LND_GRPC_PORT}`;
 
       const emptyConfig = EMPTY_CONFIG;
       emptyConfig.isEmpty = false;
@@ -67,7 +73,7 @@ const setInitialConfig = async () => {
         network: 'mainnet',
         connectionDetails: {
           lndConnectUri: encode({
-            host: `${process.env.LND_IP}:${process.env.LND_GRPC_PORT}`,
+            host: lndHost,
             cert: tlsCert,
             macaroon: macaroon
           })
@@ -171,7 +177,11 @@ app.post('/open-channel-verify', async (req, res) => {
   const { fundedPsbt, pendingChanId }: FundingPsbtVerify = req.body; // unsigned psbt
 
   try {
-    await LightningDataProvider.openChannelVerify({ fundedPsbt, pendingChanId });
+    await LightningDataProvider.openChannelVerify({
+      fundedPsbt,
+      pendingChanId,
+      skipFinalize: false
+    });
   } catch (e) {
     console.log('/open-channel-verify error: ', e);
   }

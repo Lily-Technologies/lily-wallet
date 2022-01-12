@@ -5,7 +5,7 @@ import {
   CloseChannelRequest,
   FundingPsbtVerify,
   FundingPsbtFinalize
-} from '@radar/lnrpc';
+} from '@lily-technologies/lnrpc';
 
 import { WalletInfo } from 'bitcoin-simple-rpc';
 

@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
 import styled from 'styled-components';
 import { decode } from 'bolt11';
-import { Payment } from '@radar/lnrpc';
+import { Payment } from '@lily-technologies/lnrpc';
 
 import { Button, Countdown, Modal } from 'src/components';
 

@@ -1,7 +1,7 @@
 /* global cy */
 
 import { Lightning, Multisig } from '../../../src/__tests__/fixtures';
-import { CloseStatusUpdate, OpenStatusUpdate } from '@radar/lnrpc';
+import { CloseStatusUpdate, OpenStatusUpdate } from '@lily-technologies/lnrpc';
 import { DecoratedOpenStatusUpdate } from '@lily/types';
 
 describe('Lightning - General', () => {

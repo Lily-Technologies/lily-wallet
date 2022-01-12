@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Payment } from '@radar/lnrpc';
+import { Payment } from '@lily-technologies/lnrpc';
 
 import { Button } from 'src/components';
 

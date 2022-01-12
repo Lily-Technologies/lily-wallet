@@ -57,7 +57,7 @@ const RecentTransactions = ({ events, loading, flat = false, maxItems = Infinity
               <PaymentRow
                 creation_date={Number(transaction.creationDate)}
                 title={transaction.title}
-                value_sat={Number(transaction.value)}
+                value_sat={Number(transaction.valueSat)}
                 type={type}
                 onClick={
                   // TODO: modal or flyout

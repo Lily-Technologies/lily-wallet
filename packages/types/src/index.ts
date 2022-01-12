@@ -8,7 +8,7 @@ import {
   ChannelCloseSummary,
   Payment,
   Invoice
-} from '@radar/lnrpc';
+} from '@lily-technologies/lnrpc';
 
 import { blockchainTransaction_getBatchResponse, ElectrumVin } from '@mempool/electrum-client';
 

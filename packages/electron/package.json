@@ -1,5 +1,5 @@
 {
-  "name": "LilyWallet",
+  "name": "@lily/electron",
   "author": "Lily Technologies, Inc. <help@lily-wallet.com> (https://lily-wallet.com)",
   "description": "Lily is the best way to secure your Bitcoin",
   "license": "Custom",
@@ -70,9 +70,9 @@
     }
   },
   "dependencies": {
+    "@lily-technologies/lnrpc": "^0.14.1-beta.10",
     "@lily/shared-server": "*",
     "@lily/types": "*",
-    "@radar/lnrpc": "^0.11.1-beta.1",
     "axios": "^0.24.0",
     "electron-notarize": "^1.1.1",
     "moment": "^2.29.1"

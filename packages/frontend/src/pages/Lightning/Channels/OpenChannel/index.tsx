@@ -79,7 +79,8 @@ const OpenChannel = ({ currentAccount, setViewOpenChannelForm }: Props) => {
 
             platform.openChannelVerify({
               fundedPsbt: psbt.toBase64(),
-              pendingChanId: pendingChanId!
+              pendingChanId: pendingChanId!,
+              skipFinalize: false
             });
 
             setPendingChannelId(pendingChanId as Buffer);

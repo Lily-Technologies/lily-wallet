@@ -9,9 +9,9 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
+    "@lily-technologies/lnrpc": "^0.14.1-beta.10",
     "@lily/shared-server": "*",
     "@lily/types": "*",
-    "@radar/lnrpc": "^0.11.1-beta.1",
     "axios": "^0.24.0",
     "body-parser": "^1.19.1",
     "cors": "^2.8.5",
@@ -23,6 +23,7 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
+    "@types/body-parser": "^1.19.2",
     "@types/cors": "^2",
     "@types/crypto-js": "^4.1.0",
     "@types/express": "^4.17.13",

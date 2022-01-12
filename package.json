@@ -5,21 +5,18 @@
   "author": "Lily Technologies, Inc. <help@lily-wallet.com> (https://lily-wallet.com)",
   "description": "Lily is the best way to secure your Bitcoin",
   "license": "Custom",
-  "engines": {
-    "node": "16.13.1"
-  },
   "scripts": {
-    "electron": "npm run start -w LilyWallet",
+    "electron": "npm run start -w @lily/electron",
     "frontend": "npm run start -w @lily/frontend",
     "express": "npm run start -w @lily/express",
-    "build:electron": "npm run build -w LilyWallet",
+    "build:electron": "npm run build -w @lily/electron",
     "build:frontend:electron": "npm run build:electron -w @lily/frontend",
     "build:frontend:umbrel": "npm run build:umbrel -w @lily/frontend",
     "build:express": "npm run build -w @lily/express",
     "build:types": "npm run build -w @lily/types",
     "build:shared-server": "npm run build -w @lily/shared-server",
-    "dist:electron": "npm run dist -w LilyWallet",
-    "pack:electron": "npm run pack -w LilyWallet"
+    "dist:electron": "npm run dist -w @lily/electron",
+    "pack:electron": "npm run pack -w @lily/electron"
   },
   "homepage": "./",
   "workspaces": [
@@ -29,5 +26,6 @@
     "typescript": "^4.5.4"
   },
   "dependencies": {
+    "@lily-technologies/lnrpc": "^0.14.1-beta.10"
   }
 }

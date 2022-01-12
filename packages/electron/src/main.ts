@@ -3,7 +3,12 @@ import axios from 'axios';
 import path from 'path';
 import fs from 'fs';
 import moment from 'moment';
-import { FundingPsbtFinalize, FundingPsbtVerify, CloseChannelRequest, Invoice } from '@radar/lnrpc';
+import {
+  FundingPsbtFinalize,
+  FundingPsbtVerify,
+  CloseChannelRequest,
+  Invoice
+} from '@lily-technologies/lnrpc';
 
 import { enumerate, getXPub, signtx, promptpin, sendpin } from '@lily/shared-server';
 

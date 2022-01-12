@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { CheckCircle } from '@styled-icons/material';
 import { Link } from 'react-router-dom';
-import { Payment } from '@radar/lnrpc';
+import { Payment } from '@lily-technologies/lnrpc';
 import { decode } from 'bolt11';
 
 import { Button, StyledIcon } from 'src/components';

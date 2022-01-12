@@ -11,7 +11,7 @@
     "build": "tsc -b"
   },
   "dependencies": {
-    "@radar/lnrpc": "^0.11.1-beta.1",
+    "@lily-technologies/lnrpc": "^0.14.1-beta.2",
     "bignumber.js": "^9.0.1",
     "bitcoin-simple-rpc": "^0.0.3",
     "bitcoinjs-lib": "^6.0.0",

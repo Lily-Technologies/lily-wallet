@@ -8,7 +8,7 @@ import {
   OpenStatusUpdate,
   FundingPsbtVerify,
   FundingPsbtFinalize
-} from '@radar/lnrpc';
+} from '@lily-technologies/lnrpc';
 import { LightningConfig, LilyLightningAccount, OpenChannelRequestArgs } from '@lily/types';
 
 type Providers = 'LND';
