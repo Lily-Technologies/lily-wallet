@@ -50,6 +50,9 @@ let currentNodeConfig: NodeConfigWithBlockchainInfo;
 let OnchainDataProvider: OnchainBaseProvider;
 let LightningDataProvider: LightningBaseProvider;
 
+// set userData path so doesn't use scoped name from package.json
+app.setPath('userData', path.join(app.getPath('appData'), 'LilyWallet'));
+
 function createWindow() {
   // Create the browser window.
   mainWindow = new BrowserWindow({
@@ -235,7 +238,11 @@ ipcMain.on('/open-channel-verify', async (event, args: FundingPsbtVerify) => {
   const { fundedPsbt, pendingChanId } = args; // unsigned psbt
 
   try {
-    await LightningDataProvider.openChannelVerify({ fundedPsbt, pendingChanId });
+    await LightningDataProvider.openChannelVerify({
+      fundedPsbt,
+      pendingChanId,
+      skipFinalize: false
+    });
   } catch (e) {
     console.log('/open-channel-verify error: ', e);
   }
@@ -314,7 +321,7 @@ ipcMain.handle('/get-config', async (event, args) => {
     const file = await getFile('lily-config-encrypted.txt', userDataPath);
     return file;
   } catch (e) {
-    console.log('Failed to get Lily config');
+    console.log('Failed to get Lily config', e);
   }
 });
 
