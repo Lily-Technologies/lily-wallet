@@ -3,7 +3,6 @@ build
 .DS_Store
 dist/
 .env
-compiled-ts/
 
 coverage/
 cypress/videos
@@ -11,11 +10,4 @@ cypress/screenshots
 .nyc_output
 
 .vscode
-
-.pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/sdks
-!.yarn/versions
+tsconfig.tsbuildinfo
