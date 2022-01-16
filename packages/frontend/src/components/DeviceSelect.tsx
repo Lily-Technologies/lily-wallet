@@ -3,7 +3,7 @@ import styled, { keyframes } from 'styled-components';
 import { CheckCircle } from '@styled-icons/material';
 import { ExclamationDiamond } from '@styled-icons/bootstrap';
 
-import { Button, StyledIcon, PromptPinModal, Modal } from 'src/components';
+import { Button, StyledIcon, PromptPinModal, Modal, DeviceImage, Loading } from 'src/components';
 import {
   green200,
   green500,
@@ -123,25 +123,7 @@ export const DeviceSelect = ({
             <IconWrapper style={{ color: green500 }}>
               <StyledIcon as={CheckCircle} size={24} />
             </IconWrapper>
-            <DeviceImage
-              src={
-                device.type === 'coldcard'
-                  ? require('../assets/coldcard.png')
-                  : device.type === 'ledger' && device.model === 'ledger_nano_s'
-                  ? require('../assets/ledger_nano_s.png')
-                  : device.type === 'ledger' && device.model === 'ledger_nano_x'
-                  ? require('../assets/ledger_nano_x.png')
-                  : device.type === 'trezor' && device.model === 'trezor_1'
-                  ? require('../assets/trezor_1.png')
-                  : device.type === 'trezor' && device.model === 'trezor_t'
-                  ? require('../assets/trezor_t.png')
-                  : device.type === 'cobo'
-                  ? require('../assets/cobo.png')
-                  : device.type === 'bitbox02'
-                  ? require('../assets/bitbox02.png')
-                  : require('../assets/iphone.png')
-              }
-            />
+            <DeviceImage device={device} />
             <DeviceInfoWrapper>
               <DeviceName>{device.type}</DeviceName>
               <DeviceFingerprint imported={true}>{device.fingerprint}</DeviceFingerprint>
@@ -191,25 +173,7 @@ export const DeviceSelect = ({
                   <StyledIcon as={ExclamationDiamond} size={24} />
                 </IconWrapper>
               )}
-              <DeviceImage
-                src={
-                  device.type === 'coldcard'
-                    ? require('../assets/coldcard.png')
-                    : device.type === 'ledger' && device.model === 'ledger_nano_s'
-                    ? require('../assets/ledger_nano_s.png')
-                    : device.type === 'ledger' && device.model === 'ledger_nano_x'
-                    ? require('../assets/ledger_nano_x.png')
-                    : device.type === 'trezor' && device.model === 'trezor_1'
-                    ? require('../assets/trezor_1.png')
-                    : device.type === 'trezor' && device.model === 'trezor_t'
-                    ? require('../assets/trezor_t.png')
-                    : device.type === 'cobo'
-                    ? require('../assets/cobo.png')
-                    : device.type === 'bitbox02'
-                    ? require('../assets/bitbox02.png')
-                    : require('../assets/iphone.png')
-                }
-              />
+              <DeviceImage device={device} />
               <DeviceInfoWrapper>
                 <DeviceName>{device.type}</DeviceName>
                 <DeviceFingerprint imported={false}>{device.fingerprint}</DeviceFingerprint>
@@ -251,13 +215,7 @@ export const DeviceSelect = ({
 
         {unconfiguredDevices.length === 0 && configuredDevices.length === 0 && devicesLoading && (
           <LoadingDevicesWrapper>
-            <LoadingImage
-              src={require('../assets/flower-loading.svg')}
-              style={{ maxWidth: '6.25em' }}
-              alt='loading'
-            />
-            <LoadingText>Loading Devices</LoadingText>
-            <LoadingSubText>Please wait...</LoadingSubText>
+            <Loading itemText='devices' />
           </LoadingDevicesWrapper>
         )}
       </DevicesWrapper>
@@ -384,14 +342,6 @@ const DeviceWrapper = styled.div<{
   &:hover {
     cursor: ${(p) => (p.displayLoadingCursor ? 'wait' : 'pointer')};
   }
-`;
-
-const DeviceImage = styled.img`
-  display: block;
-  width: auto;
-  height: auto;
-  max-height: 250px;
-  max-width: 6.25em;
 `;
 
 const DeviceName = styled.h4`
