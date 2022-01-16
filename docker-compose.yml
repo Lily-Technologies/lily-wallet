@@ -12,11 +12,13 @@ services:
       - '42069:80'
 
   express:
+    privileged: true
     image: kaybesee/lily-express:latest
     restart: on-failure
     volumes:
       - ${APP_DATA_DIR}/config
       - ${LND_DATA_DIR}/:/lnd:ro
+      - /dev:/dev
     build:
       dockerfile: Dockerfile.express
       context: ./

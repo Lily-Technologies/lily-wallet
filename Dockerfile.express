@@ -5,6 +5,7 @@ COPY package.json .
 COPY packages/types ./packages/types
 COPY packages/shared-server ./packages/shared-server
 COPY packages/express ./packages/express
+COPY packages/HWIs/HWI_PI ./packages/HWIs/HWI_PI
 
 RUN npm install
 
@@ -20,6 +21,9 @@ RUN npm run build:express
 FROM node:16-buster-slim
 
 COPY --from=build /build .
+
+# Intall HWI dependencies
+RUN apt update && apt install libusb-1.0-0 libusb-1.0.0-dev libudev-dev python3-dev -y
 
 EXPOSE 8080
 
