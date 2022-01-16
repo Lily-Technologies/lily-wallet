@@ -9,7 +9,12 @@ import {
   FundingPsbtVerify,
   FundingPsbtFinalize
 } from '@lily-technologies/lnrpc';
-import { LightningConfig, LilyLightningAccount, OpenChannelRequestArgs } from '@lily/types';
+import {
+  ICallback,
+  LightningConfig,
+  LilyLightningAccount,
+  OpenChannelRequestArgs
+} from '@lily/types';
 
 type Providers = 'LND';
 
@@ -54,7 +59,7 @@ export abstract class LightningBaseProvider implements LightningProviderInterfac
 
   abstract openChannelInitialize(
     { lightningAddress, channelAmount }: OpenChannelRequestArgs,
-    callback: (data: OpenStatusUpdate) => void
+    callback: ICallback<OpenStatusUpdate>
   ): Promise<void>;
 
   abstract openChannelVerify({

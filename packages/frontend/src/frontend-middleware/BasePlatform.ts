@@ -10,6 +10,7 @@ import {
 import { WalletInfo } from 'bitcoin-simple-rpc';
 
 import {
+  ICallback,
   File,
   VaultConfig,
   OnChainConfig,
@@ -68,8 +69,7 @@ export interface PlatformInterface {
   changeNodeConfig({
     provider,
     host,
-    username,
-    password
+    port
   }: ChangeNodeConfigParams): Promise<NodeConfigWithBlockchainInfo>;
   broadcastTransaction(txHex: string): Promise<string>;
 
@@ -86,7 +86,7 @@ export interface PlatformInterface {
 
   openChannelInitiate(
     { lightningAddress, channelAmount }: OpenChannelRequestArgs,
-    callback: (response: DecoratedOpenStatusUpdate) => void
+    callback: ICallback<DecoratedOpenStatusUpdate>
   ): void;
 
   openChannelVerify({ fundedPsbt, pendingChanId }: FundingPsbtVerify): void;
@@ -168,8 +168,7 @@ export abstract class BasePlatform implements PlatformInterface {
   abstract changeNodeConfig({
     provider,
     host,
-    username,
-    password
+    port
   }: ChangeNodeConfigParams): Promise<NodeConfigWithBlockchainInfo>;
 
   abstract broadcastTransaction(txHex: string): Promise<string>;
@@ -187,7 +186,7 @@ export abstract class BasePlatform implements PlatformInterface {
 
   abstract openChannelInitiate(
     { lightningAddress, channelAmount }: OpenChannelRequestArgs,
-    callback: (response: DecoratedOpenStatusUpdate) => void
+    callback: ICallback<DecoratedOpenStatusUpdate>
   ): void;
 
   abstract openChannelVerify({ fundedPsbt, pendingChanId }: FundingPsbtVerify): void;

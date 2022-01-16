@@ -12,6 +12,11 @@ import {
 
 import { blockchainTransaction_getBatchResponse, ElectrumVin } from '@mempool/electrum-client';
 
+export interface ICallback<r> {
+  (err: null, result: r): void;
+  (err: Error, result?: r): void;
+}
+
 export const EMPTY_CONFIG: LilyConfig = {
   name: '',
   version: '1.0.8',
@@ -75,8 +80,7 @@ export interface NodeConfig {
 export interface ChangeNodeConfigParams {
   provider: NodeConfigWithBlockchainInfo['provider'];
   host?: string;
-  username?: string;
-  password?: string;
+  port?: string;
 }
 
 export interface BitcoinCoreNodeConfig extends ClientOption {

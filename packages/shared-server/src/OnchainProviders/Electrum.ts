@@ -60,7 +60,18 @@ export class ElectrumProvider extends OnchainBaseProvider {
 
   constructor(url: string, port: number, testnet: boolean) {
     super('Electrum', testnet);
-    this.client = new ElectrumClient(port, url, 'tcp');
+    let options = {};
+    // add proxy if connecting to tor address
+    if (url.includes('.onion')) {
+      options = {
+        proxy: {
+          host: '127.0.0.1',
+          port: 9050,
+          type: 5
+        }
+      };
+    }
+    this.client = new ElectrumClient(port, url, 'tcp', options);
   }
 
   async initialize() {

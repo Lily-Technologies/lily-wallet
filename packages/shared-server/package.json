@@ -19,6 +19,7 @@
     "bignumber.js": "^9.0.1",
     "bitcoin-simple-rpc": "^0.0.3",
     "bitcoinjs-lib": "^5.2.0",
+    "detect-rpi": "^1.4.0",
     "lndconnect": "^0.2.10",
     "socks-proxy-agent": "^6.1.0",
     "typescript": "^4.4.4",

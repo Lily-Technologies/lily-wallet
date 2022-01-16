@@ -462,6 +462,7 @@ ipcMain.handle('/broadcastTx', async (event, args) => {
 
 ipcMain.handle('/changeNodeConfig', async (event, args) => {
   const { nodeConfig } = args;
+  console.log('nodeConfig: ', nodeConfig);
   console.log(`Attempting to connect to ${nodeConfig.provider}...`);
   if (nodeConfig.provider === 'Bitcoin Core') {
     const nodeConfig = await getBitcoinCoreConfig();
@@ -471,7 +472,11 @@ ipcMain.handle('/changeNodeConfig', async (event, args) => {
     OnchainDataProvider = new BitcoinCoreProvider(nodeConfig, isTestnet);
     await OnchainDataProvider.initialize();
   } else if (nodeConfig.provider === 'Electrum') {
-    OnchainDataProvider = new ElectrumProvider('electrum1.bluewallet.io', 50001, isTestnet);
+    OnchainDataProvider = new ElectrumProvider(
+      nodeConfig.baseURL,
+      Number(nodeConfig.port),
+      isTestnet
+    );
     await OnchainDataProvider.initialize();
   } else {
     OnchainDataProvider = new BlockstreamProvider(isTestnet);

@@ -375,7 +375,8 @@ export class LND extends LightningBaseProvider {
 
     const sendPaymentStream = lnRpcClient.sendPaymentV2({
       paymentRequest: paymentRequest,
-      timeoutSeconds: 15 // TODO: change?
+      timeoutSeconds: 15, // TODO: change?
+      feeLimitSat: 250
     });
 
     sendPaymentStream.on('data', (chunk: Payment) => {
@@ -389,63 +390,68 @@ export class LND extends LightningBaseProvider {
 
   async openChannelInitialize(
     { lightningAddress, channelAmount }: OpenChannelRequestArgs,
-    callback: (data: OpenStatusUpdate) => void
+    callback: (err?: Error | null, data?: OpenStatusUpdate) => void
   ) {
-    const client = await this.getClient();
-    // connect to peer
-    const { peers } = await client.listPeers();
-    const [pubkey, host] = lightningAddress.split('@');
+    try {
+      const client = await this.getClient();
+      // connect to peer
+      const { peers } = await client.listPeers();
+      const [pubkey, host] = lightningAddress.split('@');
 
-    // if we aren't connected to peer, then connect
-    if (!peers.some((peer) => peer.pubKey === pubkey)) {
-      console.log(`connecting to peer ${lightningAddress}...`);
-      await client.connectPeer({
-        addr: {
-          pubkey,
-          host
-        },
-        timeout: 60
-      });
-      console.log(`connected to peer ${lightningAddress}`);
-    }
+      // if we aren't connected to peer, then connect
+      if (!peers.some((peer) => peer.pubKey === pubkey)) {
+        console.log(`connecting to peer ${lightningAddress}...`);
+        await client.connectPeer({
+          addr: {
+            pubkey,
+            host
+          },
+          timeout: 60
+        });
+        console.log(`connected to peer ${lightningAddress}`);
+      }
 
-    const pendingChannelId = randomBytes(32);
-    const openChannelOptions = {
-      nodePubkey: Buffer.from(pubkey, 'hex'),
-      localFundingAmount: channelAmount,
-      pushSat: '0',
-      // private?
-      fundingShim: {
-        psbtShim: {
-          pendingChanId: pendingChannelId
+      const pendingChannelId = randomBytes(32);
+      const openChannelOptions = {
+        nodePubkey: Buffer.from(pubkey, 'hex'),
+        localFundingAmount: channelAmount,
+        pushSat: '0',
+        // private?
+        fundingShim: {
+          psbtShim: {
+            pendingChanId: pendingChannelId
+          }
         }
-      }
-    } as OpenChannelRequest;
+      } as OpenChannelRequest;
 
-    console.log(`attempting channel open to ${lightningAddress}...`);
-    const openingNodeInfo = await client.getNodeInfo({
-      pubKey: pubkey
-    });
+      console.log(`attempting channel open to ${lightningAddress}...`);
+      const openingNodeInfo = await client.getNodeInfo({
+        pubKey: pubkey
+      });
 
-    const channelResponse = await client.openChannel(openChannelOptions);
+      const channelResponse = await client.openChannel(openChannelOptions);
 
-    channelResponse.on('data', (chunk) => {
-      if (chunk.psbtFund) {
-        const openChannelData = {
-          ...chunk,
-          alias: openingNodeInfo.node!.alias,
-          color: openingNodeInfo.node!.color
-        };
-        callback(openChannelData);
-      } else if (chunk.chanPending) {
-        callback(chunk);
-      }
-    });
-    channelResponse.on('error', (chunk) => {
-      console.log('channelResponse error.message: ', getErrorMessageFromChunk(chunk.message));
-      throw new Error(getErrorMessageFromChunk(chunk.message));
-    });
-    channelResponse.on('end', () => console.log('/open-channel end'));
+      channelResponse.on('data', (chunk) => {
+        if (chunk.psbtFund) {
+          const openChannelData = {
+            ...chunk,
+            alias: openingNodeInfo.node!.alias,
+            color: openingNodeInfo.node!.color
+          };
+          callback(null, openChannelData);
+        } else if (chunk.chanPending) {
+          callback(null, chunk);
+        }
+      });
+
+      channelResponse.on('error', (chunk) => {
+        callback(new Error(getErrorMessageFromChunk(chunk.message)));
+      });
+      channelResponse.on('end', () => console.log('/open-channel end'));
+    } catch (e) {
+      console.log('openChannelInitialize catch: ', e);
+      return Promise.reject(e);
+    }
   }
 
   async openChannelVerify({ fundedPsbt, pendingChanId }: FundingPsbtVerify) {

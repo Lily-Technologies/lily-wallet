@@ -1,4 +1,4 @@
-import axios, { AxiosResponse } from 'axios';
+import axios, { AxiosResponse, AxiosError } from 'axios';
 
 import {
   Payment,
@@ -35,11 +35,15 @@ import {
   DecoratedOpenStatusUpdate,
   OpenChannelRequestArgs,
   GetLightningInvoiceRequest,
-  LilyAccount
+  LilyAccount,
+  ICallback
 } from '@lily/types';
 
 const HOST = `${process.env.REACT_APP_BACKEND_HOST}:${process.env.REACT_APP_BACKEND_PORT}`;
-console.log('WebPlatform HOST: ', HOST);
+
+function isApiError(x: any): x is AxiosError<AxiosResponse> {
+  return typeof x.code === 'number';
+}
 
 export class WebPlatform extends BasePlatform {
   constructor() {
@@ -165,8 +169,7 @@ export class WebPlatform extends BasePlatform {
   async changeNodeConfig({
     provider,
     host,
-    username,
-    password
+    port
   }: ChangeNodeConfigParams): Promise<NodeConfigWithBlockchainInfo> {
     const { data }: AxiosResponse<NodeConfigWithBlockchainInfo> = await axios.post(
       `${HOST}/changeNodeConfig`,
@@ -174,10 +177,7 @@ export class WebPlatform extends BasePlatform {
         nodeConfig: {
           provider,
           baseURL: host,
-          auth: {
-            username,
-            password
-          }
+          port
         }
       }
     );
@@ -221,17 +221,24 @@ export class WebPlatform extends BasePlatform {
 
   async openChannelInitiate(
     { lightningAddress, channelAmount }: OpenChannelRequestArgs,
-    callback: (response: DecoratedOpenStatusUpdate) => void
+    callback: ICallback<DecoratedOpenStatusUpdate>
   ) {
-    const { data }: AxiosResponse<DecoratedOpenStatusUpdate> = await axios.post(
-      `${HOST}/open-channel`,
-      {
-        lightningAddress,
-        channelAmount
-      }
-    );
+    try {
+      const { data }: AxiosResponse<DecoratedOpenStatusUpdate> = await axios.post(
+        `${HOST}/open-channel`,
+        {
+          lightningAddress,
+          channelAmount
+        }
+      );
 
-    callback(data);
+      callback(null, data);
+    } catch (e) {
+      if (axios.isAxiosError(e) && e.response) {
+        const { data } = e.response;
+        callback(new Error(data.message));
+      }
+    }
   }
 
   async openChannelVerify({ fundedPsbt, pendingChanId }: FundingPsbtVerify) {

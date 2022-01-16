@@ -17,8 +17,7 @@ interface Props {
 
 export const ConnectToNodeModal = ({ onRequestClose, setNodeConfig }: Props) => {
   const [host, setHost] = useState('');
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [port, setPort] = useState('');
   const [nodeConnectError, setNodeConnectError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { platform } = useContext(PlatformContext);
@@ -27,10 +26,9 @@ export const ConnectToNodeModal = ({ onRequestClose, setNodeConfig }: Props) => 
     try {
       setIsLoading(true);
       const response = await platform.changeNodeConfig({
-        provider: 'Custom Node',
+        provider: 'Electrum',
         host,
-        username,
-        password
+        port
       });
       setNodeConfig(response);
       onRequestClose();
@@ -67,30 +65,18 @@ export const ConnectToNodeModal = ({ onRequestClose, setNodeConfig }: Props) => 
               id='node-host'
               onChange={setHost}
               onKeyDown={(e) => onInputEnter(e)}
-              placeholder='http://mynode.local:8332'
+              placeholder='electrum1.bluewallet.io'
             />
           </InputContainer>
           <InputContainer>
             <Input
-              label='Username'
-              type='text'
-              id='node-username'
-              value={username}
-              onChange={setUsername}
+              label='Port'
+              type='number'
+              id='node-port'
+              value={port}
+              onChange={setPort}
               onKeyDown={(e) => onInputEnter(e)}
-              placeholder='mynode'
-            />
-          </InputContainer>
-          <InputContainer>
-            <Input
-              label='Password'
-              type='password'
-              id='node-password'
-              value={password}
-              onChange={setPassword}
-              onKeyDown={(e) => onInputEnter(e)}
-              placeholder='••••••••••••••••'
-              error={nodeConnectError}
+              placeholder='50001'
             />
           </InputContainer>
           <Buttons>

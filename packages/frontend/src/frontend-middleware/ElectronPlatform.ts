@@ -32,7 +32,8 @@ import {
   DecoratedOpenStatusUpdate,
   OpenChannelRequestArgs,
   GetLightningInvoiceRequest,
-  LilyAccount
+  LilyAccount,
+  ICallback
 } from '@lily/types';
 
 export class ElectronPlatform extends BasePlatform {
@@ -156,17 +157,13 @@ export class ElectronPlatform extends BasePlatform {
   async changeNodeConfig({
     provider,
     host,
-    username,
-    password
+    port
   }: ChangeNodeConfigParams): Promise<NodeConfigWithBlockchainInfo> {
     const response = await window.ipcRenderer.invoke('/changeNodeConfig', {
       nodeConfig: {
         provider,
         baseURL: host,
-        auth: {
-          username,
-          password
-        }
+        port
       }
     });
 
@@ -216,7 +213,7 @@ export class ElectronPlatform extends BasePlatform {
 
   async openChannelInitiate(
     { lightningAddress, channelAmount }: OpenChannelRequestArgs,
-    callback: (response: DecoratedOpenStatusUpdate) => void
+    callback: ICallback<DecoratedOpenStatusUpdate>
   ) {
     window.ipcRenderer.send('/open-channel', {
       lightningAddress,
@@ -225,7 +222,7 @@ export class ElectronPlatform extends BasePlatform {
 
     window.ipcRenderer.on('/open-channel', async (_event: any, ...args: any) => {
       const openChannelResponse: DecoratedOpenStatusUpdate = args[0];
-      callback(openChannelResponse);
+      callback(null, openChannelResponse);
     });
   }
 

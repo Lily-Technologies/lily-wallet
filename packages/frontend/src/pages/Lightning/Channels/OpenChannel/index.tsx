@@ -62,10 +62,10 @@ const OpenChannel = ({ currentAccount, setViewOpenChannelForm }: Props) => {
           lightningAddress: lightningAddress,
           channelAmount
         },
-        async (openChannelResponse) => {
-          if (openChannelResponse.error) {
-            setError(openChannelResponse.error.message);
-          } else if (openChannelResponse.psbtFund) {
+        async (err, openChannelResponse) => {
+          if (err) {
+            setError(err.message);
+          } else if (openChannelResponse && openChannelResponse.psbtFund) {
             const { psbtFund, pendingChanId } = openChannelResponse;
 
             const { psbt, feeRates } = await createTransaction(
@@ -101,7 +101,7 @@ const OpenChannel = ({ currentAccount, setViewOpenChannelForm }: Props) => {
               }
             ]);
             setStep(1);
-          } else if (openChannelResponse.chanPending) {
+          } else if (openChannelResponse && openChannelResponse.chanPending) {
             setTimeout(() => {
               platform.getLightningData(currentAccount.config);
             }, 200);
@@ -110,12 +110,9 @@ const OpenChannel = ({ currentAccount, setViewOpenChannelForm }: Props) => {
           setIsLoading(false);
         }
       );
-    } catch (e: unknown) {
-      if (e instanceof Error) {
-        console.log('e: ', e.message);
-        setError(e.message);
-        setIsLoading(false);
-      }
+    } catch (e: any) {
+      setError(e.message);
+      setIsLoading(false);
     }
   };
 
