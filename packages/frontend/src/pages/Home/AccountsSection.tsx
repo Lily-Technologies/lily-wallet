@@ -13,9 +13,23 @@ import { StyledIcon } from 'src/components';
 
 import { white, gray500, gray600, black } from 'src/utils/colors';
 
-import { Transaction } from '@lily/types';
+import {
+  LilyAccount,
+  LilyLightningAccount,
+  LilyOnchainAccount,
+  Transaction,
+  LightningEvent
+} from '@lily/types';
 
-const getLastTransactionTime = (transactions: Transaction[]) => {
+const getLastTransactionTime = (account: LilyAccount) => {
+  if (account.config.type === 'onchain') {
+    return getLastTransactionTimeOnchain((account as LilyOnchainAccount).transactions);
+  } else {
+    return getLastTransactionTimeLightning((account as LilyLightningAccount).events);
+  }
+};
+
+const getLastTransactionTimeOnchain = (transactions: Transaction[]) => {
   if (transactions.length === 0) {
     // if no transactions yet
     return `No activity on this account yet`;
@@ -28,6 +42,16 @@ const getLastTransactionTime = (transactions: Transaction[]) => {
   }
 };
 
+const getLastTransactionTimeLightning = (events: LightningEvent[]) => {
+  if (events.length === 0) {
+    // if no transactions yet
+    return `No activity on this account yet`;
+  } else {
+    // if transaction is confirmed, give moments ago
+    return `Last transaction was ${moment.unix(Number(events[0].creationDate)).fromNow()}`;
+  }
+};
+
 export const AccountsSection = () => {
   const { accountMap, setCurrentAccountId } = useContext(AccountMapContext);
 
@@ -37,34 +61,38 @@ export const AccountsSection = () => {
         Your Accounts
       </HomeHeadingItem>
       <AccountsWrapper>
-        {Object.values(accountMap).map((account) => (
-          <AccountItem
-            to={`/vault/${account.config.id}`}
-            onClick={() => setCurrentAccountId(account.config.id)}
-            key={account.config.id}
-          >
-            <StyledIcon as={Bitcoin} size={48} />
-            <AccountInfoContainer>
-              <AccountName>{account.name}</AccountName>
-              {account.loading && 'Loading...'}
-              {!account.loading && (
-                <CurrentBalance>
-                  Current Balance:{' '}
-                  {account.config.type === 'onchain'
-                    ? `${satoshisToBitcoins(account.currentBalance as number).toFixed(8)} BTC`
-                    : `${Number(
-                        (account.currentBalance as ChannelBalanceResponse).balance
-                      ).toLocaleString()} sats`}
-                </CurrentBalance>
-              )}
-              {!account.loading && account.config.type === 'onchain' && (
-                <CurrentBalance>
-                  {getLastTransactionTime((account as any).transactions)}
-                </CurrentBalance>
-              )}
-            </AccountInfoContainer>
-          </AccountItem>
-        ))}
+        {Object.values(accountMap).map((account) => {
+          const url =
+            account.config.type === 'onchain'
+              ? `/vault/${account.config.id}`
+              : `/lightning/${account.config.id}`;
+          return (
+            <AccountItem
+              to={url}
+              onClick={() => setCurrentAccountId(account.config.id)}
+              key={account.config.id}
+            >
+              <StyledIcon as={Bitcoin} size={48} />
+              <AccountInfoContainer>
+                <AccountName>{account.name}</AccountName>
+                {account.loading && 'Loading...'}
+                {!account.loading && (
+                  <CurrentBalance>
+                    Current Balance:{' '}
+                    {account.config.type === 'onchain'
+                      ? `${satoshisToBitcoins(account.currentBalance as number).toFixed(8)} BTC`
+                      : `${Number(
+                          (account.currentBalance as ChannelBalanceResponse).balance
+                        ).toLocaleString()} sats`}
+                  </CurrentBalance>
+                )}
+                {!account.loading && (
+                  <CurrentBalance>{getLastTransactionTime(account)}</CurrentBalance>
+                )}
+              </AccountInfoContainer>
+            </AccountItem>
+          );
+        })}
         <AccountItem to={`/setup`}>
           <StyledIcon as={AddCircleOutline} size={48} />
           <AccountInfoContainer>
