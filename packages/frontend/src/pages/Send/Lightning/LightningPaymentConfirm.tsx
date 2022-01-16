@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
 import styled from 'styled-components';
 import { decode } from 'bolt11';
-import { Payment } from '@lily-technologies/lnrpc';
+import { Payment, PaymentStatus, PaymentFailureReason } from '@lily-technologies/lnrpc';
 
 import { Button, Countdown, Modal } from 'src/components';
 
@@ -38,14 +38,16 @@ const LightningPaymentConfirm = ({ paymentRequest, setStep, currentAccount }: Pr
   const sendPayment = () => {
     platform.sendLightningPayment(paymentRequest, currentAccount.config, (response: Payment) => {
       try {
-        if (response.status === 2) {
+        if (response.status === PaymentStatus.SUCCEEDED) {
           openInModal(<PaymentSuccess currentAccount={currentAccount} payment={response} />);
         }
 
-        if (response.status === 3) {
-          if (response.failureReason === 2) {
+        if (response.status === PaymentStatus.FAILED) {
+          if (response.failureReason === PaymentFailureReason.FAILURE_REASON_NO_ROUTE) {
             setPaymentError('No route to user');
-          } else if (response.failureReason === 5) {
+          } else if (
+            response.failureReason === PaymentFailureReason.FAILURE_REASON_INSUFFICIENT_BALANCE
+          ) {
             setPaymentError('Not enough balance');
           } else {
             setPaymentError('Unkown error making payment. Contact support.');
