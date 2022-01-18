@@ -450,7 +450,7 @@ export class LND extends LightningBaseProvider {
       channelResponse.on('end', () => console.log('/open-channel end'));
     } catch (e) {
       console.log('openChannelInitialize catch: ', e);
-      return Promise.reject(e);
+      callback(new Error('Error opening channel'));
     }
   }
 

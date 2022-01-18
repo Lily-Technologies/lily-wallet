@@ -80,10 +80,7 @@ export class BlockstreamProvider extends OnchainBaseProvider {
 
   async broadcastTransaction(txHex: string): Promise<string> {
     const network = this.network.bech32 === 'bc' ? MAINNET : TESTNET;
-    console.log('txHex: ', txHex);
-    console.log('network: ', network);
     const { data } = await axios.post(blockExplorerAPIURL('/tx', network), txHex);
-    console.log('data: ', data);
     return data;
   }
 

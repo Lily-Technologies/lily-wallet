@@ -1,8 +1,7 @@
-import { HwiResponseEnumerate } from '@lily/types';
 import { runCommand } from './runCommand';
 
 export const enumerate = async () => {
-  const response = (await runCommand(['enumerate'])) as string;
+  const response = await runCommand(['enumerate']);
   return response;
 };
 
