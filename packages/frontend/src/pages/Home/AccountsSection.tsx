@@ -5,7 +5,7 @@ import { Bitcoin } from '@styled-icons/boxicons-logos';
 import { AddCircleOutline } from '@styled-icons/material';
 import { satoshisToBitcoins } from 'unchained-bitcoin';
 import moment from 'moment';
-import { ChannelBalanceResponse } from '@lily-technologies/lnrpc';
+import type { ChannelBalanceResponse } from '@lily-technologies/lnrpc';
 
 import { AccountMapContext } from 'src/context/AccountMapContext';
 

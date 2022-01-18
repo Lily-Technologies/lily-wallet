@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Invoice } from '@lily-technologies/lnrpc';
+import type { Invoice } from '@lily-technologies/lnrpc';
 
 import { Button } from 'src/components';
 

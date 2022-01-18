@@ -1,4 +1,4 @@
-import {
+import type {
   Payment,
   CloseStatusUpdate,
   AddInvoiceResponse,
@@ -19,13 +19,13 @@ import {
   LilyLightningAccount,
   LilyOnchainAccount,
   PriceForChart,
-  HwiRequestXpub,
-  HwiRequestSignTransaction,
-  HwiResponseEnumerate,
-  HwiRequestPromptPin,
-  HwiResponsePromptPin,
-  HwiRequestSendPin,
-  HwiResponseSendPin,
+  HwiXpubRequest,
+  HwiSignTransactionRequest,
+  HwiEnumerateResponse,
+  HwiPromptPinRequest,
+  HwiPromptPinResponse,
+  HwiSendPinRequest,
+  HwiSendPinResponse,
   FeeRates,
   ChangeNodeConfigParams,
   NodeConfigWithBlockchainInfo,
@@ -113,12 +113,12 @@ export class ElectronPlatform extends BasePlatform {
     return Promise.resolve(isConfirmed);
   }
 
-  async getXpub({ deviceType, devicePath, path }: HwiRequestXpub) {
+  async getXpub({ deviceType, devicePath, path }: HwiXpubRequest) {
     const xpub = await window.ipcRenderer.invoke('/xpub', { deviceType, devicePath, path });
     return Promise.resolve(xpub);
   }
 
-  async signTransaction({ deviceType, devicePath, psbt }: HwiRequestSignTransaction) {
+  async signTransaction({ deviceType, devicePath, psbt }: HwiSignTransactionRequest) {
     const response = await window.ipcRenderer.invoke('/sign', {
       deviceType,
       devicePath,
@@ -127,21 +127,21 @@ export class ElectronPlatform extends BasePlatform {
     return Promise.resolve(response);
   }
 
-  async enumerate(): Promise<HwiResponseEnumerate[]> {
+  async enumerate(): Promise<HwiEnumerateResponse[]> {
     const response = await await window.ipcRenderer.invoke('/enumerate');
     return Promise.resolve(response);
   }
 
-  async promptPin({ deviceType, devicePath }: HwiRequestPromptPin): Promise<HwiResponsePromptPin> {
-    const response: HwiResponsePromptPin = await window.ipcRenderer.invoke('/promptpin', {
+  async promptPin({ deviceType, devicePath }: HwiPromptPinRequest): Promise<HwiPromptPinResponse> {
+    const response: HwiPromptPinResponse = await window.ipcRenderer.invoke('/promptpin', {
       deviceType,
       devicePath
     });
     return Promise.resolve(response);
   }
 
-  async sendPin({ deviceType, devicePath, pin }: HwiRequestSendPin): Promise<HwiResponseSendPin> {
-    const response: HwiResponseSendPin = await window.ipcRenderer.invoke('/sendpin', {
+  async sendPin({ deviceType, devicePath, pin }: HwiSendPinRequest): Promise<HwiSendPinResponse> {
+    const response: HwiSendPinResponse = await window.ipcRenderer.invoke('/sendpin', {
       deviceType,
       devicePath,
       pin
@@ -190,7 +190,7 @@ export class ElectronPlatform extends BasePlatform {
     });
 
     window.ipcRenderer.on('/lightning-send-payment', async (_event: any, ...args: any) => {
-      const response = args[0];
+      const response: Payment = args[0];
       callback(response);
     });
   }
@@ -211,33 +211,37 @@ export class ElectronPlatform extends BasePlatform {
     });
   }
 
-  async openChannelInitiate(
-    { lightningAddress, channelAmount }: OpenChannelRequestArgs,
-    callback: ICallback<DecoratedOpenStatusUpdate>
-  ) {
-    window.ipcRenderer.send('/open-channel', {
+  async openChannelInitiate({ lightningAddress, channelAmount }: OpenChannelRequestArgs) {
+    const response = window.ipcRenderer.invoke('/open-channel', {
       lightningAddress,
       channelAmount
     });
 
-    window.ipcRenderer.on('/open-channel', async (_event: any, ...args: any) => {
-      const openChannelResponse: DecoratedOpenStatusUpdate = args[0];
-      callback(null, openChannelResponse);
-    });
+    return Promise.resolve(response);
   }
 
   async openChannelVerify({ fundedPsbt, pendingChanId }: FundingPsbtVerify) {
-    window.ipcRenderer.send('/open-channel-verify', {
-      fundedPsbt,
-      pendingChanId
-    });
+    try {
+      await window.ipcRenderer.invoke('/open-channel-verify', {
+        fundedPsbt,
+        pendingChanId
+      });
+      return Promise.resolve();
+    } catch (e) {
+      return Promise.reject(e);
+    }
   }
 
   async openChannelFinalize({ signedPsbt, pendingChanId }: FundingPsbtFinalize) {
-    window.ipcRenderer.send('/open-channel-finalize', {
-      signedPsbt,
-      pendingChanId
-    });
+    try {
+      await window.ipcRenderer.invoke('/open-channel-finalize', {
+        signedPsbt,
+        pendingChanId
+      });
+      return Promise.resolve();
+    } catch (e) {
+      return Promise.reject(e);
+    }
   }
 
   async getLightningInvoice({ memo, value, lndConnectUri }: GetLightningInvoiceRequest) {

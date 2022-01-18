@@ -11,7 +11,7 @@ import {
   isOnlyLettersAndNumbers
 } from 'src/utils/other';
 
-import { HwiResponseEnumerate, Device } from '@lily/types';
+import { HwiEnumerateResponse, Device } from '@lily/types';
 
 const types = {
   coldcard: ['coldcard'],
@@ -25,15 +25,15 @@ const types = {
 
 const bip32 = BIP32Factory(ecc);
 interface Props {
-  importedDevices: HwiResponseEnumerate[];
-  setImportedDevices: React.Dispatch<React.SetStateAction<HwiResponseEnumerate[]>>;
+  importedDevices: HwiEnumerateResponse[];
+  setImportedDevices: React.Dispatch<React.SetStateAction<HwiEnumerateResponse[]>>;
   closeModal: () => void;
 }
 
 const InputXpubModal = ({ importedDevices, setImportedDevices, closeModal }: Props) => {
   const [type, setType] = useState<Device['type']>('coldcard');
   const [model, setModel] = useState<Device['model']>('coldcard');
-  const [path, setPath] = useState('');
+  const [path, setPath] = useState("m/48'/0'/0'/2'");
   const [fingerprint, setFingerprint] = useState('');
   const [xpub, setXpub] = useState('');
   const [options, setOptions] = useState(Object.values(types[type]));
@@ -102,9 +102,8 @@ const InputXpubModal = ({ importedDevices, setImportedDevices, closeModal }: Pro
             </InputContainer>
             <InputContainer>
               <StyledInput
-                // value={path}
+                value={path}
                 disabled
-                value={"m/48'/0'/0'/2'"}
                 onChange={setPath}
                 label='Derivation path'
                 type='text'

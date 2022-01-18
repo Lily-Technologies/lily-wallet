@@ -26,7 +26,8 @@ import {
 
 import {
   NodeConfigWithBlockchainInfo,
-  HwiResponseEnumerate,
+  HwiEnumerateResponse,
+  HwiXpubRequest,
   CoindeskHistoricPriceResponse,
   CoindeskCurrentPriceResponse,
   LightningConfig,
@@ -77,7 +78,7 @@ function createWindow() {
 
   if ('DEVURL' in process.env) {
     // load dev url
-    mainWindow.loadURL(`http://localhost:3001/`);
+    mainWindow.loadURL(`http://localhost:3000/`);
   } else {
     // load production url
     mainWindow.loadURL(`file://${__dirname}/frontend/index.html`);
@@ -218,23 +219,26 @@ ipcMain.on('/lightning-account-data', async (event, config: LightningConfig) => 
   }
 });
 
-ipcMain.on('/open-channel', async (event, args: OpenChannelRequestArgs) => {
+ipcMain.handle('/open-channel', async (event, args: OpenChannelRequestArgs) => {
   const { lightningAddress, channelAmount } = args;
   try {
-    LightningDataProvider.openChannelInitialize({ lightningAddress, channelAmount }, (data) => {
-      event.reply('/open-channel', data);
-    });
+    LightningDataProvider.openChannelInitialize(
+      { lightningAddress, channelAmount },
+      (err, data) => {
+        console.log('/open-channel err, data: ', err, data);
+        if (err) {
+          return Promise.reject(err);
+        }
+        return Promise.resolve(data);
+      }
+    );
   } catch (e) {
     console.log('error opening channel: ', e);
-    event.reply('/open-channel', {
-      error: {
-        message: e
-      }
-    });
+    return Promise.reject(e);
   }
 });
 
-ipcMain.on('/open-channel-verify', async (event, args: FundingPsbtVerify) => {
+ipcMain.handle('/open-channel-verify', async (event, args: FundingPsbtVerify) => {
   const { fundedPsbt, pendingChanId } = args; // unsigned psbt
 
   try {
@@ -243,20 +247,24 @@ ipcMain.on('/open-channel-verify', async (event, args: FundingPsbtVerify) => {
       pendingChanId,
       skipFinalize: false
     });
+    return Promise.resolve();
   } catch (e) {
     console.log('/open-channel-verify error: ', e);
+    return Promise.reject(e);
   }
 });
 
-ipcMain.on('/open-channel-finalize', async (event, args: FundingPsbtFinalize) => {
+ipcMain.handle('/open-channel-finalize', async (event, args: FundingPsbtFinalize) => {
   const { signedPsbt, pendingChanId } = args; // signed psbt
   try {
     await LightningDataProvider.openChannelFinalize({
       signedPsbt,
       pendingChanId
     });
+    return Promise.resolve();
   } catch (e) {
     console.log('/open-channel-finalize error: ', e);
+    return Promise.reject(e);
   }
 });
 
@@ -275,20 +283,23 @@ ipcMain.on('/close-channel', async (event, args: CloseChannelRequest) => {
   }
 });
 
-ipcMain.on('/lightning-send-payment', async (event, args) => {
-  const { config, paymentRequest } = args;
+ipcMain.on(
+  '/lightning-send-payment',
+  async (event, args: { config: LightningConfig; paymentRequest: string }) => {
+    const { config, paymentRequest } = args;
 
-  console.log(`(${config.id}): Sending payment...`);
-  try {
-    LightningDataProvider.sendPayment(paymentRequest, (data) => {
-      event.reply('/lightning-send-payment', data);
-    });
-  } catch (e) {
-    console.log('/lightning-send-payment e: ', e);
+    console.log(`(${config.id}): Sending payment...`);
+    try {
+      LightningDataProvider.sendPayment(paymentRequest, (data) => {
+        event.reply('/lightning-send-payment', data);
+      });
+    } catch (e) {
+      console.log('/lightning-send-payment e: ', e);
+    }
   }
-});
+);
 
-ipcMain.handle('/lightning-connect', async (event, args) => {
+ipcMain.handle('/lightning-connect', async (event, args: { lndConnectUri: string }) => {
   const { lndConnectUri } = args;
   try {
     LightningDataProvider = new LND(lndConnectUri);
@@ -325,13 +336,14 @@ ipcMain.handle('/get-config', async (event, args) => {
   }
 });
 
-ipcMain.handle('/save-config', async (event, args) => {
+ipcMain.handle('/save-config', async (event, args: { encryptedConfigFile: string }) => {
   const { encryptedConfigFile } = args;
   const userDataPath = app.getPath('userData');
   return saveFile(encryptedConfigFile, 'lily-config-encrypted.txt', userDataPath);
 });
 
-ipcMain.handle('/download-item', async (event, { data, filename }) => {
+ipcMain.handle('/download-item', async (event, args) => {
+  const { data, filename } = args;
   try {
     const win = BrowserWindow.getFocusedWindow();
 
@@ -353,11 +365,11 @@ ipcMain.handle('/download-item', async (event, { data, filename }) => {
   }
 });
 
-ipcMain.handle('/bitcoin-network', async (event, args) => {
+ipcMain.handle('/bitcoin-network', async () => {
   return Promise.resolve(isTestnet);
 });
 
-ipcMain.handle('/current-btc-price', async (event, args) => {
+ipcMain.handle('/current-btc-price', async () => {
   const { data }: { data: CoindeskCurrentPriceResponse } = await axios.get(
     'https://api.coindesk.com/v1/bpi/currentprice.json'
   );
@@ -365,7 +377,7 @@ ipcMain.handle('/current-btc-price', async (event, args) => {
   return Promise.resolve(currentPriceWithCommasStrippedOut);
 });
 
-ipcMain.handle('/historical-btc-price', async (event, args) => {
+ipcMain.handle('/historical-btc-price', async () => {
   const { data }: { data: CoindeskHistoricPriceResponse } = await axios.get(
     `https://api.coindesk.com/v1/bpi/historical/close.json?start=2014-01-01&end=${moment().format(
       'YYYY-MM-DD'
@@ -382,13 +394,13 @@ ipcMain.handle('/historical-btc-price', async (event, args) => {
   return Promise.resolve(priceForChart);
 });
 
-ipcMain.handle('/enumerate', async (event, args) => {
+ipcMain.handle('/enumerate', async () => {
   try {
     const resp = JSON.parse(await enumerate());
     if (resp.error) {
       return Promise.reject(new Error('Error enumerating hardware wallets'));
     }
-    const filteredDevices = (resp as HwiResponseEnumerate[]).filter((device) => {
+    const filteredDevices = (resp as HwiEnumerateResponse[]).filter((device) => {
       return (
         device.type === 'coldcard' ||
         device.type === 'ledger' ||
@@ -402,7 +414,7 @@ ipcMain.handle('/enumerate', async (event, args) => {
   }
 });
 
-ipcMain.handle('/xpub', async (event, args) => {
+ipcMain.handle('/xpub', async (event, args: HwiXpubRequest) => {
   const { deviceType, devicePath, path } = args;
   const resp = JSON.parse(await getXPub(deviceType, devicePath, path, isTestnet)); // responses come back as strings, need to be parsed
   if (resp.error) {

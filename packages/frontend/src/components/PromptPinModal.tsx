@@ -19,10 +19,10 @@ import {
 } from 'src/utils/colors';
 import { PlatformContext } from 'src/context';
 
-import { HwiResponseEnumerate } from '@lily/types';
+import { HwiEnumerateResponse } from '@lily/types';
 
 interface Props {
-  device: HwiResponseEnumerate;
+  device: HwiEnumerateResponse;
   enumerate: () => void;
   closeModal: () => void;
 }

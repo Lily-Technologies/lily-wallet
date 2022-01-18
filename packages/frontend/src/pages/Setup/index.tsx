@@ -25,7 +25,7 @@ import NewLightningScreen from './NewLightningScreen';
 
 import { ConfigContext, PlatformContext } from 'src/context';
 
-import { HwiResponseEnumerate, AddressType } from '@lily/types';
+import { HwiEnumerateResponse, AddressType } from '@lily/types';
 
 interface Props {
   password: string;
@@ -39,7 +39,7 @@ const Setup = ({ password, currentBlockHeight, currentBitcoinNetwork }: Props) =
   const [setupOption, setSetupOption] = useState(0);
   const [step, setStep] = useState(0);
   const [accountName, setAccountName] = useState('');
-  const [importedDevices, setImportedDevices] = useState<HwiResponseEnumerate[]>([]);
+  const [importedDevices, setImportedDevices] = useState<HwiEnumerateResponse[]>([]);
   const [walletMnemonic, setWalletMnemonic] = useState('');
   const [configRequiredSigners, setConfigRequiredSigners] = useState(1);
   const [addressType, setAddressType] = useState(AddressType.P2WPKH);

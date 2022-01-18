@@ -5,7 +5,7 @@ import { Network } from 'bitcoinjs-lib';
 import { useHistory } from 'react-router-dom';
 import { Alert } from '@styled-icons/ionicons-outline';
 
-import { Button } from '.';
+import { Button } from './Button';
 
 import { AccountMapContext, ConfigContext, PlatformContext } from 'src/context';
 

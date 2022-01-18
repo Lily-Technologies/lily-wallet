@@ -1,6 +1,6 @@
 import { Network } from 'bitcoinjs-lib';
 import { WalletInfo, ClientOption } from 'bitcoin-simple-rpc';
-import {
+import type {
   Channel,
   PendingChannel,
   ChannelBalanceResponse,
@@ -383,7 +383,7 @@ export interface Device {
   model: string; // KBC-TODO: get more specific with this
 }
 
-export interface HwiResponseEnumerate {
+export interface HwiEnumerateResponse {
   // device responses from HWI
   type: Device['type'];
   model: string; // KBC-TODO: get more specific with this
@@ -392,42 +392,42 @@ export interface HwiResponseEnumerate {
   xpub: string;
 }
 
-export interface HwiRequestXpub {
-  deviceType: HwiResponseEnumerate['type'];
-  devicePath: HwiResponseEnumerate['path'];
+export interface HwiXpubRequest {
+  deviceType: HwiEnumerateResponse['type'];
+  devicePath: HwiEnumerateResponse['path'];
   path: string;
 }
 
-export interface HwiResponseXpub {
+export interface HwiXpubResponse {
   xpub: string;
 }
 
-export interface HwiRequestSignTransaction {
-  deviceType: HwiResponseEnumerate['type'];
-  devicePath: HwiResponseEnumerate['path'];
+export interface HwiSignTransactionRequest {
+  deviceType: HwiEnumerateResponse['type'];
+  devicePath: HwiEnumerateResponse['path'];
   psbt: string;
 }
 
-export interface HwiResponseSignTransaction {
+export interface HwiSignTransactionResponse {
   psbt: string;
 }
 
-export interface HwiRequestPromptPin {
-  deviceType: HwiResponseEnumerate['type'];
-  devicePath: HwiResponseEnumerate['path'];
+export interface HwiPromptPinRequest {
+  deviceType: HwiEnumerateResponse['type'];
+  devicePath: HwiEnumerateResponse['path'];
 }
 
-export interface HwiResponsePromptPin {
+export interface HwiPromptPinResponse {
   error?: string;
 }
 
-export interface HwiRequestSendPin {
-  deviceType: HwiResponseEnumerate['type'];
-  devicePath: HwiResponseEnumerate['path'];
+export interface HwiSendPinRequest {
+  deviceType: HwiEnumerateResponse['type'];
+  devicePath: HwiEnumerateResponse['path'];
   pin: string;
 }
 
-export interface HwiResponseSendPin {
+export interface HwiSendPinResponse {
   success: boolean;
 }
 

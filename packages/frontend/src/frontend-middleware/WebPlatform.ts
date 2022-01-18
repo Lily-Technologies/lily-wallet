@@ -1,6 +1,6 @@
-import axios, { AxiosResponse, AxiosError } from 'axios';
+import axios, { AxiosResponse } from 'axios';
 
-import {
+import type {
   Payment,
   CloseStatusUpdate,
   AddInvoiceResponse,
@@ -22,13 +22,13 @@ import {
   LilyLightningAccount,
   LilyOnchainAccount,
   PriceForChart,
-  HwiRequestXpub,
-  HwiRequestSignTransaction,
-  HwiResponseEnumerate,
-  HwiRequestPromptPin,
-  HwiResponsePromptPin,
-  HwiRequestSendPin,
-  HwiResponseSendPin,
+  HwiXpubRequest,
+  HwiSignTransactionRequest,
+  HwiEnumerateResponse,
+  HwiPromptPinRequest,
+  HwiPromptPinResponse,
+  HwiSendPinRequest,
+  HwiSendPinResponse,
   FeeRates,
   ChangeNodeConfigParams,
   NodeConfigWithBlockchainInfo,
@@ -36,14 +36,12 @@ import {
   OpenChannelRequestArgs,
   GetLightningInvoiceRequest,
   LilyAccount,
-  ICallback
+  ICallback,
+  HwiXpubResponse,
+  HwiSignTransactionResponse
 } from '@lily/types';
 
 const HOST = `${process.env.REACT_APP_BACKEND_HOST}:${process.env.REACT_APP_BACKEND_PORT}`;
-
-function isApiError(x: any): x is AxiosError<AxiosResponse> {
-  return typeof x.code === 'number';
-}
 
 export class WebPlatform extends BasePlatform {
   constructor() {
@@ -80,58 +78,55 @@ export class WebPlatform extends BasePlatform {
     config: VaultConfig | OnChainConfig,
     callback: (accountInfo: LilyOnchainAccount) => void
   ) {
-    axios.post(`${HOST}/account-data`, config).then(({ data }) => {
-      console.log('data: ', data);
+    axios.post<LilyOnchainAccount>(`${HOST}/account-data`, config).then(({ data }) => {
       callback(data);
     });
   }
 
   getLightningData(config: LightningConfig, callback: (accountInfo: LilyLightningAccount) => void) {
-    axios.post(`${HOST}/lightning-account-data`, config).then(({ data }) => {
-      console.log('data: ', data);
+    axios.post<LilyLightningAccount>(`${HOST}/lightning-account-data`, config).then(({ data }) => {
       callback(data);
     });
   }
 
   async getNodeConfig() {
-    const { data }: AxiosResponse<NodeConfigWithBlockchainInfo> = await axios.get(
-      `${HOST}/get-node-config`
-    );
+    const { data } = await axios.get<NodeConfigWithBlockchainInfo>(`${HOST}/get-node-config`);
     return Promise.resolve(data);
   }
 
   async isTestnet() {
-    const { data }: AxiosResponse<boolean> = await axios.get(`${HOST}/bitcoin-network`);
+    const { data } = await axios.get<boolean>(`${HOST}/bitcoin-network`);
     return Promise.resolve(data);
   }
 
   async getHistoricalBitcoinPrice() {
-    const { data }: AxiosResponse<PriceForChart[]> = await axios.get(
-      `${HOST}/historical-btc-price`
-    );
-    console.log('data: ', data);
+    const { data } = await axios.get<PriceForChart[]>(`${HOST}/historical-btc-price`);
     return Promise.resolve(data);
   }
 
   async getCurrentBitcoinPrice() {
-    const { data }: AxiosResponse<string> = await axios.get(`${HOST}/current-btc-price`);
+    const { data } = await axios.get<string>(`${HOST}/current-btc-price`);
     return Promise.resolve(data);
   }
 
   async isConfirmedTransaction(txId: string) {
-    const { data }: AxiosResponse<boolean> = await axios.post(`${HOST}/isConfirmedTransaction`, {
+    const { data } = await axios.post<boolean>(`${HOST}/isConfirmedTransaction`, {
       txId
     });
     return Promise.resolve(data);
   }
 
-  async getXpub({ deviceType, devicePath, path }: HwiRequestXpub) {
-    const { data } = await axios.post(`${HOST}/xpub`, { deviceType, devicePath, path });
+  async getXpub({ deviceType, devicePath, path }: HwiXpubRequest) {
+    const { data } = await axios.post<HwiXpubResponse>(`${HOST}/xpub`, {
+      deviceType,
+      devicePath,
+      path
+    });
     return Promise.resolve(data);
   }
 
-  async signTransaction({ deviceType, devicePath, psbt }: HwiRequestSignTransaction) {
-    const { data } = await axios.post(`${HOST}/sign`, {
+  async signTransaction({ deviceType, devicePath, psbt }: HwiSignTransactionRequest) {
+    const { data } = await axios.post<HwiSignTransactionResponse>(`${HOST}/sign`, {
       deviceType,
       devicePath,
       psbt
@@ -139,21 +134,21 @@ export class WebPlatform extends BasePlatform {
     return Promise.resolve(data);
   }
 
-  async enumerate(): Promise<HwiResponseEnumerate[]> {
-    const { data } = await axios.get(`${HOST}/enumerate`);
+  async enumerate() {
+    const { data } = await axios.get<HwiEnumerateResponse[]>(`${HOST}/enumerate`);
     return Promise.resolve(data);
   }
 
-  async promptPin({ deviceType, devicePath }: HwiRequestPromptPin): Promise<HwiResponsePromptPin> {
-    const { data }: AxiosResponse<HwiResponsePromptPin> = await axios.post(`${HOST}/promptpin`, {
+  async promptPin({ deviceType, devicePath }: HwiPromptPinRequest): Promise<HwiPromptPinResponse> {
+    const { data } = await axios.post<HwiPromptPinResponse>(`${HOST}/promptpin`, {
       deviceType,
       devicePath
     });
     return Promise.resolve(data);
   }
 
-  async sendPin({ deviceType, devicePath, pin }: HwiRequestSendPin): Promise<HwiResponseSendPin> {
-    const { data }: AxiosResponse<HwiResponseSendPin> = await axios.post(`${HOST}/sendpin`, {
+  async sendPin({ deviceType, devicePath, pin }: HwiSendPinRequest): Promise<HwiSendPinResponse> {
+    const { data } = await axios.post<HwiSendPinResponse>(`${HOST}/sendpin`, {
       deviceType,
       devicePath,
       pin
@@ -162,7 +157,7 @@ export class WebPlatform extends BasePlatform {
   }
 
   async estimateFee(): Promise<FeeRates> {
-    const { data } = await axios.get(`${HOST}/estimate-fee`);
+    const { data } = await axios.get<FeeRates>(`${HOST}/estimate-fee`);
     return Promise.resolve(data);
   }
 
@@ -171,22 +166,19 @@ export class WebPlatform extends BasePlatform {
     host,
     port
   }: ChangeNodeConfigParams): Promise<NodeConfigWithBlockchainInfo> {
-    const { data }: AxiosResponse<NodeConfigWithBlockchainInfo> = await axios.post(
-      `${HOST}/changeNodeConfig`,
-      {
-        nodeConfig: {
-          provider,
-          baseURL: host,
-          port
-        }
+    const { data } = await axios.post<NodeConfigWithBlockchainInfo>(`${HOST}/changeNodeConfig`, {
+      nodeConfig: {
+        provider,
+        baseURL: host,
+        port
       }
-    );
+    });
 
     return Promise.resolve(data);
   }
 
   async broadcastTransaction(txHex: string) {
-    const { data }: AxiosResponse<string> = await axios.post(`${HOST}/broadcastTx`, {
+    const { data } = await axios.post<string>(`${HOST}/broadcastTx`, {
       txHex
     });
     return Promise.resolve(data);
@@ -199,7 +191,7 @@ export class WebPlatform extends BasePlatform {
     config: LightningConfig,
     callback: (payment: Payment) => void
   ) {
-    const { data }: AxiosResponse<Payment> = await axios.post(`${HOST}/lightning-send-payment`, {
+    const { data } = await axios.post<Payment>(`${HOST}/lightning-send-payment`, {
       paymentRequest: paymentRequest,
       config: config
     });
@@ -211,7 +203,7 @@ export class WebPlatform extends BasePlatform {
     { channelPoint, deliveryAddress }: CloseChannelRequest,
     callback: (response: CloseStatusUpdate) => void
   ) {
-    const { data }: AxiosResponse<CloseStatusUpdate> = await axios.post(`${HOST}/close-channel`, {
+    const { data } = await axios.post<CloseStatusUpdate>(`${HOST}/close-channel`, {
       channelPoint,
       deliveryAddress
     });
@@ -219,57 +211,40 @@ export class WebPlatform extends BasePlatform {
     callback(data);
   }
 
-  async openChannelInitiate(
-    { lightningAddress, channelAmount }: OpenChannelRequestArgs,
-    callback: ICallback<DecoratedOpenStatusUpdate>
-  ) {
-    try {
-      const { data }: AxiosResponse<DecoratedOpenStatusUpdate> = await axios.post(
-        `${HOST}/open-channel`,
-        {
-          lightningAddress,
-          channelAmount
-        }
-      );
+  async openChannelInitiate({ lightningAddress, channelAmount }: OpenChannelRequestArgs) {
+    const { data } = await axios.post<DecoratedOpenStatusUpdate>(`${HOST}/open-channel`, {
+      lightningAddress,
+      channelAmount
+    });
 
-      callback(null, data);
-    } catch (e) {
-      if (axios.isAxiosError(e) && e.response) {
-        const { data } = e.response;
-        callback(new Error(data.message));
-      }
-    }
+    return Promise.resolve(data);
   }
 
   async openChannelVerify({ fundedPsbt, pendingChanId }: FundingPsbtVerify) {
-    const { data }: AxiosResponse<OpenStatusUpdate> = await axios.post(
-      `${HOST}/open-channel-verify`,
-      {
+    try {
+      await axios.post<OpenStatusUpdate>(`${HOST}/open-channel-verify`, {
         fundedPsbt,
         pendingChanId
-      }
-    );
+      });
+      return Promise.resolve();
+    } catch (e) {
+      return Promise.reject(e);
+    }
   }
 
   async openChannelFinalize({ signedPsbt, pendingChanId }: FundingPsbtFinalize) {
-    const { data }: AxiosResponse<OpenStatusUpdate> = await axios.post(
-      `${HOST}/open-channel-finalize`,
-      {
-        signedPsbt,
-        pendingChanId
-      }
-    );
+    const { data } = await axios.post<OpenStatusUpdate>(`${HOST}/open-channel-finalize`, {
+      signedPsbt,
+      pendingChanId
+    });
   }
 
   async getLightningInvoice({ memo, value, lndConnectUri }: GetLightningInvoiceRequest) {
-    const { data }: AxiosResponse<AddInvoiceResponse> = await axios.post(
-      `${HOST}/lightning-invoice`,
-      {
-        memo,
-        value,
-        lndConnectUri
-      }
-    );
+    const { data } = await axios.post<AddInvoiceResponse>(`${HOST}/lightning-invoice`, {
+      memo,
+      value,
+      lndConnectUri
+    });
 
     return Promise.resolve(data);
   }
@@ -281,19 +256,16 @@ export class WebPlatform extends BasePlatform {
   }
 
   async rescanBlockchain(startHeight: string, currentAccount: LilyOnchainAccount) {
-    const { data }: AxiosResponse<{ success: boolean }> = await axios.post(
-      `${HOST}/rescanBlockchain`,
-      {
-        startHeight,
-        currentAccount
-      }
-    );
+    const { data } = await axios.post<{ success: boolean }>(`${HOST}/rescanBlockchain`, {
+      startHeight,
+      currentAccount
+    });
 
     return Promise.resolve(data);
   }
 
   async getWalletInfo(currentAccount: LilyAccount) {
-    const { data }: AxiosResponse<WalletInfo> = await axios.post(`${HOST}/getWalletInfo`, {
+    const { data } = await axios.post<WalletInfo>(`${HOST}/getWalletInfo`, {
       currentAccount
     });
 

@@ -27,7 +27,7 @@ import { zpubToXpub } from 'src/utils/other';
 import { PlatformContext } from 'src/context';
 
 import {
-  HwiResponseEnumerate,
+  HwiEnumerateResponse,
   File,
   ColdcardDeviceMultisigExportFile,
   ColdcardMultisigExportFile
@@ -36,8 +36,8 @@ import {
 interface Props {
   header: JSX.Element;
   setStep: React.Dispatch<React.SetStateAction<number>>;
-  importedDevices: HwiResponseEnumerate[];
-  setImportedDevices: React.Dispatch<React.SetStateAction<HwiResponseEnumerate[]>>;
+  importedDevices: HwiEnumerateResponse[];
+  setImportedDevices: React.Dispatch<React.SetStateAction<HwiEnumerateResponse[]>>;
   setConfigRequiredSigners: React.Dispatch<React.SetStateAction<number>>;
   configRequiredSigners: number;
   currentBitcoinNetwork: Network;
@@ -52,7 +52,7 @@ const NewVaultScreen = ({
   configRequiredSigners,
   currentBitcoinNetwork
 }: Props) => {
-  const [availableDevices, setAvailableDevices] = useState<HwiResponseEnumerate[]>([]);
+  const [availableDevices, setAvailableDevices] = useState<HwiEnumerateResponse[]>([]);
   const [errorDevices, setErrorDevices] = useState<string[]>([]);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
@@ -70,7 +70,7 @@ const NewVaultScreen = ({
     setModalContent(null);
   };
 
-  const importMultisigDevice = async (device: HwiResponseEnumerate, index: number) => {
+  const importMultisigDevice = async (device: HwiEnumerateResponse, index: number) => {
     try {
       const response = await platform.getXpub({
         deviceType: device.type,
@@ -97,7 +97,7 @@ const NewVaultScreen = ({
     try {
       const { xfp, xpub, path, lilyMobile } = JSON.parse(data);
 
-      let newDevice: HwiResponseEnumerate;
+      let newDevice: HwiEnumerateResponse;
       if (lilyMobile) {
         newDevice = {
           type: 'phone',
@@ -134,7 +134,7 @@ const NewVaultScreen = ({
       xpub: xpub,
       path: 'unknown',
       model: 'unknown'
-    } as HwiResponseEnumerate;
+    } as HwiEnumerateResponse;
 
     const updatedImportedDevices = [...importedDevices, newDevice];
     setImportedDevices(updatedImportedDevices);
@@ -142,7 +142,7 @@ const NewVaultScreen = ({
 
   const importMultisigWalletFromFile = (parsedFile: ColdcardMultisigExportFile) => {
     const numPubKeys = Object.keys(parsedFile).filter((key) => key.startsWith('x')).length; // all exports start with x
-    const devicesFromFile: HwiResponseEnumerate[] = [];
+    const devicesFromFile: HwiEnumerateResponse[] = [];
 
     for (let i = 1; i < numPubKeys + 1; i++) {
       const zpub = decode(parsedFile[`x${i}/`].xpub);
@@ -156,7 +156,7 @@ const NewVaultScreen = ({
         xpub: xpub,
         model: 'unknown',
         path: 'none'
-      } as HwiResponseEnumerate;
+      } as HwiEnumerateResponse;
 
       devicesFromFile.push(newDevice);
     }

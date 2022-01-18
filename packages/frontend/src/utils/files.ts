@@ -15,7 +15,7 @@ import {
   AddressType,
   Device,
   ExtendedPublicKey,
-  HwiResponseEnumerate,
+  HwiEnumerateResponse,
   VaultConfig
 } from '@lily/types';
 
@@ -178,7 +178,7 @@ export const createSinglesigConfigFile = async (
 };
 
 export const createSinglesigHWWConfigFile = async (
-  device: HwiResponseEnumerate,
+  device: HwiEnumerateResponse,
   addressType: AddressType,
   path: string,
   accountName: string,
@@ -219,7 +219,7 @@ export const createSinglesigHWWConfigFile = async (
 };
 
 export const createMultisigConfigFile = (
-  importedDevices: HwiResponseEnumerate[],
+  importedDevices: HwiEnumerateResponse[],
   requiredSigners: number,
   accountName: string,
   config: LilyConfig,

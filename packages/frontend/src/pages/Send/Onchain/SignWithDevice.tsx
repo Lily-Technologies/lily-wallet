@@ -5,7 +5,7 @@ import { Psbt } from 'bitcoinjs-lib';
 import { DeviceSelect, Dropdown } from 'src/components';
 import { gray800, white } from 'src/utils/colors';
 
-import { Device, HwiResponseEnumerate } from '@lily/types';
+import { Device, HwiEnumerateResponse } from '@lily/types';
 
 import { PlatformContext } from 'src/context';
 
@@ -26,12 +26,12 @@ const SignWithDevice = ({
   fileUploadLabelRef,
   phoneAction
 }: Props) => {
-  const [unsignedDevices, setUnsignedDevices] = useState<HwiResponseEnumerate[]>([]);
+  const [unsignedDevices, setUnsignedDevices] = useState<HwiEnumerateResponse[]>([]);
   const [errorDevices, setErrorDevices] = useState<string[]>([]); // stores fingerprint of error devices
   const { platform } = useContext(PlatformContext);
 
   // KBC-TODO: add a test
-  const signWithDevice = async (device: HwiResponseEnumerate, index: number) => {
+  const signWithDevice = async (device: HwiEnumerateResponse, index: number) => {
     try {
       const response = await platform.signTransaction({
         deviceType: device.type,

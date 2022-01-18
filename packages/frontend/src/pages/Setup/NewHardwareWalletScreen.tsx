@@ -51,7 +51,7 @@ import {
 import { PlatformContext } from 'src/context';
 
 import {
-  HwiResponseEnumerate,
+  HwiEnumerateResponse,
   ColdcardElectrumExport,
   File,
   AddressType,
@@ -61,8 +61,8 @@ import {
 interface Props {
   header: JSX.Element;
   setStep: React.Dispatch<React.SetStateAction<number>>;
-  importedDevices: HwiResponseEnumerate[];
-  setImportedDevices: React.Dispatch<React.SetStateAction<HwiResponseEnumerate[]>>;
+  importedDevices: HwiEnumerateResponse[];
+  setImportedDevices: React.Dispatch<React.SetStateAction<HwiEnumerateResponse[]>>;
   currentBitcoinNetwork: Network;
   setPath: React.Dispatch<React.SetStateAction<string>>;
   setAddressType: React.Dispatch<React.SetStateAction<AddressType>>;
@@ -77,7 +77,7 @@ const NewHardwareWalletScreen = ({
   setPath,
   setAddressType
 }: Props) => {
-  const [availableDevices, setAvailableDevices] = useState<HwiResponseEnumerate[]>([]);
+  const [availableDevices, setAvailableDevices] = useState<HwiEnumerateResponse[]>([]);
   const [errorDevices, setErrorDevices] = useState<string[]>([]);
   const importDeviceFromFileRef = useRef<HTMLLabelElement>(null);
   const [modalIsOpen, setModalIsOpen] = useState(false);
@@ -94,7 +94,7 @@ const NewHardwareWalletScreen = ({
     setModalContent(null);
   };
 
-  const importSingleSigDevice = async (device: HwiResponseEnumerate, index: number) => {
+  const importSingleSigDevice = async (device: HwiEnumerateResponse, index: number) => {
     try {
       const p2wpkhXpub = await platform.getXpub({
         deviceType: device.type,
@@ -266,7 +266,7 @@ const NewHardwareWalletScreen = ({
         xpub: xpub,
         model: 'unknown',
         path: 'unknown'
-      } as HwiResponseEnumerate;
+      } as HwiEnumerateResponse;
 
       const updatedImportedDevices = [...importedDevices, newDevice];
       setImportedDevices(updatedImportedDevices);
@@ -289,7 +289,7 @@ const NewHardwareWalletScreen = ({
         xpub: xpubFromZpub,
         model: 'unknown',
         path: path
-      } as HwiResponseEnumerate;
+      } as HwiEnumerateResponse;
 
       const updatedImportedDevices = [...importedDevices, newDevice];
       setImportedDevices(updatedImportedDevices);

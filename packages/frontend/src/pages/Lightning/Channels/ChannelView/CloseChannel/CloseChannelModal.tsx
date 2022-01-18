@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import styled, { css } from 'styled-components';
 import { Channel } from '@styled-icons/fluentui-system-filled';
-import { CloseStatusUpdate } from '@lily-technologies/lnrpc';
+import type { CloseStatusUpdate } from '@lily-technologies/lnrpc';
 
 import { Select, Button, Spinner, StyledIcon } from 'src/components';
 

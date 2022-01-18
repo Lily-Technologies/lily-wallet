@@ -18,16 +18,16 @@ import {
   gray900
 } from 'src/utils/colors';
 
-import { Device, HwiResponseEnumerate } from '@lily/types';
+import { Device, HwiEnumerateResponse } from '@lily/types';
 import { PlatformContext } from 'src/context';
 
 interface Props {
   configuredDevices: Device[];
-  unconfiguredDevices: HwiResponseEnumerate[];
+  unconfiguredDevices: HwiEnumerateResponse[];
   errorDevices: string[]; // fingerprints of error devices
-  setUnconfiguredDevices: React.Dispatch<React.SetStateAction<HwiResponseEnumerate[]>>;
+  setUnconfiguredDevices: React.Dispatch<React.SetStateAction<HwiEnumerateResponse[]>>;
   configuredThreshold: number;
-  deviceAction: (device: HwiResponseEnumerate, index: number) => void;
+  deviceAction: (device: HwiEnumerateResponse, index: number) => void;
   deviceActionText: string;
   deviceActionLoadingText: string;
   phoneAction?: () => void;
@@ -105,7 +105,7 @@ export const DeviceSelect = ({
     }
   };
 
-  const performDeviceAction = async (device: HwiResponseEnumerate, index: number) => {
+  const performDeviceAction = async (device: HwiEnumerateResponse, index: number) => {
     setDeviceActionLoading(index);
     await deviceAction(device, index);
     setDeviceActionLoading(null);

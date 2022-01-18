@@ -1,4 +1,4 @@
-import {
+import type {
   Payment,
   CloseStatusUpdate,
   AddInvoiceResponse,
@@ -19,15 +19,15 @@ import {
   LilyLightningAccount,
   LilyOnchainAccount,
   PriceForChart,
-  HwiRequestXpub,
-  HwiResponseXpub,
-  HwiRequestSignTransaction,
-  HwiResponseSignTransaction,
-  HwiResponseEnumerate,
-  HwiRequestPromptPin,
-  HwiResponsePromptPin,
-  HwiRequestSendPin,
-  HwiResponseSendPin,
+  HwiXpubRequest,
+  HwiXpubResponse,
+  HwiSignTransactionRequest,
+  HwiSignTransactionResponse,
+  HwiEnumerateResponse,
+  HwiPromptPinRequest,
+  HwiPromptPinResponse,
+  HwiSendPinRequest,
+  HwiSendPinResponse,
   FeeRates,
   ChangeNodeConfigParams,
   NodeConfigWithBlockchainInfo,
@@ -38,76 +38,7 @@ import {
 
 export type Platform = 'Electron' | 'Web';
 
-export interface PlatformInterface {
-  quit(): void;
-  getConfig: () => Promise<File>;
-  saveConfig(encryptedConfigObject: string): void;
-  downloadFile(file: string, filename: string): void;
-
-  getOnchainData(
-    config: VaultConfig | OnChainConfig,
-    callback?: (accountInfo: LilyAccount) => void
-  ): void;
-  getLightningData(
-    config: LightningConfig,
-    callback?: (accountInfo: LilyLightningAccount) => void
-  ): void;
-
-  getNodeConfig(): Promise<NodeConfigWithBlockchainInfo>;
-  isTestnet(): Promise<boolean>;
-  getHistoricalBitcoinPrice(): Promise<PriceForChart[]>;
-
-  getCurrentBitcoinPrice(): Promise<string>;
-  isConfirmedTransaction(txId: string): Promise<boolean>;
-
-  getXpub({ deviceType, devicePath, path }: HwiRequestXpub): Promise<HwiResponseXpub>;
-  enumerate(): Promise<HwiResponseEnumerate[]>;
-
-  promptPin({ deviceType, devicePath }: HwiRequestPromptPin): Promise<HwiResponsePromptPin>;
-  sendPin({ deviceType, devicePath, pin }: HwiRequestSendPin): Promise<HwiResponseSendPin>;
-  estimateFee(): Promise<FeeRates>;
-  changeNodeConfig({
-    provider,
-    host,
-    port
-  }: ChangeNodeConfigParams): Promise<NodeConfigWithBlockchainInfo>;
-  broadcastTransaction(txHex: string): Promise<string>;
-
-  sendLightningPayment(
-    paymentRequest: string,
-    config: LightningConfig,
-    callback: (payment: Payment) => void
-  ): void;
-
-  closeChannel(
-    { channelPoint, deliveryAddress }: CloseChannelRequest,
-    callback: (response: CloseStatusUpdate) => void
-  ): void;
-
-  openChannelInitiate(
-    { lightningAddress, channelAmount }: OpenChannelRequestArgs,
-    callback: ICallback<DecoratedOpenStatusUpdate>
-  ): void;
-
-  openChannelVerify({ fundedPsbt, pendingChanId }: FundingPsbtVerify): void;
-  openChannelFinalize({ signedPsbt, pendingChanId }: FundingPsbtFinalize): void;
-  getLightningInvoice({
-    memo,
-    value,
-    lndConnectUri
-  }: GetLightningInvoiceRequest): Promise<AddInvoiceResponse>;
-
-  lightningConnect(lndConnectUri: string): void;
-
-  rescanBlockchain(
-    startHeight: string,
-    currentAccount: LilyOnchainAccount
-  ): Promise<{ success: boolean }>;
-
-  getWalletInfo(currentAccount: LilyAccount): Promise<WalletInfo>;
-}
-
-export abstract class BasePlatform implements PlatformInterface {
+export abstract class BasePlatform {
   platform: Platform;
 
   constructor(platform: Platform) {
@@ -146,22 +77,22 @@ export abstract class BasePlatform implements PlatformInterface {
 
   abstract isConfirmedTransaction(txId: string): Promise<boolean>;
 
-  abstract getXpub({ deviceType, devicePath, path }: HwiRequestXpub): Promise<HwiResponseXpub>;
+  abstract getXpub({ deviceType, devicePath, path }: HwiXpubRequest): Promise<HwiXpubResponse>;
 
   abstract signTransaction({
     deviceType,
     devicePath,
     psbt
-  }: HwiRequestSignTransaction): Promise<HwiResponseSignTransaction>;
+  }: HwiSignTransactionRequest): Promise<HwiSignTransactionResponse>;
 
-  abstract enumerate(): Promise<HwiResponseEnumerate[]>;
+  abstract enumerate(): Promise<HwiEnumerateResponse[]>;
 
   abstract promptPin({
     deviceType,
     devicePath
-  }: HwiRequestPromptPin): Promise<HwiResponsePromptPin>;
+  }: HwiPromptPinRequest): Promise<HwiPromptPinResponse>;
 
-  abstract sendPin({ deviceType, devicePath, pin }: HwiRequestSendPin): Promise<HwiResponseSendPin>;
+  abstract sendPin({ deviceType, devicePath, pin }: HwiSendPinRequest): Promise<HwiSendPinResponse>;
 
   abstract estimateFee(): Promise<FeeRates>;
 
@@ -189,9 +120,9 @@ export abstract class BasePlatform implements PlatformInterface {
     callback: ICallback<DecoratedOpenStatusUpdate>
   ): void;
 
-  abstract openChannelVerify({ fundedPsbt, pendingChanId }: FundingPsbtVerify): void;
+  abstract openChannelVerify({ fundedPsbt, pendingChanId }: FundingPsbtVerify): Promise<void>;
 
-  abstract openChannelFinalize({ signedPsbt, pendingChanId }: FundingPsbtFinalize): void;
+  abstract openChannelFinalize({ signedPsbt, pendingChanId }: FundingPsbtFinalize): Promise<void>;
 
   abstract getLightningInvoice({
     memo,
