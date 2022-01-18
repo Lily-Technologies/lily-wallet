@@ -1,10 +1,10 @@
 import { Router } from 'express';
 
-import { sendError } from 'src/utils';
-
 import { OnChainConfig } from '@lily/types';
 
 import { ElectrumProvider } from '@lily/shared-server';
+
+import { sendError } from '../utils';
 
 const router = Router();
 const isTestnet = !!('TESTNET' in process.env);
@@ -73,3 +73,5 @@ router.get('/get-node-config', async (req, res) => {
     sendError(res, 'Error getting node config');
   }
 });
+
+export default router;

@@ -3,7 +3,7 @@ import { Router } from 'express';
 import moment from 'moment';
 
 import { CoindeskCurrentPriceResponse, CoindeskHistoricPriceResponse } from '@lily/types';
-import { sendError } from 'src/utils';
+import { sendError } from '../utils';
 
 const router = Router();
 
@@ -35,3 +35,5 @@ router.get('/historical-btc-price', async (req, res) => {
     sendError(res, e);
   }
 });
+
+export default router;

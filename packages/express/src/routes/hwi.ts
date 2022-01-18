@@ -1,9 +1,9 @@
 import { Router } from 'express';
 
 import { enumerate, getXPub, sendpin, promptpin, signtx } from '@lily/shared-server';
-import { HwiResponseEnumerate } from '@lily/types';
+import { HwiEnumerateResponse } from '@lily/types';
 
-import { sendError } from 'src/utils';
+import { sendError } from '../utils';
 
 const router = Router();
 
@@ -15,7 +15,7 @@ router.get('/enumerate', async (req, res) => {
     if (resp.error) {
       sendError(res, 'Error finding devices');
     }
-    const filteredDevices = (resp as HwiResponseEnumerate[]).filter((device) => {
+    const filteredDevices = (resp as HwiEnumerateResponse[]).filter((device) => {
       return (
         device.type === 'coldcard' ||
         device.type === 'ledger' ||
@@ -66,3 +66,5 @@ router.post('/sendpin', async (req, res) => {
   }
   res.send(resp);
 });
+
+export default router;

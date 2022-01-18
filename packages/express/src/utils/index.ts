@@ -6,4 +6,4 @@ export const sendError = (res: Response, message: string, code: number = 500) =>
   });
 };
 
-export * from 'src/utils/setInitialConfig';
+export * from './setInitialConfig';

@@ -2,7 +2,13 @@ require('dotenv').config();
 import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
-import { setInitialConfig } from 'src/utils';
+import { setInitialConfig } from './utils';
+
+import chartRoutes from './routes/chart';
+import configRoutes from './routes/config';
+import hwiRoutes from './routes/hwi';
+import lightningRoutes from './routes/lightning';
+import onchainRoutes from './routes/onchain';
 
 const app = express();
 app.use(cors());
@@ -28,11 +34,11 @@ app.get('/bitcoin-network', async (req, res) => {
   res.send(isTestnet);
 });
 
-app.use(require('src/routes/chart'));
-app.use(require('src/routes/config'));
-app.use(require('src/routes/hwi'));
-app.use(require('src/routes/lightning'));
-app.use(require('src/routes/onchain'));
+app.use(chartRoutes);
+app.use(configRoutes);
+app.use(hwiRoutes);
+app.use(lightningRoutes);
+app.use(onchainRoutes);
 
 // start the Express server
 app.listen(port, () => {

@@ -8,7 +8,7 @@ import {
 import { LND, LightningBaseProvider } from '@lily/shared-server';
 import { LightningConfig, OpenChannelRequestArgs } from '@lily/types';
 
-import { sendError } from 'src/utils';
+import { sendError } from '../utils';
 
 const router = Router();
 
@@ -125,3 +125,5 @@ router.post('/lightning-invoice', async (req, res) => {
     sendError(res, e);
   }
 });
+
+export default router;

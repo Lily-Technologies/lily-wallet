@@ -20,3 +20,5 @@ router.post('/save-config', async (req, res) => {
   const { encryptedConfigFile } = req.body;
   await saveFile(encryptedConfigFile, CONFIG_FILE_NAME, APP_DATA_DIRECTORY);
 });
+
+export default router;
