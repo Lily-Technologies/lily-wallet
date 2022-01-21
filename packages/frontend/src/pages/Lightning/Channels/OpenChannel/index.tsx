@@ -4,6 +4,7 @@ import styled, { css } from 'styled-components';
 import { satoshisToBitcoins } from 'unchained-bitcoin';
 import { EditAlt } from '@styled-icons/boxicons-regular';
 import { Buffer } from 'buffer';
+import axios from 'axios';
 
 import { StyledIcon, ModalContentWrapper, ErrorModal, Modal, LightningImage } from 'src/components';
 
@@ -11,7 +12,13 @@ import { mobile } from 'src/utils/media';
 import { green100, green600, gray500 } from 'src/utils/colors';
 import { createTransaction } from 'src/utils/send';
 
-import { LilyLightningAccount, FeeRates, LilyOnchainAccount, ShoppingItem } from '@lily/types';
+import {
+  LilyLightningAccount,
+  FeeRates,
+  LilyOnchainAccount,
+  ShoppingItem,
+  DecoratedOpenStatusUpdate
+} from '@lily/types';
 import { SetStatePsbt, SetStateBoolean } from 'src/types';
 import { requireLightning } from 'src/hocs';
 
@@ -62,67 +69,75 @@ const OpenChannel = ({ currentAccount, setViewOpenChannelForm }: Props) => {
           lightningAddress: lightningAddress,
           channelAmount
         },
-        async (err, openChannelResponse) => {
-          if (err) {
-            setError(err.message);
-          } else if (openChannelResponse && openChannelResponse.psbtFund) {
-            const { psbtFund, pendingChanId } = openChannelResponse;
+        async (err: Error | null, openChannelResponse?: DecoratedOpenStatusUpdate) => {
+          try {
+            if (err) {
+              setError(err.message);
+            } else if (openChannelResponse && openChannelResponse.psbtFund) {
+              const { psbtFund, pendingChanId } = openChannelResponse;
+              console.log('psbtFund, pendingChanId: ', psbtFund, pendingChanId);
 
-            const { psbt, feeRates } = await createTransaction(
-              fundingAccount,
-              `${satoshisToBitcoins(psbtFund.fundingAmount).toNumber()}`,
-              psbtFund.fundingAddress,
-              0,
-              () => platform.estimateFee(),
-              currentBitcoinNetwork
-            );
+              const { psbt, feeRates } = await createTransaction(
+                fundingAccount,
+                `${satoshisToBitcoins(psbtFund.fundingAmount).toNumber()}`,
+                psbtFund.fundingAddress,
+                0,
+                () => platform.estimateFee(),
+                currentBitcoinNetwork
+              );
+              console.log('after createtx: ', psbt, feeRates);
 
-            platform.openChannelVerify({
-              fundedPsbt: psbt.toBase64(),
-              pendingChanId: pendingChanId!,
-              skipFinalize: false
-            });
+              await platform.openChannelVerify({
+                fundedPsbt: psbt.toBase64(),
+                pendingChanId: pendingChanId!,
+                skipFinalize: false
+              });
+              console.log('after platform.openChannelVerify');
 
-            setPendingChannelId(pendingChanId as Buffer);
-            setFinalPsbt(psbt);
-            setFeeRates(feeRates);
-            setShoppingItems([
-              {
-                image: <LightningImage />,
-                title: `Lightning channel with ${openChannelResponse.alias}`,
-                price: psbtFund.fundingAmount,
-                extraInfo: [
-                  {
-                    label: 'Outgoing capacity',
-                    value: `${psbtFund.fundingAmount.toLocaleString()} sats`
-                  },
-                  { label: 'Incoming capacity', value: `0 sats` }
-                ]
-              }
-            ]);
-            setStep(1);
-          } else if (openChannelResponse && openChannelResponse.chanPending) {
-            setTimeout(() => {
-              platform.getLightningData(currentAccount.config);
-            }, 200);
-            setStep(2);
+              setPendingChannelId(pendingChanId as Buffer);
+              setFinalPsbt(psbt);
+              setFeeRates(feeRates);
+              setShoppingItems([
+                {
+                  image: <LightningImage />,
+                  title: `Lightning channel with ${openChannelResponse.alias}`,
+                  price: Number(psbtFund.fundingAmount),
+                  extraInfo: [
+                    {
+                      label: 'Outgoing capacity',
+                      value: `${Number(psbtFund.fundingAmount).toLocaleString()} sats`
+                    },
+                    { label: 'Incoming capacity', value: `0 sats` }
+                  ]
+                }
+              ]);
+              setStep(1);
+            }
+            setIsLoading(false);
+          } catch (e) {
+            if (e instanceof Error) {
+              setError(e.message);
+              setIsLoading(false);
+            }
           }
-          setIsLoading(false);
         }
       );
     } catch (e: any) {
-      setError(e.message);
-      setIsLoading(false);
+      if (e instanceof Error) {
+        setError(e.message);
+        setIsLoading(false);
+      }
     }
   };
 
   const confirmTxWithLilyThenSend = async () => {
     try {
       const finalizedPsbt = finalPsbt!.finalizeAllInputs();
-      platform.openChannelFinalize({
+      await platform.openChannelFinalize({
         signedPsbt: finalizedPsbt.toBase64(),
         pendingChanId: pendingChannelId
       });
+      setStep(2);
     } catch (e: unknown) {
       if (e instanceof Error) {
         console.log('e: ', e);

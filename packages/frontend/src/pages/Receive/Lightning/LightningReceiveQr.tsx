@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { QRCode } from 'react-qr-svg';
 import CopyToClipboard from 'react-copy-to-clipboard';
@@ -9,6 +9,7 @@ import { Button, Countdown } from 'src/components';
 import { black, white, gray400, green600, gray600, red500, yellow600 } from 'src/utils/colors';
 
 import { SetStateNumber } from 'src/types';
+import { PlatformContext } from 'src/context';
 
 interface Props {
   paymentRequest: string;
@@ -16,12 +17,25 @@ interface Props {
 }
 
 const LightningReceiveQr = ({ paymentRequest, setStep }: Props) => {
+  const { platform } = useContext(PlatformContext);
   const [invoiceExpired, setInvoiceExpired] = useState(false);
 
   const decoded = decode(paymentRequest);
   const description = decoded.tags.filter((item) => item.tagName === 'description')[0]?.data;
+  const paymentHash = decoded.tags.filter((item) => item.tagName === 'payment_hash')[0]
+    ?.data as string;
 
-  // TODO: screen shows success on payment receive
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      const { state } = await platform.getLightningInvoice({ paymentHash });
+      // TODO: factor in other states
+      if (state === 1) {
+        // SETTLED
+        setStep(2);
+      }
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <AccountReceiveContentLeft>

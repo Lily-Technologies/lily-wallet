@@ -219,7 +219,7 @@ ipcMain.on('/lightning-account-data', async (event, config: LightningConfig) => 
   }
 });
 
-ipcMain.handle('/open-channel', async (event, args: OpenChannelRequestArgs) => {
+ipcMain.on('/open-channel', async (event, args: OpenChannelRequestArgs) => {
   const { lightningAddress, channelAmount } = args;
   try {
     LightningDataProvider.openChannelInitialize(
@@ -227,9 +227,10 @@ ipcMain.handle('/open-channel', async (event, args: OpenChannelRequestArgs) => {
       (err, data) => {
         console.log('/open-channel err, data: ', err, data);
         if (err) {
-          return Promise.reject(err);
+          event.reply('/open-channel', err);
+        } else {
+          event.reply('/open-channel', null, data);
         }
-        return Promise.resolve(data);
       }
     );
   } catch (e) {
@@ -311,13 +312,24 @@ ipcMain.handle('/lightning-connect', async (event, args: { lndConnectUri: string
   }
 });
 
-ipcMain.handle('/lightning-invoice', async (event, args: Invoice) => {
+ipcMain.handle('/generate-invoice', async (event, args: Invoice) => {
   const { memo, value } = args;
   try {
-    const invoice = await LightningDataProvider.getInvoice({ memo, value });
+    const invoice = await LightningDataProvider.generateInvoice({ memo, value });
     return Promise.resolve(invoice);
   } catch (e) {
-    console.log('/lightning-invoice e: ', e);
+    console.log('/generate-invoice e: ', e);
+    return Promise.reject(e);
+  }
+});
+
+ipcMain.handle('/get-invoice', async (event, args: { paymentHash: string }) => {
+  const { paymentHash } = args;
+  try {
+    const invoice = await LightningDataProvider.getInvoice({ paymentHash });
+    return Promise.resolve(invoice);
+  } catch (e) {
+    console.log('/get-invoice e: ', e);
     return Promise.reject(e);
   }
 });

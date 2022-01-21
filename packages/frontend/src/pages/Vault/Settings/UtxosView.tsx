@@ -16,7 +16,6 @@ interface Props {
 
 const UtxosView = ({ currentAccount }: Props) => {
   const { availableUtxos } = currentAccount;
-  console.log('availableUtxos: ', availableUtxos);
   return (
     <Padding>
       <SettingsTable.HeaderSection>

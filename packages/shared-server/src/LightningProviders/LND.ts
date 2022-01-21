@@ -4,6 +4,7 @@ import createLnRpc, {
   InvoiceState,
   LnRpc,
   Invoice,
+  LookupInvoiceMsg,
   createRouterRpc,
   Payment,
   OpenStatusUpdate,
@@ -11,17 +12,18 @@ import createLnRpc, {
   CloseStatusUpdate,
   FundingPsbtVerify,
   FundingPsbtFinalize,
-  OpenChannelRequest
+  OpenChannelRequest,
+  createInvoicesRpc
 } from '@lily-technologies/lnrpc';
 import { blockExplorerAPIURL } from 'unchained-bitcoin';
 import BigNumber from 'bignumber.js';
-import { Buffer } from 'buffer';
 
 import { LightningBaseProvider } from '.';
 
 import { parseLndConnectUri } from '../utils/lightning';
 
 import {
+  ICallback,
   LightningConfig,
   LilyLightningAccount,
   LightningEvent,
@@ -31,7 +33,7 @@ import {
   OpenChannelRequestArgs
 } from '@lily/types';
 
-import { getTxIdFromChannelPoint, getErrorMessageFromChunk } from '../utils/utils';
+import { getTxIdFromChannelPoint, getErrorMessageFromChunk, getBuffer } from '../utils/utils';
 
 export class LND extends LightningBaseProvider {
   constructor(lndConnectUri: string) {
@@ -364,9 +366,17 @@ export class LND extends LightningBaseProvider {
     callback(accountData);
   }
 
-  async getInvoice({ memo, value }: Invoice) {
+  async generateInvoice({ memo, value }: Invoice) {
     const client = await this.getClient();
     const invoice = await client.addInvoice({ memo, value });
+    return invoice;
+  }
+
+  async getInvoice({ paymentHash }: { paymentHash: string }) {
+    const lnRpcClient = await createInvoicesRpc(parseLndConnectUri(this.lndConnectUri));
+    const invoice = await lnRpcClient.LookupInvoiceV2({
+      paymentHash: Buffer.from(paymentHash, 'hex')
+    });
     return invoice;
   }
 
@@ -390,7 +400,7 @@ export class LND extends LightningBaseProvider {
 
   async openChannelInitialize(
     { lightningAddress, channelAmount }: OpenChannelRequestArgs,
-    callback: (err?: Error | null, data?: OpenStatusUpdate) => void
+    callback: ICallback<OpenStatusUpdate>
   ) {
     try {
       const client = await this.getClient();
@@ -439,8 +449,6 @@ export class LND extends LightningBaseProvider {
             color: openingNodeInfo.node!.color
           };
           callback(null, openChannelData);
-        } else if (chunk.chanPending) {
-          callback(null, chunk);
         }
       });
 
@@ -460,10 +468,11 @@ export class LND extends LightningBaseProvider {
       await client.fundingStateStep({
         psbtVerify: {
           fundedPsbt,
-          pendingChanId,
+          pendingChanId: getBuffer(pendingChanId),
           skipFinalize: false
         }
       });
+      return Promise.resolve();
     } catch (e) {
       console.log('openChannelVerify error: ', e);
       if (e instanceof Error) {
@@ -472,12 +481,16 @@ export class LND extends LightningBaseProvider {
     }
   }
 
-  async openChannelFinalize(psbtFinalize: FundingPsbtFinalize) {
+  async openChannelFinalize({ signedPsbt, pendingChanId }: FundingPsbtFinalize) {
     try {
       const client = await this.getClient();
       await client.fundingStateStep({
-        psbtFinalize
+        psbtFinalize: {
+          signedPsbt: signedPsbt,
+          pendingChanId: getBuffer(pendingChanId)
+        }
       });
+      return Promise.resolve();
     } catch (e) {
       console.log('openChannelFinalize: ', e);
       if (e instanceof Error) {

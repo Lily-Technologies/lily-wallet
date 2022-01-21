@@ -10,6 +10,7 @@ import { Button, StyledIcon } from 'src/components';
 import { white, green500, gray700 } from 'src/utils/colors';
 
 import { LilyLightningAccount } from '@lily/types';
+import { requireLightning } from 'src/hocs';
 
 interface Props {
   currentAccount: LilyLightningAccount;
@@ -71,4 +72,4 @@ const ReturnToDashboardButton = styled(Link)`
   margin-top: 1rem;
 `;
 
-export default PaymentSuccess;
+export default requireLightning(PaymentSuccess);

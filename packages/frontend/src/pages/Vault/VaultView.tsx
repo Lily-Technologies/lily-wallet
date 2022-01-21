@@ -20,7 +20,7 @@ import { RescanModal } from './RescanModal';
 
 import { requireOnchain } from 'src/hocs';
 
-import { white, gray500, gray600, yellow100, yellow500 } from 'src/utils/colors';
+import { white, gray400, gray500, gray600, yellow100, yellow500 } from 'src/utils/colors';
 
 import { NodeConfigWithBlockchainInfo, LilyOnchainAccount } from '@lily/types';
 
@@ -45,6 +45,25 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
   return null;
 };
 
+const CustomTick = ({ x, y, stroke, payload }) => {
+  return (
+    <text
+      height='50'
+      width='790'
+      x={x}
+      y={y}
+      stroke={stroke}
+      fill='#666'
+      className='recharts-text recharts-cartesian-axis-tick-value'
+      textAnchor='middle'
+    >
+      <tspan x={x} dy='1.5em'>
+        {moment.unix(payload.value).format('MMM D')}
+      </tspan>
+    </text>
+  );
+};
+
 interface Props {
   nodeConfig: NodeConfigWithBlockchainInfo;
   toggleRefresh: () => void;
@@ -60,8 +79,9 @@ const VaultView = ({ currentAccount, nodeConfig, toggleRefresh }: Props) => {
   const sortedTransactions = transactionsCopyForChart.sort(
     (a, b) => a.status.block_time - b.status.block_time
   );
+  console.log('currentAccount: ', currentAccount);
 
-  let dataForChart;
+  let dataForChart: { block_time: number; totalValue: number }[] = [];
 
   if (transactions.length) {
     dataForChart = [
@@ -126,12 +146,22 @@ const VaultView = ({ currentAccount, nodeConfig, toggleRefresh }: Props) => {
                 <YAxis dataKey='totalValue' hide={true} domain={['dataMin', 'dataMax + 10000']} />
                 <XAxis
                   dataKey='block_time'
-                  height={50}
-                  interval={'preserveStartEnd'}
-                  tickCount={transactions.length > 10 ? 5 : transactions.length}
-                  tickFormatter={(blocktime) => {
-                    return moment.unix(blocktime).format('MMM D');
-                  }}
+                  height={40}
+                  scale='auto'
+                  type='number'
+                  tickCount={7}
+                  tickSize={0}
+                  interval={0}
+                  tick={CustomTick}
+                  tickLine={{ stroke: gray400 }}
+                  allowDataOverflow={true}
+                  domain={[
+                    // 'auto',
+                    // 'auto'
+                    dataForChart[0].block_time!,
+                    // dataForChart[dataForChart.length - 1].block_time! - 2629743,
+                    dataForChart[dataForChart.length - 1].block_time!
+                  ]}
                 />
                 <Area
                   type='monotone'

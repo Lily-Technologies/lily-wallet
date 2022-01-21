@@ -5,7 +5,7 @@ WORKDIR /install
 COPY . .
 
 # Use yarn for correct webpack version hoisting
-RUN npm install
+RUN yarn
 
 FROM node:16-buster-slim as build
 WORKDIR /build

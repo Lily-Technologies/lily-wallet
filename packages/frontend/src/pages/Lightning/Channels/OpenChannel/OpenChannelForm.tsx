@@ -29,7 +29,6 @@ const OpenChannelForm = ({
   const [lightningAddress, setLightningAddress] = useState('');
   const [channelAmount, setChannelAmount] = useState('');
   const { accountMap } = useContext(AccountMapContext);
-  console.log('error: ', error);
 
   const accountOptions = Object.values(accountMap)
     .filter((account) => account.config.type === 'onchain' && !!!account.loading)

@@ -4,7 +4,9 @@ import type {
   AddInvoiceResponse,
   CloseChannelRequest,
   FundingPsbtVerify,
-  FundingPsbtFinalize
+  FundingPsbtFinalize,
+  LookupInvoiceMsg,
+  Invoice
 } from '@lily-technologies/lnrpc';
 
 import { WalletInfo } from 'bitcoin-simple-rpc';
@@ -33,12 +35,81 @@ import {
   NodeConfigWithBlockchainInfo,
   OpenChannelRequestArgs,
   DecoratedOpenStatusUpdate,
-  GetLightningInvoiceRequest
+  GenerateLightningInvoiceRequest
 } from '@lily/types';
 
 export type Platform = 'Electron' | 'Web';
 
-export abstract class BasePlatform {
+export interface PlatformInterface {
+  quit(): void;
+  getConfig: () => Promise<File>;
+  saveConfig(encryptedConfigObject: string): void;
+  downloadFile(file: string, filename: string): void;
+
+  getOnchainData(
+    config: VaultConfig | OnChainConfig,
+    callback?: (accountInfo: LilyAccount) => void
+  ): void;
+  getLightningData(
+    config: LightningConfig,
+    callback?: (accountInfo: LilyLightningAccount) => void
+  ): void;
+
+  getNodeConfig(): Promise<NodeConfigWithBlockchainInfo>;
+  isTestnet(): Promise<boolean>;
+  getHistoricalBitcoinPrice(): Promise<PriceForChart[]>;
+
+  getCurrentBitcoinPrice(): Promise<string>;
+  isConfirmedTransaction(txId: string): Promise<boolean>;
+
+  getXpub({ deviceType, devicePath, path }: HwiXpubRequest): Promise<HwiXpubResponse>;
+  enumerate(): Promise<HwiEnumerateResponse[]>;
+
+  promptPin({ deviceType, devicePath }: HwiPromptPinRequest): Promise<HwiPromptPinResponse>;
+  sendPin({ deviceType, devicePath, pin }: HwiSendPinRequest): Promise<HwiSendPinResponse>;
+  estimateFee(): Promise<FeeRates>;
+  changeNodeConfig({
+    provider,
+    host,
+    port
+  }: ChangeNodeConfigParams): Promise<NodeConfigWithBlockchainInfo>;
+  broadcastTransaction(txHex: string): Promise<string>;
+
+  sendLightningPayment(
+    paymentRequest: string,
+    config: LightningConfig,
+    callback: (payment: Payment) => void
+  ): void;
+
+  closeChannel(
+    { channelPoint, deliveryAddress }: CloseChannelRequest,
+    callback: (response: CloseStatusUpdate) => void
+  ): void;
+
+  openChannelInitiate(
+    { lightningAddress, channelAmount }: OpenChannelRequestArgs,
+    callback: ICallback<DecoratedOpenStatusUpdate>
+  ): void;
+
+  openChannelVerify({ fundedPsbt, pendingChanId }: FundingPsbtVerify): void;
+  openChannelFinalize({ signedPsbt, pendingChanId }: FundingPsbtFinalize): void;
+  generateLightningInvoice({
+    memo,
+    value,
+    lndConnectUri
+  }: GenerateLightningInvoiceRequest): Promise<AddInvoiceResponse>;
+
+  lightningConnect(lndConnectUri: string): void;
+
+  rescanBlockchain(
+    startHeight: string,
+    currentAccount: LilyOnchainAccount
+  ): Promise<{ success: boolean }>;
+
+  getWalletInfo(currentAccount: LilyAccount): Promise<WalletInfo>;
+}
+
+export abstract class BasePlatform implements PlatformInterface {
   platform: Platform;
 
   constructor(platform: Platform) {
@@ -124,11 +195,13 @@ export abstract class BasePlatform {
 
   abstract openChannelFinalize({ signedPsbt, pendingChanId }: FundingPsbtFinalize): Promise<void>;
 
-  abstract getLightningInvoice({
+  abstract generateLightningInvoice({
     memo,
     value,
     lndConnectUri
-  }: GetLightningInvoiceRequest): Promise<AddInvoiceResponse>;
+  }: GenerateLightningInvoiceRequest): Promise<AddInvoiceResponse>;
+
+  abstract getLightningInvoice({ paymentHash }: LookupInvoiceMsg): Promise<Invoice>;
 
   abstract lightningConnect(lndConnectUri: string): void;
 

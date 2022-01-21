@@ -40,7 +40,7 @@ const LightningReceiveForm = ({ setStep, setInvoice, currentAccount }: Props) =>
     if (valid) {
       try {
         setIsLoading(true);
-        const { paymentRequest } = await platform.getLightningInvoice({
+        const { paymentRequest } = await platform.generateLightningInvoice({
           memo: memo,
           value: sendAmount,
           lndConnectUri: config.connectionDetails.lndConnectUri
@@ -87,9 +87,16 @@ const LightningReceiveForm = ({ setStep, setInvoice, currentAccount }: Props) =>
         <CopyAddressButton
           background={green600}
           color={white}
+          disabled={isLoading}
           onClick={() => submitForm(memo, sendAmount)}
         >
-          {isLoading ? <Spinner /> : 'Generate invoice'}
+          {isLoading ? (
+            <>
+              <Spinner /> <ButtonText>Generating invoice</ButtonText>
+            </>
+          ) : (
+            'Generate invoice'
+          )}
         </CopyAddressButton>
       </SendButtonContainer>
     </SentTxFormContainer>
@@ -134,6 +141,10 @@ const CopyAddressButton = styled.button`
   padding-right: 1rem;
   padding-top: 0.75rem;
   padding-bottom: 0.75rem;
+`;
+
+const ButtonText = styled.span`
+  margin-left: 0.75rem;
 `;
 
 export default requireLightning(LightningReceiveForm);

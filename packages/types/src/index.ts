@@ -171,9 +171,6 @@ export interface DecoratedPendingLightningChannel extends PendingChannel {
 }
 
 export interface DecoratedOpenStatusUpdate extends OpenStatusUpdate {
-  error?: {
-    message: string;
-  };
   alias: string;
 }
 
@@ -192,7 +189,7 @@ export interface OpenChannelRequestArgs {
   channelAmount: string;
 }
 
-export interface GetLightningInvoiceRequest {
+export interface GenerateLightningInvoiceRequest {
   memo: string;
   value: string;
   lndConnectUri: string;
@@ -478,8 +475,8 @@ export interface VaultConfig extends OnChainConfig {
 }
 
 export interface Bip32Derivation {
-  masterFingerprint: Buffer;
-  pubkey: Buffer;
+  masterFingerprint: string;
+  pubkey: string;
   path: string;
 }
 

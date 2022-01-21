@@ -12,7 +12,7 @@ import { LilyLightningAccount } from '@lily/types';
 
 import LightningReceiveQr from './LightningReceiveQr';
 import LightningReceiveForm from './LightningReceiveForm';
-
+import LightningReceiveSuccess from './LightningReceiveSuccess';
 interface Props {
   currentAccount: LilyLightningAccount;
 }
@@ -25,8 +25,10 @@ export const LightningReceive = ({ currentAccount }: Props) => {
   let view: JSX.Element;
   if (step === 0) {
     view = <LightningReceiveForm setInvoice={setInvoice} setStep={setStep} />;
-  } else {
+  } else if (step === 1) {
     view = <LightningReceiveQr paymentRequest={invoice} setStep={setStep} />;
+  } else {
+    view = <LightningReceiveSuccess paymentRequest={invoice} />;
   }
 
   return (

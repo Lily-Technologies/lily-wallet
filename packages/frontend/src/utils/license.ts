@@ -50,10 +50,6 @@ const licenseExpireAsDate = (license: LilyLicense, nodeConfig: NodeConfigWithBlo
 
 const isValidLicenseSignature = (license: LilyLicense) => {
   if (license.license && license.signature) {
-    console.log(
-      'process.env.REACT_APP_KEYSERVER_SIGNING_ADDRESS: ',
-      process.env.REACT_APP_KEYSERVER_SIGNING_ADDRESS
-    );
     const verified = verify(
       license.license,
       process.env.REACT_APP_KEYSERVER_SIGNING_ADDRESS!,

@@ -20,7 +20,7 @@ import { LilyLightningAccount } from '@lily/types';
 
 import { requireLightning } from 'src/hocs';
 
-import { white, gray500, gray600, yellow100, yellow500 } from 'src/utils/colors';
+import { white, gray400, gray500, gray600, yellow100, yellow500 } from 'src/utils/colors';
 
 interface TooltipProps {
   active: boolean;
@@ -33,7 +33,7 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
     return (
       <TooltipContainer>
         <PriceTooltip>{`${
-          payload[0].value ? satoshisToBitcoins(payload[0].value as number) : 0
+          payload[0] && payload[0].value ? satoshisToBitcoins(payload[0].value as number) : 0
         } BTC`}</PriceTooltip>
         <DateTooltip>{moment.unix(label).format('MMMM DD, YYYY')}</DateTooltip>
       </TooltipContainer>
@@ -41,6 +41,25 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
   }
 
   return null;
+};
+
+const CustomTick = ({ x, y, stroke, payload }) => {
+  return (
+    <text
+      height='50'
+      width='790'
+      x={x}
+      y={y}
+      stroke={stroke}
+      fill='#666'
+      className='recharts-text recharts-cartesian-axis-tick-value'
+      textAnchor='middle'
+    >
+      <tspan x={x} dy='1.5em'>
+        {moment.unix(payload.value).format('MMM D')}
+      </tspan>
+    </text>
+  );
 };
 
 interface Props {
@@ -67,15 +86,27 @@ const LightningView = ({ currentAccount }: Props) => {
           <ChartContainer>
             <ResponsiveContainer width='100%' height={400}>
               <AreaChart width={400} height={400} data={balanceHistory}>
-                <YAxis dataKey='totalValue' hide={true} domain={['dataMin', 'dataMax + 10000']} />
+                <YAxis
+                  dataKey='totalValue'
+                  hide={true}
+                  domain={['dataMin - 500', 'dataMax + 10000']}
+                  allowDataOverflow={true}
+                />
                 <XAxis
                   dataKey='blockTime'
-                  height={50}
-                  interval={'preserveStartEnd'}
-                  tickCount={payments.length > 10 ? 5 : payments.length}
-                  tickFormatter={(blocktime) => {
-                    return moment.unix(blocktime).format('MMM D');
-                  }}
+                  scale='auto'
+                  type='number'
+                  height={40}
+                  domain={[
+                    balanceHistory[0].blockTime!,
+                    balanceHistory[balanceHistory.length - 1].blockTime!
+                  ]}
+                  tickCount={7}
+                  tickSize={0}
+                  interval={0}
+                  tick={CustomTick}
+                  tickLine={{ stroke: gray400 }}
+                  allowDataOverflow={true}
                 />
                 <Area
                   type='monotone'

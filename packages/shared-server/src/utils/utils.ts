@@ -3,8 +3,20 @@ import { createInterface } from 'readline';
 import { Client, ClientOption } from 'bitcoin-simple-rpc';
 import { SocksProxyAgent } from 'socks-proxy-agent';
 import { join } from 'path';
+import type { JsonBuffer } from '@lily-technologies/lnrpc';
 
 import { BitcoinCoreConfVariables } from '@lily/types';
+
+export const getBuffer = (item: ArrayBufferView | JsonBuffer | string) => {
+  if (ArrayBuffer.isView(item)) {
+    return Buffer.from(Object.values(item));
+  } else if (typeof item === 'string' || item instanceof String) {
+    return Buffer.from(item);
+  } else if (item && item.data) {
+    return Buffer.from(Object.values(item.data));
+  }
+  throw Error('Invalid item trying to be converted to buffer');
+};
 
 export const saveFile = async (file: string, filename: string, path: string) => {
   const filePath = join(path, filename);

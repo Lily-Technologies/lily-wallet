@@ -25,6 +25,7 @@ const LightningPaymentConfirm = ({ paymentRequest, setStep, currentAccount }: Pr
   const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
   const [paymentError, setPaymentError] = useState('');
   const [invoiceExpired, setInvoiceExpired] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const { platform } = useContext(PlatformContext);
 
   const openInModal = (component: JSX.Element) => {
@@ -36,11 +37,13 @@ const LightningPaymentConfirm = ({ paymentRequest, setStep, currentAccount }: Pr
   const description = decoded.tags.filter((item) => item.tagName === 'description')[0].data;
 
   const sendPayment = () => {
+    setIsLoading(true);
+    setPaymentError('');
     platform.sendLightningPayment(paymentRequest, currentAccount.config, (response: Payment) => {
       try {
         if (response.status === 2) {
           // PaymentStatus.SUCCEEDED
-          openInModal(<PaymentSuccess currentAccount={currentAccount} payment={response} />);
+          openInModal(<PaymentSuccess payment={response} />);
         }
 
         if (response.status === 3) {
@@ -56,8 +59,10 @@ const LightningPaymentConfirm = ({ paymentRequest, setStep, currentAccount }: Pr
             setPaymentError('Unkown error making payment. Contact support.');
           }
         }
+        setIsLoading(false);
       } catch (e) {
         console.log('/lightning-send-payment e: ', e);
+        setIsLoading(false);
       }
     });
   };
@@ -130,10 +135,10 @@ const LightningPaymentConfirm = ({ paymentRequest, setStep, currentAccount }: Pr
           <SendPaymentButton
             color={white}
             background={green600}
-            disabled={!!invoiceExpired}
+            disabled={!!invoiceExpired || isLoading}
             onClick={() => sendPayment()}
           >
-            {paymentError ? 'Try again' : 'Send payment'}
+            {paymentError ? 'Try again' : isLoading ? 'Sending...' : 'Send payment'}
           </SendPaymentButton>
         )}
       </ActionButtonContainer>

@@ -45,6 +45,10 @@ const Content = styled.div`
   flex: 1;
   max-width: 75rem;
   width: 100%;
+
+  ${mobile(css`
+    padding: 2.25em 0em;
+  `)};
 `;
 
 export const GridArea = styled.div`

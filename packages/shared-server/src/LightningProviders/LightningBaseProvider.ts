@@ -7,7 +7,8 @@ import type {
   CloseStatusUpdate,
   OpenStatusUpdate,
   FundingPsbtVerify,
-  FundingPsbtFinalize
+  FundingPsbtFinalize,
+  LookupInvoiceMsg
 } from '@lily-technologies/lnrpc';
 import {
   ICallback,
@@ -53,14 +54,16 @@ export abstract class LightningBaseProvider implements LightningProviderInterfac
     callback: (accountData: LilyLightningAccount) => void
   ): void;
 
-  abstract getInvoice({ memo, value }: Invoice): Promise<AddInvoiceResponse>;
+  abstract generateInvoice({ memo, value }: Invoice): Promise<AddInvoiceResponse>;
+
+  abstract getInvoice({ paymentHash }: LookupInvoiceMsg): Promise<Invoice>;
 
   abstract sendPayment(paymentRequest: string, callback: (data: Payment) => void): void;
 
   abstract openChannelInitialize(
     { lightningAddress, channelAmount }: OpenChannelRequestArgs,
     callback: ICallback<OpenStatusUpdate>
-  ): Promise<void>;
+  ): void;
 
   abstract openChannelVerify({
     fundedPsbt: finalPsbt,

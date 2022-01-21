@@ -55,6 +55,7 @@ router.post('/open-channel-verify', async (req, res) => {
       pendingChanId,
       skipFinalize: false
     });
+    res.send({ success: true });
   } catch (e) {
     console.log('/open-channel-verify error: ', e);
     sendError(res, e);
@@ -68,6 +69,7 @@ router.post('/open-channel-finalize', async (req, res) => {
       signedPsbt,
       pendingChanId
     });
+    res.send({ success: true });
   } catch (e) {
     console.log('/open-channel-finalize error: ', e);
     sendError(res, e);
@@ -115,13 +117,24 @@ router.post(`/lightning-connect`, async (req, res) => {
   }
 });
 
-router.post('/lightning-invoice', async (req, res) => {
-  const { memo, value } = req.body;
+router.get('/invoice/:paymentHash', async (req, res) => {
+  const { paymentHash } = req.params;
   try {
-    const invoice = await LightningDataProvider.getInvoice({ memo, value });
+    const invoice = await LightningDataProvider.getInvoice({ paymentHash });
     res.send(invoice);
   } catch (e) {
-    console.log('/lightning-invoice e: ', e);
+    console.log('/get-invoice e: ', e);
+    sendError(res, e);
+  }
+});
+
+router.post('/generate-invoice', async (req, res) => {
+  const { memo, value } = req.body;
+  try {
+    const invoice = await LightningDataProvider.generateInvoice({ memo, value });
+    res.send(invoice);
+  } catch (e) {
+    console.log('/generate-invoice e: ', e);
     sendError(res, e);
   }
 });

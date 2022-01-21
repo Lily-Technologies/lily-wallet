@@ -70,7 +70,7 @@
     }
   },
   "dependencies": {
-    "@lily-technologies/lnrpc": "^0.14.1-beta.10",
+    "@lily-technologies/lnrpc": "^0.14.1-beta.14",
     "@lily/shared-server": "*",
     "@lily/types": "*",
     "axios": "^0.24.0",

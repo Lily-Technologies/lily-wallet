@@ -7,7 +7,9 @@ import type {
   CloseChannelRequest,
   FundingPsbtVerify,
   FundingPsbtFinalize,
-  OpenStatusUpdate
+  OpenStatusUpdate,
+  LookupInvoiceMsg,
+  Invoice
 } from '@lily-technologies/lnrpc';
 
 import { WalletInfo } from 'bitcoin-simple-rpc';
@@ -34,7 +36,7 @@ import {
   NodeConfigWithBlockchainInfo,
   DecoratedOpenStatusUpdate,
   OpenChannelRequestArgs,
-  GetLightningInvoiceRequest,
+  GenerateLightningInvoiceRequest,
   LilyAccount,
   ICallback,
   HwiXpubResponse,
@@ -68,10 +70,15 @@ export class WebPlatform extends BasePlatform {
   }
 
   async downloadFile(file: string, filename: string) {
-    await window.ipcRenderer.invoke(`${HOST}/download-item`, {
-      data: file,
-      filename: filename
-    });
+    try {
+      const { data }: AxiosResponse<File> = await axios.post(`${HOST}/download-item`, {
+        data: file,
+        filename: filename
+      });
+      return Promise.resolve(data);
+    } catch (e) {
+      return Promise.reject('Error downloading file');
+    }
   }
 
   getOnchainData(
@@ -211,13 +218,24 @@ export class WebPlatform extends BasePlatform {
     callback(data);
   }
 
-  async openChannelInitiate({ lightningAddress, channelAmount }: OpenChannelRequestArgs) {
-    const { data } = await axios.post<DecoratedOpenStatusUpdate>(`${HOST}/open-channel`, {
-      lightningAddress,
-      channelAmount
-    });
+  async openChannelInitiate(
+    { lightningAddress, channelAmount }: OpenChannelRequestArgs,
+    callback: ICallback<DecoratedOpenStatusUpdate>
+  ) {
+    try {
+      const { data } = await axios.post<DecoratedOpenStatusUpdate>(`${HOST}/open-channel`, {
+        lightningAddress,
+        channelAmount
+      });
 
-    return Promise.resolve(data);
+      callback(null, data);
+    } catch (e: any) {
+      if (axios.isAxiosError(e) && e.response) {
+        callback(e.response.data);
+      } else {
+        callback(e);
+      }
+    }
   }
 
   async openChannelVerify({ fundedPsbt, pendingChanId }: FundingPsbtVerify) {
@@ -239,12 +257,18 @@ export class WebPlatform extends BasePlatform {
     });
   }
 
-  async getLightningInvoice({ memo, value, lndConnectUri }: GetLightningInvoiceRequest) {
-    const { data } = await axios.post<AddInvoiceResponse>(`${HOST}/lightning-invoice`, {
+  async generateLightningInvoice({ memo, value, lndConnectUri }: GenerateLightningInvoiceRequest) {
+    const { data } = await axios.post<AddInvoiceResponse>(`${HOST}/generate-invoice`, {
       memo,
       value,
       lndConnectUri
     });
+
+    return Promise.resolve(data);
+  }
+
+  async getLightningInvoice({ paymentHash }: LookupInvoiceMsg) {
+    const { data } = await axios.get<Invoice>(`${HOST}/invoice/${paymentHash!}`);
 
     return Promise.resolve(data);
   }

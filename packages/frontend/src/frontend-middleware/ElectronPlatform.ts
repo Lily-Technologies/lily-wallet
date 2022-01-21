@@ -4,7 +4,9 @@ import type {
   AddInvoiceResponse,
   CloseChannelRequest,
   FundingPsbtVerify,
-  FundingPsbtFinalize
+  FundingPsbtFinalize,
+  LookupInvoiceMsg,
+  Invoice
 } from '@lily-technologies/lnrpc';
 
 import { WalletInfo } from 'bitcoin-simple-rpc';
@@ -31,7 +33,7 @@ import {
   NodeConfigWithBlockchainInfo,
   DecoratedOpenStatusUpdate,
   OpenChannelRequestArgs,
-  GetLightningInvoiceRequest,
+  GenerateLightningInvoiceRequest,
   LilyAccount,
   ICallback
 } from '@lily/types';
@@ -211,13 +213,20 @@ export class ElectronPlatform extends BasePlatform {
     });
   }
 
-  async openChannelInitiate({ lightningAddress, channelAmount }: OpenChannelRequestArgs) {
-    const response = window.ipcRenderer.invoke('/open-channel', {
+  async openChannelInitiate(
+    { lightningAddress, channelAmount }: OpenChannelRequestArgs,
+    callback: ICallback<DecoratedOpenStatusUpdate>
+  ) {
+    window.ipcRenderer.send('/open-channel', {
       lightningAddress,
       channelAmount
     });
 
-    return Promise.resolve(response);
+    window.ipcRenderer.on('/open-channel', async (_event: any, ...args: any) => {
+      const err: Error = args[0];
+      const openChannelResponse: DecoratedOpenStatusUpdate = args[1];
+      callback(err, openChannelResponse);
+    });
   }
 
   async openChannelVerify({ fundedPsbt, pendingChanId }: FundingPsbtVerify) {
@@ -244,13 +253,20 @@ export class ElectronPlatform extends BasePlatform {
     }
   }
 
-  async getLightningInvoice({ memo, value, lndConnectUri }: GetLightningInvoiceRequest) {
-    const response: AddInvoiceResponse = await window.ipcRenderer.invoke('/lightning-invoice', {
+  async generateLightningInvoice({ memo, value, lndConnectUri }: GenerateLightningInvoiceRequest) {
+    const response: AddInvoiceResponse = await window.ipcRenderer.invoke('/generate-invoice', {
       memo,
       value,
       lndConnectUri
     });
 
+    return Promise.resolve(response);
+  }
+
+  async getLightningInvoice({ paymentHash }: LookupInvoiceMsg) {
+    const response: Invoice = await window.ipcRenderer.invoke('/get-invoice', {
+      paymentHash
+    });
     return Promise.resolve(response);
   }
 

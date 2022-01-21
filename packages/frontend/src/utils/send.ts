@@ -1,7 +1,7 @@
 import { satoshisToBitcoins, bitcoinsToSatoshis } from 'unchained-bitcoin';
 import { Psbt, address, Network } from 'bitcoinjs-lib';
 import * as ecc from 'tiny-secp256k1';
-import ECPairFactory from 'ecpair';
+import ECPairFactory from '@lily-technologies/ecpair';
 import BigNumber from 'bignumber.js';
 import coinSelect from 'coinselect';
 import { Buffer } from 'buffer';
@@ -23,6 +23,15 @@ import {
 } from '@lily/types';
 
 import { BasePlatform } from 'src/frontend-middleware';
+
+const getBuffer = (item) => {
+  if (ArrayBuffer.isView(item)) {
+    return Buffer.from(Object.values(item));
+  } else if (item && item.data) {
+    return Buffer.from(Object.values(item.data));
+  }
+  throw Error('Invalid item trying to be converted to buffer');
+};
 
 const ECPair = ECPairFactory(ecc);
 
@@ -215,31 +224,28 @@ export const createTransaction = async (
       sequence: 0xfffffffd, // always enable RBF
       nonWitnessUtxo: Buffer.from(input.prevTxHex, 'hex'),
       bip32Derivation: input.address.bip32derivation.map((derivation) => ({
-        // @ts-ignore
-        masterFingerprint: Buffer.from(Object.values(derivation.masterFingerprint)),
-        // @ts-ignore
-        pubkey: Buffer.from(Object.values(derivation.pubkey)),
+        masterFingerprint: Buffer.from(derivation.masterFingerprint, 'hex'),
+        pubkey: Buffer.from(derivation.pubkey, 'hex'),
         path: derivation.path
       }))
-    } as PsbtInput;
+    };
 
     // TODO: clean this up
     if (config.addressType === 'P2WSH') {
       // multisig p2wsh requires witnessScript
       // @ts-ignore-line
-      currentInput.witnessScript = Buffer.from(Object.values(input.address.redeem));
+      currentInput.witnessScript = getBuffer(input.address.redeem.output);
     } else if (config.addressType === 'P2WPKH') {
       // @ts-ignore-line
       currentInput.witnessUtxo = {
         value: input.value,
         // @ts-ignore-line
-        script: Buffer.from(Object.values(input.address.output))
+        script: getBuffer(input.address.output)
       };
     } else if (config.addressType === 'p2sh') {
       // @ts-ignore-line
-      currentInput.redeemScript = Buffer.from(Object.values(input.address.redeem));
+      currentInput.redeemScript = getBuffer(input.address.redeem.output);
     }
-    console.log('currentInput: ', currentInput);
 
     psbt.addInput(currentInput);
   });

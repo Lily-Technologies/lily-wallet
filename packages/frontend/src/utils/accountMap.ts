@@ -166,14 +166,11 @@ const getChildPubKeyFromXpub = (
       getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)
     ),
     bip32derivation: {
-      masterFingerprint: Buffer.from(xpub.parentFingerprint as string, 'hex'),
-      pubkey: Buffer.from(
-        deriveChildPublicKey(
-          xpub.xpub!,
-          childPubKeysBip32Path,
-          getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)
-        ),
-        'hex'
+      masterFingerprint: xpub.parentFingerprint,
+      pubkey: deriveChildPublicKey(
+        xpub.xpub!,
+        childPubKeysBip32Path,
+        getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)
       ),
       path: bip32derivationPath
     }

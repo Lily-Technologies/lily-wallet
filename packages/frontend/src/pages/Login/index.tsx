@@ -129,113 +129,121 @@ const Login = ({
   return (
     <PageWrapper>
       <Wrapper>
-        <MainText>
-          {bitcoinNetworkEqual(currentBitcoinNetwork, networks.testnet) ? (
-            <LilyLogoGray src={FlowerLogo} />
-          ) : (
-            <LilyLogo src={FlowerLogo} />
-          )}
-          <TextContainer>
-            <div>{encryptedConfigFile ? 'Unlock your account' : 'Welcome to Lily Wallet'}</div>
-            <Subtext>
-              {encryptedConfigFile ? (
-                <Fragment>
-                  or <SubTextLink onClick={() => onClickCreateNew()}>create a new one</SubTextLink>
-                </Fragment>
-              ) : (
-                'The best way to secure your bitcoin'
-              )}
-            </Subtext>
-          </TextContainer>
-        </MainText>
+        <WrapperInner>
+          <MainText>
+            {bitcoinNetworkEqual(currentBitcoinNetwork, networks.testnet) ? (
+              <LilyLogoGray src={FlowerLogo} />
+            ) : (
+              <LilyLogo src={FlowerLogo} />
+            )}
+            <TextContainer>
+              <div>{encryptedConfigFile ? 'Unlock your account' : 'Welcome to Lily Wallet'}</div>
+              <Subtext>
+                {encryptedConfigFile ? (
+                  <Fragment>
+                    or{' '}
+                    <SubTextLink onClick={() => onClickCreateNew()}>create a new one</SubTextLink>
+                  </Fragment>
+                ) : (
+                  'The best way to secure your bitcoin'
+                )}
+              </Subtext>
+            </TextContainer>
+          </MainText>
 
-        <FileUploader
-          accept='.txt'
-          id='localConfigFile'
-          onFileLoad={(file: File) => {
-            setEncryptedConfigFile(file);
-          }}
-        />
+          <FileUploader
+            accept='.txt'
+            id='localConfigFile'
+            onFileLoad={(file: File) => {
+              setEncryptedConfigFile(file);
+            }}
+          />
 
-        <SignupOptionMenu>
-          {encryptedConfigFile || step === 1 ? (
-            <SignupOptionItem>
-              {!encryptedConfigFile && (
-                <ExplainerText>
-                  Lily encrypts the information about your account on your local machine. This
-                  password will be used to decrypt this information when you use Lily in the future.
-                </ExplainerText>
-              )}
-              <InputContainer>
-                <Input
-                  autoFocus
-                  label='Password'
-                  value={localPassword}
-                  onKeyDown={(e) => onInputEnter(e)}
-                  onChange={setLocalPassword}
-                  error={passwordError}
-                  type='password'
-                />
-              </InputContainer>
-              {!encryptedConfigFile && (
-                <InputContainer style={{ paddingBottom: '.5em' }}>
+          <SignupOptionMenu>
+            {encryptedConfigFile || step === 1 ? (
+              <SignupOptionItem>
+                {!encryptedConfigFile && (
+                  <ExplainerText>
+                    Lily encrypts the information about your account on your local machine. This
+                    password will be used to decrypt this information when you use Lily in the
+                    future.
+                  </ExplainerText>
+                )}
+                <InputContainer>
                   <Input
-                    label='Confirm Password'
-                    value={confirmation}
+                    autoFocus
+                    label='Password'
+                    value={localPassword}
                     onKeyDown={(e) => onInputEnter(e)}
-                    onChange={setConfirmation}
-                    error={confirmationError}
+                    onChange={setLocalPassword}
+                    error={passwordError}
                     type='password'
                   />
                 </InputContainer>
-              )}
-              <SignInButton
-                background={green500}
-                color={white}
-                onClick={() => {
-                  if (!encryptedConfigFile) {
-                    if (validateInput()) {
+                {!encryptedConfigFile && (
+                  <InputContainer style={{ paddingBottom: '.5em' }}>
+                    <Input
+                      label='Confirm Password'
+                      value={confirmation}
+                      onKeyDown={(e) => onInputEnter(e)}
+                      onChange={setConfirmation}
+                      error={confirmationError}
+                      type='password'
+                    />
+                  </InputContainer>
+                )}
+                <SignInButton
+                  background={green500}
+                  color={white}
+                  onClick={() => {
+                    if (!encryptedConfigFile) {
+                      if (validateInput()) {
+                        unlockFile();
+                      }
+                    } else {
                       unlockFile();
                     }
-                  } else {
-                    unlockFile();
-                  }
-                }}
-              >
-                {isLoading && !encryptedConfigFile
-                  ? 'Loading'
-                  : isLoading
-                  ? 'Unlocking'
-                  : encryptedConfigFile
-                  ? 'Unlock'
-                  : 'Continue'}
-                {isLoading ? (
-                  <LoadingImage alt='loading placeholder' src={FlowerLoading} />
-                ) : (
-                  <StyledIcon as={ArrowIosForwardOutline} size={24} />
+                  }}
+                >
+                  {isLoading && !encryptedConfigFile
+                    ? 'Loading'
+                    : isLoading
+                    ? 'Unlocking'
+                    : encryptedConfigFile
+                    ? 'Unlock'
+                    : 'Continue'}
+                  {isLoading ? (
+                    <LoadingImage alt='loading placeholder' src={FlowerLoading} />
+                  ) : (
+                    <StyledIcon as={ArrowIosForwardOutline} size={24} />
+                  )}
+                </SignInButton>
+                {encryptedConfigFile && (
+                  <SignupOptionSubtext>
+                    Last accessed on{' '}
+                    {encryptedConfigFile &&
+                      moment(encryptedConfigFile.modifiedTime).format('MM/DD/YYYY')}
+                  </SignupOptionSubtext>
                 )}
-              </SignInButton>
-              {encryptedConfigFile && (
-                <SignupOptionSubtext>
-                  Last accessed on{' '}
-                  {encryptedConfigFile &&
-                    moment(encryptedConfigFile.modifiedTime).format('MM/DD/YYYY')}
-                </SignupOptionSubtext>
-              )}
-            </SignupOptionItem>
-          ) : (
-            <CreateNewAccountButton background={green500} color={white} onClick={() => setStep(1)}>
-              Get Started
-            </CreateNewAccountButton>
-          )}
+              </SignupOptionItem>
+            ) : (
+              <CreateNewAccountButton
+                background={green500}
+                color={white}
+                onClick={() => setStep(1)}
+              >
+                Get Started
+              </CreateNewAccountButton>
+            )}
 
-          <LoadFromFile>
-            You can also restore a wallet{' '}
-            <LabelOverlay htmlFor='localConfigFile'>
-              <SubTextLink>from a backup file</SubTextLink>
-            </LabelOverlay>
-          </LoadFromFile>
-        </SignupOptionMenu>
+            <LoadFromFile>
+              You can also restore a wallet{' '}
+              <LabelOverlay htmlFor='localConfigFile'>
+                <SubTextLink>from a backup file</SubTextLink>
+              </LabelOverlay>
+            </LoadFromFile>
+          </SignupOptionMenu>
+        </WrapperInner>
       </Wrapper>
       <LilyImageContainer>
         <LilyImage src={FlowerHeroImage} />
@@ -351,12 +359,15 @@ const Wrapper = styled.div`
   color: ${black};
   align-items: center;
   display: flex;
-  flex: none;
+  flex: 1 0 0%;
   flex-direction: column;
   padding-top: 48px;
-  padding: 5em;
   justify-content: center;
   position: relative;
+`;
+
+const WrapperInner = styled.div`
+  max-width: 24em;
 `;
 
 const MainText = styled.div`

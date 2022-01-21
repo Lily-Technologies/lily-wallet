@@ -12,7 +12,6 @@ export const setInitialConfig = async () => {
   let configExists = false;
   try {
     const configFile = await getFile(CONFIG_FILE_NAME, APP_DATA_DIRECTORY);
-    console.log('configFile: ', configFile);
     configExists = !!configFile;
   } catch (e) {
     console.log('No config file exists');

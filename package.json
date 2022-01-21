@@ -7,7 +7,10 @@
   "license": "Custom",
   "scripts": {
     "electron": "npm run start -w @lily/electron",
-    "frontend": "npm run start -w @lily/frontend",
+    "dev:electron": "npm run start-dev -w @lily/electron",
+    "frontend": "npm run start:dev -w @lily/frontend",
+    "dev:frontend:electron": "npm run start:dev:electron -w @lily/frontend",
+    "dev:frontend:umbrel": "npm run start:dev:umbrel -w @lily/frontend",
     "express": "npm run start -w @lily/express",
     "build:electron": "npm run build -w @lily/electron",
     "build:frontend:electron": "npm run build:electron -w @lily/frontend",
@@ -26,6 +29,6 @@
     "typescript": "^4.5.4"
   },
   "dependencies": {
-    "@lily-technologies/lnrpc": "^0.14.1-beta.10"
+    "@lily-technologies/lnrpc": "^0.14.1-beta.14"
   }
 }

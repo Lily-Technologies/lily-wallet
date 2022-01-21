@@ -21,7 +21,7 @@ export const Select = React.memo(
 
     useEffect(() => {
       // set initial value
-      options[0].onClick();
+      options[0] && options[0].onClick();
     }, [options]);
 
     useEffect(() => {
@@ -41,7 +41,7 @@ export const Select = React.memo(
             <ListboxLabelDecorated>{label}</ListboxLabelDecorated>
             <ListboxContainer>
               <ListboxButton error={error} id={id}>
-                <SelectionContainer>{selected.label}</SelectionContainer>
+                <SelectionContainer>{selected ? selected.label : 'Loading...'}</SelectionContainer>
                 <SelectorIconContainer>
                   <SelectorIconDecorated aria-hidden='true' />
                 </SelectorIconContainer>
