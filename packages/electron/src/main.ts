@@ -7,7 +7,8 @@ import {
   FundingPsbtFinalize,
   FundingPsbtVerify,
   CloseChannelRequest,
-  Invoice
+  Invoice,
+  QueryRoutesRequest
 } from '@lily-technologies/lnrpc';
 
 import { enumerate, getXPub, signtx, promptpin, sendpin } from '@lily/shared-server';
@@ -327,6 +328,17 @@ ipcMain.handle('/get-invoice', async (event, args: { paymentHash: string }) => {
   const { paymentHash } = args;
   try {
     const invoice = await LightningDataProvider.getInvoice({ paymentHash });
+    return Promise.resolve(invoice);
+  } catch (e) {
+    console.log('/get-invoice e: ', e);
+    return Promise.reject(e);
+  }
+});
+
+ipcMain.handle('/get-routes', async (event, args: QueryRoutesRequest) => {
+  const { pubKey, amt } = args;
+  try {
+    const invoice = await LightningDataProvider.getRoutes({ pubKey, amt });
     return Promise.resolve(invoice);
   } catch (e) {
     console.log('/get-invoice e: ', e);

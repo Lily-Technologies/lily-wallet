@@ -6,7 +6,9 @@ import type {
   FundingPsbtVerify,
   FundingPsbtFinalize,
   LookupInvoiceMsg,
-  Invoice
+  Invoice,
+  QueryRoutesRequest,
+  QueryRoutesResponse
 } from '@lily-technologies/lnrpc';
 
 import { WalletInfo } from 'bitcoin-simple-rpc';
@@ -266,6 +268,14 @@ export class ElectronPlatform extends BasePlatform {
   async getLightningInvoice({ paymentHash }: LookupInvoiceMsg) {
     const response: Invoice = await window.ipcRenderer.invoke('/get-invoice', {
       paymentHash
+    });
+    return Promise.resolve(response);
+  }
+
+  async getRoutes({ pubKey, amt }: QueryRoutesRequest) {
+    const response: QueryRoutesResponse = await window.ipcRenderer.invoke('/get-routes', {
+      pubKey,
+      amt
     });
     return Promise.resolve(response);
   }

@@ -6,7 +6,9 @@ import type {
   FundingPsbtVerify,
   FundingPsbtFinalize,
   LookupInvoiceMsg,
-  Invoice
+  Invoice,
+  QueryRoutesRequest,
+  QueryRoutesResponse
 } from '@lily-technologies/lnrpc';
 
 import { WalletInfo } from 'bitcoin-simple-rpc';
@@ -202,6 +204,8 @@ export abstract class BasePlatform implements PlatformInterface {
   }: GenerateLightningInvoiceRequest): Promise<AddInvoiceResponse>;
 
   abstract getLightningInvoice({ paymentHash }: LookupInvoiceMsg): Promise<Invoice>;
+
+  abstract getRoutes({ pubKey, amt }: QueryRoutesRequest): Promise<QueryRoutesResponse>;
 
   abstract lightningConnect(lndConnectUri: string): void;
 

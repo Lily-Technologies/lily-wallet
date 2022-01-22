@@ -8,7 +8,9 @@ import type {
   OpenStatusUpdate,
   FundingPsbtVerify,
   FundingPsbtFinalize,
-  LookupInvoiceMsg
+  LookupInvoiceMsg,
+  QueryRoutesRequest,
+  QueryRoutesResponse
 } from '@lily-technologies/lnrpc';
 import {
   ICallback,
@@ -57,6 +59,8 @@ export abstract class LightningBaseProvider implements LightningProviderInterfac
   abstract generateInvoice({ memo, value }: Invoice): Promise<AddInvoiceResponse>;
 
   abstract getInvoice({ paymentHash }: LookupInvoiceMsg): Promise<Invoice>;
+
+  abstract getRoutes({ pubKey, amt }: QueryRoutesRequest): Promise<QueryRoutesResponse>;
 
   abstract sendPayment(paymentRequest: string, callback: (data: Payment) => void): void;
 

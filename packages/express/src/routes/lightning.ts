@@ -2,7 +2,8 @@ import { Router } from 'express';
 import {
   FundingPsbtVerify,
   FundingPsbtFinalize,
-  CloseChannelRequest
+  CloseChannelRequest,
+  QueryRoutesRequest
 } from '@lily-technologies/lnrpc';
 
 import { LND, LightningBaseProvider } from '@lily/shared-server';
@@ -135,6 +136,17 @@ router.post('/generate-invoice', async (req, res) => {
     res.send(invoice);
   } catch (e) {
     console.log('/generate-invoice e: ', e);
+    sendError(res, e);
+  }
+});
+
+router.post('/get-routes', async (req, res) => {
+  const { pubKey, amt }: QueryRoutesRequest = req.body;
+  try {
+    const routes = await LightningDataProvider.getRoutes({ pubKey, amt });
+    res.send(routes);
+  } catch (e) {
+    console.log('/get-routes e: ', e);
     sendError(res, e);
   }
 });

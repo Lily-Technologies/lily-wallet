@@ -13,7 +13,9 @@ import createLnRpc, {
   FundingPsbtVerify,
   FundingPsbtFinalize,
   OpenChannelRequest,
-  createInvoicesRpc
+  createInvoicesRpc,
+  QueryRoutesRequest,
+  QueryRoutesResponse
 } from '@lily-technologies/lnrpc';
 import { blockExplorerAPIURL } from 'unchained-bitcoin';
 import BigNumber from 'bignumber.js';
@@ -370,6 +372,15 @@ export class LND extends LightningBaseProvider {
     const client = await this.getClient();
     const invoice = await client.addInvoice({ memo, value });
     return invoice;
+  }
+
+  async getRoutes({ pubKey, amt }: QueryRoutesRequest): Promise<QueryRoutesResponse> {
+    const client = await this.getClient();
+    const routes = await client.queryRoutes({
+      pubKey,
+      amt
+    });
+    return routes;
   }
 
   async getInvoice({ paymentHash }: { paymentHash: string }) {

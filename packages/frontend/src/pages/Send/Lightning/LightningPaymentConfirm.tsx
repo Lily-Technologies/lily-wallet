@@ -1,7 +1,7 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import styled from 'styled-components';
 import { decode } from 'bolt11';
-import type { Payment, PaymentStatus, PaymentFailureReason } from '@lily-technologies/lnrpc';
+import type { Payment } from '@lily-technologies/lnrpc';
 
 import { Button, Countdown, Modal } from 'src/components';
 
@@ -21,23 +21,43 @@ interface Props {
 }
 
 const LightningPaymentConfirm = ({ paymentRequest, setStep, currentAccount }: Props) => {
+  const [sendPaymentIsLoading, setSendPaymentIsLoading] = useState(false);
+  const [estimateFeeLoading, setEstimateFeeLoading] = useState(false);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
   const [paymentError, setPaymentError] = useState('');
   const [invoiceExpired, setInvoiceExpired] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const { platform } = useContext(PlatformContext);
+  const [estimatedFee, setEstimatedFee] = useState(0);
+
+  const decoded = decode(paymentRequest);
+  const description = decoded.tags.filter((item) => item.tagName === 'description')[0].data;
+
+  useEffect(() => {
+    const getFee = async () => {
+      setEstimateFeeLoading(true);
+      try {
+        const { routes } = await platform.getRoutes({
+          pubKey: decoded.payeeNodeKey!,
+          amt: decoded.satoshis?.toString()
+        });
+        console.log('routes: ', routes);
+        setEstimatedFee(Math.floor(Number(routes[0].totalFeesMsat) / 1000));
+      } catch (e) {
+        console.log('e: ', e);
+      }
+      setEstimateFeeLoading(false);
+    };
+    getFee();
+  }, []);
 
   const openInModal = (component: JSX.Element) => {
     setModalIsOpen(true);
     setModalContent(component);
   };
 
-  const decoded = decode(paymentRequest);
-  const description = decoded.tags.filter((item) => item.tagName === 'description')[0].data;
-
   const sendPayment = () => {
-    setIsLoading(true);
+    setSendPaymentIsLoading(true);
     setPaymentError('');
     platform.sendLightningPayment(paymentRequest, currentAccount.config, (response: Payment) => {
       try {
@@ -59,10 +79,10 @@ const LightningPaymentConfirm = ({ paymentRequest, setStep, currentAccount }: Pr
             setPaymentError('Unkown error making payment. Contact support.');
           }
         }
-        setIsLoading(false);
+        setSendPaymentIsLoading(false);
       } catch (e) {
         console.log('/lightning-send-payment e: ', e);
-        setIsLoading(false);
+        setSendPaymentIsLoading(false);
       }
     });
   };
@@ -84,7 +104,9 @@ const LightningPaymentConfirm = ({ paymentRequest, setStep, currentAccount }: Pr
         {/* TODO: implement this logic */}
         <TxItem>
           <TxItemLabel>Estimated fee</TxItemLabel>
-          <TxItemValue>50 sats</TxItemValue>
+          <TxItemValue>
+            {!estimateFeeLoading ? `${estimatedFee} sats` : 'Calculating...'}
+          </TxItemValue>
         </TxItem>
       </TxReviewWrapper>
       <TxReviewWrapper
@@ -98,7 +120,7 @@ const LightningPaymentConfirm = ({ paymentRequest, setStep, currentAccount }: Pr
       >
         <TxItem style={{ marginTop: 0 }}>
           <TxItemLabel>Total</TxItemLabel>
-          <TxItemValue>{decoded.satoshis} sats</TxItemValue>
+          <TxItemValue>{decoded.satoshis! + estimatedFee} sats</TxItemValue>
         </TxItem>
       </TxReviewWrapper>
 
@@ -135,10 +157,10 @@ const LightningPaymentConfirm = ({ paymentRequest, setStep, currentAccount }: Pr
           <SendPaymentButton
             color={white}
             background={green600}
-            disabled={!!invoiceExpired || isLoading}
+            disabled={!!invoiceExpired || sendPaymentIsLoading}
             onClick={() => sendPayment()}
           >
-            {paymentError ? 'Try again' : isLoading ? 'Sending...' : 'Send payment'}
+            {paymentError ? 'Try again' : sendPaymentIsLoading ? 'Sending...' : 'Send payment'}
           </SendPaymentButton>
         )}
       </ActionButtonContainer>

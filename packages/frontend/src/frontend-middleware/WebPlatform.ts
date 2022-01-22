@@ -9,7 +9,9 @@ import type {
   FundingPsbtFinalize,
   OpenStatusUpdate,
   LookupInvoiceMsg,
-  Invoice
+  Invoice,
+  QueryRoutesRequest,
+  QueryRoutesResponse
 } from '@lily-technologies/lnrpc';
 
 import { WalletInfo } from 'bitcoin-simple-rpc';
@@ -258,19 +260,38 @@ export class WebPlatform extends BasePlatform {
   }
 
   async generateLightningInvoice({ memo, value, lndConnectUri }: GenerateLightningInvoiceRequest) {
-    const { data } = await axios.post<AddInvoiceResponse>(`${HOST}/generate-invoice`, {
-      memo,
-      value,
-      lndConnectUri
-    });
+    try {
+      const { data } = await axios.post<AddInvoiceResponse>(`${HOST}/generate-invoice`, {
+        memo,
+        value,
+        lndConnectUri
+      });
 
-    return Promise.resolve(data);
+      return Promise.resolve(data);
+    } catch (e) {
+      return Promise.reject(e);
+    }
   }
 
   async getLightningInvoice({ paymentHash }: LookupInvoiceMsg) {
-    const { data } = await axios.get<Invoice>(`${HOST}/invoice/${paymentHash!}`);
+    try {
+      const { data } = await axios.get<Invoice>(`${HOST}/invoice/${paymentHash!}`);
+      return Promise.resolve(data);
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
 
-    return Promise.resolve(data);
+  async getRoutes({ pubKey, amt }: QueryRoutesRequest) {
+    try {
+      const { data } = await axios.post<QueryRoutesResponse>(`${HOST}/get-routes`, {
+        pubKey,
+        amt
+      });
+      return Promise.resolve(data);
+    } catch (e) {
+      return Promise.reject(e);
+    }
   }
 
   async lightningConnect(lndConnectUri: string) {
