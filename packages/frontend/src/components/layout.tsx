@@ -54,9 +54,8 @@ const Content = styled.div`
 export const GridArea = styled.div`
   display: grid;
   background: transparent;
-  grid-template-columns: repeat(auto-fit, minmax(25rem, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
   grid-gap: 1.5em;
-  padding: 1.5em;
   justify-items: center;
   width: 100%;
 `;

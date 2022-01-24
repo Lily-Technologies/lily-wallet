@@ -361,7 +361,6 @@ const Wrapper = styled.div`
   display: flex;
   flex: 1 0 0%;
   flex-direction: column;
-  padding-top: 48px;
   justify-content: center;
   position: relative;
 `;
