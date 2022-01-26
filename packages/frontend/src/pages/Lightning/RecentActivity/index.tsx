@@ -39,7 +39,7 @@ const RecentTransactions = ({ events, loading, flat = false, maxItems = Infinity
   return (
     <RecentTransactionsWrapper>
       {(loading || events.length > 0) && (
-        <RecentTransactionsHeader>Recent Activity</RecentTransactionsHeader>
+        <h2 className='flex-1 text-2xl font-bold text-gray-900 mt-12 mb-2'>Recent Activity</h2>
       )}
       {loading && <PaymentRowLoading flat={flat} />}
       <PaymentsWrapper>
@@ -97,13 +97,6 @@ const PaymentRowWrapper = styled.div``;
 const DateWrapper = styled.div`
   margin: 1.5em 0 1em;
   color: ${gray800};
-`;
-
-const RecentTransactionsHeader = styled.h2`
-  font-size: 1.5em;
-  margin-top: 1.75em;
-  margin-bottom: 0;
-  font-weight: 500;
 `;
 
 const NoPaymentsSection = styled.div<{ flat: boolean }>`
