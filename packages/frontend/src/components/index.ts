@@ -5,6 +5,7 @@ export * from './AnimatedQrCode';
 export * from './Badge';
 export * from './Breadcrumbs';
 export * from './Button';
+export * from './ChartEmptyState';
 export * from './ConnectToLilyMobileModal';
 export * from './ConnectToNodeModal';
 export * from './Countdown';

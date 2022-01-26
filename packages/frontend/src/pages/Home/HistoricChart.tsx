@@ -12,7 +12,7 @@ import {
   TooltipPayload
 } from 'recharts';
 
-import { ChartEmptyState } from './ChartEmptyState';
+import { ChartEmptyState } from 'src/components/ChartEmptyState';
 
 import { green700, gray600, white, gray500, yellow100, yellow500 } from 'src/utils/colors';
 

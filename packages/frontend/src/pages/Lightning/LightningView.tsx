@@ -12,7 +12,7 @@ import {
 import { satoshisToBitcoins } from 'unchained-bitcoin';
 import moment from 'moment';
 
-import { Loading } from 'src/components';
+import { ChartEmptyState } from 'src/components';
 
 import RecentActivity from './RecentActivity';
 
@@ -73,9 +73,11 @@ const LightningView = ({ currentAccount }: Props) => {
   return (
     <>
       {currentAccount.loading ? (
-        <ValueWrapper>
-          <Loading style={{ margin: '10em 0' }} itemText={'Transaction Data'} />
-        </ValueWrapper>
+        <div style={{ height: '32rem' }}>
+          <div className='h-full relative shadow-md bg-white rounded-md'>
+            <ChartEmptyState />
+          </div>
+        </div>
       ) : null}
       {events.length > 0 && !currentAccount.loading ? (
         <ValueWrapper>

@@ -13,7 +13,7 @@ import {
   TooltipPayload
 } from 'recharts';
 
-import { Loading, Modal } from 'src/components';
+import { ChartEmptyState, Modal } from 'src/components';
 
 import RecentTransactions from './RecentTransactions';
 import { RescanModal } from './RescanModal';
@@ -129,10 +129,11 @@ const VaultView = ({ currentAccount, nodeConfig, toggleRefresh }: Props) => {
   return (
     <>
       {currentAccount.loading ? (
-        <ValueWrapper>
-          {/* @ts-ignore-line */}
-          <Loading style={{ margin: '10em 0' }} itemText='Transaction Data' />
-        </ValueWrapper>
+        <div style={{ height: '32rem' }}>
+          <div className='h-full relative shadow-md bg-white rounded-md'>
+            <ChartEmptyState />
+          </div>
+        </div>
       ) : null}
       {transactions.length > 0 && !currentAccount.loading ? (
         <ValueWrapper>
