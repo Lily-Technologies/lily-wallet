@@ -57,9 +57,7 @@ export const AccountsSection = () => {
 
   return (
     <Fragment>
-      <HomeHeadingItem style={{ marginTop: '2.5em', marginBottom: '1em' }}>
-        Your Accounts
-      </HomeHeadingItem>
+      <h1 className='flex-1 text-2xl font-bold text-gray-900 mt-12 mb-6'>Your Accounts</h1>
       <AccountsWrapper>
         {Object.values(accountMap).map((account) => {
           const url =
@@ -67,41 +65,56 @@ export const AccountsSection = () => {
               ? `/vault/${account.config.id}`
               : `/lightning/${account.config.id}`;
           return (
-            <AccountItem
+            <Link
+              className='flex align-center bg-white overflow-hidden shadow rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-green-500'
               to={url}
               onClick={() => setCurrentAccountId(account.config.id)}
               key={account.config.id}
             >
-              <StyledIcon as={Bitcoin} size={48} />
-              <AccountInfoContainer>
-                <AccountName>{account.name}</AccountName>
-                {account.loading && 'Loading...'}
-                {!account.loading && (
-                  <CurrentBalance>
-                    Current Balance:{' '}
-                    {account.config.type === 'onchain'
-                      ? `${satoshisToBitcoins(account.currentBalance as number).toFixed(8)} BTC`
-                      : `${Number(
-                          (account.currentBalance as ChannelBalanceResponse).balance
-                        ).toLocaleString()} sats`}
-                  </CurrentBalance>
-                )}
-                {!account.loading && (
-                  <CurrentBalance>{getLastTransactionTime(account)}</CurrentBalance>
-                )}
-              </AccountInfoContainer>
-            </AccountItem>
+              <div className='flex align-center p-5'>
+                <div className='flex items-center'>
+                  <StyledIcon className='h-6 w-6 text-yellow-500' as={Bitcoin} size={48} />
+                  <AccountInfoContainer>
+                    <h4 className='text-md font-semibold text-green-600 truncate'>
+                      {account.name}
+                    </h4>
+                    {account.loading && 'Loading...'}
+                    {!account.loading && (
+                      <span className='text-lg font-medium text-gray-900'>
+                        {account.config.type === 'onchain'
+                          ? `${satoshisToBitcoins(account.currentBalance as number).toFixed(8)} BTC`
+                          : `${Number(
+                              (account.currentBalance as ChannelBalanceResponse).balance
+                            ).toLocaleString()} sats`}
+                      </span>
+                    )}
+                    {!account.loading && (
+                      <span className='text-xs font-medium text-gray-500'>
+                        {getLastTransactionTime(account)}
+                      </span>
+                    )}
+                  </AccountInfoContainer>
+                </div>
+              </div>
+            </Link>
           );
         })}
-        <AccountItem to={`/setup`}>
-          <StyledIcon as={AddCircleOutline} size={48} />
-          <AccountInfoContainer>
-            <AccountName>Add a new account</AccountName>
-            <CurrentBalance>
-              Create a new account to send, receive, and manage bitcoin
-            </CurrentBalance>
-          </AccountInfoContainer>
-        </AccountItem>
+        <Link
+          className='flex align-center bg-white overflow-hidden shadow rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-green-500'
+          to={`/setup`}
+        >
+          <div className='flex align-center p-5'>
+            <div className='flex items-center'>
+              <StyledIcon className='h-6 w-6 text-yellow-500' as={AddCircleOutline} size={48} />
+              <AccountInfoContainer>
+                <h4 className='text-md font-semibold text-gray-700 truncate'>Add a new account</h4>
+                <span className='text-xs font-medium text-gray-500'>
+                  Create a new account to send, receive, and manage bitcoin
+                </span>
+              </AccountInfoContainer>
+            </div>
+          </div>
+        </Link>
         {!accountMap.size && <InvisibleItem></InvisibleItem>}
       </AccountsWrapper>
     </Fragment>
