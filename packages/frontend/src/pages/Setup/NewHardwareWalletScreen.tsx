@@ -131,14 +131,7 @@ const NewHardwareWalletScreen = ({
       } as OnChainConfig;
 
       const p2wpkhAddress = getAddressFromAccount(p2wpkhConfig, 'm/0/0', currentBitcoinNetwork);
-
-      // TODO: this needs removed
-      let { data: p2wpkhTxs } = await axios.get(
-        blockExplorerAPIURL(
-          `/address/${p2wpkhAddress.address}/txs`,
-          getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)
-        )
-      );
+      const p2wpkhTxs = await platform.doesAddressHaveTransaction(p2wpkhAddress.address);
 
       // check for P2SH(P2WPK) transactions too
       const p2shXpub = await platform.getXpub({
@@ -176,15 +169,9 @@ const NewHardwareWalletScreen = ({
       } as OnChainConfig;
 
       const p2shAddress = getAddressFromAccount(p2shConfig, 'm/0/0', currentBitcoinNetwork);
+      const p2shTxs = await platform.doesAddressHaveTransaction(p2shAddress.address);
 
-      let { data: p2shTxs } = await axios.get(
-        blockExplorerAPIURL(
-          `/address/${p2shAddress.address}/txs`,
-          getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)
-        )
-      );
-
-      if (p2shTxs.length && p2wpkhTxs.length) {
+      if (p2shTxs && p2wpkhTxs) {
         openInModal(
           <ModalWrapper>
             <StyledIconCircle>
@@ -225,7 +212,7 @@ const NewHardwareWalletScreen = ({
             </ButtonContainer>
           </ModalWrapper>
         );
-      } else if (p2shTxs.length) {
+      } else if (p2shTxs) {
         setPath(getP2shDeriationPathForNetwork(currentBitcoinNetwork));
         setAddressType(AddressType.p2sh);
         setImportedDevices([...importedDevices, { ...device, ...p2shXpub }]);
@@ -327,13 +314,22 @@ const NewHardwareWalletScreen = ({
 
           <XPubHeaderWrapper>
             <SetupHeaderWrapper>
-              <div>
-                <SetupHeader>Connect hardware wallet to computer</SetupHeader>
-                <SetupExplainerText>
-                  Plug your hardware wallet into your computer and unlock it. If you're using a
-                  Ledger, you will need to open the Bitcoin app to access it. You can also add your
-                  hardware wallet like Coldcard by importing the file from an SD card.
-                </SetupExplainerText>
+              <div className='mr-8'>
+                <h3 className='text-lg leading-6 font-medium text-gray-900'>
+                  Connect hardware wallet to computer
+                </h3>
+                <p className='mt-1 text-sm text-gray-500'>
+                  Connect your device via USB or import via QR code or SD card. For detailed
+                  instructions, read the{' '}
+                  <a
+                    className='underline text-green-600 font-medium'
+                    target='_blank'
+                    href='https://docs.lily-wallet.com/get-started/part-2'
+                  >
+                    documentation
+                  </a>
+                  .
+                </p>
               </div>
               <Dropdown
                 minimal={true}

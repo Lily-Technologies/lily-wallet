@@ -207,10 +207,14 @@ const Setup = ({ password, currentBlockHeight, currentBitcoinNetwork }: Props) =
   }
 
   return (
-    <Wrapper step={step}>
-      {step > 0 && <StepGroups step={step} setupOption={setupOption} />}
-      {screen}
-    </Wrapper>
+    <div className='md:pl-64 flex flex-col flex-1 h-full'>
+      <main className='flex flex-1 z-10 bg-gray-100 relative'>
+        <Wrapper step={step} className='max-w-screen-xl mx-auto pb-6 px-4 sm:px-6 lg:pb-16 lg:px-8'>
+          {step > 0 && <StepGroups step={step} setupOption={setupOption} />}
+          {screen}
+        </Wrapper>
+      </main>
+    </div>
   );
 };
 
@@ -223,7 +227,6 @@ const Wrapper = styled.div<{ step: number }>`
   flex: 1;
   justify-content: ${(p) => (p.step === 0 ? 'center' : 'flex-start')};
   flex-direction: column;
-  padding: 0 3em;
 `;
 
 export default Setup;

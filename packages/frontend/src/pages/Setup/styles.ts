@@ -9,6 +9,7 @@ export const HeaderWrapper = styled.div`
 export const InnerWrapper = styled.div`
   max-width: 46.875em;
   width: 100%;
+  margin-top: 1em;
 `;
 
 export const PageTitleSubtext = styled.div`
