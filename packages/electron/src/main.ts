@@ -527,6 +527,12 @@ ipcMain.handle('/get-node-config', async (event, args) => {
   return Promise.resolve(nodeConfig);
 });
 
+ipcMain.handle('/does-address-have-transaction', async (event, args) => {
+  const { address } = args;
+  const txs = await OnchainDataProvider.getTransactionsFromAddress(address);
+  return Promise.resolve(txs.length > 0);
+});
+
 // ipcMain.handle('/rescanBlockchain', async (event, args) => {
 //   const { currentAccount, startHeight } = args;
 //   try {

@@ -55,9 +55,11 @@ const CloseChannelModal = ({ setStep, channel, currentAccount }: Props) => {
 
     platform.closeChannel(
       {
-        // @ts-ignore-line
-        channelPoint: channel.channelPoint,
-        delivery_address: fundingAccount?.addresses[0].address!,
+        channelPoint: {
+          fundingTxidStr: channel.channelPoint.substring(0, channel.channelPoint.indexOf(':')),
+          outputIndex: Number(channel.channelPoint.substring(channel.channelPoint.indexOf(':') + 1))
+        },
+        deliveryAddress: fundingAccount?.addresses[0].address!,
         lndConnectUri: currentAccount.config.connectionDetails.lndConnectUri
       },
       (response: CloseStatusUpdate) => {

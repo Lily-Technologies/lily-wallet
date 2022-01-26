@@ -103,6 +103,13 @@ export class WebPlatform extends BasePlatform {
     return Promise.resolve(data);
   }
 
+  async doesAddressHaveTransaction(address: string): Promise<boolean> {
+    const { data } = await axios.post<boolean>(`${HOST}/does-address-have-transaction`, {
+      address
+    });
+    return Promise.resolve(data);
+  }
+
   async isTestnet() {
     const { data } = await axios.get<boolean>(`${HOST}/bitcoin-network`);
     return Promise.resolve(data);

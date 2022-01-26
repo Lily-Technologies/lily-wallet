@@ -164,6 +164,11 @@ export class ElectrumProvider extends OnchainBaseProvider {
     return false;
   }
 
+  async getTransactionsFromAddress(address: string): Promise<any> {
+    const response = await this.client.blockchainScripthash_getHistory(getScriptHash(address));
+    return response;
+  }
+
   async scanForAddressesAndTransactions(account: OnChainConfig, limitGap: number) {
     console.log(`(${account.id}): Deriving addresses and checking for transactions...`);
     const receiveAddresses: Address[] = [];

@@ -7,7 +7,8 @@ import type {
   OpenStatusUpdate,
   ChannelCloseSummary,
   Payment,
-  Invoice
+  Invoice,
+  CloseChannelRequest
 } from '@lily-technologies/lnrpc';
 
 import { blockchainTransaction_getBatchResponse, ElectrumVin } from '@mempool/electrum-client';
@@ -172,6 +173,10 @@ export interface DecoratedPendingLightningChannel extends PendingChannel {
 
 export interface DecoratedOpenStatusUpdate extends OpenStatusUpdate {
   alias: string;
+}
+
+export interface LilyCloseChannelRequest extends CloseChannelRequest {
+  lndConnectUri: string;
 }
 
 // either channel open/close, or send/receive payment

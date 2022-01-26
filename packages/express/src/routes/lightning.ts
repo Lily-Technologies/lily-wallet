@@ -95,7 +95,6 @@ router.post('/lightning-send-payment', async (req, res) => {
   console.log(`(${config.id}): Sending payment...`);
   try {
     LightningDataProvider.sendPayment(paymentRequest, (data) => {
-      console.log('data: ', data);
       if (data.status === 2 || data.status === 3) {
         res.send(data);
       }

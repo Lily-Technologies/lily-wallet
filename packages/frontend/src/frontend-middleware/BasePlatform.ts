@@ -2,7 +2,6 @@ import type {
   Payment,
   CloseStatusUpdate,
   AddInvoiceResponse,
-  CloseChannelRequest,
   FundingPsbtVerify,
   FundingPsbtFinalize,
   LookupInvoiceMsg,
@@ -37,7 +36,8 @@ import {
   NodeConfigWithBlockchainInfo,
   OpenChannelRequestArgs,
   DecoratedOpenStatusUpdate,
-  GenerateLightningInvoiceRequest
+  GenerateLightningInvoiceRequest,
+  LilyCloseChannelRequest
 } from '@lily/types';
 
 export type Platform = 'Electron' | 'Web';
@@ -84,7 +84,7 @@ export interface PlatformInterface {
   ): void;
 
   closeChannel(
-    { channelPoint, deliveryAddress }: CloseChannelRequest,
+    { channelPoint, deliveryAddress }: LilyCloseChannelRequest,
     callback: (response: CloseStatusUpdate) => void
   ): void;
 
@@ -150,6 +150,8 @@ export abstract class BasePlatform implements PlatformInterface {
 
   abstract isConfirmedTransaction(txId: string): Promise<boolean>;
 
+  abstract doesAddressHaveTransaction(address: string): Promise<boolean>;
+
   abstract getXpub({ deviceType, devicePath, path }: HwiXpubRequest): Promise<HwiXpubResponse>;
 
   abstract signTransaction({
@@ -184,7 +186,7 @@ export abstract class BasePlatform implements PlatformInterface {
   ): void;
 
   abstract closeChannel(
-    { channelPoint, deliveryAddress }: CloseChannelRequest,
+    { channelPoint, deliveryAddress, lndConnectUri }: LilyCloseChannelRequest,
     callback: (response: CloseStatusUpdate) => void
   ): void;
 

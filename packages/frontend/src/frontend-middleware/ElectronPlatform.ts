@@ -97,6 +97,13 @@ export class ElectronPlatform extends BasePlatform {
     return Promise.resolve(config);
   }
 
+  async doesAddressHaveTransaction(address: string): Promise<boolean> {
+    const hasTransaction = await window.ipcRenderer.invoke('/does-address-have-transaction', {
+      address
+    });
+    return Promise.resolve(hasTransaction);
+  }
+
   async isTestnet() {
     const isTestnet = await window.ipcRenderer.invoke('/bitcoin-network');
     return Promise.resolve(isTestnet);

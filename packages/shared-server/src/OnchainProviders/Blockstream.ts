@@ -17,7 +17,8 @@ import {
   Address,
   OnChainConfig,
   Transaction,
-  UTXO
+  UTXO,
+  EsploraTransactionResponse
 } from '@lily/types';
 
 export class BlockstreamProvider extends OnchainBaseProvider {
@@ -167,8 +168,8 @@ export class BlockstreamProvider extends OnchainBaseProvider {
     return availableUtxos;
   }
 
-  async getTransactionsFromAddress(address: string): Promise<Transaction[]> {
-    const { data: transactions } = await axios.get(
+  async getTransactionsFromAddress(address: string): Promise<any> {
+    const { data: transactions } = await axios.get<EsploraTransactionResponse[]>(
       blockExplorerAPIURL(
         `/address/${address}/txs`,
         getUnchainedNetworkFromBjslibNetwork(this.network)

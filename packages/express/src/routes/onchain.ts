@@ -29,6 +29,17 @@ router.post('/account-data', async (req, res) => {
   }
 });
 
+router.post('/does-address-have-transaction', async (req, res) => {
+  const { address } = req.body;
+  try {
+    const accountData = await OnchainDataProvider.getTransactionsFromAddress(address);
+    res.send(accountData.length > 0);
+  } catch (e) {
+    console.log(`/does-address-have-transaction error: `, e);
+    sendError(res, 'Error getting address transactions');
+  }
+});
+
 router.get('/estimate-fee', async (req, res) => {
   try {
     const feeRates = await OnchainDataProvider.estimateFee();

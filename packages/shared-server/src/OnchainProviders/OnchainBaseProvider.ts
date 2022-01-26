@@ -2,7 +2,8 @@ import {
   LilyOnchainAccount,
   FeeRates,
   OnChainConfig,
-  NodeConfigWithBlockchainInfo
+  NodeConfigWithBlockchainInfo,
+  Transaction
 } from '@lily/types';
 import { Network, networks } from 'bitcoinjs-lib';
 
@@ -79,4 +80,6 @@ export abstract class OnchainBaseProvider implements OnchainProviderInterface {
   abstract estimateFee(): Promise<FeeRates>;
 
   abstract isConfirmedTransaction(txId: string): Promise<boolean>;
+
+  abstract getTransactionsFromAddress(address: string): Promise<any>;
 }
