@@ -1,4 +1,4 @@
-import React, { Fragment, useContext } from 'react';
+import { useContext } from 'react';
 import styled, { css } from 'styled-components';
 import { Link, useLocation } from 'react-router-dom';
 import { VerticalAlignBottom, AddCircleOutline, Settings } from '@styled-icons/material';
@@ -24,7 +24,7 @@ export const NavLinks = ({ currentBitcoinNetwork }: Props) => {
   const { config } = useContext(ConfigContext);
 
   return (
-    <Fragment>
+    <>
       <WalletTitle>
         {bitcoinNetworkEqual(currentBitcoinNetwork, networks.testnet) ? (
           <LilyImageGray src={FlowerLogo} />
@@ -57,7 +57,7 @@ export const NavLinks = ({ currentBitcoinNetwork }: Props) => {
         Settings
       </SidebarItemLink>
 
-      <WalletsHeader>Accounts</WalletsHeader>
+      <h3 className='font-semibold text-lg mx-4 my-6'>Accounts</h3>
       <AccountsContainer>
         {config.lightning.map((wallet) => (
           <SidebarItemLink
@@ -147,7 +147,7 @@ export const NavLinks = ({ currentBitcoinNetwork }: Props) => {
         />
         New Account
       </SidebarItemLink>
-    </Fragment>
+    </>
   );
 };
 
@@ -179,7 +179,7 @@ const WalletsHeader = styled.h3`
 const WalletTitle = styled(WalletsHeader)`
   display: flex;
   align-items: center;
-  padding: 1.5em 0.5em 1.5em;
+  padding: 1em 0.5em;
   font-weight: 700;
   margin: 0;
 `;

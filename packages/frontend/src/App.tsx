@@ -44,6 +44,7 @@ const App = () => {
   const { platform } = useContext(PlatformContext);
   const [historicalBitcoinPrice, setHistoricalBitcoinPrice] = useState({});
   const [encryptedConfigFile, setEncryptedConfigFile] = useState<File | null>(null);
+  const [fetchingEncryptedConfig, setFetchingEncryptedConfig] = useState(false);
   const [refresh, setRefresh] = useState(false);
   const [flyInAnimation, setInitialFlyInAnimation] = useState(true);
   const [nodeConfig, setNodeConfig] = useState<NodeConfigWithBlockchainInfo | undefined>(undefined);
@@ -85,10 +86,12 @@ const App = () => {
   useEffect(() => {
     async function retrieveConfig() {
       if (config.isEmpty) {
+        setFetchingEncryptedConfig(true);
         try {
           const { file, modifiedTime } = await platform.getConfig();
           setEncryptedConfigFile({ file: file.toString(), modifiedTime });
         } catch (e) {}
+        setFetchingEncryptedConfig(false);
       }
     }
     retrieveConfig();
@@ -224,14 +227,24 @@ const App = () => {
       {!config.isEmpty && (
         <AlertBar nodeConfig={nodeConfig} currentBitcoinNetwork={currentBitcoinNetwork} />
       )}
-      <PageWrapper id='page-wrapper'>
-        <ConfigRequired />
-        <Overlay />
-        {!config.isEmpty && (
-          <Sidebar flyInAnimation={flyInAnimation} currentBitcoinNetwork={currentBitcoinNetwork} />
-        )}
-        <Switch>
-          {/* <Route
+      <ConfigRequired />
+      <Overlay />
+      {!config.isEmpty && <Sidebar currentBitcoinNetwork={currentBitcoinNetwork} />}
+      <Switch>
+        <Route
+          path='/login'
+          render={() => (
+            <Login
+              setPassword={setPassword}
+              encryptedConfigFile={encryptedConfigFile}
+              setEncryptedConfigFile={setEncryptedConfigFile}
+              currentBlockHeight={nodeConfig && nodeConfig.blocks}
+              fetchingEncryptedConfig={fetchingEncryptedConfig}
+            />
+          )}
+        />
+
+        {/* <Route
             path='/vault/:id/purchase'
             render={() => (
               <Purchase
@@ -242,90 +255,77 @@ const App = () => {
               />
             )}
           /> */}
-          <Route
-            path='/vault/:id'
-            render={() => (
-              <Vault
-                password={password}
-                toggleRefresh={toggleRefresh}
-                currentBitcoinNetwork={currentBitcoinNetwork}
-                nodeConfig={nodeConfig!}
-              />
-            )}
-          />
-          <Route
-            path='/lightning/:id'
-            render={() => (
-              <Lightning
-                password={password}
-                toggleRefresh={toggleRefresh}
-                currentBitcoinNetwork={currentBitcoinNetwork}
-                nodeConfig={nodeConfig!}
-              />
-            )}
-          />
-          <Route path='/receive' render={() => <Receive config={config} />} />
-          {nodeConfig && (
-            <Route
-              path='/send'
-              render={() => (
-                <Send
-                  config={config}
-                  currentBitcoinPrice={currentBitcoinPrice}
-                  nodeConfig={nodeConfig}
-                  currentBitcoinNetwork={currentBitcoinNetwork}
-                />
-              )}
+        <Route
+          path='/vault/:id'
+          render={() => (
+            <Vault
+              password={password}
+              toggleRefresh={toggleRefresh}
+              currentBitcoinNetwork={currentBitcoinNetwork}
+              nodeConfig={nodeConfig!}
             />
           )}
+        />
+        <Route
+          path='/lightning/:id'
+          render={() => (
+            <Lightning
+              password={password}
+              toggleRefresh={toggleRefresh}
+              currentBitcoinNetwork={currentBitcoinNetwork}
+              nodeConfig={nodeConfig!}
+            />
+          )}
+        />
+        <Route path='/receive' render={() => <Receive config={config} />} />
+        {nodeConfig && (
           <Route
-            path='/setup'
+            path='/send'
             render={() => (
-              <Setup
-                password={password}
-                currentBlockHeight={nodeConfig! && nodeConfig.blocks!}
-                currentBitcoinNetwork={currentBitcoinNetwork}
-              />
-            )}
-          />
-          <Route
-            path='/login'
-            render={() => (
-              <Login
-                setPassword={setPassword}
-                encryptedConfigFile={encryptedConfigFile}
-                setEncryptedConfigFile={setEncryptedConfigFile}
-                currentBlockHeight={nodeConfig && nodeConfig.blocks}
-                currentBitcoinNetwork={currentBitcoinNetwork}
-              />
-            )}
-          />
-          <Route
-            path='/settings'
-            render={() => (
-              <Settings
-                nodeConfig={nodeConfig!}
-                getNodeConfig={getNodeConfig}
-                currentBitcoinNetwork={currentBitcoinNetwork}
-                setNodeConfig={setNodeConfig}
-                password={password}
-              />
-            )}
-          />
-          <Route
-            path='/'
-            render={() => (
-              <Home
-                flyInAnimation={flyInAnimation}
-                prevFlyInAnimation={prevSetFlyInAnimation.current}
-                historicalBitcoinPrice={historicalBitcoinPrice}
+              <Send
+                config={config}
                 currentBitcoinPrice={currentBitcoinPrice}
+                nodeConfig={nodeConfig}
+                currentBitcoinNetwork={currentBitcoinNetwork}
               />
             )}
           />
-          <Route path='/' render={() => <div>Not Found</div>} />
-        </Switch>
-      </PageWrapper>
+        )}
+        <Route
+          path='/setup'
+          render={() => (
+            <Setup
+              password={password}
+              currentBlockHeight={nodeConfig! && nodeConfig.blocks!}
+              currentBitcoinNetwork={currentBitcoinNetwork}
+            />
+          )}
+        />
+        <Route
+          path='/settings'
+          render={() => (
+            <Settings
+              nodeConfig={nodeConfig!}
+              getNodeConfig={getNodeConfig}
+              currentBitcoinNetwork={currentBitcoinNetwork}
+              setNodeConfig={setNodeConfig}
+              password={password}
+            />
+          )}
+        />
+        <Route
+          path='/'
+          render={() => (
+            <Home
+              flyInAnimation={flyInAnimation}
+              prevFlyInAnimation={prevSetFlyInAnimation.current}
+              historicalBitcoinPrice={historicalBitcoinPrice}
+              currentBitcoinPrice={currentBitcoinPrice}
+            />
+          )}
+        />
+        <Route path='*' render={() => <div>Not Found</div>} />
+      </Switch>
     </Router>
   );
 };

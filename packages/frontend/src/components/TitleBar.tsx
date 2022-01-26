@@ -131,14 +131,14 @@ export const TitleBar = ({ nodeConfig, config }: Props) => {
   return (
     <Fragment>
       <HeightHolder />
-      <DraggableTitleBar>
+      <DraggableTitleBar className='bg-green-800'>
         <LeftSection></LeftSection>
         <RightSection>
           <NodeButtonContainer>
             <Dropdown
               minimal={false}
               style={{
-                background: green900,
+                background: '#064e3b',
                 color: white,
                 padding: '0.35em 1em',
                 border: 'none',
@@ -160,10 +160,7 @@ export const TitleBar = ({ nodeConfig, config }: Props) => {
                       }}
                     />
                   ) : (
-                    <LoadingImage
-                      alt='loading placeholder'
-                      src={FlowerLoading}
-                    />
+                    <LoadingImage alt='loading placeholder' src={FlowerLoading} />
                   )}
                   {nodeConfig && nodeConfig.connected
                     ? null
@@ -217,13 +214,13 @@ const DotDotDotContainer = styled.div`
 `;
 
 const DraggableTitleBar = styled.div`
+  top: 0;
   position: fixed;
-  background: ${green800};
   -webkit-user-select: none;
   -webkit-app-region: drag;
   height: 2.5rem;
   width: 100%;
-  z-index: 10;
+  z-index: 11;
   display: flex;
   align-items: center;
   justify-content: space-between;

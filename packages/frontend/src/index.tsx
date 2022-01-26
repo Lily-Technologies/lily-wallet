@@ -6,6 +6,7 @@ import App from './App';
 import { AccountMapProvider } from './context/AccountMapContext';
 import { ConfigProvider } from './context/ConfigContext';
 import { ModalProvider } from './context/ModalContext';
+import { SidebarProvider } from './context/SidebarContext';
 import { PlatformProvider } from './context/PlatformContext';
 
 ReactDOM.render(
@@ -13,7 +14,9 @@ ReactDOM.render(
     <ConfigProvider>
       <AccountMapProvider>
         <ModalProvider>
-          <App />
+          <SidebarProvider>
+            <App />
+          </SidebarProvider>
         </ModalProvider>
       </AccountMapProvider>
     </ConfigProvider>
