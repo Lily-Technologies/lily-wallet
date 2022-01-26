@@ -1,16 +1,25 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import styled from 'styled-components';
+import { ExclamationCircleIcon } from '@heroicons/react/solid';
 
 import { white, gray300, gray500, gray700, red400, red500 } from 'src/utils/colors';
 
+function classNames(...classes) {
+  return classes.filter(Boolean).join(' ');
+}
+
 interface Props {
+  error?: string;
   value: string;
   onChange(value: string): void;
-  error?: string;
   label: string;
   id?: string;
+  name?: string;
   placeholder?: string;
   type: string;
+  autoComplete?: string;
+  required?: boolean;
+  className?: string;
   autoFocus?: boolean;
   onKeyDown?: (e: React.KeyboardEvent<Element>) => void;
   inputStaticText?: string;
@@ -27,7 +36,10 @@ export const Input = ({
   label,
   id,
   placeholder,
+  autoComplete,
+  className,
   type,
+  name,
   autoFocus,
   onKeyDown,
   inputStaticText,
@@ -36,35 +48,53 @@ export const Input = ({
   largeText = false,
   disabled
 }: Props) => (
-  <Fragment>
+  <>
     {label && (
-      <Label htmlFor={id} largeText={largeText} style={labelStyle}>
+      <Label
+        htmlFor={id}
+        largeText={largeText}
+        style={labelStyle}
+        className='block text-sm font-medium text-gray-700'
+      >
         {label}
       </Label>
     )}
-    <InputAndErrorWrapper>
-      <InputWrapper>
-        <StyledInput
+    <div>
+      <div className='mt-1 relative rounded-md shadow-sm'>
+        <input
           type={type || 'text'}
           id={id}
+          name={name}
           value={value}
+          autoComplete={autoComplete}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange(e.target.value)}
           onKeyDown={onKeyDown}
-          error={!!error}
           autoFocus={autoFocus}
           placeholder={placeholder}
-          largeText={largeText}
-          staticText={!!inputStaticText}
           style={style}
           disabled={disabled}
+          className={classNames(
+            className,
+            error
+              ? 'text-red-900 border-red-300 placeholder-red-300 focus:ring-red-500 focus:border-red-500'
+              : 'shadow-sm focus:ring-green-500 focus:border-green-500 border-gray-300',
+            'appearance-none block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none sm:text-sm'
+          )}
         />
         {inputStaticText && (
-          <InputStaticText disabled text={inputStaticText} largeText={largeText}></InputStaticText>
+          <div className='absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none'>
+            <span className='text-gray-500 sm:text-sm'>{inputStaticText}</span>
+          </div>
         )}
-      </InputWrapper>
-      {!!error && <ErrorText>{error}</ErrorText>}
-    </InputAndErrorWrapper>
-  </Fragment>
+        {error && (
+          <div className='absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none'>
+            <ExclamationCircleIcon className='h-5 w-5 text-red-500' aria-hidden='true' />
+          </div>
+        )}
+      </div>
+      {!!error && <p className='mt-2 text-sm text-red-600'>{error}</p>}
+    </div>
+  </>
 );
 
 const InputAndErrorWrapper = styled.div`
