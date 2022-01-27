@@ -4,11 +4,12 @@ import React, { useContext } from 'react';
 import styled, { css } from 'styled-components';
 import { MenuIcon } from '@heroicons/react/outline';
 import FlowerLogo from 'src/assets/flower.svg';
+import { AlertBar } from 'src/components';
 
 import { mobile } from 'src/utils/media';
 import { white, black } from 'src/utils/colors';
 
-import { SidebarContext } from 'src/context/SidebarContext';
+import { ConfigContext, SidebarContext } from 'src/context';
 
 interface Props {
   children: React.ReactChild;
@@ -16,6 +17,7 @@ interface Props {
 
 export const PageWrapper = ({ children }: Props) => {
   const { setSidebarOpen } = useContext(SidebarContext);
+  const { config } = useContext(ConfigContext);
   return (
     <div className='md:pl-64 flex flex-col flex-1 h-full'>
       {/* sticky mobile nav */}
@@ -39,6 +41,7 @@ export const PageWrapper = ({ children }: Props) => {
           </div>
         </div>
       )}
+      {!config.isEmpty && <AlertBar />}
       <main className='flex-1 z-10 bg-gray-100 relative'>
         <ColorOverlap className='bg-green-700' style={{ zIndex: '-1' }} />
         <div className='max-w-7xl mx-auto px-4 sm:px-6 md:px-16 py-8'>{children}</div>

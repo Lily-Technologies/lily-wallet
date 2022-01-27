@@ -39,7 +39,9 @@ const App = () => {
     setCurrentBitcoinPrice,
     currentBitcoinPrice,
     currentBitcoinNetwork,
-    setCurrentBitcoinNetwork
+    setCurrentBitcoinNetwork,
+    setNodeConfig,
+    nodeConfig
   } = useContext(ConfigContext);
   const { platform } = useContext(PlatformContext);
   const [historicalBitcoinPrice, setHistoricalBitcoinPrice] = useState({});
@@ -47,7 +49,6 @@ const App = () => {
   const [fetchingEncryptedConfig, setFetchingEncryptedConfig] = useState(false);
   const [refresh, setRefresh] = useState(false);
   const [flyInAnimation, setInitialFlyInAnimation] = useState(true);
-  const [nodeConfig, setNodeConfig] = useState<NodeConfigWithBlockchainInfo | undefined>(undefined);
   const [password, setPassword] = useState('');
 
   const ConfigRequired = () => {
@@ -216,7 +217,7 @@ const App = () => {
     }
 
     setAccountMap(initialAccountMap);
-  }, [config, refresh, nodeConfig, setAccountMap, updateAccountMap, platform]);
+  }, [config, refresh, setAccountMap, updateAccountMap, platform]);
 
   return (
     <Router>
@@ -224,9 +225,6 @@ const App = () => {
       {process.env.REACT_APP_IS_ELECTRON ? (
         <TitleBar nodeConfig={nodeConfig} config={config} />
       ) : null}
-      {!config.isEmpty && (
-        <AlertBar nodeConfig={nodeConfig} currentBitcoinNetwork={currentBitcoinNetwork} />
-      )}
       <ConfigRequired />
       <Overlay />
       {!config.isEmpty && <Sidebar currentBitcoinNetwork={currentBitcoinNetwork} />}
@@ -244,17 +242,17 @@ const App = () => {
           )}
         />
 
-        {/* <Route
-            path='/vault/:id/purchase'
-            render={() => (
-              <Purchase
-                currentBitcoinPrice={currentBitcoinPrice}
-                password={password}
-                nodeConfig={nodeConfig!}
-                currentBitcoinNetwork={currentBitcoinNetwork}
-              />
-            )}
-          /> */}
+        <Route
+          path='/vault/:id/purchase'
+          render={() => (
+            <Purchase
+              currentBitcoinPrice={currentBitcoinPrice}
+              password={password}
+              nodeConfig={nodeConfig!}
+              currentBitcoinNetwork={currentBitcoinNetwork}
+            />
+          )}
+        />
         <Route
           path='/vault/:id'
           render={() => (
@@ -308,6 +306,7 @@ const App = () => {
               nodeConfig={nodeConfig!}
               getNodeConfig={getNodeConfig}
               currentBitcoinNetwork={currentBitcoinNetwork}
+              // @ts-ignore
               setNodeConfig={setNodeConfig}
               password={password}
             />
