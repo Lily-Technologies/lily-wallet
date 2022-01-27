@@ -68,23 +68,26 @@ const LightningSendTxForm = ({ setStep, setPaymentRequest, paymentRequest }: Pro
         >
           Preview transaction
         </CopyAddressButton>
-        <ScanInvoiceFromQRButton
-          background='transparent'
-          color={gray600}
-          onClick={() =>
-            openInModal(
-              <ScanLightningQrCode
-                onSuccess={(data) => {
-                  setPaymentRequest(data);
-                  sendPayment(data);
-                  closeModal();
-                }}
-              />
-            )
-          }
-        >
-          Scan Invoice QR Code
-        </ScanInvoiceFromQRButton>
+        {/* TODO: Remove button since react-qr-scanner won't work on unsecure connections. */}
+        {process.env.REACT_APP_IS_ELECTRON && (
+          <ScanInvoiceFromQRButton
+            background='transparent'
+            color={gray600}
+            onClick={() =>
+              openInModal(
+                <ScanLightningQrCode
+                  onSuccess={(data) => {
+                    setPaymentRequest(data);
+                    sendPayment(data);
+                    closeModal();
+                  }}
+                />
+              )
+            }
+          >
+            Scan Invoice QR Code
+          </ScanInvoiceFromQRButton>
+        )}
       </SendButtonContainer>
       <Modal isOpen={modalIsOpen} closeModal={() => closeModal()}>
         {modalContent}
