@@ -30,11 +30,11 @@ const SelectAccountScreen = ({ header, setSetupOption, setStep }: Props) => {
         >
           <StyledIcon as={Calculator} size={48} style={{ marginTop: '0.15em' }} />
           <SignupOptionTextContainer>
-            <SignupOptionMainText>Hardware Wallet</SignupOptionMainText>
-            <SignupOptionSubtext>
+            <h3 className='text-xl leading-6 font-medium text-gray-900'>Hardware Wallet</h3>
+            <p className='mt-1 text-sm text-gray-500'>
               Import your existing hardware wallet to manage funds in Lily similar to Ledger Live or
               Trezor Wallet
-            </SignupOptionSubtext>
+            </p>
           </SignupOptionTextContainer>
         </SignupOptionItem>
 
@@ -48,11 +48,11 @@ const SelectAccountScreen = ({ header, setSetupOption, setStep }: Props) => {
         >
           <StyledIcon as={Bank} size={48} style={{ marginTop: '0.15em' }} />
           <SignupOptionTextContainer>
-            <SignupOptionMainText>Multisignature Vault</SignupOptionMainText>
-            <SignupOptionSubtext>
+            <h3 className='text-xl leading-6 font-medium text-gray-900'>Multisignature Vault</h3>
+            <p className='mt-1 text-sm text-gray-500'>
               Combine multiple hardware wallets to create a vault for securing larger amounts of
               Bitcoin
-            </SignupOptionSubtext>
+            </p>
           </SignupOptionTextContainer>
         </SignupOptionItem>
 
@@ -66,10 +66,10 @@ const SelectAccountScreen = ({ header, setSetupOption, setStep }: Props) => {
         >
           <StyledIcon as={Bolt} size={48} style={{ marginTop: '0.15em' }} />
           <SignupOptionTextContainer>
-            <SignupOptionMainText>Lightning Wallet</SignupOptionMainText>
-            <SignupOptionSubtext>
+            <h3 className='text-xl leading-6 font-medium text-gray-900'>Lightning Wallet</h3>
+            <p className='mt-1 text-sm text-gray-500'>
               Connect to your lightning wallet to manage channels and send payments
-            </SignupOptionSubtext>
+            </p>
           </SignupOptionTextContainer>
         </SignupOptionItem>
       </SignupOptionMenu>
@@ -89,17 +89,6 @@ const SignupOptionTextContainer = styled.div`
   flex-direction: column;
   text-align: left;
   margin-left: 1em;
-`;
-
-const SignupOptionMainText = styled.div`
-  font-size: 1em;
-  line-height: 1.5em;
-`;
-
-const SignupOptionSubtext = styled.div`
-  font-size: 0.5em;
-  color: ${gray800};
-  line-height: 1em;
 `;
 
 const SignupOptionItem = styled.div`
