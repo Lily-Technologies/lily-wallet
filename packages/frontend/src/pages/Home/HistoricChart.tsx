@@ -157,6 +157,7 @@ const ChartInfo = styled.div`
   justify-content: space-between;
   padding: 2em 2em 0;
   align-items: center;
+  flex-wrap: wrap;
 `;
 
 const CurrentPriceText = styled.div`

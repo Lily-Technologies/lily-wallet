@@ -1,5 +1,5 @@
 import React, { Fragment, useContext } from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { Link } from 'react-router-dom';
 import { Bitcoin } from '@styled-icons/boxicons-logos';
 import { AddCircleOutline } from '@styled-icons/material';
@@ -12,6 +12,7 @@ import { AccountMapContext } from 'src/context/AccountMapContext';
 import { StyledIcon } from 'src/components';
 
 import { white, gray500, gray600, black } from 'src/utils/colors';
+import { mobile } from 'src/utils/media';
 
 import {
   LilyAccount,
@@ -133,32 +134,6 @@ const InvisibleItem = styled.div`
   width: 0;
 `;
 
-const AccountItem = styled(Link)`
-  background: ${white};
-  padding: 1.5em;
-  cursor: pointer;
-  color: ${gray600};
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-
-  &:hover {
-    color: ${gray500};
-  }
-
-  transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow,
-    transform;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 0.15s;
-
-  &:active {
-    transform: scale(0.99);
-    outline: 0;
-  }
-`;
-
 const AccountInfoContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -167,8 +142,12 @@ const AccountInfoContainer = styled.div`
 
 const AccountsWrapper = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(24em, 1fr));
   grid-gap: 1em;
+
+  ${mobile(css`
+    grid-template-columns: repeat(auto-fit, minmax(12em, 1fr));
+  `)};
 `;
 
 const AccountName = styled.div`
