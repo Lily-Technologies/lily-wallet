@@ -9,7 +9,7 @@ import FlowerLogo from 'src/assets/flower.svg';
 
 import { StyledIcon } from '.';
 
-import { AccountMapContext, ConfigContext } from 'src/context';
+import { AccountMapContext, ConfigContext, SidebarContext } from 'src/context';
 
 import { white, gray50, gray700, gray100, gray900, green100, green700 } from 'src/utils/colors';
 import { bitcoinNetworkEqual } from 'src/utils/files';
@@ -22,6 +22,7 @@ export const NavLinks = ({ currentBitcoinNetwork }: Props) => {
   const { pathname } = useLocation();
   const { setCurrentAccountId } = useContext(AccountMapContext);
   const { config } = useContext(ConfigContext);
+  const { setSidebarOpen } = useContext(SidebarContext);
 
   return (
     <>
@@ -36,15 +37,30 @@ export const NavLinks = ({ currentBitcoinNetwork }: Props) => {
           {bitcoinNetworkEqual(currentBitcoinNetwork, networks.testnet) && ' (testnet)'}
         </WalletTitleText>
       </WalletTitle>
-      <SidebarItemLink data-cy='nav-item' active={pathname === '/'} to='/'>
+      <SidebarItemLink
+        data-cy='nav-item'
+        active={pathname === '/'}
+        onClick={() => setSidebarOpen(false)}
+        to='/'
+      >
         <StyledIcon as={Home} size={24} style={{ marginRight: '.65rem', color: gray700 }} />
         Home
       </SidebarItemLink>
-      <SidebarItemLink data-cy='nav-item' active={pathname === '/send'} to='/send'>
+      <SidebarItemLink
+        data-cy='nav-item'
+        active={pathname === '/send'}
+        onClick={() => setSidebarOpen(false)}
+        to='/send'
+      >
         <StyledIcon as={SendPlane} size={24} style={{ marginRight: '.65rem', color: gray700 }} />
         Send
       </SidebarItemLink>
-      <SidebarItemLink data-cy='nav-item' active={pathname === '/receive'} to='/receive'>
+      <SidebarItemLink
+        data-cy='nav-item'
+        active={pathname === '/receive'}
+        onClick={() => setSidebarOpen(false)}
+        to='/receive'
+      >
         <StyledIcon
           as={VerticalAlignBottom}
           size={24}
@@ -52,7 +68,12 @@ export const NavLinks = ({ currentBitcoinNetwork }: Props) => {
         />
         Receive
       </SidebarItemLink>
-      <SidebarItemLink data-cy='nav-item' active={pathname === '/settings'} to='/settings'>
+      <SidebarItemLink
+        data-cy='nav-item'
+        active={pathname === '/settings'}
+        onClick={() => setSidebarOpen(false)}
+        to='/settings'
+      >
         <StyledIcon as={Settings} size={24} style={{ marginRight: '.65rem', color: gray700 }} />
         Settings
       </SidebarItemLink>
@@ -66,6 +87,7 @@ export const NavLinks = ({ currentBitcoinNetwork }: Props) => {
             active={pathname.includes(`/lightning/${wallet.id}`)}
             onClick={() => {
               setCurrentAccountId(wallet.id);
+              setSidebarOpen(false);
             }}
             to={`/lightning/${wallet.id}`}
           >
@@ -93,6 +115,7 @@ export const NavLinks = ({ currentBitcoinNetwork }: Props) => {
             active={pathname.includes(`/vault/${wallet.id}`)}
             onClick={() => {
               setCurrentAccountId(wallet.id);
+              setSidebarOpen(false);
             }}
             to={`/vault/${wallet.id}`}
           >
@@ -124,6 +147,7 @@ export const NavLinks = ({ currentBitcoinNetwork }: Props) => {
             active={pathname.includes(`/vault/${vault.id}`)}
             onClick={() => {
               setCurrentAccountId(vault.id);
+              setSidebarOpen(false);
             }}
             to={`/vault/${vault.id}`}
           >
@@ -139,7 +163,12 @@ export const NavLinks = ({ currentBitcoinNetwork }: Props) => {
         ))}
       </AccountsContainer>
 
-      <SidebarItemLink data-cy='nav-item' active={pathname === '/setup'} to={`/setup`}>
+      <SidebarItemLink
+        data-cy='nav-item'
+        active={pathname === '/setup'}
+        onClick={() => setSidebarOpen(false)}
+        to={`/setup`}
+      >
         <StyledIcon
           as={AddCircleOutline}
           size={24}
