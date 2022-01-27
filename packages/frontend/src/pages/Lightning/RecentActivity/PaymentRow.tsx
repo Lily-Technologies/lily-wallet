@@ -22,7 +22,7 @@ const getFriendlyType = (
 };
 
 interface Props {
-  creation_date: number;
+  creation_date?: number;
   title: string;
   value_sat: number;
   type: 'CHANNEL_OPEN' | 'CHANNEL_CLOSE' | 'PAYMENT_SEND' | 'PAYMENT_RECEIVE';

@@ -55,7 +55,9 @@ const RecentTransactions = ({ events, loading, flat = false, maxItems = Infinity
                 </DateWrapper>
               )}
               <PaymentRow
-                creation_date={Number(transaction.creationDate)}
+                creation_date={
+                  transaction.creationDate ? Number(transaction.creationDate) : undefined
+                }
                 title={transaction.title}
                 value_sat={Number(transaction.valueSat)}
                 type={type}
