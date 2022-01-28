@@ -4,7 +4,7 @@ import lighten from 'polished/lib/color/lighten';
 import { white, green400, green600, green700, gray600 } from 'src/utils/colors';
 
 export const Button = css<{ color: string; background: string }>`
-  display: flex;
+  display: inline-flex;
   justify-content: center;
   align-items: center;
   border: none;

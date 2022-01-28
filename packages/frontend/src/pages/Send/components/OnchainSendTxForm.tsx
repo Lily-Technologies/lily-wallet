@@ -1,9 +1,18 @@
-import React, { useState, useRef } from 'react';
+import React, { useContext, useState, useRef } from 'react';
 import styled from 'styled-components';
 import { networks, Network, Psbt } from 'bitcoinjs-lib';
 import { satoshisToBitcoins } from 'unchained-bitcoin';
 
-import { Button, Input, Dropdown, FileUploader, Modal, ErrorModal, Spinner } from 'src/components';
+import {
+  Button,
+  Input,
+  Dropdown,
+  FileUploader,
+  Modal,
+  ErrorModal,
+  Select,
+  Spinner
+} from 'src/components';
 
 import PastePsbtModalContent from './PastePsbtModalContent';
 
@@ -15,6 +24,7 @@ import { requireOnchain } from 'src/hocs';
 
 import { File, LilyOnchainAccount } from '@lily/types';
 import { SetStateNumber } from 'src/types';
+import { AccountMapContext, ConfigContext } from 'src/context';
 
 interface Props {
   currentAccount: LilyOnchainAccount;
@@ -37,6 +47,8 @@ const OnchainSendTxForm = ({
   createTransactionAndSetState,
   currentBitcoinNetwork
 }: Props) => {
+  const { config } = useContext(ConfigContext);
+  const { setCurrentAccountId, accountMap } = useContext(AccountMapContext);
   const [recipientAddress, setRecipientAddress] = useState(
     (finalPsbt && finalPsbt.txOutputs[0].address) || ''
   ); // eslint-disable-line
@@ -143,96 +155,100 @@ const OnchainSendTxForm = ({
   ];
 
   return (
-    <SentTxFormContainer data-cy='send-form'>
-      <FileUploader
-        accept='*'
-        id='txFile'
-        onFileLoad={({ file }: File) => {
-          importTxFromFile(file);
-        }}
-      />
-      <label style={{ display: 'none' }} ref={fileUploadLabelRef} htmlFor='txFile'></label>
-      <InputContainer>
-        <Dropdown minimal={true} style={{ alignSelf: 'flex-end' }} dropdownItems={dropdownItems} />
-        <Input
-          label='Send bitcoin to'
-          type='text'
-          onChange={setRecipientAddress}
-          value={recipientAddress}
-          placeholder={
-            bitcoinNetworkEqual(currentBitcoinNetwork, networks.testnet)
-              ? 'tb1q4h5xd5wsalmes2496y8dtphc609rt0un3gl69r'
-              : 'bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4'
-          }
-          error={recipientAddressError}
-          largeText={true}
-          id='bitcoin-receipt'
-          style={{ textAlign: 'right' }}
+    <div className='bg-white rounded-md shadow'>
+      <div className='py-6 px-4 sm:p-6 ' data-cy='send-form'>
+        <FileUploader
+          accept='*'
+          id='txFile'
+          onFileLoad={({ file }: File) => {
+            importTxFromFile(file);
+          }}
         />
-      </InputContainer>
-      <InputContainer>
-        <Input
-          label='Amount of bitcoin to send'
-          type='text'
-          value={sendAmount}
-          onChange={setSendAmount}
-          placeholder='0.0025'
-          error={sendAmountError}
-          inputStaticText='BTC'
-          largeText={true}
-          id='bitcoin-amount'
-        />
-      </InputContainer>
-      <SendButtonContainer>
-        <CopyAddressButton
-          background={green600}
-          color={white}
+        <label style={{ display: 'none' }} ref={fileUploadLabelRef} htmlFor='txFile'></label>
+        <div className='w-full flex justify-end'>
+          <Dropdown
+            minimal={true}
+            style={{ alignSelf: 'flex-end' }}
+            dropdownItems={dropdownItems}
+          />
+        </div>
+        <div className='grid grid-cols-4 gap-6'>
+          <div className='col-span-4 lg:col-span-2'>
+            <Select
+              label='From account'
+              initialSelection={{
+                label: currentAccount.config.name,
+                onClick: () => setCurrentAccountId(currentAccount.config.id)
+              }}
+              options={Object.values(accountMap).map((item) => {
+                return {
+                  label: item.name,
+                  onClick: () => {
+                    setCurrentAccountId(item.config.id);
+                  }
+                };
+              })}
+            />
+          </div>
+          <div className='hidden lg:block lg:col-span-2'></div>
+          <div className='col-span-4 lg:col-span-2'>
+            <Input
+              label='Send bitcoin to'
+              type='text'
+              onChange={(value) => {
+                setRecipientAddress(value);
+                setRecipientAddressError('');
+              }}
+              value={recipientAddress}
+              placeholder={
+                bitcoinNetworkEqual(currentBitcoinNetwork, networks.testnet)
+                  ? 'tb1q4h5xd5wsalmes2496y8dtphc609rt0un3gl69r'
+                  : 'bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4'
+              }
+              error={recipientAddressError}
+              // largeText={true}
+              id='bitcoin-receipt'
+              style={{ textAlign: 'right' }}
+            />
+          </div>
+          <div className='col-span-4 lg:col-span-2'>
+            <Input
+              label='Amount to send'
+              type='text'
+              value={sendAmount}
+              onChange={(value) => {
+                setSendAmount(value);
+                setSendAmountError('');
+              }}
+              placeholder='0.0025'
+              error={sendAmountError}
+              inputStaticText='BTC'
+              // largeText={true}
+              id='bitcoin-amount'
+            />
+          </div>
+        </div>
+      </div>
+      <div className='text-right py-3 px-4 mt-2 border bg-gray-50 rounded-bl-md rounded-br-md'>
+        <button
+          className='inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500'
           onClick={() => submitForm(recipientAddress, sendAmount, currentAccount.currentBalance)}
         >
           {isLoading ? <Spinner /> : 'Preview Transaction'}
-        </CopyAddressButton>
+        </button>
         {importTxFromFileError && !modalIsOpen && (
           <ErrorText style={{ paddingTop: '1em' }}>{importTxFromFileError}</ErrorText>
         )}
-      </SendButtonContainer>
+      </div>
       <Modal isOpen={modalIsOpen} closeModal={() => setModalIsOpen(false)}>
         {modalContent}
       </Modal>
-    </SentTxFormContainer>
+    </div>
   );
 };
 
-const SentTxFormContainer = styled.div`
-  min-height: 400px;
-  padding: 1.5em;
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  background: ${white};
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  border: 1px solid ${gray400};
-  border-radius: 0.385em;
-  justify-content: center;
-  width: 100%;
-  position: relative;
-`;
-
-const SendButtonContainer = styled.div`
-  margin-bottom: 0;
-  display: flex;
-  justify-content: space-between;
-  flex-direction: column;
-`;
-
-const InputContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 2em;
-`;
-
 const CopyAddressButton = styled.button`
   ${Button};
-  flex: 1;
   font-weight: 500;
   font-size: 1rem;
   line-height: 1.5rem;
@@ -249,4 +265,4 @@ const ErrorText = styled.div`
   padding-right: 0;
 `;
 
-export default requireOnchain(OnchainSendTxForm);
+export default OnchainSendTxForm;

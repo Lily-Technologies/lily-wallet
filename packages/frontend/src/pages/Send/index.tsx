@@ -9,7 +9,12 @@ import { AccountMapContext } from 'src/context/AccountMapContext';
 import SendOnchain from './Onchain';
 import SendLightning from './Lightning';
 
-import { LilyConfig, NodeConfigWithBlockchainInfo } from '@lily/types';
+import {
+  LilyConfig,
+  NodeConfigWithBlockchainInfo,
+  LilyLightningAccount,
+  LilyOnchainAccount
+} from '@lily/types';
 
 interface Props {
   config: LilyConfig;
@@ -20,22 +25,25 @@ interface Props {
 
 const Send = ({ config, currentBitcoinNetwork, nodeConfig, currentBitcoinPrice }: Props) => {
   const { accountMap, currentAccount } = useContext(AccountMapContext);
+  console.log('currentAccount: ', currentAccount);
 
   return (
     <PageWrapper>
       <>
         <Header>
           <HeaderLeft>
-            <PageTitle>Send from</PageTitle>
+            <PageTitle>Send bitcoin</PageTitle>
           </HeaderLeft>
           <HeaderRight></HeaderRight>
         </Header>
-        {Object.keys(accountMap).length > 0 && (
+        {/* {Object.keys(accountMap).length > 0 && (
           <SelectAccountMenu config={config} excludeNonSegwitAccounts={false} />
-        )}
+        )} */}
         {Object.keys(accountMap).length === 0 && <NoAccountsEmptyState />}
         {Object.keys(accountMap).length > 0 && currentAccount.loading && (
-          <Loading itemText={'Send Information'} />
+          <div className='flex align-center h-96 bg-white rounded-md shadow'>
+            <Loading itemText={'Send Information'} />
+          </div>
         )}
 
         {currentAccount.config.type === 'onchain' && (
@@ -44,9 +52,12 @@ const Send = ({ config, currentBitcoinNetwork, nodeConfig, currentBitcoinPrice }
             currentBitcoinNetwork={currentBitcoinNetwork}
             nodeConfig={nodeConfig}
             currentBitcoinPrice={currentBitcoinPrice}
+            currentAccount={currentAccount as LilyOnchainAccount}
           />
         )}
-        {currentAccount.config.type === 'lightning' && <SendLightning />}
+        {currentAccount.config.type === 'lightning' && (
+          <SendLightning currentAccount={currentAccount as LilyLightningAccount} />
+        )}
       </>
     </PageWrapper>
   );

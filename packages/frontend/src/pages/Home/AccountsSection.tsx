@@ -59,7 +59,7 @@ export const AccountsSection = () => {
   return (
     <Fragment>
       <h1 className='flex-1 text-2xl font-bold text-gray-900 mt-12 mb-6'>Your Accounts</h1>
-      <AccountsWrapper>
+      <div className='grid grid-cols-12 gap-6'>
         {Object.values(accountMap).map((account) => {
           const url =
             account.config.type === 'onchain'
@@ -67,7 +67,7 @@ export const AccountsSection = () => {
               : `/lightning/${account.config.id}`;
           return (
             <Link
-              className='flex align-center bg-white overflow-hidden shadow rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-green-500'
+              className='col-span-12 sm:col-span-6 flex align-center bg-white overflow-hidden shadow rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-green-500'
               to={url}
               onClick={() => setCurrentAccountId(account.config.id)}
               key={account.config.id}
@@ -101,7 +101,7 @@ export const AccountsSection = () => {
           );
         })}
         <Link
-          className='flex align-center bg-white overflow-hidden shadow rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-green-500'
+          className='col-span-12 sm:col-span-6 flex align-center bg-white overflow-hidden shadow rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-green-500'
           to={`/setup`}
         >
           <div className='flex align-center p-5'>
@@ -117,17 +117,10 @@ export const AccountsSection = () => {
           </div>
         </Link>
         {!accountMap.size && <InvisibleItem></InvisibleItem>}
-      </AccountsWrapper>
+      </div>
     </Fragment>
   );
 };
-
-const HomeHeadingItem = styled.h3`
-  font-size: 1.5em;
-  margin: 4em 0 0;
-  font-weight: 400;
-  color: ${black};
-`;
 
 const InvisibleItem = styled.div`
   height: 0;
@@ -138,22 +131,4 @@ const AccountInfoContainer = styled.div`
   display: flex;
   flex-direction: column;
   padding: 1em;
-`;
-
-const AccountsWrapper = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(24em, 1fr));
-  grid-gap: 1em;
-
-  ${mobile(css`
-    grid-template-columns: repeat(auto-fit, minmax(12em, 1fr));
-  `)};
-`;
-
-const AccountName = styled.div`
-  font-size: 1.25em;
-`;
-
-const CurrentBalance = styled.div`
-  font-size: 0.65em;
 `;

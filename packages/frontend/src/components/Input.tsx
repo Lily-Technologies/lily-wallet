@@ -1,8 +1,5 @@
 import React from 'react';
-import styled from 'styled-components';
 import { ExclamationCircleIcon } from '@heroicons/react/solid';
-
-import { white, gray300, gray500, gray700, red400, red500 } from 'src/utils/colors';
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
@@ -50,14 +47,13 @@ export const Input = ({
 }: Props) => (
   <>
     {label && (
-      <Label
+      <label
         htmlFor={id}
-        largeText={largeText}
+        className={classNames(largeText ? 'text-lg' : 'text-sm', 'block font-medium text-gray-700')}
         style={labelStyle}
-        className='block text-sm font-medium text-gray-700'
       >
         {label}
-      </Label>
+      </label>
     )}
     <div>
       <div className='mt-1 relative rounded-md shadow-sm'>
@@ -78,11 +74,20 @@ export const Input = ({
             error
               ? 'text-red-900 border-red-300 placeholder-red-300 focus:ring-red-500 focus:border-red-500'
               : 'shadow-sm focus:ring-green-500 focus:border-green-500 border-gray-300',
-            'appearance-none block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none sm:text-sm'
+            largeText ? 'px-4 py-3' : 'px-3 py-2',
+            inputStaticText ? 'text-right pr-12' : '',
+            inputStaticText && error ? 'pr-16' : '',
+            error ? 'pr-8' : '',
+            'appearance-none block w-full border rounded-md shadow-sm placeholder-gray-400 focus:outline-none sm:text-sm'
           )}
         />
         {inputStaticText && (
-          <div className='absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none'>
+          <div
+            className={classNames(
+              error ? 'pr-8' : 'pr-3',
+              'absolute inset-y-0 right-0 flex items-center pointer-events-none'
+            )}
+          >
             <span className='text-gray-500 sm:text-sm'>{inputStaticText}</span>
           </div>
         )}
@@ -96,89 +101,3 @@ export const Input = ({
     </div>
   </>
 );
-
-const InputAndErrorWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-`;
-
-const ErrorText = styled.div`
-  color: ${red500};
-  font-size: 0.75em;
-  margin-top: 0.5em;
-`;
-
-const Label = styled.label<{ largeText: boolean }>`
-  font-size: ${(p) => (p.largeText ? '1.15rem' : '.875rem')};
-  line-height: ${(p) => (p.largeText ? '2.25em' : '1.25em')};
-  font-weight: 500;
-  color: ${gray700};
-`;
-
-const InputWrapper = styled.div`
-  border: 0 solid #d2d6dc;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  margin-top: 0.25rem;
-  position: relative;
-  width: 100%;
-
-  *,
-  &:after,
-  &:before {
-    box-sizing: border-box;
-    border: 0 solid #d2d6dc;
-  }
-`;
-
-const StyledInput = styled.input<{
-  error: boolean | undefined;
-  largeText: boolean;
-  staticText: boolean;
-  disabled?: boolean;
-}>`
-  font-size: ${(p) => (p.largeText ? '1rem' : '.875rem')};
-  line-height: ${(p) => (p.largeText ? '3em' : '1.25em')};
-  width: 100%;
-  display: block;
-  background-color: ${white};
-  border-color: ${(p) => (p.error ? red400 : gray300)};
-  border-width: 1px;
-  border-radius: 0.375rem;
-  padding: 0.5rem 0.75rem;
-  padding-right: ${(p) => (p.staticText ? '3em' : '0.75em')};
-  text-align: ${(p) => (p.staticText ? 'right' : 'left')};
-  position: relative;
-  cursor: ${(p) => (p.disabled ? 'not-allowed' : 'text')}
-
-  *,
-  &:after,
-  &:before {
-    box-sizing: border-box;
-    border: 0 solid #d2d6dc;
-  }
-
-  &:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(164, 202, 254, 0.45);
-    border-color: #a4cafe;
-  }
-`;
-
-export const InputStaticText = styled.label<{
-  text: string;
-  disabled: boolean;
-  largeText: boolean;
-}>`
-  &::after {
-    content: '${(p) => p.text}';
-    position: absolute;
-    top: 1.45em;
-    right: 0.75em;
-    font-family: arial, helvetica, sans-serif;
-    font-size: 1em;
-    display: block;
-    color: ${gray500};
-    font-weight: bold;
-  }
-`;

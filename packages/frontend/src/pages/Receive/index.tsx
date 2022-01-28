@@ -30,7 +30,7 @@ const Receive = ({ config }: Props) => {
       <Fragment>
         <Header>
           <HeaderLeft>
-            <PageTitle>Receive to</PageTitle>
+            <PageTitle>Receive bitcoin</PageTitle>
           </HeaderLeft>
           <HeaderRight></HeaderRight>
         </Header>

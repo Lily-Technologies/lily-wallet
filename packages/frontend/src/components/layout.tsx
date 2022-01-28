@@ -26,7 +26,7 @@ export const PageWrapper = ({ children }: Props) => {
           <div className='relative h-16 flex items-center justify-between lg:border-b lg:border-sky-800'>
             <div className='px-2 flex items-center lg:px-0'>
               <div className='flex-shrink-0'>
-                <img className='block h-8 w-auto' src={FlowerLogo} alt='Workflow' />
+                <img className='block h-8 w-auto' src={FlowerLogo} alt='Lily logo' />
               </div>
               <span className='text-white ml-2 mt-1 font-medium'>Lily Wallet</span>
             </div>

@@ -5,28 +5,30 @@ import { CheckIcon, SelectorIcon } from '@heroicons/react/solid';
 
 import { white, red600, gray300, gray400, gray700, gray900, green500 } from 'src/utils/colors';
 
+interface Option {
+  label: string;
+  onClick: () => void;
+}
 interface Props {
   label: string;
-  options: {
-    label: string;
-    onClick: () => void;
-  }[];
+  options: Option[];
+  initialSelection?: Option;
   error?: boolean;
   id?: string;
 }
 
 export const Select = React.memo(
-  ({ label, options, error, id }: Props) => {
-    const [selected, setSelected] = useState(options[0]);
+  ({ label, options, initialSelection, error, id }: Props) => {
+    const [selected, setSelected] = useState(initialSelection || options[0]);
 
-    useEffect(() => {
-      // set initial value
-      options[0] && options[0].onClick();
-    }, [options]);
+    // useEffect(() => {
+    //   // set initial value
+    //   options[0] && options[0].onClick();
+    // }, [options]);
 
-    useEffect(() => {
-      setSelected(options[0]);
-    }, [options]);
+    // useEffect(() => {
+    //   setSelected(options[0]);
+    // }, [options]);
 
     return (
       <Listbox
@@ -38,7 +40,7 @@ export const Select = React.memo(
       >
         {({ open }) => (
           <>
-            <ListboxLabelDecorated>{label}</ListboxLabelDecorated>
+            <label className='block text-sm font-medium text-gray-700'>{label}</label>
             <ListboxContainer>
               <ListboxButton error={error} id={id}>
                 <SelectionContainer>{selected ? selected.label : 'Loading...'}</SelectionContainer>

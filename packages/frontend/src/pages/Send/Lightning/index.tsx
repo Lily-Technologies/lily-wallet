@@ -20,12 +20,13 @@ interface Props {
 }
 
 const SendLightning = ({ currentAccount }: Props) => {
+  console.log('render lightning form');
   const [step, setStep] = useState(0);
   const [paymentRequest, setPaymentRequest] = useState('');
   const { currentBalance } = currentAccount;
 
   return (
-    <GridArea>
+    <>
       {step === 0 && (
         <LightningSendTxForm
           setStep={setStep}
@@ -41,16 +42,7 @@ const SendLightning = ({ currentAccount }: Props) => {
           currentAccount={currentAccount}
         />
       )}
-
-      <SendContentRight>
-        <CurrentBalanceWrapper>
-          <CurrentBalanceText>Current Balance:</CurrentBalanceText>
-          <CurrentBalanceValue>
-            {satoshisToBitcoins(currentBalance.balance).toNumber()} BTC
-          </CurrentBalanceValue>
-        </CurrentBalanceWrapper>
-      </SendContentRight>
-    </GridArea>
+    </>
   );
 };
 
@@ -118,4 +110,4 @@ export const InputStaticText = styled.label<{
   }
 `;
 
-export default requireLightning(SendLightning);
+export default SendLightning;

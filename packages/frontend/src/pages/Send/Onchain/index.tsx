@@ -39,6 +39,7 @@ interface Props {
 }
 
 const SendOnchain = ({ currentAccount, currentBitcoinNetwork, currentBitcoinPrice }: Props) => {
+  console.log('render onchain form');
   const [step, setStep] = useState(0);
   const [finalPsbt, setFinalPsbt] = useState<Psbt | undefined>(undefined);
   const [feeRates, setFeeRates] = useState<FeeRates>({
@@ -161,23 +162,14 @@ const SendOnchain = ({ currentAccount, currentBitcoinNetwork, currentBitcoinPric
   return (
     <>
       {!currentAccount.loading && step === 0 && (
-        <GridArea>
-          <SendTxForm
-            finalPsbt={finalPsbt}
-            setFinalPsbt={setFinalPsbt}
-            createTransactionAndSetState={createTransactionAndSetState}
-            setStep={setStep}
-            currentBitcoinNetwork={currentBitcoinNetwork}
-          />
-          <SendContentRight>
-            <CurrentBalanceWrapper>
-              <CurrentBalanceText>Current Balance:</CurrentBalanceText>
-              <CurrentBalanceValue>
-                {satoshisToBitcoins(currentBalance).toNumber()} BTC
-              </CurrentBalanceValue>
-            </CurrentBalanceWrapper>
-          </SendContentRight>
-        </GridArea>
+        <SendTxForm
+          currentAccount={currentAccount}
+          finalPsbt={finalPsbt}
+          setFinalPsbt={setFinalPsbt}
+          createTransactionAndSetState={createTransactionAndSetState}
+          setStep={setStep}
+          currentBitcoinNetwork={currentBitcoinNetwork}
+        />
       )}
       {!currentAccount.loading && finalPsbt && step === 1 && (
         <ConfirmTxPage
@@ -296,4 +288,4 @@ const ViewTransactionButton = styled.a`
   margin-top: 1em;
 `;
 
-export default requireOnchain(SendOnchain);
+export default SendOnchain;
