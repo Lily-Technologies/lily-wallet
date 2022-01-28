@@ -1,16 +1,14 @@
-import React, { useContext, useState } from 'react';
+import { useContext, useState } from 'react';
 import styled from 'styled-components';
 import { decode } from 'bolt11';
 
 import { Button, Textarea, Modal, Select } from 'src/components';
 
-import { white, gray400, gray600, green600 } from 'src/utils/colors';
 import { AccountMapContext } from 'src/context';
 
 import { SetStateNumber, SetStateString } from 'src/types';
 
 import ScanLightningQrCode from './ScanLightningQrCode';
-import { ChannelBalanceResponse } from '@lily-technologies/lnrpc';
 
 interface Props {
   setStep: SetStateNumber;
@@ -117,17 +115,5 @@ const LightningSendTxForm = ({ setStep, setPaymentRequest, paymentRequest }: Pro
     </div>
   );
 };
-
-const CopyAddressButton = styled.button`
-  ${Button};
-  flex: 1;
-  font-weight: 500;
-  font-size: 1rem;
-  line-height: 1.5rem;
-  padding-left: 1rem;
-  padding-right: 1rem;
-  padding-top: 0.75rem;
-  padding-bottom: 0.75rem;
-`;
 
 export default LightningSendTxForm;

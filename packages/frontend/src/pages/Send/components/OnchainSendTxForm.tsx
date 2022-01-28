@@ -3,24 +3,13 @@ import styled from 'styled-components';
 import { networks, Network, Psbt } from 'bitcoinjs-lib';
 import { satoshisToBitcoins } from 'unchained-bitcoin';
 
-import {
-  Button,
-  Input,
-  Dropdown,
-  FileUploader,
-  Modal,
-  ErrorModal,
-  Select,
-  Spinner
-} from 'src/components';
+import { Input, Dropdown, FileUploader, Modal, ErrorModal, Select, Spinner } from 'src/components';
 
 import PastePsbtModalContent from './PastePsbtModalContent';
 
 import { bitcoinNetworkEqual } from 'src/utils/files';
-import { white, gray400, red500, green600 } from 'src/utils/colors';
+import { red500 } from 'src/utils/colors';
 import { validateAddress, validateSendAmount, getPsbtFromText, getFee } from 'src/utils/send';
-
-import { requireOnchain } from 'src/hocs';
 
 import { File, LilyOnchainAccount } from '@lily/types';
 import { SetStateNumber } from 'src/types';
@@ -246,17 +235,6 @@ const OnchainSendTxForm = ({
     </div>
   );
 };
-
-const CopyAddressButton = styled.button`
-  ${Button};
-  font-weight: 500;
-  font-size: 1rem;
-  line-height: 1.5rem;
-  padding-left: 1rem;
-  padding-right: 1rem;
-  padding-top: 0.75rem;
-  padding-bottom: 0.75rem;
-`;
 
 const ErrorText = styled.div`
   color: ${red500};
