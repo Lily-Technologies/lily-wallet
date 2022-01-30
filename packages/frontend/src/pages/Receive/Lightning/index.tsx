@@ -31,19 +31,7 @@ export const LightningReceive = ({ currentAccount }: Props) => {
     view = <LightningReceiveSuccess paymentRequest={invoice} />;
   }
 
-  return (
-    <GridArea>
-      {view}
-      <AccountReceiveContentRight>
-        <CurrentBalanceWrapper>
-          <CurrentBalanceText>Current Balance:</CurrentBalanceText>
-          <CurrentBalanceValue>
-            {satoshisToBitcoins(currentBalance.balance).toNumber()} BTC
-          </CurrentBalanceValue>
-        </CurrentBalanceWrapper>
-      </AccountReceiveContentRight>
-    </GridArea>
-  );
+  return view;
 };
 
 const AccountReceiveContentRight = styled.div`

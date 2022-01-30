@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
 import styled from 'styled-components';
 
-import { Button, Input, Spinner } from 'src/components';
+import { Button, Input, Spinner, Select } from 'src/components';
 
 import { white, gray400, green600 } from 'src/utils/colors';
 
@@ -9,7 +9,7 @@ import { LilyLightningAccount } from '@lily/types';
 import { SetStateNumber, SetStateString } from 'src/types';
 import { requireLightning } from 'src/hocs';
 
-import { PlatformContext } from 'src/context';
+import { AccountMapContext, PlatformContext } from 'src/context';
 
 interface Props {
   setStep: SetStateNumber;
@@ -19,6 +19,7 @@ interface Props {
 
 const LightningReceiveForm = ({ setStep, setInvoice, currentAccount }: Props) => {
   const { platform } = useContext(PlatformContext);
+  const { accountMap, setCurrentAccountId } = useContext(AccountMapContext);
   const [memo, setMemo] = useState('');
   const [sendAmount, setSendAmount] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -56,37 +57,55 @@ const LightningReceiveForm = ({ setStep, setInvoice, currentAccount }: Props) =>
   };
 
   return (
-    <SentTxFormContainer data-cy='send-form'>
-      <InputContainer>
-        <Input
-          label='Invoice memo'
-          type='text'
-          onChange={setMemo}
-          value={memo}
-          placeholder={'Morning coffee'}
-          error={memoError}
-          largeText={true}
-          id='lightning-memo'
-          style={{ textAlign: 'right' }}
-        />
-      </InputContainer>
-      <InputContainer>
-        <Input
-          label='Invoice amount'
-          type='text'
-          value={sendAmount}
-          onChange={setSendAmount}
-          placeholder='25000'
-          error={sendAmountError}
-          inputStaticText='sats'
-          largeText={true}
-          id='lightning-amount'
-        />
-      </InputContainer>
-      <SendButtonContainer>
-        <CopyAddressButton
-          background={green600}
-          color={white}
+    <div className='bg-white rounded-md shadow'>
+      <div className='py-6 px-4 sm:p-6 ' data-cy='send-form'>
+        <div className='grid grid-cols-4 gap-6'>
+          <div className='col-span-4 lg:col-span-2'>
+            <Select
+              label='From account'
+              initialSelection={{
+                label: currentAccount.config.name,
+                onClick: () => setCurrentAccountId(currentAccount.config.id)
+              }}
+              options={Object.values(accountMap).map((item) => {
+                return {
+                  label: item.name,
+                  onClick: () => {
+                    setCurrentAccountId(item.config.id);
+                  }
+                };
+              })}
+            />
+          </div>
+          <div className='col-span-4'>
+            <Input
+              label='Invoice memo'
+              type='text'
+              onChange={setMemo}
+              value={memo}
+              placeholder={'Morning coffee'}
+              error={memoError}
+              id='lightning-memo'
+              style={{ textAlign: 'right' }}
+            />
+          </div>
+          <div className='col-span-4'>
+            <Input
+              label='Invoice amount'
+              type='text'
+              value={sendAmount}
+              onChange={setSendAmount}
+              placeholder='25000'
+              error={sendAmountError}
+              inputStaticText='sats'
+              id='lightning-amount'
+            />
+          </div>
+        </div>
+      </div>
+      <div className='text-right py-3 px-4 mt-2 border bg-gray-50 rounded-bl-md rounded-br-md'>
+        <button
+          className='inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500'
           disabled={isLoading}
           onClick={() => submitForm(memo, sendAmount)}
         >
@@ -97,9 +116,9 @@ const LightningReceiveForm = ({ setStep, setInvoice, currentAccount }: Props) =>
           ) : (
             'Generate invoice'
           )}
-        </CopyAddressButton>
-      </SendButtonContainer>
-    </SentTxFormContainer>
+        </button>
+      </div>
+    </div>
   );
 };
 

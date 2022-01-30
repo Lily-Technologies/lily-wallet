@@ -21,6 +21,7 @@ interface Props {
   onKeyDown?: (e: React.KeyboardEvent<Element>) => void;
   inputStaticText?: string;
   largeText?: boolean;
+  readOnly?: boolean;
   style?: object;
   labelStyle?: object;
   disabled?: boolean;
@@ -43,6 +44,7 @@ export const Input = ({
   style,
   labelStyle,
   largeText = false,
+  readOnly = false,
   disabled
 }: Props) => (
   <>
@@ -62,6 +64,7 @@ export const Input = ({
           id={id}
           name={name}
           value={value}
+          readOnly={readOnly}
           autoComplete={autoComplete}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange(e.target.value)}
           onKeyDown={onKeyDown}

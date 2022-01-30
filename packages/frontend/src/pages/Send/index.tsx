@@ -1,8 +1,8 @@
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import { Network } from 'bitcoinjs-lib';
 
 import { PageWrapper, PageTitle, Header, HeaderRight, HeaderLeft, Loading } from 'src/components';
-import { SelectAccountMenu, NoAccountsEmptyState } from 'src/components';
+import { NoAccountsEmptyState } from 'src/components';
 
 import { AccountMapContext } from 'src/context/AccountMapContext';
 
@@ -36,9 +36,6 @@ const Send = ({ config, currentBitcoinNetwork, nodeConfig, currentBitcoinPrice }
           </HeaderLeft>
           <HeaderRight></HeaderRight>
         </Header>
-        {/* {Object.keys(accountMap).length > 0 && (
-          <SelectAccountMenu config={config} excludeNonSegwitAccounts={false} />
-        )} */}
         {Object.keys(accountMap).length === 0 && <NoAccountsEmptyState />}
         {Object.keys(accountMap).length > 0 && currentAccount.loading && (
           <div className='flex align-center h-96 bg-white rounded-md shadow'>

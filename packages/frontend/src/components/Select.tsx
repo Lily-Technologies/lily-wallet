@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useEffect } from 'react';
+import React, { Fragment, useState } from 'react';
 import styled from 'styled-components';
 import { Listbox, Transition } from '@headlessui/react';
 import { CheckIcon, SelectorIcon } from '@heroicons/react/solid';
@@ -20,15 +20,6 @@ interface Props {
 export const Select = React.memo(
   ({ label, options, initialSelection, error, id }: Props) => {
     const [selected, setSelected] = useState(initialSelection || options[0]);
-
-    // useEffect(() => {
-    //   // set initial value
-    //   options[0] && options[0].onClick();
-    // }, [options]);
-
-    // useEffect(() => {
-    //   setSelected(options[0]);
-    // }, [options]);
 
     return (
       <Listbox
