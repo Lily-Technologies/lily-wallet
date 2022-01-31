@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import moment from 'moment';
 import { satoshisToBitcoins } from 'unchained-bitcoin';
+import { ChevronRightIcon } from '@heroicons/react/solid';
 
 import { white, gray50 } from 'src/utils/colors';
 
@@ -17,25 +18,45 @@ interface Props {
 
 const TransactionRow = ({ onClick, transaction, flat }: Props) => {
   return (
-    <TransactionRowWrapper onClick={() => onClick()} flat={flat}>
-      <TransactionRowContainer flat={flat}>
-        <TxTypeIcon flat={flat}>
-          <TransactionTypeIcon transaction={transaction} flat={flat} />
-          <TxTypeTextWrapper flat={flat}>
-            <TxTypeText>{transaction.type}</TxTypeText>
-            <TxTypeTime>
-              {transaction.status.confirmed
-                ? moment.unix(transaction.status.block_time).format('h:mm A')
-                : 'Unconfirmed'}
-            </TxTypeTime>
-          </TxTypeTextWrapper>
-        </TxTypeIcon>
-        <AddressWrapper flat={flat}>{transaction.address}</AddressWrapper>
-        <AmountWrapper flat={flat}>
-          {satoshisToBitcoins(transaction.value).toNumber()} BTC
-        </AmountWrapper>
-      </TransactionRowContainer>
-    </TransactionRowWrapper>
+    <li className='list-none border-b border-gray-100 shadow' onClick={() => onClick()}>
+      <button className='block bg-white hover:bg-gray-50 w-full'>
+        <div className='flex items-center px-4 py-4 sm:px-6'>
+          <div className='min-w-0 flex-1 flex items-center'>
+            <div className='flex items-center'>
+              <div className='flex-shrink-0'>
+                <TransactionTypeIcon transaction={transaction} flat={flat} />
+              </div>
+              <div className='hidden sm:flex flex-col items-start'>
+                <p className='text-sm capitalize'>{transaction.type}</p>
+                <p className='text-xs whitespace-nowrap'>
+                  {transaction.status.confirmed
+                    ? moment.unix(transaction.status.block_time).format('h:mm A')
+                    : 'Unconfirmed'}
+                </p>
+              </div>
+            </div>
+            <div className='sm:flex sm:justify-between flex-wrap w-full items-center px-4 truncate'>
+              <p className='text-left text-sm font-medium text-yellow-600 truncate'>
+                {transaction.address}
+              </p>
+              <p className='hidden sm:flex items-center text-sm text-gray-900'>
+                {satoshisToBitcoins(transaction.value).toNumber()} BTC
+              </p>
+              <p className='flex sm:hidden items-center text-sm text-gray-900'>
+                {transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1)}{' '}
+                {satoshisToBitcoins(transaction.value).toNumber()} BTC{' '}
+                {transaction.status.confirmed
+                  ? `at ${moment.unix(transaction.status.block_time).format('h:mm A')}`
+                  : ''}
+              </p>
+            </div>
+          </div>
+          <div>
+            <ChevronRightIcon className='h-5 w-5 text-gray-400' aria-hidden='true' />
+          </div>
+        </div>
+      </button>
+    </li>
   );
 };
 
