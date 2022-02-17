@@ -4,8 +4,8 @@ WORKDIR /install
 COPY package.json .
 COPY packages/types ./packages/types
 COPY packages/shared-server ./packages/shared-server
-COPY packages/express ./packages/express
 COPY packages/HWIs/HWI_PI ./packages/HWIs/HWI_PI
+COPY apps/express ./apps/express
 
 RUN npm install
 

@@ -36,6 +36,6 @@ RUN npm run build:frontend:umbrel
 # # production environment
 FROM nginx:stable-alpine
 WORKDIR /app
-COPY --from=build build/packages/frontend/build /usr/share/nginx/html
+COPY --from=build build/apps/frontend/build /usr/share/nginx/html
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]

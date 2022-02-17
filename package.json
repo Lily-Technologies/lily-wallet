@@ -23,6 +23,7 @@
   },
   "homepage": "./",
   "workspaces": [
+    "apps/*",
     "packages/*"
   ],
   "devDependencies": {

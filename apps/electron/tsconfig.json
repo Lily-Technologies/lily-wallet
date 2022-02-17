@@ -12,10 +12,10 @@
   },
   "references": [
     {
-      "path": "../shared-server"
+      "path": "../../packages/shared-server"
     },
     {
-      "path": "../types"
+      "path": "../../packages/types"
     }
   ],
   "include": ["src/**/*"]

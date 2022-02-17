@@ -8,14 +8,14 @@
     "sourceMap": true,
     "outDir": "dist",
     "baseUrl": ".",
-    "skipLibCheck": true,
+    "skipLibCheck": true
   },
   "references": [
     {
-      "path": "../shared-server"
+      "path": "../../packages/shared-server"
     },
     {
-      "path": "../types"
+      "path": "../../packages/types"
     }
   ],
   "include": ["src/**/*"]
