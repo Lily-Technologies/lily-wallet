@@ -35,7 +35,7 @@ export const Sidebar = ({ currentBitcoinNetwork }) => {
             leaveFrom='translate-x-0'
             leaveTo='-translate-x-full'
           >
-            <div className='relative flex-1 flex flex-col max-w-xs w-full bg-white'>
+            <div className='relative flex-1 flex flex-col max-w-xs w-full bg-white dark:bg-gray-900'>
               <Transition.Child
                 as={Fragment}
                 enter='ease-in-out duration-300'
@@ -67,8 +67,8 @@ export const Sidebar = ({ currentBitcoinNetwork }) => {
         </Dialog>
       </Transition.Root>
 
-      <div className='hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 shadow-sm border-r-2 border-gray-100 z-10'>
-        <div className='flex-1 flex flex-col min-h-0 bg-white'>
+      <div className='hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 shadow-sm border-r-2 border-gray-200 dark:border-gray-800 z-10'>
+        <div className='flex-1 flex flex-col min-h-0 bg-white dark:bg-gray-900'>
           <div className='flex-1 flex flex-col pb-4 overflow-y-auto'>
             <nav
               className={classNames(

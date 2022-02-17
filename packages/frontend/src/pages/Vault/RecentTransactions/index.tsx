@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import moment from 'moment';
-import { Button, Modal } from 'src/components';
+import { Button, SlideOver, TransactionRowsLoading } from 'src/components';
 
 import DeadFlowerImage from 'src/assets/dead-flower.svg';
 
 import TxDetailsModal from './TxDetailsModal';
 import TransactionRow from './TransactionRow';
-import TransactionRowLoading from './TransactionRowLoading';
 
 import { gray600, gray800, white, green700 } from 'src/utils/colors';
 
@@ -53,9 +52,11 @@ const RecentTransactions = ({
   return (
     <RecentTransactionsWrapper>
       {(loading || transactions.length > 0) && (
-        <h2 className='flex-1 text-2xl font-bold text-gray-900 mt-12 mb-2'>Recent Activity</h2>
+        <h2 className='flex-1 text-2xl font-bold text-gray-900 mt-12 mb-2 dark:text-white'>
+          Recent Activity
+        </h2>
       )}
-      {loading && <TransactionRowLoading flat={flat} />}
+      {loading && <TransactionRowsLoading />}
       <TransactionsWrapper>
         {!loading &&
           transactions.map((transaction, index) => {
@@ -64,14 +65,18 @@ const RecentTransactions = ({
               return (
                 <TransactionRowWrapper key={index}>
                   {shouldDisplayDate(transactions, index) && (
-                    <DateWrapper>
+                    <DateWrapper className='text-gray-800 dark:text-gray-200'>
                       {transaction.status.confirmed
                         ? moment.unix(transaction.status.block_time).format('MMMM DD, YYYY')
                         : 'Waiting for confirmation...'}
                     </DateWrapper>
                   )}
                   <TransactionRow
-                    onClick={() => openInModal(<TxDetailsModal transaction={transaction} />)}
+                    onClick={() =>
+                      openInModal(
+                        <TxDetailsModal transaction={transaction} setOpen={setModalIsOpen} />
+                      )
+                    }
                     transaction={transaction}
                     flat={flat}
                   />
@@ -81,24 +86,24 @@ const RecentTransactions = ({
             return null;
           })}
         {!loading && transactions.length === 0 && (
-          <NoTransasctionsSection flat={flat}>
-            <NoTransactionsHeader>No Transactions</NoTransactionsHeader>
+          <div className='h-96 w-full bg-white dark:bg-gray-800 space-y-6 flex flex-col items-center justify-center rounded shadow'>
+            <h3 className='text-2xl text-gray-600 dark:text-gray-300 font-medium'>
+              No Transactions
+            </h3>
             <DeadFlower src={DeadFlowerImage} />
-            <NoTransactionsSubtext>
+            <p className='text-gray-600 dark:text-gray-400 font-sm font-medium'>
               No activity has been detected on this account yet.
-            </NoTransactionsSubtext>
+            </p>
 
             {openRescanModal && (
               <RescanButton background={green700} color={white} onClick={() => openRescanModal()}>
                 Scan for Transactions
               </RescanButton>
             )}
-          </NoTransasctionsSection>
+          </div>
         )}
       </TransactionsWrapper>
-      <Modal isOpen={modalIsOpen} closeModal={() => setModalIsOpen(false)}>
-        {modalContent}
-      </Modal>
+      <SlideOver open={modalIsOpen} setOpen={setModalIsOpen} content={modalContent} />
     </RecentTransactionsWrapper>
   );
 };
@@ -119,27 +124,6 @@ const TransactionRowWrapper = styled.div``;
 
 const DateWrapper = styled.div`
   margin: 1.5em 0 1em;
-  color: ${gray800};
-`;
-
-const NoTransasctionsSection = styled.div<{ flat: boolean }>`
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  justify-content: center;
-  align-items: center;
-  font-weight: 100;
-  background: ${(p) => (p.flat ? 'transparent' : white)};
-  box-shadow: ${(p) =>
-    p.flat ? 'none' : '0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06);'};
-  border-radius: 0.385em;
-`;
-
-const NoTransactionsHeader = styled.h3`
-  color: ${gray600};
-`;
-const NoTransactionsSubtext = styled.h4`
-  color: ${gray600};
 `;
 
 const DeadFlower = styled.img`

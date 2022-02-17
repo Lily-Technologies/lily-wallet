@@ -43,8 +43,6 @@ const GeneralView = ({ password }: Props) => {
           <SettingsTable.ValueText>{currentAccount.config.name}</SettingsTable.ValueText>
           <SettingsTable.ValueAction>
             <SettingsTable.ActionButton
-              background={white}
-              color={green500}
               onClick={() =>
                 openInModal(
                   <EditAccountNameModal
@@ -81,9 +79,7 @@ const GeneralView = ({ password }: Props) => {
           <SettingsTable.ValueText>Connected</SettingsTable.ValueText>
           <SettingsTable.ValueAction>
             <SettingsTable.ActionButton
-              background={white}
-              color={green500}
-              // onClick={() => openInModal(<DeviceDetailsModal item={item} />)}
+            // onClick={() => openInModal(<DeviceDetailsModal item={item} />)}
             >
               View details
             </SettingsTable.ActionButton>
@@ -103,8 +99,7 @@ const GeneralView = ({ password }: Props) => {
           <SettingsTable.ValueText></SettingsTable.ValueText>
           <SettingsTable.ValueAction>
             <SettingsTable.ActionButton
-              background={white}
-              color={red500}
+              style={{ color: red500 }}
               onClick={() =>
                 openInModal(<DeleteAccountModal password={password} closeModal={closeModal} />)
               }

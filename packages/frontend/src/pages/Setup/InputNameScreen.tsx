@@ -82,7 +82,7 @@ const InputNameScreen = ({ header, setupOption, setStep, accountName, setAccount
               </div>
             </SetupHeaderWrapper>
           </XPubHeaderWrapper>
-          <PasswordWrapper>
+          <div className='flex flex-col py-4 px-3 bg-whtie dark:bg-gray-800'>
             <Input
               autoFocus
               error={nameError}
@@ -93,7 +93,7 @@ const InputNameScreen = ({ header, setupOption, setStep, accountName, setAccount
               onChange={setAccountName}
               onKeyDown={(e) => onInputEnter(e)}
             />
-          </PasswordWrapper>
+          </div>
 
           <ExportFilesButton
             background={green600}

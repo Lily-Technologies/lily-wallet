@@ -39,7 +39,6 @@ export const Modal = ({
 
   const styles = {
     content: {
-      background: white,
       opacity: 1,
       boxShadow: '0 20px 25px -5px rgba(0,0,0,.1), 0 10px 10px -5px rgba(0,0,0,.04)',
       borderRadius: '.5rem',
@@ -73,6 +72,7 @@ export const Modal = ({
       style={styles}
       contentLabel='Example Modal'
       htmlOpenClassName='ReactModal__Html--open'
+      className='bg-white dark:bg-gray-800'
     >
       <StaticModalContentWrapper>{children}</StaticModalContentWrapper>
       <CloseButtonContainer>

@@ -31,9 +31,15 @@ export const Select = React.memo(
       >
         {({ open }) => (
           <>
-            <label className='block text-sm font-medium text-gray-700'>{label}</label>
-            <ListboxContainer>
-              <ListboxButton error={error} id={id}>
+            <label className='block text-sm font-medium text-gray-700 dark:text-gray-200'>
+              {label}
+            </label>
+            <ListboxContainer className='dark:text-gray-200'>
+              <ListboxButton
+                error={error}
+                id={id}
+                className='border border-gray-300 dark:border-gray-500 focus:ring-green-500 focus:border-green-500 focus:outline-none'
+              >
                 <SelectionContainer>{selected ? selected.label : 'Loading...'}</SelectionContainer>
                 <SelectorIconContainer>
                   <SelectorIconDecorated aria-hidden='true' />
@@ -51,7 +57,7 @@ export const Select = React.memo(
                   {options.map((option, index) => (
                     <ListboxOption key={index} value={option}>
                       {({ selected, active }: { selected: boolean; active: boolean }) => (
-                        <OptionContainer active={active}>
+                        <OptionContainer active={active} className='cursor-pointer'>
                           <DropdownItemLabel selected={selected}>{option.label}</DropdownItemLabel>
 
                           {selected ? (
@@ -76,14 +82,6 @@ export const Select = React.memo(
     return prevState.options[0].label === nextState.options[0].label;
   }
 );
-
-const ListboxLabelDecorated = styled(Listbox.Label)`
-  color: ${gray700};
-  font-weight: 500;
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  display: block;
-`;
 
 const ListboxContainer = styled.div`
   position: relative;
@@ -116,7 +114,7 @@ const OptionContainer = styled.div<{ active: boolean }>`
   padding-bottom: 0.5rem;
   padding-right: 2.25rem;
   padding-left: 0.75rem;
-  cursor: default;
+  cursor: pointer;
   position: relative;
 `;
 
@@ -130,6 +128,7 @@ const CheckIconDecorated = styled(CheckIcon)`
 const ListboxButton = styled(Listbox.Button)<{
   error?: boolean;
   children: React.ReactNode;
+  className?: string;
   id?: string;
 }>`
   font-size: 0.875rem;
@@ -139,11 +138,11 @@ const ListboxButton = styled(Listbox.Button)<{
   padding-left: 0.75rem;
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
-  border: 1px solid ${gray300};
   cursor: default;
   width: 100%;
   border-radius: 0.375rem;
   position: relative;
+  cursor: pointer;
 
   border-color: ${(p) => (p.error ? red600 : 'inherit')}
 
@@ -152,12 +151,6 @@ const ListboxButton = styled(Listbox.Button)<{
   &:before {
     box-sizing: border-box;
     border: 0 solid #d2d6dc;
-  }
-
-  &:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(164, 202, 254, 0.45);
-    border-color: #a4cafe;
   }
 `;
 

@@ -3,6 +3,8 @@ import styled from 'styled-components';
 import { useHistory } from 'react-router-dom';
 import { ExclamationCircleIcon } from '@heroicons/react/solid';
 
+import { Input } from 'src/components';
+
 import { ConfigContext, PlatformContext } from 'src/context';
 
 import { saveConfig } from 'src/utils/files';
@@ -85,8 +87,10 @@ const SignupForm = ({ setPassword, cancel }: Props) => {
     <div className='mx-auto w-full max-w-sm lg:w-96'>
       <div>
         <img className='h-12 w-auto' src={FlowerLogo} alt='Lily Wallet logo' />
-        <h2 className='mt-6 text-3xl font-extrabold text-gray-900'>Create a new wallet</h2>
-        <p className='mt-1 text-sm text-gray-600'>
+        <h2 className='mt-6 text-3xl font-extrabold text-gray-900 dark:text-gray-200'>
+          Create a new wallet
+        </h2>
+        <p className='mt-1 text-sm text-gray-600 dark:text-gray-500'>
           Use a password to encrypt your wallet so others cannot access it.
         </p>
       </div>
@@ -94,83 +98,40 @@ const SignupForm = ({ setPassword, cancel }: Props) => {
         <div className='mt-6'>
           <form onSubmit={createNewConfig} className='space-y-6'>
             <div className='space-y-1'>
-              <label htmlFor='password' className='block text-sm font-medium text-gray-700'>
-                Password
-              </label>
-              <div className='mt-1 relative rounded-md shadow-sm'>
-                <input
-                  autoFocus
-                  id='password'
-                  name='password'
-                  type='password'
-                  autoComplete='new-password'
-                  required
-                  value={localPassword}
-                  onChange={(e) => changeLocalPassword(e.target.value)}
-                  className={classNames(
-                    passwordError
-                      ? 'text-red-900 border-red-300 placeholder-red-300 focus:ring-red-500 focus:border-red-500'
-                      : 'shadow-sm focus:ring-green-500 focus:border-green-500 border-gray-300',
-                    'appearance-none block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none sm:text-sm'
-                  )}
-                />
-                {passwordError && (
-                  <div className='absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none'>
-                    <ExclamationCircleIcon className='h-5 w-5 text-red-500' aria-hidden='true' />
-                  </div>
-                )}
-              </div>
-              {passwordError && (
-                <p className='mt-2 text-sm text-red-600' id='email-error'>
-                  {passwordError}
-                </p>
-              )}
+              <Input
+                label='Password'
+                type='password'
+                value={localPassword}
+                onChange={changeLocalPassword}
+                error={passwordError}
+                autoComplete='new-password'
+                required
+              />
             </div>
             <div className='space-y-1'>
-              <label htmlFor='confirm-password' className='block text-sm font-medium text-gray-700'>
-                Confirm password
-              </label>
-              <div className='mt-1 relative rounded-md shadow-sm'>
-                <input
-                  id='confirm-password'
-                  name='confirm password'
-                  type='password'
-                  autoComplete='new-password'
-                  required
-                  value={localConfirmPassword}
-                  onChange={(e) => changeConfirmPassword(e.target.value)}
-                  className={classNames(
-                    confirmPasswordError
-                      ? 'text-red-900 border-red-300 placeholder-red-300 focus:ring-red-500 focus:border-red-500'
-                      : 'shadow-sm focus:ring-green-500 focus:border-green-500 border-gray-300',
-                    'relative appearance-none block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none sm:text-sm'
-                  )}
-                />
-                {confirmPasswordError && (
-                  <div className='absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none'>
-                    <ExclamationCircleIcon className='h-5 w-5 text-red-500' aria-hidden='true' />
-                  </div>
-                )}
-              </div>
-              {confirmPasswordError && (
-                <p className='mt-2 text-sm text-red-600' id='email-error'>
-                  {confirmPasswordError}
-                </p>
-              )}
+              <Input
+                label='Confirm password'
+                type='password'
+                value={localConfirmPassword}
+                onChange={changeConfirmPassword}
+                error={confirmPasswordError}
+                autoComplete='new-password'
+                required
+              />
             </div>
 
             <div className='flex justify-end'>
               <button
                 type='button'
                 onClick={cancel}
-                className='bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500'
+                className='bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2  focus:ring-green-500'
               >
                 Cancel
               </button>
 
               <button
                 type='submit'
-                className='ml-3 flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500'
+                className='ml-3 flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2  focus:ring-green-500'
               >
                 {isLoading && <LoadingImage alt='loading placeholder' src={FlowerLoading} />}
                 {isLoading ? 'Creating wallet...' : 'Create wallet'}

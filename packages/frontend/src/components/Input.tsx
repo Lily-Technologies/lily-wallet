@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { InputHTMLAttributes } from 'react';
 import { ExclamationCircleIcon } from '@heroicons/react/solid';
 
 function classNames(...classes) {
@@ -23,6 +23,7 @@ interface Props {
   largeText?: boolean;
   readOnly?: boolean;
   style?: object;
+  inputMode?: React.HTMLAttributes<HTMLLIElement>['inputMode'];
   labelStyle?: object;
   disabled?: boolean;
 }
@@ -42,6 +43,7 @@ export const Input = ({
   onKeyDown,
   inputStaticText,
   style,
+  inputMode,
   labelStyle,
   largeText = false,
   readOnly = false,
@@ -51,7 +53,10 @@ export const Input = ({
     {label && (
       <label
         htmlFor={id}
-        className={classNames(largeText ? 'text-lg' : 'text-sm', 'block font-medium text-gray-700')}
+        className={classNames(
+          largeText ? 'text-lg' : 'text-sm',
+          'block font-medium text-gray-700 dark:text-gray-200'
+        )}
         style={labelStyle}
       >
         {label}
@@ -66,6 +71,7 @@ export const Input = ({
           value={value}
           readOnly={readOnly}
           autoComplete={autoComplete}
+          inputMode={inputMode}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange(e.target.value)}
           onKeyDown={onKeyDown}
           autoFocus={autoFocus}
@@ -81,7 +87,7 @@ export const Input = ({
             inputStaticText ? 'text-right pr-12' : '',
             inputStaticText && error ? 'pr-16' : '',
             error ? 'pr-8' : '',
-            'appearance-none block w-full border rounded-md shadow-sm placeholder-gray-400 focus:outline-none sm:text-sm'
+            'dark:bg-transparent appearance-none block w-full border dark:border-gray-500 dark:text-white rounded-md shadow-sm placeholder-gray-400 focus:outline-none sm:text-sm'
           )}
         />
         {inputStaticText && (
@@ -91,7 +97,7 @@ export const Input = ({
               'absolute inset-y-0 right-0 flex items-center pointer-events-none'
             )}
           >
-            <span className='text-gray-500 sm:text-sm'>{inputStaticText}</span>
+            <span className='text-gray-500 dark:text-gray-200 sm:text-sm'>{inputStaticText}</span>
           </div>
         )}
         {error && (

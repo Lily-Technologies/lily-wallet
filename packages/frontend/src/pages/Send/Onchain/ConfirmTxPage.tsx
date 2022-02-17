@@ -7,7 +7,7 @@ import SignWithDevice from './SignWithDevice';
 import TransactionDetails from '../components/TransactionDetails';
 import AddSignatureFromQrCode from './AddSignatureFromQrCode';
 
-import { GridArea, FileUploader, ErrorModal, Modal } from 'src/components';
+import { FileUploader, ErrorModal, Modal } from 'src/components';
 
 import { Device, File, FeeRates, AddressType, LilyOnchainAccount, ShoppingItem } from '@lily/types';
 
@@ -152,7 +152,7 @@ const ConfirmTxPage = ({
       : undefined;
 
   return (
-    <GridArea>
+    <div className='grid grid-cols-12 gap-6'>
       <FileUploader
         accept='*'
         id='txFile'
@@ -187,7 +187,7 @@ const ConfirmTxPage = ({
       <Modal isOpen={modalIsOpen} closeModal={() => setModalIsOpen(false)}>
         {modalContent}
       </Modal>
-    </GridArea>
+    </div>
   );
 };
 

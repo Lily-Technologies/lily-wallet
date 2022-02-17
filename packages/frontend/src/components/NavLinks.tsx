@@ -14,6 +14,10 @@ import { AccountMapContext, ConfigContext, SidebarContext } from 'src/context';
 import { white, gray50, gray700, gray100, gray900, green100, green700 } from 'src/utils/colors';
 import { bitcoinNetworkEqual } from 'src/utils/files';
 
+function classNames(...classes) {
+  return classes.filter(Boolean).join(' ');
+}
+
 interface Props {
   currentBitcoinNetwork: Network;
 }
@@ -32,32 +36,35 @@ export const NavLinks = ({ currentBitcoinNetwork }: Props) => {
         ) : (
           <LilyImage src={FlowerLogo} />
         )}
-        <WalletTitleText>
+        <WalletTitleText className='dark:text-gray-200'>
           Lily Wallet
           {bitcoinNetworkEqual(currentBitcoinNetwork, networks.testnet) && ' (testnet)'}
         </WalletTitleText>
       </WalletTitle>
-      <SidebarItemLink
+      <Link
+        className={classNames(pathname === '/' ? 'sidebar-item__active' : '', 'sidebar-item')}
         data-cy='nav-item'
-        active={pathname === '/'}
         onClick={() => setSidebarOpen(false)}
         to='/'
       >
         <StyledIcon as={Home} size={24} style={{ marginRight: '.65rem', color: gray700 }} />
         Home
-      </SidebarItemLink>
-      <SidebarItemLink
+      </Link>
+      <Link
+        className={classNames(pathname === '/send' ? 'sidebar-item__active' : '', 'sidebar-item')}
         data-cy='nav-item'
-        active={pathname === '/send'}
         onClick={() => setSidebarOpen(false)}
         to='/send'
       >
         <StyledIcon as={SendPlane} size={24} style={{ marginRight: '.65rem', color: gray700 }} />
         Send
-      </SidebarItemLink>
-      <SidebarItemLink
+      </Link>
+      <Link
+        className={classNames(
+          pathname === '/receive' ? 'sidebar-item__active' : '',
+          'sidebar-item'
+        )}
         data-cy='nav-item'
-        active={pathname === '/receive'}
         onClick={() => setSidebarOpen(false)}
         to='/receive'
       >
@@ -67,24 +74,30 @@ export const NavLinks = ({ currentBitcoinNetwork }: Props) => {
           style={{ marginRight: '.65rem', color: gray700 }}
         />
         Receive
-      </SidebarItemLink>
-      <SidebarItemLink
+      </Link>
+      <Link
+        className={classNames(
+          pathname === '/settings' ? 'sidebar-item__active' : '',
+          'sidebar-item'
+        )}
         data-cy='nav-item'
-        active={pathname === '/settings'}
         onClick={() => setSidebarOpen(false)}
         to='/settings'
       >
         <StyledIcon as={Settings} size={24} style={{ marginRight: '.65rem', color: gray700 }} />
         Settings
-      </SidebarItemLink>
+      </Link>
 
-      <h3 className='font-semibold text-lg mx-4 my-6'>Accounts</h3>
+      <h3 className='font-semibold text-lg mx-4 mt-7 mb-2 dark:text-gray-300'>Accounts</h3>
       <AccountsContainer>
         {config.lightning.map((wallet) => (
-          <SidebarItemLink
+          <Link
+            className={classNames(
+              pathname.includes(`/lightning/${wallet.id}`) ? 'sidebar-item__active' : '',
+              'sidebar-item'
+            )}
             data-cy='nav-item'
             key={wallet.id}
-            active={pathname.includes(`/lightning/${wallet.id}`)}
             onClick={() => {
               setCurrentAccountId(wallet.id);
               setSidebarOpen(false);
@@ -98,21 +111,24 @@ export const NavLinks = ({ currentBitcoinNetwork }: Props) => {
               stroke='currentColor'
             >
               <path
-                stroke-linecap='round'
-                stroke-linejoin='round'
-                stroke-width='2'
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                strokeWidth='2'
                 d='M13 10V3L4 14h7v7l9-11h-7z'
               />
             </IconSvg>
             {wallet.name}
-          </SidebarItemLink>
+          </Link>
         ))}
 
         {config.wallets.map((wallet) => (
-          <SidebarItemLink
+          <Link
+            className={classNames(
+              pathname.includes(`/vault/${wallet.id}`) ? 'sidebar-item__active' : '',
+              'sidebar-item'
+            )}
             data-cy='nav-item'
             key={wallet.id}
-            active={pathname.includes(`/vault/${wallet.id}`)}
             onClick={() => {
               setCurrentAccountId(wallet.id);
               setSidebarOpen(false);
@@ -137,14 +153,17 @@ export const NavLinks = ({ currentBitcoinNetwork }: Props) => {
               </IconSvg>
             )}
             {wallet.name}
-          </SidebarItemLink>
+          </Link>
         ))}
 
         {config.vaults.map((vault) => (
-          <SidebarItemLink
+          <Link
+            className={classNames(
+              pathname.includes(`/vault/${vault.id}`) ? 'sidebar-item__active' : '',
+              'sidebar-item'
+            )}
             data-cy='nav-item'
             key={vault.id}
-            active={pathname.includes(`/vault/${vault.id}`)}
             onClick={() => {
               setCurrentAccountId(vault.id);
               setSidebarOpen(false);
@@ -159,13 +178,13 @@ export const NavLinks = ({ currentBitcoinNetwork }: Props) => {
               ></path>
             </IconSvg>
             {vault.name}
-          </SidebarItemLink>
+          </Link>
         ))}
       </AccountsContainer>
 
-      <SidebarItemLink
+      <Link
+        className={classNames(pathname === '/setup' ? 'sidebar-item__active' : '', 'sidebar-item')}
         data-cy='nav-item'
-        active={pathname === '/setup'}
         onClick={() => setSidebarOpen(false)}
         to={`/setup`}
       >
@@ -175,7 +194,7 @@ export const NavLinks = ({ currentBitcoinNetwork }: Props) => {
           style={{ marginRight: '.65rem', color: gray700 }}
         />
         New Account
-      </SidebarItemLink>
+      </Link>
     </>
   );
 };
@@ -208,7 +227,7 @@ const WalletsHeader = styled.h3`
 const WalletTitle = styled(WalletsHeader)`
   display: flex;
   align-items: center;
-  padding: 1em 0.5em;
+  padding: 1em 0.75em;
   font-weight: 700;
   margin: 0;
 `;

@@ -6,7 +6,7 @@ import { Bolt } from '@styled-icons/open-iconic';
 
 import { StyledIcon, Button } from 'src/components';
 import { InnerWrapper } from './styles';
-import { green800, white, gray500, gray800 } from 'src/utils/colors';
+import { green700, white, gray500 } from 'src/utils/colors';
 
 interface Props {
   header: JSX.Element;
@@ -18,61 +18,69 @@ const SelectAccountScreen = ({ header, setSetupOption, setStep }: Props) => {
   return (
     <InnerWrapper>
       {header}
-      <SignupOptionMenu>
-        <SignupOptionItem
-          background={white}
-          color={gray800}
-          style={{ borderTop: `8px solid ${green800}` }}
+      <div className='flex flex-col space-y-4'>
+        <button
+          className='flex items-center py-6 rounded shadow px-6 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900 border border-gray-300 dark:border-gray-700 border-t-8'
+          style={{ borderTopColor: green700 }}
           onClick={() => {
             setSetupOption(3);
             setStep(1);
           }}
         >
-          <StyledIcon as={Calculator} size={48} style={{ marginTop: '0.15em' }} />
+          <div className='flex shrink-0 items-center h-10 w-10'>
+            <Calculator />
+          </div>
           <SignupOptionTextContainer>
-            <h3 className='text-xl leading-6 font-medium text-gray-900'>Hardware Wallet</h3>
+            <h3 className='text-xl leading-6 font-medium text-gray-900 dark:text-gray-200'>
+              Hardware Wallet
+            </h3>
             <p className='mt-1 text-sm text-gray-500'>
-              Import your existing hardware wallet to manage funds in Lily similar to Ledger Live or
-              Trezor Wallet
+              Import your hardware wallet to send, receive, and manage your bitcoin
             </p>
           </SignupOptionTextContainer>
-        </SignupOptionItem>
+        </button>
 
-        <SignupOptionItem
-          background={white}
-          color={gray800}
+        <button
+          className='flex items-center py-6 rounded shadow px-6 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900 border border-gray-300 dark:border-gray-700'
           onClick={() => {
             setSetupOption(1);
             setStep(1);
           }}
         >
-          <StyledIcon as={Bank} size={48} style={{ marginTop: '0.15em' }} />
+          <div className='flex shrink-0 items-center h-10 w-10'>
+            <Bank />
+          </div>
           <SignupOptionTextContainer>
-            <h3 className='text-xl leading-6 font-medium text-gray-900'>Multisignature Vault</h3>
+            <h3 className='text-xl leading-6 font-medium text-gray-900 dark:text-gray-200'>
+              Multisignature Vault
+            </h3>
             <p className='mt-1 text-sm text-gray-500'>
               Combine multiple hardware wallets to create a vault for securing larger amounts of
-              Bitcoin
+              bitcoin
             </p>
           </SignupOptionTextContainer>
-        </SignupOptionItem>
+        </button>
 
-        <SignupOptionItem
-          background={white}
-          color={gray800}
+        <button
+          className='flex items-center py-6 rounded shadow px-6 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900 border border-gray-300 dark:border-gray-700'
           onClick={() => {
             setSetupOption(4);
             setStep(1);
           }}
         >
-          <StyledIcon as={Bolt} size={48} style={{ marginTop: '0.15em' }} />
+          <div className='flex shrink-0 items-center h-10 w-10'>
+            <Bolt />
+          </div>
           <SignupOptionTextContainer>
-            <h3 className='text-xl leading-6 font-medium text-gray-900'>Lightning Wallet</h3>
+            <h3 className='text-xl leading-6 font-medium text-gray-900 dark:text-gray-200'>
+              Lightning Wallet
+            </h3>
             <p className='mt-1 text-sm text-gray-500'>
               Connect to your lightning wallet to manage channels and send payments
             </p>
           </SignupOptionTextContainer>
-        </SignupOptionItem>
-      </SignupOptionMenu>
+        </button>
+      </div>
     </InnerWrapper>
   );
 };

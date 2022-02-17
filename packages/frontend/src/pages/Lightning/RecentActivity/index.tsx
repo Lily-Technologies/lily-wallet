@@ -1,13 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import moment from 'moment';
 
+import { TransactionRowsLoading, SlideOver } from 'src/components';
+
 import PaymentRow from './PaymentRow';
-import PaymentRowLoading from './PaymentRowLoading';
 
 import { gray600, gray800, white } from 'src/utils/colors';
 
 import { LightningEvent } from '@lily/types';
+
+import LightningDetailsSlideover from './LightningDetailsSlideover';
 
 const shouldDisplayDate = (payments: LightningEvent[], index: number) => {
   let currentItemDate, prevItemDate;
@@ -36,34 +39,43 @@ interface Props {
 }
 
 const RecentTransactions = ({ events, loading, flat = false, maxItems = Infinity }: Props) => {
+  const [slideoverIsOpen, setSlideoverOpen] = useState(false);
+  const [slideoverContent, setSlideoverContent] = useState<JSX.Element | null>(null);
+
+  const openInSlideover = (component: JSX.Element) => {
+    setSlideoverOpen(true);
+    setSlideoverContent(component);
+  };
+
   return (
     <RecentTransactionsWrapper>
       {(loading || events.length > 0) && (
-        <h2 className='flex-1 text-2xl font-bold text-gray-900 mt-12 mb-2'>Recent Activity</h2>
+        <h2 className='flex-1 text-2xl font-bold text-gray-900 mt-12 mb-2 dark:text-white'>
+          Recent Activity
+        </h2>
       )}
-      {loading && <PaymentRowLoading flat={flat} />}
+      {loading && <TransactionRowsLoading />}
       <PaymentsWrapper>
         {!loading &&
           events &&
-          events.map(({ type, ...transaction }, index) => (
+          events.map((event, index) => (
             <PaymentRowWrapper key={index}>
               {shouldDisplayDate(events, index) && (
-                <DateWrapper>
-                  {transaction.creationDate
-                    ? moment.unix(Number(transaction.creationDate)).format('MMMM DD, YYYY')
+                <DateWrapper className='text-gray-800 dark:text-gray-200'>
+                  {event.creationDate
+                    ? moment.unix(Number(event.creationDate)).format('MMMM DD, YYYY')
                     : 'Waiting for confirmation...'}
                 </DateWrapper>
               )}
               <PaymentRow
-                creation_date={
-                  transaction.creationDate ? Number(transaction.creationDate) : undefined
-                }
-                title={transaction.title}
-                value_sat={Number(transaction.valueSat)}
-                type={type}
-                onClick={
-                  // TODO: modal or flyout
-                  () => console.log('foo')
+                creation_date={event.creationDate ? Number(event.creationDate) : undefined}
+                title={event.title}
+                value_sat={Number(event.valueSat)}
+                type={event.type}
+                onClick={() =>
+                  openInSlideover(
+                    <LightningDetailsSlideover event={event} setOpen={setSlideoverOpen} />
+                  )
                 }
               />
             </PaymentRowWrapper>
@@ -78,6 +90,7 @@ const RecentTransactions = ({ events, loading, flat = false, maxItems = Infinity
           </NoPaymentsSection>
         )}
       </PaymentsWrapper>
+      <SlideOver open={slideoverIsOpen} setOpen={setSlideoverOpen} content={slideoverContent} />
     </RecentTransactionsWrapper>
   );
 };
@@ -98,7 +111,6 @@ const PaymentRowWrapper = styled.div``;
 
 const DateWrapper = styled.div`
   margin: 1.5em 0 1em;
-  color: ${gray800};
 `;
 
 const NoPaymentsSection = styled.div<{ flat: boolean }>`

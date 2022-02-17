@@ -8,19 +8,7 @@ import { gray50 } from 'src/utils/colors';
 
 import PaymentTypeIcon from './PaymentTypeIcon';
 
-const getFriendlyType = (
-  type: 'CHANNEL_OPEN' | 'CHANNEL_CLOSE' | 'PAYMENT_SEND' | 'PAYMENT_RECEIVE'
-) => {
-  if (type === 'PAYMENT_SEND') {
-    return 'Sent';
-  } else if (type === 'PAYMENT_RECEIVE') {
-    return 'Received';
-  } else if (type === 'CHANNEL_OPEN') {
-    return 'Open channel';
-  } else {
-    return 'Close channel';
-  }
-};
+import { getFriendlyType } from 'src/pages/Lightning/utils';
 
 interface Props {
   creation_date?: number;
@@ -32,8 +20,11 @@ interface Props {
 
 const AcvitityRow = ({ onClick, type, creation_date, title, value_sat }: Props) => {
   return (
-    <li className='list-none border-b border-gray-100 shadow' onClick={() => onClick()}>
-      <button className='block bg-white hover:bg-gray-50 w-full'>
+    <li
+      className='list-none last:border-none border-b border-gray-100 dark:border-gray-700 shadow'
+      onClick={() => onClick()}
+    >
+      <button className='block bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 w-full'>
         <div className='flex items-center px-4 py-4 sm:px-6'>
           <div className='min-w-0 flex-1 flex items-center'>
             <div className='flex items-center'>
@@ -41,7 +32,7 @@ const AcvitityRow = ({ onClick, type, creation_date, title, value_sat }: Props) 
                 <PaymentTypeIcon type={type} />
               </div>
             </div>
-            <div className='hidden sm:flex flex-col items-start'>
+            <div className='hidden sm:flex flex-col items-start text-gray-900 dark:text-gray-300'>
               <p className='text-sm capitalize text-left w-16'>{getFriendlyType(type)}</p>
               <p className='text-xs whitespace-nowrap'>
                 {creation_date && moment.unix(creation_date).format('h:mm A')}
@@ -49,10 +40,10 @@ const AcvitityRow = ({ onClick, type, creation_date, title, value_sat }: Props) 
             </div>
             <div className='sm:flex sm:justify-between flex-wrap w-full items-center px-4 truncate'>
               <p className='text-left text-sm font-medium text-yellow-600 truncate'>{title}</p>
-              <p className='hidden sm:flex items-center text-sm text-gray-900'>
+              <p className='hidden sm:flex items-center text-sm text-gray-900 dark:text-gray-300'>
                 {value_sat ? `${value_sat.toLocaleString()} sats` : null}
               </p>
-              <p className='flex sm:hidden items-center text-sm text-gray-900'>
+              <p className='flex sm:hidden items-center text-sm text-gray-900 dark:text-gray-300'>
                 {type === 'PAYMENT_RECEIVE' || type === 'PAYMENT_SEND'
                   ? getFriendlyType(type)
                   : null}{' '}

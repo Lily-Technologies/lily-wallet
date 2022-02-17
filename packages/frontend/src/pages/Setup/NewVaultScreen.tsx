@@ -275,11 +275,7 @@ const NewVaultScreen = ({
           </ContinueButton>
         )}
       </FormContainer>
-      <Modal
-        isOpen={modalIsOpen}
-        closeModal={() => setModalIsOpen(false)}
-        style={{ content: { overflow: 'inherit' } }}
-      >
+      <Modal isOpen={modalIsOpen} closeModal={() => setModalIsOpen(false)}>
         {modalContent}
       </Modal>
     </InnerWrapper>

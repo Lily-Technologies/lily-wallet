@@ -15,7 +15,10 @@ interface Props {
 const SettingsTabs = ({ currentTab, setCurrentTab }: Props) => {
   const { currentAccount } = useContext(AccountMapContext);
   return (
-    <TabsContainer data-cy='settings-tabs'>
+    <div
+      className='flex border-b border-gray-200 dark:border-gray-700 overflow-x-auto'
+      data-cy='settings-tabs'
+    >
       <TabItem active={currentTab === 'general'} onClick={() => setCurrentTab('general')}>
         General
       </TabItem>
@@ -33,14 +36,9 @@ const SettingsTabs = ({ currentTab, setCurrentTab }: Props) => {
       <TabItem active={currentTab === 'export'} onClick={() => setCurrentTab('export')}>
         Export
       </TabItem>
-    </TabsContainer>
+    </div>
   );
 };
-
-const TabsContainer = styled.div`
-  display: flex;
-  border-bottom: 1px solid ${gray200};
-`;
 
 const TabItem = styled.button<{ active: boolean }>`
   padding-top: 1rem;

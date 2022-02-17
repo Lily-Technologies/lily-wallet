@@ -208,7 +208,7 @@ const Setup = ({ password, currentBlockHeight, currentBitcoinNetwork }: Props) =
 
   return (
     <div className='md:pl-64 flex flex-col flex-1 h-full'>
-      <main className='flex flex-1 z-10 bg-gray-100 relative'>
+      <main className='flex flex-1 z-10 bg-gray-100 dark:bg-gray-900 relative'>
         <Wrapper step={step} className='max-w-screen-xl mx-auto pb-6 px-4 sm:px-6 lg:pb-16 lg:px-8'>
           {step > 0 && <StepGroups step={step} setupOption={setupOption} />}
           {screen}

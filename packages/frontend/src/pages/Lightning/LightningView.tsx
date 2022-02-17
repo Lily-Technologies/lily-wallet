@@ -20,7 +20,7 @@ import { LilyLightningAccount } from '@lily/types';
 
 import { requireLightning } from 'src/hocs';
 
-import { white, gray400, gray500, gray600, yellow100, yellow500 } from 'src/utils/colors';
+import { white, gray400, gray500, gray600, yellow200, yellow500 } from 'src/utils/colors';
 
 interface TooltipProps {
   active: boolean;
@@ -74,19 +74,23 @@ const LightningView = ({ currentAccount }: Props) => {
     <>
       {currentAccount.loading ? (
         <div style={{ height: '32rem' }}>
-          <div className='h-full relative shadow-md bg-white rounded-md'>
+          <div className='h-full relative shadow-md bg-white dark:bg-gray-800 rounded-md'>
             <ChartEmptyState />
           </div>
         </div>
       ) : null}
       {events.length > 0 && !currentAccount.loading ? (
-        <ValueWrapper>
-          <CurrentBalanceContainer>
-            <CurrentBalanceText>Current Balance:</CurrentBalanceText>
-            {satoshisToBitcoins(currentBalance.balance).toFixed(8)} BTC
+        <div className='bg-white dark:bg-gray-800 rounded-md shadow'>
+          <CurrentBalanceContainer className='p-6'>
+            <div className='ml-2 mt-2 text-sm md:text-lg leading-6 font-medium text-gray-500 dark:text-gray-400'>
+              Current Balance:
+            </div>
+            <div className='ml-2 mt-1 text-xl md:text-3xl leading-6 font-medium text-gray-700 dark:text-gray-200'>
+              {satoshisToBitcoins(currentBalance.balance).toFixed(8)} BTC
+            </div>
           </CurrentBalanceContainer>
           <ChartContainer>
-            <ResponsiveContainer width='100%' height={400}>
+            <ResponsiveContainer width='100%' height={window.innerWidth < 768 ? 200 : 400}>
               <AreaChart width={400} height={400} data={balanceHistory}>
                 <YAxis
                   dataKey='totalValue'
@@ -103,7 +107,7 @@ const LightningView = ({ currentAccount }: Props) => {
                     balanceHistory[0].blockTime!,
                     balanceHistory[balanceHistory.length - 1].blockTime!
                   ]}
-                  tickCount={7}
+                  tickCount={window.innerWidth < 768 ? 4 : 7}
                   tickSize={0}
                   interval={0}
                   tick={CustomTick}
@@ -116,7 +120,7 @@ const LightningView = ({ currentAccount }: Props) => {
                   stroke={yellow500}
                   strokeWidth={2}
                   isAnimationActive={false}
-                  fill={yellow100}
+                  fill={yellow200}
                 />
                 <Tooltip
                   offset={-100}
@@ -130,7 +134,7 @@ const LightningView = ({ currentAccount }: Props) => {
               </AreaChart>
             </ResponsiveContainer>
           </ChartContainer>
-        </ValueWrapper>
+        </div>
       ) : null}
       <RecentActivity events={events} loading={!!currentAccount.loading} flat={false} />
     </>
@@ -146,10 +150,8 @@ const ValueWrapper = styled.div`
 const ChartContainer = styled.div``;
 
 const CurrentBalanceContainer = styled.div`
-  font-size: 2em;
   display: flex;
   flex-direction: column;
-  padding: 1em 1em 0;
 `;
 
 const CurrentBalanceText = styled.div`

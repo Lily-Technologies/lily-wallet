@@ -3,7 +3,7 @@ import styled, { css } from 'styled-components';
 
 import { Button, Input, Select, Spinner } from 'src/components';
 
-import { white, gray300, gray700, green600 } from 'src/utils/colors';
+import { gray300 } from 'src/utils/colors';
 import { mobile } from 'src/utils/media';
 
 import { LilyOnchainAccount } from '@lily/types';
@@ -58,10 +58,12 @@ const OpenChannelForm = ({
       <InputWrapper data-cy='channel-amount'>
         <Input
           label='Channel amount'
-          type='text'
+          type='number'
+          inputMode='decimal'
           value={channelAmount}
           onChange={setChannelAmount}
           error={error}
+          inputStaticText='sats'
         />
       </InputWrapper>
 
@@ -69,32 +71,32 @@ const OpenChannelForm = ({
         <Select label='Funding account' options={accountOptions} />
       </InputWrapper>
 
-      <Buttons>
-        <CancelButton
-          background={white}
-          color={gray700}
+      <div className='flex w-full justify-end mt-6 flex-col flex-col-reverse  md:flex-row'>
+        <button
+          type='button'
+          className='justify-center inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2  focus:ring-green-500'
           onClick={() => {
             setViewOpenChannelForm(false);
           }}
         >
           Cancel
-        </CancelButton>
-        <SaveChangesButton
-          background={green600}
-          color={white}
+        </button>
+        <button
+          type='button'
+          className='whitespace-nowrap justify-center mb-2 md:mb-0 ml-0 md:ml-2 inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2  focus:ring-green-500'
           onClick={() => {
             openChannel(lightningAddress, channelAmount);
           }}
         >
           {isLoading ? (
             <>
-              <Spinner style={{ marginRight: '1em' }} /> Creating transaction...
+              <Spinner /> Creating transaction...
             </>
           ) : (
             'Create funding transaction'
           )}
-        </SaveChangesButton>
-      </Buttons>
+        </button>
+      </div>
     </>
   );
 };

@@ -76,7 +76,14 @@ const NewLightningScreen = ({ header, setStep, lndConnectUri, setLndConnectUri }
             attemptConnection();
           }}
         >
-          {isLoading ? <Spinner /> : 'Continue'}
+          {isLoading ? (
+            <>
+              <Spinner />
+              Connecting...
+            </>
+          ) : (
+            'Continue'
+          )}
         </ContinueButton>
       </FormContainer>
     </InnerWrapper>

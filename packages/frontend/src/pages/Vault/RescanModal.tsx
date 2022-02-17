@@ -76,7 +76,14 @@ export const RescanModal = ({ closeModal, currentAccount, toggleRefresh }: Props
             color={white}
             background={green600}
           >
-            {isLoading ? <Spinner /> : 'Rescan Blockchain'}
+            {isLoading ? (
+              <>
+                <Spinner />
+                Scanning...
+              </>
+            ) : (
+              'Rescan Blockchain'
+            )}
           </ActionButton>
         </Buttons>
       </DangerTextContainer>

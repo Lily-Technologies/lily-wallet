@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { OpenInFull } from '@styled-icons/material';
 
 import ChannelRow from './ChannelRow';
 import ChannelModal from './ChannelModal';
 
 import { Table, TableBody } from 'src/components/Table';
-import { SettingsTable, Button, Modal } from 'src/components';
-
-import { white, green600 } from 'src/utils/colors';
+import { SettingsTable, Modal } from 'src/components';
 
 import { requireLightning } from 'src/hocs';
 import { LilyLightningAccount } from '@lily/types';
@@ -33,8 +32,8 @@ const ChannelView = ({ currentAccount, setViewOpenChannelForm }: Props) => {
   };
 
   return (
-    <Padding>
-      <HeadingSection>
+    <>
+      <div className='flex justify-between flex-col sm:flex-row space-y-2 space-x-2 mb-4'>
         <SettingsTable.HeaderSection>
           <SettingsTable.HeaderTitle>Channel Information</SettingsTable.HeaderTitle>
           <SettingsTable.HeaderSubtitle>
@@ -42,15 +41,15 @@ const ChannelView = ({ currentAccount, setViewOpenChannelForm }: Props) => {
           </SettingsTable.HeaderSubtitle>
         </SettingsTable.HeaderSection>
         <ButtonContainer>
-          <OpenChannelButton
-            color={white}
-            background={green600}
+          <button
+            className='w-full justify-center lg:w-min whitespace-nowrap text-center lg:ml-3 inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-base font-medium rounded-md text-white bg-green-600 hover:bg-green-800 focus:outline-none focus:ring-2  focus:ring-green-500'
             onClick={() => setViewOpenChannelForm(true)}
           >
+            <OpenInFull className='mr-2 -ml-1 h-4 w-4' aria-hidden='true' />
             Open new channel
-          </OpenChannelButton>
+          </button>
         </ButtonContainer>
-      </HeadingSection>
+      </div>
 
       <Table>
         <TableBody>
@@ -74,20 +73,12 @@ const ChannelView = ({ currentAccount, setViewOpenChannelForm }: Props) => {
           ))}
         </TableBody>
       </Table>
-      <Modal
-        isOpen={modalIsOpen}
-        closeModal={() => closeModal()}
-        style={{ content: { overflow: 'visible' } }}
-      >
+      <Modal isOpen={modalIsOpen} closeModal={() => closeModal()}>
         {modalContent}
       </Modal>
-    </Padding>
+    </>
   );
 };
-
-const Padding = styled.div`
-  padding: 0 1.5em;
-`;
 
 const HeadingSection = styled.div`
   display: flex;
@@ -97,11 +88,6 @@ const HeadingSection = styled.div`
 const ButtonContainer = styled.div`
   display: flex;
   align-items: center;
-`;
-
-const OpenChannelButton = styled.button`
-  ${Button}
-  border-radius: 0.375rem;
 `;
 
 export default requireLightning(ChannelView);

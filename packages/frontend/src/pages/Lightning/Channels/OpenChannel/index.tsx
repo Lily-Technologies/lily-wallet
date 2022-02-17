@@ -149,14 +149,16 @@ const OpenChannel = ({ currentAccount, setViewOpenChannelForm }: Props) => {
   return (
     <>
       {step === 0 && (
-        <Wrapper>
+        <div className='flex flex-col lg:flex-row mt-4 items-start px-2 py-6'>
           <DangerIconContainer>
-            <StyledIconCircle>
-              <StyledIcon style={{ color: green600 }} as={EditAlt} size={36} />
+            <StyledIconCircle className='bg-green-100 dark:bg-green-800'>
+              <EditAlt className='text-green-600 dark:text-green-200' size={36} />
             </StyledIconCircle>
           </DangerIconContainer>
-          <TextContainer>
-            <HeadingText>Open a new channel</HeadingText>
+          <div className='w-full flex ml-0 mt-4 lg:mt-0 lg:ml-6 flex-col items-start'>
+            <HeadingText className='text-gray-900 dark:text-gray-200'>
+              Open a new channel
+            </HeadingText>
             <Subtext>
               Channels allow you to send payments to other nodes on the lightning network with low
               fees.
@@ -168,21 +170,23 @@ const OpenChannel = ({ currentAccount, setViewOpenChannelForm }: Props) => {
               error={error}
               setViewOpenChannelForm={setViewOpenChannelForm}
             />
-          </TextContainer>
-        </Wrapper>
+          </div>
+        </div>
       )}
       {step === 1 && (
         <FormWrapper>
           <FormHeaderWrapper>
             <DangerIconContainer>
-              <StyledIconCircle>
-                <StyledIcon style={{ color: green600 }} as={EditAlt} size={36} />
+              <StyledIconCircle className='bg-green-100 dark:bg-green-800'>
+                <EditAlt className='text-green-600 dark:text-green-200' size={36} />
               </StyledIconCircle>
             </DangerIconContainer>
-            <TextContainer>
-              <HeadingText>Open a new channel</HeadingText>
+            <div className='w-full flex ml-0 mt-4 lg:mt-0 lg:ml-6 flex-col items-start'>
+              <HeadingText className='text-gray-900 dark:text-gray-200'>
+                Open a new channel
+              </HeadingText>
               <Subtext>Confirm your funding transaction on your hardware wallet(s).</Subtext>
-            </TextContainer>
+            </div>
           </FormHeaderWrapper>
           {finalPsbt && (
             <ConfirmTxPage
@@ -206,10 +210,6 @@ const OpenChannel = ({ currentAccount, setViewOpenChannelForm }: Props) => {
     </>
   );
 };
-
-const Wrapper = styled(ModalContentWrapper)`
-  margin-top: 1rem;
-`;
 
 const FormWrapper = styled.div`
   display: flex;
@@ -240,7 +240,6 @@ const DangerIconContainer = styled.div``;
 
 const StyledIconCircle = styled.div`
   border-radius: 9999px;
-  background: ${green100};
   width: 3rem;
   height: 3rem;
   display: flex;

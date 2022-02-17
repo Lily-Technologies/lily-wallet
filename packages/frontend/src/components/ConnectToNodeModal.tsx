@@ -87,7 +87,14 @@ export const ConnectToNodeModal = ({ onRequestClose, setNodeConfig }: Props) => 
                 await configureNode();
               }}
             >
-              {isLoading ? <Spinner /> : 'Connect to node'}
+              {isLoading ? (
+                <>
+                  <Spinner />
+                  Connecting...
+                </>
+              ) : (
+                'Connect to node'
+              )}
             </SaveButton>
           </Buttons>
         </InputsWrapper>

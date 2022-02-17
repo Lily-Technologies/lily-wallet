@@ -139,8 +139,6 @@ const ExportView = ({ currentAccount, currentBitcoinNetwork }: Props) => {
             <SettingsTable.ValueText></SettingsTable.ValueText>
             <SettingsTable.ValueAction style={{ display: 'flex' }}>
               <SettingsTable.ActionButton
-                background={white}
-                color={green500}
                 onClick={() => {
                   openInModal(<MnemonicQrCode />);
                 }}
@@ -148,8 +146,6 @@ const ExportView = ({ currentAccount, currentBitcoinNetwork }: Props) => {
                 View QR Code
               </SettingsTable.ActionButton>
               <SettingsTable.ActionButton
-                background={white}
-                color={green500}
                 onClick={() =>
                   openInModal(
                     <Container>
@@ -177,8 +173,6 @@ const ExportView = ({ currentAccount, currentBitcoinNetwork }: Props) => {
               <SettingsTable.ValueText></SettingsTable.ValueText>
               <SettingsTable.ValueAction>
                 <SettingsTable.ActionButton
-                  background={white}
-                  color={green500}
                   onClick={() => {
                     downloadColdcardMultisigFile();
                   }}
@@ -194,8 +188,6 @@ const ExportView = ({ currentAccount, currentBitcoinNetwork }: Props) => {
               <SettingsTable.ValueText></SettingsTable.ValueText>
               <SettingsTable.ValueAction>
                 <SettingsTable.ActionButton
-                  background={white}
-                  color={green500}
                   onClick={() => {
                     downloadCaravanFile();
                   }}
@@ -214,8 +206,6 @@ const ExportView = ({ currentAccount, currentBitcoinNetwork }: Props) => {
             <SettingsTable.ValueText></SettingsTable.ValueText>
             <SettingsTable.ValueAction>
               <SettingsTable.ActionButton
-                background={white}
-                color={green500}
                 onClick={() => {
                   openInModal(<XpubQrCode />);
                 }}

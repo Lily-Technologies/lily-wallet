@@ -34,8 +34,6 @@ const About = () => {
           <SettingsTable.ValueText></SettingsTable.ValueText>
           <SettingsTable.ValueAction>
             <SettingsTable.ActionButton
-              background={white}
-              color={green500}
               onClick={() => window.open('https://docs.lily-wallet.com', '_blank')}
             >
               View Documentation
@@ -49,8 +47,6 @@ const About = () => {
           <SettingsTable.ValueText></SettingsTable.ValueText>
           <SettingsTable.ValueAction>
             <SettingsTable.ActionButton
-              background={white}
-              color={green500}
               onClick={() => window.open('https://lily-wallet.com/terms', '_blank')}
             >
               View Terms
@@ -64,8 +60,6 @@ const About = () => {
           <SettingsTable.ValueText></SettingsTable.ValueText>
           <SettingsTable.ValueAction>
             <SettingsTable.ActionButton
-              background={white}
-              color={green500}
               onClick={() => window.open('https://lily-wallet.com/privacy', '_blank')}
             >
               View Privacy Policy

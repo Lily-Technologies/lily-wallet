@@ -27,7 +27,7 @@ const SuccessScreen = ({ config }: Props) => {
           <IconWrapper style={{ color: green500 }}>
             <StyledIcon as={CheckCircle} size={100} />
           </IconWrapper>
-          <SuccessText>Setup Success!</SuccessText>
+          <h1 className='text-2xl text-color-gray-700 dark:text-color-gray-200'>Setup Success!</h1>
           <SuccessSubtext>
             Your account configuration has been saved to this computer. <br />
             <br />

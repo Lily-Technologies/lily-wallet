@@ -18,15 +18,18 @@ interface Props {
 
 const TransactionRow = ({ onClick, transaction, flat }: Props) => {
   return (
-    <li className='list-none border-b border-gray-100 shadow' onClick={() => onClick()}>
-      <button className='block bg-white hover:bg-gray-50 w-full'>
+    <li
+      className='list-none last:border-none border-b border-gray-100 dark:border-gray-700 shadow'
+      onClick={() => onClick()}
+    >
+      <button className='block bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 w-full'>
         <div className='flex items-center px-4 py-4 sm:px-6'>
           <div className='min-w-0 flex-1 flex items-center'>
             <div className='flex items-center'>
               <div className='flex-shrink-0'>
                 <TransactionTypeIcon transaction={transaction} flat={flat} />
               </div>
-              <div className='hidden sm:flex flex-col items-start'>
+              <div className='hidden sm:flex flex-col items-start text-gray-900 dark:text-gray-300'>
                 <p className='text-sm capitalize'>{transaction.type}</p>
                 <p className='text-xs whitespace-nowrap'>
                   {transaction.status.confirmed
@@ -39,10 +42,10 @@ const TransactionRow = ({ onClick, transaction, flat }: Props) => {
               <p className='text-left text-sm font-medium text-yellow-600 truncate'>
                 {transaction.address}
               </p>
-              <p className='hidden sm:flex items-center text-sm text-gray-900'>
+              <p className='hidden sm:flex items-center text-sm text-gray-900 dark:text-gray-300'>
                 {satoshisToBitcoins(transaction.value).toNumber()} BTC
               </p>
-              <p className='flex sm:hidden items-center text-sm text-gray-900'>
+              <p className='flex sm:hidden items-center text-sm text-gray-900 dark:text-gray-300'>
                 {transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1)}{' '}
                 {satoshisToBitcoins(transaction.value).toNumber()} BTC{' '}
                 {transaction.status.confirmed

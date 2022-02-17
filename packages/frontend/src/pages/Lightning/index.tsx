@@ -30,7 +30,6 @@ const Lightning = ({ nodeConfig, password, toggleRefresh, currentBitcoinNetwork 
             render={(props: RouteComponentProps) => (
               <LightningSettings
                 password={password}
-                nodeConfig={nodeConfig}
                 currentBitcoinNetwork={currentBitcoinNetwork}
               />
             )}

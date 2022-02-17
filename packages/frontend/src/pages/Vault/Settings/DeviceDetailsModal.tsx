@@ -18,40 +18,51 @@ const DeviceDetailsModal = ({ item }: Props) => {
   return (
     <ModalContentWrapper>
       <DangerIconContainer>
-        <StyledIconCircle>
-          <StyledIcon style={{ color: green600 }} as={Calculator} size={36} />
+        <StyledIconCircle className='bg-green-100 dark:bg-green-800'>
+          <Calculator className='text-green-600 dark:text-green-200' size={36} />
         </StyledIconCircle>
       </DangerIconContainer>
       <TextContainer>
-        <HeadingText>Device Information</HeadingText>
+        <HeadingText className='text-gray-900 dark:text-gray-200'>Device Information</HeadingText>
+        <Subtext>
+          This information is derived from data inputted when setting up this account.
+        </Subtext>
         <InformationContainer>
           <ImageContainer>
             <DeviceImage device={item.device} />
           </ImageContainer>
           <Rows>
-            <ProfileRow>
+            <ProfileRow className='border-b border-gray-200 dark:border-gray-700'>
               <ProfileKeyColumn>Device</ProfileKeyColumn>
               <ProfileValueColumn>
-                <ProfileValueText>{capitalize(item.device.type)}</ProfileValueText>
+                <ProfileValueText className='text-gray-900 dark:text-gray-200'>
+                  {capitalize(item.device.type)}
+                </ProfileValueText>
               </ProfileValueColumn>
             </ProfileRow>
-            <ProfileRow>
+            <ProfileRow className='border-b border-gray-200 dark:border-gray-700'>
               <ProfileKeyColumn>XPub</ProfileKeyColumn>
               <ProfileValueColumn>
-                <ProfileValueText>{item.xpub}</ProfileValueText>
+                <ProfileValueText className='text-gray-900 dark:text-gray-200'>
+                  {item.xpub}
+                </ProfileValueText>
               </ProfileValueColumn>
             </ProfileRow>
-            <ProfileRow>
+            <ProfileRow className='border-b border-gray-200 dark:border-gray-700'>
               <ProfileKeyColumn>Fingerprint</ProfileKeyColumn>
               <ProfileValueColumn>
-                <ProfileValueText>{item.parentFingerprint}</ProfileValueText>
+                <ProfileValueText className='text-gray-900 dark:text-gray-200'>
+                  {item.parentFingerprint}
+                </ProfileValueText>
                 <ProfileValueAction></ProfileValueAction>
               </ProfileValueColumn>
             </ProfileRow>
-            <ProfileRow>
+            <ProfileRow className='border-b border-gray-200 dark:border-gray-700'>
               <ProfileKeyColumn>Derivation Path</ProfileKeyColumn>
               <ProfileValueColumn>
-                <ProfileValueText>{item.bip32Path}</ProfileValueText>
+                <ProfileValueText className='text-gray-900 dark:text-gray-200'>
+                  {item.bip32Path}
+                </ProfileValueText>
                 <ProfileValueAction></ProfileValueAction>
               </ProfileValueColumn>
             </ProfileRow>
@@ -92,6 +103,11 @@ const InformationContainer = styled.div`
   width: 100%;
 `;
 
+const Subtext = styled.div`
+  padding-bottom: 2em;
+  color: ${gray500};
+`;
+
 const Rows = styled.div`
   display: flex;
   flex-direction: column;
@@ -105,7 +121,6 @@ const ProfileRow = styled.div`
   gap: 1rem;
   padding-top: 1.25rem;
   padding-bottom: 1.25rem;
-  border-top: 1px solid ${gray200};
 
   ${mobile(css`
     display: block;
@@ -159,7 +174,6 @@ const DangerIconContainer = styled.div``;
 
 const StyledIconCircle = styled.div`
   border-radius: 9999px;
-  background: ${green100};
   width: 3rem;
   height: 3rem;
   display: flex;
@@ -167,7 +181,7 @@ const StyledIconCircle = styled.div`
   align-items: center;
 `;
 
-const HeadingText = styled.div`
+const HeadingText = styled.h3`
   font-size: 1.125rem;
   text-align: center;
   font-weight: 600;

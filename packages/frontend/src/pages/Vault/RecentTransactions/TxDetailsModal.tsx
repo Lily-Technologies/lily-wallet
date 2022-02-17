@@ -1,6 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 import { satoshisToBitcoins } from 'unchained-bitcoin';
+import { Dialog, Transition } from '@headlessui/react';
+import { XIcon } from '@heroicons/react/outline';
 
 import { Button } from 'src/components';
 
@@ -12,108 +14,96 @@ import { Transaction } from '@lily/types';
 
 interface Props {
   transaction: Transaction;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const TxDetailsModal = ({ transaction }: Props) => {
+const TxDetailsModal = ({ transaction, setOpen }: Props) => {
   return (
-    <Wrapper>
-      <HeaderWrapper>
-        <TransactionTypeIcon transaction={transaction} flat={false} />
-        <HeaderInfo>
-          <Header>Transaction Details</Header>
-          <TransactionId>{transaction.txid}</TransactionId>
-        </HeaderInfo>
-      </HeaderWrapper>
+    <>
+      <div className='px-4 py-6 sm:px-6 bg-green-600'>
+        <div className='flex items-start justify-between space-x-3'>
+          <div className='space-y-1 truncate'>
+            <Dialog.Title className='text-lg font-medium text-white'>
+              Transaction details
+            </Dialog.Title>
+            <p className='text-sm text-green-300 truncate'>{transaction.txid}</p>
+          </div>
+          <div className='h-7 flex items-center'>
+            <button
+              type='button'
+              className='text-white hover:text-gray-200'
+              onClick={() => setOpen(false)}
+            >
+              <span className='sr-only'>Close panel</span>
+              <XIcon className='h-6 w-6' aria-hidden='true' />
+            </button>
+          </div>
+        </div>
+      </div>
 
-      <OverflowSection>
+      <div className='px-4 sm:px-6 py-6'>
         <MoreDetailsSection style={{ marginTop: 0 }}>
-          <MoreDetailsHeader>Inputs</MoreDetailsHeader>
+          <h2 className='text-gray-800 dark:text-gray-200 text-2xl'>Inputs</h2>
           <TxOutputSection>
             {transaction.vin.map((input) => {
               return (
-                <OutputItem>
-                  <OutputAddress>{`${input.prevout.scriptpubkey_address}:${input.vout}`}</OutputAddress>
-                  <OutputAmount>
+                <OutputItem className='bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600'>
+                  <span className='text-green-800 dark:text-green-200 grow break-all'>{`${input.prevout.scriptpubkey_address}:${input.vout}`}</span>
+                  <span className='text-right ml-8 grow-0 whitespace-nowrap dark:text-gray-200'>
                     {satoshisToBitcoins(input.prevout.value).toNumber()} BTC
-                  </OutputAmount>
+                  </span>
                 </OutputItem>
               );
             })}
           </TxOutputSection>
         </MoreDetailsSection>
         <MoreDetailsSection>
-          <MoreDetailsHeader>Outputs</MoreDetailsHeader>
+          <h2 className='text-gray-800 dark:text-gray-200 text-2xl'>Outputs</h2>
           <TxOutputSection>
             {transaction.vout.map((output) => {
               return (
-                <OutputItem>
-                  <OutputAddress>{output.scriptpubkey_address}</OutputAddress>
-                  <OutputAmount>{satoshisToBitcoins(output.value).toNumber()} BTC</OutputAmount>
+                <OutputItem className='bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600'>
+                  <span className='text-green-800 dark:text-green-200 grow break-all'>
+                    {output.scriptpubkey_address}
+                  </span>
+                  <span className='text-right ml-8 grow-0 whitespace-nowrap dark:text-gray-200'>
+                    {satoshisToBitcoins(output.value).toNumber()} BTC
+                  </span>
                 </OutputItem>
               );
             })}
           </TxOutputSection>
         </MoreDetailsSection>
-      </OverflowSection>
-      <MoreDetailsSection>
-        <MoreDetailsHeader>Status</MoreDetailsHeader>
-        <StatusItem>
-          {transaction.status.confirmed
-            ? `Confirmed in block ${transaction.status.block_height}`
-            : 'Unconfirmed'}
-        </StatusItem>
-        <StatusItem>Paid {satoshisToBitcoins(transaction.fee).toNumber()} BTC in fees</StatusItem>
-      </MoreDetailsSection>
-      <Buttons>
-        <ViewExplorerButton
-          background={green600}
-          color={white}
-          onClick={() =>
-            window.open(
-              `https://blockstream.info/tx/${transaction.txid}`,
-              '_blank',
-              'nodeIntegration=no'
-            )
-          }
-        >
-          View on Blockstream
-        </ViewExplorerButton>
-      </Buttons>
-    </Wrapper>
+        <MoreDetailsSection>
+          <h2 className='text-gray-800 dark:text-gray-200 text-2xl'>Status</h2>
+          <StatusItem className='text-gray-700 dark:text-gray-400'>
+            {transaction.status.confirmed
+              ? `Confirmed in block ${transaction.status.block_height}`
+              : 'Unconfirmed'}
+          </StatusItem>
+          <StatusItem className='text-gray-700 dark:text-gray-400'>
+            Paid {satoshisToBitcoins(transaction.fee).toNumber()} BTC in fees
+          </StatusItem>
+        </MoreDetailsSection>
+        <Buttons>
+          <ViewExplorerButton
+            background={green600}
+            color={white}
+            onClick={() =>
+              window.open(
+                `https://blockstream.info/tx/${transaction.txid}`,
+                '_blank',
+                'nodeIntegration=no'
+              )
+            }
+          >
+            View on Blockstream
+          </ViewExplorerButton>
+        </Buttons>
+      </div>
+    </>
   );
 };
-
-const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  padding: 1.5em;
-`;
-
-const HeaderWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  margin-bottom: 1.5em;
-`;
-
-const HeaderInfo = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin-left: 0.25em;
-`;
-
-const Header = styled.h1`
-  color: ${gray800};
-  margin: 0;
-  font-weight: 500;
-`;
-
-const TransactionId = styled.h5`
-  color: ${gray700};
-  margin: 0;
-  font-weight: 500;
-  margin-top: 0.25em;
-`;
 
 const ViewExplorerButton = styled.button`
   ${Button};
@@ -124,47 +114,20 @@ const TxOutputSection = styled.div`
   flex-direction: column;
 `;
 
-const OverflowSection = styled.div`
-  display: flex;
-  flex-direction: column;
-  max-height: 25em;
-  overflow: auto;
-`;
-
 const OutputItem = styled.div`
   display: flex;
   justify-content: space-between;
   padding: 1.5em;
   margin: 12px 0;
-  background: ${gray100};
-  border: 1px solid ${gray300};
-  justify-content: center;
   align-items: center;
   border-radius: 4px;
-`;
-
-const OutputAddress = styled.span`
-  color: ${green800};
-  flex: 2;
-  word-break: break-word;
-`;
-
-const OutputAmount = styled.span`
-  flex: 1;
-  text-align: right;
 `;
 
 const MoreDetailsSection = styled.div`
   margin-top: 1.5em;
 `;
 
-const MoreDetailsHeader = styled.div`
-  color: ${gray800};
-  font-size: 1.5em;
-`;
-
 const StatusItem = styled.h4`
-  color: ${gray700};
   margin: 0;
   font-weight: 500;
   margin-top: 0.5em;

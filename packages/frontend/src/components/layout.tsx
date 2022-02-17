@@ -1,6 +1,7 @@
 // KBC-TODO: either apply throughout entire project or remove
 // There are some components that implement this in their own files
 import React, { useContext } from 'react';
+import { Link } from 'react-router-dom';
 import styled, { css } from 'styled-components';
 import { MenuIcon } from '@heroicons/react/outline';
 import FlowerLogo from 'src/assets/flower.svg';
@@ -22,17 +23,17 @@ export const PageWrapper = ({ children }: Props) => {
     <div className='md:pl-64 flex flex-col flex-1 h-full'>
       {/* sticky mobile nav */}
       {process.env.REACT_APP_IS_ELECTRON ? null : (
-        <div className='sticky top-0 z-20 md:hidden pl-1 sm:pl-3 bg-green-900'>
+        <div className='sticky top-0 z-20 md:hidden pl-1 sm:pl-3 bg-green-900 border-b border-gray-800'>
           <div className='relative h-16 flex items-center justify-between lg:border-b lg:border-sky-800'>
-            <div className='px-2 flex items-center lg:px-0'>
+            <Link to='/' className='px-2 flex items-center lg:px-0'>
               <div className='flex-shrink-0'>
                 <img className='block h-8 w-auto' src={FlowerLogo} alt='Lily logo' />
               </div>
               <span className='text-white ml-2 mt-1 font-medium'>Lily Wallet</span>
-            </div>
+            </Link>
             <button
               type='button'
-              className='-ml-0.5 -mt-0.5 h-12 w-12 inline-flex items-center justify-center rounded-md text-white hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500'
+              className='-ml-0.5 -mt-0.5 h-12 w-12 inline-flex items-center justify-center rounded-md text-white hover:text-gray-200 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-green-500'
               onClick={() => setSidebarOpen(true)}
             >
               <span className='sr-only'>Open sidebar</span>
@@ -42,8 +43,8 @@ export const PageWrapper = ({ children }: Props) => {
         </div>
       )}
       {!config.isEmpty && <AlertBar />}
-      <main className='flex-1 z-10 bg-gray-100 relative'>
-        <ColorOverlap className='bg-green-700' style={{ zIndex: '-1' }} />
+      <main className='flex-1 z-10 dark:bg-gray-900 bg-gray-100 relative'>
+        <ColorOverlap className='bg-green-700 dark:bg-green-900' style={{ zIndex: '-1' }} />
         <div className='max-w-7xl mx-auto px-4 sm:px-6 md:px-16 py-8'>{children}</div>
       </main>
     </div>
@@ -95,15 +96,6 @@ const Content = styled.div`
   ${mobile(css`
     padding: 2.25em 0em;
   `)};
-`;
-
-export const GridArea = styled.div`
-  display: grid;
-  background: transparent;
-  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
-  grid-gap: 1.5em;
-  justify-items: center;
-  width: 100%;
 `;
 
 export const PageTitle = styled.div`

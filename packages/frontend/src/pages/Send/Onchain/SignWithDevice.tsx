@@ -67,14 +67,16 @@ const SignWithDevice = ({
   ];
 
   return (
-    <TransactionDetailsWrapper>
-      <SetupHeaderContainer>
+    <TransactionDetailsWrapper className='col-span-12 lg:col-span-6 bg-white dark:bg-gray-800'>
+      <SetupHeaderContainer className='border-b border-b-gray-200 dark:border-b-gray-700'>
         <SetupHeaderWrapper>
           <SetupHeaderLeft>
-            <SetupHeader>Confirm on Devices</SetupHeader>
-            <SetupSubheader>
+            <span className='text-xl text-gray-900 dark:text-gray-100 font-medium'>
+              Confirm on Devices
+            </span>
+            <span className='text-sm text-gray-800 dark:text-gray-300 font-normal'>
               {signedDevices.length} of {signThreshold} devices confirmed
-            </SetupSubheader>
+            </span>
           </SetupHeaderLeft>
           <SetupHeaderRight>
             <Dropdown minimal={true} dropdownItems={dropdownItems} />
@@ -103,7 +105,6 @@ const TransactionDetailsWrapper = styled.div`
   justify-content: space-between;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
   border-radius: 0.375rem;
-  background: ${white};
   height: 100%;
   width: 100%;
   overflow: hidden;
@@ -114,7 +115,6 @@ const SetupHeaderContainer = styled.div`
   padding-bottom: 1.25rem;
   padding-left: 1.5rem;
   padding-right: 1.5rem;
-  border-bottom: 1px solid rgb(229, 231, 235);
   height: 90px;
 `;
 

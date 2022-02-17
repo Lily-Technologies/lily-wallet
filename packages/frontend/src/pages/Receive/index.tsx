@@ -1,4 +1,4 @@
-import React, { Fragment, useContext } from 'react';
+import React, { Fragment, useContext, useEffect } from 'react';
 
 import {
   PageWrapper,
@@ -23,7 +23,19 @@ interface Props {
 }
 
 const Receive = ({ config }: Props) => {
-  const { accountMap, currentAccount } = useContext(AccountMapContext);
+  const { accountMap, currentAccount, setCurrentAccountId } = useContext(AccountMapContext);
+  const hasAccount = Object.keys(accountMap).length > 0;
+  console.log('hasAccount: ', hasAccount);
+  console.log('currentAccount: ', currentAccount);
+  console.log('!currentAccount: ', !currentAccount);
+
+  useEffect(() => {
+    console.log('hits useEffect');
+    if (currentAccount.name === 'Loading...' && hasAccount) {
+      console.log('Object.keys(accountMap)[0]: ', Object.keys(accountMap)[0]);
+      setCurrentAccountId(Object.keys(accountMap)[0]);
+    }
+  }, []);
 
   return (
     <PageWrapper>
@@ -35,14 +47,9 @@ const Receive = ({ config }: Props) => {
           <HeaderRight></HeaderRight>
         </Header>
 
-        {Object.keys(accountMap).length === 0 && <NoAccountsEmptyState />}
-        {Object.keys(accountMap).length > 0 && currentAccount.loading && (
-          <Loading itemText={'Receive Information'} />
-        )}
-        {!currentAccount.loading && currentAccount.config.type === 'onchain' && <OnchainReceive />}
-        {!currentAccount.loading && currentAccount.config.type === 'lightning' && (
-          <LightningReceive />
-        )}
+        {!hasAccount && <NoAccountsEmptyState />}
+        {currentAccount.config.type === 'onchain' && <OnchainReceive />}
+        {currentAccount.config.type === 'lightning' && <LightningReceive />}
       </Fragment>
     </PageWrapper>
   );

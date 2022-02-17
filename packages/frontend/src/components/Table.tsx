@@ -37,15 +37,13 @@ export const TableRow = styled.tr`
   border: 1px solid ${gray200};
 `;
 
-export const TableColumn = styled.td`
+export const TableColumn = styled.td.attrs({ className: 'text-gray-600' })`
   padding-left: 1.5rem;
   padding-right: 1.5rem;
   padding-top: 0.75rem;
   padding-bottom: 0.75rem;
   font-size: 0.875rem;
   line-height: 1.25rem;
-  color: ${gray600};
-
   border: none;
   border-bottom: 1px solid ${gray300};
   border-width: thin;

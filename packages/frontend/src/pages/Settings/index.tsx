@@ -70,7 +70,7 @@ const Settings = ({
             </HeaderRight>
           )}
         </Header>
-        <Wrapper>
+        <Wrapper className='bg-white dark:bg-gray-800'>
           <Tabs currentTab={currentTab} setCurrentTab={setCurrentTab} config={config} />
           {currentTab === 'network' && (
             <NetworkSettings
@@ -95,7 +95,6 @@ const Settings = ({
 };
 
 const Wrapper = styled.div`
-  background: ${white};
   border-radius: 0.385em;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
   padding: 1.5rem;

@@ -36,16 +36,24 @@ type DividerProps = {
 };
 interface Props {
   buttonLabel?: string | React.ReactNode;
+  className?: string;
   dropdownItems: (DropdownItemProps | DividerProps)[];
   minimal: boolean;
   style?: {};
 }
 
-export const Dropdown = ({ buttonLabel, dropdownItems, minimal, style, ...rest }: Props) => {
+export const Dropdown = ({
+  buttonLabel,
+  className,
+  dropdownItems,
+  minimal,
+  style,
+  ...rest
+}: Props) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <DropdownWrapper>
+    <DropdownWrapper className={className}>
       <ButtonContainer>
         {minimal ? (
           <MinimalDropdownButtonContainer
@@ -53,6 +61,7 @@ export const Dropdown = ({ buttonLabel, dropdownItems, minimal, style, ...rest }
             onClick={() => setIsOpen(!isOpen)}
             aria-label='Options'
             id='options-menu'
+            className='focus:ring-green-500 focus:border-green-500 focus:outline-none'
             {...rest}
           >
             <DotDotDotImage fill='currentColor' viewBox='0 0 20 20'>
@@ -62,6 +71,7 @@ export const Dropdown = ({ buttonLabel, dropdownItems, minimal, style, ...rest }
         ) : (
           <DropdownButtonContainer>
             <DropdownButton
+              className='bg-white dark:bg-gray-800 focus:ring-green-500 focus:border-green-500 focus:outline-none'
               style={style}
               onClick={() => setIsOpen(!isOpen)}
               type='button'
@@ -129,7 +139,6 @@ const ButtonContainer = styled.div`
 
 const DropdownWrapper = styled.div`
   position: relative;
-  display: inline-block;
   text-align: left;
   z-index: 10;
 `;
@@ -143,21 +152,11 @@ const DropdownButtonContainer = styled.span`
 const MinimalDropdownButtonContainer = styled.button`
   display: flex;
   align-items: center;
-  color: rgb(159, 166, 178);
+  color: inherit;
   padding: 0.25em;
   cursor: pointer;
   border: none;
   border-radius: 9999px;
-
-  &:hover {
-    color: rgb(75, 85, 99);
-    background: rgba(255, 255, 255, 0.25);
-  }
-
-  &:focus {
-    color: rgb(75, 85, 99);
-    outline: 0;
-  }
 `;
 
 const DropdownButton = styled.button`
@@ -178,7 +177,6 @@ const DropdownButton = styled.button`
   // border-width: 1px;
   border-radius: 0.375rem;
   // border-color: rgb(210,214,220);
-  background: ${white};
   cursor: pointer;
 
   &:active {
@@ -187,12 +185,6 @@ const DropdownButton = styled.button`
 
   &:hover {
     color: rgb(107, 114, 128);
-  }
-
-  &:focus {
-    box-shadow: 0 0 0 3px rgba(164, 202, 254, 0.45);
-    outline: 0;
-    border-color: rgb(164, 202, 254);
   }
 `;
 
@@ -253,12 +245,6 @@ const DropdownItem = styled.a<{ clickable: boolean; onlyMobile: boolean }>`
 
   &:hover {
     background: rgb(244, 245, 247);
-    color: rgb(22, 30, 46);
-  }
-
-  &:focus {
-    outline: 0;
-    background-color: rgb(244, 245, 247);
     color: rgb(22, 30, 46);
   }
 

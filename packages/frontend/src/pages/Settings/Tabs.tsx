@@ -14,7 +14,10 @@ interface Props {
 
 const Tabs = ({ currentTab, setCurrentTab, config }: Props) => {
   return (
-    <TabsContainer id='settings-navigation'>
+    <div
+      className='flex border-b border-gray-200 dark:border-gray-600 overflow-x-auto'
+      id='settings-navigation'
+    >
       <TabItem active={currentTab === 'network'} onClick={() => setCurrentTab('network')}>
         Network
       </TabItem>
@@ -26,14 +29,9 @@ const Tabs = ({ currentTab, setCurrentTab, config }: Props) => {
       <TabItem active={currentTab === 'about'} onClick={() => setCurrentTab('about')}>
         About
       </TabItem>
-    </TabsContainer>
+    </div>
   );
 };
-
-const TabsContainer = styled.nav`
-  display: flex;
-  border-bottom: 1px solid ${gray200};
-`;
 
 const TabItem = styled.button<{ active: boolean }>`
   padding-top: 1rem;

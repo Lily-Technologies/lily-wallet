@@ -17,26 +17,28 @@ interface Props {
 const UtxosView = ({ currentAccount }: Props) => {
   const { availableUtxos } = currentAccount;
   return (
-    <Padding>
+    <>
       <SettingsTable.HeaderSection>
         <SettingsTable.HeaderTitle>UTXOs Information</SettingsTable.HeaderTitle>
         <SettingsTable.HeaderSubtitle>
           These are the unspent transaction outputs (UTXOs) associated with your account.
         </SettingsTable.HeaderSubtitle>
       </SettingsTable.HeaderSection>
-      <Table>
-        <TableBody>
-          {currentAccount.availableUtxos.map((utxo) => (
-            <UtxoRow key={utxo.txid} utxo={utxo} />
-          ))}
-        </TableBody>
-      </Table>
-    </Padding>
+      <div className='-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8'>
+        <div className='py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8'>
+          <div className='shadow overflow-hidden border-b border-gray-200 sm:rounded-lg'>
+            <Table>
+              <TableBody>
+                {currentAccount.availableUtxos.map((utxo) => (
+                  <UtxoRow key={utxo.txid} utxo={utxo} />
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </div>
+      </div>
+    </>
   );
 };
-
-const Padding = styled.div`
-  padding: 0 1.5em;
-`;
 
 export default requireOnchain(UtxosView);

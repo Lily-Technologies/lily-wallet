@@ -105,7 +105,7 @@ const NetworkSettings = ({
         <SettingsTable.ValueColumn>
           <SettingsTable.ValueText></SettingsTable.ValueText>
           <SettingsTable.ValueAction>
-            <StatusContainer>
+            <StatusContainer className='text-gray-700 dark:text-gray-300'>
               {nodeConfig ? (
                 <StyledIcon
                   as={Circle}
@@ -138,8 +138,7 @@ const NetworkSettings = ({
           </SettingsTable.ValueText>
           <SettingsTable.ValueAction>
             <SettingsTable.ActionButton
-              background={white}
-              color={green500}
+              style={{ marginRight: '1.5em' }}
               onClick={() => refreshNodeData()}
             >
               Refresh
@@ -156,11 +155,7 @@ const NetworkSettings = ({
               minimal={false}
               dropdownItems={nodeConfigDropdownItems}
               buttonLabel={
-                <SettingsTable.ActionButton
-                  style={{ padding: 0 }}
-                  background={white}
-                  color={green500}
-                >
+                <SettingsTable.ActionButton style={{ padding: 0 }}>
                   Change data source
                 </SettingsTable.ActionButton>
               }
@@ -178,7 +173,6 @@ const StatusContainer = styled.span`
   display: flex;
   align-items: center;
   font-weight: 500;
-  color: ${gray700};
 `;
 
 const LoadingImage = styled.img`

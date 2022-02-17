@@ -168,7 +168,9 @@ const TransactionDetails = ({
 
   const PsbtDownloadDetails = () => (
     <>
-      <ModalHeaderContainer>Download Complete</ModalHeaderContainer>
+      <ModalHeaderContainer className='border-b border-gray-200 dark:border-gray-700'>
+        Download Complete
+      </ModalHeaderContainer>
       <ModalBody>
         <IconWrapper style={{ color: green500 }}>
           <StyledIcon as={CheckCircle} size={100} />
@@ -180,32 +182,40 @@ const TransactionDetails = ({
 
   return (
     <>
-      <AccountSendContentRight>
-        <SendDetailsContainer>
-          <ModalHeaderContainer>
-            <span>Transaction summary</span>
+      <AccountSendContentRight className='col-span-12 lg:col-span-6'>
+        <SendDetailsContainer className='bg-white dark:bg-gray-800'>
+          <ModalHeaderContainer className='border-b border-gray-200 dark:border-gray-700'>
+            <span className='text-xl font-medium text-gray-900 dark:text-gray-100'>
+              Transaction summary
+            </span>
             <TransactionOptionsDropdown />
           </ModalHeaderContainer>
           {shoppingItems && <ShoppingCart items={shoppingItems} />}
-          <TxReviewWrapper>
-            <TxItem>
-              <TxItemLabel>To</TxItemLabel>
-              <TxItemValue>{truncateAddress(finalPsbt.txOutputs[0].address!)}</TxItemValue>
-            </TxItem>
+          <div className='py-6 px-4 space-y-6 sm:px-6'>
+            <div className='flex flex-wrap mt-6 justify-between'>
+              <div className='text-gray-900 dark:text-gray-200'>To</div>
+              <div className='text-gray-900 dark:text-gray-200 font-medium truncate'>
+                {truncateAddress(finalPsbt.txOutputs[0].address!)}
+              </div>
+            </div>
 
-            <TxItem>
-              <TxItemLabel>From</TxItemLabel>
-              <TxItemValue>{currentAccount.name}</TxItemValue>
-            </TxItem>
+            <div className='flex flex-wrap mt-6 justify-between'>
+              <div className='text-gray-900 dark:text-gray-200'>From</div>
+              <div className='text-gray-900 dark:text-gray-200 font-medium'>
+                {currentAccount.name}
+              </div>
+            </div>
 
-            <TxItem>
-              <TxItemLabel>Amount</TxItemLabel>
-              <TxItemValue>{`${satoshisToBitcoins(finalPsbt.txOutputs[0].value)} BTC`}</TxItemValue>
-            </TxItem>
+            <div className='flex flex-wrap mt-6 justify-between'>
+              <div className='text-gray-900 dark:text-gray-200'>Amount</div>
+              <div className='text-gray-900 dark:text-gray-200 font-medium'>{`${satoshisToBitcoins(
+                finalPsbt.txOutputs[0].value
+              )} BTC`}</div>
+            </div>
 
-            <TxItem>
-              <TxItemLabel>Network fee</TxItemLabel>
-              <TxItemValue>
+            <div className='flex flex-wrap mt-6 justify-between'>
+              <div className='text-gray-900 dark:text-gray-200'>Network fee</div>
+              <div className='text-gray-900 dark:text-gray-200 font-medium'>
                 <span data-cy='transactionFeeBtc'>{satoshisToBitcoins(_fee).toNumber()}</span>
                 <span>
                   {' '}
@@ -215,26 +225,18 @@ const TransactionDetails = ({
                   </span>
                   )
                 </span>
-              </TxItemValue>
-            </TxItem>
+              </div>
+            </div>
             {_fee >= ABSURD_FEE && <WarningBox>Warning: transaction fee is very high</WarningBox>}
 
-            <TxItem
-              style={{
-                paddingTop: '1.5rem',
-                borderTop: '1px solid rgb(229, 231, 235)',
-                fontWeight: 500,
-                fontSize: '1rem',
-                lineHeight: '1.5rem'
-              }}
-            >
-              <TxItemLabel>Total</TxItemLabel>
-              <TxItemValue>
+            <div className='flex items-center justify-between border-t border-gray-200 dark:border-gray-700 pt-6'>
+              <div className='text-gray-900 dark:text-gray-200'>Total</div>
+              <div className='text-gray-900 dark:text-gray-200 font-medium'>
                 {`${satoshisToBitcoins(finalPsbt.txOutputs[0].value + _fee)} BTC`}
-              </TxItemValue>
-            </TxItem>
-          </TxReviewWrapper>
-          <SendButtonContainer>
+              </div>
+            </div>
+          </div>
+          <div className='border-t border-gray-200 dark:border-gray-700 py-6 px-4 sm:px-6'>
             <SendButton
               sendable={signedDevices.length === signThreshold}
               background={green500}
@@ -250,7 +252,7 @@ const TransactionDetails = ({
                 </SendButtonCheckmark>
               )}
             </SendButton>
-          </SendButtonContainer>
+          </div>
         </SendDetailsContainer>
       </AccountSendContentRight>
       <Modal isOpen={modalIsOpen} closeModal={() => setModalIsOpen(false)}>
@@ -268,15 +270,6 @@ const TxReviewWrapper = styled.div`
   padding-left: 1rem;
   padding-right: 1rem;
 `;
-
-const TxItem = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  margin-top: 1.5rem;
-`;
-
-const TxItemLabel = styled.div``;
 
 const TxItemValue = styled.div``;
 
@@ -296,7 +289,6 @@ const ModalSubtext = styled.div`
 `;
 
 const ModalHeaderContainer = styled.div`
-  border-bottom: 1px solid rgb(229, 231, 235);
   padding-top: 1.75rem;
   padding-bottom: 1.75rem;
   padding-left: 1.5rem;
@@ -312,13 +304,10 @@ const AccountSendContentRight = styled.div`
   min-height: 400px;
   padding: 0;
   display: flex;
-  flex: 1;
   flex-direction: column;
-  width: 100%;
 `;
 
 const SendDetailsContainer = styled.div`
-  background: ${white};
   display: flex;
   flex-direction: column;
   flex: 1;

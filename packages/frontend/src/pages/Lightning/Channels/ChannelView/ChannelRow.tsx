@@ -1,8 +1,8 @@
-import React from "react";
-import styled from "styled-components";
+import React from 'react';
+import styled from 'styled-components';
 
-import { TableRow, TableColumn } from "src/components/Table";
-import { Badge } from "src/components";
+import { TableRow, TableColumn } from 'src/components/Table';
+import { Badge } from 'src/components';
 
 import {
   gray50,
@@ -14,7 +14,11 @@ import {
   red800,
   yellow100,
   yellow800
-} from "src/utils/colors";
+} from 'src/utils/colors';
+
+function classNames(...classes) {
+  return classes.filter(Boolean).join(' ');
+}
 
 interface Props {
   alias: string;
@@ -24,18 +28,22 @@ interface Props {
 }
 
 const ChannelRow = ({ alias, capacity, status, onClick }: Props) => (
-  <TableRowNoBorder onClick={() => onClick()}>
+  <TableRowNoBorder
+    className='cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700'
+    onClick={() => onClick()}
+  >
     <TableColumnNoPadding>
-      <ChannelHeader>{alias}</ChannelHeader>
-      <ChannelSubheader>
-        Capacity: {capacity.toLocaleString()} sats
-      </ChannelSubheader>
+      <ChannelHeader className='text-gray-900 dark:text-gray-300'>{alias}</ChannelHeader>
+      <ChannelSubheader>{capacity.toLocaleString()} sats capacity</ChannelSubheader>
     </TableColumnNoPadding>
     <RightAlignColumn>
       <Badge
-        background={status === 'active' ? green100 : status === 'inactive' ? red100 : yellow100}
-        color={status === 'active' ? green800 : status === 'inactive' ? red800 : yellow800}
-        style={{ marginRight: "1em" }}
+        className={classNames(
+          status === 'active'
+            ? 'bg-green-100 dark:bg-green-600 text-green-800 dark:text-green-100'
+            : 'bg-red-100 dark:bg-red-600 text-red-800 dark:text-red-100'
+        )}
+        style={{ marginRight: '1em' }}
       >
         {status === 'active' ? 'online' : status === 'inactive' ? 'offline' : 'pending'}
       </Badge>
@@ -52,11 +60,6 @@ const TableRowNoBorder = styled(TableRow)`
   border-left: none;
   border-right: none;
   border-top: none;
-
-  &:hover {
-    background: ${gray50};
-    cursor: pointer;
-  }
 `;
 
 const RightAlignColumn = styled(TableColumn)`
@@ -72,7 +75,6 @@ const RightAlignColumn = styled(TableColumn)`
 const ChannelHeader = styled.div`
   font-size: 0.875rem;
   line-height: 1.25rem;
-  color: ${gray900};
   font-weight: 500;
 `;
 

@@ -6,7 +6,15 @@ import FlowerLoading from 'src/assets/flower-loading.svg';
 
 import { requireOnchain } from 'src/hocs';
 
-import { StyledIcon, Button, PageTitle, Header, HeaderRight, HeaderLeft } from 'src/components';
+import {
+  StyledIcon,
+  Button,
+  PageTitle,
+  Header,
+  HeaderRight,
+  HeaderLeft,
+  Dropdown
+} from 'src/components';
 
 import { white, gray300, green900 } from 'src/utils/colors';
 import { LilyOnchainAccount } from '@lily/types';
@@ -64,45 +72,60 @@ const VaultHeader = ({ toggleRefresh, currentAccount }: Props) => {
   }
 
   return (
-    <Header>
+    <Header className='space-y-4'>
       <HeaderLeft>
         <PageTitle style={{ cursor: 'pointer' }} onClick={() => history.push(url)}>
           {currentAccount.name}
         </PageTitle>
         <VaultExplainerText>{HeadingComponent}</VaultExplainerText>
       </HeaderLeft>
-      <HeaderRight>
-        <SendButton to='/send' color={white} background={green900}>
+      <div className='flex items-center'>
+        <Link
+          to='/send'
+          className='inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-base font-medium rounded-md text-white bg-green-600 hover:bg-green-800 focus:outline-none focus:ring-2  focus:ring-green-500'
+        >
           <StyledIcon
             as={ArrowUpward}
             size={24}
             style={{ marginRight: '.5rem', marginLeft: '-0.25rem' }}
           />
           Send
-        </SendButton>
-        <ReceiveButton to='/receive' color={white} background={green900}>
+        </Link>
+        <Link
+          to='/receive'
+          className='ml-3 inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-base font-medium rounded-md text-white bg-green-600 hover:bg-green-800 focus:outline-none focus:ring-2  focus:ring-green-500'
+        >
           <StyledIcon
             as={VerticalAlignBottom}
             size={24}
             style={{ marginRight: '.5rem', marginLeft: '-0.25rem' }}
           />
           Receive
-        </ReceiveButton>
+        </Link>
         {!currentAccount.loading && (
-          <RefreshButton onClick={() => toggleRefresh()} color={white} background={'transparent'}>
+          <button onClick={() => toggleRefresh()} className='hidden md:block mx-4'>
             <StyledIcon as={Refresh} size={36} />
-          </RefreshButton>
+          </button>
         )}
-        {currentAccount.loading && <LoadingImage alt='loading placeholder' src={FlowerLoading} />}
-        <SettingsButton
-          to={`${url}/settings`}
-          color={white}
-          background={'transparent'}
-          data-cy='settings'
-        >
+        {currentAccount.loading && (
+          <LoadingImage
+            className='hidden md:block mx-4'
+            alt='loading placeholder'
+            src={FlowerLoading}
+          />
+        )}
+        <Link to={`${url}/settings`} className='hidden md:block mx-4' data-cy='settings'>
           <StyledIcon as={Settings} size={36} />
-        </SettingsButton>
-      </HeaderRight>
+        </Link>
+        <Dropdown
+          className='inline-block md:hidden text-white ml-2 hover:text-gray-900 hover:bg-gray-100 rounded-full p-1'
+          dropdownItems={[
+            { label: 'Refresh', onClick: () => toggleRefresh() },
+            { label: 'Settings', onClick: () => history.push(`${url}/settings`) }
+          ]}
+          minimal
+        ></Dropdown>
+      </div>
     </Header>
   );
 };
@@ -137,19 +160,6 @@ const ReceiveButton = styled(Link)`
   padding-bottom: 0.5em;
   padding-left: 1em;
   padding-right: 1em;
-`;
-
-const SettingsButton = styled(Link)`
-  ${Button}
-  border-radius: 25%;
-`;
-
-const RefreshButton = styled.button`
-  ${Button}
-  border-radius: 25%;
-  padding-left: 0;
-  padding-right: 0;
-  margin: 0 0.5em 0 0.75em;
 `;
 
 const VaultExplainerText = styled.div`

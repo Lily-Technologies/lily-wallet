@@ -20,12 +20,12 @@ const ChannelDetailsModal = ({ channel, setStep }: Props) => {
   return (
     <>
       <DangerIconContainer>
-        <StyledIconCircle>
-          <StyledIcon style={{ color: green600 }} as={ChannelIcon} size={36} />
+        <StyledIconCircle className='bg-green-100 dark:bg-green-700'>
+          <ChannelIcon className='text-green-600 dark:text-green-300 ' size={36} />
         </StyledIconCircle>
       </DangerIconContainer>
       <TextContainer>
-        <HeadingText>{channel.alias}</HeadingText>
+        <HeadingText className='text-gray-900 dark:text-gray-200'>{channel.alias}</HeadingText>
         <Subtext>
           Last updated {moment.unix((channel as DecoratedLightningChannel).lastUpdate).fromNow()}
         </Subtext>
@@ -33,30 +33,32 @@ const ChannelDetailsModal = ({ channel, setStep }: Props) => {
           <InformationArea>
             <div style={{ gridColumn: 'span 2' }}>
               <InformationLabel>Remote public key</InformationLabel>
-              <InformationValue>
+              <InformationValue className='text-gray-900 dark:text-gray-200'>
                 {(channel as DecoratedLightningChannel).remotePubkey ||
                   (channel as DecoratedPendingLightningChannel).remoteNodePub}
               </InformationValue>
             </div>
             <div>
               <InformationLabel>Total capacity</InformationLabel>
-              <InformationValue>{Number(channel.capacity).toLocaleString()} sats</InformationValue>
+              <InformationValue className='text-gray-900 dark:text-gray-200'>
+                {Number(channel.capacity).toLocaleString()} sats
+              </InformationValue>
             </div>
             <div>
               <InformationLabel>Channel ID</InformationLabel>
-              <InformationValue>
+              <InformationValue className='text-gray-900 dark:text-gray-200'>
                 {(channel as DecoratedLightningChannel).chanId || 'Pending'}
               </InformationValue>
             </div>
             <div>
               <InformationLabel>Local capacity</InformationLabel>
-              <InformationValue>
+              <InformationValue className='text-gray-900 dark:text-gray-200'>
                 {Number(channel.localBalance).toLocaleString()} sats
               </InformationValue>
             </div>
             <div>
               <InformationLabel>Remote capacity</InformationLabel>
-              <InformationValue>
+              <InformationValue className='text-gray-900 dark:text-gray-200'>
                 {Number(channel.remoteBalance).toLocaleString()} sats
               </InformationValue>
             </div>
@@ -81,7 +83,6 @@ const ChannelDetailsModal = ({ channel, setStep }: Props) => {
 
 const Subtext = styled.div`
   padding-bottom: 2em;
-  margin-top: 0.5rem;
   color: ${gray500};
 `;
 
@@ -107,7 +108,6 @@ const InformationValue = styled.dd`
   font-weight: 500;
   font-size: 0.875rem;
   line-height: 1.25rem;
-  color: ${gray900};
   margin-top: 0.25rem;
 `;
 
@@ -128,6 +128,7 @@ const SaveChangesButton = styled.button`
 
   ${mobile(css`
     margin-top: 1.25rem;
+    width: 100%;
   `)};
 `;
 
@@ -135,7 +136,6 @@ const DangerIconContainer = styled.div``;
 
 const StyledIconCircle = styled.div`
   border-radius: 9999px;
-  background: ${green100};
   width: 3rem;
   height: 3rem;
   display: flex;

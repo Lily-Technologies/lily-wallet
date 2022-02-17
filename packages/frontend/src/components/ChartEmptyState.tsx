@@ -16,7 +16,7 @@ export const ChartEmptyState = () => {
       <path
         d='M0 75.897c167.611 0 166.063 59.683 274.598 59.683C383.133 135.58 447.859 1 599.5 1S799 98.132 799 98.132'
         stroke='#F1F3F5'
-        stroke-width='2'
+        strokeWidth='2'
       ></path>
       <defs>
         <linearGradient
@@ -27,8 +27,8 @@ export const ChartEmptyState = () => {
           y2='245'
           gradientUnits='userSpaceOnUse'
         >
-          <stop stop-color='#F1F3F5'></stop>
-          <stop offset='1' stop-color='#F1F3F5' stop-opacity='0'></stop>
+          <stop stopColor='#F1F3F5'></stop>
+          <stop offset='1' stopColor='#F1F3F5' stopOpacity='0'></stop>
         </linearGradient>
       </defs>
     </svg>

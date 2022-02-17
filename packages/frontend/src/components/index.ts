@@ -31,11 +31,13 @@ export * from './Select';
 export * from './SelectAccountMenu';
 export * from './SettingsTable';
 export * from './Sidebar';
+export * from './SlideOver';
 export * from './Spinner';
 export * from './StyledIcon';
 export * from './SupportModal';
 export * from './Textarea';
 export * from './TitleBar';
 export * from './Transition';
+export * from './TransactionRowsLoading';
 
 export * from './layout';

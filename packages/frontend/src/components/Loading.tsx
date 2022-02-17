@@ -14,7 +14,7 @@ interface Props {
 type RequireItemTextOrMessage = RequireOnlyOne<Props, 'itemText' | 'message'>;
 
 export const Loading = ({ itemText, style = {}, message }: RequireItemTextOrMessage) => (
-  <LoadingWrapper style={style}>
+  <LoadingWrapper style={style} className='text-gray-700 dark:text-gray-300'>
     <img alt='loading placeholder' src={FlowerLoading} style={{ maxWidth: '6.25em' }} />
     {itemText && <LoadingText>Loading {itemText}</LoadingText>}
     {message && <LoadingText>{message}</LoadingText>}
@@ -30,7 +30,6 @@ const LoadingWrapper = styled.div`
   border-radius: 4px;
   margin: 18px 0;
   flex-direction: column;
-  color: ${gray700};
   padding: 1.5em;
 `;
 

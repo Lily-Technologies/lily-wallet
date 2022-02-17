@@ -1,5 +1,5 @@
 import { useContext, useState } from 'react';
-import styled from 'styled-components';
+import { QrcodeIcon } from '@heroicons/react/outline';
 import { decode } from 'bolt11';
 
 import { Button, Textarea, Modal, Select } from 'src/components';
@@ -42,7 +42,7 @@ const LightningSendTxForm = ({ setStep, setPaymentRequest, paymentRequest }: Pro
   };
 
   return (
-    <div className='bg-white rounded-md shadow'>
+    <div className='bg-white dark:bg-gray-800 rounded-md shadow'>
       <div className='py-6 px-4 sm:p-6 ' data-cy='send-form'>
         <div className='grid grid-cols-4 gap-6'>
           <div className='col-span-4 sm:col-span-2'>
@@ -82,28 +82,27 @@ const LightningSendTxForm = ({ setStep, setPaymentRequest, paymentRequest }: Pro
           </div>
         </div>
       </div>
-      <div className='text-right py-3 px-4 mt-2 border bg-gray-50 rounded-bl-md rounded-br-md'>
+      <div className='flex justify-end items-center text-right py-3 px-4 mt-2 border dark:border-gray-900 bg-gray-50 dark:bg-gray-700 rounded-bl-md rounded-br-md'>
         {/* TODO: Remove button since react-qr-scanner won't work on unsecure connections. */}
-        {process.env.REACT_APP_IS_ELECTRON && (
-          <button
-            className='bg-white mr-3 py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500'
-            onClick={() =>
-              openInModal(
-                <ScanLightningQrCode
-                  onSuccess={(data) => {
-                    setPaymentRequest(data);
-                    sendPayment(data);
-                    closeModal();
-                  }}
-                />
-              )
-            }
-          >
-            Scan Invoice QR Code
-          </button>
-        )}
         <button
-          className='inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500'
+          className='inline-flex bg-white mr-3 py-2 px-3 sm:px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2  focus:ring-sky-500'
+          onClick={() =>
+            openInModal(
+              <ScanLightningQrCode
+                onSuccess={(data) => {
+                  setPaymentRequest(data);
+                  sendPayment(data);
+                  closeModal();
+                }}
+              />
+            )
+          }
+        >
+          <QrcodeIcon className='sm:-ml-1 mr-0 sm:mr-2 h-5 w-5' aria-hidden='true' />
+          <span className='hidden sm:inline-flex'>Scan invoice</span>
+        </button>
+        <button
+          className='inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2  focus:ring-green-500'
           onClick={() => sendPayment(paymentRequest)}
         >
           Preview transaction

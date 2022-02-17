@@ -57,7 +57,7 @@ const LightningReceiveForm = ({ setStep, setInvoice, currentAccount }: Props) =>
   };
 
   return (
-    <div className='bg-white rounded-md shadow'>
+    <div className='bg-white dark:bg-gray-800 rounded-md shadow'>
       <div className='py-6 px-4 sm:p-6 ' data-cy='send-form'>
         <div className='grid grid-cols-4 gap-6'>
           <div className='col-span-4 lg:col-span-2'>
@@ -92,7 +92,8 @@ const LightningReceiveForm = ({ setStep, setInvoice, currentAccount }: Props) =>
           <div className='col-span-4'>
             <Input
               label='Invoice amount'
-              type='text'
+              type='number'
+              inputMode='decimal'
               value={sendAmount}
               onChange={setSendAmount}
               placeholder='25000'
@@ -103,9 +104,9 @@ const LightningReceiveForm = ({ setStep, setInvoice, currentAccount }: Props) =>
           </div>
         </div>
       </div>
-      <div className='text-right py-3 px-4 mt-2 border bg-gray-50 rounded-bl-md rounded-br-md'>
+      <div className='text-right py-3 px-4 mt-2 border bg-gray-50 dark:bg-gray-700 dark:border-gray-900 rounded-bl-md rounded-br-md'>
         <button
-          className='inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500'
+          className='inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2  focus:ring-green-500'
           disabled={isLoading}
           onClick={() => submitForm(memo, sendAmount)}
         >

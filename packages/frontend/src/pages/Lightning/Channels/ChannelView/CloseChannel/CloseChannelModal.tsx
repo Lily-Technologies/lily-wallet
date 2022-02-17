@@ -78,16 +78,20 @@ const CloseChannelModal = ({ setStep, channel, currentAccount }: Props) => {
   return (
     <>
       <DangerIconContainer>
-        <StyledIconCircle>
-          <StyledIcon style={{ color: green600 }} as={Channel} size={36} />
+        <StyledIconCircle className='bg-green-100 dark:bg-green-800'>
+          <Channel className='text-green-600 dark:text-green-200' size={36} />
         </StyledIconCircle>
       </DangerIconContainer>
       <TextContainer>
-        <HeadingText>{channel.alias}</HeadingText>
-        <Subtext>Are you sure you want to close this channel?</Subtext>
+        <h2 className='text-gray-900 dark:text-gray-200 text-lg font-semibold'>{channel.alias}</h2>
+        <p className='text-gray-600 dark:text-gray-400 mb-6'>
+          Are you sure you want to close this channel?
+        </p>
         <SelectAccountContainer>
-          <InformationLabel>Closing balance</InformationLabel>
-          <InformationValue>{Number(channel.localBalance).toLocaleString()} sats</InformationValue>
+          <dt className='text-sm text-gray-600 dark:text-gray-400'>Closing balance</dt>
+          <dd className='text-gray-900 dark:text-gray-200 text-base font-medium'>
+            {Number(channel.localBalance).toLocaleString()} sats
+          </dd>
 
           <InputWrapper data-cy='funding-account'>
             <Select label='Send closing balance to' options={accountOptions} />
@@ -96,42 +100,36 @@ const CloseChannelModal = ({ setStep, channel, currentAccount }: Props) => {
           {error && <ErrorText>{error}</ErrorText>}
         </SelectAccountContainer>
 
-        <Buttons>
-          <CancelButton
-            background={white}
-            color={gray700}
+        <div className='flex w-full justify-end mt-6 flex-col flex-col-reverse md:flex-row'>
+          <button
+            type='button'
+            className='justify-center inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2  focus:ring-green-500'
             onClick={() => {
               setStep(0);
             }}
           >
             Cancel
-          </CancelButton>
-          <SaveChangesButton
-            background={red600}
-            color={white}
+          </button>
+          <button
+            type='button'
+            className='justify-center mb-2 md:mb-0 ml-0 md:ml-2 inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2  focus:ring-red-500'
             onClick={() => {
               closeChannel();
             }}
           >
             {isLoading ? (
               <>
-                <Spinner style={{ marginRight: '1em' }} /> Closing channel...
+                <Spinner /> Closing channel...
               </>
             ) : (
               'Close channel'
             )}
-          </SaveChangesButton>
-        </Buttons>
+          </button>
+        </div>
       </TextContainer>
     </>
   );
 };
-
-const Subtext = styled.div`
-  padding-bottom: 2em;
-  margin-top: 0.5rem;
-  color: ${gray500};
-`;
 
 const InputWrapper = styled.div`
   margin-top: 1.25rem;
@@ -156,49 +154,16 @@ const InformationValue = styled.dd`
   margin-bottom: 1rem;
 `;
 
-const Buttons = styled.div`
-  display: flex;
-  width: 100%;
-  align-items: center;
-  justify-content: flex-end;
-
-  ${mobile(css`
-    flex-direction: column;
-  `)}
-`;
-
 const ErrorText = styled.div`
   color: ${red600};
   font-size: 0.875rem;
   line-height: 1.25rem;
 `;
 
-const SaveChangesButton = styled.button`
-  ${Button}
-  margin-top: 1rem;
-
-  ${mobile(css`
-    margin-top: 1.25rem;
-  `)};
-`;
-
-const CancelButton = styled.button`
-  ${Button}
-  margin-top: 1rem;
-  border: 1px solid ${gray300};
-  margin-right: 0.5rem;
-
-  ${mobile(css`
-    margin-top: 1.25rem;
-    margin-right: 0;
-  `)}
-`;
-
 const DangerIconContainer = styled.div``;
 
 const StyledIconCircle = styled.div`
   border-radius: 9999px;
-  background: ${green100};
   width: 3rem;
   height: 3rem;
   display: flex;

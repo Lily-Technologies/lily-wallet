@@ -21,6 +21,10 @@ import {
 import { Device, HwiEnumerateResponse } from '@lily/types';
 import { PlatformContext } from 'src/context';
 
+function classNames(...classes) {
+  return classes.filter(Boolean).join(' ');
+}
+
 interface Props {
   configuredDevices: Device[];
   unconfiguredDevices: HwiEnumerateResponse[];
@@ -112,32 +116,60 @@ export const DeviceSelect = ({
   };
 
   return (
-    <Wrapper>
-      <DevicesWrapper>
+    <div
+      className={classNames(
+        !!deviceActionLoading ? 'cursor-progress' : '',
+        'flex flex-col h-full w-full justify-center items-center bg-whtie dark:bg-gray-800 py-8 px-4'
+      )}
+    >
+      <div className='overflow-x-auto flex'>
         {configuredDevices.map((device, index) => (
-          <DeviceWrapper
-            key={index}
-            imported={true}
-            displayLoadingCursor={deviceActionLoading !== null}
-          >
-            <IconWrapper style={{ color: green500 }}>
-              <StyledIcon as={CheckCircle} size={24} />
-            </IconWrapper>
+          <div key={index} className='w-48 flex flex-col items-center py-4 px-3'>
             <DeviceImage device={device} />
-            <DeviceInfoWrapper>
-              <DeviceName>{device.type}</DeviceName>
-              <DeviceFingerprint imported={true}>{device.fingerprint}</DeviceFingerprint>
-            </DeviceInfoWrapper>
-          </DeviceWrapper>
+            <div className='py-2 flex flex-col items-center'>
+              <h4 className='text-gray-900 dark:text-gray-200 capitalize font-medium'>
+                {device.type}
+              </h4>
+              <p className='text-sm text-gray-900 dark:text-gray-400 capitalize font-medium'>
+                {device.fingerprint}
+              </p>
+              <div>
+                <p className={'text-green-600 dark:text-green-500 font-semibold flex items-center'}>
+                  <span className='mr-1'>Complete</span> <StyledIcon as={CheckCircle} size={24} />
+                </p>
+              </div>
+            </div>
+          </div>
         ))}
 
         {unconfiguredDevices.map((device, index) => {
           const deviceError = errorDevices.includes(device.fingerprint);
           const deviceWarning = !device.fingerprint && device.type !== 'phone'; // if ledger isn't in the BTC app or trezor is locked, it wont give fingerprint, so show warning
+          let actionText = deviceActionText;
+          if (deviceError) {
+            actionText = 'Click to retry';
+          } else if (deviceWarning && device.type === 'ledger') {
+            actionText = 'Open bitcoin app on device';
+          } else if (deviceWarning) {
+            actionText = 'Click to enter pin';
+          } else if (deviceActionLoading === index) {
+            actionText = `${deviceActionLoadingText}...`;
+          }
+
           return (
-            <DeviceWrapper
+            <button
+              className={classNames(
+                'w-48 flex flex-col items-center py-4 px-3 transform transition-transform transition hover:-translate-y-1 hover:translate-x-1 hover:rotate-1 hover:scale-105 duration-300',
+                deviceActionLoading === index
+                  ? 'animate-pulse hover:scale-0 hover:translate-y-0'
+                  : '',
+                !!deviceActionLoading ? 'cursor-progress' : 'cursor-pointer',
+                deviceError ? 'bg-red-100' : ''
+              )}
+              style={{
+                transform: deviceActionLoading === index ? 'translate(0px, 0px)' : ''
+              }}
               key={index}
-              loading={deviceActionLoading !== null && deviceActionLoading === index}
               onClick={async () => {
                 if (deviceActionLoading === null) {
                   if (deviceWarning) {
@@ -164,52 +196,42 @@ export const DeviceSelect = ({
                   }
                 }
               }}
-              warning={deviceWarning}
-              error={deviceError}
-              displayLoadingCursor={deviceActionLoading !== null}
             >
-              {(deviceError || deviceWarning) && (
+              {deviceError && (
                 <IconWrapper style={{ color: red500 }}>
                   <StyledIcon as={ExclamationDiamond} size={24} />
                 </IconWrapper>
               )}
               <DeviceImage device={device} />
-              <DeviceInfoWrapper>
-                <DeviceName>{device.type}</DeviceName>
-                <DeviceFingerprint imported={false}>{device.fingerprint}</DeviceFingerprint>
-                <ImportedWrapper>
-                  {deviceActionLoading === index ? (
-                    <ConfiguringText error={deviceError} style={{ textAlign: 'center' }}>
-                      {deviceActionLoadingText}
-                      <ConfiguringAnimation>.</ConfiguringAnimation>
-                      <ConfiguringAnimation>.</ConfiguringAnimation>
-                      <ConfiguringAnimation>.</ConfiguringAnimation>
-                    </ConfiguringText>
-                  ) : deviceError || deviceWarning ? (
-                    <ConfiguringText error={true} warning={deviceWarning}>
-                      {deviceError
-                        ? 'Click to Retry'
-                        : device.type === 'ledger'
-                        ? 'Open Bitcoin App on Device'
-                        : 'Click to enter PIN'}
-                    </ConfiguringText>
-                  ) : (
-                    <ConfiguringText>{deviceActionText}</ConfiguringText>
-                  )}
-                </ImportedWrapper>
-              </DeviceInfoWrapper>
-            </DeviceWrapper>
+              <div className='py-2 flex flex-col items-center'>
+                <h4 className='text-gray-900 dark:text-gray-200 capitalize font-medium'>
+                  {device.type}
+                </h4>
+                <p className='text-sm text-gray-900 dark:text-gray-400 capitalize font-medium'>
+                  {device.fingerprint}
+                </p>
+                <div>
+                  <p className={'text-gray-900 dark:text-gray-200 font-medium'}>{actionText}</p>
+                </div>
+              </div>
+            </button>
           );
         })}
         {unconfiguredDevices.length === 0 && configuredDevices.length === 0 && !devicesLoading && (
           <NoDevicesContainer>
-            <NoDevicesWrapper>
-              <NoDevicesHeader>No devices detected</NoDevicesHeader>
-              <StyledIcon as={ExclamationDiamond} size={96} />
-              <NoDevicesSubheader>
+            <div className='flex flex-col items-center justify-center text-center'>
+              <h3 className='text-lg font-medium text-gray-900 dark:text-gray-300'>
+                No devices detected
+              </h3>
+              <StyledIcon
+                className='text-gray-600 dark:text-gray-400 my-4'
+                as={ExclamationDiamond}
+                size={96}
+              />
+              <p className='text-base font-medium text-gray-900 dark:text-gray-300'>
                 Please make sure your device is connected and unlocked.
-              </NoDevicesSubheader>
-            </NoDevicesWrapper>
+              </p>
+            </div>
           </NoDevicesContainer>
         )}
 
@@ -218,45 +240,28 @@ export const DeviceSelect = ({
             <Loading itemText='devices' />
           </LoadingDevicesWrapper>
         )}
-      </DevicesWrapper>
+      </div>
 
-      {configuredDevices.length <= configuredThreshold && !devicesLoading ? (
-        <ScanDevicesButton background={white} color={gray700} onClick={enumerate}>
-          {devicesLoading ? 'Updating Device List...' : 'Scan for devices'}
-        </ScanDevicesButton>
+      {configuredDevices.length <= configuredThreshold ? (
+        <button
+          onClick={enumerate}
+          type='button'
+          className='inline-flex w-min flex-nowrap whitespace-nowrap items-center px-4 py-2 border border-gray-300 dark:text-gray-300 dark:bg-gray-700 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 dark:hover:bg-gray-800'
+        >
+          {devicesLoading ? 'Scanning for devices...' : 'Scan for devices'}
+        </button>
       ) : null}
       <Modal isOpen={modalIsOpen} closeModal={() => setModalIsOpen(false)}>
         {modalContent}
       </Modal>
-    </Wrapper>
+    </div>
   );
 };
-
-const LoadingImage = styled.img`
-  color: ${gray900};
-`;
-
-const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  background: ${white};
-  justify-content: center;
-  height: 100%;
-`;
 
 const NoDevicesContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-`;
-
-const NoDevicesWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: ${gray900};
-  text-align: center;
 `;
 
 const LoadingDevicesWrapper = styled.div`
@@ -267,14 +272,6 @@ const LoadingDevicesWrapper = styled.div`
   justify-content: center;
   color: ${gray600};
   text-align: center;
-`;
-
-const NoDevicesHeader = styled.h3`
-  font-weight: 500;
-`;
-
-const NoDevicesSubheader = styled.h4`
-  font-weight: 500;
 `;
 
 const ConfiguringText = styled.div<{ error?: boolean; warning?: boolean }>`
@@ -354,27 +351,6 @@ const DeviceFingerprint = styled.h5<{ imported: boolean }>`
   color: ${(p) => (p.imported ? gray600 : gray600)};
   margin: 0;
   font-weight: 100;
-`;
-
-const LoadingText = styled.div`
-  font-size: 1.5em;
-  margin: 4px 0;
-`;
-
-const LoadingSubText = styled.div`
-  font-size: 0.75em;
-`;
-
-const ImportedWrapper = styled.div``;
-
-const ScanDevicesButton = styled.button`
-  ${Button};
-  padding: 1em;
-  font-size: 1em;
-  width: fit-content;
-  align-self: center;
-  border: 1px solid ${gray300};
-  margin-bottom: 1em;
 `;
 
 const blinking = keyframes`

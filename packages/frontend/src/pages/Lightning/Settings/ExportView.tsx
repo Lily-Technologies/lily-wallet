@@ -53,8 +53,6 @@ const ExportView = ({ currentAccount }: Props) => {
           <SettingsTable.ValueText></SettingsTable.ValueText>
           <SettingsTable.ValueAction>
             <SettingsTable.ActionButton
-              background={white}
-              color={green500}
               onClick={() => {
                 openInModal(<LndUriQRCode />);
               }}

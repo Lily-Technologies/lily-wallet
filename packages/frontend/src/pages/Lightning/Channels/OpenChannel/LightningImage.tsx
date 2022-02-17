@@ -1,7 +1,7 @@
-import React from "react";
-import styled from "styled-components";
+import React from 'react';
+import styled from 'styled-components';
 
-import { gray100, purple700 } from "src/utils/colors";
+import { gray100, purple700 } from 'src/utils/colors';
 
 const IconSvg = styled.svg`
   color: ${purple700};
@@ -22,17 +22,12 @@ const IconSvg = styled.svg`
 `;
 
 const LightningImage = () => (
-  <IconSvg
-    xmlns="http://www.w3.org/2000/svg"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-  >
+  <IconSvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
     <path
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      stroke-width="2"
-      d="M13 10V3L4 14h7v7l9-11h-7z"
+      stroke-linecap='round'
+      stroke-linejoin='round'
+      strokeWidth='2'
+      d='M13 10V3L4 14h7v7l9-11h-7z'
     />
   </IconSvg>
 );

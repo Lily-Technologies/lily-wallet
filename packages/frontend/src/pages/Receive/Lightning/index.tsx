@@ -1,8 +1,5 @@
 import React, { useState } from 'react';
 import styled, { css } from 'styled-components';
-import { satoshisToBitcoins } from 'unchained-bitcoin';
-
-import { GridArea } from 'src/components';
 
 import { white, gray400, gray600 } from 'src/utils/colors';
 import { mobile } from 'src/utils/media';

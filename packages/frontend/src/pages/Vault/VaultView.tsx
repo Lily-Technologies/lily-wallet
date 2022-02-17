@@ -20,7 +20,7 @@ import { RescanModal } from './RescanModal';
 
 import { requireOnchain } from 'src/hocs';
 
-import { white, gray400, gray500, gray600, yellow100, yellow500 } from 'src/utils/colors';
+import { white, gray400, gray500, gray600, yellow200, yellow500 } from 'src/utils/colors';
 
 import { NodeConfigWithBlockchainInfo, LilyOnchainAccount } from '@lily/types';
 
@@ -130,19 +130,23 @@ const VaultView = ({ currentAccount, nodeConfig, toggleRefresh }: Props) => {
     <>
       {currentAccount.loading ? (
         <div style={{ height: '32rem' }}>
-          <div className='h-full relative shadow-md bg-white rounded-md'>
+          <div className='h-full relative shadow-md bg-white dark:bg-gray-800 rounded-md'>
             <ChartEmptyState />
           </div>
         </div>
       ) : null}
       {transactions.length > 0 && !currentAccount.loading ? (
-        <ValueWrapper>
-          <CurrentBalanceContainer>
-            <CurrentBalanceText>Current Balance:</CurrentBalanceText>
-            {satoshisToBitcoins(currentBalance).toFixed(8)} BTC
+        <div className='bg-white dark:bg-gray-800 rounded-md shadow'>
+          <CurrentBalanceContainer className='p-6'>
+            <div className='text-base sm:text-base md:text-lg leading-6 text-gray-500 dark:text-gray-400'>
+              Current Balance:
+            </div>
+            <div className='text-lg sm:text-xl md:text-3xl leading-6 text-gray-700 dark:text-gray-200'>
+              {satoshisToBitcoins(currentBalance).toFixed(8)} BTC
+            </div>
           </CurrentBalanceContainer>
           <ChartContainer>
-            <ResponsiveContainer width='100%' height={400}>
+            <ResponsiveContainer width='100%' height={window.innerWidth < 768 ? 200 : 400}>
               <AreaChart width={400} height={400} data={dataForChart}>
                 <YAxis dataKey='totalValue' hide={true} domain={['dataMin', 'dataMax + 10000']} />
                 <XAxis
@@ -150,7 +154,7 @@ const VaultView = ({ currentAccount, nodeConfig, toggleRefresh }: Props) => {
                   height={40}
                   scale='auto'
                   type='number'
-                  tickCount={7}
+                  tickCount={window.innerWidth < 768 ? 4 : 7}
                   tickSize={0}
                   interval={0}
                   tick={CustomTick}
@@ -170,7 +174,7 @@ const VaultView = ({ currentAccount, nodeConfig, toggleRefresh }: Props) => {
                   stroke={yellow500}
                   strokeWidth={2}
                   isAnimationActive={false}
-                  fill={yellow100}
+                  fill={yellow200}
                 />
                 <Tooltip
                   offset={-100}
@@ -184,7 +188,7 @@ const VaultView = ({ currentAccount, nodeConfig, toggleRefresh }: Props) => {
               </AreaChart>
             </ResponsiveContainer>
           </ChartContainer>
-        </ValueWrapper>
+        </div>
       ) : null}
       <RecentTransactions
         transactions={transactionsCopyForRecentTransactions.sort((a, b) => {
@@ -200,7 +204,7 @@ const VaultView = ({ currentAccount, nodeConfig, toggleRefresh }: Props) => {
         loading={!!currentAccount.loading}
         flat={false}
         openRescanModal={
-          nodeConfig?.provider === 'Blockstream' ? undefined : () => openRescanModal()
+          nodeConfig?.provider === 'Bitcoin Core' ? () => openRescanModal() : undefined
         }
       />
       <Modal isOpen={modalIsOpen} closeModal={() => setModalIsOpen(false)}>
@@ -219,10 +223,8 @@ const ValueWrapper = styled.div`
 const ChartContainer = styled.div``;
 
 const CurrentBalanceContainer = styled.div`
-  font-size: 2em;
   display: flex;
   flex-direction: column;
-  padding: 1em 1em 0;
 `;
 
 const CurrentBalanceText = styled.div`

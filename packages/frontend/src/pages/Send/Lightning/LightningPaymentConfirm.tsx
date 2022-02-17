@@ -165,11 +165,7 @@ const LightningPaymentConfirm = ({ paymentRequest, setStep, currentAccount }: Pr
         )}
       </ActionButtonContainer>
 
-      <Modal
-        isOpen={modalIsOpen}
-        closeModal={() => setModalIsOpen(false)}
-        style={{ content: { overflow: 'inherit' } }}
-      >
+      <Modal isOpen={modalIsOpen} closeModal={() => setModalIsOpen(false)}>
         {modalContent}
       </Modal>
     </AccountReceiveContentLeft>

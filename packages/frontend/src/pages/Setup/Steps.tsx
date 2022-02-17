@@ -6,7 +6,6 @@ interface Props {
 }
 
 const Steps = ({ step, setupOption }: Props) => {
-  console.log('step: ', step);
   const steps = [
     {
       id: '01',
@@ -31,36 +30,40 @@ const Steps = ({ step, setupOption }: Props) => {
   }
 
   return (
-    <nav aria-label='Progress'>
+    <nav aria-label='Progress' className='w-full'>
       <ol
         role='list'
-        className='border border-gray-300 rounded-md divide-y divide-gray-300 md:flex md:divide-y-0'
+        className='border-l border-r border-b border-gray-300 dark:border-gray-500 rounded-b-md divide-y divide-gray-300 dark:divide-gray-500 md:flex md:divide-y-0 mb-6 md:mb-12'
       >
         {steps.map((step, stepIdx) => (
           <li key={step.name} className='relative md:flex-1 md:flex'>
             {step.status === 'complete' ? (
               <span className='group flex items-center w-full'>
                 <span className='px-6 py-4 flex items-center text-sm font-medium'>
-                  <span className='flex-shrink-0 w-10 h-10 flex items-center justify-center bg-green-600 rounded-full group-hover:bg-green-800'>
+                  <span className='flex-shrink-0 w-10 h-10 flex items-center justify-center bg-green-600 rounded-full'>
                     <CheckIcon className='w-6 h-6 text-white' aria-hidden='true' />
                   </span>
-                  <span className='ml-4 text-sm font-medium text-gray-900'>{step.name}</span>
+                  <span className='ml-4 text-sm font-medium text-gray-900 dark:text-gray-300'>
+                    {step.name}
+                  </span>
                 </span>
               </span>
             ) : step.status === 'current' ? (
               <span className='px-6 py-4 flex items-center text-sm font-medium' aria-current='step'>
                 <span className='flex-shrink-0 w-10 h-10 flex items-center justify-center border-2 border-green-600 rounded-full'>
-                  <span className='text-green-600'>{step.id}</span>
+                  <span className='text-green-600 dark:text-green-500'>{step.id}</span>
                 </span>
-                <span className='ml-4 text-sm font-medium text-green-600'>{step.name}</span>
+                <span className='ml-4 text-sm font-medium text-green-600 dark:text-green-500'>
+                  {step.name}
+                </span>
               </span>
             ) : (
               <span className='group flex items-center'>
                 <span className='px-6 py-4 flex items-center text-sm font-medium'>
-                  <span className='flex-shrink-0 w-10 h-10 flex items-center justify-center border-2 border-gray-300 rounded-full group-hover:border-gray-400'>
-                    <span className='text-gray-500 group-hover:text-gray-900'>{step.id}</span>
+                  <span className='flex-shrink-0 w-10 h-10 flex items-center justify-center border-2 border-gray-300 dark:border-gray-400 rounded-full'>
+                    <span className='text-gray-500 dark:text-gray-400'>{step.id}</span>
                   </span>
-                  <span className='ml-4 text-sm font-medium text-gray-500 group-hover:text-gray-900'>
+                  <span className='ml-4 text-sm font-medium text-gray-500 dark:text-gray-400'>
                     {step.name}
                   </span>
                 </span>

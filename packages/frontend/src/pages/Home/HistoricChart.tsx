@@ -14,7 +14,7 @@ import {
 
 import { ChartEmptyState } from 'src/components/ChartEmptyState';
 
-import { green700, gray600, white, gray500, yellow100, yellow500 } from 'src/utils/colors';
+import { green700, gray600, white, gray500, yellow200, yellow500 } from 'src/utils/colors';
 
 var formatter = new Intl.NumberFormat('en-US', {
   style: 'currency',
@@ -73,11 +73,15 @@ export const HistoricChart = ({
   };
 
   return (
-    <ChartContainer>
-      <ChartInfo>
+    <ChartContainer className='bg-white dark:bg-gray-800'>
+      <ChartInfo className='p-4 md:p-6'>
         <CurrentBitcoinPriceContainer>
-          <CurrentPriceText>Current Price:</CurrentPriceText>
-          1BTC = {formatter.format(currentBitcoinPrice.toNumber())}
+          <div className='text-base sm:text-base md:text-lg leading-6 text-gray-500 dark:text-gray-400'>
+            Current Price:
+          </div>
+          <div className='text-lg sm:text-xl md:text-3xl leading-6 text-gray-700 dark:text-gray-200'>
+            1BTC = {formatter.format(currentBitcoinPrice.toNumber())}
+          </div>
         </CurrentBitcoinPriceContainer>
         <ChartControlsContainer>
           <ChartControlItem
@@ -103,7 +107,7 @@ export const HistoricChart = ({
           </ChartControlItem>
         </ChartControlsContainer>
       </ChartInfo>
-      <ResponsiveContainer width='100%' height={400}>
+      <ResponsiveContainer width='100%' height={window.innerWidth < 768 ? 200 : 400}>
         {historicalBitcoinPrice.length ? ( // if the call to get historical price fails, then set loading or filler screen
           <AreaChart
             width={400}
@@ -113,7 +117,7 @@ export const HistoricChart = ({
             <YAxis hide={true} domain={['dataMin - 500', 'dataMax + 500']} />
             <XAxis
               dataKey='date'
-              tickCount={6}
+              tickCount={window.innerWidth < 768 ? 4 : 7}
               interval={getChartInterval()} // TODO: adjust to accept 1yr, 1month, 1 week, need to use domain prop
               tickLine={false}
               tickFormatter={(date) => {
@@ -127,12 +131,13 @@ export const HistoricChart = ({
               }}
             />
             <Area
+              className=''
               type='monotone'
               dataKey='price'
               stroke={yellow500}
               strokeWidth={2}
               isAnimationActive={animateChart}
-              fill={yellow100}
+              fill={yellow200}
             />
             <Tooltip
               offset={-100}
@@ -155,7 +160,6 @@ export const HistoricChart = ({
 const ChartInfo = styled.div`
   display: flex;
   justify-content: space-between;
-  padding: 2em 2em 0;
   align-items: center;
   flex-wrap: wrap;
 `;
@@ -185,7 +189,6 @@ const CurrentBitcoinPriceContainer = styled.div`
 
 const ChartContainer = styled.div`
   padding: 0;
-  background: ${white};
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
   border-radius: 0.385em;
 `;

@@ -95,12 +95,14 @@ const UnlockForm = ({
 
       <div>
         <img className='h-12 w-auto' src={FlowerLogo} alt='Lily Wallet logo' />
-        <h2 className='mt-6 text-3xl font-extrabold text-gray-900'>Unlock your wallet</h2>
-        <p className='mt-2 text-sm text-gray-600'>
+        <h2 className='mt-6 text-3xl font-extrabold text-gray-900 dark:text-gray-200'>
+          Unlock your wallet
+        </h2>
+        <p className='mt-2 text-sm text-gray-600 dark:text-gray-400'>
           Or{' '}
           <label
             htmlFor='localConfigFile'
-            className='cursor-pointer font-medium text-green-600 hover:text-green-500'
+            className='cursor-pointer font-medium text-green-600 dark:text-green-500 hover:text-green-500 hover:text-green-400'
           >
             restore from a backup
           </label>
@@ -110,7 +112,19 @@ const UnlockForm = ({
         <div className='mt-6'>
           <form onSubmit={unlockFile} className='space-y-6'>
             <div className='space-y-1'>
-              <label htmlFor='password' className='block text-sm font-medium text-gray-700'>
+              <Input
+                label='Password'
+                onChange={changeLocalPassword}
+                value={localPassword}
+                error={passwordError}
+                type='password'
+                autoComplete='current-password'
+                required
+              />
+              {/* <label
+                htmlFor='password'
+                className='block text-sm font-medium text-gray-700 dark:text-gray-200'
+              >
                 Password
               </label>
               <div className='mt-1 relative rounded-md shadow-sm'>
@@ -135,18 +149,11 @@ const UnlockForm = ({
                     <ExclamationCircleIcon className='h-5 w-5 text-red-500' aria-hidden='true' />
                   </div>
                 )}
-              </div>
+              </div> */}
               <div
-                className={classNames(
-                  passwordError ? 'justify-between' : 'justify-end',
-                  'flex items-center justify-end'
-                )}
+                className={'flex items-center justify-end'}
+                style={{ marginTop: !!passwordError ? '-1em' : '0.25rem' }}
               >
-                {passwordError && (
-                  <p className='text-xs text-red-600' id='password-error'>
-                    {passwordError}
-                  </p>
-                )}
                 {!fetchingEncryptedConfig && (
                   <div className='flex items-end text-xs text-gray-400'>
                     Last accessed on{' '}
@@ -161,7 +168,7 @@ const UnlockForm = ({
               <button
                 type='submit'
                 disabled={fetchingEncryptedConfig && !encryptedConfigFile}
-                className='w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500'
+                className='w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500'
               >
                 {isLoading && <LoadingImage alt='loading placeholder' src={FlowerLoading} />}
                 {fetchingEncryptedConfig
@@ -176,15 +183,17 @@ const UnlockForm = ({
       </div>
       <div className='mt-6 relative'>
         <div className='absolute inset-0 flex items-center' aria-hidden='true'>
-          <div className='w-full border-t border-gray-300' />
+          <div className='w-full border-t border-gray-300 dark:border-gray-500' />
         </div>
         <div className='relative flex justify-center text-sm'>
-          <span className='px-2 bg-white text-gray-500'>Don't have a wallet?</span>
+          <span className='px-2 bg-white dark:bg-gray-900 text-gray-500 dark:text-gray-300'>
+            Don't have a wallet?
+          </span>
         </div>
       </div>
       <button
         onClick={() => onClickCreateNew()}
-        className='cursor-pointer w-full mt-4 inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500'
+        className='cursor-pointer w-full mt-4 inline-flex justify-center py-2 px-4 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-800 text-sm font-medium text-gray-500 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500'
       >
         Create a new wallet
       </button>

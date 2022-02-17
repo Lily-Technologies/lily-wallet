@@ -6,7 +6,7 @@ export const HeaderWrapper = styled.div`
   color: ${black};
 `;
 
-export const InnerWrapper = styled.div`
+export const InnerWrapper = styled.div.attrs({ className: 'text-gray-900 dark:text-gray-200' })`
   max-width: 46.875em;
   width: 100%;
   margin-top: 1em;
@@ -23,14 +23,14 @@ export const CancelButton = styled.div`
   cursor: pointer;
 `;
 
-export const XPubHeaderWrapper = styled.div`
-  color: ${gray800};
-  background: ${white};
+export const XPubHeaderWrapper = styled.div.attrs({
+  className:
+    'text-gray-900 bg-white dark:text-gray-200 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700'
+})`
   margin: 0;
   display: flex;
   justify-content: space-between;
   padding: 1.25em;
-  border-bottom: 1px solid #e4e7eb;
   align-items: flex-start;
 `;
 
@@ -41,16 +41,17 @@ export const SetupHeaderWrapper = styled.div`
   align-items: flex-start;
 `;
 
-export const SetupHeader = styled.span`
+export const SetupHeader = styled.span.attrs({
+  className: 'text-gray-900 dark:text-gray-200 font-medium'
+})`
   font-size: 1.25em;
   margin: 4px 0;
-  color: ${black};
 `;
 
-export const SetupExplainerText = styled.div`
-  color: ${gray800};
+export const SetupExplainerText = styled.div.attrs({
+  className: 'text-gray-800 dark:text-gray-300'
+})`
   font-size: 0.8em;
-  margin: 8px 0;
   padding: 0 3em 0 0;
 `;
 
@@ -58,8 +59,7 @@ export const FormContainer = styled.div`
   min-height: 33em;
 `;
 
-export const BoxedWrapper = styled.div`
-  background: ${white};
+export const BoxedWrapper = styled.div.attrs({ className: 'bg-white dark:bg-gray-800' })`
   border-radius: 0.375rem;
   display: flex;
   flex-direction: column;

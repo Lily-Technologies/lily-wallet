@@ -144,7 +144,7 @@ const OnchainSendTxForm = ({
   ];
 
   return (
-    <div className='bg-white rounded-md shadow'>
+    <div className='bg-white dark:bg-gray-800 rounded-md shadow'>
       <div className='py-6 px-4 sm:p-6 ' data-cy='send-form'>
         <FileUploader
           accept='*'
@@ -154,7 +154,7 @@ const OnchainSendTxForm = ({
           }}
         />
         <label style={{ display: 'none' }} ref={fileUploadLabelRef} htmlFor='txFile'></label>
-        <div className='w-full flex justify-end'>
+        <div className='w-full flex justify-end text-gray-900 dark:text-gray-200'>
           <Dropdown
             minimal={true}
             style={{ alignSelf: 'flex-end' }}
@@ -203,7 +203,8 @@ const OnchainSendTxForm = ({
           <div className='col-span-4 lg:col-span-2'>
             <Input
               label='Amount to send'
-              type='text'
+              type='number'
+              inputMode='decimal'
               value={sendAmount}
               onChange={(value) => {
                 setSendAmount(value);
@@ -218,12 +219,22 @@ const OnchainSendTxForm = ({
           </div>
         </div>
       </div>
-      <div className='text-right py-3 px-4 mt-2 border bg-gray-50 rounded-bl-md rounded-br-md'>
+      <div className='text-right py-3 px-4 mt-2 border bg-gray-50 dark:border-gray-900 dark:bg-gray-700 rounded-bl-md rounded-br-md'>
         <button
-          className='inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500'
+          disabled={!!currentAccount.loading}
+          className='inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md disabled:bg-red-500 text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2  focus:ring-green-500'
           onClick={() => submitForm(recipientAddress, sendAmount, currentAccount.currentBalance)}
         >
-          {isLoading ? <Spinner /> : 'Preview Transaction'}
+          {!!currentAccount.loading ? (
+            'Loading...'
+          ) : isLoading ? (
+            <>
+              <Spinner />
+              Creating transaction...
+            </>
+          ) : (
+            'Preview Transaction'
+          )}
         </button>
         {importTxFromFileError && !modalIsOpen && (
           <ErrorText style={{ paddingTop: '1em' }}>{importTxFromFileError}</ErrorText>

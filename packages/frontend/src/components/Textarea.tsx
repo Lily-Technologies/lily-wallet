@@ -3,6 +3,10 @@ import styled from 'styled-components';
 
 import { white, gray300, gray700, red400, red500 } from 'src/utils/colors';
 
+function classNames(...classes) {
+  return classes.filter(Boolean).join(' ');
+}
+
 interface Props {
   value: string;
   onChange(value: string): void;
@@ -38,7 +42,12 @@ export const Textarea = ({
 }: Props) => (
   <Fragment>
     {label && (
-      <Label htmlFor={id} largeText={largeText} style={labelStyle}>
+      <Label
+        className='text-gray-700 dark:text-gray-200'
+        htmlFor={id}
+        largeText={largeText}
+        style={labelStyle}
+      >
         {label}
       </Label>
     )}
@@ -52,13 +61,16 @@ export const Textarea = ({
             onPaste(e.clipboardData.getData('text'));
           }}
           onKeyDown={onKeyDown}
-          error={!!error}
           autoFocus={autoFocus}
           placeholder={placeholder}
           largeText={largeText}
           style={style}
           disabled={disabled}
           rows={rows}
+          className={classNames(
+            !!error ? 'border-red-500' : 'border-gray-300 dark:border-gray-500',
+            'text-gray-900 dark:text-gray-200 focus:ring-green-500 focus:border-green-500 focus:outline-none border'
+          )}
         />
       </InputWrapper>
       {!!error && <ErrorText>{error}</ErrorText>}
@@ -82,26 +94,16 @@ const Label = styled.label<{ largeText: boolean }>`
   font-size: ${(p) => (p.largeText ? '1.15rem' : '.875rem')};
   line-height: ${(p) => (p.largeText ? '2.25em' : '1.25em')};
   font-weight: 500;
-  color: ${gray700};
 `;
 
 const InputWrapper = styled.div`
-  border: 0 solid #d2d6dc;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   margin-top: 0.25rem;
   position: relative;
   width: 100%;
-
-  *,
-  &:after,
-  &:before {
-    box-sizing: border-box;
-    border: 0 solid #d2d6dc;
-  }
 `;
 
 const StyledTextarea = styled.textarea<{
-  error: boolean | undefined;
   largeText: boolean;
   disabled?: boolean;
 }>`
@@ -109,25 +111,9 @@ const StyledTextarea = styled.textarea<{
   line-height: 1.25em;
   width: 100%;
   display: block;
-  background-color: ${white};
-  border-color: ${(p) => (p.error ? red400 : gray300)};
-  border-width: 1px;
   border-radius: 0.375rem;
   padding: 1rem 1.25em;
   text-align: left;
   position: relative;
-  cursor: ${(p) => (p.disabled ? 'not-allowed' : 'text')}
-
-  *,
-  &:after,
-  &:before {
-    box-sizing: border-box;
-    border: 0 solid #d2d6dc;
-  }
-
-  &:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(164, 202, 254, 0.45);
-    border-color: #a4cafe;
-  }
+  cursor: ${(p) => (p.disabled ? 'not-allowed' : 'text')};
 `;

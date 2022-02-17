@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useEffect, useContext } from 'react';
 import { Network } from 'bitcoinjs-lib';
 
 import { PageWrapper, PageTitle, Header, HeaderRight, HeaderLeft, Loading } from 'src/components';
@@ -24,8 +24,14 @@ interface Props {
 }
 
 const Send = ({ config, currentBitcoinNetwork, nodeConfig, currentBitcoinPrice }: Props) => {
-  const { accountMap, currentAccount } = useContext(AccountMapContext);
-  console.log('currentAccount: ', currentAccount);
+  const { accountMap, currentAccount, setCurrentAccountId } = useContext(AccountMapContext);
+  const hasAccount = Object.keys(accountMap).length > 0;
+
+  useEffect(() => {
+    if (currentAccount.name === 'Loading...' && hasAccount) {
+      setCurrentAccountId(Object.keys(accountMap)[0]);
+    }
+  }, []);
 
   return (
     <PageWrapper>
@@ -36,12 +42,7 @@ const Send = ({ config, currentBitcoinNetwork, nodeConfig, currentBitcoinPrice }
           </HeaderLeft>
           <HeaderRight></HeaderRight>
         </Header>
-        {Object.keys(accountMap).length === 0 && <NoAccountsEmptyState />}
-        {Object.keys(accountMap).length > 0 && currentAccount.loading && (
-          <div className='flex align-center h-96 bg-white rounded-md shadow'>
-            <Loading itemText={'Send Information'} />
-          </div>
-        )}
+        {!hasAccount && <NoAccountsEmptyState />}
 
         {currentAccount.config.type === 'onchain' && (
           <SendOnchain

@@ -38,8 +38,10 @@ const LightningReceiveQr = ({ paymentRequest, setStep }: Props) => {
   }, []);
 
   return (
-    <AccountReceiveContentLeft>
-      <HeaderContainer>Invoice summary</HeaderContainer>
+    <AccountReceiveContentLeft className='bg-white dark:bg-gray-800 border border-gray-400 dark:border-gray-700'>
+      <HeaderContainer className='text-gray-900 dark:text-gray-200 border-b border-gray-200 dark:border-gray-700'>
+        Invoice summary
+      </HeaderContainer>
       <QRCodeWrapper>
         <QRCode
           bgColor={white}
@@ -50,15 +52,17 @@ const LightningReceiveQr = ({ paymentRequest, setStep }: Props) => {
         />
       </QRCodeWrapper>
 
-      <TxReviewWrapper>
+      <TxReviewWrapper className='text-gray-900 dark:text-gray-200 border-b border-gray-200 dark:border-gray-700'>
         <TxItem>
-          <TxItemLabel>Memo</TxItemLabel>
-          <TxItemValue>{description}</TxItemValue>
+          <div className='text-gray-900 dark:text-gray-200'>Memo</div>
+          <div className='text-gray-900 dark:text-gray-200 font-semibold'>{description}</div>
         </TxItem>
 
         <TxItem>
-          <TxItemLabel>Amount</TxItemLabel>
-          <TxItemValue>{decoded.satoshis} sats</TxItemValue>
+          <div className='text-gray-900 dark:text-gray-200'>Amount</div>
+          <div className='text-gray-900 dark:text-gray-200 font-semibold'>
+            {decoded.satoshis} sats
+          </div>
         </TxItem>
 
         {!!!invoiceExpired && (
@@ -73,24 +77,26 @@ const LightningReceiveQr = ({ paymentRequest, setStep }: Props) => {
         )}
         {invoiceExpired && <ErrorContainer>This invoice has expired</ErrorContainer>}
       </TxReviewWrapper>
-
-      <ReceiveButtonContainer>
-        <CopyToClipboard text={paymentRequest!}>
-          <CopyAddressButton color={white} background={green600}>
-            Copy Invoice
-          </CopyAddressButton>
-        </CopyToClipboard>
-        <NewAddressButton background='transparent' color={gray600} onClick={() => setStep(0)}>
+      <div className='flex w-full justify-end mt-6 flex-col flex-col-reverse md:flex-row'>
+        <button
+          type='button'
+          className='justify-center inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2  focus:ring-green-500'
+          onClick={() => setStep(0)}
+        >
           Generate New Invoice
-        </NewAddressButton>
-      </ReceiveButtonContainer>
+        </button>
+        <CopyToClipboard text={paymentRequest!}>
+          <button
+            type='button'
+            className='justify-center mb-2 md:mb-0 ml-0 sm:ml-2 inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2  focus:ring-green-500'
+          >
+            Copy Invoice
+          </button>
+        </CopyToClipboard>
+      </div>
     </AccountReceiveContentLeft>
   );
 };
-
-const ReceiveButtonContainer = styled.div`
-  margin: 24px;
-`;
 
 const CopyAddressButton = styled.div`
   ${Button};
@@ -113,9 +119,7 @@ const AccountReceiveContentLeft = styled.div`
   display: flex;
   flex-direction: column;
   flex: 1;
-  background: ${white};
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  border: 1px solid ${gray400};
   border-radius: 0.385em;
   justify-content: center;
   width: 100%;
@@ -128,7 +132,6 @@ const TxReviewWrapper = styled.div`
   padding-bottom: 1.5rem;
   padding-left: 1rem;
   padding-right: 1rem;
-  border-bottom: 1px solid rgb(229, 231, 235);
 `;
 
 const TxItem = styled.div`
@@ -143,7 +146,6 @@ const TxItemLabel = styled.div``;
 const TxItemValue = styled.div``;
 
 const HeaderContainer = styled.div`
-  border-bottom: 1px solid rgb(229, 231, 235);
   padding-top: 1.75rem;
   padding-bottom: 1.75rem;
   padding-left: 1.5rem;

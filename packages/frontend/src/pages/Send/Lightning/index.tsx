@@ -1,13 +1,8 @@
 import React, { useState } from 'react';
 import styled, { css } from 'styled-components';
-import { satoshisToBitcoins } from 'unchained-bitcoin';
-
-import { GridArea } from 'src/components';
 
 import LightningSendTxForm from './LightningSendTxForm';
 import LightningPaymentConfirm from './LightningPaymentConfirm';
-
-import { requireLightning } from 'src/hocs';
 
 import { white, gray400, gray500, gray600 } from 'src/utils/colors';
 

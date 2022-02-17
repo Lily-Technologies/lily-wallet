@@ -17,6 +17,7 @@ interface Props {
 }
 
 export const DeviceImage = ({ device }: Props) => {
+  console.log('device: ', device);
   return (
     <DeviceImageWrapper
       src={
@@ -30,6 +31,8 @@ export const DeviceImage = ({ device }: Props) => {
           ? TrezorOne
           : device.type === 'trezor' && device.model === 'trezor_t'
           ? TrezorT
+          : device.type === 'trezor'
+          ? TrezorOne
           : device.type === 'cobo'
           ? Cobo
           : device.type === 'bitbox02'

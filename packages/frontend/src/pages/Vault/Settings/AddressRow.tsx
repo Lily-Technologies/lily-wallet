@@ -17,6 +17,10 @@ import {
 
 import { Address } from '@lily/types';
 
+function classNames(...classes) {
+  return classes.filter(Boolean).join(' ');
+}
+
 interface Props {
   address: Address;
   status: 'used' | 'unused';
@@ -26,18 +30,21 @@ interface Props {
 const AddressRow = ({ address, status, type }: Props) => (
   <TableRowNoBorder>
     <TableColumnNoPadding>
-      <UtxoHeader>{address.address}</UtxoHeader>
+      <UtxoHeader className='text-gray-900 dark:text-gray-200'>{address.address}</UtxoHeader>
       <UtxoSubheader>Derivation path: {address.bip32derivation[0].path}</UtxoSubheader>
     </TableColumnNoPadding>
     <RightAlignColumn>
       <Badge
-        background={status === 'used' ? yellow100 : green100}
-        color={status === 'used' ? yellow800 : green800}
+        className={classNames(
+          status === 'used'
+            ? 'bg-yellow-100 dark:bg-yellow-600 text-yellow-800 dark:text-yellow-100'
+            : 'bg-green-100 dark:bg-green-600 text-green-800 dark:text-green-100'
+        )}
         style={{ marginRight: '1em' }}
       >
         {status}
       </Badge>
-      <Badge background={gray100} color={gray800}>
+      <Badge className='text-gray-800 bg-gray-100 dark:bg-gray-700 dark:text-gray-200'>
         {type}
       </Badge>
     </RightAlignColumn>
@@ -53,6 +60,7 @@ const TableRowNoBorder = styled(TableRow)`
   border-left: none;
   border-right: none;
   border-top: none;
+  overflow-x: auto;
 `;
 
 const RightAlignColumn = styled(TableColumn)`
@@ -63,12 +71,12 @@ const RightAlignColumn = styled(TableColumn)`
   font-weight: 500;
   padding-left: 0;
   padding-right: 0;
+  white-space: nowrap;
 `;
 
 const UtxoHeader = styled.div`
   font-size: 0.875rem;
   line-height: 1.25rem;
-  color: ${gray900};
   font-weight: 500;
 `;
 

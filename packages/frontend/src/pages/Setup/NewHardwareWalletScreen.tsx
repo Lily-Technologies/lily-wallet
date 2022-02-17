@@ -315,10 +315,10 @@ const NewHardwareWalletScreen = ({
           <XPubHeaderWrapper>
             <SetupHeaderWrapper>
               <div className='mr-8'>
-                <h3 className='text-lg leading-6 font-medium text-gray-900'>
+                <h3 className='text-lg leading-6 font-medium text-gray-900 dark:text-gray-200'>
                   Connect hardware wallet to computer
                 </h3>
-                <p className='mt-1 text-sm text-gray-500'>
+                <p className='mt-1 text-sm text-gray-500 dark:text-gray-300'>
                   Connect your device via USB or import via QR code or SD card. For detailed
                   instructions, read the{' '}
                   <a

@@ -60,7 +60,14 @@ export const PricingTable = ({ clickRenewLicense, currentAccount }: Props) => {
                 onClick={() => onLicenseClick(LicenseTiers.basic, currentAccount)}
                 disabled={!!isLoading}
               >
-                {isLoading === LicenseTiers.basic ? <Spinner /> : 'Buy Basic'}
+                {isLoading === LicenseTiers.basic ? (
+                  <>
+                    <Spinner />
+                    Loading...
+                  </>
+                ) : (
+                  'Buy Basic'
+                )}
               </DownloadButton>
             </HeaderColumn>
 
@@ -218,7 +225,14 @@ export const PricingTable = ({ clickRenewLicense, currentAccount }: Props) => {
                 onClick={() => onLicenseClick(LicenseTiers.basic, currentAccount)}
                 disabled={!!isLoading}
               >
-                {isLoading === LicenseTiers.basic ? <Spinner /> : 'Buy Basic'}
+                {isLoading === LicenseTiers.basic ? (
+                  <>
+                    <Spinner />
+                    Loading...
+                  </>
+                ) : (
+                  'Buy Basic'
+                )}
               </DownloadButton>
             </FooterButton>
           </MobileTableItem>
@@ -236,7 +250,14 @@ export const PricingTable = ({ clickRenewLicense, currentAccount }: Props) => {
               onClick={() => onLicenseClick(LicenseTiers.premium, currentAccount)}
               disabled={!!isLoading}
             >
-              {isLoading === LicenseTiers.premium ? <Spinner /> : 'Buy Premium'}
+              {isLoading === LicenseTiers.premium ? (
+                <>
+                  <Spinner />
+                  Loading...
+                </>
+              ) : (
+                'Buy Premium'
+              )}
             </DownloadButton>
           </HeaderColumn>
 
@@ -394,7 +415,14 @@ export const PricingTable = ({ clickRenewLicense, currentAccount }: Props) => {
               onClick={() => onLicenseClick(LicenseTiers.premium, currentAccount)}
               disabled={!!isLoading}
             >
-              {isLoading === LicenseTiers.premium ? <Spinner /> : 'Buy Premium'}
+              {isLoading === LicenseTiers.premium ? (
+                <>
+                  <Spinner />
+                  Loading...
+                </>
+              ) : (
+                'Buy Premium'
+              )}
             </DownloadButton>
           </FooterButton>
         </MobileTableItem>
@@ -432,7 +460,14 @@ export const PricingTable = ({ clickRenewLicense, currentAccount }: Props) => {
                       onClick={() => onLicenseClick(LicenseTiers.basic, currentAccount)}
                       disabled={!!isLoading}
                     >
-                      {isLoading === LicenseTiers.basic ? <Spinner /> : 'Buy Basic'}
+                      {isLoading === LicenseTiers.basic ? (
+                        <>
+                          <Spinner />
+                          Loading...
+                        </>
+                      ) : (
+                        'Buy Basic'
+                      )}
                     </DownloadButton>
                   </div>
                 </DesktopTablePricingHeaderColumn>
@@ -450,7 +485,14 @@ export const PricingTable = ({ clickRenewLicense, currentAccount }: Props) => {
                     onClick={() => onLicenseClick(LicenseTiers.premium, currentAccount)}
                     disabled={!!isLoading}
                   >
-                    {isLoading === LicenseTiers.premium ? <Spinner /> : 'Buy Premium'}
+                    {isLoading === LicenseTiers.premium ? (
+                      <>
+                        <Spinner />
+                        Loading...
+                      </>
+                    ) : (
+                      'Buy Premium'
+                    )}
                   </DownloadButton>
                 </div>
               </DesktopTablePricingHeaderColumn>
@@ -699,7 +741,14 @@ export const PricingTable = ({ clickRenewLicense, currentAccount }: Props) => {
                     onClick={() => onLicenseClick(LicenseTiers.basic, currentAccount)}
                     disabled={!!isLoading}
                   >
-                    {isLoading === LicenseTiers.basic ? <Spinner /> : 'Buy Basic'}
+                    {isLoading === LicenseTiers.basic ? (
+                      <>
+                        <Spinner />
+                        Loading...
+                      </>
+                    ) : (
+                      'Buy Basic'
+                    )}
                   </DownloadButton>
                 </TableFooterItem>
               ) : null}
@@ -708,7 +757,14 @@ export const PricingTable = ({ clickRenewLicense, currentAccount }: Props) => {
                   onClick={() => onLicenseClick(LicenseTiers.premium, currentAccount)}
                   disabled={!!isLoading}
                 >
-                  {isLoading === LicenseTiers.premium ? <Spinner /> : 'Buy Premium'}
+                  {isLoading === LicenseTiers.premium ? (
+                    <>
+                      <Spinner />
+                      Loading...
+                    </>
+                  ) : (
+                    'Buy Premium'
+                  )}
                 </DownloadButton>
               </TableFooterItem>
             </TableRow>

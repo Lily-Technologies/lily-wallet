@@ -31,7 +31,7 @@ const Login = ({
   };
 
   return (
-    <div className='min-h-full flex bg-white'>
+    <div className='min-h-full flex bg-white dark:bg-gray-900'>
       <div className='flex-1 flex flex-col justify-center py-12 px-4 sm:px-6 lg:flex-none lg:px-20 xl:px-24'>
         {mode === 'unlock' ? (
           <UnlockForm

@@ -98,47 +98,47 @@ export const PromptPinModal = ({ device, enumerate, closeModal }: Props) => {
   const pinItems: React.ReactNode[] = []; // KBC-TODO: give this a correct type
   pinItems.push(
     <PinItem onClick={() => addToPin(7)}>
-      <StyledIcon as={DotSingle} size={25} />
+      <DotSingle className='w-25 h-25 text-gray-900 dark:text-gray-200' size={25} />
     </PinItem>
   );
   pinItems.push(
     <PinItem onClick={() => addToPin(8)}>
-      <StyledIcon as={DotSingle} size={25} />
+      <DotSingle className='w-25 h-25 text-gray-900 dark:text-gray-200' size={25} />
     </PinItem>
   );
   pinItems.push(
     <PinItem onClick={() => addToPin(9)}>
-      <StyledIcon as={DotSingle} size={25} />
+      <DotSingle className='w-25 h-25 text-gray-900 dark:text-gray-200' size={25} />
     </PinItem>
   );
   pinItems.push(
     <PinItem onClick={() => addToPin(4)}>
-      <StyledIcon as={DotSingle} size={25} />
+      <DotSingle className='w-25 h-25 text-gray-900 dark:text-gray-200' size={25} />
     </PinItem>
   );
   pinItems.push(
     <PinItem onClick={() => addToPin(5)}>
-      <StyledIcon as={DotSingle} size={25} />
+      <DotSingle className='w-25 h-25 text-gray-900 dark:text-gray-200' size={25} />
     </PinItem>
   );
   pinItems.push(
     <PinItem onClick={() => addToPin(6)}>
-      <StyledIcon as={DotSingle} size={25} />
+      <DotSingle className='w-25 h-25 text-gray-900 dark:text-gray-200' size={25} />
     </PinItem>
   );
   pinItems.push(
     <PinItem onClick={() => addToPin(1)}>
-      <StyledIcon as={DotSingle} size={25} />
+      <DotSingle className='w-25 h-25 text-gray-900 dark:text-gray-200' size={25} />
     </PinItem>
   );
   pinItems.push(
     <PinItem onClick={() => addToPin(2)}>
-      <StyledIcon as={DotSingle} size={25} />
+      <DotSingle className='w-25 h-25 text-gray-900 dark:text-gray-200' size={25} />
     </PinItem>
   );
   pinItems.push(
     <PinItem onClick={() => addToPin(3)}>
-      <StyledIcon as={DotSingle} size={25} />
+      <DotSingle className='w-25 h-25 text-gray-900 dark:text-gray-200' size={25} />
     </PinItem>
   );
 
@@ -157,7 +157,7 @@ export const PromptPinModal = ({ device, enumerate, closeModal }: Props) => {
         )}
       </PinInputWrapper>
       <PinItemsWrapper>{pinItems}</PinItemsWrapper>
-      {promptPinError && <ErrorText>{promptPinError}</ErrorText>}
+      {promptPinError && <p className='text-red-500 text-center mb-4'>{promptPinError}</p>}
       <UnlockButton background={green600} color={white} onClick={() => sendPin()}>
         Unlock Device
       </UnlockButton>
@@ -166,7 +166,9 @@ export const PromptPinModal = ({ device, enumerate, closeModal }: Props) => {
 
   return (
     <>
-      <ModalHeaderContainer>Enter PIN</ModalHeaderContainer>
+      <ModalHeaderContainer className='text-gray-900 dark:text-gray-200 border-b border-b-gray-200 dark:border-b-gray-700'>
+        Enter PIN
+      </ModalHeaderContainer>
       {!!loadingMessage && <Loading message={loadingMessage} />}
       {!!!loadingMessage && <PinInput />}
     </>
@@ -174,7 +176,6 @@ export const PromptPinModal = ({ device, enumerate, closeModal }: Props) => {
 };
 
 const ModalHeaderContainer = styled.div`
-  border-bottom: 1px solid rgb(229, 231, 235);
   padding-top: 1.25rem;
   padding-bottom: 1.25rem;
   padding-left: 1.5rem;
@@ -185,13 +186,13 @@ const ModalHeaderContainer = styled.div`
   font-size: 1.5em;
 `;
 
-const PinInputWrapper = styled.div`
+const PinInputWrapper = styled.div.attrs({
+  className: 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-200'
+})`
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0em 3em;
-  background: ${gray100};
-  color: ${gray900};
   margin: 1.5em 3em 0.5em;
   border-radius: 0.385em;
   height: 4.3333em;
@@ -229,10 +230,11 @@ const PinItemsWrapper = styled.div`
   padding: 1em 3em;
 `;
 
-const PinItem = styled.div`
+const PinItem = styled.button.attrs({
+  className: 'bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700'
+})`
   padding: 1.25em;
   margin: 0.25em;
-  background: ${white};
   border: 1px solid ${green500};
   border-radius: 4px;
   position: relative;
@@ -242,17 +244,6 @@ const PinItem = styled.div`
   &:hover {
     border: 1px solid ${green400};
   }
-
-  &:active {
-    border: 1px solid ${green600};
-    background: ${gray100};
-  }
-`;
-
-const ErrorText = styled.div`
-  color: ${red500};
-  text-align: center;
-  padding-bottom: 1em;
 `;
 
 const UnlockButton = styled.button`

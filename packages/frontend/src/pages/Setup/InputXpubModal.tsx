@@ -71,7 +71,9 @@ const InputXpubModal = ({ importedDevices, setImportedDevices, closeModal }: Pro
 
   return (
     <>
-      <ModalHeaderContainer>Manually input device data</ModalHeaderContainer>
+      <ModalHeaderContainer className='text-gray-900 dark:text-gray-200'>
+        Manually input device data
+      </ModalHeaderContainer>
       <SelectionContainer>
         <InputSection>
           <Input

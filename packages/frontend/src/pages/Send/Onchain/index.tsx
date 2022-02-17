@@ -5,13 +5,11 @@ import { satoshisToBitcoins, blockExplorerTransactionURL } from 'unchained-bitco
 import { Psbt, Network } from 'bitcoinjs-lib';
 import { CheckCircle, RemoveCircle } from '@styled-icons/material';
 
-import { GridArea, Modal } from 'src/components';
+import { Modal } from 'src/components';
 import { StyledIcon, Button } from 'src/components';
 
 import SendTxForm from '../components/OnchainSendTxForm';
 import ConfirmTxPage from './ConfirmTxPage';
-
-import { requireOnchain } from 'src/hocs';
 
 import { white, gray400, gray500, gray600, gray800, green500, red500 } from 'src/utils/colors';
 
@@ -161,7 +159,7 @@ const SendOnchain = ({ currentAccount, currentBitcoinNetwork, currentBitcoinPric
 
   return (
     <>
-      {!currentAccount.loading && step === 0 && (
+      {step === 0 && (
         <SendTxForm
           currentAccount={currentAccount}
           finalPsbt={finalPsbt}
@@ -171,7 +169,7 @@ const SendOnchain = ({ currentAccount, currentBitcoinNetwork, currentBitcoinPric
           currentBitcoinNetwork={currentBitcoinNetwork}
         />
       )}
-      {!currentAccount.loading && finalPsbt && step === 1 && (
+      {finalPsbt && step === 1 && (
         <ConfirmTxPage
           currentAccount={currentAccount}
           finalPsbt={finalPsbt}
