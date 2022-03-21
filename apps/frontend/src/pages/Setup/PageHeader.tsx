@@ -22,11 +22,12 @@ const PageHeader = ({ headerText, setStep, step, setSetupOption }: Props) => {
           <PageTitleSubtext>New Account</PageTitleSubtext>
           <h1 className='text-gray-900 dark:text-gray-200 font-medium text-3xl'>{headerText}</h1>
         </HeaderLeft>
-        <HeaderRight>
+        <div className='flex'>
           {step === 0 && (
             <Dropdown
               data-cy='Select account dropdown'
               minimal={true}
+              className='text-black dark:text-white'
               dropdownItems={[
                 {
                   label: 'New Software Wallet',
@@ -50,7 +51,7 @@ const PageHeader = ({ headerText, setStep, step, setSetupOption }: Props) => {
               Cancel
             </button>
           )}
-        </HeaderRight>
+        </div>
       </Header>
     </HeaderWrapper>
   );

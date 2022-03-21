@@ -61,7 +61,7 @@ export const Dropdown = ({
             onClick={() => setIsOpen(!isOpen)}
             aria-label='Options'
             id='options-menu'
-            className='focus:ring-green-500 focus:border-green-500 focus:outline-none'
+            className='focus:ring-green-500 focus:border-green-500 focus:outline-none text-black'
             {...rest}
           >
             <DotDotDotImage fill='currentColor' viewBox='0 0 20 20'>
