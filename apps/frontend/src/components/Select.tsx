@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Listbox, Transition } from '@headlessui/react';
 import { CheckIcon, SelectorIcon } from '@heroicons/react/solid';
 
-import { white, red600, gray300, gray400, gray700, gray900, green500 } from 'src/utils/colors';
+import { white, red600, gray400, gray900, green500 } from 'src/utils/colors';
 
 interface Option {
   label: string;

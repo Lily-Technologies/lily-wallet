@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 
 import LightningSendTxForm from './LightningSendTxForm';
 import LightningPaymentConfirm from './LightningPaymentConfirm';
 
-import { white, gray400, gray500, gray600 } from 'src/utils/colors';
-
-import { mobile } from 'src/utils/media';
+import { gray500 } from 'src/utils/colors';
 
 import { LilyLightningAccount } from '@lily/types';
 
@@ -15,10 +13,8 @@ interface Props {
 }
 
 const SendLightning = ({ currentAccount }: Props) => {
-  console.log('render lightning form');
   const [step, setStep] = useState(0);
   const [paymentRequest, setPaymentRequest] = useState('');
-  const { currentBalance } = currentAccount;
 
   return (
     <>
@@ -40,41 +36,6 @@ const SendLightning = ({ currentAccount }: Props) => {
     </>
   );
 };
-
-const SendContentRight = styled.div`
-  min-height: 400px;
-  padding: 0;
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  overflow: hidden;
-  width: 100%;
-
-  ${mobile(css`
-    order: -1;
-    min-height: auto;
-  `)};
-`;
-
-const CurrentBalanceWrapper = styled.div`
-  padding: 1.5em;
-  display: 'flex';
-  flex-direction: column;
-  border-radius: 0.385em;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  border: 1px solid ${gray400};
-  background: ${white};
-  text-align: right;
-`;
-
-const CurrentBalanceText = styled.div`
-  font-size: 1.5em;
-  color: ${gray600};
-`;
-
-const CurrentBalanceValue = styled.div`
-  font-size: 2em;
-`;
 
 export const InputStaticText = styled.label<{
   text: string;

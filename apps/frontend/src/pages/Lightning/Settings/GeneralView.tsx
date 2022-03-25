@@ -8,7 +8,7 @@ import EditAccountNameModal from './EditAccountNameModal';
 
 import { AccountMapContext } from 'src/context/AccountMapContext';
 
-import { white, red500, green500 } from 'src/utils/colors';
+import { red500 } from 'src/utils/colors';
 interface Props {
   password: string;
 }

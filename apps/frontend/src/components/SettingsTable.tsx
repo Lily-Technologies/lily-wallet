@@ -1,7 +1,5 @@
 import styled, { css } from 'styled-components';
 
-import { Button } from '.';
-import { gray200, gray600, gray700, gray900 } from 'src/utils/colors';
 import { mobile } from 'src/utils/media';
 
 const Wrapper = styled.div``;

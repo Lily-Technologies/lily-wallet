@@ -2,11 +2,11 @@ import React from 'react';
 import styled, { css } from 'styled-components';
 import { Calculator } from '@styled-icons/heroicons-outline';
 
-import { StyledIcon, DeviceImage } from 'src/components';
+import { DeviceImage } from 'src/components';
 
 import { mobile } from 'src/utils/media';
 import { capitalize } from 'src/utils/other';
-import { green100, gray200, gray500, gray900, green600 } from 'src/utils/colors';
+import { gray500, gray900 } from 'src/utils/colors';
 
 import { ExtendedPublicKey } from '@lily/types';
 

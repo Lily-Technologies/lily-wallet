@@ -8,16 +8,13 @@ import LightningHeader from './LightningHeader';
 import LightningView from './LightningView';
 import LightningSettings from './Settings';
 
-import { NodeConfigWithBlockchainInfo } from '@lily/types';
-
 interface Props {
-  nodeConfig: NodeConfigWithBlockchainInfo;
   password: string;
   toggleRefresh(): void;
   currentBitcoinNetwork: Network;
 }
 
-const Lightning = ({ nodeConfig, password, toggleRefresh, currentBitcoinNetwork }: Props) => {
+const Lightning = ({ password, toggleRefresh, currentBitcoinNetwork }: Props) => {
   let { path } = useRouteMatch();
 
   return (

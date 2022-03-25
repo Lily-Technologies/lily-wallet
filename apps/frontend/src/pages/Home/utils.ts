@@ -33,7 +33,7 @@ export const getLastTransactionTimeOnchain = (transactions: Transaction[]) => {
 };
 
 export const getLastTransactionTimeLightning = (events: LightningEvent[]) => {
-  if (events.length === 0) {
+  if (!events || events.length === 0) {
     // if no transactions yet
     return `No activity on this account yet`;
   } else {

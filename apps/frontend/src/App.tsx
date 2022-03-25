@@ -7,7 +7,7 @@ import BigNumber from 'bignumber.js';
 import { gray50, green700 } from 'src/utils/colors';
 import { mobile } from 'src/utils/media';
 
-import { Sidebar, TitleBar, ScrollToTop, AlertBar } from 'src/components';
+import { Sidebar, TitleBar, ScrollToTop } from 'src/components';
 
 // Pages
 import Login from 'src/pages/Login';
@@ -23,7 +23,6 @@ import Purchase from 'src/pages/Purchase';
 import { AccountMapContext, ConfigContext, PlatformContext } from 'src/context';
 
 import {
-  NodeConfigWithBlockchainInfo,
   File,
   AccountMap,
   LilyAccount,
@@ -342,18 +341,6 @@ const ColorOverlap = styled.div`
   ${mobile(css`
     height: 20em;
   `)}
-`;
-
-const PageWrapper = styled.div`
-  height: 100%;
-  display: flex;
-  font-family: 'Raleway', sans-serif;
-  flex: 1;
-  background: ${gray50};
-
-  ${mobile(css`
-    flex-direction: column;
-  `)};
 `;
 
 export default App;

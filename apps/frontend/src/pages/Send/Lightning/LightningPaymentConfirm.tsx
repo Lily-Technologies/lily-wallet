@@ -41,7 +41,7 @@ const LightningPaymentConfirm = ({ paymentRequest, setStep, currentAccount }: Pr
           pubKey: decoded.payeeNodeKey!,
           amt: decoded.satoshis?.toString()
         });
-        console.log('routes: ', routes);
+
         setEstimatedFee(Math.floor(Number(routes[0].totalFeesMsat) / 1000));
       } catch (e) {
         console.log('e: ', e);

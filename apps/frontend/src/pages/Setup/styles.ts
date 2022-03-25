@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import { gray500, gray600, gray800, white, black, green600 } from 'src/utils/colors';
+import { gray500, gray600, black, green600 } from 'src/utils/colors';
 
 export const HeaderWrapper = styled.div`
   color: ${black};

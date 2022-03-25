@@ -1,9 +1,6 @@
-import React, { InputHTMLAttributes } from 'react';
+import React from 'react';
 import { ExclamationCircleIcon } from '@heroicons/react/solid';
-
-function classNames(...classes) {
-  return classes.filter(Boolean).join(' ');
-}
+import { classNames } from 'src/utils/other';
 
 interface Props {
   error?: string;

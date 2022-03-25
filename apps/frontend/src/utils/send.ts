@@ -13,8 +13,6 @@ import { createMap } from 'src/utils/accountMap';
 import {
   UTXO,
   UtxoMap,
-  AddressType,
-  PsbtInput,
   Transaction,
   FeeRates,
   ExtendedPublicKey,

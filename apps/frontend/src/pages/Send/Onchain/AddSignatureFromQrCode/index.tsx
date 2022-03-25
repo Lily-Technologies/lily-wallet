@@ -1,6 +1,6 @@
 import React, { useState, Fragment } from 'react';
 import styled from 'styled-components';
-import { Psbt, Network } from 'bitcoinjs-lib';
+import { Psbt } from 'bitcoinjs-lib';
 
 import PsbtQrCode from './PsbtQrCode';
 import DecodePsbtQrCode from './DecodePsbtQrCode';
@@ -14,15 +14,9 @@ interface Props {
   importSignatureFromFile: (file: string) => void;
   psbt: Psbt;
   currentBitcoinPrice: number;
-  currentBitcoinNetwork: Network;
 }
 
-const AddSignatureFromQrCode = ({
-  importSignatureFromFile,
-  psbt,
-  currentBitcoinPrice,
-  currentBitcoinNetwork
-}: Props) => {
+const AddSignatureFromQrCode = ({ importSignatureFromFile, psbt, currentBitcoinPrice }: Props) => {
   const [step, setStep] = useState(0);
 
   let screen: JSX.Element | string = 'Ooops, error';

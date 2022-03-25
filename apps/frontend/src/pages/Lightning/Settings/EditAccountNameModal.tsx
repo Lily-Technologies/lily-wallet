@@ -3,10 +3,10 @@ import React, { useContext, useState } from 'react';
 import styled, { css } from 'styled-components';
 import { EditAlt } from '@styled-icons/boxicons-regular';
 
-import { Input, Button, ModalContentWrapper } from 'src/components';
+import { Input, ModalContentWrapper } from 'src/components';
 
 import { mobile } from 'src/utils/media';
-import { white, green100, green600, gray300, gray500, gray700 } from 'src/utils/colors';
+import { gray500 } from 'src/utils/colors';
 import { saveConfig } from 'src/utils/files';
 
 import { AccountMapContext, ConfigContext, PlatformContext } from 'src/context';
@@ -108,36 +108,6 @@ const EditAccountNameModal = ({ password, closeModal }: Props) => {
     </ModalContentWrapper>
   );
 };
-
-const Buttons = styled.div`
-  display: flex;
-  width: 100%;
-  align-items: center;
-  justify-content: flex-end;
-
-  ${mobile(css`
-    flex-direction: column;
-  `)};
-`;
-
-const SaveChangesButton = styled.button`
-  ${Button}
-  margin-top: 1rem;
-
-  ${mobile(css`
-    margin-top: 1.25rem;
-  `)};
-`;
-
-const CancelButton = styled.button`
-  ${Button}
-  margin-top: 1rem;
-  border: 1px solid ${gray300};
-
-  ${mobile(css`
-    margin-top: 1.25rem;
-  `)};
-`;
 
 const TextContainer = styled.div`
   display: flex;

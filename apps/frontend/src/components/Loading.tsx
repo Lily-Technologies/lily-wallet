@@ -2,7 +2,7 @@ import React from 'react';
 import FlowerLoading from 'src/assets/flower-loading.svg';
 
 import styled, { keyframes } from 'styled-components';
-import { green200, gray700 } from 'src/utils/colors';
+import { green200 } from 'src/utils/colors';
 import { RequireOnlyOne } from 'src/types';
 
 interface Props {

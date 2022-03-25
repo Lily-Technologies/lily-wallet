@@ -20,8 +20,6 @@ import {
 
 import { createMap } from '../../utils/accountMap';
 
-import { AddressType } from '../../types';
-
 import { Multisig, Mnemonic, HWW } from '../fixtures';
 
 const FEE_RATES = {

@@ -4,7 +4,7 @@ import CopyToClipboard from 'react-copy-to-clipboard';
 
 import { Select, Input } from 'src/components';
 
-import { black, white } from 'src/utils/colors';
+import { black } from 'src/utils/colors';
 
 import { requireOnchain } from 'src/hocs';
 import { LilyOnchainAccount } from '@lily/types';

@@ -17,7 +17,6 @@ interface Props {
 }
 
 export const DeviceImage = ({ device }: Props) => {
-  console.log('device: ', device);
   return (
     <DeviceImageWrapper
       src={

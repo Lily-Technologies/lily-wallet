@@ -1,7 +1,5 @@
 import { networks } from 'bitcoinjs-lib';
 
-import { Address } from '@lily/types';
-
 import assert from 'assert';
 import { original, addresses } from '../fixtures/serializeTransactions.json';
 const { external, change } = addresses;

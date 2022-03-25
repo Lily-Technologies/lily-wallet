@@ -4,21 +4,8 @@ import styled from 'styled-components';
 import { TableRow, TableColumn } from 'src/components/Table';
 import { Badge } from 'src/components';
 
-import {
-  gray50,
-  gray500,
-  gray900,
-  green100,
-  green800,
-  red100,
-  red800,
-  yellow100,
-  yellow800
-} from 'src/utils/colors';
-
-function classNames(...classes) {
-  return classes.filter(Boolean).join(' ');
-}
+import { gray500, green800 } from 'src/utils/colors';
+import { classNames } from 'src/utils/other';
 
 interface Props {
   alias: string;

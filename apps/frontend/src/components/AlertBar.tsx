@@ -1,7 +1,7 @@
-import React, { useState, useContext, useRef, useEffect } from 'react';
+import React, { useContext, useRef, useEffect } from 'react';
 import { blockExplorerTransactionURL } from 'unchained-bitcoin';
 import { useHistory } from 'react-router-dom';
-import { BellIcon, XIcon } from '@heroicons/react/outline';
+import { BellIcon } from '@heroicons/react/outline';
 
 import { AccountMapContext, ConfigContext, PlatformContext } from 'src/context';
 

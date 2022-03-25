@@ -1,14 +1,10 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
 import { Network } from 'bitcoinjs-lib';
 
 import GeneralView from './GeneralView';
 import ChannelsView from '../Channels';
 import ExportView from './ExportView';
 import SettingsTabs from './SettingsTabs';
-
-import { white } from 'src/utils/colors';
-import { NodeConfigWithBlockchainInfo } from '@lily/types';
 
 interface Props {
   password: string;

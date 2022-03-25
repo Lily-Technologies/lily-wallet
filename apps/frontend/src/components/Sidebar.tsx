@@ -5,9 +5,7 @@ import { XIcon } from '@heroicons/react/outline';
 import { NavLinks } from 'src/components';
 import { SidebarContext } from 'src/context/SidebarContext';
 
-function classNames(...classes) {
-  return classes.filter(Boolean).join(' ');
-}
+import { classNames } from 'src/utils/other';
 
 export const Sidebar = ({ currentBitcoinNetwork }) => {
   const { sidebarOpen, setSidebarOpen } = useContext(SidebarContext);

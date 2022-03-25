@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
 import { Network } from 'bitcoinjs-lib';
-import { Switch, Route, useRouteMatch, RouteComponentProps } from 'react-router-dom';
+import { Switch, Route, useRouteMatch } from 'react-router-dom';
 
 import { PageWrapper } from '../../components';
 
@@ -27,7 +27,7 @@ const Vault = ({ nodeConfig, password, toggleRefresh, currentBitcoinNetwork }: P
         <Switch>
           <Route
             path={`${path}/settings`}
-            render={(props: RouteComponentProps) => (
+            render={() => (
               <VaultSettings
                 password={password}
                 nodeConfig={nodeConfig}

@@ -7,7 +7,7 @@ import { decode } from 'bolt11';
 
 import { Button, StyledIcon } from 'src/components';
 
-import { white, green500, gray400, gray700 } from 'src/utils/colors';
+import { white, green500 } from 'src/utils/colors';
 
 import { LilyLightningAccount } from '@lily/types';
 

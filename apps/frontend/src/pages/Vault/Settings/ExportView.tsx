@@ -6,7 +6,7 @@ import { QRCode } from 'react-qr-svg';
 import { requireOnchain } from 'src/hocs';
 
 import { MnemonicWordsDisplayer, Modal, SettingsTable } from 'src/components';
-import { white, black, gray100, green500 } from 'src/utils/colors';
+import { white, black, gray100 } from 'src/utils/colors';
 
 import { CaravanConfig, LilyOnchainAccount } from '@lily/types';
 

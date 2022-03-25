@@ -1,9 +1,7 @@
 import React, { useState, useContext } from 'react';
 import styled from 'styled-components';
 
-import { Button, Input, Spinner, Select } from 'src/components';
-
-import { white, gray400, green600 } from 'src/utils/colors';
+import { Input, Spinner, Select } from 'src/components';
 
 import { LilyLightningAccount } from '@lily/types';
 import { SetStateNumber, SetStateString } from 'src/types';
@@ -122,46 +120,6 @@ const LightningReceiveForm = ({ setStep, setInvoice, currentAccount }: Props) =>
     </div>
   );
 };
-
-const SentTxFormContainer = styled.div`
-  min-height: 400px;
-  padding: 1.5em;
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  background: ${white};
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  border: 1px solid ${gray400};
-  border-radius: 0.385em;
-  justify-content: center;
-  width: 100%;
-  position: relative;
-`;
-
-const SendButtonContainer = styled.div`
-  margin-bottom: 0;
-  display: flex;
-  justify-content: space-between;
-  flex-direction: column;
-`;
-
-const InputContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 2em;
-`;
-
-const CopyAddressButton = styled.button`
-  ${Button};
-  flex: 1;
-  font-weight: 500;
-  font-size: 1rem;
-  line-height: 1.5rem;
-  padding-left: 1rem;
-  padding-right: 1rem;
-  padding-top: 0.75rem;
-  padding-bottom: 0.75rem;
-`;
 
 const ButtonText = styled.span`
   margin-left: 0.75rem;

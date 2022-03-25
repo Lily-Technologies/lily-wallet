@@ -3,20 +3,10 @@ import styled, { css } from 'styled-components';
 import { Channel } from '@styled-icons/fluentui-system-filled';
 import type { CloseStatusUpdate } from '@lily-technologies/lnrpc';
 
-import { Select, Button, Spinner, StyledIcon } from 'src/components';
+import { Select, Spinner } from 'src/components';
 
 import { AccountMapContext, PlatformContext } from 'src/context';
-import {
-  white,
-  gray300,
-  gray500,
-  gray600,
-  gray700,
-  gray900,
-  red600,
-  green100,
-  green600
-} from 'src/utils/colors';
+import { red600 } from 'src/utils/colors';
 import { mobile } from 'src/utils/media';
 
 import { DecoratedLightningChannel, LilyLightningAccount, LilyOnchainAccount } from '@lily/types';
@@ -77,17 +67,17 @@ const CloseChannelModal = ({ setStep, channel, currentAccount }: Props) => {
 
   return (
     <>
-      <DangerIconContainer>
+      <div>
         <StyledIconCircle className='bg-green-100 dark:bg-green-800'>
           <Channel className='text-green-600 dark:text-green-200' size={36} />
         </StyledIconCircle>
-      </DangerIconContainer>
+      </div>
       <TextContainer>
         <h2 className='text-gray-900 dark:text-gray-200 text-lg font-semibold'>{channel.alias}</h2>
         <p className='text-gray-600 dark:text-gray-400 mb-6'>
           Are you sure you want to close this channel?
         </p>
-        <SelectAccountContainer>
+        <div>
           <dt className='text-sm text-gray-600 dark:text-gray-400'>Closing balance</dt>
           <dd className='text-gray-900 dark:text-gray-200 text-base font-medium'>
             {Number(channel.localBalance).toLocaleString()} sats
@@ -98,7 +88,7 @@ const CloseChannelModal = ({ setStep, channel, currentAccount }: Props) => {
           </InputWrapper>
 
           {error && <ErrorText>{error}</ErrorText>}
-        </SelectAccountContainer>
+        </div>
 
         <div className='flex w-full justify-end mt-6 flex-col flex-col-reverse md:flex-row'>
           <button
@@ -136,31 +126,11 @@ const InputWrapper = styled.div`
   width: 100%;
 `;
 
-const SelectAccountContainer = styled.div``;
-
-const InformationLabel = styled.dt`
-  font-weight: 500;
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  color: ${gray600};
-`;
-
-const InformationValue = styled.dd`
-  font-weight: 500;
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  color: ${gray900};
-  margin-top: 0.25rem;
-  margin-bottom: 1rem;
-`;
-
 const ErrorText = styled.div`
   color: ${red600};
   font-size: 0.875rem;
   line-height: 1.25rem;
 `;
-
-const DangerIconContainer = styled.div``;
 
 const StyledIconCircle = styled.div`
   border-radius: 9999px;
@@ -182,12 +152,6 @@ const TextContainer = styled.div`
     margin-top: 0.75rem;
     margin-left: 0;
   `)}
-`;
-
-const HeadingText = styled.div`
-  font-size: 1.125rem;
-  text-align: center;
-  font-weight: 500;
 `;
 
 export default requireLightning(CloseChannelModal);

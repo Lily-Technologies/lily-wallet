@@ -4,9 +4,9 @@ import { QRCode } from 'react-qr-svg';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import { decode } from 'bolt11';
 
-import { Button, Countdown } from 'src/components';
+import { Countdown } from 'src/components';
 
-import { black, white, gray400, green600, gray600, red500, yellow600 } from 'src/utils/colors';
+import { black, white, red500, yellow600 } from 'src/utils/colors';
 
 import { SetStateNumber } from 'src/types';
 import { PlatformContext } from 'src/context';
@@ -98,15 +98,6 @@ const LightningReceiveQr = ({ paymentRequest, setStep }: Props) => {
   );
 };
 
-const CopyAddressButton = styled.div`
-  ${Button};
-  font-weight: 500;
-`;
-
-const NewAddressButton = styled.div`
-  ${Button};
-`;
-
 const QRCodeWrapper = styled.div`
   display: flex;
   justify-content: center;
@@ -140,10 +131,6 @@ const TxItem = styled.div`
   justify-content: space-between;
   margin-top: 1.5rem;
 `;
-
-const TxItemLabel = styled.div``;
-
-const TxItemValue = styled.div``;
 
 const HeaderContainer = styled.div`
   padding-top: 1.75rem;

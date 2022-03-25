@@ -42,7 +42,6 @@ router.post('/xpub', async (req, res) => {
 router.post('/sign', async (req, res) => {
   const { deviceType, devicePath, psbt } = req.body;
   const resp = JSON.parse(await signtx(deviceType, devicePath, psbt, isTestnet));
-  console.log('/sign resp: ', resp);
   if (resp.error) {
     sendError(res, 'Error signing transaction');
   }

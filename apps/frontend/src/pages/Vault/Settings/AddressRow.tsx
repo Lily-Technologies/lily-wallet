@@ -4,22 +4,10 @@ import styled from 'styled-components';
 import { TableRow, TableColumn } from 'src/components/Table';
 import { Badge } from 'src/components';
 
-import {
-  gray100,
-  gray500,
-  gray800,
-  gray900,
-  green100,
-  green800,
-  yellow100,
-  yellow800
-} from 'src/utils/colors';
+import { gray500, green800 } from 'src/utils/colors';
+import { classNames } from 'src/utils/other';
 
 import { Address } from '@lily/types';
-
-function classNames(...classes) {
-  return classes.filter(Boolean).join(' ');
-}
 
 interface Props {
   address: Address;

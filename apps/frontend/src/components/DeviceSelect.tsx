@@ -1,29 +1,14 @@
 import React, { useState, useEffect, useContext } from 'react';
-import styled, { keyframes } from 'styled-components';
+import styled from 'styled-components';
 import { CheckCircle } from '@styled-icons/material';
 import { ExclamationDiamond } from '@styled-icons/bootstrap';
 
-import { Button, StyledIcon, PromptPinModal, Modal, DeviceImage, Loading } from 'src/components';
-import {
-  green200,
-  green500,
-  white,
-  red500,
-  red200,
-  yellow300,
-  yellow100,
-  gray300,
-  gray600,
-  gray700,
-  gray900
-} from 'src/utils/colors';
+import { StyledIcon, PromptPinModal, Modal, DeviceImage, Loading } from 'src/components';
+import { red500, gray600 } from 'src/utils/colors';
+import { classNames } from 'src/utils/other';
 
 import { Device, HwiEnumerateResponse } from '@lily/types';
 import { PlatformContext } from 'src/context';
-
-function classNames(...classes) {
-  return classes.filter(Boolean).join(' ');
-}
 
 interface Props {
   configuredDevices: Device[];
@@ -274,94 +259,8 @@ const LoadingDevicesWrapper = styled.div`
   text-align: center;
 `;
 
-const ConfiguringText = styled.div<{ error?: boolean; warning?: boolean }>`
-  color: ${(p) => (p.error ? gray600 : gray600)};
-  font-size: ${(p) => (p.warning ? '0.75em' : '1em')};
-  text-align: center;
-`;
-
-const DevicesWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  max-height: 20em;
-  flex-wrap: wrap;
-  justify-content: center;
-  margin-bottom: 1.25em;
-  margin-top: 1.25em;
-  overflow: auto;
-`;
-
-const DeviceInfoWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-evenly;
-`;
-
 const IconWrapper = styled.div`
   position: absolute;
   align-self: flex-end;
   top: 0.65em;
-`;
-
-const DeviceWrapper = styled.div<{
-  loading?: boolean;
-  imported?: boolean;
-  error?: boolean;
-  warning?: boolean;
-  displayLoadingCursor?: boolean;
-}>`
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  justify-content: flex-end;
-  align-items: center;
-  padding: 0.75em;
-  margin: 1.5em;
-  margin-bottom: 0px;
-  border-radius: 4px;
-  position: relative;
-  animation-name: ${(p) => (p.loading ? blinking : 'none')};
-  animation-duration: 1.4s;
-  animation-iteration-count: infinite;
-  animation-fill-mode: both;
-
-  background: ${(p) => (p.imported ? green200 : p.error ? red200 : p.warning ? yellow100 : 'none')};
-  border: ${(p) =>
-    p.imported
-      ? `1px solid ${green500}`
-      : p.error
-      ? `1px solid ${red500}`
-      : p.warning
-      ? `1px solid ${yellow300}`
-      : '1px solid transparent'};
-
-  &:hover {
-    cursor: ${(p) => (p.displayLoadingCursor ? 'wait' : 'pointer')};
-  }
-`;
-
-const DeviceName = styled.h4`
-  text-transform: capitalize;
-  margin-bottom: 2px;
-  font-weight: 500;
-`;
-
-const DeviceFingerprint = styled.h5<{ imported: boolean }>`
-  color: ${(p) => (p.imported ? gray600 : gray600)};
-  margin: 0;
-  font-weight: 100;
-`;
-
-const blinking = keyframes`
-  0% { opacity: .2; }
-  50% { opacity: 1; }
-  100% { opacity: .2; }
-`;
-
-const ConfiguringAnimation = styled.span`
-  animation-name: ${blinking};
-  animation-duration: 1.4s;
-  animation-iteration-count: infinite;
-  animation-fill-mode: both;
 `;

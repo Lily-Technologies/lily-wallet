@@ -1,13 +1,5 @@
 import React from 'react';
-import styled from 'styled-components';
 import { ChevronRightIcon } from '@heroicons/react/solid';
-import { GrayLoadingAnimation } from 'src/components';
-
-import { white, gray50 } from 'src/utils/colors';
-
-interface Props {
-  flat: boolean;
-}
 
 const LoadingRow = () => (
   <div className='border border-gray-300 shadow rounded-md p-4 w-full mx-auto'>

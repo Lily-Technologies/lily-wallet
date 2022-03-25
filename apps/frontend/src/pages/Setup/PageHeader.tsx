@@ -1,9 +1,7 @@
 import React from 'react';
 
-import { HeaderWrapper, CancelButton, PageTitleSubtext } from './styles';
-import { Header, HeaderLeft, HeaderRight, PageTitle, Dropdown } from 'src/components/';
-
-import { black } from 'src/utils/colors';
+import { HeaderWrapper, PageTitleSubtext } from './styles';
+import { Header, HeaderLeft, Dropdown } from 'src/components/';
 
 import { SetStateNumber } from 'src/types';
 

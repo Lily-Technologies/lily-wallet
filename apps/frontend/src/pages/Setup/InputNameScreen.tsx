@@ -107,13 +107,6 @@ const InputNameScreen = ({ header, setupOption, setStep, accountName, setAccount
   );
 };
 
-const PasswordWrapper = styled.div`
-  padding: 1.75em 1.5em;
-  display: flex;
-  flex-direction: column;
-  background: ${white};
-`;
-
 const ExportFilesButton = styled.button`
   ${Button};
   padding: 1em;

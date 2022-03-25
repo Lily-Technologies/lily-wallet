@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
 import { OpenInFull } from '@styled-icons/material';
 
 import ChannelRow from './ChannelRow';
@@ -40,7 +39,7 @@ const ChannelView = ({ currentAccount, setViewOpenChannelForm }: Props) => {
             These are the channel associated with your account.
           </SettingsTable.HeaderSubtitle>
         </SettingsTable.HeaderSection>
-        <ButtonContainer>
+        <div className='flex items-center'>
           <button
             className='w-full justify-center lg:w-min whitespace-nowrap text-center lg:ml-3 inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-base font-medium rounded-md text-white bg-green-600 hover:bg-green-800 focus:outline-none focus:ring-2  focus:ring-green-500'
             onClick={() => setViewOpenChannelForm(true)}
@@ -48,7 +47,7 @@ const ChannelView = ({ currentAccount, setViewOpenChannelForm }: Props) => {
             <OpenInFull className='mr-2 -ml-1 h-4 w-4' aria-hidden='true' />
             Open new channel
           </button>
-        </ButtonContainer>
+        </div>
       </div>
 
       <Table>
@@ -79,15 +78,5 @@ const ChannelView = ({ currentAccount, setViewOpenChannelForm }: Props) => {
     </>
   );
 };
-
-const HeadingSection = styled.div`
-  display: flex;
-  justify-content: space-between;
-`;
-
-const ButtonContainer = styled.div`
-  display: flex;
-  align-items: center;
-`;
 
 export default requireLightning(ChannelView);

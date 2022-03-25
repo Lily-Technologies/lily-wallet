@@ -14,7 +14,7 @@ import {
 
 import { ChartEmptyState } from 'src/components/ChartEmptyState';
 
-import { green700, gray600, white, gray500, yellow200, yellow500 } from 'src/utils/colors';
+import { green700, white, gray500, yellow200, yellow500 } from 'src/utils/colors';
 
 var formatter = new Intl.NumberFormat('en-US', {
   style: 'currency',
@@ -162,11 +162,6 @@ const ChartInfo = styled.div`
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-`;
-
-const CurrentPriceText = styled.div`
-  color: ${gray600};
-  font-size: 0.5em;
 `;
 
 const ChartControlsContainer = styled.div`

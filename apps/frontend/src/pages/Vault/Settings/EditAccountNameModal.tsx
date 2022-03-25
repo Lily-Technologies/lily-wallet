@@ -5,7 +5,7 @@ import { EditAlt } from '@styled-icons/boxicons-regular';
 import { Input, ModalContentWrapper } from 'src/components';
 
 import { mobile } from 'src/utils/media';
-import { green100, gray500 } from 'src/utils/colors';
+import { gray500 } from 'src/utils/colors';
 import { saveConfig } from 'src/utils/files';
 
 import { AccountMapContext, ConfigContext, PlatformContext } from 'src/context';

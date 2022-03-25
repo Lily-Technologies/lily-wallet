@@ -1,11 +1,9 @@
 import React, { Fragment } from 'react';
 import styled from 'styled-components';
 
-import { white, gray300, gray700, red400, red500 } from 'src/utils/colors';
+import { red500 } from 'src/utils/colors';
 
-function classNames(...classes) {
-  return classes.filter(Boolean).join(' ');
-}
+import { classNames } from 'src/utils/other';
 
 interface Props {
   value: string;

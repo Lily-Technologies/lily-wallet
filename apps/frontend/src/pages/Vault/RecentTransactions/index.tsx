@@ -8,7 +8,7 @@ import DeadFlowerImage from 'src/assets/dead-flower.svg';
 import TxDetailsModal from './TxDetailsModal';
 import TransactionRow from './TransactionRow';
 
-import { gray600, gray800, white, green700 } from 'src/utils/colors';
+import { gray800, white, green700 } from 'src/utils/colors';
 
 import { Transaction } from '@lily/types';
 

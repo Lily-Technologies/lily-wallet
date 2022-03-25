@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { QRCode } from 'react-qr-svg';
 
 import { Modal, SettingsTable } from 'src/components';
-import { white, black, gray100, green500 } from 'src/utils/colors';
+import { white, black, gray100 } from 'src/utils/colors';
 
 import { LilyLightningAccount } from '@lily/types';
 import { requireLightning } from 'src/hocs';

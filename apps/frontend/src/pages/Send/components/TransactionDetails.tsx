@@ -172,9 +172,9 @@ const TransactionDetails = ({
         Download Complete
       </ModalHeaderContainer>
       <ModalBody>
-        <IconWrapper style={{ color: green500 }}>
+        <div className='text-green-500'>
           <StyledIcon as={CheckCircle} size={100} />
-        </IconWrapper>
+        </div>
         <ModalSubtext>Your PSBT file has been saved successfully.</ModalSubtext>
       </ModalBody>
     </>
@@ -262,19 +262,6 @@ const TransactionDetails = ({
   );
 };
 
-const TxReviewWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  padding-top: 1.5rem;
-  padding-bottom: 1.5rem;
-  padding-left: 1rem;
-  padding-right: 1rem;
-`;
-
-const TxItemValue = styled.div``;
-
-const IconWrapper = styled.div``;
-
 const ModalBody = styled.div`
   display: flex;
   flex-direction: column;
@@ -314,17 +301,6 @@ const SendDetailsContainer = styled.div`
   justify-content: space-between;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
   border-radius: 0.375rem;
-`;
-
-const SendButtonContainer = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding-top: 1.5rem;
-  padding-bottom: 1.5rem;
-  padding-left: 1.5rem;
-  padding-right: 1.5rem;
-  border-top: 1px solid ${gray200};
 `;
 
 const SendButton = styled.button<{

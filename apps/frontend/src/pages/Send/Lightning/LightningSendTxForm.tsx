@@ -2,7 +2,7 @@ import { useContext, useState } from 'react';
 import { QrcodeIcon } from '@heroicons/react/outline';
 import { decode } from 'bolt11';
 
-import { Button, Textarea, Modal, Select } from 'src/components';
+import { Textarea, Modal, Select } from 'src/components';
 
 import { AccountMapContext } from 'src/context';
 

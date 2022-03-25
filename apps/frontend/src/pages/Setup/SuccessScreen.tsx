@@ -4,7 +4,7 @@ import { useHistory } from 'react-router-dom';
 import { CheckCircle } from '@styled-icons/material';
 
 import { StyledIcon, Button } from 'src/components';
-import { white, green500, green600, gray500, gray600, gray700 } from 'src/utils/colors';
+import { white, green500, green600, gray500, gray600 } from 'src/utils/colors';
 import { FormContainer, InnerWrapper, BoxedWrapper } from './styles';
 
 import { downloadFile } from 'src/utils/files';
@@ -85,12 +85,6 @@ const BoxedWrapperModified = styled(BoxedWrapper)`
 `;
 
 const IconWrapper = styled.div``;
-
-const SuccessText = styled.div`
-  margin-top: 0.5em;
-  font-size: 1.5em;
-  color: ${gray700};
-`;
 
 const SuccessSubtext = styled.div`
   color: ${gray600};

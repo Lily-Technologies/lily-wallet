@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import { Psbt } from 'bitcoinjs-lib';
 
 import { DeviceSelect, Dropdown } from 'src/components';
-import { gray800, white } from 'src/utils/colors';
 
 import { Device, HwiEnumerateResponse } from '@lily/types';
 
@@ -131,16 +130,5 @@ const SetupHeaderLeft = styled.div`
 `;
 
 const SetupHeaderRight = styled.div``;
-
-const SetupHeader = styled.span`
-  font-size: 1.5em;
-  display: inline-block;
-  margin-bottom: 4px;
-`;
-
-const SetupSubheader = styled.span`
-  font-size: 14px;
-  color: ${gray800};
-`;
 
 export default SignWithDevice;

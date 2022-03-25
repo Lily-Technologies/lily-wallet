@@ -10,7 +10,7 @@ import DeviceDetailsModal from './DeviceDetailsModal';
 import { requireOnchain } from 'src/hocs';
 
 import { capitalize } from 'src/utils/other';
-import { white, red500, green500 } from 'src/utils/colors';
+import { red500 } from 'src/utils/colors';
 import { LilyOnchainAccount } from '@lily/types';
 interface Props {
   currentAccount: LilyOnchainAccount;

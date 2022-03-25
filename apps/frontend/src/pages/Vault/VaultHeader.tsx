@@ -6,17 +6,9 @@ import FlowerLoading from 'src/assets/flower-loading.svg';
 
 import { requireOnchain } from 'src/hocs';
 
-import {
-  StyledIcon,
-  Button,
-  PageTitle,
-  Header,
-  HeaderRight,
-  HeaderLeft,
-  Dropdown
-} from 'src/components';
+import { StyledIcon, PageTitle, Header, HeaderLeft, Dropdown } from 'src/components';
 
-import { white, gray300, green900 } from 'src/utils/colors';
+import { gray300 } from 'src/utils/colors';
 import { LilyOnchainAccount } from '@lily/types';
 
 interface Props {
@@ -142,24 +134,6 @@ const LoadingImage = styled.img`
   filter: brightness(0) invert(1);
   max-width: 2em;
   margin: 0 0.5em 0 0.75em;
-`;
-
-const SendButton = styled(Link)`
-  ${Button}
-  margin: 12px;
-  padding-top: 0.5em;
-  padding-bottom: 0.5em;
-  padding-left: 1em;
-  padding-right: 1em;
-`;
-
-const ReceiveButton = styled(Link)`
-  ${Button}
-  margin: 12px;
-  padding-top: 0.5em;
-  padding-bottom: 0.5em;
-  padding-left: 1em;
-  padding-right: 1em;
 `;
 
 const VaultExplainerText = styled.div`

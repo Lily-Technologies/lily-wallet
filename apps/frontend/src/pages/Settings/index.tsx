@@ -30,16 +30,9 @@ interface Props {
   currentBitcoinNetwork: Network;
   getNodeConfig: () => void;
   setNodeConfig: React.Dispatch<React.SetStateAction<NodeConfigWithBlockchainInfo | undefined>>; // KBC-TODO: NodeConfig should be defined, even if we are connected to blockstream, yeah? No?
-  password: string;
 }
 
-const Settings = ({
-  nodeConfig,
-  currentBitcoinNetwork,
-  getNodeConfig,
-  setNodeConfig,
-  password
-}: Props) => {
+const Settings = ({ nodeConfig, currentBitcoinNetwork, getNodeConfig, setNodeConfig }: Props) => {
   const { config } = useContext(ConfigContext);
   const [currentTab, setCurrentTab] = useState('network');
   const [modalIsOpen, setModalIsOpen] = useState(false);

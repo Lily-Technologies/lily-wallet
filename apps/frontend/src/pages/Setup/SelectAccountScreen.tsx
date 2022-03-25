@@ -4,9 +4,8 @@ import { Bank } from '@styled-icons/remix-line';
 import { Calculator } from '@styled-icons/heroicons-outline';
 import { Bolt } from '@styled-icons/open-iconic';
 
-import { StyledIcon, Button } from 'src/components';
 import { InnerWrapper } from './styles';
-import { green700, white, gray500 } from 'src/utils/colors';
+import { green700 } from 'src/utils/colors';
 
 interface Props {
   header: JSX.Element;
@@ -85,33 +84,11 @@ const SelectAccountScreen = ({ header, setSetupOption, setStep }: Props) => {
   );
 };
 
-const SignupOptionMenu = styled.div`
-  display: flex;
-  flex-direction: column;
-  max-width: 46.875em;
-  width: 100%;
-`;
-
 const SignupOptionTextContainer = styled.div`
   display: flex;
   flex-direction: column;
   text-align: left;
   margin-left: 1em;
-`;
-
-const SignupOptionItem = styled.div`
-  ${Button};
-  background: ${white};
-  border: 1px solid ${gray500};
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  border-radius: 4px;
-  padding: 1.5em;
-  margin: 0.25em 0;
-  font-size: 1.5em;
-  text-align: center;
-  white-space: normal;
 `;
 
 export default SelectAccountScreen;

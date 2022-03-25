@@ -20,7 +20,7 @@ import { LilyLightningAccount } from '@lily/types';
 
 import { requireLightning } from 'src/hocs';
 
-import { white, gray400, gray500, gray600, yellow200, yellow500 } from 'src/utils/colors';
+import { gray400, gray500, yellow200, yellow500 } from 'src/utils/colors';
 
 interface TooltipProps {
   active: boolean;
@@ -32,9 +32,9 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
   if (active) {
     return (
       <TooltipContainer>
-        <PriceTooltip>{`${
+        <div className='text-white'>{`${
           payload[0] && payload[0].value ? satoshisToBitcoins(payload[0].value as number) : 0
-        } BTC`}</PriceTooltip>
+        } BTC`}</div>
         <DateTooltip>{moment.unix(label).format('MMMM DD, YYYY')}</DateTooltip>
       </TooltipContainer>
     );
@@ -67,8 +67,7 @@ interface Props {
 }
 
 const LightningView = ({ currentAccount }: Props) => {
-  const { currentBalance, payments, events, balanceHistory } = currentAccount;
-  console.log('currentAccount: ', currentAccount);
+  const { currentBalance, events, balanceHistory } = currentAccount;
 
   return (
     <>
@@ -89,7 +88,7 @@ const LightningView = ({ currentAccount }: Props) => {
               {satoshisToBitcoins(currentBalance.balance).toFixed(8)} BTC
             </div>
           </CurrentBalanceContainer>
-          <ChartContainer>
+          <div>
             <ResponsiveContainer width='100%' height={window.innerWidth < 768 ? 200 : 400}>
               <AreaChart width={400} height={400} data={balanceHistory}>
                 <YAxis
@@ -133,7 +132,7 @@ const LightningView = ({ currentAccount }: Props) => {
                 />
               </AreaChart>
             </ResponsiveContainer>
-          </ChartContainer>
+          </div>
         </div>
       ) : null}
       <RecentActivity events={events} loading={!!currentAccount.loading} flat={false} />
@@ -141,22 +140,9 @@ const LightningView = ({ currentAccount }: Props) => {
   );
 };
 
-const ValueWrapper = styled.div`
-  background: ${white};
-  border-radius: 0.385em;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-`;
-
-const ChartContainer = styled.div``;
-
 const CurrentBalanceContainer = styled.div`
   display: flex;
   flex-direction: column;
-`;
-
-const CurrentBalanceText = styled.div`
-  color: ${gray600};
-  font-size: 0.5em;
 `;
 
 const TooltipContainer = styled.div`
@@ -164,10 +150,6 @@ const TooltipContainer = styled.div`
   padding: 1em;
   border-radius: 4px;
   text-align: center;
-`;
-
-const PriceTooltip = styled.div`
-  color: ${white};
 `;
 
 const DateTooltip = styled.div`

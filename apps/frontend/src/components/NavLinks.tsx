@@ -11,12 +11,9 @@ import { StyledIcon } from '.';
 
 import { AccountMapContext, ConfigContext, SidebarContext } from 'src/context';
 
-import { white, gray50, gray700, gray100, gray900, green100, green700 } from 'src/utils/colors';
+import { gray700, gray900 } from 'src/utils/colors';
 import { bitcoinNetworkEqual } from 'src/utils/files';
-
-function classNames(...classes) {
-  return classes.filter(Boolean).join(' ');
-}
+import { classNames } from 'src/utils/other';
 
 interface Props {
   currentBitcoinNetwork: Network;
@@ -243,27 +240,4 @@ const IconSvg = styled.svg`
 const AccountsContainer = styled.div`
   overflow: auto;
   height: auto;
-`;
-
-const SidebarItemStyle = css<{ active: boolean }>`
-  background: ${(p) => (p.active ? green100 : white)};
-  border: ${(p) => (p.active ? `solid 0.0625em ${gray100}` : 'none')};
-  border-left: ${(p) => (p.active ? `solid 0.6875em ${green700}` : 'none')};
-  margin-left: ${(p) => (p.active ? `solid 0.6875em ${green700}` : 'none')};
-  border-right: none;
-  color: ${(p) => (p.active ? 'inherit' : gray700)};
-  padding: ${(p) => (p.active ? `1em 1.2em 1.125em .5em` : '1em 1.2em')};
-  text-decoration: none;
-  font-size: 0.9em;
-  display: flex;
-  align-items: center;
-
-  &:hover {
-    background: ${(p) => (p.active ? green100 : gray50)};
-  }
-`;
-
-const SidebarItemLink = styled(({ active, ...p }) => <Link {...p} />)`
-  ${SidebarItemStyle};
-  text-decoration: none;
 `;

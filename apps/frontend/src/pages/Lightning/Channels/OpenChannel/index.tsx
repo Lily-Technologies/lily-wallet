@@ -4,21 +4,14 @@ import styled, { css } from 'styled-components';
 import { satoshisToBitcoins } from 'unchained-bitcoin';
 import { EditAlt } from '@styled-icons/boxicons-regular';
 import { Buffer } from 'buffer';
-import axios from 'axios';
 
-import { StyledIcon, ModalContentWrapper, ErrorModal, Modal, LightningImage } from 'src/components';
+import { ErrorModal, Modal, LightningImage } from 'src/components';
 
 import { mobile } from 'src/utils/media';
-import { green100, green600, gray500 } from 'src/utils/colors';
+import { gray500 } from 'src/utils/colors';
 import { createTransaction } from 'src/utils/send';
 
-import {
-  LilyLightningAccount,
-  FeeRates,
-  LilyOnchainAccount,
-  ShoppingItem,
-  DecoratedOpenStatusUpdate
-} from '@lily/types';
+import { FeeRates, LilyOnchainAccount, ShoppingItem, DecoratedOpenStatusUpdate } from '@lily/types';
 import { SetStatePsbt, SetStateBoolean } from 'src/types';
 import { requireLightning } from 'src/hocs';
 
@@ -29,11 +22,10 @@ import OpenChannelSuccess from './OpenChannelSuccess';
 import { ConfigContext, PlatformContext } from 'src/context';
 
 interface Props {
-  currentAccount: LilyLightningAccount;
   setViewOpenChannelForm: SetStateBoolean;
 }
 
-const OpenChannel = ({ currentAccount, setViewOpenChannelForm }: Props) => {
+const OpenChannel = ({ setViewOpenChannelForm }: Props) => {
   const { currentBitcoinPrice, currentBitcoinNetwork } = useContext(ConfigContext);
   const [step, setStep] = useState(0);
   const [finalPsbt, setFinalPsbt] = useState<Psbt | undefined>(undefined);
@@ -75,7 +67,6 @@ const OpenChannel = ({ currentAccount, setViewOpenChannelForm }: Props) => {
               setError(err.message);
             } else if (openChannelResponse && openChannelResponse.psbtFund) {
               const { psbtFund, pendingChanId } = openChannelResponse;
-              console.log('psbtFund, pendingChanId: ', psbtFund, pendingChanId);
 
               const { psbt, feeRates } = await createTransaction(
                 fundingAccount,
@@ -85,14 +76,12 @@ const OpenChannel = ({ currentAccount, setViewOpenChannelForm }: Props) => {
                 () => platform.estimateFee(),
                 currentBitcoinNetwork
               );
-              console.log('after createtx: ', psbt, feeRates);
 
               await platform.openChannelVerify({
                 fundedPsbt: psbt.toBase64(),
                 pendingChanId: pendingChanId!,
                 skipFinalize: false
               });
-              console.log('after platform.openChannelVerify');
 
               setPendingChannelId(pendingChanId as Buffer);
               setFinalPsbt(psbt);

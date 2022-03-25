@@ -1,7 +1,6 @@
 import React from 'react';
 import moment from 'moment';
-import { satoshisToBitcoins } from 'unchained-bitcoin';
-import { Dialog, Transition } from '@headlessui/react';
+import { Dialog } from '@headlessui/react';
 import { XIcon } from '@heroicons/react/outline';
 
 import { LightningEvent } from '@lily/types';

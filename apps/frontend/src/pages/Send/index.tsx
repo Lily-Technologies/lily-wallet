@@ -1,7 +1,7 @@
 import { useEffect, useContext } from 'react';
 import { Network } from 'bitcoinjs-lib';
 
-import { PageWrapper, PageTitle, Header, HeaderRight, HeaderLeft, Loading } from 'src/components';
+import { PageWrapper, PageTitle, Header, HeaderRight, HeaderLeft } from 'src/components';
 import { NoAccountsEmptyState } from 'src/components';
 
 import { AccountMapContext } from 'src/context/AccountMapContext';

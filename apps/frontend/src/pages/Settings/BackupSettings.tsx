@@ -9,7 +9,6 @@ import { PasswordModal } from './PasswordModal';
 import { LilyConfig } from '@lily/types';
 
 import { downloadFile, formatFilename } from 'src/utils/files';
-import { white, green500 } from 'src/utils/colors';
 
 import { PlatformContext } from 'src/context';
 interface Props {

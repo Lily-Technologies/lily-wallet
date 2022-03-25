@@ -20,7 +20,7 @@ import { RescanModal } from './RescanModal';
 
 import { requireOnchain } from 'src/hocs';
 
-import { white, gray400, gray500, gray600, yellow200, yellow500 } from 'src/utils/colors';
+import { white, gray400, gray500, yellow200, yellow500 } from 'src/utils/colors';
 
 import { NodeConfigWithBlockchainInfo, LilyOnchainAccount } from '@lily/types';
 
@@ -79,7 +79,6 @@ const VaultView = ({ currentAccount, nodeConfig, toggleRefresh }: Props) => {
   const sortedTransactions = transactionsCopyForChart.sort(
     (a, b) => a.status.block_time - b.status.block_time
   );
-  console.log('currentAccount: ', currentAccount);
 
   let dataForChart: { block_time: number; totalValue: number }[] = [];
 
@@ -214,22 +213,11 @@ const VaultView = ({ currentAccount, nodeConfig, toggleRefresh }: Props) => {
   );
 };
 
-const ValueWrapper = styled.div`
-  background: ${white};
-  border-radius: 0.385em;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-`;
-
 const ChartContainer = styled.div``;
 
 const CurrentBalanceContainer = styled.div`
   display: flex;
   flex-direction: column;
-`;
-
-const CurrentBalanceText = styled.div`
-  color: ${gray600};
-  font-size: 0.5em;
 `;
 
 const TooltipContainer = styled.div`

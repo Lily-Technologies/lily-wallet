@@ -2,6 +2,10 @@ import bs58check from 'bs58check';
 import BigNumber from 'bignumber.js';
 import { Buffer } from 'buffer';
 
+export function classNames(...classes) {
+  return classes.filter(Boolean).join(' ');
+}
+
 export function capitalize(word) {
   return word.charAt(0).toUpperCase() + word.slice(1);
 }

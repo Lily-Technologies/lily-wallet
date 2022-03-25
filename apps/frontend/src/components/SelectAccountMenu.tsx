@@ -33,7 +33,7 @@ export const SelectAccountMenu = ({
 
   return (
     <AccountMenu>
-      {config.lightning.map((wallet, index) => {
+      {config.lightning.map((wallet) => {
         if (excludeNonSegwitAccounts) {
           return null;
         } else {
@@ -56,7 +56,7 @@ export const SelectAccountMenu = ({
           );
         }
       })}
-      {config.vaults.map((vault, index) => (
+      {config.vaults.map((vault) => (
         <AccountMenuItemWrapper
           key={vault.id}
           active={vault.id === currentAccount.config.id}
@@ -73,7 +73,7 @@ export const SelectAccountMenu = ({
           <AccountMenuItemName>{vault.name}</AccountMenuItemName>
         </AccountMenuItemWrapper>
       ))}
-      {config.wallets.map((wallet, index) => {
+      {config.wallets.map((wallet) => {
         if (wallet.addressType === AddressType.p2sh && excludeNonSegwitAccounts) {
           return null;
         } else {

@@ -35,10 +35,9 @@ interface Props {
   events: LightningEvent[];
   loading: boolean;
   flat: boolean;
-  maxItems?: number;
 }
 
-const RecentTransactions = ({ events, loading, flat = false, maxItems = Infinity }: Props) => {
+const RecentTransactions = ({ events, loading, flat = false }: Props) => {
   const [slideoverIsOpen, setSlideoverOpen] = useState(false);
   const [slideoverContent, setSlideoverContent] = useState<JSX.Element | null>(null);
 

@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 import { useHistory } from 'react-router-dom';
-import { satoshisToBitcoins, blockExplorerTransactionURL } from 'unchained-bitcoin';
+import { blockExplorerTransactionURL } from 'unchained-bitcoin';
 import { Psbt, Network } from 'bitcoinjs-lib';
 import { CheckCircle, RemoveCircle } from '@styled-icons/material';
 
@@ -11,11 +11,10 @@ import { StyledIcon, Button } from 'src/components';
 import SendTxForm from '../components/OnchainSendTxForm';
 import ConfirmTxPage from './ConfirmTxPage';
 
-import { white, gray400, gray500, gray600, gray800, green500, red500 } from 'src/utils/colors';
+import { white, gray500, gray800, green500, red500 } from 'src/utils/colors';
 
 import { createTransaction, getSignedDevicesFromPsbt, broadcastTransaction } from 'src/utils/send';
 import { getUnchainedNetworkFromBjslibNetwork } from 'src/utils/files';
-import { mobile } from 'src/utils/media';
 
 import {
   LilyConfig,
@@ -37,7 +36,6 @@ interface Props {
 }
 
 const SendOnchain = ({ currentAccount, currentBitcoinNetwork, currentBitcoinPrice }: Props) => {
-  console.log('render onchain form');
   const [step, setStep] = useState(0);
   const [finalPsbt, setFinalPsbt] = useState<Psbt | undefined>(undefined);
   const [feeRates, setFeeRates] = useState<FeeRates>({
@@ -48,7 +46,6 @@ const SendOnchain = ({ currentAccount, currentBitcoinNetwork, currentBitcoinPric
   const [paymentSuccessful, setPaymentSuccess] = useState(false);
   const history = useHistory();
 
-  const { currentBalance } = currentAccount;
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
   const { platform } = useContext(PlatformContext);
@@ -188,41 +185,6 @@ const SendOnchain = ({ currentAccount, currentBitcoinNetwork, currentBitcoinPric
     </>
   );
 };
-
-const SendContentRight = styled.div`
-  min-height: 400px;
-  padding: 0;
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  overflow: hidden;
-  width: 100%;
-
-  ${mobile(css`
-    order: -1;
-    min-height: auto;
-  `)};
-`;
-
-const CurrentBalanceWrapper = styled.div`
-  padding: 1.5em;
-  display: 'flex';
-  flex-direction: column;
-  border-radius: 0.385em;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  border: 1px solid ${gray400};
-  background: ${white};
-  text-align: right;
-`;
-
-const CurrentBalanceText = styled.div`
-  font-size: 1.5em;
-  color: ${gray600};
-`;
-
-const CurrentBalanceValue = styled.div`
-  font-size: 2em;
-`;
 
 export const InputStaticText = styled.label<{
   text: string;

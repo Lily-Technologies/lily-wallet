@@ -6,17 +6,7 @@ import { Backspace } from '@styled-icons/ionicons-solid';
 
 import { Button, Loading, StyledIcon } from '.';
 
-import {
-  white,
-  green400,
-  green500,
-  green600,
-  gray100,
-  gray200,
-  gray300,
-  gray900,
-  red500
-} from 'src/utils/colors';
+import { white, green400, green500, green600, gray200, gray300 } from 'src/utils/colors';
 import { PlatformContext } from 'src/context';
 
 import { HwiEnumerateResponse } from '@lily/types';

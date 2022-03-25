@@ -25,11 +25,9 @@ const ScanLightningQrCode = ({ onSuccess }: Props) => {
 
   const onImageLoad = (arg) => {
     setError('Could not read image QR');
-    console.log('image load: ', arg);
   };
 
   if (legacyMode) {
-    console.log('qrReaderRef: ', qrReaderRef);
     return (
       <div className='px-4 pt-6 pb-5 text-center space-y-4'>
         <h2 className='text-2xl font-semibold text-gray-600 dark:text-gray-200'>Bummer!</h2>
@@ -49,7 +47,6 @@ const ScanLightningQrCode = ({ onSuccess }: Props) => {
             legacyMode={legacyMode}
             onImageLoad={onImageLoad}
             onScan={(data) => {
-              console.log('data: ', data);
               if (data) readQrData(data);
               else return;
             }}
@@ -60,7 +57,6 @@ const ScanLightningQrCode = ({ onSuccess }: Props) => {
           type='button'
           className='inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500'
           onClick={() => {
-            console.log('qrReaderRef: ', qrReaderRef);
             // @ts-ignore
             qrReaderRef.current!.openImageDialog();
           }}
@@ -80,7 +76,6 @@ const ScanLightningQrCode = ({ onSuccess }: Props) => {
       onError={handleError}
       onImageLoad={onImageLoad}
       onScan={(data) => {
-        console.log('data: ', data);
         if (data) readQrData(data);
         else return;
       }}

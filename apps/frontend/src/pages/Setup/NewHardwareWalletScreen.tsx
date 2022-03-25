@@ -1,11 +1,9 @@
 import React, { useState, useRef, useContext } from 'react';
 import styled, { css } from 'styled-components';
-import axios from 'axios';
 import { decode } from 'bs58check';
 import BarcodeScannerComponent from 'react-webcam-barcode-scanner';
 import { Network } from 'bitcoinjs-lib';
 import { v4 as uuidv4 } from 'uuid';
-import { blockExplorerAPIURL } from 'unchained-bitcoin';
 
 import { CursorClick } from '@styled-icons/heroicons-solid';
 
@@ -22,18 +20,12 @@ import {
   InnerWrapper,
   XPubHeaderWrapper,
   SetupHeaderWrapper,
-  SetupExplainerText,
   FormContainer,
-  BoxedWrapper,
-  SetupHeader
+  BoxedWrapper
 } from './styles';
 import { zpubToXpub } from 'src/utils/other';
 import { mobile } from 'src/utils/media';
-import {
-  getP2shDeriationPathForNetwork,
-  getP2wpkhDeriationPathForNetwork,
-  getUnchainedNetworkFromBjslibNetwork
-} from 'src/utils/files';
+import { getP2shDeriationPathForNetwork, getP2wpkhDeriationPathForNetwork } from 'src/utils/files';
 
 import { getAddressFromAccount } from 'src/utils/accountMap';
 

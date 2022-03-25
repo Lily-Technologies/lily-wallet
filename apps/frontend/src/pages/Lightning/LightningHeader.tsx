@@ -6,9 +6,9 @@ import FlowerLoading from 'src/assets/flower-loading.svg';
 
 import { AccountMapContext } from 'src/context/AccountMapContext';
 
-import { StyledIcon, Button, PageTitle, Header, Dropdown, HeaderLeft } from 'src/components';
+import { StyledIcon, PageTitle, Header, Dropdown, HeaderLeft } from 'src/components';
 
-import { white, gray300, green900 } from 'src/utils/colors';
+import { gray300 } from 'src/utils/colors';
 
 interface Props {
   toggleRefresh(): void;
@@ -104,37 +104,6 @@ const IconSvg = styled.svg`
 const LoadingImage = styled.img`
   filter: brightness(0) invert(1);
   max-width: 2em;
-  margin: 0 0.5em 0 0.75em;
-`;
-
-const SendButton = styled(Link)`
-  ${Button}
-  margin: 12px;
-  padding-top: 0.5em;
-  padding-bottom: 0.5em;
-  padding-left: 1em;
-  padding-right: 1em;
-`;
-
-const ReceiveButton = styled(Link)`
-  ${Button}
-  margin: 12px;
-  padding-top: 0.5em;
-  padding-bottom: 0.5em;
-  padding-left: 1em;
-  padding-right: 1em;
-`;
-
-const SettingsButton = styled(Link)`
-  ${Button}
-  border-radius: 25%;
-`;
-
-const RefreshButton = styled.button`
-  ${Button}
-  border-radius: 25%;
-  padding-left: 0;
-  padding-right: 0;
   margin: 0 0.5em 0 0.75em;
 `;
 

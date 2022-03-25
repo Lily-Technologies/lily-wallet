@@ -1,10 +1,7 @@
 import React, { useState, useContext } from 'react';
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 
-import { Button, Input, Select, Spinner } from 'src/components';
-
-import { gray300 } from 'src/utils/colors';
-import { mobile } from 'src/utils/media';
+import { Input, Select, Spinner } from 'src/components';
 
 import { LilyOnchainAccount } from '@lily/types';
 import { SetStateBoolean } from 'src/types';
@@ -104,36 +101,6 @@ const OpenChannelForm = ({
 const InputWrapper = styled.div`
   margin-top: 1.25rem;
   width: 100%;
-`;
-
-const Buttons = styled.div`
-  display: flex;
-  width: 100%;
-  align-items: center;
-  justify-content: flex-end;
-  margin-top: 1rem;
-
-  ${mobile(css`
-    flex-direction: column;
-  `)};
-`;
-
-const SaveChangesButton = styled.button`
-  ${Button}
-
-  ${mobile(css`
-    margin-top: 1.25rem;
-  `)};
-`;
-
-const CancelButton = styled.button`
-  ${Button}
-  border: 1px solid ${gray300};
-  margin-right: 1em;
-
-  ${mobile(css`
-    margin-top: 1.25rem;
-  `)};
 `;
 
 export default OpenChannelForm;

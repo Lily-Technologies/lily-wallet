@@ -3,9 +3,9 @@ import styled, { css } from 'styled-components';
 import moment from 'moment';
 import { Channel as ChannelIcon } from '@styled-icons/fluentui-system-filled';
 
-import { Button, StyledIcon } from 'src/components';
+import { Button } from 'src/components';
 
-import { white, gray500, gray900, red600, green100, green600 } from 'src/utils/colors';
+import { white, gray500, red600 } from 'src/utils/colors';
 import { mobile } from 'src/utils/media';
 import { DecoratedLightningChannel, DecoratedPendingLightningChannel } from '@lily/types';
 

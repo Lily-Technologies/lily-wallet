@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { green500, gray200, gray300, gray500, gray700 } from 'src/utils/colors';
+import { green500, gray300, gray500, gray700 } from 'src/utils/colors';
 
 import { LilyConfig } from '@lily/types';
 import { SetStateString } from 'src/types';

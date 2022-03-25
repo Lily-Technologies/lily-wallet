@@ -1,11 +1,8 @@
-import React, { useContext, useState } from 'react';
-import styled from 'styled-components';
+import React, { useContext } from 'react';
 
 import { ViewGridIcon as ViewGridIconSolid, ViewListIcon } from '@heroicons/react/solid';
 
 import { AccountMapContext } from 'src/context/AccountMapContext';
-
-import { StyledIcon } from 'src/components';
 
 import { AccountGridItem } from 'src/pages/Home/AccountGridItem';
 import { AccountListItem } from 'src/pages/Home/AccountListItem';
@@ -13,9 +10,7 @@ import { useLocalStorage } from 'src/utils/useLocalStorage';
 import { AddNewAccountGridItem } from './AddNewAccountGridItem';
 import { AddNewAccountListItem } from './AddNewAccountListItem';
 
-function classNames(...classes) {
-  return classes.filter(Boolean).join(' ');
-}
+import { classNames } from 'src/utils/other';
 
 export const AccountsSection = () => {
   const { accountMap } = useContext(AccountMapContext);

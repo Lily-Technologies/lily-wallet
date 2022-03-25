@@ -521,7 +521,6 @@ export class LND extends LightningBaseProvider {
     });
 
     closeChannelResponse.on('data', (chunk) => {
-      console.log('/close-channel data: ', chunk);
       callback(chunk);
     });
 

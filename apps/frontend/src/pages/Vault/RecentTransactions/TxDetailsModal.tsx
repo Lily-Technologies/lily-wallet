@@ -1,14 +1,12 @@
 import React from 'react';
 import styled from 'styled-components';
 import { satoshisToBitcoins } from 'unchained-bitcoin';
-import { Dialog, Transition } from '@headlessui/react';
+import { Dialog } from '@headlessui/react';
 import { XIcon } from '@heroicons/react/outline';
 
 import { Button } from 'src/components';
 
-import TransactionTypeIcon from './TransactionTypeIcon';
-
-import { white, green600, green800, gray100, gray300, gray700, gray800 } from 'src/utils/colors';
+import { white, green600 } from 'src/utils/colors';
 
 import { Transaction } from '@lily/types';
 

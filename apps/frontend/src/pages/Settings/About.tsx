@@ -2,8 +2,6 @@ import React from 'react';
 
 import { SettingsTable } from 'src/components';
 
-import { white, green500 } from 'src/utils/colors';
-
 const About = () => {
   return (
     <SettingsTable.Wrapper>

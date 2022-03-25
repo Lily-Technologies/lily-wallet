@@ -12,7 +12,7 @@ import {
 } from 'src/components';
 
 import { getNodeStatus } from 'src/utils/other';
-import { white, green400, green500, gray700, orange400, red500 } from 'src/utils/colors';
+import { green400, orange400, red500 } from 'src/utils/colors';
 import { PlatformContext } from 'src/context';
 
 import { NodeConfigWithBlockchainInfo } from '@lily/types';
@@ -63,7 +63,6 @@ const NetworkSettings = ({
       setNodeConfig(response);
     } catch (e) {
       console.log('e: ', JSON.stringify(e));
-      // setNodeConfig(response);
     }
   };
 

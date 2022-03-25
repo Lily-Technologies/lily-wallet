@@ -405,7 +405,6 @@ export class BitcoinCoreProvider extends OnchainBaseProvider {
 
   async loadOrCreateWalletViaRPC(config: OnChainConfig, nodeClient: any) {
     const walletList = await nodeClient.listWallets();
-    console.log('walletList: ', walletList);
 
     if (!walletList.includes(`lily${config.id}`)) {
       console.log(`Wallet lily${config.id} isn't loaded.`);

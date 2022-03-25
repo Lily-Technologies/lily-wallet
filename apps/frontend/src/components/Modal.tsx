@@ -5,7 +5,7 @@ import { Close } from '@styled-icons/ionicons-outline';
 
 import { StyledIcon } from '.';
 
-import { white, gray400, gray600 } from 'src/utils/colors';
+import { gray400, gray600 } from 'src/utils/colors';
 import { mobile } from 'src/utils/media';
 
 interface Props {
