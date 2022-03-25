@@ -1,10 +1,9 @@
-import React, { useState, useContext } from 'react';
-import { useHistory } from 'react-router-dom';
-import { Network } from 'bitcoinjs-lib';
+import React, { useState, useEffect } from 'react';
 import FlowerHeroImage from 'src/assets/lily-image.jpg';
 
+import { Loading } from 'src/components';
+
 import { File } from '@lily/types';
-import { ConfigContext, PlatformContext } from 'src/context';
 
 import UnlockForm from './UnlockForm';
 import SignupForm from './SignupForm';
@@ -26,6 +25,12 @@ const Login = ({
 }: Props) => {
   const [mode, setMode] = useState<'unlock' | 'create'>('unlock');
 
+  useEffect(() => {
+    if (!fetchingEncryptedConfig && !encryptedConfigFile) {
+      onClickCreateNew();
+    }
+  }, [fetchingEncryptedConfig, encryptedConfigFile]);
+
   const onClickCreateNew = () => {
     setMode('create');
   };
@@ -33,7 +38,8 @@ const Login = ({
   return (
     <div className='min-h-full flex bg-white dark:bg-gray-900'>
       <div className='flex-1 flex flex-col justify-center py-12 px-4 sm:px-6 lg:flex-none lg:px-20 xl:px-24'>
-        {mode === 'unlock' ? (
+        {fetchingEncryptedConfig ? <Loading message='Initializing...' /> : null}
+        {!fetchingEncryptedConfig && mode === 'unlock' ? (
           <UnlockForm
             encryptedConfigFile={encryptedConfigFile}
             fetchingEncryptedConfig={fetchingEncryptedConfig}
@@ -42,9 +48,14 @@ const Login = ({
             currentBlockHeight={currentBlockHeight}
             onClickCreateNew={onClickCreateNew}
           />
-        ) : (
-          <SignupForm setPassword={setPassword} cancel={() => setMode('unlock')} />
-        )}
+        ) : null}
+        {!fetchingEncryptedConfig && mode === 'create' ? (
+          <SignupForm
+            encryptedConfigFile={encryptedConfigFile}
+            setPassword={setPassword}
+            cancel={() => setMode('unlock')}
+          />
+        ) : null}
       </div>
       <div className='hidden lg:block relative w-0 flex-1'>
         <img

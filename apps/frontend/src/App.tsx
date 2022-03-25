@@ -46,7 +46,7 @@ const App = () => {
   const { platform } = useContext(PlatformContext);
   const [historicalBitcoinPrice, setHistoricalBitcoinPrice] = useState({});
   const [encryptedConfigFile, setEncryptedConfigFile] = useState<File | null>(null);
-  const [fetchingEncryptedConfig, setFetchingEncryptedConfig] = useState(false);
+  const [fetchingEncryptedConfig, setFetchingEncryptedConfig] = useState(true);
   const [refresh, setRefresh] = useState(false);
   const [flyInAnimation, setInitialFlyInAnimation] = useState(true);
   const [password, setPassword] = useState('');

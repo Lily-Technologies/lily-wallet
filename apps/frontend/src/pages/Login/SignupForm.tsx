@@ -1,7 +1,6 @@
 import { useContext, useState } from 'react';
 import styled from 'styled-components';
 import { useHistory } from 'react-router-dom';
-import { ExclamationCircleIcon } from '@heroicons/react/solid';
 
 import { Input } from 'src/components';
 
@@ -12,18 +11,17 @@ import { saveConfig } from 'src/utils/files';
 import FlowerLogo from 'src/assets/flower.svg';
 import FlowerLoading from 'src/assets/flower-loading.svg';
 
+import { File } from '@lily/types';
+
 const MIN_PASSWORD_LENGTH = 8;
 
-function classNames(...classes) {
-  return classes.filter(Boolean).join(' ');
-}
-
 interface Props {
-  setPassword: React.Dispatch<React.SetStateAction<string>>;
   cancel: () => void;
+  encryptedConfigFile: File | null;
+  setPassword: React.Dispatch<React.SetStateAction<string>>;
 }
 
-const SignupForm = ({ setPassword, cancel }: Props) => {
+const SignupForm = ({ setPassword, encryptedConfigFile, cancel }: Props) => {
   const { config, setConfigFile } = useContext(ConfigContext);
   const { platform } = useContext(PlatformContext);
   const [isLoading, setIsLoading] = useState(false);
@@ -91,7 +89,7 @@ const SignupForm = ({ setPassword, cancel }: Props) => {
           Create a new wallet
         </h2>
         <p className='mt-1 text-sm text-gray-600 dark:text-gray-500'>
-          Use a password to encrypt your wallet so others cannot access it.
+          Input a password to secure your wallet.
         </p>
       </div>
       <div className='mt-8'>
@@ -121,13 +119,15 @@ const SignupForm = ({ setPassword, cancel }: Props) => {
             </div>
 
             <div className='flex justify-end'>
-              <button
-                type='button'
-                onClick={cancel}
-                className='bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2  focus:ring-green-500'
-              >
-                Cancel
-              </button>
+              {encryptedConfigFile ? (
+                <button
+                  type='button'
+                  onClick={cancel}
+                  className='bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2  focus:ring-green-500'
+                >
+                  Cancel
+                </button>
+              ) : null}
 
               <button
                 type='submit'
