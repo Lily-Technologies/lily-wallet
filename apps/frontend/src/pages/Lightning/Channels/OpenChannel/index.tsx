@@ -53,7 +53,7 @@ const OpenChannel = ({ setViewOpenChannelForm }: Props) => {
     setModalContent(null);
   }, []);
 
-  const openChannel = async (lightningAddress: string, channelAmount: string) => {
+  const openChannelAction = async (lightningAddress: string, channelAmount: string) => {
     setIsLoading(true);
     try {
       platform.openChannelInitiate(
@@ -153,7 +153,7 @@ const OpenChannel = ({ setViewOpenChannelForm }: Props) => {
               fees.
             </Subtext>
             <OpenChannelForm
-              openChannel={openChannel}
+              openChannel={openChannelAction}
               setFundingAccount={setFundingAccount}
               isLoading={isLoading}
               error={error}
@@ -212,19 +212,6 @@ const FormHeaderWrapper = styled.div`
   padding-bottom: 0;
 `;
 
-const TextContainer = styled.div`
-  display: flex;
-  flex: 1;
-  align-items: flex-start;
-  flex-direction: column;
-  margin-left: 1rem;
-
-  ${mobile(css`
-    margin-top: 0.75rem;
-    margin-left: 0;
-  `)};
-`;
-
 const DangerIconContainer = styled.div``;
 
 const StyledIconCircle = styled.div`
@@ -248,4 +235,4 @@ const Subtext = styled.div`
   color: ${gray500};
 `;
 
-export default requireLightning(OpenChannel);
+export default OpenChannel;

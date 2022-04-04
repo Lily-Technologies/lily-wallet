@@ -375,6 +375,10 @@ ipcMain.handle('/download-item', async (event, args) => {
       defaultPath: filename
     });
 
+    if (canceled) {
+      throw new Error('File not saved.');
+    }
+
     if (filePath) {
       fs.writeFile(filePath, data, (err) => {
         if (err) {

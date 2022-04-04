@@ -94,7 +94,6 @@ const TransactionDetails = ({
         importSignatureFromFile={() => {}}
         psbt={finalPsbt}
         currentBitcoinPrice={currentBitcoinPrice}
-        currentBitcoinNetwork={currentBitcoinNetwork}
       />
     );
   };
@@ -168,14 +167,16 @@ const TransactionDetails = ({
 
   const PsbtDownloadDetails = () => (
     <>
-      <ModalHeaderContainer className='border-b border-gray-200 dark:border-gray-700'>
-        Download Complete
-      </ModalHeaderContainer>
+      <div className='border-b border-gray-200 dark:border-gray-600 flex items-center justify-between px-6 py-7'>
+        <span className='dark:text-white text-2xl'>Download complete</span>
+      </div>
       <ModalBody>
         <div className='text-green-500'>
           <StyledIcon as={CheckCircle} size={100} />
         </div>
-        <ModalSubtext>Your PSBT file has been saved successfully.</ModalSubtext>
+        <p className='text-gray-800 dark:text-gray-300'>
+          Your PSBT file has been saved successfully.
+        </p>
       </ModalBody>
     </>
   );
@@ -188,7 +189,9 @@ const TransactionDetails = ({
             <span className='text-xl font-medium text-gray-900 dark:text-gray-100'>
               Transaction summary
             </span>
-            <TransactionOptionsDropdown />
+            <span className='flex justify-end text-gray-900 dark:text-gray-200'>
+              <TransactionOptionsDropdown />
+            </span>
           </ModalHeaderContainer>
           {shoppingItems && <ShoppingCart items={shoppingItems} />}
           <div className='py-6 px-4 space-y-6 sm:px-6'>

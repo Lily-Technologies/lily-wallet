@@ -47,17 +47,22 @@ export const PasswordModal = ({
       <DangerTextContainer>
         <ModalHeader>Secure your backup with a password</ModalHeader>
         <ModalSubtext>Give a password to encrypt your backup with.</ModalSubtext>
-        <Input label='Password' value={password} onChange={setPassword} type='password' />
-        {passwordError !== undefined && <PasswordError>{passwordError}</PasswordError>}
-
-        <Input
-          labelStyle={{ marginTop: '1em' }}
-          label='Confirm Password'
-          value={confirmPassword}
-          onChange={setConfirmPassword}
-          type='password'
-        />
-        {confirmationError !== undefined && <PasswordError>{confirmationError}</PasswordError>}
+        <div className='w-full grid grid-cols-1 gap-y-2 lg:grid-cols-2 lg:gap-x-8'>
+          <div className='flex flex-col'>
+            <Input label='Password' value={password} onChange={setPassword} type='password' />
+            {passwordError !== undefined && <PasswordError>{passwordError}</PasswordError>}
+          </div>
+          <div className='flex flex-col'>
+            <Input
+              labelClassNames='mt-4 lg:mt-0'
+              label='Confirm Password'
+              value={confirmPassword}
+              onChange={setConfirmPassword}
+              type='password'
+            />
+          </div>
+          {confirmationError !== undefined && <PasswordError>{confirmationError}</PasswordError>}
+        </div>
         <Buttons>
           <DownloadButton
             background={green700}

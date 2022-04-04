@@ -5,14 +5,12 @@ import { blockExplorerTransactionURL } from 'unchained-bitcoin';
 import { Psbt, Network } from 'bitcoinjs-lib';
 import { CheckCircle, RemoveCircle } from '@styled-icons/material';
 
-import { Modal } from 'src/components';
-import { StyledIcon, Button } from 'src/components';
+import { StyledIcon, Button, Modal } from 'src/components';
 
 import SendTxForm from '../components/OnchainSendTxForm';
 import ConfirmTxPage from './ConfirmTxPage';
 
 import { white, gray500, gray800, green500, red500 } from 'src/utils/colors';
-
 import { createTransaction, getSignedDevicesFromPsbt, broadcastTransaction } from 'src/utils/send';
 import { getUnchainedNetworkFromBjslibNetwork } from 'src/utils/files';
 

@@ -66,7 +66,7 @@ const DeleteAccountModal = ({ password, closeModal }: Props) => {
         </StyledIconCircle>
       </DangerIconContainer>
       <DangerTextContainer>
-        <DangerText>Delete Account</DangerText>
+        <div className='text-xl font-medium dark:text-gray-200'>Delete Account</div>
         <DangerSubtext>
           You are about to delete an account from your Lily Wallet.
           <br />
@@ -81,15 +81,17 @@ const DeleteAccountModal = ({ password, closeModal }: Props) => {
           onKeyDown={(e) => onInputEnter(e)}
           error={accountNameConfirmError}
         />
-        <DeleteAccountButton
-          background={red600}
-          color={white}
-          onClick={() => {
-            removeAccountAndDownloadConfig();
-          }}
-        >
-          Delete Account
-        </DeleteAccountButton>
+        <div className='w-full flex justify-end'>
+          <DeleteAccountButton
+            background={red600}
+            color={white}
+            onClick={() => {
+              removeAccountAndDownloadConfig();
+            }}
+          >
+            Delete Account
+          </DeleteAccountButton>
+        </div>
       </DangerTextContainer>
     </ModalContentWrapper>
   );
@@ -127,12 +129,6 @@ const StyledIconCircle = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-`;
-
-const DangerText = styled.div`
-  font-size: 1.125rem;
-  text-align: center;
-  font-weight: 500;
 `;
 
 const DangerSubtext = styled.div`

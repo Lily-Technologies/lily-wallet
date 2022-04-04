@@ -72,7 +72,7 @@ const LightningView = ({ currentAccount }: Props) => {
   return (
     <>
       {currentAccount.loading ? (
-        <div style={{ height: '32rem' }}>
+        <div style={{ height: window.innerWidth < 768 ? '16rem' : '32rem' }}>
           <div className='h-full relative shadow-md bg-white dark:bg-gray-800 rounded-md'>
             <ChartEmptyState />
           </div>

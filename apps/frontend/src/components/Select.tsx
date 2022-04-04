@@ -79,7 +79,7 @@ export const Select = React.memo(
   },
   (prevState, nextState) => {
     // TODO: this should probably do a more thorough check, but it works for now
-    return prevState.options[0].label === nextState.options[0].label;
+    return prevState.options[0]?.label === nextState.options[0].label;
   }
 );
 

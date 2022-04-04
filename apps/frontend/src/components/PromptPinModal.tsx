@@ -156,7 +156,7 @@ export const PromptPinModal = ({ device, enumerate, closeModal }: Props) => {
 
   return (
     <>
-      <ModalHeaderContainer className='text-gray-900 dark:text-gray-200 border-b border-b-gray-200 dark:border-b-gray-700'>
+      <ModalHeaderContainer className='text-gray-900 dark:text-gray-200 border-b border-b-gray-200 dark:border-gray-700'>
         Enter PIN
       </ModalHeaderContainer>
       {!!loadingMessage && <Loading message={loadingMessage} />}

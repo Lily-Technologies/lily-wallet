@@ -270,11 +270,10 @@ const App = () => {
               password={password}
               toggleRefresh={toggleRefresh}
               currentBitcoinNetwork={currentBitcoinNetwork}
-              nodeConfig={nodeConfig!}
             />
           )}
         />
-        <Route path='/receive' render={() => <Receive config={config} />} />
+        <Route path='/receive' render={() => <Receive />} />
         {nodeConfig && (
           <Route
             path='/send'

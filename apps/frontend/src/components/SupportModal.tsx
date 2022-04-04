@@ -55,7 +55,7 @@ export const SupportModal = ({ closeModal }: Props) => {
         </StyledIconCircle>
       </DangerIconContainer>
       <TextContainer>
-        <HeadingText>Lily Support Portal</HeadingText>
+        <span className='dark:text-white text-2xl'>Lily support portal</span>
         <Subtext>
           {isLoading
             ? ''

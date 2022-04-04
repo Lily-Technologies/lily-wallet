@@ -146,7 +146,6 @@ const ConfirmTxPage = ({
               importSignatureFromFile={importSignatureFromFile}
               psbt={finalPsbt}
               currentBitcoinPrice={currentBitcoinPrice}
-              currentBitcoinNetwork={currentBitcoinNetwork}
             />
           )
       : undefined;

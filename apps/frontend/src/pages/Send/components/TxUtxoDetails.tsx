@@ -27,40 +27,42 @@ const TransactionUtxoDetails = ({ currentAccount, psbt, currentBitcoinPrice }: P
 
   return (
     <>
-      <ModalHeaderContainer>
-        <span>Transaction Details</span>
-      </ModalHeaderContainer>
-      <MoreDetailsContainer>
-        <MoreDetailsSection>
-          <MoreDetailsHeader>Inputs</MoreDetailsHeader>
+      <div className='border-b border-gray-200 dark:border-gray-600 flex items-center justify-between px-6 py-7'>
+        <span className='dark:text-white text-2xl'>Transaction Details</span>
+      </div>
+      <div className='px-4 py-5'>
+        <div>
+          <h3 className='text-2xl dark:text-gray-200 mb-2'>Inputs</h3>
           {psbt.txInputs.map((input) => {
             const inputBuffer = cloneBuffer(input.hash);
             const utxo =
               utxosMap[`${Buffer.from(inputBuffer.reverse()).toString('hex')}:${input.index}`];
             return (
-              <OutputItem>
-                <OutputAddress>{utxo.address.address}</OutputAddress>
-                <OutputAmount>{satoshisToBitcoins(utxo.value).toNumber()} BTC</OutputAmount>
-              </OutputItem>
+              <div className='flex items-center justify-between px-3 py-4 mb-2 rounded bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600'>
+                <span className='text-green-800 dark:text-green-200 grow break-all'>
+                  {utxo.address.address}
+                </span>
+                <span className='text-right ml-8 grow-0 whitespace-nowrap dark:text-gray-200'>
+                  {satoshisToBitcoins(utxo.value).toNumber()} BTC
+                </span>
+              </div>
             );
           })}
-        </MoreDetailsSection>
-        <MoreDetailsSection data-cy='transaction-outputs'>
-          <MoreDetailsHeader style={{ marginTop: '1em' }}>Outputs</MoreDetailsHeader>
+        </div>
+        <div data-cy='transaction-outputs'>
+          <h3 className='mt-4 text-2xl dark:text-gray-200 mb-2'>Outputs</h3>
           {psbt.txOutputs.map((output) => (
-            <OutputItem>
-              <OutputAddress>{output.address}</OutputAddress>{' '}
-              <OutputAmount>{satoshisToBitcoins(output.value).toNumber()} BTC</OutputAmount>
-            </OutputItem>
+            <div className='flex items-center justify-between px-3 py-4 mb-2 rounded bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600'>
+              <span className='text-green-800 dark:text-green-200 grow break-all'>
+                {output.address}
+              </span>{' '}
+              <span className='text-right ml-8 grow-0 whitespace-nowrap dark:text-gray-200'>
+                {satoshisToBitcoins(output.value).toNumber()} BTC
+              </span>
+            </div>
           ))}
 
-          <MoreDetailsHeader
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              marginTop: '2em'
-            }}
-          >
+          <h3 className='flex justify-between mt-6 text-xl dark:text-gray-300'>
             Fees:{' '}
             {
               <span>
@@ -68,58 +70,11 @@ const TransactionUtxoDetails = ({ currentAccount, psbt, currentBitcoinPrice }: P
                 {satoshisToBitcoins(_fee).multipliedBy(currentBitcoinPrice).toFixed(2)})
               </span>
             }
-          </MoreDetailsHeader>
-        </MoreDetailsSection>
-      </MoreDetailsContainer>
+          </h3>
+        </div>
+      </div>
     </>
   );
 };
-
-const OutputItem = styled.div`
-  display: flex;
-  justify-content: space-between;
-  padding: 1.5em;
-  margin: 12px 0;
-  background: ${gray100};
-  border: 1px solid ${gray300};
-  justify-content: center;
-  align-items: center;
-  border-radius: 4px;
-`;
-
-const OutputAddress = styled.span`
-  color: ${green800};
-  flex: 2;
-  word-break: break-word;
-`;
-
-const OutputAmount = styled.span`
-  flex: 1;
-  text-align: right;
-`;
-
-const MoreDetailsSection = styled.div``;
-
-const MoreDetailsContainer = styled.div`
-  padding: 1.5rem;
-`;
-
-const MoreDetailsHeader = styled.div`
-  color: ${gray600};
-  font-size: 1.5em;
-`;
-
-const ModalHeaderContainer = styled.div`
-  border-bottom: 1px solid rgb(229, 231, 235);
-  padding-top: 1.75rem;
-  padding-bottom: 1.75rem;
-  padding-left: 1.5rem;
-  padding-right: 1.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 1.5em;
-  height: 90px;
-`;
 
 export default requireOnchain(TransactionUtxoDetails);

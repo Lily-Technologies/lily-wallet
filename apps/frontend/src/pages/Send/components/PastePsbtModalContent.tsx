@@ -30,7 +30,9 @@ const PastePsbtModalContent = ({
 
   return (
     <>
-      <ModalHeaderContainer>Paste PSBT or Transaction Hex Below</ModalHeaderContainer>
+      <div className='border-b border-gray-200 dark:border-gray-600 flex items-center justify-between px-6 py-7'>
+        <span className='dark:text-white text-2xl'>Paste transaction</span>
+      </div>
       <div style={{ padding: '1.5em' }}>
         <PastePsbtTextArea
           rows={20}
@@ -41,20 +43,22 @@ const PastePsbtModalContent = ({
         {importTxFromFileError && (
           <ErrorText style={{ paddingBottom: '1em' }}>{importTxFromFileError}</ErrorText>
         )}
-        <ImportButtons>
-          <FromFileButton style={{ marginRight: '1em' }} onClick={() => onClickCloseModal()}>
+        <div className='flex justify-end'>
+          <button
+            className='inline-flex items-center px-6 py-3 border border-gray-300 shadow-sm text-base font-medium rounded-md text-gray-700 dark:text-gray-200 mr-4 bg-white hover:bg-gray-50 dark:bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500'
+            onClick={() => onClickCloseModal()}
+          >
             Cancel
-          </FromFileButton>
-          <ImportTxButton
-            background={green600}
-            color={white}
+          </button>
+          <button
+            className='inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500'
             onClick={() => {
               importTxFromFile(pastedPsbtValue);
             }}
           >
             Import transaction
-          </ImportTxButton>
-        </ImportButtons>
+          </button>
+        </div>
       </div>
     </>
   );

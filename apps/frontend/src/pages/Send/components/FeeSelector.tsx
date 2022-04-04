@@ -79,7 +79,9 @@ export const FeeSelector = ({
 
   return (
     <>
-      <ModalHeaderContainer>Adjust Transaction Fee</ModalHeaderContainer>
+      <div className='border-b border-gray-200 dark:border-gray-600 flex items-center justify-between px-6 py-7'>
+        <span className='dark:text-white text-2xl'>Adjust transaction fee</span>
+      </div>
       {!showEditCustomFeeRate ? (
         <div style={{ padding: '1.5em' }}>
           <FeeItem

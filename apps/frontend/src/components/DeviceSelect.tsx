@@ -231,7 +231,7 @@ export const DeviceSelect = ({
         <button
           onClick={enumerate}
           type='button'
-          className='inline-flex w-min flex-nowrap whitespace-nowrap items-center px-4 py-2 border border-gray-300 dark:text-gray-300 dark:bg-gray-700 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 dark:hover:bg-gray-800'
+          className='mt-4 inline-flex w-min flex-nowrap whitespace-nowrap items-center px-4 py-2 border border-gray-300 dark:text-gray-300 dark:bg-gray-700 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 dark:hover:bg-gray-800'
         >
           {devicesLoading ? 'Scanning for devices...' : 'Scan for devices'}
         </button>
