@@ -58,7 +58,7 @@ export class WebPlatform extends BasePlatform {
 
   async getConfig(): Promise<File> {
     try {
-      const { data }: AxiosResponse<File> = await axios.get(`${HOST}/get-config`);
+      const { data }: AxiosResponse<File> = await axios.get(`/get-config`);
       return Promise.resolve(data);
     } catch (e) {
       return Promise.reject('Error getting config');
@@ -66,18 +66,25 @@ export class WebPlatform extends BasePlatform {
   }
 
   async saveConfig(encryptedConfigObject: string) {
-    const { data } = await axios.post(`${HOST}/save-config`, {
+    const { data } = await axios.post(`/save-config`, {
       encryptedConfigFile: encryptedConfigObject
     });
   }
 
   async downloadFile(file: string, filename: string) {
     try {
-      const { data }: AxiosResponse<File> = await axios.post(`${HOST}/download-item`, {
-        data: file,
-        filename: filename
-      });
-      return Promise.resolve(data);
+      const fileBlob = new Blob([file], { type: 'text/plain' });
+      const filedownload = document.createElement('a');
+      filedownload.href = URL.createObjectURL(fileBlob);
+      filedownload.download = filename;
+      filedownload.click();
+      setTimeout(() => URL.revokeObjectURL(filedownload.href), 60000);
+      // const { data }: AxiosResponse<File> = await axios.post(`/download-item`, {
+      //   data: file,
+      //   filename: filename
+      // });
+      // console.log('data: ', data);
+      // return Promise.resolve(data);
     } catch (e) {
       return Promise.reject('Error downloading file');
     }
@@ -87,53 +94,53 @@ export class WebPlatform extends BasePlatform {
     config: VaultConfig | OnChainConfig,
     callback: (accountInfo: LilyOnchainAccount) => void
   ) {
-    axios.post<LilyOnchainAccount>(`${HOST}/account-data`, config).then(({ data }) => {
+    axios.post<LilyOnchainAccount>(`/account-data`, config).then(({ data }) => {
       callback(data);
     });
   }
 
   getLightningData(config: LightningConfig, callback: (accountInfo: LilyLightningAccount) => void) {
-    axios.post<LilyLightningAccount>(`${HOST}/lightning-account-data`, config).then(({ data }) => {
+    axios.post<LilyLightningAccount>(`/lightning-account-data`, config).then(({ data }) => {
       callback(data);
     });
   }
 
   async getNodeConfig() {
-    const { data } = await axios.get<NodeConfigWithBlockchainInfo>(`${HOST}/get-node-config`);
+    const { data } = await axios.get<NodeConfigWithBlockchainInfo>(`/get-node-config`);
     return Promise.resolve(data);
   }
 
   async doesAddressHaveTransaction(address: string): Promise<boolean> {
-    const { data } = await axios.post<boolean>(`${HOST}/does-address-have-transaction`, {
+    const { data } = await axios.post<boolean>(`/does-address-have-transaction`, {
       address
     });
     return Promise.resolve(data);
   }
 
   async isTestnet() {
-    const { data } = await axios.get<boolean>(`${HOST}/bitcoin-network`);
+    const { data } = await axios.get<boolean>(`/bitcoin-network`);
     return Promise.resolve(data);
   }
 
   async getHistoricalBitcoinPrice() {
-    const { data } = await axios.get<PriceForChart[]>(`${HOST}/historical-btc-price`);
+    const { data } = await axios.get<PriceForChart[]>(`/historical-btc-price`);
     return Promise.resolve(data);
   }
 
   async getCurrentBitcoinPrice() {
-    const { data } = await axios.get<string>(`${HOST}/current-btc-price`);
+    const { data } = await axios.get<string>(`/current-btc-price`);
     return Promise.resolve(data);
   }
 
   async isConfirmedTransaction(txId: string) {
-    const { data } = await axios.post<boolean>(`${HOST}/isConfirmedTransaction`, {
+    const { data } = await axios.post<boolean>(`/isConfirmedTransaction`, {
       txId
     });
     return Promise.resolve(data);
   }
 
   async getXpub({ deviceType, devicePath, path }: HwiXpubRequest) {
-    const { data } = await axios.post<HwiXpubResponse>(`${HOST}/xpub`, {
+    const { data } = await axios.post<HwiXpubResponse>(`/xpub`, {
       deviceType,
       devicePath,
       path
@@ -142,7 +149,7 @@ export class WebPlatform extends BasePlatform {
   }
 
   async signTransaction({ deviceType, devicePath, psbt }: HwiSignTransactionRequest) {
-    const { data } = await axios.post<HwiSignTransactionResponse>(`${HOST}/sign`, {
+    const { data } = await axios.post<HwiSignTransactionResponse>(`/sign`, {
       deviceType,
       devicePath,
       psbt
@@ -151,12 +158,12 @@ export class WebPlatform extends BasePlatform {
   }
 
   async enumerate() {
-    const { data } = await axios.get<HwiEnumerateResponse[]>(`${HOST}/enumerate`);
+    const { data } = await axios.get<HwiEnumerateResponse[]>(`/enumerate`);
     return Promise.resolve(data);
   }
 
   async promptPin({ deviceType, devicePath }: HwiPromptPinRequest): Promise<HwiPromptPinResponse> {
-    const { data } = await axios.post<HwiPromptPinResponse>(`${HOST}/promptpin`, {
+    const { data } = await axios.post<HwiPromptPinResponse>(`/promptpin`, {
       deviceType,
       devicePath
     });
@@ -164,7 +171,7 @@ export class WebPlatform extends BasePlatform {
   }
 
   async sendPin({ deviceType, devicePath, pin }: HwiSendPinRequest): Promise<HwiSendPinResponse> {
-    const { data } = await axios.post<HwiSendPinResponse>(`${HOST}/sendpin`, {
+    const { data } = await axios.post<HwiSendPinResponse>(`/sendpin`, {
       deviceType,
       devicePath,
       pin
@@ -173,7 +180,7 @@ export class WebPlatform extends BasePlatform {
   }
 
   async estimateFee(): Promise<FeeRates> {
-    const { data } = await axios.get<FeeRates>(`${HOST}/estimate-fee`);
+    const { data } = await axios.get<FeeRates>(`/estimate-fee`);
     return Promise.resolve(data);
   }
 
@@ -182,7 +189,7 @@ export class WebPlatform extends BasePlatform {
     host,
     port
   }: ChangeNodeConfigParams): Promise<NodeConfigWithBlockchainInfo> {
-    const { data } = await axios.post<NodeConfigWithBlockchainInfo>(`${HOST}/changeNodeConfig`, {
+    const { data } = await axios.post<NodeConfigWithBlockchainInfo>(`/changeNodeConfig`, {
       nodeConfig: {
         provider,
         baseURL: host,
@@ -194,7 +201,7 @@ export class WebPlatform extends BasePlatform {
   }
 
   async broadcastTransaction(txHex: string) {
-    const { data } = await axios.post<string>(`${HOST}/broadcastTx`, {
+    const { data } = await axios.post<string>(`/broadcastTx`, {
       txHex
     });
     return Promise.resolve(data);
@@ -207,7 +214,7 @@ export class WebPlatform extends BasePlatform {
     config: LightningConfig,
     callback: (payment: Payment) => void
   ) {
-    const { data } = await axios.post<Payment>(`${HOST}/lightning-send-payment`, {
+    const { data } = await axios.post<Payment>(`/lightning-send-payment`, {
       paymentRequest: paymentRequest,
       config: config
     });
@@ -219,7 +226,7 @@ export class WebPlatform extends BasePlatform {
     { channelPoint, deliveryAddress }: CloseChannelRequest,
     callback: (response: CloseStatusUpdate) => void
   ) {
-    const { data } = await axios.post<CloseStatusUpdate>(`${HOST}/close-channel`, {
+    const { data } = await axios.post<CloseStatusUpdate>(`/close-channel`, {
       channelPoint,
       deliveryAddress
     });
@@ -232,7 +239,7 @@ export class WebPlatform extends BasePlatform {
     callback: ICallback<DecoratedOpenStatusUpdate>
   ) {
     try {
-      const { data } = await axios.post<DecoratedOpenStatusUpdate>(`${HOST}/open-channel`, {
+      const { data } = await axios.post<DecoratedOpenStatusUpdate>(`/open-channel`, {
         lightningAddress,
         channelAmount
       });
@@ -249,7 +256,7 @@ export class WebPlatform extends BasePlatform {
 
   async openChannelVerify({ fundedPsbt, pendingChanId }: FundingPsbtVerify) {
     try {
-      await axios.post<OpenStatusUpdate>(`${HOST}/open-channel-verify`, {
+      await axios.post<OpenStatusUpdate>(`/open-channel-verify`, {
         fundedPsbt,
         pendingChanId
       });
@@ -260,7 +267,7 @@ export class WebPlatform extends BasePlatform {
   }
 
   async openChannelFinalize({ signedPsbt, pendingChanId }: FundingPsbtFinalize) {
-    const { data } = await axios.post<OpenStatusUpdate>(`${HOST}/open-channel-finalize`, {
+    const { data } = await axios.post<OpenStatusUpdate>(`/open-channel-finalize`, {
       signedPsbt,
       pendingChanId
     });
@@ -268,7 +275,7 @@ export class WebPlatform extends BasePlatform {
 
   async generateLightningInvoice({ memo, value, lndConnectUri }: GenerateLightningInvoiceRequest) {
     try {
-      const { data } = await axios.post<AddInvoiceResponse>(`${HOST}/generate-invoice`, {
+      const { data } = await axios.post<AddInvoiceResponse>(`/generate-invoice`, {
         memo,
         value,
         lndConnectUri
@@ -282,7 +289,7 @@ export class WebPlatform extends BasePlatform {
 
   async getLightningInvoice({ paymentHash }: LookupInvoiceMsg) {
     try {
-      const { data } = await axios.get<Invoice>(`${HOST}/invoice/${paymentHash!}`);
+      const { data } = await axios.get<Invoice>(`/invoice/${paymentHash!}`);
       return Promise.resolve(data);
     } catch (e) {
       return Promise.reject(e);
@@ -291,7 +298,7 @@ export class WebPlatform extends BasePlatform {
 
   async getRoutes({ pubKey, amt }: QueryRoutesRequest) {
     try {
-      const { data } = await axios.post<QueryRoutesResponse>(`${HOST}/get-routes`, {
+      const { data } = await axios.post<QueryRoutesResponse>(`/get-routes`, {
         pubKey,
         amt
       });
@@ -302,13 +309,13 @@ export class WebPlatform extends BasePlatform {
   }
 
   async lightningConnect(lndConnectUri: string) {
-    await axios.post(`${HOST}/lightning-connect`, {
+    await axios.post(`/lightning-connect`, {
       lndConnectUri
     });
   }
 
   async rescanBlockchain(startHeight: string, currentAccount: LilyOnchainAccount) {
-    const { data } = await axios.post<{ success: boolean }>(`${HOST}/rescanBlockchain`, {
+    const { data } = await axios.post<{ success: boolean }>(`/rescanBlockchain`, {
       startHeight,
       currentAccount
     });
@@ -317,7 +324,7 @@ export class WebPlatform extends BasePlatform {
   }
 
   async getWalletInfo(currentAccount: LilyAccount) {
-    const { data } = await axios.post<WalletInfo>(`${HOST}/getWalletInfo`, {
+    const { data } = await axios.post<WalletInfo>(`/getWalletInfo`, {
       currentAccount
     });
 
