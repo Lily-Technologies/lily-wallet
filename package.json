@@ -17,6 +17,7 @@
     "build:frontend:umbrel": "npm run build:umbrel -w @lily/frontend",
     "build:express": "npm run build -w @lily/express",
     "build:types": "npm run build -w @lily/types",
+    "release:umbrel": "docker buildx build --file Dockerfile --platform linux/arm64,linux/amd64 --tag kaybesee/lily-wallet:latest --output 'type=registry' .",
     "build:shared-server": "npm run build -w @lily/shared-server",
     "dist:electron": "npm run dist -w @lily/electron",
     "pack:electron": "npm run pack -w @lily/electron"

@@ -15,6 +15,7 @@
     "@lily-technologies/lnrpc": "^0.14.1-beta.14",
     "@lily/types": "*",
     "agent-base": "^6.0.2",
+    "app-root-dir": "^1.0.2",
     "axios": "^0.24.0",
     "bignumber.js": "^9.0.1",
     "bitcoin-simple-rpc": "^0.0.3",

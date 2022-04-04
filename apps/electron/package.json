@@ -37,7 +37,10 @@
       "files": [
         "./build/**/*",
         "./src/preload.js",
-        "../HWIs/HWI_MAC"
+        {
+          "from": "../../packages/HWIs/HWI_MAC",
+          "to": "./build/HWIs"
+        }
       ]
     },
     "dmg": {
@@ -57,7 +60,10 @@
       "files": [
         "./build/**/*",
         "./src/preload.js",
-        "./HWIs/HWI_LINUX"
+        {
+          "from": "../../packages/HWIs/HWI_LINUX",
+          "to": "./build/HWIs"
+        }
       ]
     },
     "win": {
@@ -65,7 +71,10 @@
       "files": [
         "./build/**/*",
         "./src/preload.js",
-        "./HWIs/hwi.exe"
+        {
+          "from": "../../packages/HWIs/HWI_WINDOWS",
+          "to": "./build/HWIs"
+        }
       ]
     }
   },

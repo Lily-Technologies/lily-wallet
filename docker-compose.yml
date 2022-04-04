@@ -1,34 +1,25 @@
 version: '3'
 
 services:
-  frontend:
-    image: kaybesee/lily-frontend:latest
-    restart: on-failure
-    stdin_open: true
-    build:
-      dockerfile: Dockerfile.frontend
-      context: ./
-    ports:
-      - '42069:80'
-
-  express:
+  lily-wallet:
     privileged: true
-    image: kaybesee/lily-express:latest
     restart: on-failure
     volumes:
       - ${APP_DATA_DIR}/config
       - ${LND_DATA_DIR}/:/lnd:ro
-      - /dev:/dev
+      - /dev/bus:/dev/bus:ro
     build:
-      dockerfile: Dockerfile.express
+      dockerfile: ./Dockerfile
       context: ./
     environment:
-      - EXPRESS_PORT=5000
-      - ELECTRUM_IP=$ELECTRUM_IP
-      - ELECTRUM_PORT=$ELECTRUM_PORT
-      - APP_PASSWORD=$APP_PASSWORD
-      - APP_DATA_DIR=$APP_DATA_DIR
+      - EXPRESS_PORT=8080
+      - ELECTRUM_IP=electrum1.bluewallet.io
+      - ELECTRUM_PORT=50001
+      - APP_PASSWORD=testtest
+      - APP_DATA_DIR=${APP_DATA_DIR}/data/lily-wallet:/data
       - LND_IP=$LND_IP
       - LND_GRPC_PORT=$LND_GRPC_PORT
     ports:
-      - '5000:5000'
+      - '42069:8080'
+    device_cgroup_rules:
+      - 'c 189:* rmw'

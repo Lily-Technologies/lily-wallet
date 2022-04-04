@@ -50,6 +50,7 @@ export const setInitialConfig = async () => {
       ).toString();
 
       await saveFile(encryptedConfigObject, CONFIG_FILE_NAME, APP_DATA_DIRECTORY);
+      console.log(`Saved ${CONFIG_FILE_NAME} to ${APP_DATA_DIRECTORY}`);
     } catch (e) {
       console.log('error: ', e);
     }

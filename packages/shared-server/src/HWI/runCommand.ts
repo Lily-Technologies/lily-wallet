@@ -1,5 +1,6 @@
+import { get as getAppRootDir } from 'app-root-dir';
 import { execFile } from 'child_process';
-import { join, resolve as pathResolve } from 'path';
+import { join, resolve as pathResolve, dirname } from 'path';
 import { platform } from 'os';
 import isPi from 'detect-rpi';
 
@@ -9,12 +10,12 @@ export const runCommand = async (command: string[]): Promise<string> => {
     if (platform() === 'linux') hwiFile = 'HWI_LINUX';
     if (platform() === 'darwin') hwiFile = 'HWI_MAC';
     if (isPi()) hwiFile = 'HWI_PI';
+    const appRootDir = getAppRootDir();
+    console.log('appRootDir: ', appRootDir);
 
-    const binariesPath = join(__dirname, '..', '..', '..', './HWIs');
+    const binariesPath = join(`${appRootDir}/build`, './HWIs');
     const pathToHwi = pathResolve(join(binariesPath, hwiFile));
 
-    // uncomment when testing newer versions of HWI
-    // const pathToHwi = resolve(join(__dirname, '..', '..', '..', 'HWI', 'hwi.py'));
     execFile(pathToHwi, command, (error, stdout, stderr) => {
       if (error) {
         reject(error.message);
