@@ -11,9 +11,19 @@ import { bitcoinNetworkEqual } from 'src/utils/files';
 import { red500 } from 'src/utils/colors';
 import { validateAddress, validateSendAmount, getPsbtFromText, getFee } from 'src/utils/send';
 
-import { File, LilyOnchainAccount } from '@lily/types';
+import { File, LilyAccount, LilyLightningAccount, LilyOnchainAccount } from '@lily/types';
 import { SetStateNumber } from 'src/types';
 import { AccountMapContext, ConfigContext } from 'src/context';
+
+const getCurrentBalance = (account: LilyAccount) => {
+  if (account.loading) {
+    return 'Loading...';
+  } else if (account.config.type === 'onchain') {
+    return `${satoshisToBitcoins((account as LilyOnchainAccount).currentBalance)} BTC`;
+  } else {
+    return `${(account as LilyLightningAccount).currentBalance.balance} sats`;
+  }
+};
 
 interface Props {
   currentAccount: LilyOnchainAccount;
@@ -166,12 +176,12 @@ const OnchainSendTxForm = ({
             <Select
               label='From account'
               initialSelection={{
-                label: currentAccount.config.name,
+                label: `${currentAccount.config.name} (${getCurrentBalance(currentAccount)})`,
                 onClick: () => setCurrentAccountId(currentAccount.config.id)
               }}
               options={Object.values(accountMap).map((item) => {
                 return {
-                  label: item.name,
+                  label: `${item.name} (${getCurrentBalance(item)})`,
                   onClick: () => {
                     setCurrentAccountId(item.config.id);
                   }
