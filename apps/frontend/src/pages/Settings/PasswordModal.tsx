@@ -45,7 +45,9 @@ export const PasswordModal = ({
         </StyledIconCircle>
       </DangerIconContainer>
       <DangerTextContainer>
-        <ModalHeader>Secure your backup with a password</ModalHeader>
+        <span className='text-xl font-medium text-gray-900 dark:text-gray-100'>
+          Secure your backup with a password
+        </span>
         <ModalSubtext>Give a password to encrypt your backup with.</ModalSubtext>
         <div className='w-full grid grid-cols-1 gap-y-2 lg:grid-cols-2 lg:gap-x-8'>
           <div className='flex flex-col'>
@@ -115,12 +117,6 @@ const StyledIconCircle = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-`;
-
-const ModalHeader = styled.div`
-  font-size: 1.125rem;
-  text-align: center;
-  font-weight: 500;
 `;
 
 const ModalSubtext = styled.div`

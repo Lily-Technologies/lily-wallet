@@ -52,7 +52,9 @@ export const ConnectToNodeModal = ({ onRequestClose, setNodeConfig }: Props) => 
         </StyledIconCircle>
       </IconContainer>
       <ContentContainer>
-        <ModalHeader>Connect to a specific node</ModalHeader>
+        <span className='text-xl font-medium text-gray-900 dark:text-gray-100'>
+          Connect to a specific node
+        </span>
         <ModalSubtext>
           Enter your connection information to get transaction data directly from your node.
         </ModalSubtext>
@@ -145,12 +147,6 @@ const SaveButton = styled.button`
 
 const InputsWrapper = styled.div`
   width: 100%;
-`;
-
-const ModalHeader = styled.div`
-  font-size: 1.125rem;
-  text-align: center;
-  font-weight: 500;
 `;
 
 const ModalSubtext = styled.div`

@@ -34,8 +34,9 @@ const PastePsbtModalContent = ({
         <span className='dark:text-white text-2xl'>Paste transaction</span>
       </div>
       <div style={{ padding: '1.5em' }}>
-        <PastePsbtTextArea
+        <textarea
           rows={20}
+          className='border px-2 py-3 resize-none mb-6 text-gray-900 dark:text-gray-200 shadow-sm focus:ring-green-500 focus:outline-none focus:border-green-500 block w-full sm:text-sm border-gray-300 dark:border-gray-600 rounded-md'
           onChange={(e) => {
             setPastedPsbtValue(e.target.value);
           }}

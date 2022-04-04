@@ -169,7 +169,9 @@ const NewHardwareWalletScreen = ({
             <StyledIconCircle>
               <StyledIcon style={{ color: green600 }} as={CursorClick} size={36} />
             </StyledIconCircle>
-            <ModalHeader>Select address type</ModalHeader>
+            <span className='text-xl font-medium text-gray-900 dark:text-gray-100'>
+              Select address type
+            </span>
             <ModalSubtext>
               We detected transaction history for two different address types with this device.
               Please choose which address type you would like to use.
@@ -400,12 +402,6 @@ const ImportFromFileLabel = styled.label`
 const ModalWrapper = styled.div`
   padding: 1.5em;
   text-align: center;
-`;
-
-const ModalHeader = styled.h3`
-  line-height: 1.5rem;
-  font-size: 1.125em;
-  color: ${gray900};
 `;
 
 const ModalSubtext = styled.p`
