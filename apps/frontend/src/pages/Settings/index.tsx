@@ -11,10 +11,10 @@ import {
   HeaderLeft,
   HeaderRight,
   StyledIcon,
-  Modal
+  Modal,
+  Tabs
 } from 'src/components';
 
-import Tabs from './Tabs';
 import BackupSettings from './BackupSettings';
 import NetworkSettings from './NetworkSettings';
 import About from './About';
@@ -48,6 +48,12 @@ const Settings = ({ nodeConfig, currentBitcoinNetwork, getNodeConfig, setNodeCon
     setModalContent(null);
   };
 
+  const tabItems = [
+    { name: 'Network', tabId: 'network' },
+    ...(config.isEmpty ? [] : [{ name: 'Backup', tabId: 'backup' }]),
+    { name: 'About', tabId: 'about' }
+  ];
+
   return (
     <PageWrapper>
       <>
@@ -64,7 +70,7 @@ const Settings = ({ nodeConfig, currentBitcoinNetwork, getNodeConfig, setNodeCon
           )}
         </Header>
         <Wrapper className='bg-white dark:bg-gray-800'>
-          <Tabs currentTab={currentTab} setCurrentTab={setCurrentTab} config={config} />
+          <Tabs currentTab={currentTab} setCurrentTab={setCurrentTab} items={tabItems} />
           {currentTab === 'network' && (
             <NetworkSettings
               nodeConfig={nodeConfig}

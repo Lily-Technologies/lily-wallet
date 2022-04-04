@@ -35,6 +35,7 @@ export * from './SlideOver';
 export * from './Spinner';
 export * from './StyledIcon';
 export * from './SupportModal';
+export * from './Tabs';
 export * from './Textarea';
 export * from './TitleBar';
 export * from './Transition';
