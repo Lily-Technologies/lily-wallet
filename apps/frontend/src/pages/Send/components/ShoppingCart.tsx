@@ -12,20 +12,25 @@ interface Props {
 
 const ShoppingCartView = ({ items }: Props) => {
   return (
-    <ShoppingCartList>
+    <ul
+      role='list'
+      className='divide-y divide-gray-200 dark:divide-gray-700 border-b border-gray-200 dark:border-gray-700'
+    >
       {items.map((item, index) => (
-        <ShoppingCartItem key={index} className='py-6 flex space-x-6'>
+        <li key={index} className='flex py-6 px-4 sm:px-6'>
           {item.image}
           <ItemInformationWrapper>
             <ItemInformationInner className='space-y-1 sm:flex sm:items-start sm:justify-between sm:space-x-6'>
               <ItemInformation className='flex-auto text-sm font-medium space-y-1'>
-                <ItemTitle>{item.title}</ItemTitle>
-                <ItemPrice>{item.price.toLocaleString()} sats</ItemPrice>
+                <h3 className='text-gray-900 dark:text-gray-200 font-medium'>{item.title}</h3>
+                <p className='text-gray-900 dark:text-gray-300 mt-1'>
+                  {item.price.toLocaleString()} sats
+                </p>
                 {item.extraInfo?.length &&
                   item.extraInfo?.map((extra) => (
-                    <ItemDetails className='hidden text-gray-500 sm:block'>
+                    <p className='hidden text-gray-500 sm:block'>
                       {extra.label}: {extra.value}
-                    </ItemDetails>
+                    </p>
                   ))}
               </ItemInformation>
               {/* <div className="flex-none flex space-x-4">
@@ -46,22 +51,16 @@ const ShoppingCartView = ({ items }: Props) => {
               </div> */}
             </ItemInformationInner>
           </ItemInformationWrapper>
-        </ShoppingCartItem>
+        </li>
       ))}
-    </ShoppingCartList>
+    </ul>
   );
 };
-
-const ShoppingCartList = styled.ul`
-  margin: 0;
-  padding: 0;
-`;
 
 const ShoppingCartItem = styled.li`
   display: flex;
   padding-top: 1.5rem;
   padding-bottom: 1.5rem;
-  border-bottom: 1px solid ${gray200};
   padding-left: 1rem;
   padding-right: 1rem;
 `;

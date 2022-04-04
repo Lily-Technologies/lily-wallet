@@ -193,30 +193,34 @@ const TransactionDetails = ({
               <TransactionOptionsDropdown />
             </span>
           </ModalHeaderContainer>
-          {shoppingItems && <ShoppingCart items={shoppingItems} />}
+          {shoppingItems ? <ShoppingCart items={shoppingItems} /> : null}
           <div className='py-6 px-4 space-y-6 sm:px-6'>
-            <div className='flex flex-wrap mt-6 justify-between'>
-              <div className='text-gray-900 dark:text-gray-200'>To</div>
-              <div className='text-gray-900 dark:text-gray-200 font-medium truncate'>
-                {truncateAddress(finalPsbt.txOutputs[0].address!)}
+            {!shoppingItems ? (
+              <div className='flex flex-wrap justify-between'>
+                <div className='text-gray-900 dark:text-gray-200'>To</div>
+                <div className='text-gray-900 dark:text-gray-200 font-medium truncate'>
+                  {truncateAddress(finalPsbt.txOutputs[0].address!)}
+                </div>
               </div>
-            </div>
+            ) : null}
 
-            <div className='flex flex-wrap mt-6 justify-between'>
+            <div className='flex flex-wrap justify-between'>
               <div className='text-gray-900 dark:text-gray-200'>From</div>
               <div className='text-gray-900 dark:text-gray-200 font-medium'>
                 {currentAccount.name}
               </div>
             </div>
 
-            <div className='flex flex-wrap mt-6 justify-between'>
-              <div className='text-gray-900 dark:text-gray-200'>Amount</div>
-              <div className='text-gray-900 dark:text-gray-200 font-medium'>{`${satoshisToBitcoins(
-                finalPsbt.txOutputs[0].value
-              )} BTC`}</div>
-            </div>
+            {!shoppingItems ? (
+              <div className='flex flex-wrap justify-between'>
+                <div className='text-gray-900 dark:text-gray-200'>Amount</div>
+                <div className='text-gray-900 dark:text-gray-200 font-medium'>{`${satoshisToBitcoins(
+                  finalPsbt.txOutputs[0].value
+                )} BTC`}</div>
+              </div>
+            ) : null}
 
-            <div className='flex flex-wrap mt-6 justify-between'>
+            <div className='flex flex-wrap justify-between'>
               <div className='text-gray-900 dark:text-gray-200'>Network fee</div>
               <div className='text-gray-900 dark:text-gray-200 font-medium'>
                 <span data-cy='transactionFeeBtc'>{satoshisToBitcoins(_fee).toNumber()}</span>

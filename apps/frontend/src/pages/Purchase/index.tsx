@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import axios from 'axios';
 import { Psbt, Network } from 'bitcoinjs-lib';
 import BigNumber from 'bignumber.js';
+import { ShieldCheckIcon } from '@heroicons/react/solid';
 
 import {
   PricingTable,
@@ -13,7 +14,6 @@ import {
   Header,
   Button,
   HeaderLeft,
-  SelectAccountMenu,
   Modal
 } from 'src/components';
 
@@ -25,6 +25,8 @@ import { AccountMapContext, ConfigContext, PlatformContext } from 'src/context';
 import { broadcastTransaction, createTransaction } from 'src/utils/send';
 import { saveLicenseToVault } from 'src/utils/files';
 import { white, gray400, gray900 } from 'src/utils/colors';
+import { licenseExpires, licenseTier } from 'src/utils/license';
+import { capitalize } from 'src/utils/other';
 
 import {
   FeeRates,
@@ -40,7 +42,6 @@ import {
 } from '@lily/types';
 
 import { SetStatePsbt } from 'src/types';
-
 interface Props {
   currentAccount: LilyOnchainAccount;
   currentBitcoinNetwork: Network;
@@ -222,13 +223,8 @@ const PurchasePage = ({
         {step === 0 && (
           <PricingTable clickRenewLicense={clickRenewLicense} currentAccount={currentAccount} />
         )}
-        {step === 1 && (
+        {step === 1 && licenseResponse && (
           <>
-            <SelectAccountMenu
-              config={config}
-              setFinalPsbt={setFinalPsbt}
-              excludeNonSegwitAccounts
-            />
             {finalPsbt && (
               <ConfirmTxPage
                 currentAccount={currentAccount}
@@ -239,6 +235,23 @@ const PurchasePage = ({
                 setStep={setStep}
                 currentBitcoinPrice={currentBitcoinPrice}
                 currentBitcoinNetwork={currentBitcoinNetwork}
+                shoppingItems={[
+                  {
+                    image: (
+                      <div className='flex items-center justify-center p-3 border border-gray-400 dark:border-gray-500 rounded-lg'>
+                        <ShieldCheckIcon className='w-12 h-12 text-green-500 dark:text-green-400' />
+                      </div>
+                    ),
+                    title: `License for Lily Wallet (${capitalize(licenseTier(licenseResponse))})`,
+                    price: finalPsbt.txOutputs[0].value,
+                    extraInfo: [
+                      {
+                        label: 'Expires at block',
+                        value: licenseExpires(licenseResponse).toString()
+                      }
+                    ]
+                  }
+                ]}
               />
             )}
           </>
