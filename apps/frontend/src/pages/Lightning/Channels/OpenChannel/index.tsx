@@ -70,8 +70,12 @@ const OpenChannel = ({ setViewOpenChannelForm }: Props) => {
 
               const { psbt, feeRates } = await createTransaction(
                 fundingAccount,
-                `${satoshisToBitcoins(psbtFund.fundingAmount).toNumber()}`,
-                psbtFund.fundingAddress,
+                [
+                  {
+                    value: satoshisToBitcoins(psbtFund.fundingAmount).toNumber(),
+                    address: psbtFund.fundingAddress
+                  }
+                ],
                 0,
                 () => platform.estimateFee(),
                 currentBitcoinNetwork
@@ -89,8 +93,8 @@ const OpenChannel = ({ setViewOpenChannelForm }: Props) => {
               setShoppingItems([
                 {
                   image: <LightningImage />,
-                  title: `Lightning channel with ${openChannelResponse.alias}`,
-                  price: Number(psbtFund.fundingAmount),
+                  header: `Lightning channel with ${openChannelResponse.alias}`,
+                  subtext: `${Number(psbtFund.fundingAmount)} sats`,
                   extraInfo: [
                     {
                       label: 'Outgoing capacity',

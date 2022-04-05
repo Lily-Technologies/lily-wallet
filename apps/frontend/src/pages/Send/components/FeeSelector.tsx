@@ -4,7 +4,7 @@ import { satoshisToBitcoins } from 'unchained-bitcoin';
 import { Psbt } from 'bitcoinjs-lib';
 
 import { Button, Input } from 'src/components';
-import { getFee } from 'src/utils/send';
+import { getFee, RecipientItem } from 'src/utils/send';
 
 import {
   gray50,
@@ -28,11 +28,7 @@ interface Props {
   recipientAddress: string;
   sendAmount: string;
   closeModal(): void;
-  createTransactionAndSetState(
-    _recipientAddress: string,
-    _sendAmount: string,
-    _fee: number
-  ): Promise<Psbt>;
+  createTransactionAndSetState(recipients: RecipientItem[], _fee: number): Promise<Psbt>;
   currentBitcoinPrice: any; // KBC-TODO: change to be more specific
 }
 
@@ -65,7 +61,10 @@ export const FeeSelector = ({
 
   const selectFee = async (feeRate: number) => {
     try {
-      await createTransactionAndSetState(recipientAddress, sendAmount, feeRate);
+      await createTransactionAndSetState(
+        [{ address: recipientAddress, value: Number(sendAmount) }],
+        feeRate
+      );
       closeModal();
     } catch (e) {
       console.log('e: ', e);

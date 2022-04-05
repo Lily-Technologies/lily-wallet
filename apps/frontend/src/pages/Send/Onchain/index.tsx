@@ -11,7 +11,12 @@ import SendTxForm from '../components/OnchainSendTxForm';
 import ConfirmTxPage from './ConfirmTxPage';
 
 import { white, gray500, gray800, green500, red500 } from 'src/utils/colors';
-import { createTransaction, getSignedDevicesFromPsbt, broadcastTransaction } from 'src/utils/send';
+import {
+  createTransaction,
+  getSignedDevicesFromPsbt,
+  broadcastTransaction,
+  RecipientItem
+} from 'src/utils/send';
 import { getUnchainedNetworkFromBjslibNetwork } from 'src/utils/files';
 
 import {
@@ -61,16 +66,11 @@ const SendOnchain = ({ currentAccount, currentBitcoinNetwork, currentBitcoinPric
     }
   };
 
-  const createTransactionAndSetState = async (
-    _recipientAddress: string,
-    _sendAmount: string,
-    _feeRate: number
-  ) => {
+  const createTransactionAndSetState = async (recipients: RecipientItem[], _feeRate: number) => {
     try {
       const { psbt, feeRates } = await createTransaction(
         currentAccount,
-        _sendAmount,
-        _recipientAddress,
+        recipients,
         _feeRate,
         () => platform.estimateFee(),
         currentBitcoinNetwork

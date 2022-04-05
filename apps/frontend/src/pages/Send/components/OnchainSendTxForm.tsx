@@ -1,7 +1,7 @@
 import React, { useContext, useState, useRef } from 'react';
 import styled from 'styled-components';
 import { networks, Network, Psbt } from 'bitcoinjs-lib';
-import { satoshisToBitcoins } from 'unchained-bitcoin';
+import { satoshisToBitcoins, bitcoinsToSatoshis } from 'unchained-bitcoin';
 
 import { Input, Dropdown, FileUploader, Modal, ErrorModal, Select, Spinner } from 'src/components';
 
@@ -9,7 +9,13 @@ import PastePsbtModalContent from './PastePsbtModalContent';
 
 import { bitcoinNetworkEqual } from 'src/utils/files';
 import { red500 } from 'src/utils/colors';
-import { validateAddress, validateSendAmount, getPsbtFromText, getFee } from 'src/utils/send';
+import {
+  validateAddress,
+  validateSendAmount,
+  getPsbtFromText,
+  getFee,
+  RecipientItem
+} from 'src/utils/send';
 
 import { File, LilyAccount, LilyLightningAccount, LilyOnchainAccount } from '@lily/types';
 import { SetStateNumber } from 'src/types';
@@ -30,11 +36,7 @@ interface Props {
   setFinalPsbt: React.Dispatch<React.SetStateAction<Psbt | undefined>>;
   finalPsbt: Psbt | undefined;
   setStep: SetStateNumber;
-  createTransactionAndSetState: (
-    _recipientAddress: string,
-    _sendAmount: string,
-    _fee: number
-  ) => Promise<Psbt>;
+  createTransactionAndSetState: (recipients: RecipientItem[], _fee: number) => Promise<Psbt>;
   currentBitcoinNetwork: Network;
 }
 
@@ -117,7 +119,10 @@ const OnchainSendTxForm = ({
     if (valid) {
       try {
         setIsLoading(true);
-        const success = await createTransactionAndSetState(_recipientAddress, _sendAmount, 0);
+        const success = await createTransactionAndSetState(
+          [{ address: _recipientAddress, value: bitcoinsToSatoshis(_sendAmount).toNumber() }],
+          0
+        );
         if (!success) throw new Error();
         setStep(1);
       } catch (e) {

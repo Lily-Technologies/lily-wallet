@@ -22,10 +22,8 @@ const ShoppingCartView = ({ items }: Props) => {
           <ItemInformationWrapper>
             <ItemInformationInner className='space-y-1 sm:flex sm:items-start sm:justify-between sm:space-x-6'>
               <ItemInformation className='flex-auto text-sm font-medium space-y-1'>
-                <h3 className='text-gray-900 dark:text-gray-200 font-medium'>{item.title}</h3>
-                <p className='text-gray-900 dark:text-gray-300 mt-1'>
-                  {item.price.toLocaleString()} sats
-                </p>
+                <h3 className='text-gray-900 dark:text-gray-200 font-medium'>{item.header}</h3>
+                <p className='text-gray-900 dark:text-gray-300 mt-1'>{item.subtext}</p>
                 {item.extraInfo?.length &&
                   item.extraInfo?.map((extra) => (
                     <p className='hidden text-gray-500 sm:block'>

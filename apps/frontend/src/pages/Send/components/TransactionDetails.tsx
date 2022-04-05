@@ -2,26 +2,21 @@ import React, { useContext, useState } from 'react';
 import styled from 'styled-components';
 import { ArrowIosForwardOutline } from '@styled-icons/evaicons-outline';
 import { CheckCircle } from '@styled-icons/material';
+import { Bitcoin } from '@styled-icons/boxicons-logos';
 import { satoshisToBitcoins } from 'unchained-bitcoin';
 import { Psbt, Network } from 'bitcoinjs-lib';
 
 import { StyledIcon, Button, SidewaysShake, Dropdown, Modal } from 'src/components';
 
-import {
-  gray200,
-  gray800,
-  white,
-  green500,
-  green600,
-  orange500,
-  orange200
-} from 'src/utils/colors';
+import { gray800, white, green500, green600, orange500, orange200 } from 'src/utils/colors';
 import { downloadFile, formatFilename } from 'src/utils/files';
-import { getFee, truncateAddress } from 'src/utils/send';
+import { getFee, RecipientItem, truncateAddress } from 'src/utils/send';
+import { createMap } from 'src/utils/accountMap';
 import { FeeSelector } from './FeeSelector';
 import AddSignatureFromQrCode from '../Onchain/AddSignatureFromQrCode';
 import TransactionUtxoDetails from './TxUtxoDetails';
 import ShoppingCart from './ShoppingCart';
+import UnfundedPsbtAlert from './UnfundedPsbtAlert';
 
 import { LilyOnchainAccount, Device, FeeRates, ShoppingItem } from '@lily/types';
 
@@ -37,11 +32,7 @@ interface Props {
   signedDevices: Device[];
   setStep?: React.Dispatch<React.SetStateAction<number>>;
   currentBitcoinPrice: any; // KBC-TODO: change to be more specific
-  createTransactionAndSetState?: (
-    _recipientAddress: string,
-    _sendAmount: string,
-    _fee: number
-  ) => Promise<Psbt>;
+  createTransactionAndSetState?: (recipients: RecipientItem[], _fee: number) => Promise<Psbt>;
   currentBitcoinNetwork: Network;
   shoppingItems?: ShoppingItem[];
 }
@@ -60,9 +51,10 @@ const TransactionDetails = ({
 }: Props) => {
   const { platform } = useContext(PlatformContext);
   const signThreshold = currentAccount.config.quorum.requiredSigners;
-  const { transactions } = currentAccount;
+  const { transactions, changeAddresses, unusedChangeAddresses } = currentAccount;
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
+  const changeAddressMap = createMap([...changeAddresses, ...unusedChangeAddresses], 'address');
 
   const openInModal = (component: JSX.Element) => {
     setModalIsOpen(true);
@@ -193,32 +185,37 @@ const TransactionDetails = ({
               <TransactionOptionsDropdown />
             </span>
           </ModalHeaderContainer>
-          {shoppingItems ? <ShoppingCart items={shoppingItems} /> : null}
+          <UnfundedPsbtAlert
+            hidden={!!finalPsbt.inputCount}
+            addInputs={() =>
+              createTransactionAndSetState!(
+                finalPsbt.txOutputs as RecipientItem[],
+                feeRates['halfHourFee']
+              )
+            }
+          />
+          {shoppingItems ? (
+            <ShoppingCart items={shoppingItems} />
+          ) : (
+            <ShoppingCart
+              items={finalPsbt.txOutputs
+                .filter((output) => !!!changeAddressMap[output.address!])
+                .map((output, index) => {
+                  return {
+                    header: `Send ${satoshisToBitcoins(output.value)} BTC to`,
+                    subtext: truncateAddress(output.address!),
+                    image: <Bitcoin className='h-12 w-12 text-yellow-500' />
+                  };
+                })}
+            />
+          )}
           <div className='py-6 px-4 space-y-6 sm:px-6'>
-            {!shoppingItems ? (
-              <div className='flex flex-wrap justify-between'>
-                <div className='text-gray-900 dark:text-gray-200'>To</div>
-                <div className='text-gray-900 dark:text-gray-200 font-medium truncate'>
-                  {truncateAddress(finalPsbt.txOutputs[0].address!)}
-                </div>
-              </div>
-            ) : null}
-
             <div className='flex flex-wrap justify-between'>
               <div className='text-gray-900 dark:text-gray-200'>From</div>
               <div className='text-gray-900 dark:text-gray-200 font-medium'>
                 {currentAccount.name}
               </div>
             </div>
-
-            {!shoppingItems ? (
-              <div className='flex flex-wrap justify-between'>
-                <div className='text-gray-900 dark:text-gray-200'>Amount</div>
-                <div className='text-gray-900 dark:text-gray-200 font-medium'>{`${satoshisToBitcoins(
-                  finalPsbt.txOutputs[0].value
-                )} BTC`}</div>
-              </div>
-            ) : null}
 
             <div className='flex flex-wrap justify-between'>
               <div className='text-gray-900 dark:text-gray-200'>Network fee</div>

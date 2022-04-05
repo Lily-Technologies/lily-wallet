@@ -17,7 +17,8 @@ import {
   getSignedDevicesFromPsbt,
   combinePsbts,
   validateTxForAccount,
-  inputValidator
+  inputValidator,
+  RecipientItem
 } from 'src/utils/send';
 
 const bip32 = BIP32Factory(ecc);
@@ -30,11 +31,7 @@ interface Props {
   setStep?: SetStateNumber;
   currentBitcoinPrice: any;
   currentBitcoinNetwork: Network;
-  createTransactionAndSetState?: (
-    _recipientAddress: string,
-    _sendAmount: string,
-    _fee: number
-  ) => Promise<Psbt>; // if not passed in, then no adjusting fee
+  createTransactionAndSetState?: (recipients: RecipientItem[], _fee: number) => Promise<Psbt>; // if not passed in, then no adjusting fee
   shoppingItems?: ShoppingItem[];
 }
 

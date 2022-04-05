@@ -635,8 +635,8 @@ export interface BitcoinCoreGetRawTransactionResponse {
 // Shopping cart types
 export interface ShoppingItem {
   image: any;
-  title: string;
-  price: number;
+  header: string;
+  subtext: string;
   extraInfo?: ExtraInfo[];
 }
 

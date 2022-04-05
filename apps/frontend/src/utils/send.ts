@@ -22,6 +22,11 @@ import {
 
 import { BasePlatform } from 'src/frontend-middleware';
 
+export interface RecipientItem {
+  address: string;
+  value: number;
+}
+
 const getBuffer = (item) => {
   if (ArrayBuffer.isView(item)) {
     return Buffer.from(Object.values(item));
@@ -170,8 +175,7 @@ export const getSignedDevicesFromPsbt = (psbt: Psbt, extendedPublicKeys: Extende
 
 export const createTransaction = async (
   currentAccount: LilyOnchainAccount,
-  amountInBitcoins: string,
-  recipientAddress: string,
+  recipients: RecipientItem[],
   desiredFee: number,
   estimateFee: () => Promise<FeeRates>,
   currentBitcoinNetwork: Network
@@ -187,25 +191,7 @@ export const createTransaction = async (
     feeRate = feeRates.halfHourFee;
   }
 
-  const { inputs, outputs, fee } = coinSelect(
-    availableUtxos,
-    [
-      {
-        address: recipientAddress,
-        value: bitcoinsToSatoshis(amountInBitcoins).toNumber()
-      }
-    ],
-    feeRate
-  );
-
-  console.log(
-    'feeRate, feeRates, fee, inputs, outputs: ',
-    feeRate,
-    feeRates,
-    fee,
-    JSON.stringify(inputs),
-    JSON.stringify(outputs)
-  );
+  const { inputs, outputs, fee } = coinSelect(availableUtxos, recipients, feeRate);
 
   if (!inputs || !outputs) throw new Error('Unable to construct transaction');
   // TODO: This should be proportional to amount being sent

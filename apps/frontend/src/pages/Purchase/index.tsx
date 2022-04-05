@@ -119,8 +119,12 @@ const PurchasePage = ({
 
         const { psbt, feeRates } = await createTransaction(
           currentAccount,
-          paymentAddressResponse[tierAndTotalSigners].toString(),
-          paymentAddressResponse.address,
+          [
+            {
+              value: paymentAddressResponse[tierAndTotalSigners],
+              address: paymentAddressResponse.address
+            }
+          ],
           0,
           () => platform.estimateFee(),
           currentBitcoinNetwork
@@ -242,8 +246,8 @@ const PurchasePage = ({
                         <ShieldCheckIcon className='w-12 h-12 text-green-500 dark:text-green-400' />
                       </div>
                     ),
-                    title: `License for Lily Wallet (${capitalize(licenseTier(licenseResponse))})`,
-                    price: finalPsbt.txOutputs[0].value,
+                    header: `License for Lily Wallet (${capitalize(licenseTier(licenseResponse))})`,
+                    subtext: `${finalPsbt.txOutputs[0].value} sats`,
                     extraInfo: [
                       {
                         label: 'Expires at block',
