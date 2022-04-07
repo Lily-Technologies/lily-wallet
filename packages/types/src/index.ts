@@ -32,11 +32,9 @@ export interface File {
   modifiedTime: number;
 }
 
-export interface FeeRates {
-  fastestFee: number;
-  halfHourFee: number;
-  hourFee: number;
-}
+export type FeeRateOptions = 'fastestFee' | 'halfHourFee' | 'hourFee';
+
+export type FeeRates = Record<'fastestFee' | 'halfHourFee' | 'hourFee', number>;
 export interface CaravanConfig {
   client: any; // KBC-TODO: allow private connection to node
   id: string;
