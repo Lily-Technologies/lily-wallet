@@ -8,6 +8,7 @@ import { ConfigProvider } from './context/ConfigContext';
 import { ModalProvider } from './context/ModalContext';
 import { SidebarProvider } from './context/SidebarContext';
 import { PlatformProvider } from './context/PlatformContext';
+import { UnitProvider } from './context/UnitContext';
 
 ReactDOM.render(
   <PlatformProvider>
@@ -15,7 +16,9 @@ ReactDOM.render(
       <AccountMapProvider>
         <ModalProvider>
           <SidebarProvider>
-            <App />
+            <UnitProvider>
+              <App />
+            </UnitProvider>
           </SidebarProvider>
         </ModalProvider>
       </AccountMapProvider>

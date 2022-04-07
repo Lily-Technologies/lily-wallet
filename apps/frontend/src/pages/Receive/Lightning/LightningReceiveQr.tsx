@@ -4,7 +4,7 @@ import { QRCode } from 'react-qr-svg';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import { decode } from 'bolt11';
 
-import { Countdown } from 'src/components';
+import { Countdown, Unit } from 'src/components';
 
 import { black, white, red500, yellow600 } from 'src/utils/colors';
 
@@ -61,7 +61,7 @@ const LightningReceiveQr = ({ paymentRequest, setStep }: Props) => {
         <TxItem>
           <div className='text-gray-900 dark:text-gray-200'>Amount</div>
           <div className='text-gray-900 dark:text-gray-200 font-semibold'>
-            {decoded.satoshis} sats
+            <Unit value={Number(decoded.satoshis)} />
           </div>
         </TxItem>
 

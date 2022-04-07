@@ -3,11 +3,11 @@ import CSS from 'csstype';
 import { ExclamationCircleIcon } from '@heroicons/react/solid';
 import { classNames } from 'src/utils/other';
 
-interface Props {
+export interface InputProps {
   error?: string;
   value: string;
   onChange(value: string): void;
-  label: string;
+  label?: string;
   id?: string;
   name?: string;
   placeholder?: string;
@@ -25,6 +25,7 @@ interface Props {
   labelClassNames?: string;
   labelStyle?: CSS.Properties;
   disabled?: boolean;
+  onBlur?: (e: React.FocusEvent) => void;
 }
 
 export const Input = ({
@@ -47,8 +48,9 @@ export const Input = ({
   labelStyle,
   largeText = false,
   readOnly = false,
-  disabled
-}: Props) => (
+  disabled,
+  onBlur
+}: InputProps) => (
   <>
     {label && (
       <label
@@ -72,6 +74,7 @@ export const Input = ({
         autoComplete={autoComplete}
         inputMode={inputMode}
         onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange(e.target.value)}
+        onBlur={(e: React.FocusEvent) => onBlur && onBlur(e)}
         onKeyDown={onKeyDown}
         autoFocus={autoFocus}
         placeholder={placeholder}

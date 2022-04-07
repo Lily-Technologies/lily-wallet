@@ -1,7 +1,4 @@
 import moment from 'moment';
-import { satoshisToBitcoins } from 'unchained-bitcoin';
-
-import type { ChannelBalanceResponse } from '@lily-technologies/lnrpc';
 
 import {
   LilyAccount,
@@ -44,10 +41,8 @@ export const getLastTransactionTimeLightning = (events: LightningEvent[]) => {
 
 export const getAccountBalance = (account: LilyAccount) => {
   if (account.config.type === 'onchain') {
-    return `${satoshisToBitcoins(account.currentBalance as number).toFixed(8)} BTC`;
+    return (account as LilyOnchainAccount).currentBalance;
   } else {
-    return `${Number(
-      (account.currentBalance as ChannelBalanceResponse).balance
-    ).toLocaleString()} sats`;
+    return Number((account as LilyLightningAccount).currentBalance.balance);
   }
 };

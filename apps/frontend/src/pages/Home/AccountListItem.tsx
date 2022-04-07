@@ -4,6 +4,8 @@ import { Bitcoin } from '@styled-icons/boxicons-logos';
 
 import { ChevronRightIcon } from '@heroicons/react/solid';
 
+import { Unit } from 'src/components';
+
 import { LilyAccount } from '@lily/types';
 
 import { AccountMapContext } from 'src/context/AccountMapContext';
@@ -36,15 +38,19 @@ export const AccountListItem = ({ url, account }: Props) => {
                   {account.name}
                 </p>
                 <p className='flex items-center text-sm text-gray-500 dark:text-gray-300'>
-                  <time dateTime={getLastTransactionTime(account)}>
-                    {getLastTransactionTime(account)}
-                  </time>
+                  {account.loading ? (
+                    'Loading...'
+                  ) : (
+                    <time dateTime={getLastTransactionTime(account)}>
+                      {getLastTransactionTime(account)}
+                    </time>
+                  )}
                 </p>
               </div>
               <div className='hidden md:flex items-center justify-end'>
                 <div>
                   <p className='text-sm text-gray-900 dark:text-gray-100'>
-                    {getAccountBalance(account)}
+                    {account.loading ? '' : <Unit value={getAccountBalance(account)} />}
                   </p>
                 </div>
               </div>

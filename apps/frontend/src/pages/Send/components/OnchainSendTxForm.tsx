@@ -1,9 +1,17 @@
 import React, { useContext, useState, useRef } from 'react';
 import styled from 'styled-components';
 import { networks, Network, Psbt } from 'bitcoinjs-lib';
-import { satoshisToBitcoins, bitcoinsToSatoshis } from 'unchained-bitcoin';
 
-import { Input, Dropdown, FileUploader, Modal, ErrorModal, Select, Spinner } from 'src/components';
+import {
+  Input,
+  Dropdown,
+  FileUploader,
+  Modal,
+  ErrorModal,
+  Select,
+  Spinner,
+  UnitInput
+} from 'src/components';
 
 import PastePsbtModalContent from './PastePsbtModalContent';
 
@@ -19,17 +27,7 @@ import {
 
 import { File, LilyAccount, LilyLightningAccount, LilyOnchainAccount } from '@lily/types';
 import { SetStateNumber } from 'src/types';
-import { AccountMapContext, ConfigContext } from 'src/context';
-
-const getCurrentBalance = (account: LilyAccount) => {
-  if (account.loading) {
-    return 'Loading...';
-  } else if (account.config.type === 'onchain') {
-    return `${satoshisToBitcoins((account as LilyOnchainAccount).currentBalance)} BTC`;
-  } else {
-    return `${(account as LilyLightningAccount).currentBalance.balance} sats`;
-  }
-};
+import { AccountMapContext, UnitContext } from 'src/context';
 
 interface Props {
   currentAccount: LilyOnchainAccount;
@@ -48,14 +46,14 @@ const OnchainSendTxForm = ({
   createTransactionAndSetState,
   currentBitcoinNetwork
 }: Props) => {
-  const { config } = useContext(ConfigContext);
+  const { getValue } = useContext(UnitContext);
   const { setCurrentAccountId, accountMap } = useContext(AccountMapContext);
   const [recipientAddress, setRecipientAddress] = useState(
-    (finalPsbt && finalPsbt.txOutputs[0].address) || ''
-  ); // eslint-disable-line
+    finalPsbt ? finalPsbt.txOutputs[0].address! : ''
+  );
   const [sendAmount, setSendAmount] = useState(
-    (finalPsbt && satoshisToBitcoins(finalPsbt.txOutputs[0].value).toString()) || ''
-  ); // eslint-disable-line
+    finalPsbt ? finalPsbt.txOutputs[0].value.toString() : ''
+  );
   const [isLoading, setIsLoading] = useState(false);
   const [sendAmountError, setSendAmountError] = useState('');
   const [recipientAddressError, setRecipientAddressError] = useState('');
@@ -72,6 +70,16 @@ const OnchainSendTxForm = ({
   const closeModal = () => {
     setModalIsOpen(false);
     setModalContent(null);
+  };
+
+  const getCurrentBalance = (account: LilyAccount) => {
+    if (account.loading) {
+      return 'Loading...';
+    } else if (account.config.type === 'onchain') {
+      return getValue((account as LilyOnchainAccount).currentBalance);
+    } else {
+      return getValue(Number((account as LilyLightningAccount).currentBalance.balance));
+    }
   };
 
   const importTxFromFile = (file: string) => {
@@ -120,7 +128,7 @@ const OnchainSendTxForm = ({
       try {
         setIsLoading(true);
         const success = await createTransactionAndSetState(
-          [{ address: _recipientAddress, value: bitcoinsToSatoshis(_sendAmount).toNumber() }],
+          [{ address: _recipientAddress, value: Number(_sendAmount) }],
           0
         );
         if (!success) throw new Error();
@@ -216,19 +224,14 @@ const OnchainSendTxForm = ({
             />
           </div>
           <div className='col-span-4 lg:col-span-2'>
-            <Input
+            <UnitInput
               label='Amount to send'
-              type='number'
-              inputMode='decimal'
               value={sendAmount}
               onChange={(value) => {
                 setSendAmount(value);
                 setSendAmountError('');
               }}
-              placeholder='0.0025'
               error={sendAmountError}
-              inputStaticText='BTC'
-              // largeText={true}
               id='bitcoin-amount'
             />
           </div>

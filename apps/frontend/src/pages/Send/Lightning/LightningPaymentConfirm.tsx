@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { decode } from 'bolt11';
 import type { Payment } from '@lily-technologies/lnrpc';
 
-import { Button, Countdown, Modal } from 'src/components';
+import { Button, Countdown, Modal, Unit } from 'src/components';
 
 import { white, gray400, green600, gray600, red500, gray300, yellow600 } from 'src/utils/colors';
 
@@ -12,7 +12,7 @@ import PaymentSuccess from './PaymentSuccess';
 import { LilyLightningAccount } from '@lily/types';
 import { SetStateNumber } from 'src/types';
 
-import { PlatformContext } from 'src/context';
+import { PlatformContext, UnitContext } from 'src/context';
 
 interface Props {
   paymentRequest: string;
@@ -28,6 +28,7 @@ const LightningPaymentConfirm = ({ paymentRequest, setStep, currentAccount }: Pr
   const [paymentError, setPaymentError] = useState('');
   const [invoiceExpired, setInvoiceExpired] = useState(false);
   const { platform } = useContext(PlatformContext);
+  const { getValue } = useContext(UnitContext);
   const [estimatedFee, setEstimatedFee] = useState(0);
 
   const decoded = decode(paymentRequest);
@@ -98,14 +99,14 @@ const LightningPaymentConfirm = ({ paymentRequest, setStep, currentAccount }: Pr
 
         <TxItem>
           <TxItemLabel>Amount</TxItemLabel>
-          <TxItemValue>{decoded.satoshis} sats</TxItemValue>
+          <TxItemValue>{getValue(Number(decoded.satoshis))}</TxItemValue>
         </TxItem>
 
         {/* TODO: implement this logic */}
         <TxItem>
           <TxItemLabel>Estimated fee</TxItemLabel>
           <TxItemValue>
-            {!estimateFeeLoading ? `${estimatedFee} sats` : 'Calculating...'}
+            {estimateFeeLoading ? 'Calculating...' : getValue(estimatedFee)}
           </TxItemValue>
         </TxItem>
       </TxReviewWrapper>
@@ -120,7 +121,7 @@ const LightningPaymentConfirm = ({ paymentRequest, setStep, currentAccount }: Pr
       >
         <TxItem style={{ marginTop: 0 }}>
           <TxItemLabel>Total</TxItemLabel>
-          <TxItemValue>{decoded.satoshis! + estimatedFee} sats</TxItemValue>
+          <TxItemValue>{getValue(decoded.satoshis! + estimatedFee)}</TxItemValue>
         </TxItem>
       </TxReviewWrapper>
 

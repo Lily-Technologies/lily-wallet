@@ -1,12 +1,11 @@
 import React from 'react';
-import styled from 'styled-components';
 import { Psbt } from 'bitcoinjs-lib';
-import { satoshisToBitcoins } from 'unchained-bitcoin';
 import { Buffer } from 'buffer';
+
+import { Unit, Price } from 'src/components';
 
 import { createUtxoMapFromUtxoArray, getFee } from 'src/utils/send';
 import { cloneBuffer } from 'src/utils/other';
-import { gray100, gray300, gray600, green800 } from 'src/utils/colors';
 import { requireOnchain } from 'src/hocs';
 
 import { LilyOnchainAccount, UtxoMap } from '@lily/types';
@@ -43,7 +42,7 @@ const TransactionUtxoDetails = ({ currentAccount, psbt, currentBitcoinPrice }: P
                   {utxo.address.address}
                 </span>
                 <span className='text-right ml-8 grow-0 whitespace-nowrap dark:text-gray-200'>
-                  {satoshisToBitcoins(utxo.value).toNumber()} BTC
+                  <Unit value={utxo.value} />
                 </span>
               </div>
             );
@@ -57,7 +56,7 @@ const TransactionUtxoDetails = ({ currentAccount, psbt, currentBitcoinPrice }: P
                 {output.address}
               </span>{' '}
               <span className='text-right ml-8 grow-0 whitespace-nowrap dark:text-gray-200'>
-                {satoshisToBitcoins(output.value).toNumber()} BTC
+                <Unit value={output.value} />
               </span>
             </div>
           ))}
@@ -66,8 +65,7 @@ const TransactionUtxoDetails = ({ currentAccount, psbt, currentBitcoinPrice }: P
             Fees:{' '}
             {
               <span>
-                {satoshisToBitcoins(_fee).toNumber()} BTC ($
-                {satoshisToBitcoins(_fee).multipliedBy(currentBitcoinPrice).toFixed(2)})
+                <Unit value={_fee} /> (<Price value={_fee} />)
               </span>
             }
           </h3>

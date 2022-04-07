@@ -1,7 +1,9 @@
 import React from 'react';
 import moment from 'moment';
-import { satoshisToBitcoins } from 'unchained-bitcoin';
 import { ChevronRightIcon } from '@heroicons/react/solid';
+
+import { Unit } from 'src/components';
+import { capitalize } from 'src/utils/other';
 
 import TransactionTypeIcon from './TransactionTypeIcon';
 
@@ -40,11 +42,10 @@ const TransactionRow = ({ onClick, transaction, flat }: Props) => {
                 {transaction.address}
               </p>
               <p className='hidden sm:flex items-center text-sm text-gray-900 dark:text-gray-300'>
-                {satoshisToBitcoins(transaction.value).toNumber()} BTC
+                <Unit value={transaction.value} />
               </p>
               <p className='flex sm:hidden items-center text-sm text-gray-900 dark:text-gray-300'>
-                {transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1)}{' '}
-                {satoshisToBitcoins(transaction.value).toNumber()} BTC{' '}
+                {capitalize(transaction.type)} <Unit value={transaction.value} />
                 {transaction.status.confirmed
                   ? `at ${moment.unix(transaction.status.block_time).format('h:mm A')}`
                   : ''}

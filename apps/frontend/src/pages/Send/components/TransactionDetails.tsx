@@ -3,10 +3,9 @@ import styled from 'styled-components';
 import { ArrowIosForwardOutline } from '@styled-icons/evaicons-outline';
 import { CheckCircle } from '@styled-icons/material';
 import { Bitcoin } from '@styled-icons/boxicons-logos';
-import { satoshisToBitcoins } from 'unchained-bitcoin';
 import { Psbt, Network } from 'bitcoinjs-lib';
 
-import { StyledIcon, Button, SidewaysShake, Dropdown, Modal } from 'src/components';
+import { StyledIcon, Button, SidewaysShake, Dropdown, Modal, Price } from 'src/components';
 
 import { gray800, white, green500, green600, orange500, orange200 } from 'src/utils/colors';
 import { downloadFile, formatFilename } from 'src/utils/files';
@@ -20,7 +19,7 @@ import UnfundedPsbtAlert from './UnfundedPsbtAlert';
 
 import { LilyOnchainAccount, Device, FeeRates, ShoppingItem } from '@lily/types';
 
-import { PlatformContext } from 'src/context';
+import { PlatformContext, UnitContext } from 'src/context';
 
 const ABSURD_FEE = 1000000; // 0.01 BTC
 
@@ -50,6 +49,7 @@ const TransactionDetails = ({
   shoppingItems
 }: Props) => {
   const { platform } = useContext(PlatformContext);
+  const { getValue } = useContext(UnitContext);
   const signThreshold = currentAccount.config.quorum.requiredSigners;
   const { transactions, changeAddresses, unusedChangeAddresses } = currentAccount;
   const [modalIsOpen, setModalIsOpen] = useState(false);
@@ -120,7 +120,7 @@ const TransactionDetails = ({
               finalPsbt={finalPsbt}
               feeRates={feeRates}
               recipientAddress={finalPsbt.txOutputs[0].address!}
-              sendAmount={satoshisToBitcoins(finalPsbt.txOutputs[0].value).toString()}
+              sendAmount={finalPsbt.txOutputs[0].value.toString()}
               closeModal={closeModal}
               createTransactionAndSetState={createTransactionAndSetState}
               currentBitcoinPrice={currentBitcoinPrice}
@@ -202,7 +202,7 @@ const TransactionDetails = ({
                 .filter((output) => !!!changeAddressMap[output.address!])
                 .map((output, index) => {
                   return {
-                    header: `Send ${satoshisToBitcoins(output.value)} BTC to`,
+                    header: `Send ${getValue(output.value)} to`,
                     subtext: truncateAddress(output.address!),
                     image: <Bitcoin className='h-12 w-12 text-yellow-500' />
                   };
@@ -220,14 +220,8 @@ const TransactionDetails = ({
             <div className='flex flex-wrap justify-between'>
               <div className='text-gray-900 dark:text-gray-200'>Network fee</div>
               <div className='text-gray-900 dark:text-gray-200 font-medium'>
-                <span data-cy='transactionFeeBtc'>{satoshisToBitcoins(_fee).toNumber()}</span>
-                <span>
-                  {' '}
-                  BTC ($
-                  <span data-cy='transactionFeeUsd'>
-                    {satoshisToBitcoins(_fee).multipliedBy(currentBitcoinPrice).toFixed(2)}
-                  </span>
-                  )
+                <span data-cy='transactionFeeBtc'>
+                  {getValue(_fee)} (<Price value={_fee} />)
                 </span>
               </div>
             </div>
@@ -236,7 +230,7 @@ const TransactionDetails = ({
             <div className='flex items-center justify-between border-t border-gray-200 dark:border-gray-700 pt-6'>
               <div className='text-gray-900 dark:text-gray-200'>Total</div>
               <div className='text-gray-900 dark:text-gray-200 font-medium'>
-                {`${satoshisToBitcoins(finalPsbt.txOutputs[0].value + _fee)} BTC`}
+                {getValue(finalPsbt.txOutputs[0].value + _fee)}
               </div>
             </div>
           </div>

@@ -2,6 +2,8 @@ import React from 'react';
 import moment from 'moment';
 import { ChevronRightIcon } from '@heroicons/react/solid';
 
+import { Unit } from 'src/components';
+
 import PaymentTypeIcon from './PaymentTypeIcon';
 
 import { getFriendlyType } from 'src/pages/Lightning/utils';
@@ -39,13 +41,13 @@ const AcvitityRow = ({ onClick, type, creation_date, title, value_sat }: Props) 
             <div className='sm:flex sm:justify-between flex-wrap w-full items-center px-4 truncate'>
               <p className='text-left text-sm font-medium text-yellow-600 truncate'>{title}</p>
               <p className='hidden sm:flex items-center text-sm text-gray-900 dark:text-gray-300'>
-                {value_sat ? `${value_sat.toLocaleString()} sats` : null}
+                {value_sat ? <Unit value={value_sat} /> : null}
               </p>
               <p className='flex sm:hidden items-center text-sm text-gray-900 dark:text-gray-300'>
                 {type === 'PAYMENT_RECEIVE' || type === 'PAYMENT_SEND'
                   ? getFriendlyType(type)
                   : null}{' '}
-                {value_sat.toLocaleString()} sats{' '}
+                <Unit value={value_sat} />{' '}
                 {creation_date ? `at ${moment.unix(creation_date).format('h:mm A')}` : ''}
               </p>
             </div>

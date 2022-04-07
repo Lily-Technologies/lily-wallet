@@ -3,7 +3,7 @@ import styled, { css } from 'styled-components';
 import { Channel } from '@styled-icons/fluentui-system-filled';
 import type { CloseStatusUpdate } from '@lily-technologies/lnrpc';
 
-import { Select, Spinner } from 'src/components';
+import { Select, Spinner, Unit } from 'src/components';
 
 import { AccountMapContext, PlatformContext } from 'src/context';
 import { red600 } from 'src/utils/colors';
@@ -80,7 +80,7 @@ const CloseChannelModal = ({ setStep, channel, currentAccount }: Props) => {
         <div>
           <dt className='text-sm text-gray-600 dark:text-gray-400'>Closing balance</dt>
           <dd className='text-gray-900 dark:text-gray-200 text-base font-medium'>
-            {Number(channel.localBalance).toLocaleString()} sats
+            <Unit value={Number(channel.localBalance)} />
           </dd>
 
           <InputWrapper data-cy='funding-account'>

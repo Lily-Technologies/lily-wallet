@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
 import styled from 'styled-components';
 
-import { Input, Spinner, Select } from 'src/components';
+import { Input, Spinner, Select, UnitInput } from 'src/components';
 
 import { LilyLightningAccount } from '@lily/types';
 import { SetStateNumber, SetStateString } from 'src/types';
@@ -88,15 +88,12 @@ const LightningReceiveForm = ({ setStep, setInvoice, currentAccount }: Props) =>
             />
           </div>
           <div className='col-span-4'>
-            <Input
+            <UnitInput
               label='Invoice amount'
-              type='number'
               inputMode='decimal'
               value={sendAmount}
               onChange={setSendAmount}
-              placeholder='25000'
               error={sendAmountError}
-              inputStaticText='sats'
               id='lightning-amount'
             />
           </div>

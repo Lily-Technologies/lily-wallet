@@ -1,10 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
-import { satoshisToBitcoins } from 'unchained-bitcoin';
 import { Dialog } from '@headlessui/react';
 import { XIcon } from '@heroicons/react/outline';
 
-import { Button } from 'src/components';
+import { Button, Unit } from 'src/components';
 
 import { white, green600 } from 'src/utils/colors';
 
@@ -48,7 +47,7 @@ const TxDetailsModal = ({ transaction, setOpen }: Props) => {
                 <OutputItem className='bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600'>
                   <span className='text-green-800 dark:text-green-200 grow break-all'>{`${input.prevout.scriptpubkey_address}:${input.vout}`}</span>
                   <span className='text-right ml-8 grow-0 whitespace-nowrap dark:text-gray-200'>
-                    {satoshisToBitcoins(input.prevout.value).toNumber()} BTC
+                    <Unit value={input.prevout.value} />
                   </span>
                 </OutputItem>
               );
@@ -65,7 +64,7 @@ const TxDetailsModal = ({ transaction, setOpen }: Props) => {
                     {output.scriptpubkey_address}
                   </span>
                   <span className='text-right ml-8 grow-0 whitespace-nowrap dark:text-gray-200'>
-                    {satoshisToBitcoins(output.value).toNumber()} BTC
+                    <Unit value={output.value} />
                   </span>
                 </OutputItem>
               );
@@ -80,7 +79,7 @@ const TxDetailsModal = ({ transaction, setOpen }: Props) => {
               : 'Unconfirmed'}
           </StatusItem>
           <StatusItem className='text-gray-700 dark:text-gray-400'>
-            Paid {satoshisToBitcoins(transaction.fee).toNumber()} BTC in fees
+            Paid <Unit value={transaction.fee} />
           </StatusItem>
         </MoreDetailsSection>
         <Buttons>

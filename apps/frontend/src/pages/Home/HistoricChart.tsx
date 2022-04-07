@@ -12,7 +12,7 @@ import {
   TooltipPayload
 } from 'recharts';
 
-import { ChartEmptyState } from 'src/components/ChartEmptyState';
+import { ChartEmptyState, Unit } from 'src/components';
 
 import { green700, white, gray500, yellow200, yellow500 } from 'src/utils/colors';
 
@@ -80,7 +80,7 @@ export const HistoricChart = ({
             Current Price:
           </div>
           <div className='text-lg sm:text-xl md:text-3xl leading-6 text-gray-700 dark:text-gray-200'>
-            1BTC = {formatter.format(currentBitcoinPrice.toNumber())}
+            <Unit value={100000000} /> = {formatter.format(currentBitcoinPrice.toNumber())}
           </div>
         </CurrentBitcoinPriceContainer>
         <ChartControlsContainer>

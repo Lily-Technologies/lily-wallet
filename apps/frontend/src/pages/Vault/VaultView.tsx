@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { satoshisToBitcoins } from 'unchained-bitcoin';
 import moment from 'moment';
 import BigNumber from 'bignumber.js';
 import {
@@ -13,7 +12,7 @@ import {
   TooltipPayload
 } from 'recharts';
 
-import { ChartEmptyState, Modal } from 'src/components';
+import { ChartEmptyState, Modal, Unit } from 'src/components';
 
 import RecentTransactions from './RecentTransactions';
 import { RescanModal } from './RescanModal';
@@ -34,9 +33,9 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
   if (active) {
     return (
       <TooltipContainer>
-        <PriceTooltip>{`${
-          payload[0].value ? satoshisToBitcoins(payload[0].value as number) : 0
-        } BTC`}</PriceTooltip>
+        <PriceTooltip>
+          <Unit value={Number(payload[0].value) || 0} />
+        </PriceTooltip>
         <DateTooltip>{moment.unix(label).format('MMMM DD, YYYY')}</DateTooltip>
       </TooltipContainer>
     );
@@ -141,7 +140,7 @@ const VaultView = ({ currentAccount, nodeConfig, toggleRefresh }: Props) => {
               Current Balance:
             </div>
             <div className='text-lg sm:text-xl md:text-3xl leading-6 text-gray-700 dark:text-gray-200'>
-              {satoshisToBitcoins(currentBalance).toFixed(8)} BTC
+              <Unit value={currentBalance} />
             </div>
           </CurrentBalanceContainer>
           <ChartContainer>

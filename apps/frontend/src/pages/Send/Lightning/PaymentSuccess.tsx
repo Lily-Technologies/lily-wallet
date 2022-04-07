@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import styled from 'styled-components';
 import { CheckCircle } from '@styled-icons/material';
 import { Link } from 'react-router-dom';
@@ -12,12 +12,15 @@ import { white, green500, gray700 } from 'src/utils/colors';
 import { LilyLightningAccount } from '@lily/types';
 import { requireLightning } from 'src/hocs';
 
+import { UnitContext } from 'src/context';
+
 interface Props {
   currentAccount: LilyLightningAccount;
   payment: Payment;
 }
 
 const PaymentSuccess = ({ currentAccount, payment }: Props) => {
+  const { getValue } = useContext(UnitContext);
   const decoded = decode(payment.paymentRequest);
   const description = decoded.tags.filter((item) => item.tagName === 'description')[0]?.data;
 
@@ -28,7 +31,7 @@ const PaymentSuccess = ({ currentAccount, payment }: Props) => {
       </IconWrapper>
       <SuccessText>Payment success!</SuccessText>
       <SuccessSubtext>
-        You just paid {payment.valueSat} sats for {description}.
+        You just paid {getValue(Number(payment.valueSat))} for {description}.
       </SuccessSubtext>
       <SuccessSubtext>
         <ReturnToDashboardButton

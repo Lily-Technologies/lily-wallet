@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
-import { satoshisToBitcoins } from 'unchained-bitcoin';
 
+import { Unit } from 'src/components';
 import { TableRow, TableColumn } from 'src/components/Table';
 
 import { gray500 } from 'src/utils/colors';
@@ -22,9 +22,9 @@ const UtxoRow = ({ utxo }: Props) => (
       </UtxoSubheader>
     </TableColumnNoPadding>
     {/* @ts-ignore */}
-    <RightAlignColumn className='text-green-800 dark:text-green-400'>{`${satoshisToBitcoins(
-      utxo.value
-    ).toNumber()} BTC`}</RightAlignColumn>
+    <RightAlignColumn className='text-green-800 dark:text-green-400'>
+      <Unit value={utxo.value} />
+    </RightAlignColumn>
   </TableRowNoBorder>
 );
 

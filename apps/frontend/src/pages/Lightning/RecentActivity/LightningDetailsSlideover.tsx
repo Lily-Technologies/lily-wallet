@@ -3,6 +3,8 @@ import moment from 'moment';
 import { Dialog } from '@headlessui/react';
 import { XIcon } from '@heroicons/react/outline';
 
+import { Unit } from 'src/components';
+
 import { LightningEvent } from '@lily/types';
 
 import { getFriendlyType } from 'src/pages/Lightning/utils';
@@ -46,7 +48,7 @@ const LightningDetailsSlideover = ({ event, setOpen }: Props) => {
           <div>
             <dt className='text-sm font-medium text-gray-500 sm:w-40 sm:flex-shrink-0'>Value</dt>
             <dd className='mt-1 text-sm text-gray-900 sm:col-span-2'>
-              {Number(event.valueSat).toLocaleString()} sats
+              <Unit value={Number(event.valueSat)} />
             </dd>
           </div>
         </dl>

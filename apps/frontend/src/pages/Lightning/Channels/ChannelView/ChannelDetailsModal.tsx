@@ -3,6 +3,8 @@ import styled, { css } from 'styled-components';
 import moment from 'moment';
 import { Channel as ChannelIcon } from '@styled-icons/fluentui-system-filled';
 
+import { Unit } from 'src/components';
+
 import { Button } from 'src/components';
 
 import { white, gray500, red600 } from 'src/utils/colors';
@@ -41,7 +43,7 @@ const ChannelDetailsModal = ({ channel, setStep }: Props) => {
             <div>
               <InformationLabel>Total capacity</InformationLabel>
               <InformationValue className='text-gray-900 dark:text-gray-200'>
-                {Number(channel.capacity).toLocaleString()} sats
+                <Unit value={Number(channel.capacity)} />
               </InformationValue>
             </div>
             <div>
@@ -53,13 +55,13 @@ const ChannelDetailsModal = ({ channel, setStep }: Props) => {
             <div>
               <InformationLabel>Local capacity</InformationLabel>
               <InformationValue className='text-gray-900 dark:text-gray-200'>
-                {Number(channel.localBalance).toLocaleString()} sats
+                <Unit value={Number(channel.localBalance)} />
               </InformationValue>
             </div>
             <div>
               <InformationLabel>Remote capacity</InformationLabel>
               <InformationValue className='text-gray-900 dark:text-gray-200'>
-                {Number(channel.remoteBalance).toLocaleString()} sats
+                <Unit value={Number(channel.remoteBalance)} />
               </InformationValue>
             </div>
           </InformationArea>

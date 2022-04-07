@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import { requireLightning } from 'src/hocs';
 import { decode } from 'bolt11';
 
-import { Button, StyledIcon } from 'src/components';
+import { Button, StyledIcon, Unit } from 'src/components';
 
 import { white, green500 } from 'src/utils/colors';
 
@@ -27,7 +27,7 @@ const LightningReceiveSuccess = ({ currentAccount, paymentRequest }: Props) => {
         </IconWrapper>
         <SuccessText className='text-gray-700 dark:text-gray-200'>Payment received!</SuccessText>
         <SuccessSubtext className='text-gray-700 dark:text-gray-200'>
-          You just received {decoded.satoshis?.toLocaleString()} sats!
+          You just received <Unit value={Number(decoded.satoshis)} />
         </SuccessSubtext>
         <SuccessSubtext className='text-gray-700 dark:text-gray-200'>
           <ReturnToDashboardButton

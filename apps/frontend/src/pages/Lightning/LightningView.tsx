@@ -9,10 +9,9 @@ import {
   Tooltip,
   TooltipPayload
 } from 'recharts';
-import { satoshisToBitcoins } from 'unchained-bitcoin';
 import moment from 'moment';
 
-import { ChartEmptyState } from 'src/components';
+import { ChartEmptyState, Unit } from 'src/components';
 
 import RecentActivity from './RecentActivity';
 
@@ -32,9 +31,9 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
   if (active) {
     return (
       <TooltipContainer>
-        <div className='text-white'>{`${
-          payload[0] && payload[0].value ? satoshisToBitcoins(payload[0].value as number) : 0
-        } BTC`}</div>
+        <div className='text-white'>
+          <Unit value={payload[0] && payload[0].value ? Number(payload[0].value) : 0} />
+        </div>
         <DateTooltip>{moment.unix(label).format('MMMM DD, YYYY')}</DateTooltip>
       </TooltipContainer>
     );
@@ -85,7 +84,7 @@ const LightningView = ({ currentAccount }: Props) => {
               Current Balance:
             </div>
             <div className='ml-2 mt-1 text-xl md:text-3xl leading-6 font-medium text-gray-700 dark:text-gray-200'>
-              {satoshisToBitcoins(currentBalance.balance).toFixed(8)} BTC
+              <Unit value={Number(currentBalance.balance)} />
             </div>
           </CurrentBalanceContainer>
           <div>

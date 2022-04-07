@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { TableRow, TableColumn } from 'src/components/Table';
-import { Badge } from 'src/components';
+import { Badge, Unit } from 'src/components';
 
 import { gray500, green800 } from 'src/utils/colors';
 import { classNames } from 'src/utils/other';
@@ -21,7 +21,9 @@ const ChannelRow = ({ alias, capacity, status, onClick }: Props) => (
   >
     <TableColumnNoPadding>
       <ChannelHeader className='text-gray-900 dark:text-gray-300'>{alias}</ChannelHeader>
-      <ChannelSubheader>{capacity.toLocaleString()} sats capacity</ChannelSubheader>
+      <ChannelSubheader>
+        <Unit value={capacity} /> capacity
+      </ChannelSubheader>
     </TableColumnNoPadding>
     <RightAlignColumn>
       <Badge

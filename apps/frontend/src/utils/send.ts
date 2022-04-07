@@ -1,4 +1,3 @@
-import { satoshisToBitcoins, bitcoinsToSatoshis } from 'unchained-bitcoin';
 import { Psbt, address, Network } from 'bitcoinjs-lib';
 import * as ecc from 'tiny-secp256k1';
 import ECPairFactory from '@lily-technologies/ecpair';
@@ -61,8 +60,8 @@ export const truncateAddress = (address: string) => {
   return `${address.substring(0, 15)}...${address.substring(address.length - 15, address.length)}`;
 };
 
-export const validateSendAmount = (sendAmountInBTC: string, currentBalanceInSatoshi: number) => {
-  if (satoshisToBitcoins(currentBalanceInSatoshi).isGreaterThan(sendAmountInBTC)) {
+export const validateSendAmount = (sendValue: string, currentBalance: number) => {
+  if (new BigNumber(currentBalance).isGreaterThan(sendValue)) {
     return true;
   } else {
     return false;

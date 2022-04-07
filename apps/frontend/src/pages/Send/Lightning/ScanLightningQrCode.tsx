@@ -8,7 +8,7 @@ interface Props {
 }
 
 const ScanLightningQrCode = ({ onSuccess }: Props) => {
-  const [legacyMode, setLogacyMode] = useState(true);
+  const [legacyMode, setLogacyMode] = useState(false);
   const [error, setError] = useState('');
   const qrReaderRef = useRef(null);
 

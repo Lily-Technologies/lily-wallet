@@ -1,25 +1,23 @@
 import React, { useState, useContext, useCallback } from 'react';
 import { Psbt } from 'bitcoinjs-lib';
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 import { satoshisToBitcoins } from 'unchained-bitcoin';
 import { EditAlt } from '@styled-icons/boxicons-regular';
 import { Buffer } from 'buffer';
 
 import { ErrorModal, Modal, LightningImage } from 'src/components';
 
-import { mobile } from 'src/utils/media';
 import { gray500 } from 'src/utils/colors';
 import { createTransaction } from 'src/utils/send';
 
 import { FeeRates, LilyOnchainAccount, ShoppingItem, DecoratedOpenStatusUpdate } from '@lily/types';
 import { SetStatePsbt, SetStateBoolean } from 'src/types';
-import { requireLightning } from 'src/hocs';
 
 import OpenChannelForm from './OpenChannelForm';
 import ConfirmTxPage from 'src/pages/Send/Onchain/ConfirmTxPage';
 import OpenChannelSuccess from './OpenChannelSuccess';
 
-import { ConfigContext, PlatformContext } from 'src/context';
+import { ConfigContext, PlatformContext, UnitContext } from 'src/context';
 
 interface Props {
   setViewOpenChannelForm: SetStateBoolean;
@@ -27,6 +25,7 @@ interface Props {
 
 const OpenChannel = ({ setViewOpenChannelForm }: Props) => {
   const { currentBitcoinPrice, currentBitcoinNetwork } = useContext(ConfigContext);
+  const { getValue } = useContext(UnitContext);
   const [step, setStep] = useState(0);
   const [finalPsbt, setFinalPsbt] = useState<Psbt | undefined>(undefined);
   const [feeRates, setFeeRates] = useState<FeeRates>({
@@ -94,13 +93,13 @@ const OpenChannel = ({ setViewOpenChannelForm }: Props) => {
                 {
                   image: <LightningImage />,
                   header: `Lightning channel with ${openChannelResponse.alias}`,
-                  subtext: `${Number(psbtFund.fundingAmount)} sats`,
+                  subtext: getValue(Number(psbtFund.fundingAmount)),
                   extraInfo: [
                     {
                       label: 'Outgoing capacity',
-                      value: `${Number(psbtFund.fundingAmount).toLocaleString()} sats`
+                      value: getValue(Number(psbtFund.fundingAmount))
                     },
-                    { label: 'Incoming capacity', value: `0 sats` }
+                    { label: 'Incoming capacity', value: getValue(0) }
                   ]
                 }
               ]);

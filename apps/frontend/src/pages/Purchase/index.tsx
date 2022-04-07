@@ -20,7 +20,7 @@ import {
 import ConfirmTxPage from 'src/pages/Send/Onchain/ConfirmTxPage';
 
 import { requireOnchain } from 'src/hocs';
-import { AccountMapContext, ConfigContext, PlatformContext } from 'src/context';
+import { AccountMapContext, ConfigContext, PlatformContext, UnitContext } from 'src/context';
 
 import { broadcastTransaction, createTransaction } from 'src/utils/send';
 import { saveLicenseToVault } from 'src/utils/files';
@@ -58,6 +58,7 @@ const PurchasePage = ({
   nodeConfig
 }: Props) => {
   const { config, setConfigFile } = useContext(ConfigContext);
+  const { getValue } = useContext(UnitContext);
   const [step, setStep] = useState(0);
   const [finalPsbt, setFinalPsbt] = useState<Psbt | undefined>(undefined);
   const [selectedLicenseTier, setSelectedLicenseTier] = useState<LicenseTiers>(LicenseTiers.basic);
@@ -247,7 +248,7 @@ const PurchasePage = ({
                       </div>
                     ),
                     header: `License for Lily Wallet (${capitalize(licenseTier(licenseResponse))})`,
-                    subtext: `${finalPsbt.txOutputs[0].value} sats`,
+                    subtext: getValue(finalPsbt.txOutputs[0].value),
                     extraInfo: [
                       {
                         label: 'Expires at block',

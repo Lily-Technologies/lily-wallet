@@ -2,12 +2,13 @@ import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { Bitcoin } from '@styled-icons/boxicons-logos';
 
-import { LilyAccount } from '@lily/types';
+import { Unit } from 'src/components';
 
 import { AccountMapContext } from 'src/context/AccountMapContext';
 
 import { getLastTransactionTime, getAccountBalance } from 'src/pages/Home/utils';
 
+import { LilyAccount } from '@lily/types';
 interface Props {
   url: string;
   account: LilyAccount;
@@ -37,7 +38,7 @@ export const AccountGridItem = ({ url, account }: Props) => {
               )}
               {!account.loading && (
                 <span className='text-lg font-medium dark:text-gray-100 text-gray-900'>
-                  {getAccountBalance(account)}
+                  <Unit value={getAccountBalance(account)} />
                 </span>
               )}
               {!account.loading && (
