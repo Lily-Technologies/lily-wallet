@@ -21,7 +21,6 @@ export const UnitProvider = ({ children }: { children: React.ReactChild }) => {
   };
 
   const getValue = (value: number) => {
-    console.log('value: ', value);
     if (unit === 'BTC') {
       return `${satoshisToBitcoins(value).toFixed()} BTC`;
     } else {
