@@ -4,10 +4,10 @@ import { HashRouter as Router, Switch, Route, useLocation, useHistory } from 're
 import { networks } from 'bitcoinjs-lib';
 import BigNumber from 'bignumber.js';
 
-import { gray50, green700 } from 'src/utils/colors';
+import { green700 } from 'src/utils/colors';
 import { mobile } from 'src/utils/media';
 
-import { Sidebar, TitleBar, ScrollToTop } from 'src/components';
+import { AlertBar, Sidebar, TitleBar, ScrollToTop } from 'src/components';
 
 // Pages
 import Login from 'src/pages/Login';
@@ -226,6 +226,7 @@ const App = () => {
       ) : null}
       <ConfigRequired />
       <Overlay />
+      <AlertBar />
       {!config.isEmpty && <Sidebar currentBitcoinNetwork={currentBitcoinNetwork} />}
       <Switch>
         <Route
@@ -336,6 +337,7 @@ const ColorOverlap = styled.div`
   height: 19em;
   background-color: ${green700};
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  z-index: -1;
 
   ${mobile(css`
     height: 20em;

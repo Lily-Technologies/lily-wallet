@@ -47,7 +47,7 @@ export const AlertBar = React.memo(() => {
 
   if (licenseBannerMessage.current.message) {
     return (
-      <div className='bg-green-600 z-10'>
+      <div className='bg-green-600 z-10 md:ml-64'>
         <div className='max-w-7xl mx-auto py-3 px-3 sm:px-6 lg:px-8'>
           <div className='flex items-center justify-between flex-wrap'>
             <div className='w-full sm:w-0 flex-1 flex items-center'>

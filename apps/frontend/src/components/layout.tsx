@@ -5,7 +5,6 @@ import { Link } from 'react-router-dom';
 import styled, { css } from 'styled-components';
 import { MenuIcon } from '@heroicons/react/outline';
 import FlowerLogo from 'src/assets/flower.svg';
-import { AlertBar } from 'src/components';
 
 import { mobile } from 'src/utils/media';
 import { white, black } from 'src/utils/colors';
@@ -42,7 +41,6 @@ export const PageWrapper = ({ children }: Props) => {
           </div>
         </div>
       )}
-      {!config.isEmpty && <AlertBar />}
       <main className='flex-1 z-10 dark:bg-gray-900 bg-gray-100 relative'>
         <ColorOverlap className='bg-green-700 dark:bg-green-900' style={{ zIndex: '-1' }} />
         <div className='max-w-7xl mx-auto px-4 sm:px-6 md:px-16 py-8'>{children}</div>

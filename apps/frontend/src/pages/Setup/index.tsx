@@ -26,6 +26,7 @@ import NewLightningScreen from './NewLightningScreen';
 import { ConfigContext, PlatformContext } from 'src/context';
 
 import { HwiEnumerateResponse, AddressType } from '@lily/types';
+import { classNames } from 'src/utils/other';
 
 interface Props {
   password: string;
@@ -209,24 +210,18 @@ const Setup = ({ password, currentBlockHeight, currentBitcoinNetwork }: Props) =
   return (
     <div className='md:pl-64 flex flex-col flex-1 h-full'>
       <main className='flex flex-1 z-10 bg-gray-100 dark:bg-gray-900 relative'>
-        <Wrapper step={step} className='max-w-screen-xl mx-auto pb-6 px-4 sm:px-6 lg:pb-16 lg:px-8'>
+        <div
+          className={classNames(
+            step === 0 ? 'justify-center -mt-96' : '',
+            'flex flex-col items-center max-w-screen-xl mx-auto pb-6 px-4 sm:px-6 lg:pb-16 lg:px-8'
+          )}
+        >
           {step > 0 && <StepGroups step={step} setupOption={setupOption} />}
           {screen}
-        </Wrapper>
+        </div>
       </main>
     </div>
   );
 };
-
-const Wrapper = styled.div<{ step: number }>`
-  text-align: left;
-  font-family: 'Montserrat', sans-serif;
-  color: ${black};
-  align-items: center;
-  display: flex;
-  flex: 1;
-  justify-content: ${(p) => (p.step === 0 ? 'center' : 'flex-start')};
-  flex-direction: column;
-`;
 
 export default Setup;
