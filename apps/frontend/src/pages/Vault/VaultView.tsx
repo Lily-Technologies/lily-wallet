@@ -135,14 +135,14 @@ const VaultView = ({ currentAccount, nodeConfig, toggleRefresh }: Props) => {
       ) : null}
       {transactions.length > 0 && !currentAccount.loading ? (
         <div className='bg-white dark:bg-gray-800 rounded-md shadow'>
-          <CurrentBalanceContainer className='p-6'>
-            <div className='text-base sm:text-base md:text-lg leading-6 text-gray-500 dark:text-gray-400'>
+          <div className='flex flex-col p-6'>
+            <div className='ml-2 mt-2 text-sm md:text-lg leading-6 font-medium text-gray-500 dark:text-gray-400'>
               Current Balance:
             </div>
-            <div className='text-lg sm:text-xl md:text-3xl leading-6 text-gray-700 dark:text-gray-200'>
-              <Unit value={currentBalance} />
+            <div className='ml-2 mt-1 text-xl md:text-3xl leading-6 font-medium text-gray-700 dark:text-gray-200'>
+              <Unit value={Number(currentBalance)} />
             </div>
-          </CurrentBalanceContainer>
+          </div>
           <ChartContainer>
             <ResponsiveContainer width='100%' height={window.innerWidth < 768 ? 200 : 400}>
               <AreaChart width={400} height={400} data={dataForChart}>

@@ -79,14 +79,14 @@ const LightningView = ({ currentAccount }: Props) => {
       ) : null}
       {events.length > 0 && !currentAccount.loading ? (
         <div className='bg-white dark:bg-gray-800 rounded-md shadow'>
-          <CurrentBalanceContainer className='p-6'>
+          <div className='flex flex-col p-6'>
             <div className='ml-2 mt-2 text-sm md:text-lg leading-6 font-medium text-gray-500 dark:text-gray-400'>
               Current Balance:
             </div>
             <div className='ml-2 mt-1 text-xl md:text-3xl leading-6 font-medium text-gray-700 dark:text-gray-200'>
               <Unit value={Number(currentBalance.balance)} />
             </div>
-          </CurrentBalanceContainer>
+          </div>
           <div>
             <ResponsiveContainer width='100%' height={window.innerWidth < 768 ? 200 : 400}>
               <AreaChart width={400} height={400} data={balanceHistory}>
@@ -138,11 +138,6 @@ const LightningView = ({ currentAccount }: Props) => {
     </>
   );
 };
-
-const CurrentBalanceContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
 
 const TooltipContainer = styled.div`
   background: rgba(31, 31, 31, 0.75);

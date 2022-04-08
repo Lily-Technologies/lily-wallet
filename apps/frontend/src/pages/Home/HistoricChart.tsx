@@ -75,14 +75,14 @@ export const HistoricChart = ({
   return (
     <ChartContainer className='bg-white dark:bg-gray-800'>
       <ChartInfo className='p-4 md:p-6'>
-        <CurrentBitcoinPriceContainer>
-          <div className='text-base sm:text-base md:text-lg leading-6 text-gray-500 dark:text-gray-400'>
+        <div className='flex flex-col'>
+          <div className='ml-2 mt-2 text-sm md:text-lg leading-6 font-medium text-gray-500 dark:text-gray-400'>
             Current Price:
           </div>
-          <div className='text-lg sm:text-xl md:text-3xl leading-6 text-gray-700 dark:text-gray-200'>
+          <div className='ml-2 mt-1 text-xl md:text-3xl leading-6 font-medium text-gray-700 dark:text-gray-200'>
             <Unit value={100000000} /> = {formatter.format(currentBitcoinPrice.toNumber())}
           </div>
-        </CurrentBitcoinPriceContainer>
+        </div>
         <ChartControlsContainer>
           <ChartControlItem
             active={currentDomain === oneMonthDomain}
@@ -174,12 +174,6 @@ const ChartControlItem = styled.div<{ active: boolean }>`
   padding: 0.25em;
   cursor: pointer;
   margin: 0 0.25em;
-`;
-
-const CurrentBitcoinPriceContainer = styled.div`
-  font-size: 2em;
-  display: flex;
-  flex-direction: column;
 `;
 
 const ChartContainer = styled.div`
