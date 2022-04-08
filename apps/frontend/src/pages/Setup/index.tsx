@@ -212,7 +212,7 @@ const Setup = ({ password, currentBlockHeight, currentBitcoinNetwork }: Props) =
       <main className='flex flex-1 z-10 bg-gray-100 dark:bg-gray-900 relative'>
         <div
           className={classNames(
-            step === 0 ? 'justify-center -mt-96' : '',
+            step === 0 ? 'justify-center -mt-36' : '',
             'flex flex-col items-center max-w-screen-xl mx-auto pb-6 px-4 sm:px-6 lg:pb-16 lg:px-8'
           )}
         >
