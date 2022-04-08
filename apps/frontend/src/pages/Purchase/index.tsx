@@ -25,7 +25,7 @@ import { AccountMapContext, ConfigContext, PlatformContext, UnitContext } from '
 import { broadcastTransaction, createTransaction } from 'src/utils/send';
 import { saveLicenseToVault } from 'src/utils/files';
 import { white, gray400, gray900 } from 'src/utils/colors';
-import { licenseExpires, licenseTier } from 'src/utils/license';
+import { licenseExpires, licenseTier, licenseExpireAsDate } from 'src/utils/license';
 import { capitalize } from 'src/utils/other';
 
 import {
@@ -252,7 +252,10 @@ const PurchasePage = ({
                     extraInfo: [
                       {
                         label: 'Expires at block',
-                        value: licenseExpires(licenseResponse).toString()
+                        value: `${licenseExpires(licenseResponse)} (${licenseExpireAsDate(
+                          licenseResponse,
+                          nodeConfig
+                        ).fromNow()})`
                       }
                     ]
                   }

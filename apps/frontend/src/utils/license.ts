@@ -41,7 +41,10 @@ export const isExpiredLicense = (
   return licenseExpires(license) - nodeConfig.blocks < 0;
 };
 
-const licenseExpireAsDate = (license: LilyLicense, nodeConfig: NodeConfigWithBlockchainInfo) => {
+export const licenseExpireAsDate = (
+  license: LilyLicense,
+  nodeConfig: NodeConfigWithBlockchainInfo
+) => {
   const blockDiff = licenseExpires(license) - nodeConfig.blocks;
   const blockDiffTimeEst = blockDiff * 10;
   const expireAsDate = moment().add(blockDiffTimeEst, 'minutes');
