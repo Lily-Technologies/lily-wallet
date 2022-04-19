@@ -15,13 +15,19 @@ interface Props {
 }
 
 const OpenChannelSuccess = ({ currentAccount }: Props) => (
-  <Wrapper>
-    <IconWrapper style={{ color: green500 }}>
+  <div className='flex flex-col items-center bg-white dark:bg-gray-800 pt-12 pb-4'>
+    <div className='text-green-500'>
       <StyledIcon as={CheckCircle} size={100} />
-    </IconWrapper>
-    <SuccessText>New channel opened!</SuccessText>
-    <SuccessSubtext>You just opened a new lightning network channel.</SuccessSubtext>
-    <SuccessSubtext>
+    </div>
+    <div className='mt-3 text-center sm:mt-5'>
+      <h3 className='text-lg leading-6 font-medium text-gray-900 dark:text-gray-100'>
+        New channel opened!
+      </h3>
+      <div className='mt-2 max-w-xl text-sm text-gray-500 dark:text-gray-400'>
+        <p>You just opened a new lightning network channel.</p>
+      </div>
+    </div>
+    <div className='mt-8'>
       <ReturnToDashboardButton
         background={green500}
         color={white}
@@ -29,37 +35,12 @@ const OpenChannelSuccess = ({ currentAccount }: Props) => (
       >
         Return to dashboard
       </ReturnToDashboardButton>
-    </SuccessSubtext>
-  </Wrapper>
+    </div>
+  </div>
 );
-
-const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background: ${white};
-  border-radius: 0.875em;
-  padding: 1.5em 0.75em;
-`;
-
-const IconWrapper = styled.div``;
-
-const SuccessText = styled.div`
-  margin-top: 0.5em;
-  font-size: 1.5em;
-  color: ${gray700};
-`;
-
-const SuccessSubtext = styled.div`
-  color: ${gray700};
-  margin-top: 2rem;
-  margin-bottom: 1rem;
-  text-align: center;
-`;
 
 const ReturnToDashboardButton = styled(Link)`
   ${Button}
-  margin-top: 1rem;
 `;
 
 export default requireLightning(OpenChannelSuccess);

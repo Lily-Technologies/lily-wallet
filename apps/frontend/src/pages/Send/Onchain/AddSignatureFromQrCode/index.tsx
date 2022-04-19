@@ -1,4 +1,4 @@
-import React, { useState, Fragment } from 'react';
+import React, { useContext, useState, Fragment } from 'react';
 import styled from 'styled-components';
 import { Psbt } from 'bitcoinjs-lib';
 
@@ -7,8 +7,10 @@ import DecodePsbtQrCode from './DecodePsbtQrCode';
 import TxUtxoDetails from '../../components/TxUtxoDetails';
 
 import { Button } from 'src/components';
+import { AccountMapContext } from 'src/context';
 
 import { white, gray900, green600 } from 'src/utils/colors';
+import { LilyOnchainAccount } from '@lily/types';
 
 interface Props {
   importSignatureFromFile: (file: string) => void;
@@ -17,6 +19,7 @@ interface Props {
 }
 
 const AddSignatureFromQrCode = ({ importSignatureFromFile, psbt, currentBitcoinPrice }: Props) => {
+  const { currentAccount } = useContext(AccountMapContext);
   const [step, setStep] = useState(0);
 
   let screen: JSX.Element | string = 'Ooops, error';
@@ -25,7 +28,7 @@ const AddSignatureFromQrCode = ({ importSignatureFromFile, psbt, currentBitcoinP
       screen = <PsbtQrCode psbt={psbt} />;
       break;
     case 1:
-      screen = <TxUtxoDetails psbt={psbt} currentBitcoinPrice={currentBitcoinPrice} />;
+      screen = <TxUtxoDetails currentAccount={currentAccount as LilyOnchainAccount} psbt={psbt} />;
       break;
     case 2:
       screen = <DecodePsbtQrCode importSignatureFromFile={importSignatureFromFile} />;

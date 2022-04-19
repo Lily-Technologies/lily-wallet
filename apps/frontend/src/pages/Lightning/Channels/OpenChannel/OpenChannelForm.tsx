@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
 import styled from 'styled-components';
 
-import { Input, Select, Spinner } from 'src/components';
+import { Input, Select, Spinner, UnitInput } from 'src/components';
 
 import { LilyOnchainAccount } from '@lily/types';
 import { SetStateBoolean } from 'src/types';
@@ -53,14 +53,12 @@ const OpenChannelForm = ({
       </InputWrapper>
 
       <InputWrapper data-cy='channel-amount'>
-        <Input
+        <UnitInput
           label='Channel amount'
-          type='number'
           inputMode='decimal'
           value={channelAmount}
           onChange={setChannelAmount}
           error={error}
-          inputStaticText='sats'
         />
       </InputWrapper>
 

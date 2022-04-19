@@ -71,7 +71,7 @@ const OpenChannel = ({ setViewOpenChannelForm }: Props) => {
                 fundingAccount,
                 [
                   {
-                    value: satoshisToBitcoins(psbtFund.fundingAmount).toNumber(),
+                    value: Number(psbtFund.fundingAmount),
                     address: psbtFund.fundingAddress
                   }
                 ],

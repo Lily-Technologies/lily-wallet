@@ -54,6 +54,7 @@ const TransactionDetails = ({
   const { transactions, changeAddresses, unusedChangeAddresses } = currentAccount;
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
+
   const changeAddressMap = createMap([...changeAddresses, ...unusedChangeAddresses], 'address');
 
   const openInModal = (component: JSX.Element) => {
@@ -135,9 +136,7 @@ const TransactionDetails = ({
       dropdownItems.unshift({
         label: 'View transaction details',
         onClick: () => {
-          openInModal(
-            <TransactionUtxoDetails psbt={finalPsbt} currentBitcoinPrice={currentBitcoinPrice} />
-          );
+          openInModal(<TransactionUtxoDetails currentAccount={currentAccount} psbt={finalPsbt} />);
         }
       });
     }

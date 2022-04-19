@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Psbt } from 'bitcoinjs-lib';
 import { Buffer } from 'buffer';
 
@@ -6,17 +6,17 @@ import { Unit, Price } from 'src/components';
 
 import { createUtxoMapFromUtxoArray, getFee } from 'src/utils/send';
 import { cloneBuffer } from 'src/utils/other';
-import { requireOnchain } from 'src/hocs';
+
+import { AccountMapContext } from 'src/context';
 
 import { LilyOnchainAccount, UtxoMap } from '@lily/types';
 
 interface Props {
   currentAccount: LilyOnchainAccount;
   psbt: Psbt;
-  currentBitcoinPrice: number;
 }
 
-const TransactionUtxoDetails = ({ currentAccount, psbt, currentBitcoinPrice }: Props) => {
+const TransactionUtxoDetails = ({ currentAccount, psbt }: Props) => {
   const { availableUtxos, transactions } = currentAccount;
   const _fee = getFee(psbt, transactions);
   let utxosMap: UtxoMap;
@@ -75,4 +75,4 @@ const TransactionUtxoDetails = ({ currentAccount, psbt, currentBitcoinPrice }: P
   );
 };
 
-export default requireOnchain(TransactionUtxoDetails);
+export default TransactionUtxoDetails;
