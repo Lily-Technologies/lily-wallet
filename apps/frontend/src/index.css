@@ -140,10 +140,6 @@ th {
   font-family: 'Montserrat', sans-serif;
 }
 
-dd {
-  margin-inline-start: auto;
-}
-
 input[type='number']::-webkit-inner-spin-button,
 input[type='number']::-webkit-outer-spin-button {
   -webkit-appearance: none;

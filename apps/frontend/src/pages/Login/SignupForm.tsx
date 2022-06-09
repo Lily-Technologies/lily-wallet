@@ -8,7 +8,7 @@ import { ConfigContext, PlatformContext } from 'src/context';
 
 import { saveConfig } from 'src/utils/files';
 
-import FlowerLogo from 'src/assets/flower.svg';
+import { ReactComponent as FlowerLogo } from 'src/assets/flower.svg';
 import FlowerLoading from 'src/assets/flower-loading.svg';
 
 import { File } from '@lily/types';
@@ -18,11 +18,10 @@ const MIN_PASSWORD_LENGTH = 8;
 interface Props {
   cancel: () => void;
   encryptedConfigFile: File | null;
-  setPassword: React.Dispatch<React.SetStateAction<string>>;
 }
 
-const SignupForm = ({ setPassword, encryptedConfigFile, cancel }: Props) => {
-  const { config, setConfigFile } = useContext(ConfigContext);
+const SignupForm = ({ encryptedConfigFile, cancel }: Props) => {
+  const { config, setConfigFile, setPassword } = useContext(ConfigContext);
   const { platform } = useContext(PlatformContext);
   const [isLoading, setIsLoading] = useState(false);
   const [localPassword, setLocalPassword] = useState('');
@@ -61,7 +60,6 @@ const SignupForm = ({ setPassword, encryptedConfigFile, cancel }: Props) => {
           saveConfig(configCopy, localPassword, platform); // we save a blank config file
           setPassword(localPassword);
           setIsLoading(false);
-          history.replace(`/`);
         }, 2000);
       }
     } catch (e) {
@@ -84,7 +82,7 @@ const SignupForm = ({ setPassword, encryptedConfigFile, cancel }: Props) => {
   return (
     <div className='mx-auto w-full max-w-sm lg:w-96'>
       <div>
-        <img className='h-12 w-auto' src={FlowerLogo} alt='Lily Wallet logo' />
+        <FlowerLogo className='h-12 w-auto' />
         <h2 className='mt-6 text-3xl font-extrabold text-gray-900 dark:text-gray-200'>
           Create a new wallet
         </h2>

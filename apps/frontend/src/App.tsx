@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef, useContext, useCallback } from 'react';
 import styled, { css } from 'styled-components';
+import queryString from 'query-string';
 import { HashRouter as Router, Switch, Route, useLocation, useHistory } from 'react-router-dom';
 import { networks } from 'bitcoinjs-lib';
 import BigNumber from 'bignumber.js';
@@ -48,7 +49,19 @@ const App = () => {
   const [fetchingEncryptedConfig, setFetchingEncryptedConfig] = useState(true);
   const [refresh, setRefresh] = useState(false);
   const [flyInAnimation, setInitialFlyInAnimation] = useState(true);
-  const [password, setPassword] = useState('');
+
+  // const ConfigRequired = () => {
+  //   const { pathname, search } = useLocation();
+
+  //   const history = useHistory();
+  //   if (config.isEmpty && !(pathname === '/login' || pathname === '/settings')) {
+  //     history.push({
+  //       pathname: '/login',
+  //       search: `${search}&redirect=${pathname}`
+  //     });
+  //   }
+  //   return null;
+  // };
 
   const ConfigRequired = () => {
     const { pathname } = useLocation();
@@ -58,6 +71,20 @@ const App = () => {
     }
     return null;
   };
+
+  // const RedirectHandler = () => {
+  //   const history = useHistory();
+  //   const { search } = useLocation();
+  //   const { redirect, ...rest } = queryString.parse(search);
+  //   if (!config.isEmpty && !!redirect && typeof redirect === 'string') {
+  //     history.push({
+  //       pathname: redirect,
+  //       search: queryString.stringify(rest)
+  //     });
+  //   }
+
+  //   return null;
+  // };
 
   const Overlay = () => {
     const { pathname } = useLocation();
@@ -225,15 +252,15 @@ const App = () => {
         <TitleBar nodeConfig={nodeConfig} config={config} />
       ) : null}
       <ConfigRequired />
+      {/* <RedirectHandler /> */}
       <Overlay />
       <AlertBar />
-      {!config.isEmpty && <Sidebar currentBitcoinNetwork={currentBitcoinNetwork} />}
+      <Sidebar currentBitcoinNetwork={currentBitcoinNetwork} />
       <Switch>
         <Route
           path='/login'
           render={() => (
             <Login
-              setPassword={setPassword}
               encryptedConfigFile={encryptedConfigFile}
               setEncryptedConfigFile={setEncryptedConfigFile}
               currentBlockHeight={nodeConfig && nodeConfig.blocks}
@@ -247,7 +274,6 @@ const App = () => {
           render={() => (
             <Purchase
               currentBitcoinPrice={currentBitcoinPrice}
-              password={password}
               nodeConfig={nodeConfig!}
               currentBitcoinNetwork={currentBitcoinNetwork}
             />
@@ -257,23 +283,13 @@ const App = () => {
           path='/vault/:id'
           render={() => (
             <Vault
-              password={password}
               toggleRefresh={toggleRefresh}
               currentBitcoinNetwork={currentBitcoinNetwork}
               nodeConfig={nodeConfig!}
             />
           )}
         />
-        <Route
-          path='/lightning/:id'
-          render={() => (
-            <Lightning
-              password={password}
-              toggleRefresh={toggleRefresh}
-              currentBitcoinNetwork={currentBitcoinNetwork}
-            />
-          )}
-        />
+        <Route path='/lightning/:id' render={() => <Lightning toggleRefresh={toggleRefresh} />} />
         <Route path='/receive' render={() => <Receive />} />
         {nodeConfig && (
           <Route
@@ -290,13 +306,7 @@ const App = () => {
         )}
         <Route
           path='/setup'
-          render={() => (
-            <Setup
-              password={password}
-              currentBlockHeight={nodeConfig! && nodeConfig.blocks!}
-              currentBitcoinNetwork={currentBitcoinNetwork}
-            />
-          )}
+          render={() => <Setup currentBlockHeight={nodeConfig! && nodeConfig.blocks!} />}
         />
         <Route
           path='/settings'
@@ -307,7 +317,6 @@ const App = () => {
               currentBitcoinNetwork={currentBitcoinNetwork}
               // @ts-ignore
               setNodeConfig={setNodeConfig}
-              password={password}
             />
           )}
         />

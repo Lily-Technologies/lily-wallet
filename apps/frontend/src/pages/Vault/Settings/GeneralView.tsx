@@ -5,11 +5,9 @@ import { Modal, SettingsTable } from 'src/components';
 
 import DeleteAccountModal from './DeleteAccountModal';
 import EditAccountNameModal from './EditAccountNameModal';
-import DeviceDetailsModal from './DeviceDetailsModal';
 
 import { requireOnchain } from 'src/hocs';
 
-import { capitalize } from 'src/utils/other';
 import { red500 } from 'src/utils/colors';
 import { LilyOnchainAccount } from '@lily/types';
 interface Props {
@@ -69,28 +67,6 @@ const GeneralView = ({ currentAccount, password }: Props) => {
           <SettingsTable.ValueAction></SettingsTable.ValueAction>
         </SettingsTable.ValueColumn>
       </SettingsTable.Row>
-
-      <SettingsTable.HeaderSection>
-        <SettingsTable.HeaderTitle>Device Information</SettingsTable.HeaderTitle>
-        <SettingsTable.HeaderSubtitle>
-          Information about the devices that approve transactions for this account.
-        </SettingsTable.HeaderSubtitle>
-      </SettingsTable.HeaderSection>
-      {currentAccount.config.extendedPublicKeys?.map((item) => (
-        <SettingsTable.Row>
-          <SettingsTable.KeyColumn>{item.device.fingerprint}</SettingsTable.KeyColumn>
-          <SettingsTable.ValueColumn>
-            <SettingsTable.ValueText>{capitalize(item.device.type)}</SettingsTable.ValueText>
-            <SettingsTable.ValueAction>
-              <SettingsTable.ActionButton
-                onClick={() => openInModal(<DeviceDetailsModal item={item} />)}
-              >
-                View details
-              </SettingsTable.ActionButton>
-            </SettingsTable.ValueAction>
-          </SettingsTable.ValueColumn>
-        </SettingsTable.Row>
-      ))}
 
       <SettingsTable.HeaderSection>
         <SettingsTable.HeaderTitle>Danger Zone</SettingsTable.HeaderTitle>

@@ -12,12 +12,11 @@ import { NodeConfigWithBlockchainInfo } from '@lily/types';
 
 interface Props {
   nodeConfig: NodeConfigWithBlockchainInfo;
-  password: string;
   toggleRefresh(): void;
   currentBitcoinNetwork: Network;
 }
 
-const Vault = ({ nodeConfig, password, toggleRefresh, currentBitcoinNetwork }: Props) => {
+const Vault = ({ nodeConfig, toggleRefresh, currentBitcoinNetwork }: Props) => {
   let { path } = useRouteMatch();
 
   return (
@@ -29,7 +28,6 @@ const Vault = ({ nodeConfig, password, toggleRefresh, currentBitcoinNetwork }: P
             path={`${path}/settings`}
             render={() => (
               <VaultSettings
-                password={password}
                 nodeConfig={nodeConfig}
                 currentBitcoinNetwork={currentBitcoinNetwork}
               />

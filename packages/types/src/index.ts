@@ -32,6 +32,12 @@ export interface File {
   modifiedTime: number;
 }
 
+// id for account created using the createAccountId function
+export type AccountId = string;
+
+// id for account created using the createKeyId function
+export type KeyId = string;
+
 export type FeeRateOptions = 'fastestFee' | 'halfHourFee' | 'hourFee';
 
 export type FeeRates = Record<'fastestFee' | 'halfHourFee' | 'hourFee', number>;
@@ -381,6 +387,10 @@ export interface Device {
   type: 'coldcard' | 'trezor' | 'ledger' | 'phone' | 'lily' | 'cobo' | 'bitbox02';
   fingerprint: string;
   model: string; // KBC-TODO: get more specific with this
+  owner?: {
+    name?: string;
+    email?: string;
+  };
 }
 
 export interface HwiEnumerateResponse {
@@ -389,6 +399,10 @@ export interface HwiEnumerateResponse {
   model: string; // KBC-TODO: get more specific with this
   path: string;
   fingerprint: string;
+  // xpub: string;
+}
+
+export interface HwiEnumerateWithXpubResponse extends HwiEnumerateResponse {
   xpub: string;
 }
 
@@ -432,7 +446,7 @@ export interface HwiSendPinResponse {
 }
 
 export interface ExtendedPublicKey {
-  id: string;
+  id: KeyId;
   created_at: number;
   parentFingerprint: string;
   network: 'mainnet' | 'testnet';
@@ -449,7 +463,7 @@ export enum AddressType {
 }
 
 export interface OnChainConfig {
-  id: string;
+  id: AccountId;
   type: 'onchain';
   created_at: number;
   name: string;
@@ -463,6 +477,8 @@ export interface OnChainConfig {
   mnemonic?: string;
   parentFingerprint?: string;
 }
+
+export type OnChainConfigWithoutId = Omit<OnChainConfig, 'id'>;
 
 export interface GetOnchainDataResponse {
   addresses: Address[];

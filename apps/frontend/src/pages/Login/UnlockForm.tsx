@@ -2,7 +2,6 @@ import { useContext, useState } from 'react';
 import styled from 'styled-components';
 import { AES, enc } from 'crypto-js';
 import moment from 'moment';
-import { useHistory } from 'react-router-dom';
 
 import { ConfigContext, PlatformContext } from 'src/context';
 import { FileUploader, Input } from 'src/components';
@@ -23,7 +22,6 @@ interface Props {
   encryptedConfigFile: File | null;
   fetchingEncryptedConfig: boolean;
   setEncryptedConfigFile: (value: React.SetStateAction<File | null>) => void;
-  setPassword: React.Dispatch<React.SetStateAction<string>>;
   currentBlockHeight: number | undefined;
   onClickCreateNew: () => void;
 }
@@ -32,16 +30,14 @@ const UnlockForm = ({
   encryptedConfigFile,
   setEncryptedConfigFile,
   fetchingEncryptedConfig,
-  setPassword,
   currentBlockHeight,
   onClickCreateNew
 }: Props) => {
   const [localPassword, setLocalPassword] = useState('');
-  const { setConfigFile } = useContext(ConfigContext);
+  const { setConfigFile, setPassword } = useContext(ConfigContext);
   const { platform } = useContext(PlatformContext);
   const [isLoading, setIsLoading] = useState(false);
   const [passwordError, setPasswordError] = useState('');
-  const history = useHistory();
 
   const unlockFile = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -64,7 +60,6 @@ const UnlockForm = ({
           setPassword(localPassword);
           saveConfig(migratedConfig, localPassword, platform); // we resave the file after opening to update the modifiedDate value
           setIsLoading(false);
-          history.replace(`/`);
         }, 2000);
       } catch (e) {
         setPasswordError('Incorrect Password');

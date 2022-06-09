@@ -1,11 +1,12 @@
 import React, { useContext, useState } from 'react';
 import { Network } from 'bitcoinjs-lib';
 
-import { AccountMapContext } from 'src/context/AccountMapContext';
+import { AccountMapContext, ConfigContext } from 'src/context';
 
 import { Tabs } from 'src/components';
 
 import GeneralView from './GeneralView';
+import DevicesView from './Devices';
 import AddressesView from './AddressesView';
 import UtxosView from './UtxosView';
 import LicenseSettings from './LicenseSettings';
@@ -16,16 +17,16 @@ import { Modal } from 'src/components';
 import { NodeConfigWithBlockchainInfo } from '@lily/types';
 
 interface Props {
-  password: string;
   nodeConfig: NodeConfigWithBlockchainInfo;
   currentBitcoinNetwork: Network;
 }
 
-const VaultSettings = ({ password, nodeConfig, currentBitcoinNetwork }: Props) => {
+const VaultSettings = ({ nodeConfig, currentBitcoinNetwork }: Props) => {
   const [currentTab, setCurrentTab] = useState('general');
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
   const { currentAccount } = useContext(AccountMapContext);
+  const { password } = useContext(ConfigContext);
 
   const openInModal = (component: JSX.Element) => {
     setModalIsOpen(true);
@@ -39,6 +40,7 @@ const VaultSettings = ({ password, nodeConfig, currentBitcoinNetwork }: Props) =
 
   const tabItems = [
     { name: 'General', tabId: 'general' },
+    { name: 'Devices', tabId: 'devices' },
     { name: 'Addresses', tabId: 'addresses' },
     { name: 'UTXOs', tabId: 'utxos' },
     ...(currentAccount.config.type === 'onchain' && currentAccount.config.quorum.totalSigners > 1
@@ -53,6 +55,7 @@ const VaultSettings = ({ password, nodeConfig, currentBitcoinNetwork }: Props) =
         <h2 className='text-3xl font-extrabold text-gray-900 dark:text-gray-300 mb-2'>Settings</h2>
         <Tabs currentTab={currentTab} setCurrentTab={setCurrentTab} items={tabItems} />
         {currentTab === 'general' && <GeneralView password={password} />}
+        {currentTab === 'devices' && <DevicesView />}
         {currentTab === 'addresses' && <AddressesView />}
         {currentTab === 'utxos' && <UtxosView />}
         {currentTab === 'license' && (

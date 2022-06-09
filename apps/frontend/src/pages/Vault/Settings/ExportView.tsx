@@ -8,7 +8,7 @@ import { requireOnchain } from 'src/hocs';
 import { MnemonicWordsDisplayer, Modal, SettingsTable } from 'src/components';
 import { white, black, gray100 } from 'src/utils/colors';
 
-import { CaravanConfig, LilyOnchainAccount } from '@lily/types';
+import { CaravanConfig, LilyOnchainAccount, OnChainConfig } from '@lily/types';
 
 import {
   createColdCardBlob,
@@ -54,11 +54,21 @@ const ExportView = ({ currentAccount, currentBitcoinNetwork }: Props) => {
     }
   };
 
-  const downloadCaravanFile = () => {
+  const downloadLilyFile = (config: OnChainConfig) => {
+    const configCopy = { ...config };
+    const lilyFile = JSON.stringify(configCopy);
+    downloadFile(
+      lilyFile,
+      formatFilename(`${config.name}-lily`, currentBitcoinNetwork, 'json'),
+      platform
+    );
+  };
+
+  const downloadCaravanFile = (config: OnChainConfig) => {
     // need to add some properties to our config to use with Caravan
     // @ts-ignore-line
     const configCopy = {
-      ...currentAccount.config,
+      ...config,
       client: { type: 'public' }
     } as CaravanConfig;
     // need to have a name for each pubkey, so just use parentFingerprint
@@ -168,7 +178,22 @@ const ExportView = ({ currentAccount, currentBitcoinNetwork }: Props) => {
       {currentAccount.config.quorum.totalSigners > 1 && (
         <>
           <SettingsTable.Row>
-            <SettingsTable.KeyColumn>Coldcard Export File</SettingsTable.KeyColumn>
+            <SettingsTable.KeyColumn>Lily Backup</SettingsTable.KeyColumn>
+            <SettingsTable.ValueColumn>
+              <SettingsTable.ValueText></SettingsTable.ValueText>
+              <SettingsTable.ValueAction>
+                <SettingsTable.ActionButton
+                  onClick={() => {
+                    downloadLilyFile(currentAccount.config);
+                  }}
+                >
+                  Download
+                </SettingsTable.ActionButton>
+              </SettingsTable.ValueAction>
+            </SettingsTable.ValueColumn>
+          </SettingsTable.Row>
+          <SettingsTable.Row>
+            <SettingsTable.KeyColumn>Coldcard Multisig File</SettingsTable.KeyColumn>
             <SettingsTable.ValueColumn>
               <SettingsTable.ValueText></SettingsTable.ValueText>
               <SettingsTable.ValueAction>
@@ -189,7 +214,7 @@ const ExportView = ({ currentAccount, currentBitcoinNetwork }: Props) => {
               <SettingsTable.ValueAction>
                 <SettingsTable.ActionButton
                   onClick={() => {
-                    downloadCaravanFile();
+                    downloadCaravanFile(currentAccount.config);
                   }}
                 >
                   Download

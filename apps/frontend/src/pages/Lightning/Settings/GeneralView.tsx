@@ -6,15 +6,13 @@ import { Modal, SettingsTable } from 'src/components';
 import DeleteAccountModal from './DeleteAccountModal';
 import EditAccountNameModal from './EditAccountNameModal';
 
-import { AccountMapContext } from 'src/context/AccountMapContext';
+import { AccountMapContext, ConfigContext } from 'src/context';
 
 import { red500 } from 'src/utils/colors';
-interface Props {
-  password: string;
-}
 
-const GeneralView = ({ password }: Props) => {
+const GeneralView = () => {
   const { currentAccount } = useContext(AccountMapContext);
+  const { password } = useContext(ConfigContext);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
 

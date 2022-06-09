@@ -46,7 +46,6 @@ interface Props {
   currentAccount: LilyOnchainAccount;
   currentBitcoinNetwork: Network;
   currentBitcoinPrice: BigNumber;
-  password: string;
   nodeConfig: NodeConfigWithBlockchainInfo;
 }
 
@@ -54,10 +53,9 @@ const PurchasePage = ({
   currentAccount,
   currentBitcoinNetwork,
   currentBitcoinPrice,
-  password,
   nodeConfig
 }: Props) => {
-  const { config, setConfigFile } = useContext(ConfigContext);
+  const { config, setConfigFile, password } = useContext(ConfigContext);
   const { getValue } = useContext(UnitContext);
   const [step, setStep] = useState(0);
   const [finalPsbt, setFinalPsbt] = useState<Psbt | undefined>(undefined);

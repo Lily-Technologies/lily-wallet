@@ -1,9 +1,13 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { Transition } from '@headlessui/react';
 
 import { Button, Input } from 'src/components';
+
+import PageHeader from './PageHeader';
+import StepGroups from './Steps';
+
 import {
-  InnerWrapper,
   XPubHeaderWrapper,
   SetupHeaderWrapper,
   SetupExplainerText,
@@ -15,19 +19,22 @@ import {
 import { white, green600 } from 'src/utils/colors';
 import { capitalize as capitalizeFunc } from 'src/utils/other';
 
+import { OnChainConfigWithoutId, LightningConfig } from '@lily/types';
+
 interface Props {
-  header: JSX.Element;
   setupOption: number;
   setStep: React.Dispatch<React.SetStateAction<number>>;
-  accountName: string;
-  setAccountName: React.Dispatch<React.SetStateAction<string>>;
+  setNewAccountName: (accountName: string) => void;
+  newAccount: OnChainConfigWithoutId | LightningConfig;
 }
 
-const InputNameScreen = ({ header, setupOption, setStep, accountName, setAccountName }: Props) => {
+const InputNameScreen = ({ setupOption, setStep, newAccount, setNewAccountName }: Props) => {
+  const [localAccountName, setLocalAccountName] = useState(newAccount.name);
   const [nameError, setNameError] = useState('');
 
   const nextScreenAction = () => {
-    if (accountName.length > 3) {
+    if (localAccountName.length > 3) {
+      setNewAccountName(localAccountName);
       setStep(2);
     } else {
       setNameError('Not enough characters');
@@ -67,8 +74,12 @@ const InputNameScreen = ({ header, setupOption, setStep, accountName, setAccount
   };
 
   return (
-    <InnerWrapper>
-      {header}
+    <div className='w-full justify-center text-gray-900 dark:text-gray-200 overflow-x-hidden px-1'>
+      <PageHeader
+        headerText={`Create new ${getAccountType(setupOption, 'all')}`}
+        setStep={setStep}
+        showCancel={true}
+      />
       <FormContainer>
         <BoxedWrapper>
           <XPubHeaderWrapper>
@@ -84,13 +95,13 @@ const InputNameScreen = ({ header, setupOption, setStep, accountName, setAccount
           </XPubHeaderWrapper>
           <div className='flex flex-col py-4 px-3 bg-whtie dark:bg-gray-800'>
             <Input
-              autoFocus
+              // autoFocus
               error={nameError}
               label='Account Name'
               type='text'
               placeholder={`${getAccountType(setupOption, 'all')} Name`}
-              value={accountName}
-              onChange={setAccountName}
+              value={localAccountName}
+              onChange={setLocalAccountName}
               onKeyDown={(e) => onInputEnter(e)}
             />
           </div>
@@ -103,7 +114,7 @@ const InputNameScreen = ({ header, setupOption, setStep, accountName, setAccount
           >{`Continue`}</ExportFilesButton>
         </BoxedWrapper>
       </FormContainer>
-    </InnerWrapper>
+    </div>
   );
 };
 

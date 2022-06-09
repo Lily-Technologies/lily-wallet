@@ -12,7 +12,9 @@ export const ConfigContext = createContext({
   currentBitcoinPrice: new BigNumber(0),
   setCurrentBitcoinPrice: (bitcoinPrice: BigNumber) => {},
   currentBitcoinNetwork: {} as Network,
-  setCurrentBitcoinNetwork: (network: Network) => {}
+  setCurrentBitcoinNetwork: (network: Network) => {},
+  password: {} as string,
+  setPassword: (password: string) => {}
 });
 
 export const ConfigProvider = ({ children }: { children: React.ReactChild }) => {
@@ -20,6 +22,7 @@ export const ConfigProvider = ({ children }: { children: React.ReactChild }) => 
   const [currentBitcoinPrice, setCurrentBitcoinPrice] = useState(new BigNumber(0));
   const [currentBitcoinNetwork, setCurrentBitcoinNetwork] = useState(networks.bitcoin);
   const [nodeConfig, setNodeConfig] = useState<NodeConfigWithBlockchainInfo | undefined>(undefined);
+  const [password, setPassword] = useState('');
 
   const value = {
     config,
@@ -29,7 +32,9 @@ export const ConfigProvider = ({ children }: { children: React.ReactChild }) => 
     currentBitcoinPrice,
     setCurrentBitcoinPrice,
     currentBitcoinNetwork,
-    setCurrentBitcoinNetwork
+    setCurrentBitcoinNetwork,
+    password,
+    setPassword
   };
 
   return <ConfigContext.Provider value={value}>{children}</ConfigContext.Provider>;

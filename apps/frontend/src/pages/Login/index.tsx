@@ -11,7 +11,6 @@ import SignupForm from './SignupForm';
 interface Props {
   encryptedConfigFile: File | null;
   setEncryptedConfigFile: React.Dispatch<React.SetStateAction<File | null>>;
-  setPassword: React.Dispatch<React.SetStateAction<string>>;
   currentBlockHeight: number | undefined;
   fetchingEncryptedConfig: boolean;
 }
@@ -19,7 +18,6 @@ interface Props {
 const Login = ({
   encryptedConfigFile,
   setEncryptedConfigFile,
-  setPassword,
   currentBlockHeight,
   fetchingEncryptedConfig
 }: Props) => {
@@ -36,7 +34,7 @@ const Login = ({
   };
 
   return (
-    <div className='min-h-full flex bg-white dark:bg-gray-900'>
+    <div className='flex-auto min-h-full flex bg-white dark:bg-gray-900'>
       <div className='flex-1 flex flex-col justify-center py-12 px-4 sm:px-6 lg:flex-none lg:px-20 xl:px-24'>
         {fetchingEncryptedConfig ? <Loading message='Initializing...' /> : null}
         {!fetchingEncryptedConfig && mode === 'unlock' ? (
@@ -44,17 +42,12 @@ const Login = ({
             encryptedConfigFile={encryptedConfigFile}
             fetchingEncryptedConfig={fetchingEncryptedConfig}
             setEncryptedConfigFile={setEncryptedConfigFile}
-            setPassword={setPassword}
             currentBlockHeight={currentBlockHeight}
             onClickCreateNew={onClickCreateNew}
           />
         ) : null}
         {!fetchingEncryptedConfig && mode === 'create' ? (
-          <SignupForm
-            encryptedConfigFile={encryptedConfigFile}
-            setPassword={setPassword}
-            cancel={() => setMode('unlock')}
-          />
+          <SignupForm encryptedConfigFile={encryptedConfigFile} cancel={() => setMode('unlock')} />
         ) : null}
       </div>
       <div className='hidden lg:block relative w-0 flex-1'>

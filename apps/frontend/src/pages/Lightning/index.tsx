@@ -1,6 +1,5 @@
 import React, { Fragment } from 'react';
-import { Network } from 'bitcoinjs-lib';
-import { Switch, Route, useRouteMatch, RouteComponentProps } from 'react-router-dom';
+import { Switch, Route, useRouteMatch } from 'react-router-dom';
 
 import { PageWrapper } from 'src/components';
 
@@ -9,12 +8,10 @@ import LightningView from './LightningView';
 import LightningSettings from './Settings';
 
 interface Props {
-  password: string;
   toggleRefresh(): void;
-  currentBitcoinNetwork: Network;
 }
 
-const Lightning = ({ password, toggleRefresh, currentBitcoinNetwork }: Props) => {
+const Lightning = ({ toggleRefresh }: Props) => {
   let { path } = useRouteMatch();
 
   return (
@@ -22,15 +19,7 @@ const Lightning = ({ password, toggleRefresh, currentBitcoinNetwork }: Props) =>
       <Fragment>
         <LightningHeader toggleRefresh={toggleRefresh} />
         <Switch>
-          <Route
-            path={`${path}/settings`}
-            render={(props: RouteComponentProps) => (
-              <LightningSettings
-                password={password}
-                currentBitcoinNetwork={currentBitcoinNetwork}
-              />
-            )}
-          />
+          <Route path={`${path}/settings`} render={() => <LightningSettings />} />
           <Route path='' render={() => <LightningView />} />
         </Switch>
       </Fragment>
