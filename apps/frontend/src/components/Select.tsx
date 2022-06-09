@@ -55,7 +55,7 @@ export const Select = React.memo(
               >
                 <ListboxOptions>
                   {options.map((option, index) => (
-                    <ListboxOption key={index} value={option}>
+                    <Listbox.Option key={index} value={option}>
                       {({ selected, active }: { selected: boolean; active: boolean }) => (
                         <OptionContainer active={active} className='cursor-pointer'>
                           <DropdownItemLabel selected={selected}>{option.label}</DropdownItemLabel>
@@ -67,7 +67,7 @@ export const Select = React.memo(
                           ) : null}
                         </OptionContainer>
                       )}
-                    </ListboxOption>
+                    </Listbox.Option>
                   ))}
                 </ListboxOptions>
               </Transition>
@@ -104,8 +104,6 @@ const ListboxOptions = styled(Listbox.Options)`
   padding: 0;
   margin: 0;
 `;
-
-const ListboxOption = styled(Listbox.Option)``;
 
 const OptionContainer = styled.div<{ active: boolean }>`
   background: ${(p) => (p.active ? green500 : white)};

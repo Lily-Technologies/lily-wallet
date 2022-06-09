@@ -14,11 +14,13 @@ import { Device } from '@lily/types';
 
 interface Props {
   device: Device;
+  className?: string;
 }
 
-export const DeviceImage = ({ device }: Props) => {
+export const DeviceImage = ({ device, className }: Props) => {
   return (
-    <DeviceImageWrapper
+    <img
+      className={className}
       src={
         device.type === 'coldcard'
           ? Coldcard
@@ -41,11 +43,3 @@ export const DeviceImage = ({ device }: Props) => {
     />
   );
 };
-
-const DeviceImageWrapper = styled.img`
-  display: block;
-  width: auto;
-  height: auto;
-  max-height: 250px;
-  max-width: 6.25em;
-`;

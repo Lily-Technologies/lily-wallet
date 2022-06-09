@@ -110,6 +110,7 @@ export const Header = styled.div`
   flex-wrap: wrap;
   color: ${white};
 `;
+
 export const HeaderLeft = styled.div`
   display: flex;
   flex-direction: column;

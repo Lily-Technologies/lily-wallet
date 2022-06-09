@@ -4,23 +4,15 @@ import { Plus, Minus } from '@styled-icons/boxicons-regular';
 
 import { StyledIcon, Button } from 'src/components';
 import { green400, green500, green600, gray400, gray500, white } from 'src/utils/colors';
+import { OnChainConfigWithoutId, VaultConfig } from '@lily/types';
 
 interface Props {
-  numberOfImportedDevices: number;
-  setConfigRequiredSigners: React.Dispatch<React.SetStateAction<number>>;
-  configRequiredSigners: number;
-  setStep: React.Dispatch<React.SetStateAction<number>>;
-  closeModal: () => void;
+  newAccount: OnChainConfigWithoutId;
+  onClick: (requiredSigners: number) => void;
 }
 
-const RequiredDevicesModal = ({
-  numberOfImportedDevices,
-  setConfigRequiredSigners,
-  configRequiredSigners,
-  setStep,
-  closeModal
-}: Props) => {
-  const [requiredSigners, setRequiredSigners] = useState(configRequiredSigners);
+const RequiredDevicesModal = ({ newAccount, onClick }: Props) => {
+  const [requiredSigners, setRequiredSigners] = useState(newAccount.quorum.requiredSigners);
 
   return (
     <>
@@ -40,7 +32,7 @@ const RequiredDevicesModal = ({
           <IncrementButton
             data-cy='increment-button'
             onClick={() => setRequiredSigners(requiredSigners + 1)}
-            disabled={requiredSigners + 1 > numberOfImportedDevices}
+            disabled={requiredSigners + 1 > newAccount.extendedPublicKeys.length}
           >
             <StyledIcon as={Plus} size={25} />
           </IncrementButton>
@@ -48,11 +40,7 @@ const RequiredDevicesModal = ({
         <ContinueButton
           background={green600}
           color={white}
-          onClick={() => {
-            setConfigRequiredSigners(requiredSigners);
-            closeModal();
-            setStep(3);
-          }}
+          onClick={() => onClick(requiredSigners)}
         >
           Confirm
         </ContinueButton>

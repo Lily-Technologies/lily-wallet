@@ -11,7 +11,7 @@ export interface InputProps {
   id?: string;
   name?: string;
   placeholder?: string;
-  type: string;
+  type: React.HTMLInputTypeAttribute;
   autoComplete?: string;
   required?: boolean;
   className?: string;

@@ -1,10 +1,13 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
+import { generateMnemonic } from 'bip39';
 
 import { Button, MnemonicWordsDisplayer } from 'src/components';
+
+import PageHeader from './PageHeader';
+
 import { white, green600, gray100 } from 'src/utils/colors';
 import {
-  InnerWrapper,
   XPubHeaderWrapper,
   SetupHeaderWrapper,
   SetupExplainerText,
@@ -12,17 +15,25 @@ import {
   BoxedWrapper,
   SetupHeader
 } from './styles';
+import { OnChainConfigWithoutId } from '@lily/types';
 
 interface Props {
-  header: JSX.Element;
-  walletMnemonic: string;
   setStep: React.Dispatch<React.SetStateAction<number>>;
+  newAccount: OnChainConfigWithoutId;
+  setNewAccount: React.Dispatch<React.SetStateAction<OnChainConfigWithoutId>>;
 }
 
-const CreateWallet = ({ header, walletMnemonic, setStep }: Props) => {
+const CreateWallet = ({ setStep, newAccount, setNewAccount }: Props) => {
+  useEffect(() => {
+    setNewAccount({
+      ...newAccount,
+      mnemonic: generateMnemonic(256)
+    });
+  }, []);
+
   return (
-    <InnerWrapper style={{ marginBottom: '2em' }}>
-      {header}
+    <div className='w-full justify-center text-gray-900 dark:text-gray-200 overflow-x-hidden'>
+      <PageHeader headerText={`Create new wallet`} setStep={setStep} showCancel={true} />
       <FormContainer>
         <BoxedWrapper>
           <XPubHeaderWrapper>
@@ -38,7 +49,7 @@ const CreateWallet = ({ header, walletMnemonic, setStep }: Props) => {
             </SetupHeaderWrapper>
           </XPubHeaderWrapper>
           <WordContainer>
-            <MnemonicWordsDisplayer mnemonicWords={walletMnemonic} />
+            <MnemonicWordsDisplayer mnemonicWords={newAccount.mnemonic!} />
           </WordContainer>
           <SaveWalletButton
             background={green600}
@@ -51,7 +62,7 @@ const CreateWallet = ({ header, walletMnemonic, setStep }: Props) => {
           </SaveWalletButton>
         </BoxedWrapper>
       </FormContainer>
-    </InnerWrapper>
+    </div>
   );
 };
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import styled from 'styled-components';
 import * as ecc from 'tiny-secp256k1';
 import BIP32Factory from 'bip32';
@@ -11,7 +11,10 @@ import {
   isOnlyLettersAndNumbers
 } from 'src/utils/other';
 
-import { HwiEnumerateResponse, Device } from '@lily/types';
+import { ConfigContext } from 'src/context';
+
+import { HwiEnumerateResponse, Device, ExtendedPublicKey } from '@lily/types';
+import { multisigDeviceToExtendedPublicKey } from 'src/utils/files';
 
 const types = {
   coldcard: ['coldcard'],
@@ -25,8 +28,8 @@ const types = {
 
 const bip32 = BIP32Factory(ecc);
 interface Props {
-  importedDevices: HwiEnumerateResponse[];
-  setImportedDevices: React.Dispatch<React.SetStateAction<HwiEnumerateResponse[]>>;
+  importedDevices: ExtendedPublicKey[];
+  setImportedDevices: React.Dispatch<React.SetStateAction<ExtendedPublicKey[]>>;
   closeModal: () => void;
 }
 
@@ -37,6 +40,8 @@ const InputXpubModal = ({ importedDevices, setImportedDevices, closeModal }: Pro
   const [fingerprint, setFingerprint] = useState('');
   const [xpub, setXpub] = useState('');
   const [options, setOptions] = useState(Object.values(types[type]));
+
+  const { currentBitcoinNetwork } = useContext(ConfigContext);
 
   // Errors
   const [xpubError, setXpubError] = useState('');
@@ -63,8 +68,11 @@ const InputXpubModal = ({ importedDevices, setImportedDevices, closeModal }: Pro
     }
 
     if (valid) {
-      const updatedDevices = [{ type, model, path, fingerprint, xpub }, ...importedDevices];
-      setImportedDevices(updatedDevices);
+      const newKey = multisigDeviceToExtendedPublicKey(
+        { type, model, path, fingerprint, xpub },
+        currentBitcoinNetwork
+      );
+      setImportedDevices([...importedDevices, newKey]);
       closeModal();
     }
   };
@@ -83,6 +91,7 @@ const InputXpubModal = ({ importedDevices, setImportedDevices, closeModal }: Pro
               setXpub(value);
             }}
             label='Extended Public Key (XPub)'
+            placeholder='xpub6F1TMXpKfN5hRMdDUwSb9qD6LQmx2LTEbNtTj4nkFJte9GN14aFbqpup5AW7m9YhnYiTvEc1PqkrXkDY4gzJ95tNWKUATL6hD2AT641pSLE'
             type='text'
             error={xpubError}
             id='xpub'

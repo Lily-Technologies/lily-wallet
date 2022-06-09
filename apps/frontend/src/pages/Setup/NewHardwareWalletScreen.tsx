@@ -2,7 +2,6 @@ import React, { useState, useRef, useContext } from 'react';
 import styled, { css } from 'styled-components';
 import { decode } from 'bs58check';
 import BarcodeScannerComponent from 'react-webcam-barcode-scanner';
-import { Network } from 'bitcoinjs-lib';
 import { v4 as uuidv4 } from 'uuid';
 
 import { CursorClick } from '@styled-icons/heroicons-solid';
@@ -16,65 +15,50 @@ import {
   Modal,
   StyledIcon
 } from 'src/components';
-import {
-  InnerWrapper,
-  XPubHeaderWrapper,
-  SetupHeaderWrapper,
-  FormContainer,
-  BoxedWrapper
-} from './styles';
+
+import PageHeader from './PageHeader';
+
+import { XPubHeaderWrapper, SetupHeaderWrapper, FormContainer, BoxedWrapper } from './styles';
+
 import { zpubToXpub } from 'src/utils/other';
 import { mobile } from 'src/utils/media';
-import { getP2shDeriationPathForNetwork, getP2wpkhDeriationPathForNetwork } from 'src/utils/files';
-
-import { getAddressFromAccount } from 'src/utils/accountMap';
-
 import {
-  white,
-  gray300,
-  gray500,
-  gray700,
-  gray900,
-  green100,
-  green700,
-  green600
-} from 'src/utils/colors';
+  getP2shDeriationPathForNetwork,
+  getP2wpkhDeriationPathForNetwork,
+  createKeyId
+} from 'src/utils/files';
+import { getAddressFromAccount } from 'src/utils/accountMap';
+import { white, gray300, gray500, gray700, green100, green700, green600 } from 'src/utils/colors';
 
-import { PlatformContext } from 'src/context';
+import { PlatformContext, ConfigContext } from 'src/context';
 
 import {
   HwiEnumerateResponse,
   ColdcardElectrumExport,
   File,
   AddressType,
-  OnChainConfig
+  OnChainConfigWithoutId,
+  HwiEnumerateWithXpubResponse
 } from '@lily/types';
 
 interface Props {
-  header: JSX.Element;
   setStep: React.Dispatch<React.SetStateAction<number>>;
-  importedDevices: HwiEnumerateResponse[];
-  setImportedDevices: React.Dispatch<React.SetStateAction<HwiEnumerateResponse[]>>;
-  currentBitcoinNetwork: Network;
-  setPath: React.Dispatch<React.SetStateAction<string>>;
-  setAddressType: React.Dispatch<React.SetStateAction<AddressType>>;
+  newAccount: OnChainConfigWithoutId;
+  setNewAccount: React.Dispatch<React.SetStateAction<OnChainConfigWithoutId>>;
 }
 
-const NewHardwareWalletScreen = ({
-  header,
-  setStep,
-  importedDevices,
-  setImportedDevices,
-  currentBitcoinNetwork,
-  setPath,
-  setAddressType
-}: Props) => {
+const NewHardwareWalletScreen = ({ setStep, newAccount, setNewAccount }: Props) => {
+  const { platform } = useContext(PlatformContext);
+  const { currentBitcoinNetwork } = useContext(ConfigContext);
+
   const [availableDevices, setAvailableDevices] = useState<HwiEnumerateResponse[]>([]);
   const [errorDevices, setErrorDevices] = useState<string[]>([]);
   const importDeviceFromFileRef = useRef<HTMLLabelElement>(null);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
-  const { platform } = useContext(PlatformContext);
+  const [addressType, setAddressType] = useState(AddressType.P2WPKH);
+  const [path, setPath] = useState(getP2wpkhDeriationPathForNetwork(currentBitcoinNetwork));
+  const [importedDevices, setImportedDevices] = useState<HwiEnumerateWithXpubResponse[]>([]);
 
   const openInModal = (component: JSX.Element) => {
     setModalIsOpen(true);
@@ -84,6 +68,32 @@ const NewHardwareWalletScreen = ({
   const closeModal = () => {
     setModalIsOpen(false);
     setModalContent(null);
+  };
+
+  const nextStep = () => {
+    const device = importedDevices[0];
+    const keyId = createKeyId(device.fingerprint, device.xpub);
+
+    setNewAccount({
+      ...newAccount,
+      addressType: addressType,
+      quorum: {
+        requiredSigners: 1,
+        totalSigners: 1
+      },
+      extendedPublicKeys: [
+        {
+          id: keyId,
+          created_at: Date.now(),
+          parentFingerprint: device.fingerprint,
+          network: 'mainnet',
+          bip32Path: path,
+          xpub: device.xpub,
+          device: device
+        }
+      ]
+    });
+    setStep(3);
   };
 
   const importSingleSigDevice = async (device: HwiEnumerateResponse, index: number) => {
@@ -97,9 +107,9 @@ const NewHardwareWalletScreen = ({
       const p2wpkhConfig = {
         id: uuidv4(),
         created_at: 123, // this is a dumby value bc thrown away later
-        type: 'onchain',
+        type: 'onchain' as const,
         name: 'test',
-        network: 'mainnet',
+        network: 'mainnet' as const,
         addressType: AddressType.P2WPKH,
         quorum: {
           requiredSigners: 1,
@@ -110,7 +120,7 @@ const NewHardwareWalletScreen = ({
             id: uuidv4(),
             created_at: Date.now(),
             parentFingerprint: device.fingerprint,
-            network: 'mainnet',
+            network: 'mainnet' as const,
             bip32Path: getP2wpkhDeriationPathForNetwork(currentBitcoinNetwork),
             xpub: p2wpkhXpub.xpub,
             device: {
@@ -120,7 +130,7 @@ const NewHardwareWalletScreen = ({
             }
           }
         ]
-      } as OnChainConfig;
+      };
 
       const p2wpkhAddress = getAddressFromAccount(p2wpkhConfig, 'm/0/0', currentBitcoinNetwork);
       const p2wpkhTxs = await platform.doesAddressHaveTransaction(p2wpkhAddress.address);
@@ -135,9 +145,9 @@ const NewHardwareWalletScreen = ({
       const p2shConfig = {
         id: uuidv4(),
         created_at: 123, /// this gets thrown away later, so set dumby value
-        type: 'onchain',
+        type: 'onchain' as const,
         name: 'test',
-        network: 'mainnet',
+        network: 'mainnet' as const,
         addressType: AddressType.p2sh,
         quorum: {
           requiredSigners: 1,
@@ -148,7 +158,7 @@ const NewHardwareWalletScreen = ({
             id: uuidv4(),
             created_at: Date.now(),
             parentFingerprint: device.fingerprint,
-            network: 'mainnet',
+            network: 'mainnet' as const,
             bip32Path: getP2shDeriationPathForNetwork(currentBitcoinNetwork),
             xpub: p2shXpub.xpub,
             device: {
@@ -158,7 +168,7 @@ const NewHardwareWalletScreen = ({
             }
           }
         ]
-      } as OnChainConfig;
+      };
 
       const p2shAddress = getAddressFromAccount(p2shConfig, 'm/0/0', currentBitcoinNetwork);
       const p2shTxs = await platform.doesAddressHaveTransaction(p2shAddress.address);
@@ -238,8 +248,8 @@ const NewHardwareWalletScreen = ({
 
       const xpub = zpubToXpub(decode(parsedFile.keystore.xpub));
 
-      const newDevice = {
-        type: parsedFile.keystore.hw_type,
+      const newDevice: HwiEnumerateWithXpubResponse = {
+        type: parsedFile.keystore.hw_type as HwiEnumerateWithXpubResponse['type'],
         fingerprint: parsedFile.keystore.label.substring(
           'Coldcard Import '.length,
           parsedFile.keystore.label.length
@@ -247,7 +257,7 @@ const NewHardwareWalletScreen = ({
         xpub: xpub,
         model: 'unknown',
         path: 'unknown'
-      } as HwiEnumerateResponse;
+      };
 
       const updatedImportedDevices = [...importedDevices, newDevice];
       setImportedDevices(updatedImportedDevices);
@@ -264,13 +274,13 @@ const NewHardwareWalletScreen = ({
       const { xfp, xpub, path } = JSON.parse(data);
       const xpubFromZpub = zpubToXpub(decode(xpub));
 
-      const newDevice = {
+      const newDevice: HwiEnumerateWithXpubResponse = {
         type: 'cobo',
         fingerprint: xfp,
         xpub: xpubFromZpub,
         model: 'unknown',
         path: path
-      } as HwiEnumerateResponse;
+      };
 
       const updatedImportedDevices = [...importedDevices, newDevice];
       setImportedDevices(updatedImportedDevices);
@@ -284,8 +294,8 @@ const NewHardwareWalletScreen = ({
   };
 
   return (
-    <InnerWrapper>
-      {header}
+    <div className='w-full justify-center text-gray-900 dark:text-gray-200 overflow-x-hidden'>
+      <PageHeader headerText={`Create new hardware wallet`} setStep={setStep} showCancel={true} />
       <FormContainer>
         <BoxedWrapper>
           <FileUploader
@@ -370,13 +380,7 @@ const NewHardwareWalletScreen = ({
           />
         </BoxedWrapper>
         {importedDevices.length > 0 && (
-          <ContinueButton
-            background={green600}
-            color={white}
-            onClick={() => {
-              setStep(3);
-            }}
-          >
+          <ContinueButton background={green600} color={white} onClick={() => nextStep()}>
             Continue
           </ContinueButton>
         )}
@@ -384,7 +388,7 @@ const NewHardwareWalletScreen = ({
       <Modal isOpen={modalIsOpen} closeModal={() => setModalIsOpen(false)}>
         {modalContent}
       </Modal>
-    </InnerWrapper>
+    </div>
   );
 };
 

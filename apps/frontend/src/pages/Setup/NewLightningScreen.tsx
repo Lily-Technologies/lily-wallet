@@ -2,7 +2,6 @@ import React, { useState, useContext } from 'react';
 import styled from 'styled-components';
 
 import {
-  InnerWrapper,
   XPubHeaderWrapper,
   SetupHeaderWrapper,
   SetupExplainerText,
@@ -11,28 +10,31 @@ import {
   SetupHeader
 } from './styles';
 
+import PageHeader from './PageHeader';
+
 import { Button, Input, Spinner } from 'src/components';
 
 import { white, green600 } from 'src/utils/colors';
 
 import { PlatformContext } from 'src/context';
+import { LightningConfig } from '@lily/types';
 
 interface Props {
-  header: JSX.Element;
   setStep: React.Dispatch<React.SetStateAction<number>>;
-  lndConnectUri: string;
-  setLndConnectUri: React.Dispatch<React.SetStateAction<string>>;
+  newAccount: LightningConfig;
+  setNewAccount: React.Dispatch<React.SetStateAction<LightningConfig>>;
 }
 
-const NewLightningScreen = ({ header, setStep, lndConnectUri, setLndConnectUri }: Props) => {
+const NewLightningScreen = ({ setStep, newAccount, setNewAccount }: Props) => {
   const { platform } = useContext(PlatformContext);
+
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
   const attemptConnection = async () => {
     setIsLoading(true);
     try {
-      await platform.lightningConnect(lndConnectUri);
+      await platform.lightningConnect(newAccount.connectionDetails.lndConnectUri);
       setStep(3);
     } catch (e) {
       if (e instanceof Error) {
@@ -43,9 +45,17 @@ const NewLightningScreen = ({ header, setStep, lndConnectUri, setLndConnectUri }
     }
   };
 
+  if (!newAccount.connectionDetails) {
+    return null;
+  }
+
   return (
-    <InnerWrapper>
-      {header}
+    <div className='w-full justify-center text-gray-900 dark:text-gray-200 overflow-x-hidden'>
+      <PageHeader
+        headerText={`Connect your lightning wallet`}
+        setStep={setStep}
+        showCancel={true}
+      />
       <FormContainer>
         <BoxedWrapper>
           <XPubHeaderWrapper>
@@ -60,8 +70,15 @@ const NewLightningScreen = ({ header, setStep, lndConnectUri, setLndConnectUri }
           </XPubHeaderWrapper>
           <AnotherContainer>
             <Input
-              value={lndConnectUri}
-              onChange={(value) => setLndConnectUri(value)}
+              value={newAccount.connectionDetails.lndConnectUri}
+              onChange={(value) => {
+                setNewAccount({
+                  ...newAccount,
+                  connectionDetails: {
+                    lndConnectUri: value
+                  }
+                });
+              }}
               label='LND Connect URI'
               placeholder='lndconnect://dfasdfdfadfafdf27kuuepeqmxpla4gkmcvbjuiuafikstbyfsnaahxvqd.onion:10009?cert=MIICJDCCAcqgAwIBAgIQHwI3rZ6WKo62pQ-mHThUjjAKBggqhkjOPQQDAjA4MR8wHQYDVQQKExZsbmQgYXV0b2dlbmVyYXRlZCBjZXJ0MRUwEwYDVQQDEwx1bWJyZWwubG9jYWwwHhcNMjEwMjAyMjMzNjUyWhcNMjIwMzMwMjMzNjUyWjA4MR8wHQYDVQQKExZsbmQgYXV0b2dlbmVyYXRlZCBjZXJ0MRUwEwYDVQQDEwx1bWJyZX_5FufyjI_8Gt-gsp0FWT5SbqQTXsi-miiCbMVPMGWauWZnHt8vBSyTbrlZclo4G1MIGyMA4GA1UdDwEB_wQEAwICpDATBgNVHSUEDDAKBggrBgEFBQcDATAPBgNVHRMBAf8EBTADAQH_MB0GA1UdDgQWBBRqJKzY0mA_HHiKD8oJQw6CgxSq5zBbBgNVHREEVDBSgglsb2NhbGhvc3SCDHVtYnJlbC5sb2NhbIIEdW5peIIKdW5peHBhY2tldIIHYnVmY29ubocEfwAAAYcQAAAAAAAAAAAAAAAAAAAAAYcEChUVCTAKBggqhkjOPQQDAgNIADBFAiEAtoTlp0CIArPm_2wUn7QDUGqJCDaqSplsSvk4ol9pBoYs_OQClU2&macaroon=AgEDbG5kAusBAwoQRS5dNbHOmyqBr45cYt7CfxIBMBoWCgdhZGRyZXNzEgRyZWFkEgV3cml0ZRoTCgRpbmZvEgRyZWFkEgV3cml0ZRoXCghpbnZvaWNlcxIEcmVhZBIFd3JpdGUaFAoIbWFjYXJvb24SCGdlbmVyYXRlGhYKB21lc3NhZ2USBHJlYWQSBXdyaXRlGhcKCG9mZmNoYWluEgRyZWFkEgV3cml0ZRoWCgdvbmNoYWluEgRyZWFkEgV3cml0ZRoUCgVwZWVycxIEcmVhESfC21-Iois71G34f4c9ndvk7n5aFnkJYLYoayJTQ'
               type='text'
@@ -86,7 +103,7 @@ const NewLightningScreen = ({ header, setStep, lndConnectUri, setLndConnectUri }
           )}
         </ContinueButton>
       </FormContainer>
-    </InnerWrapper>
+    </div>
   );
 };
 

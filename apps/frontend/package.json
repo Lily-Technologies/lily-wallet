@@ -22,7 +22,7 @@
   "dependencies": {
     "@craco/craco": "^6.4.3",
     "@cvbb/qr-protocol": "^2.0.4",
-    "@headlessui/react": "^1.4.0",
+    "@headlessui/react": "^1.6.1",
     "@heroicons/react": "^1.0.3",
     "@lily-technologies/ecpair": "^2.0.0",
     "@lily-technologies/lnrpc": "^0.14.1-beta.14",

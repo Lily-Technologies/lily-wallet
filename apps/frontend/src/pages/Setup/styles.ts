@@ -6,12 +6,6 @@ export const HeaderWrapper = styled.div`
   color: ${black};
 `;
 
-export const InnerWrapper = styled.div.attrs({ className: 'text-gray-900 dark:text-gray-200' })`
-  max-width: 46.875em;
-  width: 100%;
-  margin-top: 1em;
-`;
-
 export const PageTitleSubtext = styled.div`
   font-size: 1em;
   color: ${gray600};

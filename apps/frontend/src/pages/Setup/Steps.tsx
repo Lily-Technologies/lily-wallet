@@ -16,7 +16,7 @@ const Steps = ({ step, setupOption }: Props) => {
     { id: '02', name: '', status: step === 1 ? 'upcoming' : step === 2 ? 'current' : 'complete' },
     {
       id: '03',
-      name: 'Setup Success',
+      name: 'Review details',
       status: step < 3 ? 'upcoming' : step === 3 ? 'current' : 'complete'
     }
   ];

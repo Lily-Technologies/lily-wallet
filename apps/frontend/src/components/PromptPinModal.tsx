@@ -13,11 +13,13 @@ import { HwiEnumerateResponse } from '@lily/types';
 
 interface Props {
   device: HwiEnumerateResponse;
+  deviceAction?: (device: HwiEnumerateResponse) => Promise<void>;
   enumerate: () => void;
   closeModal: () => void;
 }
 
-export const PromptPinModal = ({ device, enumerate, closeModal }: Props) => {
+export const PromptPinModal = ({ device, enumerate, deviceAction, closeModal }: Props) => {
+  console.log('device: ', device);
   const [currentPin, setCurrentPin] = useState('');
   const [loadingMessage, setLoadingMessage] = useState('');
   const [promptPinError, setPromptPinError] = useState('');
@@ -73,7 +75,14 @@ export const PromptPinModal = ({ device, enumerate, closeModal }: Props) => {
     });
     setCurrentPin('');
     if (response.success) {
-      await enumerate();
+      const resp = await platform.enumerate();
+      const unlockedDevice = resp.filter((item) => item.path === device.path)[0];
+      // TODO: should device action always be forced after unlocking?
+      if (deviceAction) {
+        await deviceAction(unlockedDevice);
+      } else {
+        await enumerate();
+      }
       closeModal();
     } else {
       setPromptPinError('Incorrect Pin');

@@ -3,12 +3,18 @@ import { Dialog, Transition } from '@headlessui/react';
 import { XIcon } from '@heroicons/react/outline';
 
 import { NavLinks } from 'src/components';
-import { SidebarContext } from 'src/context/SidebarContext';
+import { SidebarContext, ConfigContext } from 'src/context';
 
 import { classNames } from 'src/utils/other';
 
 export const Sidebar = ({ currentBitcoinNetwork }) => {
   const { sidebarOpen, setSidebarOpen } = useContext(SidebarContext);
+  const { config } = useContext(ConfigContext);
+
+  if (config.isEmpty) {
+    return null;
+  }
+
   return (
     <>
       <Transition.Root show={sidebarOpen} as={Fragment}>
@@ -65,8 +71,8 @@ export const Sidebar = ({ currentBitcoinNetwork }) => {
         </Dialog>
       </Transition.Root>
 
-      <div className='hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 shadow-sm border-r-2 border-gray-200 dark:border-gray-800 z-10'>
-        <div className='flex-1 flex flex-col min-h-0 bg-white dark:bg-gray-900'>
+      <div className='hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 z-10 shadow-sm'>
+        <div className='flex-1 flex flex-col min-h-0 bg-white dark:bg-gray-900 border-r-2 border-gray-200 dark:border-gray-800'>
           <div className='flex-1 flex flex-col pb-4 overflow-y-auto'>
             <nav
               className={classNames(

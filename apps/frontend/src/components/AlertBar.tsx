@@ -1,6 +1,6 @@
 import React, { useContext, useRef, useEffect } from 'react';
 import { blockExplorerTransactionURL } from 'unchained-bitcoin';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 import { BellIcon } from '@heroicons/react/outline';
 
 import { AccountMapContext, ConfigContext, PlatformContext } from 'src/context';
@@ -15,6 +15,7 @@ export const AlertBar = React.memo(() => {
   const { platform } = useContext(PlatformContext);
   const { setCurrentAccountId } = useContext(AccountMapContext);
   const history = useHistory();
+  const { pathname } = useLocation();
 
   let licenseBannerMessage = useRef({ message: '', promptBuy: false });
   let licenseBannerAccount = useRef({} as VaultConfig);
@@ -45,7 +46,7 @@ export const AlertBar = React.memo(() => {
     checkLicenseTxConfirmed();
   }, [config, nodeConfig, platform]);
 
-  if (licenseBannerMessage.current.message) {
+  if (licenseBannerMessage.current.message && pathname !== '/setup') {
     return (
       <div className='bg-green-600 z-10 md:ml-64'>
         <div className='max-w-7xl mx-auto py-3 px-3 sm:px-6 lg:px-8'>
