@@ -316,7 +316,8 @@ export const createMultisigConfigFile = (
         device: {
           type: device.type,
           model: device.model,
-          fingerprint: device.fingerprint
+          fingerprint: device.fingerprint,
+          owner: device.owner
         }
       };
     }

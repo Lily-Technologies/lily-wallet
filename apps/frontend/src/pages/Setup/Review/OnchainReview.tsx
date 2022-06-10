@@ -47,12 +47,9 @@ const ReviewScreen = ({
   }, [newAccount]);
 
   const confirmSave = async () => {
-    console.log('confirmSave');
     await saveConfig(localConfig, password, platform);
     setConfigFile(localConfig);
-    console.log('localConfig: ', localConfig);
     const newAccountId = createAccountId(newAccount);
-    console.log('newAccountId: ', newAccountId);
     setCurrentAccountId(newAccountId);
     history.push(`/vault/${newAccountId}`);
   };
@@ -89,7 +86,6 @@ const ReviewScreen = ({
         console.log('e.message: ', e.message);
         const error = e.message;
         const accountId = error.substring(error.indexOf('#') + 1);
-        console.log('accountId: ', accountId);
         setAccountExistsId(accountId);
       }
     }
