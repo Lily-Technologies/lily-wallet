@@ -1,6 +1,6 @@
 # Lily Wallet
 
-![Screenshot of creating import files](https://github.com/KayBeSee/cc-kitchen-frontend/blob/master/public/screenshot.png "Screenshot of Lily Wallet")
+![Screenshot of Lily Wallet](./screenshot.png 'Screenshot of Lily Wallet')
 
 ### Features
 
