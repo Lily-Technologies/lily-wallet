@@ -309,9 +309,10 @@ export class WebPlatform extends BasePlatform {
   }
 
   async lightningConnect(lndConnectUri: string) {
-    await axios.post(`/lightning-connect`, {
+    const { data } = await axios.post(`/lightning-connect`, {
       lndConnectUri
     });
+    return Promise.resolve(data);
   }
 
   async rescanBlockchain(startHeight: string, currentAccount: LilyOnchainAccount) {

@@ -288,9 +288,10 @@ export class ElectronPlatform extends BasePlatform {
   }
 
   async lightningConnect(lndConnectUri: string) {
-    await window.ipcRenderer.invoke('/lightning-connect', {
+    const response = await window.ipcRenderer.invoke('/lightning-connect', {
       lndConnectUri
     });
+    return Promise.resolve(response);
   }
 
   async rescanBlockchain(startHeight: string, currentAccount: LilyOnchainAccount) {

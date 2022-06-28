@@ -20,6 +20,7 @@ import {
   OnChainConfigWithoutId,
   LightningConfig
 } from '@lily/types';
+import { ChannelBalanceResponse, GetInfoResponse } from '@lily-technologies/lnrpc';
 
 const EMPTY_NEW_VAULT: OnChainConfigWithoutId = {
   name: '',
@@ -41,6 +42,9 @@ interface Props {
 const Setup = ({ currentBlockHeight }: Props) => {
   const [setupOption, setSetupOption] = useState(0);
   const [step, setStep] = useState(0);
+  const [tempLightningState, setTempLightningState] = useState<
+    GetInfoResponse & ChannelBalanceResponse
+  >();
 
   const [newAccount, setNewAccount] = useState<OnChainConfigWithoutId | LightningConfig>(
     EMPTY_NEW_VAULT
@@ -54,7 +58,6 @@ const Setup = ({ currentBlockHeight }: Props) => {
   }, [step]);
 
   const importAccountFromFile = (vaultConfig: VaultConfig) => {
-    console.log('vaultConfig: ', vaultConfig);
     if (vaultConfig.type === 'onchain' && vaultConfig.quorum.totalSigners > 1) {
       try {
         setSetupOption(1);
@@ -149,6 +152,7 @@ const Setup = ({ currentBlockHeight }: Props) => {
               newAccount={newAccount as LightningConfig}
               setNewAccount={setNewAccount as React.Dispatch<React.SetStateAction<LightningConfig>>}
               setStep={setStep}
+              setTempLightningState={setTempLightningState}
             />
           </TransitionSlideLeft>
           <TransitionSlideLeft show={step === 2 && setupOption === 1} className='w-full'>
@@ -169,6 +173,7 @@ const Setup = ({ currentBlockHeight }: Props) => {
               setNewAccount={
                 setNewAccount as React.Dispatch<React.SetStateAction<OnChainConfigWithoutId>>
               }
+              tempLightningState={tempLightningState!}
             />
           </TransitionSlideLeft>
         </div>

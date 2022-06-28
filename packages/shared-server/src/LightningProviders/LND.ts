@@ -51,8 +51,9 @@ export class LND extends LightningBaseProvider {
     try {
       const client = await this.getClient();
       const info = await client.getInfo();
+      const balance = await client.channelBalance();
       this.setConnected(true);
-      return info;
+      return { ...info, ...balance };
     } catch (e) {
       console.log('initialize e: ', e);
       this.setConnected(false);

@@ -10,7 +10,8 @@ import type {
   FundingPsbtFinalize,
   LookupInvoiceMsg,
   QueryRoutesRequest,
-  QueryRoutesResponse
+  QueryRoutesResponse,
+  ChannelBalanceResponse
 } from '@lily-technologies/lnrpc';
 import {
   ICallback,
@@ -49,7 +50,7 @@ export abstract class LightningBaseProvider implements LightningProviderInterfac
     return status;
   }
 
-  abstract initialize(): Promise<GetInfoResponse>;
+  abstract initialize(): Promise<GetInfoResponse & ChannelBalanceResponse>;
 
   abstract getAccountData(
     account: LightningConfig,

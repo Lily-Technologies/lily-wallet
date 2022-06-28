@@ -7,7 +7,9 @@ import type {
   LookupInvoiceMsg,
   Invoice,
   QueryRoutesRequest,
-  QueryRoutesResponse
+  QueryRoutesResponse,
+  GetInfoResponse,
+  ChannelBalanceResponse
 } from '@lily-technologies/lnrpc';
 
 import { WalletInfo } from 'bitcoin-simple-rpc';
@@ -209,7 +211,9 @@ export abstract class BasePlatform implements PlatformInterface {
 
   abstract getRoutes({ pubKey, amt }: QueryRoutesRequest): Promise<QueryRoutesResponse>;
 
-  abstract lightningConnect(lndConnectUri: string): void;
+  abstract lightningConnect(
+    lndConnectUri: string
+  ): Promise<GetInfoResponse & ChannelBalanceResponse>;
 
   abstract rescanBlockchain(
     startHeight: string,

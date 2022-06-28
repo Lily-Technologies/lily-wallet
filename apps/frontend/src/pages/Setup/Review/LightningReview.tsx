@@ -1,21 +1,42 @@
-import React from 'react';
+import React, { useContext } from 'react';
+import { useHistory } from 'react-router-dom';
+import { v4 as uuidv4 } from 'uuid';
 
-import { Dropdown } from 'src/components';
+import { Dropdown, Unit } from 'src/components';
 
-import { createLightningConfigFile, saveConfig, validateConfig } from 'src/utils/files';
+import { ConfigContext, PlatformContext, AccountMapContext } from 'src/context';
+
+import { createLightningConfigFile, saveConfig } from 'src/utils/files';
 
 import { LightningConfig } from '@lily/types';
+import { ChannelBalanceResponse, GetInfoResponse } from '@lily-technologies/lnrpc';
 
 interface Props {
   newAccount: LightningConfig;
   setStep: React.Dispatch<React.SetStateAction<number>>;
+  tempLightningState: GetInfoResponse & ChannelBalanceResponse;
 }
 
-const LightningReview = ({ setStep, newAccount }: Props) => {
-  const account = newAccount as LightningConfig; // TODO: change
+const LightningReview = ({ setStep, newAccount, tempLightningState }: Props) => {
+  const { config, password, currentBitcoinNetwork, setConfigFile } = useContext(ConfigContext);
+  const { platform } = useContext(PlatformContext);
+  const { setCurrentAccountId } = useContext(AccountMapContext);
+  const history = useHistory();
 
-  const saveConfig = () => {
-    // TODO: implement
+  const account = newAccount as LightningConfig;
+
+  const confirmSave = async () => {
+    const newAccountId = uuidv4();
+    const updatedConfig = createLightningConfigFile(
+      newAccountId,
+      newAccount,
+      config,
+      currentBitcoinNetwork
+    );
+    await saveConfig(updatedConfig, password, platform);
+    setConfigFile(updatedConfig);
+    setCurrentAccountId(newAccountId);
+    history.push(`/lightning/${newAccountId}`);
   };
 
   return (
@@ -32,7 +53,7 @@ const LightningReview = ({ setStep, newAccount }: Props) => {
           <dl className='flex-1 grid grid-cols-2 gap-x-6 text-sm sm:col-span-2 sm:grid-cols-2 lg:col-span-2'>
             <div>
               <dt className='font-medium text-gray-900 dark:text-gray-100 whitespace-nowrap'>
-                Name
+                Account name
               </dt>
               <dd className='mt-1 text-gray-500 dark:text-gray-300'>{account.name}</dd>
             </div>
@@ -53,12 +74,27 @@ const LightningReview = ({ setStep, newAccount }: Props) => {
             dropdownItems={[]}
           />
         </div>
-        <ul role='list' className='divide-y divide-gray-200 dark:divide-gray-700'>
-          <p>{newAccount.connectionDetails.lndConnectUri}</p>
-        </ul>
+        <div role='list' className='divide-y divide-gray-200 dark:divide-gray-700'>
+          <div className='py-6 px-4 sm:px-6 flex items-center justify-between'>
+            <dt className='text-gray-600'>Node alias</dt>
+            <dd className='font-medium text-gray-900'>{tempLightningState.alias}</dd>
+          </div>
+          <div className='py-6 px-4 sm:px-6 flex items-center justify-between'>
+            <dt className='text-gray-600'>Channels</dt>
+            <dd className='font-medium text-gray-900'>
+              {tempLightningState.numActiveChannels} channels
+            </dd>
+          </div>
+          <div className='py-6 px-4 sm:px-6 flex items-center justify-between'>
+            <dt className='text-gray-600'>Current balance</dt>
+            <dd className='font-medium text-gray-900'>
+              <Unit value={Number(tempLightningState.balance)} />
+            </dd>
+          </div>
+        </div>
       </div>
       <button
-        onClick={() => saveConfig()}
+        onClick={() => confirmSave()}
         className='w-full flex text-lg font-semibold items-center justify-center bg-green-600 py-4 px-6 rounded-b-lg shadow-sm text-sm font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:cursor-not-allowed disabled:opacity-50'
       >
         Complete setup

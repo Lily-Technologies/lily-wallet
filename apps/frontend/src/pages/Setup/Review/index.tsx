@@ -1,11 +1,10 @@
-import React, { useContext, useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import React from 'react';
 
 import OnchainReview from './OnchainReview';
 import LightningReview from './LightningReview';
 
-import { AccountId, OnChainConfig, LightningConfig, OnChainConfigWithoutId } from '@lily/types';
-import { PlatformContext } from 'src/context';
+import { LightningConfig, OnChainConfigWithoutId } from '@lily/types';
+import { ChannelBalanceResponse, GetInfoResponse } from '@lily-technologies/lnrpc';
 
 interface Props {
   newAccount: OnChainConfigWithoutId | LightningConfig;
@@ -13,6 +12,7 @@ interface Props {
   setupOption: number;
   currentBlockHeight: number;
   setNewAccount: React.Dispatch<React.SetStateAction<OnChainConfigWithoutId>>;
+  tempLightningState: GetInfoResponse & ChannelBalanceResponse;
 }
 
 const ReviewScreen = ({
@@ -20,7 +20,8 @@ const ReviewScreen = ({
   newAccount,
   setupOption,
   currentBlockHeight,
-  setNewAccount
+  setNewAccount,
+  tempLightningState
 }: Props) => {
   if (newAccount.type === 'onchain') {
     return (
@@ -33,7 +34,13 @@ const ReviewScreen = ({
       />
     );
   } else {
-    return <LightningReview newAccount={newAccount} setStep={setStep} />;
+    return (
+      <LightningReview
+        newAccount={newAccount}
+        setStep={setStep}
+        tempLightningState={tempLightningState}
+      />
+    );
   }
 };
 

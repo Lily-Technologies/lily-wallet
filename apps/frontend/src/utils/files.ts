@@ -353,6 +353,7 @@ export const createMultisigConfigFile = (
 };
 
 export const createLightningConfigFile = (
+  accountId: string,
   newAccountInputs: LightningConfig,
   config: LilyConfig,
   currentBitcoinNetwork: Network
@@ -361,7 +362,7 @@ export const createLightningConfigFile = (
   configCopy.isEmpty = false;
 
   configCopy.lightning.push({
-    id: uuidv4(), // allow uuid for lightning
+    id: accountId, // allow uuid for lightning
     type: 'lightning',
     created_at: Date.now(),
     name: newAccountInputs.name,

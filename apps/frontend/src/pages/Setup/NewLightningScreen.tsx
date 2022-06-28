@@ -18,14 +18,23 @@ import { white, green600 } from 'src/utils/colors';
 
 import { PlatformContext } from 'src/context';
 import { LightningConfig } from '@lily/types';
+import { ChannelBalanceResponse, GetInfoResponse } from '@lily-technologies/lnrpc';
 
 interface Props {
   setStep: React.Dispatch<React.SetStateAction<number>>;
   newAccount: LightningConfig;
   setNewAccount: React.Dispatch<React.SetStateAction<LightningConfig>>;
+  setTempLightningState: React.Dispatch<
+    React.SetStateAction<(GetInfoResponse & ChannelBalanceResponse) | undefined>
+  >;
 }
 
-const NewLightningScreen = ({ setStep, newAccount, setNewAccount }: Props) => {
+const NewLightningScreen = ({
+  setStep,
+  newAccount,
+  setNewAccount,
+  setTempLightningState
+}: Props) => {
   const { platform } = useContext(PlatformContext);
 
   const [isLoading, setIsLoading] = useState(false);
@@ -34,7 +43,8 @@ const NewLightningScreen = ({ setStep, newAccount, setNewAccount }: Props) => {
   const attemptConnection = async () => {
     setIsLoading(true);
     try {
-      await platform.lightningConnect(newAccount.connectionDetails.lndConnectUri);
+      const data = await platform.lightningConnect(newAccount.connectionDetails.lndConnectUri);
+      setTempLightningState(data);
       setStep(3);
     } catch (e) {
       if (e instanceof Error) {
