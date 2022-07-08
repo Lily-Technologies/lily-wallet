@@ -84,7 +84,7 @@
     "@lily/types": "*",
     "axios": "^0.24.0",
     "electron-notarize": "^1.1.1",
-    "moment": "^2.29.1"
+    "moment": "^2.29.4"
   },
   "browserslist": {
     "production": [
