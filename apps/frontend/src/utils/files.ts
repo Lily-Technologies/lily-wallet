@@ -40,16 +40,13 @@ export const createAccountId = (config: Omit<OnChainConfig, 'id'>): AccountId =>
     .sort((a, b) => (a.xpub > b.xpub ? -1 : a.xpub < b.xpub ? 1 : 0))
     .map((xpub) => xpub.xpub)
     .join(',')}`;
-  console.log('createAccountId preHashId: ', preHashId);
   const idHashed = MD5(preHashId).toString();
-  console.log('createAccountId idHashed: ', idHashed);
   return idHashed;
 };
 
 export const createKeyId = (fingerprint: string, xpub: string): KeyId => {
   const preHashId = `${fingerprint}:${xpub}`;
   const idHashed = MD5(preHashId).toString();
-  console.log('createKeyId idHashed: ', idHashed);
   return idHashed;
 };
 
