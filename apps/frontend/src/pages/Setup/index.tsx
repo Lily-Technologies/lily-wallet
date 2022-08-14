@@ -1,6 +1,6 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Transition } from '@headlessui/react';
-import { useLocation } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 
 import TransitionSlideLeft from './TransitionSlideLeft';
 
@@ -12,8 +12,6 @@ import NewWalletScreen from './NewWalletScreen';
 import NewHardwareWalletScreen from './NewHardwareWalletScreen';
 import NewLightningScreen from './NewLightningScreen';
 import StepGroups from './Steps';
-
-import { AccountMapContext } from 'src/context';
 
 import {
   VaultConfig,
@@ -48,8 +46,8 @@ const Setup = ({ currentBlockHeight }: Props) => {
   const [tempLightningState, setTempLightningState] = useState<
     GetInfoResponse & ChannelBalanceResponse
   >();
-  const { currentAccount } = useContext(AccountMapContext);
   const location = useLocation();
+  const history = useHistory();
 
   const [newAccount, setNewAccount] = useState<OnChainConfigWithoutId | LightningConfig>(
     EMPTY_NEW_VAULT
@@ -64,9 +62,28 @@ const Setup = ({ currentBlockHeight }: Props) => {
 
   useEffect(() => {
     if (location.search) {
-      setSetupOption(1);
-      setNewAccount(currentAccount.config);
-      setStep(2);
+      const queryParams = new URLSearchParams(location.search);
+      const config = queryParams.get('config');
+      if (config) {
+        queryParams.delete('config');
+
+        // parsed twice b/c of "overstringification"
+        const parsedConfig = JSON.parse(JSON.parse(JSON.stringify(config)));
+        setSetupOption(1);
+        setNewAccount(parsedConfig);
+        const status = queryParams.get('status');
+        queryParams.delete('status');
+        // fixes animation delay bug causing dialog to be lower on page
+        setTimeout(() => {}, 1000);
+        if (status === 'complete') {
+          setStep(3);
+        } else {
+          setStep(2);
+        }
+        history.replace({
+          search: queryParams.toString()
+        });
+      }
     }
   }, [location.search]);
 
@@ -91,7 +108,6 @@ const Setup = ({ currentBlockHeight }: Props) => {
         <div className='max-w-4xl w-full flex flex-col items-center mx-auto px-4 sm:px-6 lg:px-8 pb-36'>
           <Transition
             show={step === 0}
-            appear={true}
             enter='transform transition-all duration-300 ease-in-out'
             enterFrom='opacity-0'
             enterTo='opacity-100'

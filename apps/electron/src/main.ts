@@ -36,6 +36,8 @@ import {
   OnChainConfig
 } from '@lily/types';
 
+const PROTOCOL_PREFIX = 'lily';
+
 // disable showErrorBox
 dialog.showErrorBox = function (title, content) {
   console.log(`${title}\n${content}`);
@@ -171,6 +173,48 @@ const setupInitialNodeConfig = async () => {
     }
   }
 };
+
+if (process.defaultApp) {
+  if (process.argv.length >= 2) {
+    app.setAsDefaultProtocolClient(PROTOCOL_PREFIX, process.execPath, [
+      path.resolve(process.argv[1])
+    ]);
+  }
+} else {
+  app.setAsDefaultProtocolClient(PROTOCOL_PREFIX);
+}
+
+// Protocol handler for osx
+app.on('open-url', function (event, url) {
+  event.preventDefault();
+  logEverywhere('open url:');
+  logEverywhere(url);
+  const parsedUrl = url.substring(
+    url.indexOf(PROTOCOL_PREFIX) + PROTOCOL_PREFIX.length + '://'.length
+  );
+  logEverywhere('parsedUrl: ');
+  logEverywhere(parsedUrl);
+  mainWindow.loadURL(`http://localhost:3000#/${parsedUrl}`);
+  // mainWindow.loadURL(`file://${__dirname}/frontend/index.html#/${parsedUrl}`);
+});
+
+const gotTheLock = app.requestSingleInstanceLock();
+
+if (!gotTheLock) {
+  app.quit();
+} else {
+  app.on('second-instance', (event, commandLine, workingDirectory) => {
+    // Someone tried to run a second instance, we should focus our window.
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.focus();
+    }
+  });
+
+  app.on('open-url', (event, url) => {
+    dialog.showErrorBox('Welcome Back', `You arrived from: ${url}`);
+  });
+}
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -502,7 +546,6 @@ ipcMain.handle('/broadcastTx', async (event, args) => {
 
 ipcMain.handle('/changeNodeConfig', async (event, args) => {
   const { nodeConfig } = args;
-  console.log('nodeConfig: ', nodeConfig);
   console.log(`Attempting to connect to ${nodeConfig.provider}...`);
   if (nodeConfig.provider === 'Bitcoin Core') {
     const nodeConfig = await getBitcoinCoreConfig();
@@ -591,3 +634,11 @@ ipcMain.handle('/isConfirmedTransaction', async (event, args) => {
   console.log(`error /isConfirmedTransaction: Invalid txId`);
   return Promise.reject({ success: false });
 });
+
+// Log both at dev console and at running node console instance
+function logEverywhere(s: string) {
+  console.log(s);
+  if (mainWindow && mainWindow.webContents) {
+    mainWindow.webContents.executeJavaScript(`console.log("${s}")`);
+  }
+}

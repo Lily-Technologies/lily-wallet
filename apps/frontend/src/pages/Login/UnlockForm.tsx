@@ -1,5 +1,5 @@
 import { useContext, useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { AES, enc } from 'crypto-js';
 import moment from 'moment';
@@ -35,6 +35,7 @@ const UnlockForm = ({
   onClickCreateNew
 }: Props) => {
   const history = useHistory();
+  const location = useLocation();
   const [localPassword, setLocalPassword] = useState('');
   const { setConfigFile, setPassword } = useContext(ConfigContext);
   const { platform } = useContext(PlatformContext);
@@ -62,7 +63,9 @@ const UnlockForm = ({
           setPassword(localPassword);
           saveConfig(migratedConfig, localPassword, platform); // we resave the file after opening to update the modifiedDate value
           setIsLoading(false);
-          history.replace('/');
+          history.push('/', {
+            search: location.search
+          });
         }, 2000);
       } catch (e) {
         setPasswordError('Incorrect Password');

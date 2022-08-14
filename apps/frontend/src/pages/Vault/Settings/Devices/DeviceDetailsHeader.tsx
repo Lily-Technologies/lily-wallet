@@ -1,11 +1,13 @@
-import { Fragment } from 'react';
+import { Fragment, useContext } from 'react';
 import { Menu, Transition } from '@headlessui/react';
 import { DotsVerticalIcon } from '@heroicons/react/solid';
 import { useHistory } from 'react-router-dom';
 
 import { DeviceImage } from 'src/components';
 
-import { ExtendedPublicKey } from '@lily/types';
+import { AccountMapContext } from 'src/context';
+
+import { ExtendedPublicKey, OnChainConfig } from '@lily/types';
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
@@ -18,6 +20,7 @@ interface Props {
 
 const DeviceDetailsHeader = ({ extendedPublicKey, hideActionButtons }: Props) => {
   const history = useHistory();
+  const { currentAccount } = useContext(AccountMapContext);
   return (
     <div className='pb-6 border-b border-gray-200'>
       <div className='h-24 bg-yellow-400 sm:h-20 lg:h-28' />
@@ -63,7 +66,14 @@ const DeviceDetailsHeader = ({ extendedPublicKey, hideActionButtons }: Props) =>
                 onClick={() =>
                   history.push({
                     pathname: '/setup',
-                    search: `?fingerprint=${extendedPublicKey.parentFingerprint}`
+                    search: `?status=replace&config=${JSON.stringify({
+                      ...currentAccount.config,
+                      extendedPublicKeys: (
+                        currentAccount.config as OnChainConfig
+                      ).extendedPublicKeys.filter(
+                        (item) => item.parentFingerprint !== extendedPublicKey.parentFingerprint
+                      )
+                    })}`
                   })
                 }
               >

@@ -13,7 +13,7 @@
     "start-testnet": "TESTNET=true electron .",
     "build": "tsc -b && cp -R ../frontend/build/ ./build/frontend",
     "pack": "electron-builder --dir",
-    "dist": "electron-builder -m"
+    "dist": "electron-builder -mwl"
   },
   "build": {
     "productName": "Lily Wallet",
@@ -22,6 +22,12 @@
     "electronVersion": "16.0.6",
     "extends": null,
     "afterSign": "./afterSignHook.js",
+    "protocols": {
+      "name": "lily-wallet",
+      "schemes": [
+        "lily"
+      ]
+    },
     "mac": {
       "category": "public.app-category.finance",
       "icon": "./src/assets/AppIcon.icns",

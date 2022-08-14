@@ -50,41 +50,46 @@ const App = () => {
   const [refresh, setRefresh] = useState(false);
   const [flyInAnimation, setInitialFlyInAnimation] = useState(true);
 
-  // const ConfigRequired = () => {
-  //   const { pathname, search } = useLocation();
-
-  //   const history = useHistory();
-  //   if (config.isEmpty && !(pathname === '/login' || pathname === '/settings')) {
-  //     history.push({
-  //       pathname: '/login',
-  //       search: `${search}&redirect=${pathname}`
-  //     });
-  //   }
-  //   return null;
-  // };
-
   const ConfigRequired = () => {
-    const { pathname } = useLocation();
+    const { pathname, search } = useLocation();
     const history = useHistory();
-    if (config.isEmpty && !(pathname === '/login' || pathname === '/settings')) {
-      history.push('/login');
-    }
+
+    useEffect(() => {
+      if (config.isEmpty && !(pathname === '/login' || pathname === '/settings')) {
+        history.push({
+          pathname: '/login',
+          search: `${search}&redirect=${pathname}`
+        });
+      }
+    }, []);
+
     return null;
   };
 
-  // const RedirectHandler = () => {
+  // const ConfigRequired = () => {
+  //   const { pathname } = useLocation();
   //   const history = useHistory();
-  //   const { search } = useLocation();
-  //   const { redirect, ...rest } = queryString.parse(search);
-  //   if (!config.isEmpty && !!redirect && typeof redirect === 'string') {
-  //     history.push({
-  //       pathname: redirect,
-  //       search: queryString.stringify(rest)
-  //     });
+  //   if (config.isEmpty && !(pathname === '/login' || pathname === '/settings')) {
+  //     history.push('/login');
   //   }
-
   //   return null;
   // };
+
+  const RedirectHandler = () => {
+    const history = useHistory();
+    const { search } = useLocation();
+    const { redirect, ...rest } = queryString.parse(search);
+    useEffect(() => {
+      if (!config.isEmpty && !!redirect && typeof redirect === 'string') {
+        history.push({
+          pathname: redirect,
+          search: queryString.stringify(rest)
+        });
+      }
+    }, [redirect]);
+
+    return null;
+  };
 
   const Overlay = () => {
     const { pathname } = useLocation();
@@ -252,7 +257,7 @@ const App = () => {
         <TitleBar nodeConfig={nodeConfig} config={config} />
       ) : null}
       <ConfigRequired />
-      {/* <RedirectHandler /> */}
+      <RedirectHandler />
       <Overlay />
       <AlertBar />
       <Sidebar currentBitcoinNetwork={currentBitcoinNetwork} />
