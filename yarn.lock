@@ -1429,10 +1429,10 @@
   dependencies:
     "@hapi/hoek" "^8.3.0"
 
-"@headlessui/react@^1.4.0":
-  version "1.4.3"
-  resolved "https://registry.yarnpkg.com/@headlessui/react/-/react-1.4.3.tgz#f77c6bb5cb4a614a5d730fb880cab502d48abf37"
-  integrity sha512-n2IQkaaw0aAAlQS5MEXsM4uRK+w18CrM72EqnGRl/UBOQeQajad8oiKXR9Nk15jOzTFQjpxzrZMf1NxHidFBiw==
+"@headlessui/react@^1.6.1":
+  version "1.6.6"
+  resolved "https://registry.yarnpkg.com/@headlessui/react/-/react-1.6.6.tgz#3073c066b85535c9d28783da0a4d9288b5354d0c"
+  integrity sha512-MFJtmj9Xh/hhBMhLccGbBoSk+sk61BlP6sJe4uQcVMtXZhCgGqd2GyIQzzmsdPdTEWGSF434CBi8mnhR6um46Q==
 
 "@heroicons/react@^1.0.3":
   version "1.0.5"
@@ -3341,6 +3341,11 @@ app-builder-lib@22.14.13:
     sanitize-filename "^1.6.3"
     semver "^7.3.5"
     temp-file "^3.4.0"
+
+app-root-dir@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/app-root-dir/-/app-root-dir-1.0.2.tgz#38187ec2dea7577fff033ffcb12172692ff6e118"
+  integrity sha512-jlpIfsOoNoafl92Sz//64uQHGSyMrD2vYG5d8o2a4qGvyNCvXur7bzIsWtAC/6flI2RYAp3kv8rsfBtaLm7w0g==
 
 appdmg@^0.6.0:
   version "0.6.2"
@@ -6900,10 +6905,10 @@ electron-winstaller@^5.0.0:
     lodash.template "^4.2.2"
     temp "^0.9.0"
 
-electron@^16.0.6:
-  version "16.0.9"
-  resolved "https://registry.yarnpkg.com/electron/-/electron-16.0.9.tgz#051bdc318549ecb88e11be6e36834e5b2ff9b855"
-  integrity sha512-Kh2fc2g5Me0g8B1X2LMEDDtSNWsGGAmngh7adZpuJ8uI5TlR5GHDTcz37zwJid53S0BQ5d+Nz/NQ8s1DlKAAMA==
+electron@^16.2.6:
+  version "16.2.6"
+  resolved "https://registry.yarnpkg.com/electron/-/electron-16.2.6.tgz#2d22077edb5361ab52034bb3b19405380921931b"
+  integrity sha512-FJLnIu318WNh1WigMmWqSidOPwipwym2Qi3Hs/YY6znquztf6ZJuaq/TdJJyHIJHld+znG0hSmq3VbyW5KUr9A==
   dependencies:
     "@electron/get" "^1.13.0"
     "@types/node" "^14.6.2"

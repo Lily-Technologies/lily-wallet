@@ -105,7 +105,7 @@
     ]
   },
   "devDependencies": {
-    "electron": "^16.0.6",
+    "electron": "^16.2.6",
     "electron-builder": "^22.14.5",
     "electron-installer-dmg": "^3.0.0",
     "electron-mock-ipc": "^0.3.11",
