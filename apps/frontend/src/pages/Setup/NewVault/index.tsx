@@ -1,4 +1,5 @@
-import React, { useState, useRef, useContext } from 'react';
+import React, { useState, useRef, useContext, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { decode } from 'bs58check';
 import BarcodeScannerComponent from 'react-webcam-barcode-scanner';
@@ -54,6 +55,20 @@ const NewVaultScreen = ({ setStep, newAccount, setNewAccount }: Props) => {
   const [importedDevices, setImportedDevices] = useState<ExtendedPublicKey[]>(
     newAccount.extendedPublicKeys
   );
+  const location = useLocation();
+
+  useEffect(() => {
+    const paramObject = new URLSearchParams(location.search);
+    const fingerprint = paramObject.get('fingerprint');
+    if (fingerprint) {
+      const configCopy = { ...newAccount };
+      configCopy.extendedPublicKeys = newAccount.extendedPublicKeys.filter(
+        (item) => item.parentFingerprint !== fingerprint
+      );
+      setImportedDevices(configCopy.extendedPublicKeys);
+      setNewAccount(configCopy);
+    }
+  }, [location.search]);
 
   const { platform } = useContext(PlatformContext);
   const { currentBitcoinNetwork } = useContext(ConfigContext);

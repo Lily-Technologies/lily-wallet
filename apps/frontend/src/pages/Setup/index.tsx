@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { Transition } from '@headlessui/react';
-import { Network } from 'bitcoinjs-lib';
+import { useLocation } from 'react-router-dom';
 
 import TransitionSlideLeft from './TransitionSlideLeft';
 
@@ -13,12 +13,15 @@ import NewHardwareWalletScreen from './NewHardwareWalletScreen';
 import NewLightningScreen from './NewLightningScreen';
 import StepGroups from './Steps';
 
+import { AccountMapContext } from 'src/context';
+
 import {
   VaultConfig,
   AddressType,
   OnChainConfig,
   OnChainConfigWithoutId,
-  LightningConfig
+  LightningConfig,
+  LilyOnchainAccount
 } from '@lily/types';
 import { ChannelBalanceResponse, GetInfoResponse } from '@lily-technologies/lnrpc';
 
@@ -45,6 +48,8 @@ const Setup = ({ currentBlockHeight }: Props) => {
   const [tempLightningState, setTempLightningState] = useState<
     GetInfoResponse & ChannelBalanceResponse
   >();
+  const { currentAccount } = useContext(AccountMapContext);
+  const location = useLocation();
 
   const [newAccount, setNewAccount] = useState<OnChainConfigWithoutId | LightningConfig>(
     EMPTY_NEW_VAULT
@@ -56,6 +61,14 @@ const Setup = ({ currentBlockHeight }: Props) => {
       setNewAccount(EMPTY_NEW_VAULT);
     }
   }, [step]);
+
+  useEffect(() => {
+    if (location.search) {
+      setSetupOption(1);
+      setNewAccount(currentAccount.config);
+      setStep(2);
+    }
+  }, [location.search]);
 
   const importAccountFromFile = (vaultConfig: VaultConfig) => {
     if (vaultConfig.type === 'onchain' && vaultConfig.quorum.totalSigners > 1) {
@@ -75,7 +88,7 @@ const Setup = ({ currentBlockHeight }: Props) => {
   return (
     <div className='md:pl-64 flex flex-col flex-1 h-full'>
       <main className='flex flex-1 z-10 bg-gray-100 dark:bg-gray-900 relative overflow-x-hidden'>
-        <div className='max-w-4xl w-full flex flex-col items-center mx-auto px-4 sm:px-6 lg:px-8'>
+        <div className='max-w-4xl w-full flex flex-col items-center mx-auto px-4 sm:px-6 lg:px-8 pb-36'>
           <Transition
             show={step === 0}
             appear={true}

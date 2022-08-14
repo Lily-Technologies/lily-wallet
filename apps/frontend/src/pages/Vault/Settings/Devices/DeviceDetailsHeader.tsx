@@ -1,7 +1,7 @@
-import { Fragment, useState } from 'react';
-import { Dialog, Menu, Transition } from '@headlessui/react';
-import { XIcon } from '@heroicons/react/outline';
+import { Fragment } from 'react';
+import { Menu, Transition } from '@headlessui/react';
 import { DotsVerticalIcon } from '@heroicons/react/solid';
+import { useHistory } from 'react-router-dom';
 
 import { DeviceImage } from 'src/components';
 
@@ -17,6 +17,7 @@ interface Props {
 }
 
 const DeviceDetailsHeader = ({ extendedPublicKey, hideActionButtons }: Props) => {
+  const history = useHistory();
   return (
     <div className='pb-6 border-b border-gray-200'>
       <div className='h-24 bg-yellow-400 sm:h-20 lg:h-28' />
@@ -59,6 +60,12 @@ const DeviceDetailsHeader = ({ extendedPublicKey, hideActionButtons }: Props) =>
               <button
                 type='button'
                 className='inline-flex w-full flex-shrink-0 items-center justify-center rounded-md border border-transparent bg-green-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 sm:flex-1'
+                onClick={() =>
+                  history.push({
+                    pathname: '/setup',
+                    search: `?fingerprint=${extendedPublicKey.parentFingerprint}`
+                  })
+                }
               >
                 Replace device
               </button>
