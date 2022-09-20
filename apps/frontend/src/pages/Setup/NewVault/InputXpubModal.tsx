@@ -3,8 +3,7 @@ import styled from 'styled-components';
 import * as ecc from 'tiny-secp256k1';
 import BIP32Factory from 'bip32';
 
-import { Button, Input, Select } from 'src/components';
-import { green600, white } from 'src/utils/colors';
+import { Input, Select } from 'src/components';
 import {
   capitalize,
   capitalizeAllAndReplaceUnderscore,
@@ -13,7 +12,7 @@ import {
 
 import { ConfigContext } from 'src/context';
 
-import { HwiEnumerateResponse, Device, ExtendedPublicKey } from '@lily/types';
+import { Device, ExtendedPublicKey } from '@lily/types';
 import { multisigDeviceToExtendedPublicKey } from 'src/utils/files';
 
 const types = {
@@ -23,17 +22,18 @@ const types = {
   cobo: ['cobo'],
   bitbox02: ['bitbox02'],
   phone: ['phone'],
-  lily: ['lily']
+  lily: ['lily'],
+  unchained: ['unknown'],
+  unknown: ['unknown']
 };
 
 const bip32 = BIP32Factory(ecc);
 interface Props {
-  importedDevices: ExtendedPublicKey[];
-  setImportedDevices: React.Dispatch<React.SetStateAction<ExtendedPublicKey[]>>;
+  addExtendedPublicKeysToNewAccount: (extendedPublicKeys: ExtendedPublicKey[]) => void;
   closeModal: () => void;
 }
 
-const InputXpubModal = ({ importedDevices, setImportedDevices, closeModal }: Props) => {
+const InputXpubModal = ({ addExtendedPublicKeysToNewAccount, closeModal }: Props) => {
   const [type, setType] = useState<Device['type']>('coldcard');
   const [model, setModel] = useState<Device['model']>('coldcard');
   const [path, setPath] = useState("m/48'/0'/0'/2'");
@@ -72,18 +72,22 @@ const InputXpubModal = ({ importedDevices, setImportedDevices, closeModal }: Pro
         { type, model, path, fingerprint, xpub },
         currentBitcoinNetwork
       );
-      setImportedDevices([...importedDevices, newKey]);
+      addExtendedPublicKeysToNewAccount([newKey]);
       closeModal();
     }
   };
 
   return (
-    <>
-      <ModalHeaderContainer className='text-gray-900 dark:text-gray-200'>
-        Manually input device data
-      </ModalHeaderContainer>
+    <div className='w-full transform overflow-hidden  bg-white dark:bg-slate-800 p-6 text-left rounded-2xl dark:highlight-white/10 border dark:border-white/[0.05]'>
+      <h3 className='text-gray-900 dark:text-gray-200 text-lg font-bold'>Add device manually</h3>
+      <div className='mt-2'>
+        <p className='text-sm text-gray-500 dark:text-gray-400 max-w-prose'>
+          Input your device information below to add it to your vault. This is an advanced feature
+          that is prone to mistakes, so verify all information before completing this form.
+        </p>
+      </div>
       <SelectionContainer>
-        <InputSection>
+        <div className='flex flex-col py-10'>
           <Input
             value={xpub}
             onChange={(value) => {
@@ -97,7 +101,7 @@ const InputXpubModal = ({ importedDevices, setImportedDevices, closeModal }: Pro
             id='xpub'
           />
           <InputRow>
-            <InputContainer>
+            <div className='flex flex-col'>
               <StyledInput
                 value={fingerprint}
                 onChange={(value) => {
@@ -110,8 +114,8 @@ const InputXpubModal = ({ importedDevices, setImportedDevices, closeModal }: Pro
                 error={fingerprintError}
                 id='fingerprint'
               />
-            </InputContainer>
-            <InputContainer>
+            </div>
+            <div className='flex flex-col'>
               <StyledInput
                 value={path}
                 disabled
@@ -120,11 +124,11 @@ const InputXpubModal = ({ importedDevices, setImportedDevices, closeModal }: Pro
                 type='text'
                 placeholder="m/48'/0'/0'/2'"
               />
-            </InputContainer>
+            </div>
           </InputRow>
 
           <InputRow>
-            <InputContainer>
+            <div className='flex flex-col'>
               <Select
                 label='Hardware Wallet'
                 options={(Object.keys(types) as Device['type'][])
@@ -135,9 +139,9 @@ const InputXpubModal = ({ importedDevices, setImportedDevices, closeModal }: Pro
                   }))}
                 id='hardware_wallet_type'
               />
-            </InputContainer>
+            </div>
             {options.length > 1 ? (
-              <InputContainer>
+              <div className='flex flex-col'>
                 <Select
                   label='Hardware Wallet Model'
                   options={options.map((item) => ({
@@ -148,45 +152,27 @@ const InputXpubModal = ({ importedDevices, setImportedDevices, closeModal }: Pro
                   }))}
                   id='hardware_wallet_model'
                 />
-              </InputContainer>
+              </div>
             ) : null}
           </InputRow>
-        </InputSection>
-
-        <ContinueButton background={green600} color={white} onClick={() => addDevice()}>
-          Add device
-        </ContinueButton>
+        </div>
+        <div className='flex items-end justify-end'>
+          <button
+            type='button'
+            className='inline-flex items-center justify-center rounded-md border border-transparent bg-green-100 dark:bg-green-700 px-4 py-2 text-sm font-medium text-green-900 hover:bg-green-200 dark:hover:bg-green-600 dark:text-green-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2'
+            onClick={() => addDevice()}
+          >
+            Add device
+          </button>
+        </div>
       </SelectionContainer>
-    </>
+    </div>
   );
 };
-
-const InputContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
-
-const ModalHeaderContainer = styled.div`
-  border-bottom: 1px solid rgb(229, 231, 235);
-  padding-top: 1.25rem;
-  padding-bottom: 1.25rem;
-  padding-left: 1.5rem;
-  padding-right: 1.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 1.5em;
-`;
 
 const SelectionContainer = styled.div`
   display: flex;
   flex-direction: column;
-`;
-
-const InputSection = styled.div`
-  display: flex;
-  flex-direction: column;
-  padding: 1.5em;
 `;
 
 const StyledInput = styled(Input)`
@@ -199,12 +185,6 @@ const InputRow = styled.div`
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1em;
   margin-top: 1em;
-`;
-
-const ContinueButton = styled.button`
-  ${Button};
-  border-top-right-radius: 0;
-  border-top-left-radius: 0;
 `;
 
 export default InputXpubModal;

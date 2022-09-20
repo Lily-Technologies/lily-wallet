@@ -9,6 +9,7 @@ export * from './ChartEmptyState';
 export * from './ConnectToLilyMobileModal';
 export * from './ConnectToNodeModal';
 export * from './Countdown';
+export * from './Counter';
 export * from './DeviceImage';
 export * from './DeviceSelect';
 export * from './Dropdown';

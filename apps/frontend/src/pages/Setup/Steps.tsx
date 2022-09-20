@@ -22,7 +22,7 @@ const Steps = ({ step, setupOption }: Props) => {
   ];
 
   if (setupOption === 1 || setupOption === 3) {
-    steps[1].name = 'Connect or import hardware wallets';
+    steps[1].name = 'Add signing devices';
   } else if (setupOption === 2) {
     steps[1].name = 'Write down recovery words';
   } else if (setupOption === 4) {

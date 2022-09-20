@@ -103,7 +103,7 @@ const SelectAccountScreen = ({
       </div>
       <div className='flex flex-col space-y-4'>
         <button
-          className='flex items-center py-6 rounded shadow px-6 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900 border border-gray-300 dark:border-gray-700 border-t-8'
+          className='flex items-center py-6 rounded-2xl  shadow px-6 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-300 dark:border-white/10 dark:highlight-white/10 border-t-4'
           style={{ borderTopColor: green700 }}
           onClick={() => {
             setNewAccount(EMPTY_NEW_VAULT);
@@ -114,18 +114,18 @@ const SelectAccountScreen = ({
           <div className='flex shrink-0 items-center h-10 w-10'>
             <Calculator />
           </div>
-          <SignupOptionTextContainer>
+          <div className='flex flex-col text-left ml-6'>
             <h3 className='text-xl leading-6 font-medium text-gray-900 dark:text-gray-200'>
               Hardware Wallet
             </h3>
             <p className='mt-1 text-sm text-gray-500'>
               Import your hardware wallet to send, receive, and manage your bitcoin
             </p>
-          </SignupOptionTextContainer>
+          </div>
         </button>
 
         <button
-          className='flex items-center py-6 rounded shadow px-6 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900 border border-gray-300 dark:border-gray-700'
+          className='flex items-center py-6 rounded-2xl  shadow px-6 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-300 dark:border-white/10 dark:highlight-white/10'
           onClick={() => {
             setNewAccount(EMPTY_NEW_VAULT);
             setSetupOption(1);
@@ -135,7 +135,7 @@ const SelectAccountScreen = ({
           <div className='flex shrink-0 items-center h-10 w-10'>
             <Bank />
           </div>
-          <SignupOptionTextContainer>
+          <div className='flex flex-col text-left ml-6'>
             <h3 className='text-xl leading-6 font-medium text-gray-900 dark:text-gray-200'>
               Multisignature Vault
             </h3>
@@ -143,11 +143,11 @@ const SelectAccountScreen = ({
               Combine multiple hardware wallets to create a vault for securing larger amounts of
               bitcoin
             </p>
-          </SignupOptionTextContainer>
+          </div>
         </button>
 
         <button
-          className='flex items-center py-6 rounded shadow px-6 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900 border border-gray-300 dark:border-gray-700'
+          className='flex items-center py-6 rounded-2xl  shadow px-6 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-300 dark:border-white/10 dark:highlight-white/10'
           onClick={() => {
             setNewAccount(EMPTY_NEW_LIGHTNING);
             setSetupOption(4);
@@ -157,14 +157,14 @@ const SelectAccountScreen = ({
           <div className='flex shrink-0 items-center h-10 w-10'>
             <Bolt />
           </div>
-          <SignupOptionTextContainer>
+          <div className='flex flex-col text-left ml-6'>
             <h3 className='text-xl leading-6 font-medium text-gray-900 dark:text-gray-200'>
               Lightning Wallet
             </h3>
             <p className='mt-1 text-sm text-gray-500'>
               Connect to your lightning wallet to manage channels and send payments
             </p>
-          </SignupOptionTextContainer>
+          </div>
         </button>
       </div>
       <FileUploader

@@ -76,18 +76,20 @@ const LightningReview = ({ setStep, newAccount, tempLightningState }: Props) => 
         </div>
         <div role='list' className='divide-y divide-gray-200 dark:divide-gray-700'>
           <div className='py-6 px-4 sm:px-6 flex items-center justify-between'>
-            <dt className='text-gray-600'>Node alias</dt>
-            <dd className='font-medium text-gray-900'>{tempLightningState.alias}</dd>
+            <dt className='text-gray-600 dark:text-gray-300'>Node alias</dt>
+            <dd className='font-medium text-gray-900 dark:text-gray-100'>
+              {tempLightningState.alias}
+            </dd>
           </div>
           <div className='py-6 px-4 sm:px-6 flex items-center justify-between'>
-            <dt className='text-gray-600'>Channels</dt>
-            <dd className='font-medium text-gray-900'>
+            <dt className='text-gray-600 dark:text-gray-300'>Channels</dt>
+            <dd className='font-medium text-gray-900 dark:text-gray-100'>
               {tempLightningState.numActiveChannels} channels
             </dd>
           </div>
           <div className='py-6 px-4 sm:px-6 flex items-center justify-between'>
-            <dt className='text-gray-600'>Current balance</dt>
-            <dd className='font-medium text-gray-900'>
+            <dt className='text-gray-600 dark:text-gray-300'>Current balance</dt>
+            <dd className='font-medium text-gray-900 dark:text-gray-100'>
               <Unit value={Number(tempLightningState.balance)} />
             </dd>
           </div>

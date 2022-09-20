@@ -28,7 +28,7 @@ const Devices = ({ extendedPublicKeys, onSave }: Props) => {
 
   return (
     <div className='py-6 px-4'>
-      <div className='bg-gray-50 dark:bg-gray-700 py-8 rounded-lg shadow-inner'>
+      <div className='bg-gray-50 dark:bg-slate-700 py-8 rounded-lg shadow-inner'>
         <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
           <ul
             role='list'
@@ -37,7 +37,7 @@ const Devices = ({ extendedPublicKeys, onSave }: Props) => {
             {extendedPublicKeys.map((item) => (
               <li
                 key={item.device.fingerprint}
-                className='col-span-1 flex flex-col flex-none text-center bg-white dark:bg-gray-600 rounded-lg shadow divide-y divide-gray-200 border border-gray-200 dark:border-gray-700'
+                className='col-span-1 flex flex-col flex-none text-center bg-white dark:bg-slate-600  rounded-lg shadow divide-y divide-gray-200 dark:divide-slate-500 border border-gray-200 dark:border-slate-700'
               >
                 <div className='flex-1 flex flex-col py-6 px-4'>
                   <DeviceImage
@@ -55,40 +55,33 @@ const Devices = ({ extendedPublicKeys, onSave }: Props) => {
                     <dt className='sr-only'>Fingerprint</dt>
                   </dl>
                 </div>
-                <div className='border-t border-gray-200 px-4 py-3'>
-                  <p className='flex items-center text-xs text-gray-700 truncate'>
+                <div className='px-4 py-3'>
+                  <p className='flex items-center text-xs text-gray-700 dark:text-gray-200 truncate'>
                     <UserIcon className='flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400' />
                     {item.device.owner?.name || 'Not set'}
                   </p>
-                  <p className='mt-2 flex items-center text-xs text-gray-700 truncate'>
+                  <p className='mt-2 flex items-center text-xs text-gray-700 dark:text-gray-200 truncate'>
                     <MailIcon className='flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400' />
                     {item.device.owner?.email || 'Not set'}
                   </p>
                 </div>
-                <div className='border-t border-gray-200'>
-                  <div className='-mt-px flex divide-x divide-gray-200'>
-                    <div className='w-0 flex-1 flex'>
-                      <button
-                        // className=''
-                        className='relative w-0 flex-1 inline-flex items-center justify-center py-4 text-sm text-gray-700 font-medium border border-transparent rounded-bl-lg hover:text-gray-500 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-yellow-500'
-                        onClick={() =>
-                          openInModal(
-                            <DeviceDetails
-                              extendedPublicKey={item}
-                              closeModal={() => closeModal()}
-                              hideActionButtons={true}
-                              onSave={onSave}
-                            />
-                          )
-                        }
-                      >
-                        <a
-                        //   href={`mailto:${person.email}`}
-                        >
-                          <span>View details</span>
-                        </a>
-                      </button>
-                    </div>
+                <div className='-mt-px flex divide-x divide-gray-200'>
+                  <div className='w-0 flex-1 flex'>
+                    <button
+                      className='relative w-0 flex-1 inline-flex items-center justify-center py-4 text-sm text-gray-700 dark:text-gray-200 font-medium border border-transparent rounded-bl-lg hover:text-gray-500 dark:hover:text-white focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-yellow-500'
+                      onClick={() =>
+                        openInModal(
+                          <DeviceDetails
+                            extendedPublicKey={item}
+                            closeModal={() => closeModal()}
+                            hideActionButtons={true}
+                            onSave={onSave}
+                          />
+                        )
+                      }
+                    >
+                      <span>View details</span>
+                    </button>
                   </div>
                 </div>
               </li>

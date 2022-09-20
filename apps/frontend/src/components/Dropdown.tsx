@@ -40,74 +40,69 @@ interface Props {
   dropdownItems: (DropdownItemProps | DividerProps)[];
   minimal: boolean;
   style?: {};
+  [rest: string]: any;
 }
 
-export const Dropdown = ({
-  buttonLabel,
-  className,
-  dropdownItems,
-  minimal,
-  style,
-  ...rest
-}: Props) => {
-  const [isOpen, setIsOpen] = useState(false);
-
-  return (
-    <DropdownWrapper className={className}>
-      <ButtonContainer>
-        {minimal ? (
-          <MinimalDropdownButtonContainer
-            style={style}
-            onClick={() => setIsOpen(!isOpen)}
-            aria-label='Options'
-            id='options-menu'
-            className='focus:ring-green-500 focus:border-green-500 focus:outline-none text-black'
-            {...rest}
-          >
-            <DotDotDotImage fill='currentColor' viewBox='0 0 20 20'>
-              <path d='M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z'></path>
-            </DotDotDotImage>
-          </MinimalDropdownButtonContainer>
-        ) : (
-          <DropdownButtonContainer>
-            <DropdownButton
-              className='bg-white dark:bg-gray-800 focus:ring-green-500 focus:border-green-500 focus:outline-none'
+export const Dropdown = React.forwardRef<HTMLButtonElement, Props>(
+  ({ buttonLabel, className, dropdownItems, minimal, style, ...rest }, ref) => {
+    const [isOpen, setIsOpen] = useState(false);
+    return (
+      <DropdownWrapper className={className}>
+        <ButtonContainer>
+          {minimal ? (
+            <button
               style={style}
               onClick={() => setIsOpen(!isOpen)}
-              type='button'
+              aria-label='Options'
               id='options-menu'
-              aria-haspopup='true'
+              className='flex items-center p-2 text-inherit cursor-pointer border-0 rounded-full focus:ring-green-500 focus:border-green-500 focus:outline-none'
+              ref={ref}
               {...rest}
             >
-              {buttonLabel}
-              {/* <DownArrowIcon style={style} fill="currentColor" viewBox="0 0 20 20">
+              <DotDotDotImage fill='currentColor' viewBox='0 0 20 20'>
+                <path d='M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z'></path>
+              </DotDotDotImage>
+            </button>
+          ) : (
+            <DropdownButtonContainer>
+              <DropdownButton
+                ref={ref}
+                className='bg-white dark:bg-slate-800 dark:hover:bg-slate-700 focus:ring-green-500 focus:border-green-500 focus:outline-none'
+                style={style}
+                onClick={() => setIsOpen(!isOpen)}
+                type='button'
+                id='options-menu'
+                aria-haspopup='true'
+                {...rest}
+              >
+                {buttonLabel}
+                {/* <DownArrowIcon style={style} fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
                 </DownArrowIcon> */}
-            </DropdownButton>
-          </DropdownButtonContainer>
-        )}
-      </ButtonContainer>
-      <Transition
-        show={isOpen}
-        enter='transition ease-out duration-100'
-        enterFrom='transform opacity-0 scale-95'
-        enterTo='transform opacity-100 scale-100'
-        leave='transition ease-in duration-75'
-        leaveFrom='transform opacity-100 scale-100'
-        leaveTo='transform opacity-0 scale-95'
-        appear={undefined} // KBC-TODO: does this need to be here?
-      >
-        <OutsideClick onOutsideClick={() => setIsOpen(false)}>
-          <DropdownItemsWrapper>
-            <DropdownItemsContainer>
+              </DropdownButton>
+            </DropdownButtonContainer>
+          )}
+        </ButtonContainer>
+        <Transition
+          show={isOpen}
+          enter='transition ease-out duration-100'
+          enterFrom='transform opacity-0 scale-95'
+          enterTo='transform opacity-100 scale-100'
+          leave='transition ease-in duration-75'
+          leaveFrom='transform opacity-100 scale-100'
+          leaveTo='transform opacity-0 scale-95'
+          appear={undefined} // KBC-TODO: does this need to be here?
+        >
+          <OutsideClick onOutsideClick={() => setIsOpen(false)}>
+            <div className='w-60 origin-top-right shadow-lg right-0 absolute mt-2 rounded-md z-[2] bg-white dark:bg-slate-600 dark:highlight-white/10'>
               <DropdownItems role='menu' aria-orientation='vertical' aria-labelledby='options-menu'>
                 {dropdownItems.map((item, index) => {
                   if ('label' in item) {
                     return (
-                      <DropdownItem
+                      <a
+                        className='block px-4 py-2 cursor-pointer text-slate-800 dark:text-slate-200 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-gray-50 dark:hover:bg-slate-500'
                         key={index}
-                        clickable={!!item.onClick}
-                        onlyMobile={!!item.onlyMobile}
+                        // onlyMobile={!!item.onlyMobile}
                         onClick={() => {
                           if (item.onClick) {
                             item.onClick();
@@ -117,20 +112,20 @@ export const Dropdown = ({
                         role='menuitem'
                       >
                         {item.label}
-                      </DropdownItem>
+                      </a>
                     );
                   } else {
                     return <Divider key={index} onlyMobile={!!item.onlyMobile} />;
                   }
                 })}
               </DropdownItems>
-            </DropdownItemsContainer>
-          </DropdownItemsWrapper>
-        </OutsideClick>
-      </Transition>
-    </DropdownWrapper>
-  );
-};
+            </div>
+          </OutsideClick>
+        </Transition>
+      </DropdownWrapper>
+    );
+  }
+);
 
 const ButtonContainer = styled.div`
   display: flex;
@@ -204,12 +199,6 @@ const DropdownItemsWrapper = styled.div`
   margin-top: 0.5rem;
   border-radius: 0.375rem;
   z-index: 2;
-`;
-
-const DropdownItemsContainer = styled.div`
-  border-radius: 0.375rem;
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05);
-  background: ${white};
 `;
 
 const DropdownItems = styled.div`

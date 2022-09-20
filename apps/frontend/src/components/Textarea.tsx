@@ -7,9 +7,9 @@ import { classNames } from 'src/utils/other';
 
 interface Props {
   value: string;
-  onChange(value: string): void;
+  onChange?: (value: string) => void;
   error?: string;
-  label: string;
+  label?: string;
   id?: string;
   placeholder?: string;
   autoFocus?: boolean;
@@ -19,7 +19,7 @@ interface Props {
   labelStyle?: object;
   disabled?: boolean;
   rows?: number;
-  onPaste(value: string): void;
+  onPaste?: (value: string) => void;
 }
 
 export const Textarea = ({
@@ -54,9 +54,15 @@ export const Textarea = ({
         <StyledTextarea
           id={id}
           value={value}
-          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => onChange(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
+            if (onChange) {
+              onChange(e.target.value);
+            }
+          }}
           onPaste={(e: React.ClipboardEvent) => {
-            onPaste(e.clipboardData.getData('text'));
+            if (onPaste) {
+              onPaste(e.clipboardData.getData('text'));
+            }
           }}
           onKeyDown={onKeyDown}
           autoFocus={autoFocus}

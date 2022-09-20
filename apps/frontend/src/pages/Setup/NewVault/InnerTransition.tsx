@@ -5,11 +5,18 @@ interface Props {
   show: boolean;
   children: JSX.Element;
   className?: string;
+  afterLeave?: () => void;
 }
 
-export const InnerTransition = ({ appear = true, show, children, className }: Props) => {
+export const InnerTransition = ({
+  appear = true,
+  show,
+  children,
+  className,
+  afterLeave
+}: Props) => {
   return (
-    <Transition
+    <Transition.Root
       className={className}
       show={show}
       appear={appear}
@@ -19,8 +26,9 @@ export const InnerTransition = ({ appear = true, show, children, className }: Pr
       leave='transform transition-all duration-200 ease-in-out'
       leaveFrom='translate-x-0 opacity-100'
       leaveTo='-translate-x-8 opacity-0'
+      afterLeave={afterLeave}
     >
       {children}
-    </Transition>
+    </Transition.Root>
   );
 };

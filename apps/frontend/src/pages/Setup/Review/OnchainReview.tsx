@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 
 import { Dropdown } from 'src/components';
 
@@ -14,7 +14,9 @@ import {
   createSinglesigHWWConfigFile,
   saveConfig,
   createAccountId,
-  clone
+  clone,
+  generateSetupDeepLinkRedirectUrl,
+  mailto
 } from 'src/utils/files';
 
 import { LilyConfig, OnChainConfigWithoutId, ExtendedPublicKey } from '@lily/types';
@@ -40,6 +42,7 @@ const ReviewScreen = ({
   const [accountExistsId, setAccountExistsId] = useState('');
   const [localConfig, setLocalConfig] = useState<LilyConfig>(config);
   const history = useHistory();
+  const location = useLocation();
 
   useEffect(() => {
     // validate account, see if account exists already
@@ -49,6 +52,19 @@ const ReviewScreen = ({
   const confirmSave = async () => {
     await saveConfig(localConfig, password, platform);
     setConfigFile(localConfig);
+    // if redirect, generate link and send email
+    const paramObject = new URLSearchParams(location.search);
+    const returnEmail = paramObject.get('returnTo');
+    if (returnEmail) {
+      const setupDeepLink = generateSetupDeepLinkRedirectUrl(newAccount, 'complete');
+      const emailBody = `I just completed adding my devices to "${newAccount.name}" in Lily Wallet. \n \n Add it to your Lily Wallet by copying the link below into your browser: \n \n${setupDeepLink} \n \n If there are any questions or issues, please reach out to help@lily-wallet.com for assistance!`;
+      const emailLink = mailto(
+        [returnEmail],
+        `[COMPLETE] Vault setup for ${newAccount.name} in Lily Wallet`,
+        encodeURIComponent(emailBody)
+      );
+      window.open(emailLink);
+    }
     const newAccountId = createAccountId(newAccount);
     setCurrentAccountId(newAccountId);
     history.push(`/vault/${newAccountId}`);
