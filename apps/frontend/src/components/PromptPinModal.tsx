@@ -19,7 +19,6 @@ interface Props {
 }
 
 export const PromptPinModal = ({ device, enumerate, deviceAction, closeModal }: Props) => {
-  console.log('device: ', device);
   const [currentPin, setCurrentPin] = useState('');
   const [loadingMessage, setLoadingMessage] = useState('');
   const [promptPinError, setPromptPinError] = useState('');

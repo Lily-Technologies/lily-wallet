@@ -187,15 +187,14 @@ if (process.defaultApp) {
 // Protocol handler for osx
 app.on('open-url', function (event, url) {
   event.preventDefault();
-  logEverywhere('open url:');
-  logEverywhere(url);
   const parsedUrl = url.substring(
     url.indexOf(PROTOCOL_PREFIX) + PROTOCOL_PREFIX.length + '://'.length
   );
-  logEverywhere('parsedUrl: ');
-  logEverywhere(parsedUrl);
-  mainWindow.loadURL(`http://localhost:3000#/${parsedUrl}`);
-  // mainWindow.loadURL(`file://${__dirname}/frontend/index.html#/${parsedUrl}`);
+  if ('DEVURL' in process.env) {
+    mainWindow.loadURL(`http://localhost:3000#/${parsedUrl}`);
+  } else {
+    mainWindow.loadURL(`file://${__dirname}/frontend/index.html#/${parsedUrl}`);
+  }
 });
 
 const gotTheLock = app.requestSingleInstanceLock();

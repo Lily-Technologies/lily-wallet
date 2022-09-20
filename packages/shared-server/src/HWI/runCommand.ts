@@ -11,7 +11,6 @@ export const runCommand = async (command: string[]): Promise<string> => {
     if (platform() === 'darwin') hwiFile = 'HWI_MAC';
     if (isPi()) hwiFile = 'HWI_PI';
     const appRootDir = getAppRootDir();
-    console.log('appRootDir: ', appRootDir);
 
     const binariesPath = join(`${appRootDir}/build`, './HWIs');
     const pathToHwi = pathResolve(join(binariesPath, hwiFile));

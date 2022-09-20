@@ -283,6 +283,8 @@ export class ElectrumProvider extends OnchainBaseProvider {
       } catch (e) {
         console.log('scanForAddressesAndTransactions e: ', e);
         await this.initialize();
+        receiveGap = receiveGap + 1;
+        changeGap = changeGap + 1;
       }
     }
 

@@ -70,10 +70,7 @@ export abstract class LightningBaseProvider implements LightningProviderInterfac
     callback: ICallback<OpenStatusUpdate>
   ): void;
 
-  abstract openChannelVerify({
-    fundedPsbt: finalPsbt,
-    pendingChanId
-  }: FundingPsbtVerify): Promise<void>;
+  abstract openChannelVerify({ fundedPsbt, pendingChanId }: FundingPsbtVerify): Promise<void>;
 
   abstract openChannelFinalize(psbtFinalize: FundingPsbtFinalize): Promise<void>;
 
