@@ -47,6 +47,20 @@
           "from": "../../packages/HWIs/HWI_MAC",
           "to": "./build/HWIs"
         }
+      ],
+      "protocols": [
+        {
+          "name": "Lily Wallet",
+          "schemes": [
+            "lily"
+          ]
+        },
+        {
+          "name": "Bitcoin",
+          "schemes": [
+            "bitcoin"
+          ]
+        }
       ]
     },
     "dmg": {
@@ -70,6 +84,20 @@
           "from": "../../packages/HWIs/HWI_LINUX",
           "to": "./build/HWIs"
         }
+      ],
+      "protocols": [
+        {
+          "name": "Lily Wallet",
+          "schemes": [
+            "lily"
+          ]
+        },
+        {
+          "name": "Bitcoin",
+          "schemes": [
+            "bitcoin"
+          ]
+        }
       ]
     },
     "win": {
@@ -80,6 +108,20 @@
         {
           "from": "../../packages/HWIs/HWI_WINDOWS",
           "to": "./build/HWIs"
+        }
+      ],
+      "protocols": [
+        {
+          "name": "Lily Wallet",
+          "schemes": [
+            "lily"
+          ]
+        },
+        {
+          "name": "Bitcoin",
+          "schemes": [
+            "bitcoin"
+          ]
         }
       ]
     }
