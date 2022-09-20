@@ -49,7 +49,7 @@ const InputXpubModal = ({ importedDevices, setImportedDevices, closeModal }: Pro
 
   useEffect(() => {
     setOptions(Object.values(types[type]));
-    setModel(Object.values(types[type])[0]);
+    setModel(String(Object.values(types[type])[0]));
   }, [type]);
 
   const addDevice = () => {
@@ -143,7 +143,7 @@ const InputXpubModal = ({ importedDevices, setImportedDevices, closeModal }: Pro
                   options={options.map((item) => ({
                     label: capitalizeAllAndReplaceUnderscore(item),
                     onClick: () => {
-                      setModel(item);
+                      setModel(String(item));
                     }
                   }))}
                   id='hardware_wallet_model'

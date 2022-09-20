@@ -1,5 +1,5 @@
 import React from 'react';
-import styled from 'styled-components';
+import { QuestionMarkCircle } from '@styled-icons/heroicons-outline';
 
 import Coldcard from 'src/assets/coldcard.png';
 import LedgerNanoS from 'src/assets/ledger_nano_s.png';
@@ -9,6 +9,7 @@ import TrezorT from 'src/assets/trezor_t.png';
 import Cobo from 'src/assets/cobo.png';
 import Bitbox from 'src/assets/bitbox02.png';
 import Iphone from 'src/assets/iphone.png';
+import Unchained from 'src/assets/unchained.png';
 
 import { Device } from '@lily/types';
 
@@ -18,6 +19,13 @@ interface Props {
 }
 
 export const DeviceImage = ({ device, className }: Props) => {
+  if (device.type === 'unknown') {
+    return (
+      <div className='flex items-center justify-center py-14 px-7 text-slate-600 dark:text-slate-500 bg-slate-100 dark:bg-slate-800 rounded'>
+        <QuestionMarkCircle className='h-10 w-10' />
+      </div>
+    );
+  }
   return (
     <img
       className={className}
@@ -38,6 +46,8 @@ export const DeviceImage = ({ device, className }: Props) => {
           ? Cobo
           : device.type === 'bitbox02'
           ? Bitbox
+          : device.type === 'unchained'
+          ? Unchained
           : Iphone
       }
     />

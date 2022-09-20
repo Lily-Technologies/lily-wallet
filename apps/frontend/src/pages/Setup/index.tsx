@@ -18,10 +18,10 @@ import {
   AddressType,
   OnChainConfig,
   OnChainConfigWithoutId,
-  LightningConfig,
-  LilyOnchainAccount
+  LightningConfig
 } from '@lily/types';
 import { ChannelBalanceResponse, GetInfoResponse } from '@lily-technologies/lnrpc';
+import { caravanToLilyConfig } from 'src/utils/files';
 
 const EMPTY_NEW_VAULT: OnChainConfigWithoutId = {
   name: '',
@@ -60,6 +60,7 @@ const Setup = ({ currentBlockHeight }: Props) => {
     }
   }, [step]);
 
+  // TODO: better error handling
   useEffect(() => {
     if (location.search) {
       const queryParams = new URLSearchParams(location.search);
@@ -70,9 +71,12 @@ const Setup = ({ currentBlockHeight }: Props) => {
         // parsed twice b/c of "overstringification"
         const parsedConfig = JSON.parse(JSON.parse(JSON.stringify(config)));
         setSetupOption(1);
-        setNewAccount(parsedConfig);
+        // determine if unchained or lily
+        const account = parsedConfig.created_at
+          ? (parsedConfig as VaultConfig)
+          : caravanToLilyConfig(parsedConfig);
+        setNewAccount(account);
         const status = queryParams.get('status');
-        queryParams.delete('status');
         // fixes animation delay bug causing dialog to be lower on page
         setTimeout(() => {}, 1000);
         if (status === 'complete') {
@@ -87,11 +91,15 @@ const Setup = ({ currentBlockHeight }: Props) => {
     }
   }, [location.search]);
 
-  const importAccountFromFile = (vaultConfig: VaultConfig) => {
-    if (vaultConfig.type === 'onchain' && vaultConfig.quorum.totalSigners > 1) {
+  // TODO: better checking validation
+  const importAccountFromFile = (vaultConfig: any) => {
+    if (vaultConfig.quorum.totalSigners > 1) {
+      const account = vaultConfig.id
+        ? (vaultConfig as VaultConfig)
+        : caravanToLilyConfig(vaultConfig);
       try {
         setSetupOption(1);
-        setNewAccount(vaultConfig);
+        setNewAccount(account);
         setStep(3);
       } catch (e) {
         if (e instanceof Error) {

@@ -14,7 +14,7 @@ import {
   createColdCardBlob,
   downloadFile,
   formatFilename,
-  getMultisigDeriationPathForNetwork
+  lilyConfigToCaravan
 } from 'src/utils/files';
 import { PlatformContext } from 'src/context';
 
@@ -40,6 +40,7 @@ const ExportView = ({ currentAccount, currentBitcoinNetwork }: Props) => {
         currentAccount.config.quorum.totalSigners,
         currentAccount.config.name,
         currentAccount.config.extendedPublicKeys,
+        currentAccount.config.addressType,
         currentBitcoinNetwork
       );
       downloadFile(
@@ -65,34 +66,9 @@ const ExportView = ({ currentAccount, currentBitcoinNetwork }: Props) => {
   };
 
   const downloadCaravanFile = (config: OnChainConfig) => {
-    // need to add some properties to our config to use with Caravan
-    // @ts-ignore-line
-    const configCopy = {
-      ...config,
-      client: { type: 'public' }
-    } as CaravanConfig;
-    // need to have a name for each pubkey, so just use parentFingerprint
-    if (configCopy.extendedPublicKeys !== undefined) {
-      for (let i = 0; i < configCopy.extendedPublicKeys.length; i++) {
-        configCopy.extendedPublicKeys[i].name = configCopy.extendedPublicKeys[i].parentFingerprint;
-
-        // we need to populate the method field for caravan. if the device is of type trezor or ledger, put that in. else just put xpub.
-        if (
-          configCopy.extendedPublicKeys[i].device &&
-          (configCopy.extendedPublicKeys[i].device.type === 'trezor' ||
-            configCopy.extendedPublicKeys[i].device.type === 'ledger')
-        ) {
-          configCopy.extendedPublicKeys[i].method = configCopy.extendedPublicKeys[i].device.type;
-          configCopy.extendedPublicKeys[i].bip32Path =
-            getMultisigDeriationPathForNetwork(currentBitcoinNetwork);
-        } else {
-          configCopy.extendedPublicKeys[i].method = 'xpub';
-        }
-      }
-    }
-    const caravanFile = JSON.stringify(configCopy);
+    const caravanFile: CaravanConfig = lilyConfigToCaravan(config);
     downloadFile(
-      caravanFile,
+      JSON.stringify(caravanFile),
       formatFilename('lily-caravan-file', currentBitcoinNetwork, 'json'),
       platform
     );

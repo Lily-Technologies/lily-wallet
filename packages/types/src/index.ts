@@ -42,9 +42,6 @@ export type FeeRateOptions = 'fastestFee' | 'halfHourFee' | 'hourFee';
 
 export type FeeRates = Record<'fastestFee' | 'halfHourFee' | 'hourFee', number>;
 export interface CaravanConfig {
-  client: any; // KBC-TODO: allow private connection to node
-  id: string;
-  created_at: number;
   name: string;
   network: 'mainnet' | 'testnet';
   addressType: AddressType;
@@ -52,21 +49,13 @@ export interface CaravanConfig {
     requiredSigners: number;
     totalSigners: number;
   };
-  extendedPublicKeys?: {
-    id: string;
+  startingAddressIndex: 0;
+  extendedPublicKeys: {
     name: string;
-    method: string;
-    created_at: number;
-    parentFingerprint: string;
-    network: 'mainnet' | 'testnet';
     bip32Path: string;
     xpub: string;
-    device: Device;
+    xfp: string;
   }[];
-  device?: Device;
-  xpub?: string;
-  mnemonic?: string;
-  parentFingerprint?: string;
 }
 
 export interface NodeConfig {
@@ -384,7 +373,16 @@ export interface LilyZeroDotOneConfig {
 }
 
 export interface Device {
-  type: 'coldcard' | 'trezor' | 'ledger' | 'phone' | 'lily' | 'cobo' | 'bitbox02';
+  type:
+    | 'coldcard'
+    | 'trezor'
+    | 'ledger'
+    | 'phone'
+    | 'lily'
+    | 'cobo'
+    | 'bitbox02'
+    | 'unchained'
+    | 'unknown';
   fingerprint: string;
   model: string; // KBC-TODO: get more specific with this
   owner?: {

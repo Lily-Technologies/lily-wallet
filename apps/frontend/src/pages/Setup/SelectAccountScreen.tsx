@@ -173,9 +173,7 @@ const SelectAccountScreen = ({
         onFileLoad={({ file }: File) => {
           try {
             const parsedFile: VaultConfig = JSON.parse(file);
-            if (parsedFile.type === 'onchain') {
-              importAccountFromFile(parsedFile);
-            }
+            importAccountFromFile(parsedFile);
           } catch (e) {
             openInModal(<ErrorModal message='Invalid file' closeModal={closeModal} />);
           }

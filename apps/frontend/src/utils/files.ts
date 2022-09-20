@@ -21,7 +21,8 @@ import {
   VaultConfig,
   AccountId,
   KeyId,
-  LightningConfig
+  LightningConfig,
+  CaravanConfig
 } from '@lily/types';
 
 import { BasePlatform } from 'src/frontend-middleware';
@@ -108,6 +109,53 @@ export const getUnchainedNetworkFromBjslibNetwork = (
   }
 };
 
+export const lilyConfigToCaravan = (config: OnChainConfig): CaravanConfig => {
+  return {
+    name: config.name,
+    network: config.network,
+    addressType: config.addressType,
+    quorum: config.quorum,
+    startingAddressIndex: 0,
+    extendedPublicKeys: config.extendedPublicKeys.map((item) => ({
+      name: item.parentFingerprint,
+      bip32Path: item.bip32Path,
+      xpub: item.xpub,
+      xfp: item.parentFingerprint
+    }))
+  };
+};
+
+export const caravanToLilyConfig = (config: CaravanConfig): OnChainConfigWithoutId => {
+  return {
+    name: config.name,
+    created_at: Date.now(),
+    type: 'onchain' as const,
+    network: config.network,
+    addressType: config.addressType,
+    quorum: config.quorum,
+    extendedPublicKeys: config.extendedPublicKeys.map((item) => {
+      const isUnchained = item.name === 'Unchained' && item.bip32Path === 'Unknown';
+      return {
+        id: createKeyId(item.xfp, item.xpub),
+        bip32Path: item.bip32Path,
+        parentFingerprint: item.xfp,
+        xpub: item.xpub,
+        network: config.network,
+        created_at: Date.now(),
+        device: {
+          type: isUnchained ? 'unchained' : 'unknown',
+          fingerprint: item.xfp,
+          model: 'unknown',
+          owner: {
+            name: isUnchained ? 'Unchained Capital' : '',
+            email: isUnchained ? 'help@unchained.com' : ''
+          }
+        }
+      };
+    })
+  };
+};
+
 export const multisigDeviceToExtendedPublicKey = (
   device: HwiEnumerateWithXpubResponse,
   currentBitcoinNetwork: Network
@@ -155,6 +203,28 @@ export const downloadFile = async (file: string, filename: string, platform: Bas
   } catch (e) {
     console.log('e: ', e);
   }
+};
+
+export const generateSetupDeepLinkRedirectUrl = (
+  accountConfig: OnChainConfigWithoutId,
+  status: 'complete' | 'incomplete',
+  returnName?: string,
+  returnEmail?: string
+) => {
+  let encodedConfig = `config=${JSON.stringify(accountConfig)}&status=${status}`;
+
+  if (returnEmail) {
+    encodedConfig = encodedConfig + `&returnTo=${returnName}<${returnEmail}>`;
+  }
+
+  const queryParams = new URLSearchParams(encodedConfig);
+  return `https://lily-wallet.com/to/setup?${queryParams.toString()}`;
+};
+
+export const mailto = (emails: string[], subject: string = '', body: string = '') => {
+  return `mailto:${emails.map(
+    (item, i) => `${item}${i < emails.length - 1 ? ',' : ''}` // add commas if multiple emails except last
+  )}?subject=${subject}&body=${body}`;
 };
 
 export const saveConfig = async (
@@ -329,7 +399,7 @@ export const createMultisigConfigFile = (
       signature: ''
     },
     network: getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork),
-    addressType: AddressType.P2WSH,
+    addressType: newAccountInputs.addressType,
     quorum: {
       requiredSigners: newAccountInputs.quorum.requiredSigners,
       totalSigners: newAccountInputs.extendedPublicKeys.length
@@ -375,6 +445,7 @@ export const createColdCardBlob = (
   totalSigners: number,
   accountName: string,
   importedDevices: ExtendedPublicKey[],
+  addressType: AddressType,
   currentBitcoinNetwork: Network
 ) => {
   let derivationPath = getMultisigDeriationPathForNetwork(currentBitcoinNetwork);
@@ -385,7 +456,7 @@ export const createColdCardBlob = (
 Name: ${accountName}
 Policy: ${requiredSigners} of ${totalSigners}
 Derivation: ${derivationPath}
-Format: P2WSH
+Format: ${addressType}
 ${importedDevices.map((device) => `\n${device.parentFingerprint}: ${device.xpub}`).join('')}
 `;
 };

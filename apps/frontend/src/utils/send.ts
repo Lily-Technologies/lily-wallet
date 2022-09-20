@@ -30,7 +30,7 @@ const getBuffer = (item) => {
   if (ArrayBuffer.isView(item)) {
     return Buffer.from(Object.values(item));
   } else if (item && item.data) {
-    return Buffer.from(Object.values(item.data));
+    return Buffer.from(String(Object.values(item.data)));
   }
   throw Error('Invalid item trying to be converted to buffer');
 };
