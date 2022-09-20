@@ -1,6 +1,7 @@
 import { useContext, useState } from 'react';
 import styled from 'styled-components';
 import { useHistory } from 'react-router-dom';
+import { ArrowRightIcon } from '@heroicons/react/outline';
 
 import { Input } from 'src/components';
 
@@ -102,6 +103,7 @@ const SignupForm = ({ encryptedConfigFile, cancel }: Props) => {
                 error={passwordError}
                 autoComplete='new-password'
                 required
+                autoFocus
               />
             </div>
             <div className='space-y-1'>
@@ -129,10 +131,13 @@ const SignupForm = ({ encryptedConfigFile, cancel }: Props) => {
 
               <button
                 type='submit'
-                className='ml-3 flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2  focus:ring-green-500'
+                className='group ml-3 flex justify-center items-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2  focus:ring-green-500'
               >
                 {isLoading && <LoadingImage alt='loading placeholder' src={FlowerLoading} />}
-                {isLoading ? 'Creating wallet...' : 'Create wallet'}
+                {isLoading ? 'Loading wallet...' : 'Continue'}
+                {isLoading ? null : (
+                  <ArrowRightIcon className='w-4 h-4 ml-2 group-hover:translate-x-1 transition ease-in-out duration-100' />
+                )}
               </button>
             </div>
           </form>

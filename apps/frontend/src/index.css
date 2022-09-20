@@ -1,6 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@tailwind variants;
 
 @font-face {
   font-family: 'Montserrat';
@@ -65,6 +66,13 @@ body {
 :before {
   box-sizing: border-box;
   border: 0 solid #e5e7eb;
+}
+
+.inset-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 /* *:focus:not(.focus-visible) {

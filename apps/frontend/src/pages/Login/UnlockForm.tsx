@@ -116,6 +116,7 @@ const UnlockForm = ({
                 type='password'
                 autoComplete='current-password'
                 required
+                autoFocus
               />
               <div
                 className={'flex items-center justify-end'}
