@@ -19,7 +19,7 @@ export const AccountsSection = () => {
   return (
     <>
       <div className='flex mt-12 mb-6'>
-        <h1 className='flex-1 text-2xl font-bold text-gray-900 dark:text-white'>Your Accounts</h1>
+        <h1 className='flex-1 text-2xl font-bold text-gray-900 dark:text-white'>Accounts</h1>
         <div className='ml-6 bg-gray-200 dark:bg-gray-800 p-0.5 rounded-lg flex items-center'>
           <button
             onClick={() => setViewType('list')}
@@ -48,7 +48,7 @@ export const AccountsSection = () => {
       <div
         className={classNames(
           viewType === 'list'
-            ? 'bg-white dark:bg-gray-800 shadow rounded-t-lg rounded-b-lg overflow-hidden'
+            ? 'bg-white dark:bg-gray-800 shadow rounded-t-2xl rounded-b-2xl overflow-hidden dark:highlight-white/10'
             : ''
         )}
       >

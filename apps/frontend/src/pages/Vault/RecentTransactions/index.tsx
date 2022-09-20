@@ -63,7 +63,7 @@ const RecentTransactions = ({
             // eslint-disable-line
             if (index < maxItems) {
               return (
-                <TransactionRowWrapper key={index}>
+                <div key={index} className='rounded-2xl'>
                   {shouldDisplayDate(transactions, index) && (
                     <DateWrapper className='text-gray-800 dark:text-gray-200'>
                       {transaction.status.confirmed
@@ -80,13 +80,13 @@ const RecentTransactions = ({
                     transaction={transaction}
                     flat={flat}
                   />
-                </TransactionRowWrapper>
+                </div>
               );
             }
             return null;
           })}
         {!loading && transactions.length === 0 && (
-          <div className='h-96 w-full bg-white dark:bg-gray-800 space-y-6 flex flex-col items-center justify-center rounded shadow'>
+          <div className='h-96 w-full bg-white dark:bg-gray-800 space-y-6 flex flex-col items-center justify-center rounded-2xl shadow dark:highlight-white/10'>
             <h3 className='text-2xl text-gray-600 dark:text-gray-300 font-medium'>
               No Transactions
             </h3>
@@ -119,8 +119,6 @@ const TransactionsWrapper = styled.div`
   display: flex;
   flex-direction: column;
 `;
-
-const TransactionRowWrapper = styled.div``;
 
 const DateWrapper = styled.div`
   margin: 1.5em 0 1em;

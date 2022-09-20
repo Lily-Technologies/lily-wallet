@@ -50,13 +50,13 @@ const OwnerInformation = ({
         afterLeave={() => setShowEditOwnerForm(true)}
       >
         <>
-          <h3 className='font-medium text-gray-900'>Owner information</h3>
+          <h3 className='font-medium text-gray-900 dark:text-slate-200'>Owner information</h3>
           <ul role='list' className='mt-2'>
             <li className='flex items-center justify-between py-3'>
               <div className='flex items-center'>
                 <svg
                   xmlns='http://www.w3.org/2000/svg'
-                  className='h-8 w-8 p-1 bg-gray-100 rounded-full'
+                  className='h-8 w-8 p-1 bg-gray-100 dark:bg-slate-700 dark:text-slate-400 rounded-full'
                   fill='none'
                   viewBox='0 0 24 24'
                   stroke='currentColor'
@@ -69,15 +69,17 @@ const OwnerInformation = ({
                   />
                 </svg>
                 <div className='ml-4 truncate'>
-                  <p className='text-sm font-medium text-gray-900'>
+                  <p className='text-sm font-medium text-gray-900 dark:text-slate-300'>
                     {extendedPublicKey.device.owner?.name || 'Not set'}
                   </p>
-                  <p className='text-sm text-gray-500'>{extendedPublicKey.device.owner?.email}</p>
+                  <p className='text-sm text-gray-500 dark:text-slate-400'>
+                    {extendedPublicKey.device.owner?.email}
+                  </p>
                 </div>
               </div>
               <button
                 type='button'
-                className='ml-6 rounded-md bg-white text-sm font-medium text-green-600 hover:text-green-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2'
+                className='ml-6 py-1 px-2 rounded-md bg-white dark:bg-slate-800 text-sm font-medium text-green-600 hover:text-green-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2'
                 onClick={() => setShowOwnerInfo(false)}
               >
                 Edit<span className='sr-only'>{extendedPublicKey.device.owner?.name}</span>

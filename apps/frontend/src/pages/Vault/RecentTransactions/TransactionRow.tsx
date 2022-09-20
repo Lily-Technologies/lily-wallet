@@ -21,7 +21,7 @@ const TransactionRow = ({ onClick, transaction, flat }: Props) => {
       className='list-none last:border-none border-b border-gray-100 dark:border-gray-700 shadow'
       onClick={() => onClick()}
     >
-      <button className='block bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 w-full'>
+      <button className='block bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 w-full dark:highlight-white/10'>
         <div className='flex items-center px-4 py-4 sm:px-6'>
           <div className='min-w-0 flex-1 flex items-center'>
             <div className='flex items-center'>

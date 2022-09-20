@@ -7,7 +7,7 @@ import { Psbt, Network } from 'bitcoinjs-lib';
 
 import { StyledIcon, Button, SidewaysShake, Dropdown, Modal, Price } from 'src/components';
 
-import { gray800, white, green500, green600, orange500, orange200 } from 'src/utils/colors';
+import { white, green500, green600, orange500, orange200 } from 'src/utils/colors';
 import { downloadFile, formatFilename } from 'src/utils/files';
 import { getFee, RecipientItem, truncateAddress } from 'src/utils/send';
 import { createMap } from 'src/utils/accountMap';
@@ -158,14 +158,14 @@ const TransactionDetails = ({
 
   const PsbtDownloadDetails = () => (
     <>
-      <div className='border-b border-gray-200 dark:border-gray-600 flex items-center justify-between px-6 py-7'>
+      <div className='border-b border-slate-200 dark:border-slate-600 flex items-center justify-between px-6 py-7'>
         <span className='dark:text-white text-2xl'>Download complete</span>
       </div>
       <ModalBody>
         <div className='text-green-500'>
           <StyledIcon as={CheckCircle} size={100} />
         </div>
-        <p className='text-gray-800 dark:text-gray-300'>
+        <p className='text-slate-800 dark:text-slate-300'>
           Your PSBT file has been saved successfully.
         </p>
       </ModalBody>
@@ -175,12 +175,12 @@ const TransactionDetails = ({
   return (
     <>
       <AccountSendContentRight className='col-span-12 lg:col-span-6'>
-        <SendDetailsContainer className='bg-white dark:bg-gray-800'>
-          <ModalHeaderContainer className='border-b border-gray-200 dark:border-gray-700'>
-            <span className='text-xl font-medium text-gray-900 dark:text-gray-100'>
+        <SendDetailsContainer className='bg-white dark:bg-slate-800 dark:highlight-white/10'>
+          <ModalHeaderContainer className='border-b border-slate-200 dark:border-slate-700'>
+            <span className='text-xl font-medium text-slate-900 dark:text-slate-100'>
               Transaction summary
             </span>
-            <span className='flex justify-end text-gray-900 dark:text-gray-200'>
+            <span className='flex justify-end text-slate-900 dark:text-slate-200'>
               <TransactionOptionsDropdown />
             </span>
           </ModalHeaderContainer>
@@ -210,15 +210,15 @@ const TransactionDetails = ({
           )}
           <div className='py-6 px-4 space-y-6 sm:px-6'>
             <div className='flex flex-wrap justify-between'>
-              <div className='text-gray-900 dark:text-gray-200'>From</div>
-              <div className='text-gray-900 dark:text-gray-200 font-medium'>
+              <div className='text-slate-900 dark:text-slate-200'>From</div>
+              <div className='text-slate-900 dark:text-slate-200 font-medium'>
                 {currentAccount.name}
               </div>
             </div>
 
             <div className='flex flex-wrap justify-between'>
-              <div className='text-gray-900 dark:text-gray-200'>Network fee</div>
-              <div className='text-gray-900 dark:text-gray-200 font-medium'>
+              <div className='text-slate-900 dark:text-slate-200'>Network fee</div>
+              <div className='text-slate-900 dark:text-slate-200 font-medium'>
                 <span data-cy='transactionFeeBtc'>
                   {getValue(_fee)} (<Price value={_fee} />)
                 </span>
@@ -226,14 +226,14 @@ const TransactionDetails = ({
             </div>
             {_fee >= ABSURD_FEE && <WarningBox>Warning: transaction fee is very high</WarningBox>}
 
-            <div className='flex items-center justify-between border-t border-gray-200 dark:border-gray-700 pt-6'>
-              <div className='text-gray-900 dark:text-gray-200'>Total</div>
-              <div className='text-gray-900 dark:text-gray-200 font-medium'>
+            <div className='flex items-center justify-between border-t border-slate-200 dark:border-slate-700 pt-6'>
+              <div className='text-slate-900 dark:text-slate-200'>Total</div>
+              <div className='text-slate-900 dark:text-slate-200 font-medium'>
                 {getValue(finalPsbt.txOutputs[0].value + _fee)}
               </div>
             </div>
           </div>
-          <div className='border-t border-gray-200 dark:border-gray-700 py-6 px-4 sm:px-6'>
+          <div className='border-t border-slate-200 dark:border-slate-700 py-6 px-4 sm:px-6'>
             <SendButton
               sendable={signedDevices.length === signThreshold}
               background={green500}
@@ -265,11 +265,6 @@ const ModalBody = styled.div`
   align-items: center;
   justify-content: center;
   padding: 2.5em;
-`;
-
-const ModalSubtext = styled.div`
-  color: ${gray800};
-  margin-top: 1rem;
 `;
 
 const ModalHeaderContainer = styled.div`

@@ -66,19 +66,19 @@ const SignWithDevice = ({
   ];
 
   return (
-    <TransactionDetailsWrapper className='col-span-12 lg:col-span-6 bg-white dark:bg-gray-800'>
-      <SetupHeaderContainer className='border-b border-b-gray-200 dark:border-gray-700'>
+    <TransactionDetailsWrapper className='col-span-12 lg:col-span-6 bg-white dark:bg-slate-800'>
+      <SetupHeaderContainer className='border-b border-b-slate-200 dark:border-slate-700'>
         <SetupHeaderWrapper>
           <SetupHeaderLeft>
-            <span className='text-xl text-gray-900 dark:text-gray-100 font-medium'>
+            <span className='text-xl text-slate-900 dark:text-slate-100 font-medium'>
               Confirm on devices
             </span>
-            <span className='text-sm text-gray-800 dark:text-gray-300 font-normal'>
+            <span className='text-sm text-slate-800 dark:text-slate-300 font-normal'>
               {signedDevices.length} of {signThreshold} devices confirmed
             </span>
           </SetupHeaderLeft>
           <SetupHeaderRight>
-            <div className='flex justify-end text-gray-900 dark:text-gray-200'>
+            <div className='flex justify-end text-slate-900 dark:text-slate-200'>
               <Dropdown minimal={true} dropdownItems={dropdownItems} />
             </div>
           </SetupHeaderRight>

@@ -166,7 +166,7 @@ const OpenChannel = ({ setViewOpenChannelForm }: Props) => {
         </div>
       )}
       {step === 1 && (
-        <FormWrapper>
+        <div className='flex flex-col'>
           <FormHeaderWrapper>
             <DangerIconContainer>
               <StyledIconCircle className='bg-green-100 dark:bg-green-800'>
@@ -181,19 +181,21 @@ const OpenChannel = ({ setViewOpenChannelForm }: Props) => {
             </div>
           </FormHeaderWrapper>
           {finalPsbt && (
-            <ConfirmTxPage
-              currentAccount={fundingAccount}
-              finalPsbt={finalPsbt!}
-              sendTransaction={confirmTxWithLilyThenSend}
-              setFinalPsbt={setFinalPsbt as SetStatePsbt}
-              feeRates={feeRates}
-              setStep={setStep}
-              currentBitcoinPrice={currentBitcoinPrice}
-              currentBitcoinNetwork={currentBitcoinNetwork}
-              shoppingItems={shoppingItems}
-            />
+            <div className='bg-gray-100 dark:bg-gray-700 py-4 px-4 rounded-lg mt-4 shadow-inner'>
+              <ConfirmTxPage
+                currentAccount={fundingAccount}
+                finalPsbt={finalPsbt!}
+                sendTransaction={confirmTxWithLilyThenSend}
+                setFinalPsbt={setFinalPsbt as SetStatePsbt}
+                feeRates={feeRates}
+                setStep={setStep}
+                currentBitcoinPrice={currentBitcoinPrice}
+                currentBitcoinNetwork={currentBitcoinNetwork}
+                shoppingItems={shoppingItems}
+              />
+            </div>
           )}
-        </FormWrapper>
+        </div>
       )}
       {step === 2 && <OpenChannelSuccess />}
       <Modal isOpen={modalIsOpen} closeModal={() => setModalIsOpen(false)}>
@@ -202,11 +204,6 @@ const OpenChannel = ({ setViewOpenChannelForm }: Props) => {
     </>
   );
 };
-
-const FormWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
 
 const FormHeaderWrapper = styled.div`
   display: flex;

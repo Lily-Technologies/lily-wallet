@@ -89,7 +89,7 @@ export const Input = ({
           inputStaticText ? 'text-right pr-12' : '',
           inputStaticText && error ? 'pr-16' : '',
           error ? 'pr-8' : '',
-          'dark:bg-transparent appearance-none block w-full border dark:border-gray-500 dark:text-white rounded-md shadow-sm placeholder-gray-400 focus:outline-none sm:text-sm'
+          'dark:bg-slate-800 appearance-none block w-full border dark:border-gray-500 dark:text-white rounded-md shadow-sm placeholder-gray-400 focus:outline-none sm:text-sm'
         )}
       />
       {inputStaticText && (

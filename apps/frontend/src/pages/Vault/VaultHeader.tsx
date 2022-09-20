@@ -1,24 +1,24 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useContext } from 'react';
 import styled from 'styled-components';
 import { Link, useRouteMatch, useHistory } from 'react-router-dom';
 import { VerticalAlignBottom, ArrowUpward, Settings, Refresh } from '@styled-icons/material';
 import FlowerLoading from 'src/assets/flower-loading.svg';
-
-import { requireOnchain } from 'src/hocs';
 
 import { StyledIcon, PageTitle, Header, HeaderLeft, Dropdown } from 'src/components';
 
 import { gray300 } from 'src/utils/colors';
 import { LilyOnchainAccount } from '@lily/types';
 
+import { AccountMapContext } from 'src/context';
+
 interface Props {
   toggleRefresh(): void;
-  currentAccount: LilyOnchainAccount;
 }
 
-const VaultHeader = ({ toggleRefresh, currentAccount }: Props) => {
+const VaultHeader = ({ toggleRefresh }: Props) => {
   const history = useHistory();
   let { url } = useRouteMatch();
+  const currentAccount = useContext(AccountMapContext).currentAccount as LilyOnchainAccount;
 
   let HeadingComponent;
   if (currentAccount.config.quorum.totalSigners > 1) {
@@ -145,4 +145,4 @@ const VaultExplainerText = styled.div`
   font-size: 0.85em;
 `;
 
-export default requireOnchain(VaultHeader);
+export default VaultHeader;

@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { ExclamationDiamond } from '@styled-icons/bootstrap';
+import { ExclamationIcon } from '@heroicons/react/outline';
 
 import { StyledIcon, ModalContentWrapper, Button } from '.';
 
@@ -14,13 +14,13 @@ interface Props {
 export const ErrorModal = ({ message, closeModal }: Props) => (
   <ModifiedModalContentWrapper>
     <DangerIconContainer>
-      <StyledIconCircle>
-        <StyledIcon style={{ color: red600 }} as={ExclamationDiamond} size={36} />
-      </StyledIconCircle>
+      <div className='flex items-center justify-center rounded-full bg-red-100 dark:bg-red-800 w-12 h-12'>
+        <ExclamationIcon className='w-9 h-9 text-red-500 dark:text-red-200' />
+      </div>
     </DangerIconContainer>
     <DangerTextContainer>
-      <DangerText>Error</DangerText>
-      <DangerSubtext>{message}</DangerSubtext>
+      <h3 className='text-gray-900 dark:text-white font-medium text-2xl'>Error</h3>
+      <p className='text-center text-gray-500 dark:text-gray-300 mt-2'>{message}</p>
       <DismissButton color={white} background={red600} onClick={() => closeModal()}>
         Dismiss
       </DismissButton>

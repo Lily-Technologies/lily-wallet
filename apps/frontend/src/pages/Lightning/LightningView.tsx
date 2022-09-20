@@ -72,13 +72,13 @@ const LightningView = ({ currentAccount }: Props) => {
     <>
       {currentAccount.loading ? (
         <div style={{ height: window.innerWidth < 768 ? '16rem' : '32rem' }}>
-          <div className='h-full relative shadow-md bg-white dark:bg-gray-800 rounded-md'>
+          <div className='h-full relative shadow-md bg-white dark:bg-gray-800 rounded-2xl'>
             <ChartEmptyState />
           </div>
         </div>
       ) : null}
       {events.length > 0 && !currentAccount.loading ? (
-        <div className='bg-white dark:bg-gray-800 rounded-md shadow'>
+        <div className='bg-white dark:bg-gray-800 rounded-2xl shadow dark:highlight-white/10'>
           <div className='flex flex-col p-6'>
             <div className='ml-2 mt-2 text-sm md:text-lg leading-6 font-medium text-gray-500 dark:text-gray-400'>
               Current Balance:

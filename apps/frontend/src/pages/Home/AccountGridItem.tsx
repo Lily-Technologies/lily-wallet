@@ -19,7 +19,7 @@ export const AccountGridItem = ({ url, account }: Props) => {
   return (
     <li className='col-span-12 lg:col-span-6'>
       <Link
-        className='h-36 flex align-center dark:bg-gray-800 bg-white overflow-hidden shadow rounded-lg dark:hover:bg-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2  focus:ring-offset-gray-100 focus:ring-green-500'
+        className='h-36 flex align-center dark:bg-gray-800 dark:highlight-white/10 bg-white overflow-hidden shadow rounded-lg dark:hover:bg-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2  focus:ring-offset-gray-100 focus:ring-green-500'
         to={url}
         onClick={() => setCurrentAccountId(account.config.id)}
         key={account.config.id}

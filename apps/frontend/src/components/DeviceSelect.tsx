@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useContext } from 'react';
 import styled from 'styled-components';
-import { CheckCircle } from '@styled-icons/material';
 import { ExclamationDiamond } from '@styled-icons/bootstrap';
 
 import { StyledIcon, PromptPinModal, Modal, DeviceImage, Loading } from 'src/components';
-import { red500, gray600 } from 'src/utils/colors';
+import { gray600 } from 'src/utils/colors';
 import { classNames } from 'src/utils/other';
 
 import { Device, HwiEnumerateResponse } from '@lily/types';
@@ -100,26 +99,26 @@ export const DeviceSelect = ({
   };
 
   return (
-    <div className='py-6 px-4'>
-      <div className='bg-gray-50 dark:bg-gray-700 pt-8 pb-4 rounded-lg shadow-inner'>
+    <div className='py-6 px-4 flex h-full items-center'>
+      <div className='bg-slate-50 dark:bg-slate-700 pt-8 pb-4 rounded-lg shadow-inner'>
         <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col'>
           <ul role='list' className='flex items-center justify-center py-3 px-2 gap-4'>
             {configuredDevices.map((device, index) => (
               <li
                 key={index}
-                className='w-48 flex flex-col items-center py-4 px-3 text-center bg-white dark:bg-gray-600 rounded-lg shadow border border-gray-200 dark:border-gray-700'
+                className='w-48 flex flex-col items-center py-4 px-3 text-center bg-white dark:bg-slate-600 rounded-lg shadow border border-slate-200 dark:border-slate-700 dark:highlight-white/10'
               >
                 <DeviceImage
                   device={device}
                   className='w-28 h-48 shrink-0 mx-auto object-contain'
                 />
                 <div className='py-2 flex flex-col items-center'>
-                  <h3 className='mt-4 text-gray-900 dark:text-white text-md font-medium capitalize'>
+                  <h3 className='mt-4 text-slate-900 dark:text-white text-md font-medium capitalize'>
                     {device.type}
                   </h3>
                   <dl className='mt-0 flex-grow flex flex-col justify-between h-4'>
                     <dt className='sr-only'>Type</dt>
-                    <dd className='text-gray-500 dark:text-gray-300 text-xs uppercase'>
+                    <dd className='text-slate-500 dark:text-slate-300 text-xs uppercase'>
                       {device.fingerprint}
                     </dd>
                     <dt className='sr-only'>Fingerprint</dt>
@@ -150,7 +149,7 @@ export const DeviceSelect = ({
               return (
                 <li
                   className={classNames(
-                    'w-48 flex flex-col items-center py-4 px-3 text-center bg-white dark:bg-gray-600 rounded-lg shadow border border-gray-200 dark:border-gray-700',
+                    'w-48 flex flex-col items-center py-4 px-3 text-center bg-white dark:bg-slate-600 rounded-lg shadow border border-slate-200 dark:border-slate-700',
                     deviceActionLoading === index
                       ? 'animate-pulse hover:scale-0 hover:translate-y-0'
                       : '',
@@ -193,12 +192,12 @@ export const DeviceSelect = ({
                     className='w-28 h-48 shrink-0 mx-auto object-contain'
                   />
                   <div className='py-2 flex flex-col items-center'>
-                    <h3 className='mt-4 text-gray-900 dark:text-white text-md font-medium capitalize'>
+                    <h3 className='mt-4 text-slate-900 dark:text-white text-md font-medium capitalize'>
                       {device.type}
                     </h3>
                     <dl className='mt-0 flex-grow flex flex-col justify-between h-4'>
                       <dt className='sr-only'>Type</dt>
-                      <dd className='text-gray-500 dark:text-gray-300 text-xs uppercase'>
+                      <dd className='text-slate-500 dark:text-slate-300 text-xs uppercase'>
                         {device.fingerprint}
                       </dd>
                       <dt className='sr-only'>Fingerprint</dt>
@@ -207,7 +206,7 @@ export const DeviceSelect = ({
                       <span
                         className={classNames(
                           'px-2 py-1 text-xs font-medium rounded-full',
-                          deviceError ? 'text-red-800 bg-red-100' : 'text-gray-800 bg-gray-100'
+                          deviceError ? 'text-red-800 bg-red-100' : 'text-slate-800 bg-slate-100'
                         )}
                       >
                         {actionText}
@@ -220,15 +219,15 @@ export const DeviceSelect = ({
             {unconfiguredDevices.length === 0 && configuredDevices.length === 0 && !devicesLoading && (
               <div className='flex items-center justify-center mb-8'>
                 <div className='flex flex-col items-center justify-center text-center'>
-                  <h3 className='text-lg font-medium text-gray-900 dark:text-gray-300'>
+                  <h3 className='text-lg font-medium text-slate-900 dark:text-slate-300'>
                     No devices detected
                   </h3>
                   <StyledIcon
-                    className='text-gray-600 dark:text-gray-400 my-4'
+                    className='text-slate-600 dark:text-slate-400 my-4'
                     as={ExclamationDiamond}
                     size={96}
                   />
-                  <p className='text-base font-medium text-gray-900 dark:text-gray-300'>
+                  <p className='text-base font-medium text-slate-900 dark:text-slate-300'>
                     Please make sure your device is connected and unlocked.
                   </p>
                 </div>
@@ -245,7 +244,7 @@ export const DeviceSelect = ({
             <button
               onClick={enumerate}
               type='button'
-              className='mt-2 inline-flex w-min flex-nowrap self-center whitespace-nowrap items-center px-4 py-2 border border-gray-300 dark:text-gray-300 dark:bg-gray-700 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 dark:hover:bg-gray-800'
+              className='mt-2 inline-flex w-min flex-nowrap self-center whitespace-nowrap items-center px-4 py-2 border border-slate-300 dark:text-slate-300 dark:bg-slate-700 shadow-sm text-sm font-medium rounded-md text-slate-700 bg-white hover:bg-slate-50 dark:hover:bg-slate-800'
             >
               {devicesLoading ? 'Scanning for devices...' : 'Scan for devices'}
             </button>

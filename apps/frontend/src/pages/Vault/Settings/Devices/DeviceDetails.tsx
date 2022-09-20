@@ -28,7 +28,7 @@ const DeviceDetails = ({ extendedPublicKey, closeModal, hideActionButtons, onSav
   };
 
   return (
-    <div className='flex h-full flex-col overflow-y-scroll bg-white shadow-xl first:not:divide-y divide-gray-200'>
+    <div className='flex h-full flex-col overflow-y-scroll bg-white shadow-xl first:not:divide-y divide-gray-200 dark:divide-slate-600 dark:bg-gray-800'>
       <div className='px-4 py-4 sm:px-6 bg-yellow-400 border-0'>
         <div className='flex items-start justify-end'>
           <div className='ml-3 flex h-7 items-center'>

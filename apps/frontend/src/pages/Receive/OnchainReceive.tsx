@@ -28,8 +28,8 @@ export const OnchainReceive = ({ currentAccount }: Props) => {
   };
 
   return (
-    <div className='bg-white dark:bg-gray-800 rounded-md shadow'>
-      <div className='py-6 px-4 sm:p-6 ' data-cy='send-form'>
+    <div className='bg-white dark:bg-gray-800 rounded-2xl shadow dark:highlight-white/10'>
+      <div className='py-6 px-4 sm:py-8 sm:px-6 ' data-cy='send-form'>
         <div className='grid grid-cols-4 gap-6 xl:grid-rows-3'>
           <div className='col-span-4 xl:col-span-2'>
             <Select
@@ -52,7 +52,7 @@ export const OnchainReceive = ({ currentAccount }: Props) => {
             <label className='block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1'>
               Scan QR code
             </label>
-            <div className='flex flex-col bg-gray-50 dark:bg-gray-700 px-3 py-4 border border-gray-200 dark:border-gray-900 rounded-md items-center'>
+            <div className='flex flex-col bg-gray-50 dark:bg-gray-700 px-3 py-4 border border-gray-200 dark:border-gray-900 rounded-2xl items-center'>
               <QRCode
                 className='bg-white dark:bg-gray-50'
                 bgColor='transparent'
@@ -82,9 +82,9 @@ export const OnchainReceive = ({ currentAccount }: Props) => {
           </div>
         </div>
       </div>
-      <div className='text-right py-3 px-4 mt-2 border bg-gray-50 dark:bg-gray-700 dark:border-gray-900 rounded-bl-md rounded-br-md'>
+      <div className='text-right py-4 px-5 mt-2 border bg-gray-50 dark:bg-gray-700 dark:border-gray-900 rounded-bl-2xl rounded-br-2xl'>
         <button
-          className='bg-white mr-3 py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2  focus:ring-sky-500'
+          className='bg-white mr-3 py-2 px-4 border border-gray-300 rounded-2xl shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2  focus:ring-sky-500'
           onClick={() => getNewAddress()}
         >
           New address
@@ -96,7 +96,7 @@ export const OnchainReceive = ({ currentAccount }: Props) => {
               : 'Loading...'
           }
         >
-          <button className='inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2  focus:ring-green-500'>
+          <button className='inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-2xl text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2  focus:ring-green-500'>
             Copy Address
           </button>
         </CopyToClipboard>

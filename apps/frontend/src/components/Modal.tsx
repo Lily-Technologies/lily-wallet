@@ -41,7 +41,7 @@ export const Modal = ({
     content: {
       opacity: 1,
       boxShadow: '0 20px 25px -5px rgba(0,0,0,.1), 0 10px 10px -5px rgba(0,0,0,.04)',
-      borderRadius: '.5rem',
+      borderRadius: '1rem',
       border: 'none',
       maxWidth: '50em',
       padding: '0',
@@ -51,6 +51,7 @@ export const Modal = ({
       transition: 'transform 0.25s',
       right: 0,
       left: 0,
+      overflow: 'hidden',
       ...style.content
     },
     overlay: {

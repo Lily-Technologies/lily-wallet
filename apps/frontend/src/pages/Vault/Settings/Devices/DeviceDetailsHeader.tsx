@@ -7,6 +7,8 @@ import { DeviceImage } from 'src/components';
 
 import { AccountMapContext } from 'src/context';
 
+import { mailto } from 'src/utils/files';
+
 import { ExtendedPublicKey, OnChainConfig } from '@lily/types';
 
 function classNames(...classes) {
@@ -22,12 +24,12 @@ const DeviceDetailsHeader = ({ extendedPublicKey, hideActionButtons }: Props) =>
   const history = useHistory();
   const { currentAccount } = useContext(AccountMapContext);
   return (
-    <div className='pb-6 border-b border-gray-200'>
+    <div className='pb-6 border-b border-gray-200 dark:border-slate-500'>
       <div className='h-24 bg-yellow-400 sm:h-20 lg:h-28' />
       <div className='lg:-mt-15 -mt-12 flow-root px-4 sm:-mt-8 sm:flex sm:items-end sm:px-6'>
         <div>
           <div className='-m-1 flex'>
-            <div className='inline-flex overflow-hidden rounded-lg border-4 border-white bg-gray-100 px-4 py-2'>
+            <div className='inline-flex overflow-hidden rounded-lg border-4 border-white dark:border-slate-600 bg-gray-100 dark:bg-slate-700 px-4 py-2'>
               <DeviceImage
                 device={extendedPublicKey.device}
                 className='h-24 w-18 flex-shrink-0 sm:h-40 sm:w-28 lg:h-48 lg:w-32'
@@ -38,14 +40,14 @@ const DeviceDetailsHeader = ({ extendedPublicKey, hideActionButtons }: Props) =>
         <div className='mt-6 sm:ml-6 sm:flex-1'>
           <div className='mb-4'>
             <div className='flex items-center'>
-              <h3 className='text-xl font-bold text-gray-900 sm:text-2xl capitalize'>
+              <h3 className='text-xl font-bold text-gray-900 dark:text-slate-200 sm:text-2xl capitalize'>
                 {extendedPublicKey.device.type}
               </h3>
               <span className='ml-2.5 inline-block h-2 w-2 flex-shrink-0 rounded-full bg-green-400'>
                 <span className='sr-only'>Online</span>
               </span>
             </div>
-            <p className='text-sm text-gray-500 uppercase'>
+            <p className='text-sm text-gray-500 dark:text-slate-400 uppercase'>
               {extendedPublicKey.device.fingerprint}
             </p>
           </div>
@@ -80,7 +82,7 @@ const DeviceDetailsHeader = ({ extendedPublicKey, hideActionButtons }: Props) =>
                 Replace device
               </button>
               <a
-                href={`mailto:${extendedPublicKey.device.owner?.email}`}
+                href={mailto([extendedPublicKey.device.owner?.email || ''])}
                 type='button'
                 className='inline-flex w-full flex-1 disabled:pointer-events-none disabled:cursor-no-drop items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2'
               >

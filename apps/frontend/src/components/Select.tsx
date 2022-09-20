@@ -38,7 +38,7 @@ export const Select = React.memo(
               <ListboxButton
                 error={error}
                 id={id}
-                className='border border-gray-300 dark:border-gray-500 focus:ring-green-500 focus:border-green-500 focus:outline-none'
+                className='border border-gray-300 dark:border-gray-500 dark:bg-slate-800 dark:hover:bg-slate-700 focus:ring-green-500 focus:border-green-500 focus:outline-none'
               >
                 <SelectionContainer>{selected ? selected.label : 'Loading...'}</SelectionContainer>
                 <SelectorIconContainer>
@@ -55,9 +55,12 @@ export const Select = React.memo(
               >
                 <ListboxOptions>
                   {options.map((option, index) => (
-                    <Listbox.Option key={index} value={option}>
+                    <Listbox.Option key={index} value={option} className="dark:bg-slate-800'">
                       {({ selected, active }: { selected: boolean; active: boolean }) => (
-                        <OptionContainer active={active} className='cursor-pointer'>
+                        <OptionContainer
+                          active={active}
+                          className='cursor-pointer dark:bg-slate-800'
+                        >
                           <DropdownItemLabel selected={selected}>{option.label}</DropdownItemLabel>
 
                           {selected ? (
