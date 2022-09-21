@@ -40,7 +40,7 @@ const LightningDetailsSlideover = ({ event, setOpen }: Props) => {
         <dl className='space-y-8 px-4 sm:px-6 sm:space-y-6'>
           <div>
             <dt className='text-sm font-medium text-gray-500 sm:w-40 sm:flex-shrink-0'>Date</dt>
-            <dd className='mt-1 text-sm text-gray-900 sm:col-span-2'>
+            <dd className='mt-1 text-sm text-gray-900 dark:text-slate-200 sm:col-span-2'>
               {moment.unix(Number(event.creationDate)).format('MMMM DD, YYYY')} at{' '}
               {moment.unix(Number(event.creationDate)).format('h:mma')}
             </dd>
