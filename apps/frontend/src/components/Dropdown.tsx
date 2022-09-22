@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 
 import { Transition } from '.';
 import OutsideClick from './OutsideClick';
 
-import { white, gray900 } from 'src/utils/colors';
-import { mobile } from 'src/utils/media';
+import { classNames } from 'src/utils/other';
 
 // https://codesandbox.io/s/outside-alerter-hooks-lmr2y?module=/src/OutsideAlerter.js&file=/src/OutsideAlerter.js
 /* 
@@ -100,7 +99,10 @@ export const Dropdown = React.forwardRef<HTMLButtonElement, Props>(
                   if ('label' in item) {
                     return (
                       <a
-                        className='block px-4 py-2 cursor-pointer text-slate-800 dark:text-slate-200 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-gray-50 dark:hover:bg-slate-500'
+                        className={classNames(
+                          item.onlyMobile ? 'flex sm:hidden' : 'flex',
+                          'block px-4 py-2 cursor-pointer text-slate-800 dark:text-slate-200 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-gray-50 dark:hover:bg-slate-500'
+                        )}
                         key={index}
                         // onlyMobile={!!item.onlyMobile}
                         onClick={() => {
@@ -115,7 +117,15 @@ export const Dropdown = React.forwardRef<HTMLButtonElement, Props>(
                       </a>
                     );
                   } else {
-                    return <Divider key={index} onlyMobile={!!item.onlyMobile} />;
+                    return (
+                      <div
+                        className={classNames(
+                          item.onlyMobile ? 'flex sm:hidden' : 'flex',
+                          'bg-slate-200 dark:bg-slate-50/20 h-px flex'
+                        )}
+                        key={index}
+                      />
+                    );
                   }
                 })}
               </DropdownItems>
@@ -142,16 +152,6 @@ const DropdownButtonContainer = styled.span`
   // box-shadow: 0 1px 2px 0 rgba(0,0,0,.05);
   // border-radius: .375rem;
   cursor: pointer;
-`;
-
-const MinimalDropdownButtonContainer = styled.button`
-  display: flex;
-  align-items: center;
-  color: inherit;
-  padding: 0.25em;
-  cursor: pointer;
-  border: none;
-  border-radius: 9999px;
 `;
 
 const DropdownButton = styled.button`
@@ -190,57 +190,7 @@ const DotDotDotImage = styled.svg`
   vertical-align: middle;
 `;
 
-const DropdownItemsWrapper = styled.div`
-  transform-origin: top right;
-  width: 14rem;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  right: 0;
-  position: absolute;
-  margin-top: 0.5rem;
-  border-radius: 0.375rem;
-  z-index: 2;
-`;
-
 const DropdownItems = styled.div`
   padding-top: 0.25rem;
   padding-bottom: 0.25rem;
-`;
-
-const Divider = styled.div<{ onlyMobile: boolean }>`
-  background: #d2d6dc;
-  height: 1px;
-  display: none;
-
-  ${(p) =>
-    p.onlyMobile
-      ? mobile(css`
-          display: flex;
-        `)
-      : 'display: flex'}
-`;
-
-const DropdownItem = styled.a<{ clickable: boolean; onlyMobile: boolean }>`
-  padding-left: 1rem;
-  padding-right: 1rem;
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
-  line-height: 1.25rem;
-  font-size: 0.875rem;
-  background-color: transparent;
-  text-decoration: none;
-  cursor: ${(p) => (p.clickable ? 'pointer' : 'default')};
-  color: ${gray900};
-  display: none;
-
-  &:hover {
-    background: rgb(244, 245, 247);
-    color: rgb(22, 30, 46);
-  }
-
-  ${(p) =>
-    p.onlyMobile
-      ? mobile(css`
-          display: block;
-        `)
-      : 'display: block;'}
 `;
