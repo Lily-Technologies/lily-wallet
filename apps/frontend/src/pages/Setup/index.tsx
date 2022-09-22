@@ -111,7 +111,7 @@ const Setup = ({ currentBlockHeight }: Props) => {
   };
 
   return (
-    <div className='flex flex-col flex-1 h-full'>
+    <div className='md:pl-64 flex flex-col flex-1 h-full'>
       <main className='flex flex-1 z-10 bg-gray-100 dark:bg-gray-900 relative overflow-x-hidden'>
         <div className='max-w-4xl w-full flex flex-col items-center mx-auto px-4 sm:px-6 lg:px-8 pb-36'>
           <Transition

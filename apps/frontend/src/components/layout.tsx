@@ -8,6 +8,7 @@ import FlowerLogo from 'src/assets/flower.svg';
 
 import { mobile } from 'src/utils/media';
 import { white, black } from 'src/utils/colors';
+import { classNames } from 'src/utils/other';
 
 import { ConfigContext, SidebarContext } from 'src/context';
 
@@ -19,7 +20,7 @@ export const PageWrapper = ({ children }: Props) => {
   const { setSidebarOpen } = useContext(SidebarContext);
   const { config } = useContext(ConfigContext);
   return (
-    <div className='md:pl-64 flex flex-col flex-1 h-full'>
+    <div className={classNames(config.isEmpty ? '' : 'md:pl-64', 'flex flex-col flex-1 h-full')}>
       {/* sticky mobile nav */}
       {process.env.REACT_APP_IS_ELECTRON ? null : (
         <div className='sticky top-0 z-20 md:hidden pl-1 sm:pl-3 bg-green-900 border-b border-gray-800'>
