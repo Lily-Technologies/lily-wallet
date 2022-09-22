@@ -260,16 +260,13 @@ export const saveLicenseToVault = async (
   return configCopy;
 };
 
-export const createSinglesigConfigFile = async (
-  newAccountInputs: OnChainConfigWithoutId,
-  config: LilyConfig,
+export const createSinglesigConfig = async (
+  mnemonic: string,
+  name: string,
   currentBitcoinNetwork: Network
 ) => {
-  const configCopy = clone(config);
-  configCopy.isEmpty = false;
-
   // taken from BlueWallet so you can import and use on mobile
-  const seed = await mnemonicToSeed(newAccountInputs.mnemonic!);
+  const seed = await mnemonicToSeed(mnemonic);
   const root = bip32.fromSeed(seed, currentBitcoinNetwork);
   const path = getP2wpkhDeriationPathForNetwork(currentBitcoinNetwork);
   const child = root.derivePath(path).neutered();
@@ -278,7 +275,7 @@ export const createSinglesigConfigFile = async (
   const newAccountWithoutId: Omit<OnChainConfig, 'id'> = {
     created_at: Date.now(),
     type: 'onchain' as 'onchain',
-    name: newAccountInputs.name,
+    name: name,
     network: getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork),
     addressType: AddressType.P2WPKH,
     quorum: { requiredSigners: 1, totalSigners: 1 },
@@ -297,13 +294,30 @@ export const createSinglesigConfigFile = async (
         }
       }
     ],
-    mnemonic: newAccountInputs.mnemonic!
+    mnemonic: mnemonic
   };
 
   const newAccount: OnChainConfig = {
     id: createAccountId(newAccountWithoutId),
     ...newAccountWithoutId
   };
+
+  return newAccount;
+};
+
+export const createSinglesigConfigFile = async (
+  newAccountInputs: OnChainConfigWithoutId,
+  config: LilyConfig,
+  currentBitcoinNetwork: Network
+) => {
+  const configCopy = clone(config);
+  configCopy.isEmpty = false;
+
+  const newAccount = await createSinglesigConfig(
+    newAccountInputs.mnemonic!,
+    newAccountInputs.name,
+    currentBitcoinNetwork
+  );
 
   validateConfig(newAccount, config);
 
