@@ -40,6 +40,7 @@ export * from './SupportModal';
 export * from './Tabs';
 export * from './Textarea';
 export * from './TitleBar';
+export * from './Toggle';
 export * from './Transition';
 export * from './TransactionRowsLoading';
 export * from './Unit';

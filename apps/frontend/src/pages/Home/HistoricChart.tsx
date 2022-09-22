@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import styled from 'styled-components';
 import moment from 'moment';
 import BigNumber from 'bignumber.js';
@@ -15,6 +15,8 @@ import {
 import { ChartEmptyState, Unit } from 'src/components';
 
 import { green700, white, gray500, yellow200, yellow500 } from 'src/utils/colors';
+
+import { UnitContext } from 'src/context';
 
 var formatter = new Intl.NumberFormat('en-US', {
   style: 'currency',
@@ -47,6 +49,7 @@ export const HistoricChart = ({
   historicalBitcoinPrice: any;
   currentBitcoinPrice: BigNumber;
 }) => {
+  const { unit } = useContext(UnitContext);
   const [currentDomain, setCurrentDomain] = useState(0);
   const [animateChart, setAnimateChart] = useState(false);
 
@@ -80,7 +83,11 @@ export const HistoricChart = ({
             Current Price:
           </div>
           <div className='ml-2 mt-1 text-xl md:text-3xl leading-6 font-medium text-gray-700 dark:text-gray-200'>
-            <Unit value={100000000} /> = {formatter.format(currentBitcoinPrice.toNumber())}
+            {unit === 'BTC'
+              ? `1 BTC = ${formatter.format(currentBitcoinPrice.toNumber())}`
+              : `$1 = ${(1 / (currentBitcoinPrice.toNumber() / 100000000)).toLocaleString('en-US', {
+                  maximumFractionDigits: 0
+                })} sats`}
           </div>
         </div>
         <ChartControlsContainer>

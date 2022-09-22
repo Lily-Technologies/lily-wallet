@@ -1,6 +1,8 @@
 import React, { createContext, useState } from 'react';
 import { satoshisToBitcoins } from 'unchained-bitcoin';
 
+import { useLocalStorage } from 'src/utils/useLocalStorage';
+
 type UnitOptions = 'BTC' | 'sats';
 
 interface ContextProps {
@@ -13,11 +15,17 @@ interface ContextProps {
 export const UnitContext = createContext({} as ContextProps);
 
 export const UnitProvider = ({ children }: { children: React.ReactChild }) => {
-  const [unit, setUnit] = useState<UnitOptions>('BTC');
+  const [currencyUnit, setCurrencyUnit] = useLocalStorage<UnitOptions>('currencyUnit', 'BTC');
+  const [unit, setUnit] = useState<UnitOptions>(currencyUnit);
 
   const toggleUnit = () => {
-    if (unit === 'BTC') setUnit('sats');
-    else setUnit('BTC');
+    if (unit === 'BTC') {
+      setUnit('sats');
+      setCurrencyUnit('sats');
+    } else {
+      setUnit('BTC');
+      setCurrencyUnit('BTC');
+    }
   };
 
   const getValue = (value: number) => {

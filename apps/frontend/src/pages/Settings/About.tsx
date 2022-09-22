@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { SettingsTable } from 'src/components';
+import { SettingsTable, CurrencyToggle } from 'src/components';
 
 const About = () => {
   return (
@@ -11,19 +11,24 @@ const About = () => {
           This information is private and only seen by you.
         </SettingsTable.HeaderSubtitle>
       </SettingsTable.HeaderSection>
-
       <SettingsTable.Row>
         <SettingsTable.KeyColumn>Version</SettingsTable.KeyColumn>
         <SettingsTable.ValueColumn>
           <SettingsTable.ValueText
             style={{
-              textAlign: 'right',
-              paddingLeft: '1.5rem',
-              paddingRight: '1.5rem'
+              textAlign: 'right'
             }}
           >
             {process.env.REACT_APP_VERSION}
           </SettingsTable.ValueText>
+        </SettingsTable.ValueColumn>
+      </SettingsTable.Row>
+      <SettingsTable.Row>
+        <SettingsTable.KeyColumn>Currency</SettingsTable.KeyColumn>
+        <SettingsTable.ValueColumn>
+          <div className='text-right w-full'>
+            <CurrencyToggle />
+          </div>
         </SettingsTable.ValueColumn>
       </SettingsTable.Row>
       <SettingsTable.Row>
