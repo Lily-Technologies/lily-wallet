@@ -1,11 +1,10 @@
 import React, { useState, useRef } from 'react';
-import styled from 'styled-components';
 import { Bank } from '@styled-icons/remix-line';
 import { Calculator } from '@styled-icons/heroicons-outline';
 import { Bolt } from '@styled-icons/open-iconic';
 import { v4 as uuidv4 } from 'uuid';
 
-import { Dropdown, FileUploader, ErrorModal } from 'src/components';
+import { Dropdown, FileUploader, ErrorModal, Modal } from 'src/components';
 
 import { green700 } from 'src/utils/colors';
 
@@ -184,15 +183,12 @@ const SelectAccountScreen = ({
         htmlFor='importDeviceFromFile'
         ref={importDeviceFromFileRef}
       ></label>
+
+      <Modal isOpen={modalIsOpen} closeModal={() => setModalIsOpen(false)}>
+        {modalContent}
+      </Modal>
     </div>
   );
 };
-
-const SignupOptionTextContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  text-align: left;
-  margin-left: 1em;
-`;
 
 export default SelectAccountScreen;
