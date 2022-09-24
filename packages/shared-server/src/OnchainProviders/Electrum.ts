@@ -49,8 +49,9 @@ const createTxMap = (response: JSONRPCParamResponse<blockchainTransaction_getBat
 
 const getPrevOut = (prevTx: blockchainTransaction_getBatchResponse, index: number) => {
   const output = prevTx.vout[index];
+  const address = output?.scriptPubKey?.addresses?.[0] || output?.scriptPubKey?.address;
   return {
-    scriptpubkey_address: output.scriptPubKey.addresses[0],
+    scriptpubkey_address: address,
     value: bitcoinsToSatoshis(output.value).toNumber()
   };
 };
@@ -352,8 +353,9 @@ export class ElectrumProvider extends OnchainBaseProvider {
           };
         }),
         vout: tx.result.vout.map((vout) => {
+          const address = vout?.scriptPubKey?.addresses?.[0] || vout?.scriptPubKey?.address;
           return {
-            scriptpubkey_address: vout.scriptPubKey.addresses[0],
+            scriptpubkey_address: address,
             value: bitcoinsToSatoshis(vout.value).toNumber()
           };
         }),
