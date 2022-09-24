@@ -7,7 +7,7 @@ import {
 } from '@lily/types';
 import { Network, networks } from 'bitcoinjs-lib';
 
-type Providers = 'Blockstream' | 'Electrum' | 'Bitcoin Core';
+type Providers = 'Esplora' | 'Electrum' | 'Bitcoin Core';
 
 export interface OnchainProviderInterface {
   getAccountData: (account: OnChainConfig) => Promise<LilyOnchainAccount>;

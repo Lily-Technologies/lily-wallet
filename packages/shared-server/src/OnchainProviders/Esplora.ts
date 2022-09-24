@@ -21,10 +21,9 @@ import {
   EsploraTransactionResponse
 } from '@lily/types';
 
-// TODO: this should really be renamed "EsploraProvider" and generalize to allow ports, protocols, etc like ElectrumProvider
-export class BlockstreamProvider extends OnchainBaseProvider {
+export class EsploraProvider extends OnchainBaseProvider {
   constructor(url: string, testnet: boolean) {
-    super('Blockstream', testnet, { url });
+    super('Esplora', testnet, { url });
   }
 
   async initialize() {

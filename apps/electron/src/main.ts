@@ -21,7 +21,7 @@ import {
   LND,
   OnchainBaseProvider,
   BitcoinCoreProvider,
-  BlockstreamProvider,
+  EsploraProvider,
   ElectrumProvider
 } from '@lily/shared-server';
 
@@ -153,20 +153,27 @@ const setupInitialNodeConfig = async () => {
       }
     } catch (e) {
       console.log('Failed to retrieve remote Bitcoin Core connection data.');
+      const defaultElectrumEndpoint = 'electrum.emzy.de';
       try {
-        console.log('Connecting to Electrum...');
-        OnchainDataProvider = new ElectrumProvider('electrum.emzy.de', 50002, 'tcp', isTestnet);
+        console.log(`Connecting to ${defaultElectrumEndpoint}...`);
+        OnchainDataProvider = new ElectrumProvider(
+          defaultElectrumEndpoint,
+          50002,
+          'tcp',
+          isTestnet
+        );
         await OnchainDataProvider.initialize();
-        console.log('Connected to Electrum');
+        console.log(`Connected to ${defaultElectrumEndpoint}`);
       } catch (e) {
-        console.log('Failed to connect to Electrum');
+        console.log(`Failed to connect to ${defaultElectrumEndpoint}`);
+        const defaultEsploraEndpoint = 'https://blockstream.info';
         try {
-          console.log('Connecting to Blockstream...');
-          OnchainDataProvider = new BlockstreamProvider('https://blockstream.info', isTestnet);
+          console.log(`Connecting to ${defaultEsploraEndpoint}...`);
+          OnchainDataProvider = new EsploraProvider(defaultEsploraEndpoint, isTestnet);
           OnchainDataProvider.initialize();
-          console.log('Connected to Blockstream');
+          console.log(`Connected to ${defaultEsploraEndpoint}`);
         } catch (e) {
-          console.log('Failed to connect to Blockstream');
+          console.log(`Failed to connect to ${defaultEsploraEndpoint}`);
         }
       }
     }
@@ -558,7 +565,7 @@ ipcMain.handle('/changeNodeConfig', async (event, args) => {
     );
     await OnchainDataProvider.initialize();
   } else {
-    OnchainDataProvider = new BlockstreamProvider('https://blockstream.info', isTestnet);
+    OnchainDataProvider = new EsploraProvider('https://blockstream.info', isTestnet);
     await OnchainDataProvider.initialize();
   }
   const config = OnchainDataProvider.getConfig();

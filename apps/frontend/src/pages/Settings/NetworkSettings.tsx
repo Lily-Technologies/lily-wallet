@@ -41,7 +41,7 @@ const NetworkSettings = ({
   const connectToBlockstream = async () => {
     setNodeConfig(undefined);
     const response = await platform.changeNodeConfig({
-      provider: 'Blockstream'
+      provider: 'Esplora'
     });
     setNodeConfig(response);
   };
@@ -79,9 +79,9 @@ const NetworkSettings = ({
       onClick: async () => await connectToBitcoinCore()
     });
   }
-  if (nodeConfig && nodeConfig.provider !== 'Blockstream') {
+  if (nodeConfig && nodeConfig.provider !== 'Esplora') {
     nodeConfigDropdownItems.push({
-      label: 'Connect to Blockstream',
+      label: 'Connect to Blockstream.info',
       onClick: async () => await connectToBlockstream()
     });
   }

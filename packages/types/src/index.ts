@@ -81,8 +81,8 @@ export interface BitcoinCoreNodeConfig extends ClientOption {
   provider: 'Bitcoin Core';
 }
 
-export interface BlockstreamNodeConfig {
-  provider: 'Blockstream';
+export interface EsploraNodeConfig {
+  provider: 'Esplora';
 }
 
 export interface ElectrumNodeConfig {
@@ -98,7 +98,7 @@ export interface OnchainProviderConnectionDetails {
 export interface NodeConfigWithBlockchainInfo {
   provider:
     | BitcoinCoreNodeConfig['provider']
-    | BlockstreamNodeConfig['provider']
+    | EsploraNodeConfig['provider']
     | ElectrumNodeConfig['provider'];
   connectionDetails: OnchainProviderConnectionDetails;
   connected: boolean;

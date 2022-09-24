@@ -86,16 +86,16 @@ const decorateTx = (
 };
 
 export const serializeTransactions = (
-  transactionsFromBlockstream: EsploraTransactionResponse[],
+  transactions: EsploraTransactionResponse[],
   addresses: Address[],
   changeAddresses: Address[]
 ): Transaction[] => {
-  transactionsFromBlockstream.sort((a, b) => a.status.block_time - b.status.block_time);
+  transactions.sort((a, b) => a.status.block_time - b.status.block_time);
 
   const addressesMap = createMap(addresses, 'address');
   const changeAddressesMap = createMap(changeAddresses, 'address');
 
-  const txMap = createMap(transactionsFromBlockstream, 'txid');
+  const txMap = createMap(transactions, 'txid');
   const decoratedTxs = Object.values(txMap).map((tx) =>
     decorateTx(tx, addressesMap, changeAddressesMap)
   );
