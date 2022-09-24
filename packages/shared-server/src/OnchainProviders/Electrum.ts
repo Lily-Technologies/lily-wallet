@@ -18,7 +18,8 @@ import {
   Address,
   ElectrumTxToEsploraTx,
   EsploraTransactionResponse,
-  UTXO
+  UTXO,
+  OnchainProviderConnectionDetails
 } from '@lily/types';
 
 const sortAddress = (a: Address, b: Address) => {
@@ -59,8 +60,13 @@ const getPrevOut = (prevTx: blockchainTransaction_getBatchResponse, index: numbe
 export class ElectrumProvider extends OnchainBaseProvider {
   client: ElectrumClient;
 
-  constructor(url: string, port: number, testnet: boolean) {
-    super('Electrum', testnet);
+  constructor(
+    url: OnchainProviderConnectionDetails['url'],
+    port: OnchainProviderConnectionDetails['port'],
+    protocol: OnchainProviderConnectionDetails['protocol'],
+    testnet: boolean
+  ) {
+    super('Electrum', testnet, { url, port, protocol });
     let options = {};
     // add proxy if connecting to tor address
     if (url.includes('.onion')) {
@@ -72,12 +78,12 @@ export class ElectrumProvider extends OnchainBaseProvider {
         }
       };
     }
-    this.client = new ElectrumClient(port, url, 'tcp', options);
+    this.client = new ElectrumClient(port, url, protocol, options);
   }
 
   async initialize() {
     try {
-      const ver = await this.client.initElectrum({
+      await this.client.initElectrum({
         client: 'bluewallet',
         version: '1.4'
       });

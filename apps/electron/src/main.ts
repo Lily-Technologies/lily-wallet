@@ -155,15 +155,14 @@ const setupInitialNodeConfig = async () => {
       console.log('Failed to retrieve remote Bitcoin Core connection data.');
       try {
         console.log('Connecting to Electrum...');
-        OnchainDataProvider = new ElectrumProvider('electrum1.bluewallet.io', 50001, isTestnet);
-        OnchainDataProvider.initialize();
+        OnchainDataProvider = new ElectrumProvider('electrum.emzy.de', 50002, 'tcp', isTestnet);
+        await OnchainDataProvider.initialize();
         console.log('Connected to Electrum');
       } catch (e) {
         console.log('Failed to connect to Electrum');
-
         try {
           console.log('Connecting to Blockstream...');
-          OnchainDataProvider = new BlockstreamProvider(isTestnet);
+          OnchainDataProvider = new BlockstreamProvider('https://blockstream.info', isTestnet);
           OnchainDataProvider.initialize();
           console.log('Connected to Blockstream');
         } catch (e) {
@@ -550,18 +549,16 @@ ipcMain.handle('/changeNodeConfig', async (event, args) => {
     const nodeConfig = await getBitcoinCoreConfig();
     OnchainDataProvider = new BitcoinCoreProvider(nodeConfig, isTestnet);
     await OnchainDataProvider.initialize();
-  } else if (nodeConfig.provider === 'Custom Node') {
-    OnchainDataProvider = new BitcoinCoreProvider(nodeConfig, isTestnet);
-    await OnchainDataProvider.initialize();
   } else if (nodeConfig.provider === 'Electrum') {
     OnchainDataProvider = new ElectrumProvider(
       nodeConfig.baseURL,
       Number(nodeConfig.port),
+      'tcp',
       isTestnet
     );
     await OnchainDataProvider.initialize();
   } else {
-    OnchainDataProvider = new BlockstreamProvider(isTestnet);
+    OnchainDataProvider = new BlockstreamProvider('https://blockstream.info', isTestnet);
     await OnchainDataProvider.initialize();
   }
   const config = OnchainDataProvider.getConfig();

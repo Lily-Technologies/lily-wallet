@@ -2,7 +2,8 @@ import {
   LilyOnchainAccount,
   FeeRates,
   OnChainConfig,
-  NodeConfigWithBlockchainInfo
+  NodeConfigWithBlockchainInfo,
+  OnchainProviderConnectionDetails
 } from '@lily/types';
 import { Network, networks } from 'bitcoinjs-lib';
 
@@ -16,14 +17,20 @@ export interface OnchainProviderInterface {
 
 export abstract class OnchainBaseProvider implements OnchainProviderInterface {
   provider: Providers;
+  connectionDetails: OnchainProviderConnectionDetails;
   connected: boolean;
   blocks: number;
   initialblockdownload: boolean;
   verificationprogress: number;
   network: Network;
 
-  constructor(provider: Providers, testnet: boolean) {
+  constructor(
+    provider: Providers,
+    testnet: boolean,
+    connectionDetails: OnchainProviderConnectionDetails
+  ) {
     this.provider = provider;
+    this.connectionDetails = connectionDetails;
     this.connected = false;
     this.blocks = 0;
     this.initialblockdownload = false;
@@ -34,6 +41,7 @@ export abstract class OnchainBaseProvider implements OnchainProviderInterface {
   getConfig(): NodeConfigWithBlockchainInfo {
     return {
       provider: this.provider,
+      connectionDetails: this.connectionDetails,
       connected: this.connected,
       blocks: this.blocks,
       initialblockdownload: this.initialblockdownload,

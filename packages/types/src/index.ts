@@ -89,11 +89,18 @@ export interface ElectrumNodeConfig {
   provider: 'Electrum';
 }
 
+export interface OnchainProviderConnectionDetails {
+  url: string;
+  port?: number;
+  protocol?: 'tcp' | 'ssl';
+}
+
 export interface NodeConfigWithBlockchainInfo {
   provider:
     | BitcoinCoreNodeConfig['provider']
     | BlockstreamNodeConfig['provider']
     | ElectrumNodeConfig['provider'];
+  connectionDetails: OnchainProviderConnectionDetails;
   connected: boolean;
   initialblockdownload?: boolean;
   verificationprogress?: number;

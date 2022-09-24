@@ -53,7 +53,7 @@ export const ConnectToNodeModal = ({ onRequestClose, setNodeConfig }: Props) => 
       </IconContainer>
       <ContentContainer>
         <span className='text-xl font-medium text-gray-900 dark:text-gray-100'>
-          Connect to a specific node
+          Connect to a specific endpoint
         </span>
         <ModalSubtext>
           Enter your connection information to get transaction data directly from your node.

@@ -86,7 +86,7 @@ const NetworkSettings = ({
     });
   }
   nodeConfigDropdownItems.push({
-    label: 'Connect to specific node',
+    label: 'Connect to specific endpoint',
     onClick: () =>
       openInModal(<ConnectToNodeModal setNodeConfig={setNodeConfig} onRequestClose={closeModal} />)
   });
@@ -146,16 +146,23 @@ const NetworkSettings = ({
         </SettingsTable.ValueColumn>
       </SettingsTable.Row>
       <SettingsTable.Row>
-        <SettingsTable.KeyColumn>Data Source</SettingsTable.KeyColumn>
+        <SettingsTable.KeyColumn>Data Endpoint</SettingsTable.KeyColumn>
         <SettingsTable.ValueColumn>
-          <SettingsTable.ValueText>{nodeConfig && nodeConfig.provider}</SettingsTable.ValueText>
+          <div className='flex flex-col flex-grow'>
+            <p className='text-sm font-medium truncate text-gray-900 dark:text-gray-300'>
+              {nodeConfig && nodeConfig.connectionDetails.url}
+            </p>
+            <p className='text-sm text-gray-500 dark:text-gray-400'>
+              {nodeConfig && nodeConfig.provider}
+            </p>
+          </div>
           <SettingsTable.ValueAction>
             <Dropdown
               minimal={false}
               dropdownItems={nodeConfigDropdownItems}
               buttonLabel={
                 <SettingsTable.ActionButton style={{ padding: 0 }}>
-                  Change data source
+                  Change endpoint
                 </SettingsTable.ActionButton>
               }
             />

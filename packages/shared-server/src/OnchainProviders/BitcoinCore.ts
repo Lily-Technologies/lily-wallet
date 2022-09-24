@@ -51,7 +51,7 @@ export class BitcoinCoreProvider extends OnchainBaseProvider {
   client: Client;
 
   constructor(nodeConfig: ClientOption, testnet: boolean) {
-    super('Bitcoin Core', testnet);
+    super('Bitcoin Core', testnet, { url: 'localhost' });
     this.client = new Client(nodeConfig);
     // currentConfig.baseURL = `${currentConfig.baseURL}/wallet/lily${config.id}`;
     // await this.loadOrCreateWalletViaRPC(config, nodeClient);

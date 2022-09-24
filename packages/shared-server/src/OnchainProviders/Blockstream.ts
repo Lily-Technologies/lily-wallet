@@ -21,14 +21,15 @@ import {
   EsploraTransactionResponse
 } from '@lily/types';
 
+// TODO: this should really be renamed "EsploraProvider" and generalize to allow ports, protocols, etc like ElectrumProvider
 export class BlockstreamProvider extends OnchainBaseProvider {
-  constructor(testnet: boolean) {
-    super('Blockstream', testnet);
+  constructor(url: string, testnet: boolean) {
+    super('Blockstream', testnet, { url });
   }
 
   async initialize() {
     try {
-      const { data } = await await axios.get(`https://blockstream.info/api/blocks/tip/height`);
+      const { data } = await axios.get(`https://blockstream.info/api/blocks/tip/height`);
 
       this.setCurrentBlockHeight(data);
       this.setConnected(true);
@@ -89,7 +90,7 @@ export class BlockstreamProvider extends OnchainBaseProvider {
     try {
       const { data: feeRates } = await await axios.get(
         'https://mempool.space/api/v1/fees/recommended'
-      ); // TODO: should catch if URL is down
+      );
       return Promise.resolve(feeRates);
     } catch (e) {
       throw new Error('Error retrieving fees from mempool.space. Please try again.');
