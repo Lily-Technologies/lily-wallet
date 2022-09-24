@@ -2,12 +2,11 @@ import {
   LilyOnchainAccount,
   FeeRates,
   OnChainConfig,
-  NodeConfigWithBlockchainInfo,
-  Transaction
+  NodeConfigWithBlockchainInfo
 } from '@lily/types';
 import { Network, networks } from 'bitcoinjs-lib';
 
-type Providers = 'Blockstream' | 'Electrum' | 'Bitcoin Core' | 'Custom Node';
+type Providers = 'Blockstream' | 'Electrum' | 'Bitcoin Core';
 
 export interface OnchainProviderInterface {
   getAccountData: (account: OnChainConfig) => Promise<LilyOnchainAccount>;

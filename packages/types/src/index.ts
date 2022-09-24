@@ -78,7 +78,7 @@ export interface ChangeNodeConfigParams {
 }
 
 export interface BitcoinCoreNodeConfig extends ClientOption {
-  provider: 'Bitcoin Core' | 'Custom Node';
+  provider: 'Bitcoin Core';
 }
 
 export interface BlockstreamNodeConfig {

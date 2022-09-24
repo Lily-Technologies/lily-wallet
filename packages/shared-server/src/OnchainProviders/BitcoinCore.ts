@@ -52,21 +52,7 @@ export class BitcoinCoreProvider extends OnchainBaseProvider {
 
   constructor(nodeConfig: ClientOption, testnet: boolean) {
     super('Bitcoin Core', testnet);
-
-    if (nodeConfig.baseURL && nodeConfig.baseURL !== 'localhost') {
-      this.setProvider('Custom Node');
-    }
-
-    if (nodeConfig.baseURL && nodeConfig.baseURL.includes('.onion')) {
-      const proxyOptions = 'socks5h://127.0.0.1:9050';
-      const httpsAgent = new SocksProxyAgent(proxyOptions);
-      this.client = new Client({
-        ...nodeConfig,
-        httpAgent: httpsAgent
-      });
-    } else {
-      this.client = new Client(nodeConfig);
-    }
+    this.client = new Client(nodeConfig);
     // currentConfig.baseURL = `${currentConfig.baseURL}/wallet/lily${config.id}`;
     // await this.loadOrCreateWalletViaRPC(config, nodeClient);
   }
