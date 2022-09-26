@@ -2,7 +2,7 @@ import React, { useContext, useEffect } from 'react';
 import styled from 'styled-components';
 import { useHistory } from 'react-router-dom';
 
-import { ConfigContext, PlatformContext } from 'src/context';
+import { AccountMapContext, ConfigContext, PlatformContext } from 'src/context';
 
 import { Button, MnemonicWordsDisplayer } from 'src/components';
 
@@ -30,6 +30,7 @@ interface Props {
 
 const CreateWallet = ({ setStep, newAccount, setNewAccount }: Props) => {
   const { currentBitcoinNetwork, config, setConfigFile, password } = useContext(ConfigContext);
+  const { setCurrentAccountId } = useContext(AccountMapContext);
   const { platform } = useContext(PlatformContext);
   const history = useHistory();
 
@@ -48,6 +49,7 @@ const CreateWallet = ({ setStep, newAccount, setNewAccount }: Props) => {
 
     await saveConfig(localConfig, password, platform);
     setConfigFile(localConfig);
+    setCurrentAccountId(configuredAccount.id);
 
     history.push(`/vault/${configuredAccount.id}`);
   };
