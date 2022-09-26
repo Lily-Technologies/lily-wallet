@@ -168,13 +168,15 @@ export class ElectronPlatform extends BasePlatform {
   async changeNodeConfig({
     provider,
     host,
-    port
+    port,
+    ssl
   }: ChangeNodeConfigParams): Promise<NodeConfigWithBlockchainInfo> {
     const response = await window.ipcRenderer.invoke('/changeNodeConfig', {
       nodeConfig: {
         provider,
         baseURL: host,
-        port
+        port,
+        ssl
       }
     });
 

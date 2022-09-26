@@ -1,4 +1,5 @@
 import React, { useState, useContext } from 'react';
+import { Switch } from '@headlessui/react';
 import styled, { css } from 'styled-components';
 import { Connection } from '@styled-icons/icomoon';
 
@@ -7,6 +8,7 @@ import { PlatformContext } from 'src/context';
 
 import { mobile } from 'src/utils/media';
 import { white, gray500, green600, yellow200, yellow600 } from 'src/utils/colors';
+import { classNames } from 'src/utils/other';
 
 import { NodeConfigWithBlockchainInfo } from '@lily/types';
 
@@ -18,6 +20,7 @@ interface Props {
 export const ConnectToNodeModal = ({ onRequestClose, setNodeConfig }: Props) => {
   const [host, setHost] = useState('');
   const [port, setPort] = useState('');
+  const [useSsl, setUseSsl] = useState(false);
   const [nodeConnectError, setNodeConnectError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { platform } = useContext(PlatformContext);
@@ -28,7 +31,8 @@ export const ConnectToNodeModal = ({ onRequestClose, setNodeConfig }: Props) => 
       const response = await platform.changeNodeConfig({
         provider: 'Electrum',
         host,
-        port
+        port,
+        ssl: useSsl
       });
       setNodeConfig(response);
       onRequestClose();
@@ -81,6 +85,27 @@ export const ConnectToNodeModal = ({ onRequestClose, setNodeConfig }: Props) => 
               placeholder='50001'
             />
           </InputContainer>
+          <Switch.Group as='div' className='flex items-center'>
+            <Switch
+              checked={useSsl}
+              onChange={setUseSsl}
+              className={classNames(
+                useSsl ? 'bg-green-600' : 'bg-gray-200',
+                'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2'
+              )}
+            >
+              <span
+                aria-hidden='true'
+                className={classNames(
+                  useSsl ? 'translate-x-5' : 'translate-x-0',
+                  'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out'
+                )}
+              />
+            </Switch>
+            <Switch.Label as='span' className='ml-3'>
+              <span className='text-sm font-medium text-gray-900 dark:text-slate-100'>Use SSL</span>
+            </Switch.Label>
+          </Switch.Group>
           <Buttons>
             <SaveButton
               background={green600}

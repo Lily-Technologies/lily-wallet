@@ -176,7 +176,8 @@ export abstract class BasePlatform implements PlatformInterface {
   abstract changeNodeConfig({
     provider,
     host,
-    port
+    port,
+    ssl
   }: ChangeNodeConfigParams): Promise<NodeConfigWithBlockchainInfo>;
 
   abstract broadcastTransaction(txHex: string): Promise<string>;

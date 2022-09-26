@@ -75,6 +75,7 @@ export interface ChangeNodeConfigParams {
   provider: NodeConfigWithBlockchainInfo['provider'];
   host?: string;
   port?: string;
+  ssl?: boolean;
 }
 
 export interface BitcoinCoreNodeConfig extends ClientOption {

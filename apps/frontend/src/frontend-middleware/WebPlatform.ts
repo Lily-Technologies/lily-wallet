@@ -187,13 +187,15 @@ export class WebPlatform extends BasePlatform {
   async changeNodeConfig({
     provider,
     host,
-    port
+    port,
+    ssl
   }: ChangeNodeConfigParams): Promise<NodeConfigWithBlockchainInfo> {
     const { data } = await axios.post<NodeConfigWithBlockchainInfo>(`/changeNodeConfig`, {
       nodeConfig: {
         provider,
         baseURL: host,
-        port
+        port,
+        ssl
       }
     });
 

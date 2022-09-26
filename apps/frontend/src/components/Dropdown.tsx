@@ -66,7 +66,7 @@ export const Dropdown = React.forwardRef<HTMLButtonElement, Props>(
             <DropdownButtonContainer>
               <DropdownButton
                 ref={ref}
-                className='bg-white dark:bg-slate-800 dark:hover:bg-slate-700 focus:ring-green-500 focus:border-green-500 focus:outline-none'
+                className='bg-white dark:bg-slate-800 focus:ring-green-500 focus:border-green-500 focus:outline-none'
                 style={style}
                 onClick={() => setIsOpen(!isOpen)}
                 type='button'

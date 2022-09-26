@@ -33,7 +33,8 @@ import {
   CoindeskCurrentPriceResponse,
   LightningConfig,
   OpenChannelRequestArgs,
-  OnChainConfig
+  OnChainConfig,
+  OnchainProviderConnectionDetails
 } from '@lily/types';
 
 const PROTOCOL_PREFIX = 'lily';
@@ -124,35 +125,41 @@ function createWindow() {
 
 const setupInitialNodeConfig = async () => {
   try {
-    console.log('Trying to connect to local Bitcoin Core instance...');
-    const nodeConfig = await getBitcoinCoreConfig();
-    OnchainDataProvider = new BitcoinCoreProvider(nodeConfig, isTestnet);
-    await OnchainDataProvider.initialize();
-    if (OnchainDataProvider.connected) {
-      console.log('Connected to local Bitcoin Core instance.');
-    } else {
-      console.log('Failed to connect to local Bitcoin Core instance.');
-      throw new Error(); // throw error to go to catch segment
+    console.log('Retrieving node config file...');
+    const userDataPath = app.getPath('userData');
+    console.log('userDataPath: ', userDataPath);
+    const nodeConfigFile = await getFile('node-config.json', userDataPath);
+    console.log('Retrieved node config file.');
+    const nodeConfig: OnchainProviderConnectionDetails = JSON.parse(nodeConfigFile.file);
+    try {
+      // TODO: should eventually store provider name along with data so correct provider client gets initialized
+      // TODO: for now, only Electrum supported
+      console.log(`Attempting to connect to ${nodeConfig.url}...`);
+      OnchainDataProvider = new ElectrumProvider(
+        nodeConfig.url,
+        nodeConfig.port,
+        nodeConfig.protocol,
+        isTestnet
+      );
+      await OnchainDataProvider.initialize();
+      console.log(`Connected to ${nodeConfig.url}.`);
+    } catch (e) {
+      console.log(`Failed to connect to ${nodeConfig.url}`);
     }
   } catch (e) {
+    console.log(`Failed to retrieve node config file.`);
     try {
-      console.log('Trying to connect to remote Bitcoin Core instance...');
-      const userDataPath = app.getPath('userData');
-      const nodeConfigFile = await getFile('node-config.json', userDataPath);
-      const nodeConfig = JSON.parse(nodeConfigFile.file);
-      try {
-        OnchainDataProvider = new BitcoinCoreProvider(nodeConfig, isTestnet);
-        await OnchainDataProvider.initialize();
-        if (OnchainDataProvider.connected) {
-          console.log('Connected to remote Bitcoin Core instance');
-        } else {
-          console.log('Failed to connect to remote Bitcoin Core instance');
-        }
-      } catch (e) {
-        console.log('Failed to connect to remote Bitcoin Core instance');
+      console.log('Trying to connect to local Bitcoin Core instance...');
+      const nodeConfig = await getBitcoinCoreConfig();
+      OnchainDataProvider = new BitcoinCoreProvider(nodeConfig, isTestnet);
+      await OnchainDataProvider.initialize();
+      if (OnchainDataProvider.connected) {
+        console.log('Connected to local Bitcoin Core instance.');
+      } else {
+        throw new Error(); // throw error to go to catch segment
       }
     } catch (e) {
-      console.log('Failed to retrieve remote Bitcoin Core connection data.');
+      console.log('Failed to connect to local Bitcoin Core instance.');
       const defaultElectrumEndpoint = 'electrum.emzy.de';
       try {
         console.log(`Connecting to ${defaultElectrumEndpoint}...`);
@@ -550,6 +557,7 @@ ipcMain.handle('/broadcastTx', async (event, args) => {
 });
 
 ipcMain.handle('/changeNodeConfig', async (event, args) => {
+  // TODO: this is overcomplicated. should use some sort of map to get provider to instantiate and then pass in nodeConfig
   const { nodeConfig } = args;
   console.log(`Attempting to connect to ${nodeConfig.provider}...`);
   if (nodeConfig.provider === 'Bitcoin Core') {
@@ -560,7 +568,7 @@ ipcMain.handle('/changeNodeConfig', async (event, args) => {
     OnchainDataProvider = new ElectrumProvider(
       nodeConfig.baseURL,
       Number(nodeConfig.port),
-      'tcp',
+      nodeConfig.ssl ? 'ssl' : 'tcp',
       isTestnet
     );
     await OnchainDataProvider.initialize();
@@ -569,6 +577,9 @@ ipcMain.handle('/changeNodeConfig', async (event, args) => {
     await OnchainDataProvider.initialize();
   }
   const config = OnchainDataProvider.getConfig();
+  const userDataPath = app.getPath('userData');
+  await saveFile(JSON.stringify(config.connectionDetails), 'node-config.json', userDataPath);
+  console.log(`Connected to ${nodeConfig.provider}...`);
   return Promise.resolve(config);
 });
 
