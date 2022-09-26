@@ -1,19 +1,12 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { Circle } from '@styled-icons/boxicons-solid';
 import FlowerLoading from 'src/assets/flower-loading.svg';
 
-import {
-  ConnectToNodeModal,
-  Dropdown,
-  StyledIcon,
-  SettingsTable,
-  DropdownItemProps
-} from 'src/components';
+import { ConnectToNodeModal, StyledIcon, SettingsTable } from 'src/components';
 
 import { getNodeStatus } from 'src/utils/other';
 import { green400, orange400, red500 } from 'src/utils/colors';
-import { PlatformContext } from 'src/context';
 
 import { NodeConfigWithBlockchainInfo } from '@lily/types';
 
@@ -32,64 +25,9 @@ const NetworkSettings = ({
   openInModal,
   closeModal
 }: Props) => {
-  const { platform } = useContext(PlatformContext);
-
   const refreshNodeData = async () => {
     await getNodeConfig();
   };
-
-  const connectToBlockstream = async () => {
-    setNodeConfig(undefined);
-    const response = await platform.changeNodeConfig({
-      provider: 'Esplora'
-    });
-    setNodeConfig(response);
-  };
-
-  const connectToElectrum = async () => {
-    setNodeConfig(undefined);
-    const response = await platform.changeNodeConfig({
-      provider: 'Electrum'
-    });
-    setNodeConfig(response);
-  };
-
-  const connectToBitcoinCore = async () => {
-    setNodeConfig(undefined);
-    try {
-      const response = await platform.changeNodeConfig({
-        provider: 'Bitcoin Core'
-      });
-      setNodeConfig(response);
-    } catch (e) {
-      console.log('e: ', JSON.stringify(e));
-    }
-  };
-
-  const nodeConfigDropdownItems: DropdownItemProps[] = [];
-
-  nodeConfigDropdownItems.push({
-    label: 'Connect to Electrum',
-    onClick: async () => await connectToElectrum()
-  });
-
-  if (nodeConfig && nodeConfig.provider !== 'Bitcoin Core') {
-    nodeConfigDropdownItems.push({
-      label: 'Connect to Bitcoin Core',
-      onClick: async () => await connectToBitcoinCore()
-    });
-  }
-  if (nodeConfig && nodeConfig.provider !== 'Esplora') {
-    nodeConfigDropdownItems.push({
-      label: 'Connect to Blockstream.info',
-      onClick: async () => await connectToBlockstream()
-    });
-  }
-  nodeConfigDropdownItems.push({
-    label: 'Connect to specific endpoint',
-    onClick: () =>
-      openInModal(<ConnectToNodeModal setNodeConfig={setNodeConfig} onRequestClose={closeModal} />)
-  });
 
   return (
     <SettingsTable.Wrapper>
@@ -157,15 +95,16 @@ const NetworkSettings = ({
             </p>
           </div>
           <SettingsTable.ValueAction>
-            <Dropdown
-              minimal={false}
-              dropdownItems={nodeConfigDropdownItems}
-              buttonLabel={
-                <SettingsTable.ActionButton style={{ padding: 0 }}>
-                  Change endpoint
-                </SettingsTable.ActionButton>
+            <SettingsTable.ActionButton
+              onClick={() =>
+                openInModal(
+                  <ConnectToNodeModal setNodeConfig={setNodeConfig} onRequestClose={closeModal} />
+                )
               }
-            />
+              style={{ padding: 0 }}
+            >
+              Change endpoint
+            </SettingsTable.ActionButton>
           </SettingsTable.ValueAction>
         </SettingsTable.ValueColumn>
       </SettingsTable.Row>
