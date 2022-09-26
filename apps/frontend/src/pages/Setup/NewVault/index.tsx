@@ -70,7 +70,6 @@ const NewVaultScreen = ({ setStep, newAccount, setNewAccount }: Props) => {
     setHwiLoading(true);
     try {
       const response = await platform.enumerate();
-      console.log('response: ', response);
       setHwiLoading(false);
 
       // filter out devices that are available but already imported
