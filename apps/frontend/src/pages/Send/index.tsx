@@ -36,13 +36,17 @@ const Send = ({ config, currentBitcoinNetwork, nodeConfig, currentBitcoinPrice }
   return (
     <PageWrapper>
       <>
-        <Header>
-          <HeaderLeft>
-            <PageTitle>Send bitcoin</PageTitle>
-          </HeaderLeft>
-          <HeaderRight></HeaderRight>
-        </Header>
-        {!hasAccount && <NoAccountsEmptyState />}
+        {!hasAccount && (
+          <>
+            <Header>
+              <HeaderLeft>
+                <PageTitle>Send bitcoin</PageTitle>
+              </HeaderLeft>
+              <HeaderRight></HeaderRight>
+            </Header>
+            <NoAccountsEmptyState />
+          </>
+        )}
 
         {currentAccount.config.type === 'onchain' && (
           <SendOnchain

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
+import { PageTitle, Header, HeaderRight, HeaderLeft } from 'src/components';
+
 import LightningSendTxForm from './LightningSendTxForm';
 import LightningPaymentConfirm from './LightningPaymentConfirm';
 
@@ -17,7 +19,13 @@ const SendLightning = ({ currentAccount }: Props) => {
   const [paymentRequest, setPaymentRequest] = useState('');
 
   return (
-    <>
+    <div className='max-w-prose mx-auto'>
+      <Header>
+        <HeaderLeft>
+          <PageTitle>Send bitcoin</PageTitle>
+        </HeaderLeft>
+        <HeaderRight></HeaderRight>
+      </Header>
       {step === 0 && (
         <LightningSendTxForm
           setStep={setStep}
@@ -33,7 +41,7 @@ const SendLightning = ({ currentAccount }: Props) => {
           currentAccount={currentAccount}
         />
       )}
-    </>
+    </div>
   );
 };
 

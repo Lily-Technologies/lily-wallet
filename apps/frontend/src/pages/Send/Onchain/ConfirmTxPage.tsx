@@ -8,6 +8,7 @@ import TransactionDetails from '../components/TransactionDetails';
 import AddSignatureFromQrCode from './AddSignatureFromQrCode';
 
 import { FileUploader, ErrorModal, Modal } from 'src/components';
+import { PageTitle, Header, HeaderRight, HeaderLeft } from 'src/components';
 
 import { Device, File, FeeRates, AddressType, LilyOnchainAccount, ShoppingItem } from '@lily/types';
 
@@ -148,42 +149,50 @@ const ConfirmTxPage = ({
       : undefined;
 
   return (
-    <div className='grid grid-cols-12 gap-6'>
-      <FileUploader
-        accept='*'
-        id='txFile'
-        onFileLoad={({ file }: File) => {
-          importSignatureFromFile(file);
-        }}
-      />
-      <label style={{ display: 'none' }} ref={fileUploadLabelRef} htmlFor='txFile'></label>
-      <TransactionDetails
-        finalPsbt={finalPsbt}
-        sendTransaction={sendTransaction}
-        feeRates={feeRates}
-        setStep={setStep}
-        signedDevices={signedDevices}
-        currentBitcoinNetwork={currentBitcoinNetwork}
-        currentBitcoinPrice={currentBitcoinPrice}
-        currentAccount={currentAccount}
-        createTransactionAndSetState={createTransactionAndSetState}
-        shoppingItems={shoppingItems}
-      />
-
-      {!currentAccount.config.mnemonic && finalPsbt && (
-        <SignWithDevice
-          finalPsbt={finalPsbt}
-          setFinalPsbt={setFinalPsbt}
-          signedDevices={signedDevices}
-          signThreshold={currentAccount.config.quorum.requiredSigners}
-          fileUploadLabelRef={fileUploadLabelRef}
-          phoneAction={phoneAction}
+    <>
+      <Header>
+        <HeaderLeft>
+          <PageTitle>Send bitcoin</PageTitle>
+        </HeaderLeft>
+        <HeaderRight></HeaderRight>
+      </Header>
+      <div className='grid grid-cols-12 gap-6'>
+        <FileUploader
+          accept='*'
+          id='txFile'
+          onFileLoad={({ file }: File) => {
+            importSignatureFromFile(file);
+          }}
         />
-      )}
-      <Modal isOpen={modalIsOpen} closeModal={() => setModalIsOpen(false)}>
-        {modalContent}
-      </Modal>
-    </div>
+        <label style={{ display: 'none' }} ref={fileUploadLabelRef} htmlFor='txFile'></label>
+        <TransactionDetails
+          finalPsbt={finalPsbt}
+          sendTransaction={sendTransaction}
+          feeRates={feeRates}
+          setStep={setStep}
+          signedDevices={signedDevices}
+          currentBitcoinNetwork={currentBitcoinNetwork}
+          currentBitcoinPrice={currentBitcoinPrice}
+          currentAccount={currentAccount}
+          createTransactionAndSetState={createTransactionAndSetState}
+          shoppingItems={shoppingItems}
+        />
+
+        {!currentAccount.config.mnemonic && finalPsbt && (
+          <SignWithDevice
+            finalPsbt={finalPsbt}
+            setFinalPsbt={setFinalPsbt}
+            signedDevices={signedDevices}
+            signThreshold={currentAccount.config.quorum.requiredSigners}
+            fileUploadLabelRef={fileUploadLabelRef}
+            phoneAction={phoneAction}
+          />
+        )}
+        <Modal isOpen={modalIsOpen} closeModal={() => setModalIsOpen(false)}>
+          {modalContent}
+        </Modal>
+      </div>
+    </>
   );
 };
 

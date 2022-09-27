@@ -1,6 +1,7 @@
 import React, { useContext, useState, useRef } from 'react';
 import styled from 'styled-components';
 import { networks, Network, Psbt } from 'bitcoinjs-lib';
+import { ArrowRightIcon } from '@heroicons/react/outline';
 
 import {
   Input,
@@ -12,6 +13,7 @@ import {
   Spinner,
   UnitInput
 } from 'src/components';
+import { PageTitle, Header, HeaderRight, HeaderLeft } from 'src/components';
 
 import PastePsbtModalContent from './PastePsbtModalContent';
 
@@ -167,100 +169,110 @@ const OnchainSendTxForm = ({
   ];
 
   return (
-    <div className='bg-white dark:bg-gray-800 rounded-2xl shadow dark:highlight-white/10'>
-      <div className='py-6 px-4 sm:p-6 ' data-cy='send-form'>
-        <FileUploader
-          accept='*'
-          id='txFile'
-          onFileLoad={({ file }: File) => {
-            importTxFromFile(file);
-          }}
-        />
-        <label style={{ display: 'none' }} ref={fileUploadLabelRef} htmlFor='txFile'></label>
-        <div className='w-full flex justify-end text-gray-900 dark:text-gray-200'>
-          <Dropdown
-            minimal={true}
-            style={{ alignSelf: 'flex-end' }}
-            dropdownItems={dropdownItems}
+    <div className='max-w-prose mx-auto'>
+      <Header>
+        <HeaderLeft>
+          <PageTitle>Send bitcoin</PageTitle>
+        </HeaderLeft>
+        <HeaderRight></HeaderRight>
+      </Header>
+      <div className='bg-white dark:bg-gray-800 rounded-md shadow dark:highlight-white/10 '>
+        <div className='py-6 px-4 sm:p-6 relative' data-cy='send-form'>
+          <FileUploader
+            accept='*'
+            id='txFile'
+            onFileLoad={({ file }: File) => {
+              importTxFromFile(file);
+            }}
           />
+          <label style={{ display: 'none' }} ref={fileUploadLabelRef} htmlFor='txFile'></label>
+          <div className='w-full flex justify-end text-gray-900 dark:text-gray-200 absolute top-4 right-4'>
+            <Dropdown
+              minimal={true}
+              style={{ alignSelf: 'flex-end' }}
+              dropdownItems={dropdownItems}
+            />
+          </div>
+          <div className='grid grid-cols-8 gap-6'>
+            <div className='col-span-4'>
+              <Select
+                label='From account'
+                initialSelection={{
+                  label: `${currentAccount.config.name} (${getCurrentBalance(currentAccount)})`,
+                  onClick: () => setCurrentAccountId(currentAccount.config.id)
+                }}
+                options={Object.values(accountMap).map((item) => {
+                  return {
+                    label: `${item.name} (${getCurrentBalance(item)})`,
+                    onClick: () => {
+                      setCurrentAccountId(item.config.id);
+                    }
+                  };
+                })}
+              />
+            </div>
+            <div className='col-span-8'>
+              <Input
+                label='Send bitcoin to'
+                type='text'
+                onChange={(value) => {
+                  setRecipientAddress(value);
+                  setRecipientAddressError('');
+                }}
+                value={recipientAddress}
+                placeholder={
+                  bitcoinNetworkEqual(currentBitcoinNetwork, networks.testnet)
+                    ? 'tb1q4h5xd5wsalmes2496y8dtphc609rt0un3gl69r'
+                    : 'bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4'
+                }
+                error={recipientAddressError}
+                // largeText={true}
+                id='bitcoin-receipt'
+                style={{ textAlign: 'right' }}
+              />
+            </div>
+            <div className='col-span-8'>
+              <UnitInput
+                label='Amount to send'
+                value={sendAmount}
+                onChange={(value) => {
+                  setSendAmount(value);
+                  setSendAmountError('');
+                }}
+                error={sendAmountError}
+                id='bitcoin-amount'
+              />
+            </div>
+          </div>
         </div>
-        <div className='grid grid-cols-4 gap-6'>
-          <div className='col-span-4 lg:col-span-2'>
-            <Select
-              label='From account'
-              initialSelection={{
-                label: `${currentAccount.config.name} (${getCurrentBalance(currentAccount)})`,
-                onClick: () => setCurrentAccountId(currentAccount.config.id)
-              }}
-              options={Object.values(accountMap).map((item) => {
-                return {
-                  label: `${item.name} (${getCurrentBalance(item)})`,
-                  onClick: () => {
-                    setCurrentAccountId(item.config.id);
-                  }
-                };
-              })}
-            />
-          </div>
-          <div className='hidden lg:block lg:col-span-2'></div>
-          <div className='col-span-4 lg:col-span-2'>
-            <Input
-              label='Send bitcoin to'
-              type='text'
-              onChange={(value) => {
-                setRecipientAddress(value);
-                setRecipientAddressError('');
-              }}
-              value={recipientAddress}
-              placeholder={
-                bitcoinNetworkEqual(currentBitcoinNetwork, networks.testnet)
-                  ? 'tb1q4h5xd5wsalmes2496y8dtphc609rt0un3gl69r'
-                  : 'bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4'
-              }
-              error={recipientAddressError}
-              // largeText={true}
-              id='bitcoin-receipt'
-              style={{ textAlign: 'right' }}
-            />
-          </div>
-          <div className='col-span-4 lg:col-span-2'>
-            <UnitInput
-              label='Amount to send'
-              value={sendAmount}
-              onChange={(value) => {
-                setSendAmount(value);
-                setSendAmountError('');
-              }}
-              error={sendAmountError}
-              id='bitcoin-amount'
-            />
-          </div>
-        </div>
-      </div>
-      <div className='text-right py-4 px-5 mt-2 border bg-gray-50 dark:border-gray-900 dark:bg-gray-700 rounded-bl-2xl rounded-br-2xl'>
-        <button
-          disabled={!!currentAccount.loading}
-          className='inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-2xl disabled:bg-red-500 text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2  focus:ring-green-500'
-          onClick={() => submitForm(recipientAddress, sendAmount, currentAccount.currentBalance)}
-        >
-          {!!currentAccount.loading ? (
-            'Loading...'
-          ) : isLoading ? (
-            <>
-              <Spinner />
-              Creating transaction...
-            </>
-          ) : (
-            'Preview Transaction'
+        <div className='text-right py-2 px-4 mt-2 border bg-gray-50 dark:border-gray-900 dark:bg-gray-700 rounded-bl-md rounded-br-md'>
+          <button
+            disabled={!!currentAccount.loading}
+            className='group inline-flex items-center justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md disabled:bg-red-500 text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2  focus:ring-green-500'
+            onClick={() => submitForm(recipientAddress, sendAmount, currentAccount.currentBalance)}
+          >
+            {!!currentAccount.loading ? (
+              'Loading...'
+            ) : isLoading ? (
+              <>
+                Preview Transaction
+                <Spinner />
+              </>
+            ) : (
+              <>
+                Preview Transaction
+                <ArrowRightIcon className='w-4 h-4 ml-2 group-hover:translate-x-1 transition ease-in-out duration-100' />
+              </>
+            )}
+          </button>
+          {importTxFromFileError && !modalIsOpen && (
+            <ErrorText style={{ paddingTop: '1em' }}>{importTxFromFileError}</ErrorText>
           )}
-        </button>
-        {importTxFromFileError && !modalIsOpen && (
-          <ErrorText style={{ paddingTop: '1em' }}>{importTxFromFileError}</ErrorText>
-        )}
+        </div>
+        <Modal isOpen={modalIsOpen} closeModal={() => setModalIsOpen(false)}>
+          {modalContent}
+        </Modal>
       </div>
-      <Modal isOpen={modalIsOpen} closeModal={() => setModalIsOpen(false)}>
-        {modalContent}
-      </Modal>
     </div>
   );
 };

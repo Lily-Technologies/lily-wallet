@@ -1,5 +1,5 @@
 import { useContext, useState } from 'react';
-import { QrcodeIcon } from '@heroicons/react/outline';
+import { QrcodeIcon, ArrowRightIcon } from '@heroicons/react/outline';
 import { decode } from 'bolt11';
 
 import { Textarea, Modal, Select } from 'src/components';
@@ -73,7 +73,7 @@ const LightningSendTxForm = ({ setStep, setPaymentRequest, paymentRequest }: Pro
               }
               error={invoiceError}
               id='lightning-invoice'
-              rows={8}
+              rows={5}
               onPaste={(payReq) => {
                 setPaymentRequest(payReq);
                 sendPayment(payReq);
@@ -102,10 +102,11 @@ const LightningSendTxForm = ({ setStep, setPaymentRequest, paymentRequest }: Pro
           <span className='hidden sm:inline-flex'>Scan invoice</span>
         </button>
         <button
-          className='inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2  focus:ring-green-500'
+          className='group inline-flex justify-center items-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2  focus:ring-green-500'
           onClick={() => sendPayment(paymentRequest)}
         >
           Preview transaction
+          <ArrowRightIcon className='w-4 h-4 ml-2 group-hover:translate-x-1 transition ease-in-out duration-100' />
         </button>
       </div>
       <Modal isOpen={modalIsOpen} closeModal={() => closeModal()}>
