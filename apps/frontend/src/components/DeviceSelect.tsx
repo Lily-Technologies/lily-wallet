@@ -99,26 +99,29 @@ export const DeviceSelect = ({
   };
 
   return (
-    <div className='py-6 px-4 flex h-full items-center'>
-      <div className='bg-slate-50 dark:bg-slate-700 pt-8 pb-4 rounded-lg shadow-inner'>
-        <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col'>
+    <div className='py-6 px-4 flex-1 flex w-full flex-col'>
+      <div className='bg-slate-50 dark:bg-slate-900/50 py-2 rounded-lg shadow-inner items-center w-full flex overflow-x-auto flex-1'>
+        <div className='max-w-7xl mx-auto px-2 sm:px-4 flex flex-col'>
           <ul role='list' className='flex items-center justify-center py-3 px-2 gap-4'>
             {configuredDevices.map((device, index) => (
               <li
                 key={index}
-                className='w-48 flex flex-col items-center py-4 px-3 text-center bg-white dark:bg-slate-600 rounded-lg shadow border border-slate-200 dark:border-slate-700 dark:highlight-white/10'
+                className='w-60 flex flex-col items-center pt-4 pb-3 px-3 text-center bg-white dark:bg-slate-600 rounded-lg shadow border border-slate-200 dark:border-slate-700 dark:highlight-white/10'
               >
                 <DeviceImage
                   device={device}
                   className='w-28 h-48 shrink-0 mx-auto object-contain'
                 />
                 <div className='py-2 flex flex-col items-center'>
-                  <h3 className='mt-4 text-slate-900 dark:text-white text-md font-medium capitalize'>
+                  <h3 className='mt-2 text-slate-900 dark:text-white text-md font-medium capitalize'>
                     {device.type}
                   </h3>
                   <dl className='mt-0 flex-grow flex flex-col justify-between h-4'>
                     <dt className='sr-only'>Type</dt>
-                    <dd className='text-slate-500 dark:text-slate-300 text-xs uppercase'>
+                    <dd
+                      className='text-slate-500 dark:text-slate-300 text-xs uppercase'
+                      style={{ fontSize: '.65rem' }}
+                    >
                       {device.fingerprint}
                     </dd>
                     <dt className='sr-only'>Fingerprint</dt>
@@ -149,7 +152,7 @@ export const DeviceSelect = ({
               return (
                 <li
                   className={classNames(
-                    'w-48 flex flex-col items-center py-4 px-3 text-center bg-white dark:bg-slate-600 rounded-lg shadow border border-slate-200 dark:border-slate-700',
+                    'w-48 flex flex-col items-center pt-4 pb-3 px-3 text-center bg-white dark:bg-slate-600 rounded-lg shadow border border-slate-200 dark:border-slate-700',
                     deviceActionLoading === index
                       ? 'animate-pulse hover:scale-0 hover:translate-y-0'
                       : '',
@@ -192,12 +195,15 @@ export const DeviceSelect = ({
                     className='w-28 h-48 shrink-0 mx-auto object-contain'
                   />
                   <div className='py-2 flex flex-col items-center'>
-                    <h3 className='mt-4 text-slate-900 dark:text-white text-md font-medium capitalize'>
+                    <h3 className='mt-2 text-slate-900 dark:text-white text-md font-medium capitalize'>
                       {device.type}
                     </h3>
                     <dl className='mt-0 flex-grow flex flex-col justify-between h-4'>
                       <dt className='sr-only'>Type</dt>
-                      <dd className='text-slate-500 dark:text-slate-300 text-xs uppercase'>
+                      <dd
+                        className='text-slate-500 dark:text-slate-300 text-xs uppercase'
+                        style={{ fontSize: '.65rem' }}
+                      >
                         {device.fingerprint}
                       </dd>
                       <dt className='sr-only'>Fingerprint</dt>
@@ -217,7 +223,7 @@ export const DeviceSelect = ({
               );
             })}
             {unconfiguredDevices.length === 0 && configuredDevices.length === 0 && !devicesLoading && (
-              <div className='flex items-center justify-center mb-8'>
+              <div className='flex items-center justify-center mb-2 flex items-stretch'>
                 <div className='flex flex-col items-center justify-center text-center'>
                   <h3 className='text-lg font-medium text-slate-900 dark:text-slate-300'>
                     No devices detected
@@ -227,55 +233,33 @@ export const DeviceSelect = ({
                     as={ExclamationDiamond}
                     size={96}
                   />
-                  <p className='text-base font-medium text-slate-900 dark:text-slate-300'>
-                    Please make sure your device is connected and unlocked.
+                  <p className='text-sm font-medium text-slate-600 dark:text-slate-400'>
+                    Please make sure your device is <br /> connected and unlocked.
                   </p>
                 </div>
               </div>
             )}
 
             {unconfiguredDevices.length === 0 && configuredDevices.length === 0 && devicesLoading && (
-              <LoadingDevicesWrapper>
+              <div className='flex flex-col items-center justify-center text-gray-600 text-center'>
                 <Loading itemText='devices' />
-              </LoadingDevicesWrapper>
+              </div>
             )}
           </ul>
-          {configuredDevices.length <= configuredThreshold ? (
-            <button
-              onClick={enumerate}
-              type='button'
-              className='mt-2 inline-flex w-min flex-nowrap self-center whitespace-nowrap items-center px-4 py-2 border border-slate-300 dark:text-slate-300 dark:bg-slate-700 shadow-sm text-sm font-medium rounded-md text-slate-700 bg-white hover:bg-slate-50 dark:hover:bg-slate-800'
-            >
-              {devicesLoading ? 'Scanning for devices...' : 'Scan for devices'}
-            </button>
-          ) : null}
         </div>
       </div>
+      {configuredDevices.length <= configuredThreshold ? (
+        <button
+          onClick={enumerate}
+          type='button'
+          className='mt-5 inline-flex w-min flex-nowrap self-center whitespace-nowrap items-center px-4 py-2 border border-slate-400/20 dark:border-slate-500/20 dark:text-slate-300 dark:bg-slate-700 shadow-sm text-sm font-medium rounded-md text-slate-700 bg-white hover:bg-slate-50 dark:hover:bg-slate-800'
+        >
+          {devicesLoading ? 'Scanning for devices...' : 'Scan for devices'}
+        </button>
+      ) : null}
       <Modal isOpen={modalIsOpen} closeModal={() => setModalIsOpen(false)}>
         {modalContent}
       </Modal>
     </div>
   );
 };
-
-const NoDevicesContainer = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
-
-const LoadingDevicesWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 1.5em;
-  justify-content: center;
-  color: ${gray600};
-  text-align: center;
-`;
-
-const IconWrapper = styled.div`
-  position: absolute;
-  align-self: flex-end;
-  top: 0.65em;
-`;

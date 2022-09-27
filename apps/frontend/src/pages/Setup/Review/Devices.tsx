@@ -27,7 +27,7 @@ const Devices = ({ extendedPublicKeys, onSave }: Props) => {
   };
 
   return (
-    <div className='py-6 px-4'>
+    <div className='py-6 px-4 flex-1 flex'>
       <div className='bg-gray-50 dark:bg-slate-700 py-8 rounded-lg shadow-inner'>
         <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
           <ul

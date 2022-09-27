@@ -66,7 +66,7 @@ const SignWithDevice = ({
   ];
 
   return (
-    <TransactionDetailsWrapper className='col-span-12 lg:col-span-6 bg-white dark:bg-slate-800'>
+    <TransactionDetailsWrapper className='flex col-span-12 lg:col-span-6 bg-white dark:bg-slate-800 w-full'>
       <SetupHeaderContainer className='border-b border-b-slate-200 dark:border-slate-700'>
         <SetupHeaderWrapper>
           <SetupHeaderLeft>
@@ -100,7 +100,6 @@ const SignWithDevice = ({
 };
 
 const TransactionDetailsWrapper = styled.div`
-  display: flex;
   flex-direction: column;
   min-height: 400px;
   justify-content: space-between;

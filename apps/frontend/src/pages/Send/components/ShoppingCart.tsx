@@ -14,16 +14,16 @@ const ShoppingCartView = ({ items }: Props) => {
   return (
     <ul
       role='list'
-      className='divide-y divide-gray-200 dark:divide-gray-700 border-b border-gray-200 dark:border-gray-700'
+      className='flex flex-1 items-center divide-y divide-gray-200 dark:divide-gray-700 border-b border-gray-200 dark:border-gray-700'
     >
       {items.map((item, index) => (
-        <li key={index} className='flex py-6 px-4 sm:px-6'>
+        <li key={index} className='flex py-6 px-4 sm:px-6 w-full'>
           {item.image}
           <ItemInformationWrapper>
             <ItemInformationInner className='space-y-1 sm:flex sm:items-start sm:justify-between sm:space-x-6'>
               <ItemInformation className='flex-auto text-sm font-medium space-y-1'>
                 <h3 className='text-gray-900 dark:text-gray-200 font-medium'>{item.header}</h3>
-                <p className='text-gray-900 dark:text-gray-300 mt-1'>{item.subtext}</p>
+                <p className='text-gray-900 dark:text-gray-300 mt-1 truncate'>{item.subtext}</p>
                 {item.extraInfo?.length &&
                   item.extraInfo?.map((extra) => (
                     <p className='hidden text-gray-500 sm:block'>

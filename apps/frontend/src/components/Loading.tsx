@@ -16,9 +16,9 @@ type RequireItemTextOrMessage = RequireOnlyOne<Props, 'itemText' | 'message'>;
 export const Loading = ({ itemText, style = {}, message }: RequireItemTextOrMessage) => (
   <LoadingWrapper style={style} className='text-gray-700 dark:text-gray-300'>
     <img alt='loading placeholder' src={FlowerLoading} style={{ maxWidth: '6.25em' }} />
-    {itemText && <LoadingText>Loading {itemText}</LoadingText>}
-    {message && <LoadingText>{message}</LoadingText>}
-    <LoadingSubText>Please wait...</LoadingSubText>
+    {itemText && <p className='text-lg whitespace-pre-wrap text-center'>Loading {itemText}</p>}
+    {message && <p className='text-lg whitespace-pre-wrap text-center'>{message}</p>}
+    <p className='text-sm text-gray-500 dark:text-gray-400'>Please wait...</p>
   </LoadingWrapper>
 );
 
@@ -28,14 +28,12 @@ const LoadingWrapper = styled.div`
   justify-content: center;
   align-items: center;
   border-radius: 4px;
-  margin: 18px 0;
   flex-direction: column;
   padding: 1.5em;
 `;
 
 const LoadingText = styled.p`
   font-size: 1.5em;
-  margin: 4px 0;
   white-space: pre-wrap;
   text-align: center;
 `;

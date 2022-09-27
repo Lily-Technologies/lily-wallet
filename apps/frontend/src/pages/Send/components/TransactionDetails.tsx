@@ -5,9 +5,9 @@ import { CheckCircle } from '@styled-icons/material';
 import { Bitcoin } from '@styled-icons/boxicons-logos';
 import { Psbt, Network } from 'bitcoinjs-lib';
 
-import { StyledIcon, Button, SidewaysShake, Dropdown, Modal, Price } from 'src/components';
+import { StyledIcon, SidewaysShake, Dropdown, Modal, Price } from 'src/components';
 
-import { white, green500, green600, orange500, orange200 } from 'src/utils/colors';
+import { orange500, orange200 } from 'src/utils/colors';
 import { downloadFile, formatFilename } from 'src/utils/files';
 import { getFee, RecipientItem, truncateAddress } from 'src/utils/send';
 import { createMap } from 'src/utils/accountMap';
@@ -234,10 +234,8 @@ const TransactionDetails = ({
             </div>
           </div>
           <div className='border-t border-slate-200 dark:border-slate-700 py-6 px-4 sm:px-6'>
-            <SendButton
-              sendable={signedDevices.length === signThreshold}
-              background={green500}
-              color={white}
+            <button
+              className='py-4 px-6 bg-green-500 hover:bg-green-600 text-white flex w-full rounded-lg text-center font-semibold items-center justify-center'
               onClick={() => sendTransaction()}
             >
               {signedDevices.length < signThreshold
@@ -248,7 +246,7 @@ const TransactionDetails = ({
                   <StyledIcon as={ArrowIosForwardOutline} size={16} />
                 </SendButtonCheckmark>
               )}
-            </SendButton>
+            </button>
           </div>
         </SendDetailsContainer>
       </AccountSendContentRight>
@@ -290,27 +288,8 @@ const SendDetailsContainer = styled.div`
   display: flex;
   flex-direction: column;
   flex: 1;
-  justify-content: space-between;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
   border-radius: 0.375rem;
-`;
-
-const SendButton = styled.button<{
-  sendable: boolean;
-  background: string;
-  color: string;
-}>`
-  ${Button};
-  transition: ease-out 0.4s;
-  position: relative;
-  font-size: 1rem;
-  line-height: 1.5rem;
-  padding-left: 1rem;
-  padding-right: 1rem;
-  padding-top: 0.75rem;
-  padding-bottom: 0.75rem;
-  width: 100%;
-  box-shadow: ${(p) => (p.sendable ? `inset 1000px 0 0 0 ${green600}` : 'none')};
 `;
 
 const SendButtonCheckmark = styled.div`
