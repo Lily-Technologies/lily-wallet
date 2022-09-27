@@ -54,7 +54,7 @@ export const Dropdown = React.forwardRef<HTMLButtonElement, Props>(
               onClick={() => setIsOpen(!isOpen)}
               aria-label='Options'
               id='options-menu'
-              className='flex items-center p-2 text-inherit cursor-pointer border-0 rounded-full focus:ring-green-500 focus:border-green-500 focus:outline-none'
+              className='flex items-center p-2 text-inherit cursor-pointer border-0 rounded-full focus:ring-green-500 focus:border-green-500 focus:outline-none dark:hover:bg-white/10'
               ref={ref}
               {...rest}
             >
