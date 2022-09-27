@@ -184,7 +184,7 @@ const ModalHeaderContainer = styled.div`
   font-size: 1.5em;
 `;
 
-const PinInputWrapper = styled.div.attrs({
+const PinInputWrapper = styled.button.attrs({
   className: 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-200'
 })`
   display: flex;
