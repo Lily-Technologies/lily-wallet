@@ -86,9 +86,14 @@ export const Input = ({
             ? 'text-red-900 border-red-300 placeholder-red-300 focus:ring-red-500 focus:border-red-500'
             : 'shadow-sm focus:ring-green-500 focus:border-green-500 border-gray-300',
           largeText ? 'px-4 py-3' : 'px-3 py-2',
-          inputStaticText ? 'text-right pr-12' : '',
-          inputStaticText && error ? 'pr-16' : '',
-          error ? 'pr-8' : '',
+          inputStaticText ? 'text-right' : '',
+          inputStaticText && error
+            ? 'pr-[4.20rem]'
+            : error
+            ? 'pr-8'
+            : inputStaticText
+            ? 'pr-12'
+            : '',
           'dark:bg-slate-800 appearance-none block w-full border dark:border-gray-500 dark:text-white rounded-md shadow-sm placeholder-gray-400 focus:outline-none sm:text-sm'
         )}
       />
