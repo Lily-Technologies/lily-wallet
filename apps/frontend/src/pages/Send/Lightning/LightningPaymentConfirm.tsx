@@ -147,7 +147,7 @@ const LightningPaymentConfirm = ({ paymentRequest, setStep, currentAccount }: Pr
               {invoiceExpired ? 'Expired' : 'Waiting for payment'}
               {!invoiceExpired ? (
                 <span className='text-xs text-gray-500 dark:text-gray-400'>
-                  (Invoice expires in
+                  (Expires in
                   <Countdown
                     onExpire={() => setInvoiceExpired(true)}
                     endTimeSeconds={decoded.timeExpireDate!}

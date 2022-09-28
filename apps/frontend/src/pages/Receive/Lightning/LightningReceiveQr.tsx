@@ -79,7 +79,7 @@ const LightningReceiveQr = ({ paymentRequest, setStep }: Props) => {
             <div className='text-gray-900 dark:text-gray-200 font-semibold flex flex-col text-right'>
               {invoiceExpired ? 'Expired' : 'Waiting for payment'}
               <span className='text-xs text-gray-500 dark:text-gray-400'>
-                (Invoice expires in
+                (Expires in
                 <Countdown
                   onExpire={() => setInvoiceExpired(true)}
                   endTimeSeconds={decoded.timeExpireDate!}

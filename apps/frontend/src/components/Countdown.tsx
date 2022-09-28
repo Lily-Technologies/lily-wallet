@@ -20,8 +20,12 @@ export const Countdown = ({ endTimeSeconds, onExpire, style }: Props) => {
         if (duration.asSeconds() < 1) {
           setExpiration('Expired');
           onExpire();
-        } else if (duration.minutes() > 1) {
-          setExpiration(`${duration.minutes()} minute${duration.minutes() > 1 ? 's' : ''}`);
+        } else if (duration.minutes() > 0) {
+          setExpiration(
+            `${duration.minutes()} minute${
+              duration.minutes() > 1 ? 's' : ''
+            }, ${duration.seconds()} second${duration.seconds() > 1 ? 's' : ''}`
+          );
         } else {
           setExpiration(`${duration.seconds()} second${duration.seconds() > 1 ? 's' : ''}`);
         }
