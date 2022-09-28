@@ -66,6 +66,7 @@ const LightningPaymentConfirm = ({ paymentRequest, setStep, currentAccount }: Pr
         if (response.status === 2) {
           // PaymentStatus.SUCCEEDED
           openInModal(<PaymentSuccess payment={response} />);
+          setSendPaymentIsLoading(false);
         }
 
         if (response.status === 3) {
@@ -73,15 +74,17 @@ const LightningPaymentConfirm = ({ paymentRequest, setStep, currentAccount }: Pr
           if (response.failureReason === 2) {
             // PaymentFailureReason.FAILURE_REASON_NO_ROUTE
             setPaymentError('No route to user');
+            setSendPaymentIsLoading(false);
           } else if (
             response.failureReason === 5 // PaymentFailureReason.FAILURE_REASON_INSUFFICIENT_BALANCE
           ) {
             setPaymentError('Not enough balance');
+            setSendPaymentIsLoading(false);
           } else {
-            setPaymentError('Unkown error making payment. Contact support.');
+            setPaymentError('Unknown error making payment. Contact support.');
+            setSendPaymentIsLoading(false);
           }
         }
-        setSendPaymentIsLoading(false);
       } catch (e) {
         console.log('/lightning-send-payment e: ', e);
         setSendPaymentIsLoading(false);
