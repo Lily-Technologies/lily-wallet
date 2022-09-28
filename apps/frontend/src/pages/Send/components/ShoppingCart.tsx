@@ -1,8 +1,5 @@
 import React from 'react';
-import styled, { css } from 'styled-components';
-
-import { mobile } from 'src/utils/media';
-import { gray200, gray600, gray900 } from 'src/utils/colors';
+import styled from 'styled-components';
 
 import { ShoppingItem } from '@lily/types';
 
@@ -55,14 +52,6 @@ const ShoppingCartView = ({ items }: Props) => {
   );
 };
 
-const ShoppingCartItem = styled.li`
-  display: flex;
-  padding-top: 1.5rem;
-  padding-bottom: 1.5rem;
-  padding-left: 1rem;
-  padding-right: 1rem;
-`;
-
 const ItemInformationWrapper = styled.div`
   flex: 1 1 auto;
 `;
@@ -82,29 +71,6 @@ const ItemInformation = styled.div`
   flex: 1 1 auto;
   margin-top: 0.25rem;
   margin-bottom: 0.25rem;
-`;
-
-const ItemTitle = styled.h3`
-  color: ${gray900};
-  margin: 0;
-  font-weight: 500;
-`;
-
-const ItemPrice = styled.p`
-  color: ${gray900};
-  margin: 0;
-  margin-top: 0.25rem;
-`;
-
-const ItemDetails = styled.p`
-  color: ${gray600};
-  display: block;
-  font-weight: 400;
-  margin: 0;
-  margin-top: 0.25rem;
-  ${mobile(css`
-    display: none;
-  `)}
 `;
 
 export default ShoppingCartView;
