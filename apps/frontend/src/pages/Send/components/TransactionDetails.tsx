@@ -151,7 +151,12 @@ const TransactionDetails = ({
 
     return (
       <>
-        <Dropdown data-cy='send-options-dropdown' minimal={true} dropdownItems={dropdownItems} />
+        <Dropdown
+          className='text-sm'
+          data-cy='send-options-dropdown'
+          minimal={true}
+          dropdownItems={dropdownItems}
+        />
       </>
     );
   };
