@@ -26,7 +26,7 @@ const Receive = () => {
 
   return (
     <PageWrapper>
-      <Fragment>
+      <div className='max-w-prose mx-auto'>
         <Header>
           <HeaderLeft>
             <PageTitle>Receive bitcoin</PageTitle>
@@ -37,7 +37,7 @@ const Receive = () => {
         {!hasAccount && <NoAccountsEmptyState />}
         {currentAccount.config.type === 'onchain' && <OnchainReceive />}
         {currentAccount.config.type === 'lightning' && <LightningReceive />}
-      </Fragment>
+      </div>
     </PageWrapper>
   );
 };

@@ -1,5 +1,6 @@
 import React, { useState, useContext } from 'react';
 import styled from 'styled-components';
+import { ArrowRightIcon } from '@heroicons/react/outline';
 
 import { Input, Spinner, Select, UnitInput } from 'src/components';
 
@@ -99,18 +100,22 @@ const LightningReceiveForm = ({ setStep, setInvoice, currentAccount }: Props) =>
           </div>
         </div>
       </div>
-      <div className='text-right py-3 px-4 mt-2 border bg-gray-50 dark:bg-gray-700 dark:border-gray-900 rounded-bl-md rounded-br-md'>
+      <div className='text-right py-4 px-5 mt-2 border bg-gray-50 dark:bg-gray-700 dark:border-gray-900 rounded-bl-md rounded-br-md'>
         <button
-          className='inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2  focus:ring-green-500'
+          className='group inline-flex justify-center items-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2  focus:ring-green-500'
           disabled={isLoading}
           onClick={() => submitForm(memo, sendAmount)}
         >
           {isLoading ? (
             <>
-              <Spinner /> <ButtonText>Generating invoice</ButtonText>
+              <ButtonText>Generating invoice</ButtonText>
+              <Spinner />
             </>
           ) : (
-            'Generate invoice'
+            <>
+              Generate invoice
+              <ArrowRightIcon className='w-4 h-4 ml-2 group-hover:translate-x-1 transition ease-in-out duration-100' />
+            </>
           )}
         </button>
       </div>

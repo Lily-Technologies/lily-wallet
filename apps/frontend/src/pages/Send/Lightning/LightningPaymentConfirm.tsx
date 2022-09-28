@@ -1,16 +1,17 @@
 import React, { useState, useContext, useEffect } from 'react';
 import styled from 'styled-components';
 import { decode } from 'bolt11';
-import type { Payment } from '@lily-technologies/lnrpc';
+import type { Payment, ChannelBalanceResponse } from '@lily-technologies/lnrpc';
 
 import { Button, Countdown, Modal, Unit } from 'src/components';
 
-import { white, gray400, green600, gray600, red500, gray300, yellow600 } from 'src/utils/colors';
+import { white, green600, gray600, red500, gray300, yellow600 } from 'src/utils/colors';
 
 import PaymentSuccess from './PaymentSuccess';
 
 import { LilyLightningAccount } from '@lily/types';
 import { SetStateNumber } from 'src/types';
+import { classNames } from 'src/utils/other';
 
 import { PlatformContext, UnitContext } from 'src/context';
 
@@ -43,7 +44,7 @@ const LightningPaymentConfirm = ({ paymentRequest, setStep, currentAccount }: Pr
           amt: decoded.satoshis?.toString()
         });
 
-        setEstimatedFee(Math.floor(Number(routes[0].totalFeesMsat) / 1000));
+        setEstimatedFee(Math.floor(Number(routes[0].totalAmt) - decoded.satoshis!));
       } catch (e) {
         console.log('e: ', e);
       }
@@ -89,53 +90,74 @@ const LightningPaymentConfirm = ({ paymentRequest, setStep, currentAccount }: Pr
   };
 
   return (
-    <AccountReceiveContentLeft>
-      <HeaderContainer>Payment summary</HeaderContainer>
-      <TxReviewWrapper>
-        <TxItem style={{ marginTop: 0 }}>
-          <TxItemLabel>Description</TxItemLabel>
-          <TxItemValue>{description}</TxItemValue>
-        </TxItem>
+    <div className='bg-white rounded-md shadow dark:bg-gray-800 border border-gray-900/20 dark:border-gray-500/20'>
+      <div className='pt-4 px-6'>
+        <div className='divide-y divide-slate-800/10 dark:divide-slate-200/10'>
+          <div className='flex flex-wrap justify-between py-4'>
+            <div className='text-gray-900 dark:text-gray-200'>Send from</div>
+            <div className='text-gray-900 dark:text-gray-200 font-medium'>
+              {currentAccount.name} (
+              <Unit
+                value={(currentAccount.currentBalance as ChannelBalanceResponse).localBalance!.sat}
+              />{' '}
+              )
+            </div>
+          </div>
 
-        <TxItem>
-          <TxItemLabel>Amount</TxItemLabel>
-          <TxItemValue>{getValue(Number(decoded.satoshis))}</TxItemValue>
-        </TxItem>
+          <div className='flex flex-wrap justify-between py-4'>
+            <div className='text-gray-900 dark:text-gray-200'>Memo</div>
+            <div className='text-gray-900 dark:text-gray-200 font-medium'>{description}</div>
+          </div>
 
-        {/* TODO: implement this logic */}
-        <TxItem>
-          <TxItemLabel>Estimated fee</TxItemLabel>
-          <TxItemValue>
-            {estimateFeeLoading ? 'Calculating...' : getValue(estimatedFee)}
-          </TxItemValue>
-        </TxItem>
-      </TxReviewWrapper>
-      <TxReviewWrapper
-        style={{
-          paddingTop: '1.5rem',
-          borderTop: '1px solid rgb(229, 231, 235)',
-          fontWeight: 500,
-          fontSize: '1rem',
-          lineHeight: '1.5rem'
-        }}
-      >
-        <TxItem style={{ marginTop: 0 }}>
-          <TxItemLabel>Total</TxItemLabel>
-          <TxItemValue>{getValue(decoded.satoshis! + estimatedFee)}</TxItemValue>
-        </TxItem>
-      </TxReviewWrapper>
+          <div className='flex flex-wrap justify-between py-4'>
+            <div className='text-gray-900 dark:text-gray-200'>Amount</div>
+            <div className='text-gray-900 dark:text-gray-200 font-medium'>
+              <Unit value={decoded.satoshis!} />
+            </div>
+          </div>
 
-      {!!!invoiceExpired && (
-        <ExpirationContainer>
-          Expires in{' '}
-          <Countdown
-            onExpire={() => setInvoiceExpired(true)}
-            endTimeSeconds={decoded.timeExpireDate!}
-            style={{ marginLeft: '0.25rem' }}
-          />
-        </ExpirationContainer>
-      )}
-      {invoiceExpired && <ErrorContainer>This invoice has expired</ErrorContainer>}
+          <div className='flex flex-wrap justify-between py-4'>
+            <div className='text-gray-900 dark:text-gray-200'>Estimated fee</div>
+            <div className='text-gray-900 dark:text-gray-200 font-medium'>
+              {estimateFeeLoading ? 'Calculating...' : <Unit value={estimatedFee} />}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className='border-t border-slate-800/10 dark:border-slate-200/10'>
+        <div className='px-6'>
+          <div className='flex flex-wrap justify-between py-4'>
+            <div className='text-gray-900 dark:text-gray-200'>Total</div>
+            <div className='text-gray-900 dark:text-gray-200 font-medium'>
+              {getValue(decoded.satoshis! + estimatedFee)}
+            </div>
+          </div>
+
+          <div className='flex flex-wrap justify-between py-4'>
+            <div className='text-gray-900 dark:text-gray-200'>Status</div>
+            <div
+              className={classNames(
+                invoiceExpired ? 'text-red-500' : 'text-gray-900 dark:text-gray-200',
+                'font-medium flex flex-col text-right'
+              )}
+            >
+              {invoiceExpired ? 'Expired' : 'Waiting for payment'}
+              {!invoiceExpired ? (
+                <span className='text-xs text-gray-500 dark:text-gray-400'>
+                  (Invoice expires in
+                  <Countdown
+                    onExpire={() => setInvoiceExpired(true)}
+                    endTimeSeconds={decoded.timeExpireDate!}
+                    style={{ marginLeft: '0.25rem' }}
+                  />
+                  )
+                </span>
+              ) : null}
+            </div>
+          </div>
+        </div>
+      </div>
+
       {paymentError && !invoiceExpired && (
         <ErrorContainer
           style={{
@@ -169,7 +191,7 @@ const LightningPaymentConfirm = ({ paymentRequest, setStep, currentAccount }: Pr
       <Modal isOpen={modalIsOpen} closeModal={() => setModalIsOpen(false)}>
         {modalContent}
       </Modal>
-    </AccountReceiveContentLeft>
+    </div>
   );
 };
 
@@ -210,9 +232,6 @@ const AccountReceiveContentLeft = styled.div`
   display: flex;
   flex-direction: column;
   flex: 1;
-  background: ${white};
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  border: 1px solid ${gray400};
   border-radius: 0.385em;
   justify-content: center;
   width: 100%;

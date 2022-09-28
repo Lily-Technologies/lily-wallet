@@ -245,7 +245,7 @@ const OnchainSendTxForm = ({
             </div>
           </div>
         </div>
-        <div className='text-right py-2 px-4 mt-2 border bg-gray-50 dark:border-gray-900 dark:bg-gray-700 rounded-bl-md rounded-br-md'>
+        <div className='text-right py-4 px-5 mt-2 border bg-gray-50 dark:border-gray-900 dark:bg-gray-700 rounded-bl-md rounded-br-md'>
           <button
             disabled={!!currentAccount.loading}
             className='group inline-flex items-center justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md disabled:bg-red-500 text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2  focus:ring-green-500'

@@ -82,7 +82,7 @@ const LightningSendTxForm = ({ setStep, setPaymentRequest, paymentRequest }: Pro
           </div>
         </div>
       </div>
-      <div className='flex justify-end items-center text-right py-3 px-4 mt-2 border dark:border-gray-900 bg-gray-50 dark:bg-gray-700 rounded-bl-md rounded-br-md'>
+      <div className='flex justify-end items-center text-right py-4 px-5 mt-2 border dark:border-gray-900 bg-gray-50 dark:bg-gray-700 rounded-bl-md rounded-br-md'>
         {/* TODO: Remove button since react-qr-scanner won't work on unsecure connections. */}
         <button
           className='inline-flex bg-white mr-3 py-2 px-3 sm:px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2  focus:ring-sky-500'
