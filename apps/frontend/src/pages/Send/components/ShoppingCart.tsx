@@ -14,7 +14,7 @@ const ShoppingCartView = ({ items }: Props) => {
   return (
     <ul
       role='list'
-      className='flex flex-1 items-center divide-y divide-gray-200 dark:divide-gray-700 border-b border-gray-200 dark:border-gray-700'
+      className='flex flex-col flex-1 items-center divide-y divide-gray-200 dark:divide-gray-700 border-b border-gray-200 dark:border-gray-700'
     >
       {items.map((item, index) => (
         <li key={index} className='flex py-6 px-4 sm:px-6 w-full'>
