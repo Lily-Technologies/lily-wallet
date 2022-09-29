@@ -1,6 +1,4 @@
 import { useContext, useState } from 'react';
-import styled from 'styled-components';
-import { useHistory } from 'react-router-dom';
 import { ArrowRightIcon } from '@heroicons/react/outline';
 
 import { Input } from 'src/components';
@@ -29,7 +27,6 @@ const SignupForm = ({ encryptedConfigFile, cancel }: Props) => {
   const [localConfirmPassword, setLocalConfirmPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [confirmPasswordError, setConfirmPasswordError] = useState('');
-  const history = useHistory();
 
   const validateInput = () => {
     if (!!localPassword && localPassword.length < MIN_PASSWORD_LENGTH) {
@@ -50,9 +47,9 @@ const SignupForm = ({ encryptedConfigFile, cancel }: Props) => {
   };
 
   const createNewConfig = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     setIsLoading(true);
     try {
-      e.preventDefault();
       if (validateInput()) {
         const configCopy = { ...config };
         configCopy.isEmpty = false;
@@ -67,7 +64,6 @@ const SignupForm = ({ encryptedConfigFile, cancel }: Props) => {
       setPasswordError('Error. Try again.');
       setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   const changeLocalPassword = (value: string) => {
@@ -85,7 +81,7 @@ const SignupForm = ({ encryptedConfigFile, cancel }: Props) => {
       <div>
         <FlowerLogo className='h-12 w-auto' />
         <h2 className='mt-6 text-3xl font-extrabold text-gray-900 dark:text-gray-200'>
-          Create a new wallet
+          Getting started
         </h2>
         <p className='mt-1 text-sm text-gray-600 dark:text-gray-500'>
           Input a password to secure your wallet.
@@ -93,7 +89,7 @@ const SignupForm = ({ encryptedConfigFile, cancel }: Props) => {
       </div>
       <div className='mt-8'>
         <div className='mt-6'>
-          <form onSubmit={createNewConfig} className='space-y-6'>
+          <form onSubmit={(e) => createNewConfig(e)} className='space-y-6'>
             <div className='space-y-1'>
               <Input
                 label='Password'
@@ -133,9 +129,14 @@ const SignupForm = ({ encryptedConfigFile, cancel }: Props) => {
                 type='submit'
                 className='group ml-3 flex justify-center items-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2  focus:ring-green-500'
               >
-                {isLoading && <LoadingImage alt='loading placeholder' src={FlowerLoading} />}
-                {isLoading ? 'Loading wallet...' : 'Continue'}
-                {isLoading ? null : (
+                {isLoading ? 'Loading...' : 'Continue'}
+                {isLoading ? (
+                  <img
+                    alt='loading placeholder'
+                    src={FlowerLoading}
+                    className='w-4 h-4 ml-1 brightness-0 invert'
+                  />
+                ) : (
                   <ArrowRightIcon className='w-4 h-4 ml-2 group-hover:translate-x-1 transition ease-in-out duration-100' />
                 )}
               </button>
@@ -146,13 +147,5 @@ const SignupForm = ({ encryptedConfigFile, cancel }: Props) => {
     </div>
   );
 };
-
-const LoadingImage = styled.img`
-  filter: brightness(0) invert(1);
-  max-width: 1.25em;
-  margin-left: 0.25em;
-  opacity: 0.9;
-  margin-right: 0.5em;
-`;
 
 export default SignupForm;
