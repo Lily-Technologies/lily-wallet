@@ -61,7 +61,7 @@ app.setPath('userData', path.join(app.getPath('appData'), 'LilyWallet'));
 function createWindow() {
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    width: 1100,
+    width: 1024,
     height: 600,
     backgroundColor: 'rgb(245, 247, 250)',
     transparent: true,
@@ -127,7 +127,6 @@ const setupInitialNodeConfig = async () => {
   try {
     console.log('Retrieving node config file...');
     const userDataPath = app.getPath('userData');
-    console.log('userDataPath: ', userDataPath);
     const nodeConfigFile = await getFile('node-config.json', userDataPath);
     console.log('Retrieved node config file.');
     const nodeConfig: OnchainProviderConnectionDetails = JSON.parse(nodeConfigFile.file);
