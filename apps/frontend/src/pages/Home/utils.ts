@@ -33,6 +33,8 @@ export const getLastTransactionTimeLightning = (events: LightningEvent[]) => {
   if (!events || events.length === 0) {
     // if no transactions yet
     return `No activity on this account yet`;
+  } else if (!events[0].creationDate) {
+    return 'Last transaction was moments ago';
   } else {
     // if transaction is confirmed, give moments ago
     return `Last transaction was ${moment.unix(Number(events[0].creationDate)).fromNow()}`;
