@@ -8,7 +8,7 @@ import TrezorOne from 'src/assets/trezor_1.png';
 import TrezorT from 'src/assets/trezor_t.png';
 import Cobo from 'src/assets/cobo.png';
 import Bitbox from 'src/assets/bitbox02.png';
-import Iphone from 'src/assets/iphone.png';
+import LilyLogo from 'src/assets/flower.svg';
 import Unchained from 'src/assets/unchained.png';
 
 import { Device } from '@lily/types';
@@ -48,7 +48,7 @@ export const DeviceImage = ({ device, className }: Props) => {
           ? Bitbox
           : device.type === 'unchained'
           ? Unchained
-          : Iphone
+          : LilyLogo
       }
     />
   );
