@@ -314,7 +314,7 @@ export class LND extends LightningBaseProvider {
       if (!b.creationDate && !a.creationDate) {
         return 0;
       } else if (!b.creationDate) {
-        return -1;
+        return 1;
       } else if (!a.creationDate) {
         return -1;
       }
