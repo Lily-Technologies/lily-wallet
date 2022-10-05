@@ -25,7 +25,7 @@ const LightningHeader = ({ toggleRefresh }: Props) => {
         <PageTitle style={{ cursor: 'pointer' }} onClick={() => history.push(url)}>
           {currentAccount.name}
         </PageTitle>
-        <VaultExplainerText>
+        <div className='flex items-center text-sm font-medium text-gray-300'>
           <IconSvg
             xmlns='http://www.w3.org/2000/svg'
             fill='none'
@@ -40,7 +40,7 @@ const LightningHeader = ({ toggleRefresh }: Props) => {
             />
           </IconSvg>
           Lightning Wallet
-        </VaultExplainerText>
+        </div>
       </HeaderLeft>
       <div className='flex items-center'>
         <Link
@@ -105,15 +105,6 @@ const LoadingImage = styled.img`
   filter: brightness(0) invert(1);
   max-width: 2em;
   margin: 0 0.5em 0 0.75em;
-`;
-
-const VaultExplainerText = styled.div`
-  color: ${gray300};
-  display: flex;
-  align-items: center;
-  margin-top: 0.5em;
-  font-weight: 500;
-  font-size: 0.85em;
 `;
 
 export default LightningHeader;

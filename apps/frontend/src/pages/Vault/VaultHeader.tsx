@@ -69,7 +69,9 @@ const VaultHeader = ({ toggleRefresh }: Props) => {
         <PageTitle style={{ cursor: 'pointer' }} onClick={() => history.push(url)}>
           {currentAccount.name}
         </PageTitle>
-        <VaultExplainerText>{HeadingComponent}</VaultExplainerText>
+        <div className='flex items-center text-sm font-medium text-gray-300'>
+          {HeadingComponent}
+        </div>
       </HeaderLeft>
       <div className='flex items-center'>
         <Link
