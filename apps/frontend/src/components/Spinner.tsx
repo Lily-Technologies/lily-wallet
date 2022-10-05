@@ -1,8 +1,13 @@
 import React from 'react';
+import { classNames } from 'src/utils/other';
 
-export const Spinner = () => (
+interface Props {
+  className: string;
+}
+
+export const Spinner = ({ className }: Props) => (
   <svg
-    className='animate-spin -mr-1 ml-3 h-5 w-5 text-white'
+    className={classNames(className, 'animate-spin h-5 w-5 text-white')}
     xmlns='http://www.w3.org/2000/svg'
     fill='none'
     viewBox='0 0 24 24'

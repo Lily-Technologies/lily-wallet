@@ -78,7 +78,7 @@ export const RescanModal = ({ closeModal, currentAccount, toggleRefresh }: Props
           >
             {isLoading ? (
               <>
-                <Spinner />
+                <Spinner className='-ml-1 mr-3' />
                 Scanning...
               </>
             ) : (

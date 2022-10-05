@@ -105,7 +105,7 @@ const NewLightningScreen = ({
         >
           {isLoading ? (
             <>
-              <Spinner />
+              <Spinner className='-ml-1 mr-3' />
               Connecting...
             </>
           ) : (

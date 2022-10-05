@@ -62,7 +62,7 @@ export const PricingTable = ({ clickRenewLicense, currentAccount }: Props) => {
               >
                 {isLoading === LicenseTiers.basic ? (
                   <>
-                    <Spinner />
+                    <Spinner className='-ml-1 mr-3' />
                     Loading...
                   </>
                 ) : (
@@ -227,7 +227,7 @@ export const PricingTable = ({ clickRenewLicense, currentAccount }: Props) => {
               >
                 {isLoading === LicenseTiers.basic ? (
                   <>
-                    <Spinner />
+                    <Spinner className='-ml-1 mr-3' />
                     Loading...
                   </>
                 ) : (
@@ -252,7 +252,7 @@ export const PricingTable = ({ clickRenewLicense, currentAccount }: Props) => {
             >
               {isLoading === LicenseTiers.premium ? (
                 <>
-                  <Spinner />
+                  <Spinner className='-ml-1 mr-3' />
                   Loading...
                 </>
               ) : (
@@ -417,7 +417,7 @@ export const PricingTable = ({ clickRenewLicense, currentAccount }: Props) => {
             >
               {isLoading === LicenseTiers.premium ? (
                 <>
-                  <Spinner />
+                  <Spinner className='-ml-1 mr-3' />
                   Loading...
                 </>
               ) : (
@@ -462,7 +462,7 @@ export const PricingTable = ({ clickRenewLicense, currentAccount }: Props) => {
                     >
                       {isLoading === LicenseTiers.basic ? (
                         <>
-                          <Spinner />
+                          <Spinner className='-ml-1 mr-3' />
                           Loading...
                         </>
                       ) : (
@@ -487,7 +487,7 @@ export const PricingTable = ({ clickRenewLicense, currentAccount }: Props) => {
                   >
                     {isLoading === LicenseTiers.premium ? (
                       <>
-                        <Spinner />
+                        <Spinner className='-ml-1 mr-3' />
                         Loading...
                       </>
                     ) : (
@@ -743,7 +743,7 @@ export const PricingTable = ({ clickRenewLicense, currentAccount }: Props) => {
                   >
                     {isLoading === LicenseTiers.basic ? (
                       <>
-                        <Spinner />
+                        <Spinner className='-ml-1 mr-3' />
                         Loading...
                       </>
                     ) : (
@@ -759,7 +759,7 @@ export const PricingTable = ({ clickRenewLicense, currentAccount }: Props) => {
                 >
                   {isLoading === LicenseTiers.premium ? (
                     <>
-                      <Spinner />
+                      <Spinner className='-ml-1 mr-3' />
                       Loading...
                     </>
                   ) : (

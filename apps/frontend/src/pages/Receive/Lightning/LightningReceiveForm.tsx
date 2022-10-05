@@ -109,7 +109,7 @@ const LightningReceiveForm = ({ setStep, setInvoice, currentAccount }: Props) =>
           {isLoading ? (
             <>
               <ButtonText>Generating invoice</ButtonText>
-              <Spinner />
+              <Spinner className='-mr-1 ml-3' />
             </>
           ) : (
             <>

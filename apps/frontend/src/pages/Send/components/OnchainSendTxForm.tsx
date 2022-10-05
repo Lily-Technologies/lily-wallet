@@ -256,7 +256,7 @@ const OnchainSendTxForm = ({
             ) : isLoading ? (
               <>
                 Preview Transaction
-                <Spinner />
+                <Spinner className='-mr-1 ml-3' />
               </>
             ) : (
               <>

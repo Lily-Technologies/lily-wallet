@@ -116,7 +116,7 @@ export const ConnectToNodeModal = ({ onRequestClose, setNodeConfig }: Props) => 
             >
               {isLoading ? (
                 <>
-                  <Spinner />
+                  <Spinner className='-ml-1 mr-3' />
                   Connecting...
                 </>
               ) : (
