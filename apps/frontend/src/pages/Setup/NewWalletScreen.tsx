@@ -81,9 +81,9 @@ const CreateWallet = ({ setStep, newAccount, setNewAccount }: Props) => {
                 </div>
               </SetupHeaderWrapper>
             </XPubHeaderWrapper>
-            <WordContainer>
+            <div className='flex flex-wrap p-5 bg-gray-100 dark:bg-slate-800 justify-center border-b border-l border-r border-gray-600/10 dark:border-slate-300/10'>
               <MnemonicWordsDisplayer mnemonicWords={newAccount.mnemonic!} />
-            </WordContainer>
+            </div>
             <SaveWalletButton
               background={green600}
               color={white}

@@ -12,46 +12,61 @@ export const MnemonicWordsDisplayer = ({ mnemonicWords }: Props) => {
 
   return (
     <Fragment>
-      <WordSection>
+      <div className='flex flex-col'>
         {mnemonicWordsArray.slice(0, 6).map((word, index) => (
-          <Word key={index}>
-            <WordIndex>({index + 1})</WordIndex>
+          <div
+            key={index}
+            className='bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-200 py-4 px-6 border border-green-800 relative text-center rounded-2xl m-1'
+          >
+            <span className='absolute top-1 left-1 text-xs text-slate-600 dark:text-slate-300'>
+              ({index + 1})
+            </span>
             {word}
-          </Word>
+          </div>
         ))}
-      </WordSection>
-      <WordSection>
+      </div>
+      <div className='flex flex-col'>
         {mnemonicWordsArray.slice(6, 12).map((word, index) => (
-          <Word key={index + 6}>
-            <WordIndex>({index + 7}) </WordIndex>
+          <div
+            key={index + 6}
+            className='bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-200 py-4 px-6 border border-green-800 relative text-center rounded-2xl m-1'
+          >
+            <span className='absolute top-1 left-1 text-xs text-slate-600 dark:text-slate-300'>
+              ({index + 7}){' '}
+            </span>
             {word}
-          </Word>
+          </div>
         ))}
-      </WordSection>
-      <WordSection>
+      </div>
+      <div className='flex flex-col'>
         {mnemonicWordsArray.slice(12, 18).map((word, index) => (
-          <Word key={index + 12}>
-            <WordIndex>({index + 13})</WordIndex>
+          <div
+            key={index + 12}
+            className='bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-200 py-4 px-6 border border-green-800 relative text-center rounded-2xl m-1'
+          >
+            <span className='absolute top-1 left-1 text-xs text-slate-600 dark:text-slate-300'>
+              ({index + 13})
+            </span>
             {word}
-          </Word>
+          </div>
         ))}
-      </WordSection>
-      <WordSection>
+      </div>
+      <div className='flex flex-col'>
         {mnemonicWordsArray.slice(18, 24).map((word, index) => (
-          <Word key={index + 18}>
-            <WordIndex>({index + 19})</WordIndex>
+          <div
+            key={index + 18}
+            className='bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-200 py-4 px-6 border border-green-800 relative text-center rounded-2xl m-1'
+          >
+            <span className='absolute top-1 left-1 text-xs text-slate-600 dark:text-slate-300'>
+              ({index + 19})
+            </span>
             {word}
-          </Word>
+          </div>
         ))}
-      </WordSection>
+      </div>
     </Fragment>
   );
 };
-
-const WordSection = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
 
 const Word = styled.div`
   padding: 1.25em;
