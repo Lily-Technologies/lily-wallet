@@ -58,18 +58,6 @@ const RequiredDevicesModal = ({ newAccount, onClick }: Props) => {
   );
 };
 
-const ModalHeaderContainer = styled.div`
-  border-bottom: 1px solid rgb(229, 231, 235);
-  padding-top: 1.25rem;
-  padding-bottom: 1.25rem;
-  padding-left: 1.5rem;
-  padding-right: 1.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 1.5em;
-`;
-
 const SelectionContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -87,11 +75,6 @@ const SelectionWrapper = styled.div`
   padding: 4em;
   align-items: center;
   justify-content: center;
-`;
-
-const CurrentSelection = styled.div`
-  padding: 1em;
-  font-size: 2.5em;
 `;
 
 const IncrementButton = styled.button<{ disabled: boolean }>`

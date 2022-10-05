@@ -33,7 +33,6 @@ const NewVaultScreen = ({ setStep, newAccount, setNewAccount }: Props) => {
   const [errorDevices, setErrorDevices] = useState<string[]>([]);
   const [hwiLoading, setHwiLoading] = useState(false);
   const otherMethodsDropdownRef = useRef<HTMLButtonElement>(null);
-  console.log('otherMethodsDropdownRef: ', otherMethodsDropdownRef);
 
   const [innerStep, setInnerStep] = useState(0);
   const location = useLocation();

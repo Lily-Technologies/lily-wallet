@@ -82,7 +82,7 @@ const SelectAccountScreen = ({
           className='text-black dark:text-white'
           dropdownItems={[
             {
-              label: 'New Software Wallet',
+              label: 'New mnemonic wallet',
               onClick: () => {
                 setSetupOption(2);
                 setStep(1);
