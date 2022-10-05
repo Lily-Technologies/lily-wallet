@@ -85,7 +85,7 @@ const OpenChannelForm = ({
         >
           {isLoading ? (
             <>
-              <Spinner /> Creating transaction...
+              <Spinner className='-ml-1 mr-3' /> Creating transaction...
             </>
           ) : (
             'Create funding transaction'

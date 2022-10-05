@@ -74,16 +74,12 @@ const ExportView = ({ currentAccount, currentBitcoinNetwork }: Props) => {
     );
   };
 
-  const Container = styled.div`
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-  `;
-
   const XpubQrCode = () => (
-    <Container>
-      <ModalHeaderContainer>Scan this with your device</ModalHeaderContainer>
-      <ModalContent>
+    <div className='flex flex-col w-full'>
+      <h2 className='border-b border-gray-400 dark:border-slate-100/10 px-5 py-6 flex items-center justify-between text-3xl text-slate-900 dark:text-slate-200'>
+        Scan this with your device
+      </h2>
+      <div className='flex justify-center p-4 bg-gray-100 dark:bg-slate-800'>
         <QRCode
           bgColor={white}
           fgColor={black}
@@ -91,14 +87,16 @@ const ExportView = ({ currentAccount, currentBitcoinNetwork }: Props) => {
           style={{ width: 256 }}
           value={currentAccount.config.extendedPublicKeys[0].xpub as string}
         />
-      </ModalContent>
-    </Container>
+      </div>
+    </div>
   );
 
   const MnemonicQrCode = () => (
-    <Container>
-      <ModalHeaderContainer>Scan this with your device</ModalHeaderContainer>
-      <ModalContent>
+    <div className='flex flex-col w-full'>
+      <h2 className='border-b border-gray-400 dark:border-slate-100/10 px-5 py-6 flex items-center justify-between text-3xl text-slate-900 dark:text-slate-200'>
+        Scan this with your device
+      </h2>
+      <div className='flex justify-center p-4 bg-gray-100 dark:bg-slate-800'>
         <QRCode
           bgColor={white}
           fgColor={black}
@@ -106,8 +104,8 @@ const ExportView = ({ currentAccount, currentBitcoinNetwork }: Props) => {
           style={{ width: 256 }}
           value={currentAccount.config.mnemonic as string}
         />
-      </ModalContent>
-    </Container>
+      </div>
+    </div>
   );
 
   return (
@@ -115,38 +113,43 @@ const ExportView = ({ currentAccount, currentBitcoinNetwork }: Props) => {
       <SettingsTable.HeaderSection>
         <SettingsTable.HeaderTitle>Export Account</SettingsTable.HeaderTitle>
         <SettingsTable.HeaderSubtitle>
-          Use the options below to use other software to verify the information in Lily.
+          Use the options below to use other software to verify the information and data.
         </SettingsTable.HeaderSubtitle>
       </SettingsTable.HeaderSection>
       {currentAccount.config.mnemonic && (
         <SettingsTable.Row>
-          <SettingsTable.KeyColumn>Mnemonic Words</SettingsTable.KeyColumn>
+          <SettingsTable.KeyColumn>Recovery Words</SettingsTable.KeyColumn>
           <SettingsTable.ValueColumn>
             <SettingsTable.ValueText></SettingsTable.ValueText>
             <SettingsTable.ValueAction style={{ display: 'flex' }}>
-              <SettingsTable.ActionButton
+              <button
+                className='ml-4 bg-white dark:bg-gray-800 rounded-md font-medium text-green-500 hover:text-green-400 focus:outline-none focus:ring-2  focus:ring-green-300'
                 onClick={() => {
                   openInModal(<MnemonicQrCode />);
                 }}
               >
                 View QR Code
-              </SettingsTable.ActionButton>
-              <SettingsTable.ActionButton
+              </button>
+              <span className='text-gray-300 ml-4 dark:text-slate-600' aria-hidden='true'>
+                |
+              </span>
+              <button
+                className='ml-4 bg-white dark:bg-gray-800 rounded-md font-medium text-green-500 hover:text-green-400 focus:outline-none focus:ring-2  focus:ring-green-300'
                 onClick={() =>
                   openInModal(
-                    <Container>
-                      <ModalHeaderContainer>
+                    <div className='flex flex-col w-full'>
+                      <h2 className='border-b border-gray-400 dark:border-slate-100/10 px-5 py-6 flex items-center justify-between text-3xl text-slate-900 dark:text-slate-200'>
                         Do not share these words with anyone.
-                      </ModalHeaderContainer>
-                      <ModalContent>
+                      </h2>
+                      <div className='flex justify-center p-4 bg-gray-100 dark:bg-slate-800'>
                         <MnemonicWordsDisplayer mnemonicWords={currentAccount.config.mnemonic!} />
-                      </ModalContent>
-                    </Container>
+                      </div>
+                    </div>
                   )
                 }
               >
                 View Words
-              </SettingsTable.ActionButton>
+              </button>
             </SettingsTable.ValueAction>
           </SettingsTable.ValueColumn>
         </SettingsTable.Row>
@@ -158,13 +161,14 @@ const ExportView = ({ currentAccount, currentBitcoinNetwork }: Props) => {
             <SettingsTable.ValueColumn>
               <SettingsTable.ValueText></SettingsTable.ValueText>
               <SettingsTable.ValueAction>
-                <SettingsTable.ActionButton
+                <button
+                  className='ml-4 bg-white dark:bg-gray-800 rounded-md font-medium text-green-500 hover:text-green-400 focus:outline-none focus:ring-2  focus:ring-green-300'
                   onClick={() => {
                     downloadLilyFile(currentAccount.config);
                   }}
                 >
                   Download
-                </SettingsTable.ActionButton>
+                </button>
               </SettingsTable.ValueAction>
             </SettingsTable.ValueColumn>
           </SettingsTable.Row>
@@ -173,13 +177,14 @@ const ExportView = ({ currentAccount, currentBitcoinNetwork }: Props) => {
             <SettingsTable.ValueColumn>
               <SettingsTable.ValueText></SettingsTable.ValueText>
               <SettingsTable.ValueAction>
-                <SettingsTable.ActionButton
+                <button
+                  className='ml-4 bg-white dark:bg-gray-800 rounded-md font-medium text-green-500 hover:text-green-400 focus:outline-none focus:ring-2  focus:ring-green-300'
                   onClick={() => {
                     downloadColdcardMultisigFile();
                   }}
                 >
                   Download
-                </SettingsTable.ActionButton>
+                </button>
               </SettingsTable.ValueAction>
             </SettingsTable.ValueColumn>
           </SettingsTable.Row>
@@ -188,13 +193,14 @@ const ExportView = ({ currentAccount, currentBitcoinNetwork }: Props) => {
             <SettingsTable.ValueColumn>
               <SettingsTable.ValueText></SettingsTable.ValueText>
               <SettingsTable.ValueAction>
-                <SettingsTable.ActionButton
+                <button
+                  className='ml-4 bg-white dark:bg-gray-800 rounded-md font-medium text-green-500 hover:text-green-400 focus:outline-none focus:ring-2  focus:ring-green-300'
                   onClick={() => {
                     downloadCaravanFile(currentAccount.config);
                   }}
                 >
                   Download
-                </SettingsTable.ActionButton>
+                </button>
               </SettingsTable.ValueAction>
             </SettingsTable.ValueColumn>
           </SettingsTable.Row>
@@ -206,13 +212,14 @@ const ExportView = ({ currentAccount, currentBitcoinNetwork }: Props) => {
           <SettingsTable.ValueColumn>
             <SettingsTable.ValueText></SettingsTable.ValueText>
             <SettingsTable.ValueAction>
-              <SettingsTable.ActionButton
+              <button
+                className='ml-4 bg-white dark:bg-gray-800 rounded-md font-medium text-green-500 hover:text-green-400 focus:outline-none focus:ring-2  focus:ring-green-300'
                 onClick={() => {
                   openInModal(<XpubQrCode />);
                 }}
               >
                 View QR Code
-              </SettingsTable.ActionButton>
+              </button>
             </SettingsTable.ValueAction>
           </SettingsTable.ValueColumn>
         </SettingsTable.Row>
@@ -223,24 +230,5 @@ const ExportView = ({ currentAccount, currentBitcoinNetwork }: Props) => {
     </SettingsTable.Wrapper>
   );
 };
-
-const ModalHeaderContainer = styled.div`
-  border-bottom: 1px solid rgb(229, 231, 235);
-  padding-top: 1.25rem;
-  padding-bottom: 1.25rem;
-  padding-left: 1.5rem;
-  padding-right: 1.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 1.5em;
-`;
-
-const ModalContent = styled.div`
-  display: flex;
-  justify-content: center;
-  padding: 1.5em;
-  background: ${gray100};
-`;
 
 export default requireOnchain(ExportView);

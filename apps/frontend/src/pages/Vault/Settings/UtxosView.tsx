@@ -2,7 +2,6 @@ import React from 'react';
 
 import { requireOnchain } from 'src/hocs';
 
-import { Table, TableBody } from 'src/components/Table';
 import { SettingsTable } from 'src/components';
 
 import { LilyOnchainAccount } from '@lily/types';
@@ -25,14 +24,14 @@ const UtxosView = ({ currentAccount }: Props) => {
       </SettingsTable.HeaderSection>
       <div className='-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8'>
         <div className='py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8'>
-          <div className='shadow overflow-hidden border-b border-gray-200 sm:rounded-lg'>
-            <Table>
-              <TableBody>
+          <div className='overflow-hidden sm:rounded-lg'>
+            <table className='border-collapse w-full'>
+              <tbody className='divide-y dark:divide-slate-400/10'>
                 {availableUtxos.map((utxo) => (
                   <UtxoRow key={utxo.txid} utxo={utxo} />
                 ))}
-              </TableBody>
-            </Table>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>

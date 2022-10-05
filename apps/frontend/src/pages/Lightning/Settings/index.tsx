@@ -16,7 +16,7 @@ const LightningSettings = () => {
 
   return (
     <div className='bg-white dark:bg-gray-800 shadow rounded-md px-8'>
-      <div className='pt-10 pb-16'>
+      <div className='pt-10 pb-4'>
         <h2 className='text-3xl font-extrabold text-gray-900 dark:text-gray-300 mb-2'>Settings</h2>
         <Tabs currentTab={currentTab} setCurrentTab={setCurrentTab} items={tabItems} />
         {currentTab === 'general' && <GeneralView />}

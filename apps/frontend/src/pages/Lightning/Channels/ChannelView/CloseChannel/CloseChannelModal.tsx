@@ -109,7 +109,7 @@ const CloseChannelModal = ({ setStep, channel, currentAccount }: Props) => {
           >
             {isLoading ? (
               <>
-                <Spinner /> Closing channel...
+                <Spinner className='-ml-1 mr-3' /> Closing channel...
               </>
             ) : (
               'Close channel'

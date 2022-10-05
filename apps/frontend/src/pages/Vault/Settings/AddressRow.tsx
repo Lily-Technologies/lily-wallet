@@ -1,10 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { TableRow, TableColumn } from 'src/components/Table';
 import { Badge } from 'src/components';
 
-import { gray500, green800 } from 'src/utils/colors';
+import { gray500 } from 'src/utils/colors';
 import { classNames } from 'src/utils/other';
 
 import { Address } from '@lily/types';
@@ -16,12 +15,12 @@ interface Props {
 }
 
 const AddressRow = ({ address, status, type }: Props) => (
-  <TableRowNoBorder>
-    <TableColumnNoPadding>
+  <tr>
+    <td className='py-2'>
       <UtxoHeader className='text-gray-900 dark:text-gray-200'>{address.address}</UtxoHeader>
       <UtxoSubheader>Derivation path: {address.bip32derivation[0].path}</UtxoSubheader>
-    </TableColumnNoPadding>
-    <RightAlignColumn>
+    </td>
+    <td className='text-right'>
       <Badge
         className={classNames(
           status === 'used'
@@ -35,32 +34,9 @@ const AddressRow = ({ address, status, type }: Props) => (
       <Badge className='text-gray-800 bg-gray-100 dark:bg-gray-700 dark:text-gray-200'>
         {type}
       </Badge>
-    </RightAlignColumn>
-  </TableRowNoBorder>
+    </td>
+  </tr>
 );
-
-const TableColumnNoPadding = styled(TableColumn)`
-  padding-left: 0;
-  padding-right: 0;
-`;
-
-const TableRowNoBorder = styled(TableRow)`
-  border-left: none;
-  border-right: none;
-  border-top: none;
-  overflow-x: auto;
-`;
-
-const RightAlignColumn = styled(TableColumn)`
-  text-align: right;
-  color: ${green800};
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  font-weight: 500;
-  padding-left: 0;
-  padding-right: 0;
-  white-space: nowrap;
-`;
 
 const UtxoHeader = styled.div`
   font-size: 0.875rem;

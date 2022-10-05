@@ -1,10 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { TableRow, TableColumn } from 'src/components/Table';
 import { Badge, Unit } from 'src/components';
 
-import { gray500, green800 } from 'src/utils/colors';
+import { gray500 } from 'src/utils/colors';
 import { classNames } from 'src/utils/other';
 
 interface Props {
@@ -15,17 +14,14 @@ interface Props {
 }
 
 const ChannelRow = ({ alias, capacity, status, onClick }: Props) => (
-  <TableRowNoBorder
-    className='cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700'
-    onClick={() => onClick()}
-  >
-    <TableColumnNoPadding>
+  <tr className='cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700' onClick={() => onClick()}>
+    <td className='py-2 px-4 rounded-l-2xl'>
       <ChannelHeader className='text-gray-900 dark:text-gray-300'>{alias}</ChannelHeader>
       <ChannelSubheader>
         <Unit value={capacity} /> capacity
       </ChannelSubheader>
-    </TableColumnNoPadding>
-    <RightAlignColumn>
+    </td>
+    <td className='text-right rounded-r-2xl'>
       <Badge
         className={classNames(
           status === 'active'
@@ -36,30 +32,9 @@ const ChannelRow = ({ alias, capacity, status, onClick }: Props) => (
       >
         {status === 'active' ? 'online' : status === 'inactive' ? 'offline' : 'pending'}
       </Badge>
-    </RightAlignColumn>
-  </TableRowNoBorder>
+    </td>
+  </tr>
 );
-
-const TableColumnNoPadding = styled(TableColumn)`
-  padding-left: 0;
-  padding-right: 0;
-`;
-
-const TableRowNoBorder = styled(TableRow)`
-  border-left: none;
-  border-right: none;
-  border-top: none;
-`;
-
-const RightAlignColumn = styled(TableColumn)`
-  text-align: right;
-  color: ${green800};
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  font-weight: 500;
-  padding-left: 0;
-  padding-right: 0;
-`;
 
 const ChannelHeader = styled.div`
   font-size: 0.875rem;

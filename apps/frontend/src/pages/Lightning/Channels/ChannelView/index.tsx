@@ -50,8 +50,8 @@ const ChannelView = ({ currentAccount, setViewOpenChannelForm }: Props) => {
         </div>
       </div>
 
-      <Table>
-        <TableBody>
+      <table className='border-collapse w-full'>
+        <tbody className='divide-y dark:divide-slate-400/10'>
           {currentAccount.pendingChannels.map((channel) => (
             <ChannelRow
               key={123}
@@ -70,8 +70,8 @@ const ChannelView = ({ currentAccount, setViewOpenChannelForm }: Props) => {
               onClick={() => openInModal(<ChannelModal channel={channel} />)}
             />
           ))}
-        </TableBody>
-      </Table>
+        </tbody>
+      </table>
       <Modal isOpen={modalIsOpen} closeModal={() => closeModal()}>
         {modalContent}
       </Modal>

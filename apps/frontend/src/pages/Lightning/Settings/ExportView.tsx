@@ -43,7 +43,7 @@ const ExportView = ({ currentAccount }: Props) => {
       <SettingsTable.HeaderSection>
         <SettingsTable.HeaderTitle>Export Account</SettingsTable.HeaderTitle>
         <SettingsTable.HeaderSubtitle>
-          Use the options below to use other software to verify the information in Lily.
+          Use the options below to use other software to verify the information and data.
         </SettingsTable.HeaderSubtitle>
       </SettingsTable.HeaderSection>
 
