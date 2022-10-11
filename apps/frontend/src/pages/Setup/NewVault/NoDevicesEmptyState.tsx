@@ -4,7 +4,6 @@ import { ExclamationIcon, ExternalLinkIcon, BeakerIcon } from '@heroicons/react/
 interface Props {}
 
 const NoDevicesEmptyState = React.forwardRef<HTMLButtonElement>((props, ref) => {
-  console.log('refyy: ', ref);
   return (
     <div className='flex items-center justify-center py-12'>
       <div className='flex flex-col items-center justify-center text-center'>
