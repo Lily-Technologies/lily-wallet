@@ -281,7 +281,6 @@ ipcMain.on('/open-channel', async (event, args: OpenChannelRequestArgs) => {
     LightningDataProvider.openChannelInitialize(
       { lightningAddress, channelAmount },
       (err, data) => {
-        console.log('/open-channel err, data: ', err, data);
         if (err) {
           event.reply('/open-channel', err);
         } else {
