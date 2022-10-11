@@ -74,6 +74,7 @@ export const PromptPinModal = ({ device, enumerate, deviceAction, closeModal }: 
     });
     setCurrentPin('');
     if (response.success) {
+      setLoadingMessage('Sending request');
       const resp = await platform.enumerate();
       const unlockedDevice = resp.filter((item) => item.path === device.path)[0];
       // TODO: should device action always be forced after unlocking?
