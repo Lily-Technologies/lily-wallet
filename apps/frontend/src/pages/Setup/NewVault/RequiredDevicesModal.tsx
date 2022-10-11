@@ -19,7 +19,7 @@ const RequiredDevicesModal = ({ newAccount, onClick }: Props) => {
 
   return (
     <>
-      <h2 className='py-6 px-4 text-2xl font-medium text-slate-900 dark:text-slate-200 border-b border-slate-500 dark:border-slate-700'>
+      <h2 className='py-6 px-4 text-2xl font-medium text-slate-900 dark:text-slate-200 border-b border-slate-900/10 dark:border-slate-700'>
         How many devices are required to approve transactions?
       </h2>
       <SelectionContainer>
