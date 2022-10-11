@@ -266,6 +266,11 @@ ipcMain.on('/account-data', async (event, config: OnChainConfig) => {
 ipcMain.on('/lightning-account-data', async (event, config: LightningConfig) => {
   console.log(`Connecting to ${config.name}...`);
   try {
+    // if connecting to .onion, add grpc_proxy env variable
+    if (config.connectionDetails.lndConnectUri.includes('.onion')) {
+      // TODO: package tor with the app and do initialization, write to torrc, etc for the user similar to https://github.com/LN-Zap/node-lnd-grpc/blob/master/src/utils/tor.js#L30
+      process.env.grpc_proxy = `http://127.0.0.1:9065`;
+    }
     LightningDataProvider = new LND(config.connectionDetails.lndConnectUri);
     LightningDataProvider.getAccountData(config, (accountData) => {
       event.reply('/lightning-account-data', accountData);
