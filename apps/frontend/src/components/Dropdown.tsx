@@ -101,7 +101,7 @@ export const Dropdown = React.forwardRef<HTMLButtonElement, Props>(
                       <a
                         className={classNames(
                           item.onlyMobile ? 'flex sm:hidden' : 'flex',
-                          'block px-4 py-2 cursor-pointer text-slate-800 dark:text-slate-200 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-gray-50 dark:hover:bg-slate-500'
+                          'block text-sm px-4 py-2 cursor-pointer text-slate-800 dark:text-slate-200 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-gray-50 dark:hover:bg-slate-500'
                         )}
                         key={index}
                         // onlyMobile={!!item.onlyMobile}
