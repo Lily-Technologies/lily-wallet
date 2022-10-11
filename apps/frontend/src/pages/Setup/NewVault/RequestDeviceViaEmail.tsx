@@ -73,7 +73,7 @@ const RequestDeviceViaEmail = ({ newAccount, setNewAccount }: Props) => {
       className={classNames(
         'w-full transform overflow-hidden  bg-white dark:bg-slate-800 p-6 text-left rounded-2xl dark:highlight-white/10 border dark:border-white/[0.05]',
         'flex flex-col transition-max-height duration-500 ease-in-out',
-        showEmailForm ? 'h-80' : 'h-96'
+        showEmailForm ? 'h-80' : 'h-full'
       )}
     >
       <h3 className='text-lg font-medium leading-6 text-gray-900 dark:text-white'>
@@ -88,9 +88,7 @@ const RequestDeviceViaEmail = ({ newAccount, setNewAccount }: Props) => {
           <>
             <div className='mt-2'>
               <p className='text-sm text-gray-500 dark:text-gray-400 max-w-prose'>
-                Input your name and email below to generate a unique link to send to the other
-                person you want to include in this vault. When they have added their devices, you
-                will receive an email with a link to access the shared vault in Lily Wallet.
+                How many devices do you want others to contribute?
               </p>
             </div>
             <div className='py-20'>
