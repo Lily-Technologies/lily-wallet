@@ -58,7 +58,7 @@ const DevicesView = () => {
           Information about the devices that approve transactions for this account.
         </SettingsTable.HeaderSubtitle>
       </SettingsTable.HeaderSection>
-      <div className='bg-gray-50 dark:bg-slate-800 py-8 rounded-2xl mt-6 shadow-inner'>
+      <div className='bg-gray-50 dark:bg-slate-900 py-8 rounded-2xl mt-6 shadow-inner border border-slate-900/10'>
         <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
           <ul
             role='list'
@@ -67,7 +67,7 @@ const DevicesView = () => {
             {(currentAccount.config as OnChainConfig).extendedPublicKeys?.map((item) => (
               <li
                 key={item.device.fingerprint}
-                className='col-span-1 flex flex-col flex-none text-center relative z-10 rounded-xl bg-gray-100 hover:bg-gray-200 overflow-hidden my-auto xl:mt-18 dark:bg-slate-600 dark:hover:bg-slate-500 dark:highlight-white/10'
+                className='col-span-1 flex flex-col flex-none text-center relative border border-slate-900/10 z-10 rounded-xl shadow bg-white hover:bg-gray-200 overflow-hidden my-auto xl:mt-18 dark:bg-slate-600 dark:hover:bg-slate-500 dark:highlight-white/10'
               >
                 <button
                   className='rounded-xl mb-1 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-yellow-500'
