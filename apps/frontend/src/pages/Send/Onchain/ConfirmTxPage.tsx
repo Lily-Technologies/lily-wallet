@@ -93,7 +93,6 @@ const ConfirmTxPage = ({
 
         psbt.signAllInputsHD(root);
         psbt.validateSignaturesOfAllInputs(inputValidator);
-        psbt.finalizeAllInputs();
 
         setSignedDevices([
           {
