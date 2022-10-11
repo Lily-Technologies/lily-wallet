@@ -75,7 +75,7 @@ const TxDetailsModal = ({ transaction, setOpen }: Props) => {
           <h2 className='text-gray-800 dark:text-gray-200 text-2xl'>Status</h2>
           <StatusItem className='text-gray-700 dark:text-gray-400'>
             {transaction.status.confirmed
-              ? `Confirmed in block ${transaction.status.block_height}`
+              ? `Confirmed ${transaction.status.block_height} blocks ago`
               : 'Unconfirmed'}
           </StatusItem>
           <StatusItem className='text-gray-700 dark:text-gray-400'>
