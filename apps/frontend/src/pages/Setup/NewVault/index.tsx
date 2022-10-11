@@ -2,7 +2,7 @@ import React, { useState, useContext, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { MailIcon, UserIcon, ArrowRightIcon, WifiIcon } from '@heroicons/react/outline';
 import FlowerLoading from 'src/assets/flower-loading.svg';
-import { DeviceImage, SlideOver, Loading } from 'src/components';
+import { DeviceImage, SlideOver, Loading, PromptPinModal } from 'src/components';
 import DeviceDetails from 'src/pages/Vault/Settings/Devices/DeviceDetails';
 
 import { FormContainer } from '../styles';
@@ -18,6 +18,8 @@ import {
   multisigDeviceToExtendedPublicKey
 } from 'src/utils/files';
 
+import { classNames } from 'src/utils/other';
+
 import { PlatformContext, ConfigContext } from 'src/context';
 
 import { HwiEnumerateResponse, OnChainConfigWithoutId, ExtendedPublicKey } from '@lily/types';
@@ -32,6 +34,7 @@ const NewVaultScreen = ({ setStep, newAccount, setNewAccount }: Props) => {
   const [availableDevices, setAvailableDevices] = useState<HwiEnumerateResponse[]>([]);
   const [errorDevices, setErrorDevices] = useState<string[]>([]);
   const [hwiLoading, setHwiLoading] = useState(false);
+  const [addingDeviceIndex, setAddingDeviceIndex] = useState(-1);
   const otherMethodsDropdownRef = useRef<HTMLButtonElement>(null);
 
   const [innerStep, setInnerStep] = useState(0);
@@ -150,6 +153,7 @@ const NewVaultScreen = ({ setStep, newAccount, setNewAccount }: Props) => {
   };
 
   const importMultisigDevice = async (device: HwiEnumerateResponse, index: number) => {
+    setAddingDeviceIndex(index);
     try {
       const response = await platform.getXpub({
         deviceType: device.type,
@@ -180,6 +184,7 @@ const NewVaultScreen = ({ setStep, newAccount, setNewAccount }: Props) => {
       errorDevicesCopy.push(device.fingerprint);
       setErrorDevices([...errorDevicesCopy]);
     }
+    setAddingDeviceIndex(-1);
   };
 
   return (
@@ -288,43 +293,81 @@ const NewVaultScreen = ({ setStep, newAccount, setNewAccount }: Props) => {
                               </li>
                             );
                           })}
-                          {availableDevices.map((item, index) => (
-                            <li
-                              key={item.fingerprint}
-                              className='col-span-1 flex flex-col flex-none text-center bg-white dark:bg-slate-600  rounded-lg shadow divide-y divide-gray-200 dark:divide-slate-500 border border-gray-200 dark:border-slate-700'
-                            >
-                              <div className='flex-1 flex flex-col py-2 px-4'>
-                                <DeviceImage
-                                  className='w-20 h-32 shrink-0 mx-auto object-contain'
-                                  device={{
-                                    type: item.type,
-                                    model: item.model,
-                                    fingerprint: item.fingerprint
-                                  }}
-                                />
-                                <h3 className='mt-2 text-gray-900 dark:text-white text-sm font-medium capitalize'>
-                                  {item.type}
-                                </h3>
-                                <dl className='mt-0 flex-grow flex flex-col justify-between'>
-                                  <dt className='sr-only'>Type</dt>
-                                  <dd className='text-gray-500 dark:text-gray-300 text-xs uppercase'>
-                                    {item.fingerprint}
-                                  </dd>
-                                  <dt className='sr-only'>Fingerprint</dt>
-                                </dl>
-                              </div>
-                              <div className='-mt-px flex divide-x divide-gray-200'>
-                                <div className='w-0 flex-1 flex'>
-                                  <button
-                                    className='relative w-0 flex-1 inline-flex items-center justify-center py-2 text-xs text-gray-700 dark:text-gray-200 font-medium border border-transparent outline-none rounded-bl-lg hover:text-gray-500 dark:hover:text-white focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-yellow-500'
-                                    onClick={() => importMultisigDevice(item, index)}
-                                  >
-                                    <span>Add to vault</span>
-                                  </button>
+                          {availableDevices.map((item, index) => {
+                            const deviceError = errorDevices.includes(item.fingerprint);
+                            const deviceLocked = !item.fingerprint; // if ledger isn't in the BTC app or trezor is locked, it wont give fingerprint, so show warning
+                            let actionText = 'Add to vault';
+                            if (deviceError) {
+                              actionText = 'Click to retry';
+                            } else if (deviceLocked && item.type === 'ledger') {
+                              actionText = 'Open bitcoin app on device';
+                            } else if (deviceLocked) {
+                              actionText = 'Click to enter pin';
+                            } else if (index === addingDeviceIndex) {
+                              actionText = 'Adding device...';
+                            }
+
+                            return (
+                              <li
+                                key={item.fingerprint}
+                                className={classNames(
+                                  index === addingDeviceIndex ? 'animate-pulse' : '',
+                                  'col-span-1 flex flex-col flex-none text-center bg-white dark:bg-slate-600  rounded-lg shadow divide-y divide-gray-200 dark:divide-slate-500 border border-gray-200 dark:border-slate-700'
+                                )}
+                              >
+                                <div className='flex-1 flex flex-col py-2 px-4'>
+                                  <DeviceImage
+                                    className='w-20 h-32 shrink-0 mx-auto object-contain'
+                                    device={{
+                                      type: item.type,
+                                      model: item.model,
+                                      fingerprint: item.fingerprint
+                                    }}
+                                  />
+                                  <h3 className='mt-2 text-gray-900 dark:text-white text-sm font-medium capitalize'>
+                                    {item.type}
+                                  </h3>
+                                  <dl className='mt-0 flex-grow flex flex-col justify-between'>
+                                    <dt className='sr-only'>Type</dt>
+                                    <dd className='text-gray-500 dark:text-gray-300 text-xs uppercase'>
+                                      {item.fingerprint}
+                                    </dd>
+                                    <dt className='sr-only'>Fingerprint</dt>
+                                  </dl>
                                 </div>
-                              </div>
-                            </li>
-                          ))}
+                                <div className='-mt-px flex divide-x divide-gray-200'>
+                                  <div className='w-0 flex-1 flex'>
+                                    <button
+                                      className='relative w-0 flex-1 inline-flex items-center justify-center py-2 text-xs text-gray-700 dark:text-gray-200 font-medium border border-transparent outline-none rounded-bl-lg hover:text-gray-500 dark:hover:text-white focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-yellow-500'
+                                      // onClick={() => deviceLocked ?  : importMultisigDevice(item, index)}
+                                      onClick={async () => {
+                                        if (deviceLocked) {
+                                          if (item.type === 'trezor') {
+                                            openInModal(
+                                              <PromptPinModal
+                                                device={item!}
+                                                enumerate={enumerate}
+                                                deviceAction={(device) =>
+                                                  importMultisigDevice(device, index)
+                                                }
+                                                closeModal={() => closeModal()}
+                                              />
+                                            );
+                                          } else {
+                                            await enumerate();
+                                          }
+                                        } else {
+                                          importMultisigDevice(item, index);
+                                        }
+                                      }}
+                                    >
+                                      <span>{actionText}</span>
+                                    </button>
+                                  </div>
+                                </div>
+                              </li>
+                            );
+                          })}
                           {Array.from(
                             Array(
                               newAccount.quorum.totalSigners - newAccount.extendedPublicKeys.length
