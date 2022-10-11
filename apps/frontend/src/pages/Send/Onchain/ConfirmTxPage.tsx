@@ -103,6 +103,7 @@ const ConfirmTxPage = ({
             fingerprint: 'whatever'
           }
         ]); // this could probably have better information in it but...
+
         setFinalPsbt(psbt);
       }
     },
@@ -150,12 +151,6 @@ const ConfirmTxPage = ({
 
   return (
     <>
-      <Header>
-        <HeaderLeft>
-          <PageTitle>Send bitcoin</PageTitle>
-        </HeaderLeft>
-        <HeaderRight></HeaderRight>
-      </Header>
       <div className='grid grid-cols-12 gap-6'>
         <FileUploader
           accept='*'

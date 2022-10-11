@@ -13,7 +13,6 @@ import {
   Spinner,
   UnitInput
 } from 'src/components';
-import { PageTitle, Header, HeaderRight, HeaderLeft } from 'src/components';
 
 import PastePsbtModalContent from './PastePsbtModalContent';
 
@@ -170,12 +169,6 @@ const OnchainSendTxForm = ({
 
   return (
     <div className='max-w-prose mx-auto'>
-      <Header>
-        <HeaderLeft>
-          <PageTitle>Send bitcoin</PageTitle>
-        </HeaderLeft>
-        <HeaderRight></HeaderRight>
-      </Header>
       <div className='bg-white dark:bg-gray-800 rounded-md shadow dark:highlight-white/10 '>
         <div className='py-6 px-4 sm:p-6 relative' data-cy='send-form'>
           <FileUploader

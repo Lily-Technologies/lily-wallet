@@ -6,6 +6,7 @@ import { Psbt, Network } from 'bitcoinjs-lib';
 import { CheckCircle, RemoveCircle } from '@styled-icons/material';
 
 import { StyledIcon, Button, Modal } from 'src/components';
+import { PageTitle, Header, HeaderRight, HeaderLeft } from 'src/components';
 
 import SendTxForm from '../components/OnchainSendTxForm';
 import ConfirmTxPage from './ConfirmTxPage';
@@ -18,6 +19,7 @@ import {
   RecipientItem
 } from 'src/utils/send';
 import { getUnchainedNetworkFromBjslibNetwork } from 'src/utils/files';
+import { classNames } from 'src/utils/other';
 
 import {
   LilyConfig,
@@ -154,6 +156,14 @@ const SendOnchain = ({ currentAccount, currentBitcoinNetwork, currentBitcoinPric
 
   return (
     <>
+      <div className={classNames(step === 0 ? 'max-w-prose' : '', 'mx-auto')}>
+        <Header className=''>
+          <HeaderLeft>
+            <PageTitle>Send bitcoin</PageTitle>
+          </HeaderLeft>
+          <HeaderRight></HeaderRight>
+        </Header>
+      </div>
       {step === 0 && (
         <SendTxForm
           currentAccount={currentAccount}
