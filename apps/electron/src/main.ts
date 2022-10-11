@@ -221,10 +221,6 @@ if (!gotTheLock) {
       mainWindow.focus();
     }
   });
-
-  app.on('open-url', (event, url) => {
-    dialog.showErrorBox('Welcome Back', `You arrived from: ${url}`);
-  });
 }
 
 // This method will be called when Electron has finished
