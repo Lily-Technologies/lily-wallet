@@ -21,7 +21,7 @@ interface Props {
 export const DeviceImage = ({ device, className }: Props) => {
   if (device.type === 'unknown') {
     return (
-      <div className='flex items-center justify-center py-14 px-7 text-slate-600 dark:text-slate-500 bg-slate-100 dark:bg-slate-800 rounded'>
+      <div className='flex items-center justify-center py-11 px-7 text-slate-600 dark:text-slate-500'>
         <QuestionMarkCircle className='h-10 w-10' />
       </div>
     );

@@ -207,14 +207,6 @@ const NewVaultScreen = ({ setStep, newAccount, setNewAccount }: Props) => {
                       </dt>
                       <dd className='mt-1 text-gray-500 dark:text-gray-300'>{newAccount.name}</dd>
                     </div>
-                    {/* <div>
-                      <dt className='font-medium text-gray-900  dark:text-gray-100 whitespace-nowrap'>
-                        Required signers
-                      </dt>
-                      <dd className='mt-1 text-gray-500  dark:text-gray-300'>
-                        {newAccount.quorum.requiredSigners} of {newAccount.quorum.totalSigners}
-                      </dd>
-                    </div> */}
                   </dl>
 
                   <div className='hidden lg:col-span-2 lg:flex lg:items-center lg:justify-end lg:space-x-4'>
@@ -253,7 +245,7 @@ const NewVaultScreen = ({ setStep, newAccount, setNewAccount }: Props) => {
                                   </h3>
                                   <dl className='mt-0 flex-grow flex flex-col justify-between'>
                                     <dt className='sr-only'>Type</dt>
-                                    <dd className='text-gray-500 dark:text-gray-300 text-xxs uppercase'>
+                                    <dd className='text-gray-500 dark:text-gray-300 text-xs uppercase'>
                                       {item.device.fingerprint}
                                     </dd>
                                     <dt className='sr-only'>Fingerprint</dt>
@@ -315,7 +307,7 @@ const NewVaultScreen = ({ setStep, newAccount, setNewAccount }: Props) => {
                                 </h3>
                                 <dl className='mt-0 flex-grow flex flex-col justify-between'>
                                   <dt className='sr-only'>Type</dt>
-                                  <dd className='text-gray-500 dark:text-gray-300 text-xxs uppercase'>
+                                  <dd className='text-gray-500 dark:text-gray-300 text-xs uppercase'>
                                     {item.fingerprint}
                                   </dd>
                                   <dt className='sr-only'>Fingerprint</dt>
@@ -344,7 +336,7 @@ const NewVaultScreen = ({ setStep, newAccount, setNewAccount }: Props) => {
                             >
                               <div className='flex-1 flex flex-col py-2 px-4'>
                                 <DeviceImage
-                                  className='w-20 h-32 shrink-0 mx-auto object-contain'
+                                  className='w-16 h-32 shrink-0 mx-auto object-contain'
                                   device={{
                                     type: 'unknown',
                                     model: 'unknown',
@@ -352,12 +344,12 @@ const NewVaultScreen = ({ setStep, newAccount, setNewAccount }: Props) => {
                                   }}
                                 />
                                 <h3 className='mt-2 text-gray-900 dark:text-white text-sm font-medium capitalize'>
-                                  Unknown
+                                  Unknown Device
                                 </h3>
                                 <dl className='mt-0 flex-grow flex flex-col justify-between'>
                                   <dt className='sr-only'>Type</dt>
-                                  <dd className='text-gray-500 dark:text-gray-300 text-xxs uppercase'>
-                                    xxx
+                                  <dd className='text-gray-500 dark:text-gray-300 text-xs'>
+                                    Waiting to be configured
                                   </dd>
                                   <dt className='sr-only'>Fingerprint</dt>
                                 </dl>
@@ -383,7 +375,7 @@ const NewVaultScreen = ({ setStep, newAccount, setNewAccount }: Props) => {
                     </div>
                   </div>
                 </div>
-                <div className='flex gap-4 justify-end px-4 py-6'>
+                <div className='flex gap-4 justify-end px-4 pb-6'>
                   <button
                     className='inline-flex justify-center items-center rounded-lg text-sm font-medium py-3 px-4 bg-white dark:bg-slate-800 text-slate-800 dark:text-white border border-gray-300 dark:border-slate-600 hover:bg-gray-100 dark:hover:bg-slate-700 focus:ring-1 focus:ring-gray-300 dark:focus:ring-slate-100/20  outline-none'
                     onClick={() => enumerate()}
