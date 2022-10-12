@@ -30,8 +30,8 @@ const TransactionUtxoDetails = ({ currentAccount, psbt }: Props) => {
         <span className='dark:text-white text-2xl'>Transaction Details</span>
       </div>
       <div className='px-4 py-5'>
-        <div>
           <h3 className='text-2xl dark:text-gray-200 mb-2'>Inputs</h3>
+        <div className='max-h-[50vh] overflow-auto'>
           {psbt.txInputs.map((input) => {
             const inputBuffer = cloneBuffer(input.hash);
             const utxo =

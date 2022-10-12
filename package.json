@@ -11,6 +11,7 @@
     "frontend": "npm run start:dev -w @lily/frontend",
     "dev:frontend:electron": "npm run start:dev:electron -w @lily/frontend",
     "dev:frontend:umbrel": "npm run start:dev:umbrel -w @lily/frontend",
+    "dev:start": "npm run build:types && npm run build:shared-server && npm run build:electron && npm run dev:frontend:electron",
     "express": "npm run start -w @lily/express",
     "build:electron": "npm run build -w @lily/electron",
     "build:frontend:electron": "npm run build:electron -w @lily/frontend",

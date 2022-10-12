@@ -153,6 +153,7 @@
     "electron-installer-dmg": "^3.0.0",
     "electron-mock-ipc": "^0.3.11",
     "electron-packager": "^15.4.0",
+    "electron-reloader": "^1.2.3",
     "electron-winstaller": "^5.0.0"
   },
   "jest": {
