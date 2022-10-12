@@ -37,6 +37,18 @@ import {
   OnchainProviderConnectionDetails
 } from '@lily/types';
 
+import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
+
+try {
+  require('electron-reloader')(module)
+} catch (_) {}
+
+app.whenReady().then(() => {
+    installExtension(REACT_DEVELOPER_TOOLS)
+        .then((name) => console.log(`Added Extension:  ${name}`))
+        .catch((err) => console.log('An error occurred: ', err));
+});
+
 const PROTOCOL_PREFIX = 'lily';
 
 // disable showErrorBox
