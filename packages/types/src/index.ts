@@ -737,3 +737,9 @@ export interface CoindeskCurrentPriceResponse {
     };
   };
 }
+
+export interface AddressLabel {
+  id: number;
+  address: string;
+  label: string;
+}
