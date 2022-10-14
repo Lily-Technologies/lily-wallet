@@ -1,9 +1,10 @@
 import React, { useContext, useState } from 'react';
 import { QRCode } from 'react-qr-svg';
 import CopyToClipboard from 'react-copy-to-clipboard';
-import { ClipboardCheckIcon, DuplicateIcon } from '@heroicons/react/outline';
+import { ClipboardCheckIcon, DuplicateIcon, TagIcon } from '@heroicons/react/outline';
 
 import { Select, Input } from 'src/components';
+import { TagsSection } from 'src/pages/Vault/Settings/Addresses/TagsSection';
 
 import { black } from 'src/utils/colors';
 
@@ -56,10 +57,25 @@ export const OnchainReceive = ({ currentAccount }: Props) => {
               })}
             />
           </div>
-          <div className='col-span-4 row-span-4 order-3'>
-            <label className='block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1'>
-              Scan QR code
-            </label>
+          <div className='col-span-4'>
+            <Input
+              readOnly={true}
+              type='text'
+              onChange={() => {}}
+              label='Recieve address'
+              value={
+                unusedAddresses[unusedAddressIndex]
+                  ? unusedAddresses[unusedAddressIndex].address
+                  : 'Loading...'
+              }
+            />
+          </div>
+          <div className='col-span-4 row-span-4'>
+            <div className='flex justify-between mb-1'>
+              <label className='block text-sm font-medium text-gray-700 dark:text-gray-200'>
+                Scan QR code
+              </label>
+            </div>
             <div className='flex flex-col bg-gray-50 dark:bg-gray-700 px-3 py-4 border border-gray-200 dark:border-gray-900 rounded-md items-center'>
               <QRCode
                 className='bg-white dark:bg-gray-50'
@@ -75,18 +91,8 @@ export const OnchainReceive = ({ currentAccount }: Props) => {
               />
             </div>
           </div>
-          <div className='col-span-4 order-2'>
-            <Input
-              readOnly={true}
-              type='text'
-              onChange={() => {}}
-              label='Recieve address'
-              value={
-                unusedAddresses[unusedAddressIndex]
-                  ? unusedAddresses[unusedAddressIndex].address
-                  : 'Loading...'
-              }
-            />
+          <div className='col-span-4'>
+            <TagsSection address={unusedAddresses[unusedAddressIndex]} />
           </div>
         </div>
       </div>
