@@ -11,11 +11,10 @@ import { Address } from '@lily/types';
 interface Props {
   address: Address;
   status: 'used' | 'unused';
-  type: 'external' | 'change';
   onClick: () => void;
 }
 
-const AddressRow = ({ address, status, type, onClick }: Props) => (
+const AddressRow = ({ address, status, onClick }: Props) => (
   <tr className='cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700' onClick={() => onClick()}>
     <td className='py-2'>
       <UtxoHeader className='text-gray-900 dark:text-gray-200'>{address.address}</UtxoHeader>
@@ -31,9 +30,6 @@ const AddressRow = ({ address, status, type, onClick }: Props) => (
         style={{ marginRight: '1em' }}
       >
         {status}
-      </Badge>
-      <Badge className='text-gray-800 bg-gray-100 dark:bg-gray-700 dark:text-gray-200'>
-        {type}
       </Badge>
     </td>
   </tr>
