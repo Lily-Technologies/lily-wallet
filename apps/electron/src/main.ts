@@ -11,7 +11,18 @@ import {
   QueryRoutesRequest
 } from '@lily-technologies/lnrpc';
 
-import { enumerate, getXPub, signtx, promptpin, sendpin } from '@lily/shared-server';
+import {
+  enumerate,
+  getXPub,
+  signtx,
+  promptpin,
+  sendpin,
+  createAddressTable,
+  addAddressLabel,
+  deleteAddressLabel,
+  getAllLabelsForAddress,
+  dbConnect
+} from '@lily/shared-server';
 
 import {
   getFile,
@@ -241,6 +252,12 @@ if (!gotTheLock) {
 app.on('ready', createWindow);
 
 app.on('ready', setupInitialNodeConfig);
+
+app.on('ready', async () => {
+  const userDataPath = app.getPath('userData');
+  const db = await dbConnect(userDataPath);
+  createAddressTable(db);
+});
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function () {
@@ -658,6 +675,45 @@ ipcMain.handle('/isConfirmedTransaction', async (event, args) => {
   }
   console.log(`error /isConfirmedTransaction: Invalid txId`);
   return Promise.reject({ success: false });
+});
+
+ipcMain.handle('/add-address-label', async (event, args) => {
+  const { address, label } = args;
+  try {
+    const userDataPath = app.getPath('userData');
+    const db = await dbConnect(userDataPath);
+    const response = await addAddressLabel(db, address, label);
+    return Promise.resolve(response);
+  } catch (e) {
+    console.log(`error /isConfirmedTransaction ${e}`);
+    return Promise.reject({ success: false, error: e });
+  }
+});
+
+ipcMain.handle('/delete-address-label', async (event, args) => {
+  const { id } = args;
+  try {
+    const userDataPath = app.getPath('userData');
+    const db = await dbConnect(userDataPath);
+    await deleteAddressLabel(db, id);
+    return Promise.resolve();
+  } catch (e) {
+    console.log(`error /isConfirmedTransaction ${e}`);
+    return Promise.reject({ success: false, error: e });
+  }
+});
+
+ipcMain.handle('/get-address-labels', async (event, args) => {
+  const { address } = args;
+  try {
+    const userDataPath = app.getPath('userData');
+    const db = await dbConnect(userDataPath);
+    const labels = await getAllLabelsForAddress(db, address);
+    return Promise.resolve(labels);
+  } catch (e) {
+    console.log(`error /isConfirmedTransaction ${e}`);
+    return Promise.reject({ success: false, error: e });
+  }
 });
 
 // Log both at dev console and at running node console instance

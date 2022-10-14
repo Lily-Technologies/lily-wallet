@@ -312,4 +312,26 @@ export class ElectronPlatform extends BasePlatform {
 
     return Promise.resolve(response);
   }
+
+  async addAddressLabel(address: string, label: string) {
+    const response = await window.ipcRenderer.invoke('/add-address-label', {
+      address,
+      label
+    });
+    return Promise.resolve(response);
+  }
+
+  async deleteAddressLabel(id: number) {
+    const response = await window.ipcRenderer.invoke('/delete-address-label', {
+      id
+    });
+    return Promise.resolve(response);
+  }
+
+  async getAddressLabels(address: string) {
+    const response = await window.ipcRenderer.invoke('/get-address-labels', {
+      address
+    });
+    return Promise.resolve(response);
+  }
 }

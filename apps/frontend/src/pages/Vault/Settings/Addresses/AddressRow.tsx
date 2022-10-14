@@ -12,13 +12,14 @@ interface Props {
   address: Address;
   status: 'used' | 'unused';
   type: 'external' | 'change';
+  onClick: () => void;
 }
 
-const AddressRow = ({ address, status, type }: Props) => (
-  <tr>
+const AddressRow = ({ address, status, type, onClick }: Props) => (
+  <tr className='cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700' onClick={() => onClick()}>
     <td className='py-2'>
       <UtxoHeader className='text-gray-900 dark:text-gray-200'>{address.address}</UtxoHeader>
-      <UtxoSubheader>Derivation path: {address.bip32derivation[0].path}</UtxoSubheader>
+      <UtxoSubheader>{address.bip32derivation[0].path}</UtxoSubheader>
     </td>
     <td className='text-right'>
       <Badge

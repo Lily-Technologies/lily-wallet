@@ -333,4 +333,17 @@ export class WebPlatform extends BasePlatform {
 
     return Promise.resolve(data);
   }
+
+  // TODO: Implement these methods
+  async addAddressLabel(address: string, label: string) {
+    return Promise.resolve(1);
+  }
+
+  async deleteAddressLabel(id: number) {
+    return Promise.resolve(false);
+  }
+
+  async getAddressLabels(address: string) {
+    return Promise.resolve([]);
+  }
 }

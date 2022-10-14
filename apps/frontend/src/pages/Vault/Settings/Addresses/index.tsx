@@ -1,11 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import AddressRow from './AddressRow';
 
-import { requireOnchain } from '../../../hocs';
+import { requireOnchain } from 'src/hocs';
 
-import { SettingsTable } from '../../../components';
+import { SettingsTable, SlideOver } from 'src/components';
 import { LilyOnchainAccount } from '@lily/types';
+
+import AddressDetailsSlideover from './AddressDetailsSlideover';
 
 interface Props {
   currentAccount: LilyOnchainAccount;
@@ -13,6 +15,14 @@ interface Props {
 
 const AddressesView = ({ currentAccount }: Props) => {
   const { addresses, unusedAddresses, changeAddresses, unusedChangeAddresses } = currentAccount;
+
+  const [slideoverIsOpen, setSlideoverOpen] = useState(false);
+  const [slideoverContent, setSlideoverContent] = useState<JSX.Element | null>(null);
+
+  const openInSlideover = (component: JSX.Element) => {
+    setSlideoverOpen(true);
+    setSlideoverContent(component);
+  };
 
   return (
     <>
@@ -33,6 +43,11 @@ const AddressesView = ({ currentAccount }: Props) => {
                     address={address}
                     type='external'
                     status='used'
+                    onClick={() =>
+                      openInSlideover(
+                        <AddressDetailsSlideover address={address} setOpen={setSlideoverOpen} />
+                      )
+                    }
                   />
                 ))}
                 {unusedAddresses.map((address) => (
@@ -41,10 +56,25 @@ const AddressesView = ({ currentAccount }: Props) => {
                     address={address}
                     type='external'
                     status='unused'
+                    onClick={() =>
+                      openInSlideover(
+                        <AddressDetailsSlideover address={address} setOpen={setSlideoverOpen} />
+                      )
+                    }
                   />
                 ))}
                 {changeAddresses.map((address) => (
-                  <AddressRow key={address.address} address={address} type='change' status='used' />
+                  <AddressRow
+                    key={address.address}
+                    address={address}
+                    type='change'
+                    status='used'
+                    onClick={() =>
+                      openInSlideover(
+                        <AddressDetailsSlideover address={address} setOpen={setSlideoverOpen} />
+                      )
+                    }
+                  />
                 ))}
                 {unusedChangeAddresses.map((address) => (
                   <AddressRow
@@ -52,6 +82,11 @@ const AddressesView = ({ currentAccount }: Props) => {
                     address={address}
                     type='change'
                     status='unused'
+                    onClick={() =>
+                      openInSlideover(
+                        <AddressDetailsSlideover address={address} setOpen={setSlideoverOpen} />
+                      )
+                    }
                   />
                 ))}
               </tbody>
@@ -59,6 +94,7 @@ const AddressesView = ({ currentAccount }: Props) => {
           </div>
         </div>
       </div>
+      <SlideOver open={slideoverIsOpen} setOpen={setSlideoverOpen} content={slideoverContent} />
     </>
   );
 };
