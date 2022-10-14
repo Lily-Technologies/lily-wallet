@@ -12,7 +12,7 @@ const HeaderSection = styled.div`
 const HeaderTitle = styled.h3.attrs({ className: 'text-gray-900 dark:text-gray-200' })`
   line-height: 1.5rem;
   font-size: 1.125rem;
-  font-weight: 500;
+  font-weight: 600;
   margin: 0;
   margin-bottom: 0.25em;
 `;
@@ -22,7 +22,7 @@ const HeaderSubtitle = styled.span.attrs({
 })`
   font-size: 0.875rem;
   line-height: 1.25rem;
-  font-weight: 500;
+  font-weight: 400;
   max-width: 42rem;
 `;
 
