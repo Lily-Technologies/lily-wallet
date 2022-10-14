@@ -40,7 +40,7 @@ export const AddLabelTag = ({ address, onSave }: Props) => {
         </svg>
       </button>
       {isEditing ? (
-        <span className='inline-flex overflow-visible items-center rounded-full border-2 border-dashed border-gray-300 dark:border-slate-500 bg-slate-100 dark:bg-slate-800 py-0.5 pl-2.5 pr-1 text-sm font-medium text-slate-700'>
+        <span className='inline-flex overflow-visible items-center rounded-full border-2 border-dashed border-gray-300 dark:border-slate-500 bg-slate-100 dark:bg-slate-800 py-0.5 px-2 text-sm font-medium text-slate-700'>
           <input
             onChange={(e) => setLabelText(e.target.value)}
             value={labelText}

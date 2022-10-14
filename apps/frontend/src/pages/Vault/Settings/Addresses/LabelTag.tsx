@@ -9,7 +9,7 @@ interface Props {
 
 export const LabelTag = ({ label, deleteLabel }: Props) => {
   return (
-    <span className='inline-flex whitespace-nowrap items-center rounded-full bg-slate-100 py-0.5 pl-2.5 pr-1 text-sm font-medium text-slate-700'>
+    <span className='inline-flex whitespace-nowrap items-center rounded-full bg-slate-100 py-0.5 px-2 text-sm font-medium text-slate-700'>
       {label.label}
       {deleteLabel ? (
         <button
