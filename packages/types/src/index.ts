@@ -188,6 +188,7 @@ export interface LightningEvent {
   valueSat: string;
   tx?: Transaction;
   channel?: Channel;
+  paymentPreimage?: string;
 }
 
 export interface OpenChannelRequestArgs {

@@ -51,6 +51,16 @@ const LightningDetailsSlideover = ({ event, setOpen }: Props) => {
               <Unit value={Number(event.valueSat)} />
             </dd>
           </div>
+          {event.paymentPreimage ? (
+            <div>
+              <dt className='text-sm font-medium text-gray-500 sm:w-40 sm:flex-shrink-0'>
+                Preimage
+              </dt>
+              <dd className='mt-1 text-sm text-gray-900 dark:text-slate-200 sm:col-span-2'>
+                {event.paymentPreimage}
+              </dd>
+            </div>
+          ) : null}
         </dl>
       </div>
     </>
