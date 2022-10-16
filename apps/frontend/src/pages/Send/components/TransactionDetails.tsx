@@ -1,11 +1,11 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { ArrowIosForwardOutline } from '@styled-icons/evaicons-outline';
 import { CheckCircle } from '@styled-icons/material';
 import { Bitcoin } from '@styled-icons/boxicons-logos';
 import { Psbt, Network } from 'bitcoinjs-lib';
 
-import { StyledIcon, SidewaysShake, Dropdown, Modal, Price } from 'src/components';
+import { StyledIcon, SidewaysShake, Dropdown, SlideOver, Price } from 'src/components';
 
 import { orange500, orange200 } from 'src/utils/colors';
 import { downloadFile, formatFilename } from 'src/utils/files';
@@ -17,7 +17,7 @@ import TransactionUtxoDetails from './TxUtxoDetails';
 import ShoppingCart from './ShoppingCart';
 import UnfundedPsbtAlert from './UnfundedPsbtAlert';
 
-import { LilyOnchainAccount, Device, FeeRates, ShoppingItem } from '@lily/types';
+import { LilyOnchainAccount, Device, FeeRates, ShoppingItem, UTXO } from '@lily/types';
 
 import { PlatformContext, UnitContext } from 'src/context';
 
@@ -31,7 +31,11 @@ interface Props {
   signedDevices: Device[];
   setStep?: React.Dispatch<React.SetStateAction<number>>;
   currentBitcoinPrice: any; // KBC-TODO: change to be more specific
-  createTransactionAndSetState?: (recipients: RecipientItem[], _fee: number) => Promise<Psbt>;
+  createTransactionAndSetState?: (
+    recipients: RecipientItem[],
+    _fee: number,
+    desiredUtxos?: UTXO[]
+  ) => Promise<Psbt>;
   currentBitcoinNetwork: Network;
   shoppingItems?: ShoppingItem[];
 }
@@ -91,6 +95,28 @@ const TransactionDetails = ({
     );
   };
 
+  const adjustInputs = async (utxos: UTXO[]) => {
+    const psbt = await createTransactionAndSetState!(
+      [
+        {
+          address: finalPsbt.txOutputs[0].address!,
+          value: Number(finalPsbt.txOutputs[0].value.toString())
+        }
+      ],
+      0,
+      utxos
+    );
+
+    setModalContent(
+      <TransactionUtxoDetails
+        currentAccount={currentAccount}
+        psbt={psbt}
+        adjustInputs={adjustInputs}
+      />
+    );
+    return psbt;
+  };
+
   const TransactionOptionsDropdown = () => {
     const dropdownItems = [
       {
@@ -136,7 +162,13 @@ const TransactionDetails = ({
       dropdownItems.unshift({
         label: 'View transaction details',
         onClick: () => {
-          openInModal(<TransactionUtxoDetails currentAccount={currentAccount} psbt={finalPsbt} />);
+          openInModal(
+            <TransactionUtxoDetails
+              currentAccount={currentAccount}
+              psbt={finalPsbt}
+              adjustInputs={adjustInputs}
+            />
+          );
         }
       });
     }
@@ -255,9 +287,12 @@ const TransactionDetails = ({
           </div>
         </SendDetailsContainer>
       </AccountSendContentRight>
-      <Modal isOpen={modalIsOpen} closeModal={() => setModalIsOpen(false)}>
-        {modalContent}
-      </Modal>
+      <SlideOver
+        open={modalIsOpen}
+        setOpen={setModalIsOpen}
+        content={modalContent}
+        className='max-w-4xl'
+      ></SlideOver>
     </>
   );
 };

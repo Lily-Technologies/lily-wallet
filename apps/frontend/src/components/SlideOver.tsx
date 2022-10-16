@@ -1,7 +1,7 @@
 import { Fragment } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 
-export const SlideOver = ({ open, setOpen, content }) => {
+export const SlideOver = ({ open, setOpen, content, className = 'max-w-2xl' }) => {
   return (
     <Transition.Root show={open} as={Fragment}>
       <Dialog
@@ -32,8 +32,8 @@ export const SlideOver = ({ open, setOpen, content }) => {
               leaveFrom='translate-x-0'
               leaveTo='translate-x-full'
             >
-              <div className='w-screen max-w-2xl'>
-                <div className='h-full flex flex-col bg-white dark:bg-gray-900 shadow-xl overflow-y-scroll'>
+              <div className={`w-screen ${className}`}>
+                <div className='h-screen flex flex-col bg-white dark:bg-gray-900 shadow-xl overflow-y-scroll'>
                   {content}
                 </div>
               </div>

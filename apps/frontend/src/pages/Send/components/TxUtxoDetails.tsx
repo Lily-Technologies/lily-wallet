@@ -1,27 +1,48 @@
-import React, { useContext } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Psbt } from 'bitcoinjs-lib';
 import { Buffer } from 'buffer';
+import { AdjustmentsIcon } from '@heroicons/react/outline';
 
 import { Unit, Price } from 'src/components';
 
-import { createUtxoMapFromUtxoArray, getFee } from 'src/utils/send';
+import { createUtxoMapFromUtxoArray, getFee, RecipientItem } from 'src/utils/send';
 import { cloneBuffer } from 'src/utils/other';
 
-import { AccountMapContext } from 'src/context';
+import { LilyOnchainAccount, UtxoMap, UTXO } from '@lily/types';
 
-import { LilyOnchainAccount, UtxoMap } from '@lily/types';
+import { SelectInputsForm } from './SelectInputsForm';
 
 interface Props {
   currentAccount: LilyOnchainAccount;
   psbt: Psbt;
+  adjustInputs?: (utxos: UTXO[]) => Promise<Psbt>;
 }
 
-const TransactionUtxoDetails = ({ currentAccount, psbt }: Props) => {
+const TransactionUtxoDetails = ({ currentAccount, psbt, adjustInputs }: Props) => {
+  const [showSelectInputsForm, setShowSelectInputsForm] = useState(false);
+
   const { availableUtxos, transactions } = currentAccount;
+
   const _fee = getFee(psbt, transactions);
   let utxosMap: UtxoMap;
   if (availableUtxos) {
     utxosMap = createUtxoMapFromUtxoArray(availableUtxos);
+  }
+
+  if (showSelectInputsForm) {
+    return (
+      <SelectInputsForm
+        onSave={(utxos: UTXO[]) => {
+          if (adjustInputs) {
+            adjustInputs(utxos);
+            setShowSelectInputsForm(false);
+          }
+        }}
+        cancel={() => setShowSelectInputsForm(false)}
+        currentAccount={currentAccount}
+        requiredSendAmount={psbt.txOutputs[0].value}
+      />
+    );
   }
 
   return (
@@ -30,7 +51,16 @@ const TransactionUtxoDetails = ({ currentAccount, psbt }: Props) => {
         <span className='dark:text-white text-2xl'>Transaction Details</span>
       </div>
       <div className='px-4 py-5'>
+        <div className='flex justify-between'>
           <h3 className='text-2xl dark:text-gray-200 mb-2'>Inputs</h3>
+          <button
+            onClick={() => setShowSelectInputsForm(true)}
+            className='flex items-center text-sm font-medium text-green-700 dark:text-green-200 hover:text-green-600 dark:hover:text-green-500'
+          >
+            <AdjustmentsIcon className='w-4 h-4 mr-1' />
+            Adjust input(s)
+          </button>
+        </div>
         <div className='max-h-[50vh] overflow-auto'>
           {psbt.txInputs.map((input) => {
             const inputBuffer = cloneBuffer(input.hash);

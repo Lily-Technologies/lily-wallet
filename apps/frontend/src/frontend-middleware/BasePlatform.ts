@@ -230,5 +230,5 @@ export abstract class BasePlatform implements PlatformInterface {
 
   abstract addAddressLabel(address: string, label: string): Promise<number>;
   abstract deleteAddressLabel(id: number): Promise<boolean>;
-  abstract getAddressLabels(address: string): Promise<any[]>;
+  abstract getAddressLabels(address: string): Promise<AddressLabel[]>;
 }

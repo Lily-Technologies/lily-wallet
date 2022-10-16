@@ -52,6 +52,7 @@ module.exports = {
     }
   },
   plugins: [
+    require('@tailwindcss/forms'),
     function ({ matchUtilities, theme }) {
       matchUtilities(
         {

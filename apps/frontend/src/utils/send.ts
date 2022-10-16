@@ -3,6 +3,7 @@ import * as ecc from 'tiny-secp256k1';
 import ECPairFactory from '@lily-technologies/ecpair';
 import BigNumber from 'bignumber.js';
 import coinSelect from 'coinselect';
+import coinSelectAll from 'coinselect/split';
 import { Buffer } from 'buffer';
 
 import { cloneBuffer, bufferToHex } from './other';
@@ -177,7 +178,8 @@ export const createTransaction = async (
   recipients: RecipientItem[],
   desiredFee: number,
   estimateFee: () => Promise<FeeRates>,
-  currentBitcoinNetwork: Network
+  currentBitcoinNetwork: Network,
+  desiredUtxos?: UTXO[]
 ) => {
   const { availableUtxos, unusedChangeAddresses, config } = currentAccount;
 
@@ -190,7 +192,12 @@ export const createTransaction = async (
     feeRate = feeRates.halfHourFee;
   }
 
-  const { inputs, outputs, fee } = coinSelect(availableUtxos, recipients, feeRate);
+  let inputs, outputs, fee;
+  if (desiredUtxos) {
+    ({ inputs, outputs, fee } = coinSelectAll(desiredUtxos, recipients, feeRate));
+  } else {
+    ({ inputs, outputs, fee } = coinSelect(availableUtxos, recipients, feeRate));
+  }
 
   if (!inputs || !outputs) throw new Error('Unable to construct transaction');
   // TODO: This should be proportional to amount being sent
