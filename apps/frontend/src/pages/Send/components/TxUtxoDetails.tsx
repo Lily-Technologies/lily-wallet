@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Psbt } from 'bitcoinjs-lib';
 import { Buffer } from 'buffer';
 import { AdjustmentsIcon } from '@heroicons/react/outline';
 
 import { Unit, Price } from 'src/components';
 
-import { createUtxoMapFromUtxoArray, getFee, RecipientItem } from 'src/utils/send';
+import { createUtxoMapFromUtxoArray, getFee } from 'src/utils/send';
 import { cloneBuffer } from 'src/utils/other';
 
 import { LilyOnchainAccount, UtxoMap, UTXO } from '@lily/types';

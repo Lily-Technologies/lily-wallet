@@ -1,10 +1,14 @@
-import { useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 
 import { Unit } from 'src/components';
 
 import { UtxoInputSelectRow } from './UtxoInputSelectRow';
+import { SearchToolbar } from './SearchToolbar';
 
+import { PlatformContext } from 'src/context';
 import { LilyOnchainAccount, UTXO } from '@lily/types';
+
+export type SortOptions = 'asc' | 'desc' | null;
 
 interface Props {
   currentAccount: LilyOnchainAccount;
@@ -13,9 +17,42 @@ interface Props {
   requiredSendAmount: number;
 }
 
+async function filter(arr, callback) {
+  const fail = Symbol();
+  return (
+    await Promise.all(arr.map(async (item) => ((await callback(item)) ? item : fail)))
+  ).filter((i) => i !== fail);
+}
+
 export const SelectInputsForm = ({ currentAccount, onSave, cancel, requiredSendAmount }: Props) => {
   const { availableUtxos } = currentAccount;
   const [selectedInputs, setSelectedInputs] = useState<UTXO[]>([]);
+  const [showTags, setShowTags] = useState(false);
+  const [sort, setSort] = useState<SortOptions>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredUtxos, setFilteredUtxos] = useState(availableUtxos);
+  const { platform } = useContext(PlatformContext);
+
+  useEffect(() => {
+    const filterUtxos = async () => {
+      const currentFilteredUtxos = await filter([...availableUtxos], async (utxo) => {
+        const retrievedLabels = await platform.getAddressLabels(utxo.address.address);
+
+        const normalizedSearchQuery = searchQuery.toLowerCase();
+
+        const labelMatch = retrievedLabels.some((label) =>
+          label.label.toLowerCase().includes(normalizedSearchQuery)
+        );
+        const addressMatch = utxo.address.address.includes(normalizedSearchQuery);
+        const txIdMatch = utxo.txid.includes(normalizedSearchQuery);
+
+        return labelMatch || addressMatch || txIdMatch;
+      });
+
+      setFilteredUtxos(currentFilteredUtxos);
+    };
+    filterUtxos();
+  }, [searchQuery]);
 
   const handleChange = (currentUtxo: UTXO) => {
     if (selectedInputs.includes(currentUtxo)) {
@@ -27,12 +64,22 @@ export const SelectInputsForm = ({ currentAccount, onSave, cancel, requiredSendA
     }
   };
 
+  const toggleSort = () => {
+    if (sort === 'asc') {
+      setSort('desc');
+    } else if (sort === 'desc') {
+      setSort(null);
+    } else {
+      setSort('asc');
+    }
+  };
+
   const selectedInputTotal = selectedInputs.reduce((accum, input) => accum + input.value, 0);
   const remaining = requiredSendAmount - selectedInputTotal;
 
   return (
     <>
-      <div className='space-y-1 bg-gray-50 px-5 py-4 sm:px-6 border-b border-gray-500/10 dark:border-gray-900/10 dark:bg-slate-800'>
+      <div className='space-y-1 bg-white px-5 py-4 sm:px-6  dark:bg-slate-800'>
         <h2 className='text-lg font-medium text-gray-900 dark:text-slate-100' id='slide-over-title'>
           Select inputs
         </h2>
@@ -40,42 +87,71 @@ export const SelectInputsForm = ({ currentAccount, onSave, cancel, requiredSendA
           Choose which inputs you want to use in this transaction
         </p>
       </div>
-      <div className='dark:bg-slate-900 overflow-y-auto'>
-        <ul className='overflow-auto'>
-          {availableUtxos.map((utxo) => {
-            const id = `${utxo.txid}:${utxo.vout}`;
-            const isSelected = selectedInputs.includes(utxo);
+      <SearchToolbar
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        showTags={showTags}
+        setShowTags={setShowTags}
+        toggleSort={toggleSort}
+        sort={sort}
+      />
+      <div className='bg-gray-200 dark:bg-slate-900 overflow-y-auto flex-grow'>
+        <ul className='overflow-auto space-y-4 py-4 px-5'>
+          {[...filteredUtxos]
+            .sort((a, b) => {
+              if (sort === 'asc') {
+                return a.value - b.value;
+              } else if (sort === 'desc') {
+                return b.value - a.value;
+              }
+              return 0;
+            })
+            .map((utxo) => {
+              const id = `${utxo.txid}:${utxo.vout}`;
+              const isSelected = selectedInputs.includes(utxo);
 
-            return (
-              <UtxoInputSelectRow
-                id={id}
-                isSelected={isSelected}
-                utxo={utxo}
-                handleChange={handleChange}
-              />
-            );
-          })}
+              return (
+                <UtxoInputSelectRow
+                  key={id}
+                  id={id}
+                  isSelected={isSelected}
+                  utxo={utxo}
+                  handleChange={handleChange}
+                  showTags={showTags}
+                />
+              );
+            })}
         </ul>
       </div>
-      <div className='flex justify-between align-center bg-gray-50 px-4 py-3 sm:px-6 border-t border-gray-900/10 dark:bg-slate-800'>
+      <div className='flex justify-between align-center bg-white px-4 py-3 sm:px-6 border-t border-gray-700/20 dark:border-slate-500/20 dark:bg-slate-800'>
         <div className='flex flex-col w-52 text-right'>
-          <span>
-            <Unit value={requiredSendAmount} />{' '}
-            <span className='text-gray-500 text-sm'>required</span>
-          </span>
-          <span className='border-b border-gray-200'>
-            <Unit value={selectedInputTotal} />{' '}
+          <span className=''>
+            <Unit className='dark:text-slate-100' value={selectedInputTotal} />{' '}
             <span className='text-gray-500 text-sm'>selected</span>
           </span>
-          <span>
+          {remaining > 0 ? (
+            <span>
+              <Unit className='dark:text-slate-100' value={requiredSendAmount} />{' '}
+              <span className='text-gray-500 text-sm'>required</span>
+            </span>
+          ) : (
+            <span>
+              <Unit className='dark:text-slate-100' value={Math.abs(remaining)} />{' '}
+              <span className='text-gray-500 text-sm'>change</span>
+              <span className='text-transparent select-none text-xs'>x</span>
+            </span>
+          )}
+          {/* <span>
             {remaining > 0 ? (
               <>
-                <Unit value={remaining} /> <span className='text-gray-500 text-sm'>remaining</span>
+                <Unit className='text-yellow-600' value={remaining} />{' '}
+                <span className='text-yellow-600 text-sm leading-tight'>remain</span>
+                <span className='text-transparent select-none'>x</span>
               </>
             ) : (
               <span className='font-medium text-green-500'>Ready to send</span>
             )}
-          </span>
+          </span> */}
         </div>
         <div className='text-right flex items-center'>
           <button
