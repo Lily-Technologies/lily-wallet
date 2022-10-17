@@ -43,6 +43,7 @@ export const SearchToolbar = ({
               placeholder='Search'
               type='text'
               name='search'
+              autoFocus
               onChange={(e) => setSearchQuery(e.target.value)}
               value={searchQuery}
             />

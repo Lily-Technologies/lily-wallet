@@ -40,29 +40,31 @@ export const AddLabelTag = ({ address, onSave }: Props) => {
         </svg>
       </button>
       {isEditing ? (
-        <span className='inline-flex overflow-visible items-center rounded-full border-2 border-dashed border-gray-300 dark:border-slate-500 bg-slate-100 dark:bg-slate-800 py-0.5 px-2 text-sm font-medium text-slate-700'>
-          <input
-            onChange={(e) => setLabelText(e.target.value)}
-            value={labelText}
-            autoFocus
-            type='text'
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                saveLabel();
-              }
-            }}
-            size={labelText.length < 2 ? 2 : labelText.length}
-            className='outline-none w-full inline-flex items-center rounded-full bg-slate-100 dark:bg-slate-800 px-1 text-sm font-medium text-slate-700 dark:text-slate-200'
-          />
-          <button
-            type='button'
-            className='cursor-pointer ml-0.5 inline-flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full text-slate-400 hover:bg-slate-200 hover:text-slate-500 focus:bg-slate-500 focus:text-white focus:outline-none'
-            onClick={() => saveLabel()}
-          >
-            <span className='sr-only'>Save tag</span>
-            <CheckIcon className='h-4 w-4' />
-          </button>
-        </span>
+        <li className='inline'>
+          <span className='inline-flex overflow-visible items-center rounded-full border-2 border-dashed border-gray-300 dark:border-slate-500 bg-slate-100 dark:bg-slate-800 py-0.5 px-2 text-sm font-medium text-slate-700'>
+            <input
+              onChange={(e) => setLabelText(e.target.value)}
+              value={labelText}
+              autoFocus
+              type='text'
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  saveLabel();
+                }
+              }}
+              size={labelText.length < 2 ? 2 : labelText.length}
+              className='outline-none focus:ring-0 w-full border-0 py-0 inline-flex items-center rounded-full bg-slate-100 dark:bg-slate-800 px-1 text-sm font-medium text-slate-700 dark:text-slate-200'
+            />
+            <button
+              type='button'
+              className='cursor-pointer ml-0.5 inline-flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full text-slate-400 hover:bg-slate-200 hover:text-slate-500 focus:bg-slate-500 focus:text-white focus:outline-none'
+              onClick={() => saveLabel()}
+            >
+              <span className='sr-only'>Save tag</span>
+              <CheckIcon className='h-4 w-4' />
+            </button>
+          </span>
+        </li>
       ) : null}
     </>
   );

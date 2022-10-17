@@ -39,7 +39,7 @@ const AddressRow = ({ address, status, onClick }: Props) => {
         {/* <UtxoSubheader>{address.bip32derivation[0].path}</UtxoSubheader> */}
       </td>
       <td className='flex justify-end items-center space-x-1'>
-        <ul className=''>
+        <ul className='space-x-1'>
           {labels.map((label) => (
             <li className='inline' key={label.id}>
               <LabelTag label={label} />
