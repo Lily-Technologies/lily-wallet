@@ -15,6 +15,7 @@ export const useShiftSelected = <P,>(
   initialState: Array<P>,
   change: (addOrRemove: boolean, items: Array<P>) => void
 ) => {
+  const [initialStateModified, setInitialStateModified] = useState(initialState);
   const [previousSelected, setPreviousSelected] = useState<P | null>(null);
   const [previousChecked, setPreviousChecked] = useState<boolean>(false);
   const [currentSelected, setCurrentSelected] = useState<P | null>(null);
@@ -23,18 +24,18 @@ export const useShiftSelected = <P,>(
     (event: ChangeEvent<HTMLInputElement>, item: P) => {
       // @ts-ignore shiftKey is defined for click events
       if (event.nativeEvent.shiftKey) {
-        const current = initialState.findIndex((x) => x === item);
-        const previous = initialState.findIndex((x) => x === previousSelected);
-        const previousCurrent = initialState.findIndex((x) => x === currentSelected);
+        const current = initialStateModified.findIndex((x) => x === item);
+        const previous = initialStateModified.findIndex((x) => x === previousSelected);
+        const previousCurrent = initialStateModified.findIndex((x) => x === currentSelected);
         const start = Math.min(current, previous);
         const end = Math.max(current, previous);
         if (start > -1 && end > -1) {
-          change(previousChecked, initialState.slice(start, end + 1));
+          change(previousChecked, initialStateModified.slice(start, end + 1));
           if (previousCurrent > end) {
-            change(!previousChecked, initialState.slice(end + 1, previousCurrent + 1));
+            change(!previousChecked, initialStateModified.slice(end + 1, previousCurrent + 1));
           }
           if (previousCurrent < start) {
-            change(!previousChecked, initialState.slice(previousCurrent, start));
+            change(!previousChecked, initialStateModified.slice(previousCurrent, start));
           }
           setCurrentSelected(item);
           return;
@@ -48,7 +49,7 @@ export const useShiftSelected = <P,>(
     },
     [
       change,
-      initialState,
+      initialStateModified,
       previousSelected,
       setPreviousSelected,
       previousChecked,
@@ -58,5 +59,24 @@ export const useShiftSelected = <P,>(
     ]
   );
 
-  return onChange;
+  const resetShiftSelectSelections = useCallback(
+    (sortedFilteredState) => {
+      setInitialStateModified(sortedFilteredState);
+      setCurrentSelected(null);
+      setPreviousSelected(null);
+      setPreviousChecked(false);
+    },
+    [
+      change,
+      initialStateModified,
+      previousSelected,
+      setPreviousSelected,
+      previousChecked,
+      setPreviousChecked,
+      currentSelected,
+      setCurrentSelected
+    ]
+  );
+
+  return { onChange, resetShiftSelectSelections };
 };

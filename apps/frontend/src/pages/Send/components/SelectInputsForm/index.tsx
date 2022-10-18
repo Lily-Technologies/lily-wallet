@@ -30,7 +30,7 @@ export const SelectInputsForm = ({ currentAccount, onSave, cancel, requiredSendA
   const { availableUtxos } = currentAccount;
 
   const { selected, change } = useSelected<UTXO>([]);
-  const onChange = useShiftSelected(availableUtxos, change);
+  const { onChange, resetShiftSelectSelections } = useShiftSelected(availableUtxos, change);
 
   const [showTags, setShowTags] = useState(false);
   const [sort, setSort] = useState<SortOptions>(null);
@@ -55,9 +55,24 @@ export const SelectInputsForm = ({ currentAccount, onSave, cancel, requiredSendA
       });
 
       setFilteredUtxos(currentFilteredUtxos);
+      resetShiftSelectSelections(currentFilteredUtxos);
     };
     filterUtxos();
   }, [searchQuery]);
+
+  useEffect(() => {
+    const sortedUtxos = [...filteredUtxos].sort((a, b) => {
+      if (sort === 'asc') {
+        return a.value - b.value;
+      } else if (sort === 'desc') {
+        return b.value - a.value;
+      }
+      return 0;
+    });
+
+    setFilteredUtxos(sortedUtxos);
+    resetShiftSelectSelections(sortedUtxos);
+  }, [sort]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>, currentUtxo: UTXO) => {
     onChange(e, currentUtxo);
@@ -104,30 +119,21 @@ export const SelectInputsForm = ({ currentAccount, onSave, cancel, requiredSendA
       />
       <div className='bg-gray-200 dark:bg-slate-900 overflow-y-auto flex-grow'>
         <ul className='overflow-auto space-y-4 py-4 px-5'>
-          {[...filteredUtxos]
-            .sort((a, b) => {
-              if (sort === 'asc') {
-                return a.value - b.value;
-              } else if (sort === 'desc') {
-                return b.value - a.value;
-              }
-              return 0;
-            })
-            .map((utxo) => {
-              const id = `${utxo.txid}:${utxo.vout}`;
-              const isSelected = selected.includes(utxo);
+          {[...filteredUtxos].map((utxo) => {
+            const id = `${utxo.txid}:${utxo.vout}`;
+            const isSelected = selected.includes(utxo);
 
-              return (
-                <UtxoInputSelectRow
-                  key={id}
-                  id={id}
-                  isSelected={isSelected}
-                  utxo={utxo}
-                  handleChange={handleChange}
-                  showTags={showTags}
-                />
-              );
-            })}
+            return (
+              <UtxoInputSelectRow
+                key={id}
+                id={id}
+                isSelected={isSelected}
+                utxo={utxo}
+                handleChange={handleChange}
+                showTags={showTags}
+              />
+            );
+          })}
         </ul>
       </div>
       <div className='flex justify-between align-center bg-white px-4 py-3 sm:px-6 border-t border-gray-700/20 dark:border-slate-500/20 dark:bg-slate-800'>
