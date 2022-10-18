@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Psbt } from 'bitcoinjs-lib';
 import { Buffer } from 'buffer';
-import { AdjustmentsIcon } from '@heroicons/react/outline';
+import { AdjustmentsIcon, XIcon } from '@heroicons/react/outline';
 
 import { Unit, Price } from 'src/components';
 
@@ -16,9 +16,10 @@ interface Props {
   currentAccount: LilyOnchainAccount;
   psbt: Psbt;
   adjustInputs?: (utxos: UTXO[]) => Promise<Psbt>;
+  closeModal: () => void;
 }
 
-const TransactionUtxoDetails = ({ currentAccount, psbt, adjustInputs }: Props) => {
+const TransactionUtxoDetails = ({ currentAccount, psbt, adjustInputs, closeModal }: Props) => {
   const [showSelectInputsForm, setShowSelectInputsForm] = useState(false);
 
   const { availableUtxos, transactions } = currentAccount;
@@ -47,13 +48,27 @@ const TransactionUtxoDetails = ({ currentAccount, psbt, adjustInputs }: Props) =
 
   return (
     <>
-      <div className='space-y-1 bg-white px-5 py-4 sm:px-6  dark:bg-slate-800 border-b border-gray-700/20 dark:border-slate-500/20'>
-        <h2 className='text-lg font-medium text-gray-900 dark:text-slate-100' id='slide-over-title'>
-          Transaction details
-        </h2>
-        <p className='text-sm text-gray-500 dark:text-slate-400'>
-          Choose which inputs you want to use in this transaction
-        </p>
+      <div className='flex justify-between bg-white px-5 py-4 sm:px-6  dark:bg-slate-800 border-b border-gray-700/20 dark:border-slate-500/20'>
+        <div className='space-y-1 '>
+          <h2
+            className='text-lg font-medium text-gray-900 dark:text-slate-100'
+            id='slide-over-title'
+          >
+            Transaction details
+          </h2>
+          <p className='text-sm text-gray-500 dark:text-slate-400'>
+            Choose which inputs you want to use in this transaction
+          </p>
+        </div>
+        <div className='ml-3 flex h-7 items-center'>
+          <button
+            className='rounded-md text-gray-400 hover:text-gray-500 dark:text-white dark:hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500'
+            onClick={() => closeModal()}
+          >
+            <span className='sr-only'>Close panel</span>
+            <XIcon className='h-6 w-6' aria-hidden='true' />
+          </button>
+        </div>
       </div>
       <div className='space-y-6'>
         <div className='px-4 py-5 space-y-6'>
@@ -62,7 +77,7 @@ const TransactionUtxoDetails = ({ currentAccount, psbt, adjustInputs }: Props) =
               <h2 className='text-lg font-medium text-gray-900 dark:text-slate-100'>Inputs</h2>
               <button
                 onClick={() => setShowSelectInputsForm(true)}
-                className='flex items-center text-sm font-medium text-green-700 dark:text-green-600 hover:text-green-600 dark:hover:text-green-500'
+                className='flex items-center text-sm font-medium text-green-700 dark:text-green-600 hover:text-green-600 dark:hover:text-green-500 outline-none focus:ring-2 focus:ring-green-500 px-2 rounded-full'
               >
                 <AdjustmentsIcon className='w-4 h-4 mr-1' />
                 Adjust input(s)
@@ -74,7 +89,7 @@ const TransactionUtxoDetails = ({ currentAccount, psbt, adjustInputs }: Props) =
                 const utxo =
                   utxosMap[`${Buffer.from(inputBuffer.reverse()).toString('hex')}:${input.index}`];
                 return (
-                  <li className='border-gray-800/15 active:bg-gray-50 bg-white dark:bg-slate-800 dark:border-slate-800 shadow flex items-center justify-between w-full p-4 border dark:highlight-white/10 rounded-2xl group'>
+                  <li className='border-gray-800/15 bg-white dark:bg-slate-800 dark:border-slate-800 shadow flex items-center justify-between w-full p-4 border dark:highlight-white/10 rounded-2xl group'>
                     {/* <li className='flex items-center justify-between px-3 py-4 mb-2 rounded bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600'> */}
                     <span className='text-sm dark:text-slate-400'>{utxo.address.address}</span>
                     <span className='font-medium dark:text-slate-200'>
@@ -89,7 +104,7 @@ const TransactionUtxoDetails = ({ currentAccount, psbt, adjustInputs }: Props) =
             <h2 className='text-lg font-medium text-gray-900 dark:text-slate-100 pb-2'>Outputs</h2>
             <ul className='space-y-4 py-1'>
               {psbt.txOutputs.map((output) => (
-                <li className='border-gray-800/15 active:bg-gray-50 bg-white dark:bg-slate-800 dark:border-slate-800 shadow flex items-center justify-between w-full p-4 border dark:highlight-white/10 rounded-2xl group'>
+                <li className='border-gray-800/15 bg-white dark:bg-slate-800 dark:border-slate-800 shadow flex items-center justify-between w-full p-4 border dark:highlight-white/10 rounded-2xl group'>
                   <span className='text-sm dark:text-slate-400'>{output.address}</span>{' '}
                   <span className='text-right ml-8 grow-0 whitespace-nowrap dark:text-gray-200'>
                     <Unit value={output.value} />

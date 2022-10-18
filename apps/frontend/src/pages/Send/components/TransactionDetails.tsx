@@ -90,7 +90,7 @@ const TransactionDetails = ({
       <AddSignatureFromQrCode
         importSignatureFromFile={() => {}}
         psbt={finalPsbt}
-        currentBitcoinPrice={currentBitcoinPrice}
+        closeModal={closeModal}
       />
     );
   };
@@ -112,6 +112,7 @@ const TransactionDetails = ({
         currentAccount={currentAccount}
         psbt={psbt}
         adjustInputs={adjustInputs}
+        closeModal={closeModal}
       />
     );
     return psbt;
@@ -167,6 +168,7 @@ const TransactionDetails = ({
               currentAccount={currentAccount}
               psbt={finalPsbt}
               adjustInputs={adjustInputs}
+              closeModal={closeModal}
             />
           );
         }

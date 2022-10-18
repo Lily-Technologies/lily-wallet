@@ -143,7 +143,7 @@ const ConfirmTxPage = ({
             <AddSignatureFromQrCode
               importSignatureFromFile={importSignatureFromFile}
               psbt={finalPsbt}
-              currentBitcoinPrice={currentBitcoinPrice}
+              closeModal={closeModal}
             />
           )
       : undefined;

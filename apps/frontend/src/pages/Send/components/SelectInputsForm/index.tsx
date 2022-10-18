@@ -1,6 +1,8 @@
 import { useContext, useEffect, useState } from 'react';
+import { XIcon } from '@heroicons/react/outline';
 
 import { Unit } from 'src/components';
+import { useSelected, useShiftSelected } from 'src/hocs';
 
 import { UtxoInputSelectRow } from './UtxoInputSelectRow';
 import { SearchToolbar } from './SearchToolbar';
@@ -26,7 +28,10 @@ async function filter(arr, callback) {
 
 export const SelectInputsForm = ({ currentAccount, onSave, cancel, requiredSendAmount }: Props) => {
   const { availableUtxos } = currentAccount;
-  const [selectedInputs, setSelectedInputs] = useState<UTXO[]>([]);
+
+  const { selected, change } = useSelected<UTXO>([]);
+  const onChange = useShiftSelected(availableUtxos, change);
+
   const [showTags, setShowTags] = useState(false);
   const [sort, setSort] = useState<SortOptions>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -54,14 +59,15 @@ export const SelectInputsForm = ({ currentAccount, onSave, cancel, requiredSendA
     filterUtxos();
   }, [searchQuery]);
 
-  const handleChange = (currentUtxo: UTXO) => {
-    if (selectedInputs.includes(currentUtxo)) {
-      const updatedInputs = selectedInputs.filter((input) => input !== currentUtxo);
-      setSelectedInputs(updatedInputs);
-    } else {
-      const updatedInputs = [...selectedInputs, currentUtxo];
-      setSelectedInputs(updatedInputs);
-    }
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>, currentUtxo: UTXO) => {
+    onChange(e, currentUtxo);
+    // if (selectedInputs.includes(currentUtxo)) {
+    //   const updatedInputs = selectedInputs.filter((input) => input !== currentUtxo);
+    //   setSelectedInputs(updatedInputs);
+    // } else {
+    //   const updatedInputs = [...selectedInputs, currentUtxo];
+    //   setSelectedInputs(updatedInputs);
+    // }
   };
 
   const toggleSort = () => {
@@ -74,7 +80,7 @@ export const SelectInputsForm = ({ currentAccount, onSave, cancel, requiredSendA
     }
   };
 
-  const selectedInputTotal = selectedInputs.reduce((accum, input) => accum + input.value, 0);
+  const selectedInputTotal = selected.reduce((accum, input) => accum + input.value, 0);
   const remaining = requiredSendAmount - selectedInputTotal;
 
   return (
@@ -87,6 +93,7 @@ export const SelectInputsForm = ({ currentAccount, onSave, cancel, requiredSendA
           Choose which inputs you want to use in this transaction
         </p>
       </div>
+
       <SearchToolbar
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
@@ -108,7 +115,7 @@ export const SelectInputsForm = ({ currentAccount, onSave, cancel, requiredSendA
             })
             .map((utxo) => {
               const id = `${utxo.txid}:${utxo.vout}`;
-              const isSelected = selectedInputs.includes(utxo);
+              const isSelected = selected.includes(utxo);
 
               return (
                 <UtxoInputSelectRow
@@ -156,14 +163,14 @@ export const SelectInputsForm = ({ currentAccount, onSave, cancel, requiredSendA
         <div className='text-right flex items-center'>
           <button
             onClick={() => cancel()}
-            className='rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium text-blue-gray-900 shadow-sm hover:bg-blue-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2'
+            className='rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium text-blue-gray-900 shadow-sm hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2'
           >
             Cancel
           </button>
           <button
             disabled={remaining > 0}
-            onClick={() => onSave(selectedInputs)}
-            className='ml-3 inline-flex justify-center disabled:opacity-50 disabled:cursor-not-allowed rounded-md border border-transparent bg-gray-800 dark:bg-slate-700 py-2 px-4 text-sm font-medium text-white shadow-sm enabled:hover:bg-gray-900 enabled:dark:hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2'
+            onClick={() => onSave(selected)}
+            className='ml-3 inline-flex justify-center disabled:opacity-50 disabled:cursor-not-allowed rounded-md border border-transparent bg-gray-800 dark:bg-slate-700 disabled:hover:bg-gray-800 dark:disabled:hover:bg-slate-700 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-gray-900 dark:hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2'
           >
             Save
           </button>
