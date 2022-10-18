@@ -131,7 +131,7 @@ export const SelectInputsForm = ({ currentAccount, onSave, cancel, requiredSendA
           </span>
           {remaining > 0 ? (
             <span>
-              <Unit className='dark:text-slate-100' value={requiredSendAmount} />{' '}
+              <Unit className='dark:text-slate-100' value={remaining} />{' '}
               <span className='text-gray-500 text-sm'>required</span>
             </span>
           ) : (
@@ -161,8 +161,9 @@ export const SelectInputsForm = ({ currentAccount, onSave, cancel, requiredSendA
             Cancel
           </button>
           <button
+            disabled={remaining > 0}
             onClick={() => onSave(selectedInputs)}
-            className='ml-3 inline-flex justify-center rounded-md border border-transparent bg-gray-800 dark:bg-slate-700 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-gray-900 dark:hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2'
+            className='ml-3 inline-flex justify-center disabled:opacity-50 disabled:cursor-not-allowed rounded-md border border-transparent bg-gray-800 dark:bg-slate-700 py-2 px-4 text-sm font-medium text-white shadow-sm enabled:hover:bg-gray-900 enabled:dark:hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2'
           >
             Save
           </button>
