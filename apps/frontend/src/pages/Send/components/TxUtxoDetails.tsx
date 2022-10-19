@@ -87,7 +87,7 @@ const TransactionUtxoDetails = ({ currentAccount, psbt, adjustInputs, closeModal
                   className='flex items-center text-sm font-medium text-green-700 dark:text-green-600 hover:text-green-600 dark:hover:text-green-500 outline-none focus:ring-2 focus:ring-green-500 px-2 rounded-full'
                 >
                   <AdjustmentsIcon className='w-4 h-4 mr-1' />
-                  Adjust input(s)
+                  Select input(s)
                 </button>
               ) : null}
             </div>
