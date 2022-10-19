@@ -31,6 +31,15 @@ const TransactionUtxoDetails = ({ currentAccount, psbt, adjustInputs, closeModal
   }
 
   if (showSelectInputsForm) {
+    const calculatedSendAmount = psbt.txOutputs.reduce((accum, output, index, outputs) => {
+      if (index < outputs.length - 1) {
+        // subtract 2 b/c we assume outputs[length - 1] is our change address
+        return accum + output.value;
+      } else {
+        return accum;
+      }
+    }, 0);
+
     return (
       <SelectInputsForm
         onSave={(utxos: UTXO[]) => {
@@ -41,7 +50,7 @@ const TransactionUtxoDetails = ({ currentAccount, psbt, adjustInputs, closeModal
         }}
         cancel={() => setShowSelectInputsForm(false)}
         currentAccount={currentAccount}
-        requiredSendAmount={psbt.txOutputs[0].value}
+        requiredSendAmount={calculatedSendAmount}
       />
     );
   }
