@@ -98,7 +98,6 @@ const TransactionUtxoDetails = ({ currentAccount, psbt, adjustInputs, closeModal
                   utxosMap[`${Buffer.from(inputBuffer.reverse()).toString('hex')}:${input.index}`];
                 return (
                   <li className='border-gray-800/15 bg-white dark:bg-slate-800 dark:border-slate-800 shadow flex items-center justify-between w-full p-4 border dark:highlight-white/10 rounded-2xl group'>
-                    {/* <li className='flex items-center justify-between px-3 py-4 mb-2 rounded bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600'> */}
                     <span className='text-sm dark:text-slate-400'>{utxo.address.address}</span>
                     <span className='font-medium dark:text-slate-200'>
                       <Unit value={utxo.value} />

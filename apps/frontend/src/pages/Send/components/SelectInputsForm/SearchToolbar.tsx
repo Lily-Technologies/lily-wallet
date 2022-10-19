@@ -69,7 +69,6 @@ export const SearchToolbar = ({
             ) : (
               <SortDescendingIcon className='w-4 h-4' />
             )}
-            {/* <span className=''>{showTags ? 'Hide tags' : 'Show tags'}</span> */}
           </button>
         </div>
       </div>
@@ -87,7 +86,6 @@ export const SearchToolbar = ({
           }}
         >
           <TagIcon className='w-4 h-4' />
-          {/* <span className=''>{showTags ? 'Hide tags' : 'Show tags'}</span> */}
         </button>
       </div>
     </div>

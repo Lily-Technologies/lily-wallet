@@ -1,5 +1,4 @@
 import { useContext, useEffect, useState } from 'react';
-import { XIcon } from '@heroicons/react/outline';
 
 import { Unit } from 'src/components';
 import { useSelected, useShiftSelected } from 'src/hocs';
@@ -74,24 +73,13 @@ export const SelectInputsForm = ({ currentAccount, onSave, cancel, requiredSendA
     resetShiftSelectSelections(sortedUtxos);
   }, [sort]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>, currentUtxo: UTXO) => {
-    onChange(e, currentUtxo);
-    // if (selectedInputs.includes(currentUtxo)) {
-    //   const updatedInputs = selectedInputs.filter((input) => input !== currentUtxo);
-    //   setSelectedInputs(updatedInputs);
-    // } else {
-    //   const updatedInputs = [...selectedInputs, currentUtxo];
-    //   setSelectedInputs(updatedInputs);
-    // }
-  };
-
   const toggleSort = () => {
     if (sort === 'asc') {
-      setSort('desc');
-    } else if (sort === 'desc') {
       setSort(null);
-    } else {
+    } else if (sort === 'desc') {
       setSort('asc');
+    } else {
+      setSort('desc');
     }
   };
 
@@ -129,7 +117,7 @@ export const SelectInputsForm = ({ currentAccount, onSave, cancel, requiredSendA
                 id={id}
                 isSelected={isSelected}
                 utxo={utxo}
-                handleChange={handleChange}
+                handleChange={onChange}
                 showTags={showTags}
               />
             );
@@ -154,17 +142,6 @@ export const SelectInputsForm = ({ currentAccount, onSave, cancel, requiredSendA
               <span className='text-transparent select-none text-xs'>x</span>
             </span>
           )}
-          {/* <span>
-            {remaining > 0 ? (
-              <>
-                <Unit className='text-yellow-600' value={remaining} />{' '}
-                <span className='text-yellow-600 text-sm leading-tight'>remain</span>
-                <span className='text-transparent select-none'>x</span>
-              </>
-            ) : (
-              <span className='font-medium text-green-500'>Ready to send</span>
-            )}
-          </span> */}
         </div>
         <div className='text-right flex items-center'>
           <button
