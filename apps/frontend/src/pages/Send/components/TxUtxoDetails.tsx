@@ -65,9 +65,6 @@ const TransactionUtxoDetails = ({ currentAccount, psbt, adjustInputs, closeModal
           >
             Transaction details
           </h2>
-          <p className='text-sm text-gray-500 dark:text-slate-400'>
-            Choose which inputs you want to use in this transaction
-          </p>
         </div>
         <div className='ml-3 flex h-7 items-center'>
           <button
