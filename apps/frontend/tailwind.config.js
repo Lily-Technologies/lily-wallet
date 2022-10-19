@@ -42,8 +42,6 @@ module.exports = {
   variants: {
     extend: {
       borderWidth: ['focus-within'],
-      opacity: ['disabled'],
-      cursor: ['disabled'],
       scale: ['group-hover'],
       rotate: ['group-hover'],
       transform: ['group-hover'],
@@ -52,6 +50,7 @@ module.exports = {
     }
   },
   plugins: [
+    require('@tailwindcss/forms'),
     function ({ matchUtilities, theme }) {
       matchUtilities(
         {

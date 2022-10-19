@@ -15,10 +15,10 @@ import { LilyOnchainAccount } from '@lily/types';
 interface Props {
   importSignatureFromFile: (file: string) => void;
   psbt: Psbt;
-  currentBitcoinPrice: number;
+  closeModal: () => void;
 }
 
-const AddSignatureFromQrCode = ({ importSignatureFromFile, psbt, currentBitcoinPrice }: Props) => {
+const AddSignatureFromQrCode = ({ importSignatureFromFile, psbt, closeModal }: Props) => {
   const { currentAccount } = useContext(AccountMapContext);
   const [step, setStep] = useState(0);
 
@@ -28,7 +28,13 @@ const AddSignatureFromQrCode = ({ importSignatureFromFile, psbt, currentBitcoinP
       screen = <PsbtQrCode psbt={psbt} />;
       break;
     case 1:
-      screen = <TxUtxoDetails currentAccount={currentAccount as LilyOnchainAccount} psbt={psbt} />;
+      screen = (
+        <TxUtxoDetails
+          currentAccount={currentAccount as LilyOnchainAccount}
+          psbt={psbt}
+          closeModal={closeModal}
+        />
+      );
       break;
     case 2:
       screen = <DecodePsbtQrCode importSignatureFromFile={importSignatureFromFile} />;

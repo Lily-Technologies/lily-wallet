@@ -25,7 +25,8 @@ import {
   LilyConfig,
   NodeConfigWithBlockchainInfo,
   FeeRates,
-  LilyOnchainAccount
+  LilyOnchainAccount,
+  UTXO
 } from '@lily/types';
 
 import { SetStatePsbt } from 'src/types';
@@ -68,14 +69,19 @@ const SendOnchain = ({ currentAccount, currentBitcoinNetwork, currentBitcoinPric
     }
   };
 
-  const createTransactionAndSetState = async (recipients: RecipientItem[], _feeRate: number) => {
+  const createTransactionAndSetState = async (
+    recipients: RecipientItem[],
+    _feeRate: number,
+    desiredUtxos?: UTXO[]
+  ) => {
     try {
       const { psbt, feeRates } = await createTransaction(
         currentAccount,
         recipients,
         _feeRate,
         () => platform.estimateFee(),
-        currentBitcoinNetwork
+        currentBitcoinNetwork,
+        desiredUtxos
       );
       setFinalPsbt(psbt);
       setFeeRates(feeRates);

@@ -46,8 +46,8 @@ const AddressesView = ({ currentAccount }: Props) => {
               onClick={() => setActiveTab(tab)}
               className={classNames(
                 activeTab === tab
-                  ? 'border-yellow-500 text-gray-900'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
+                  ? 'border-yellow-500 text-gray-900 dark:text-slate-100'
+                  : 'border-transparent text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-300 hover:border-gray-300',
                 'cursor-pointer whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm'
               )}
               aria-current={activeTab === tab ? 'page' : undefined}
