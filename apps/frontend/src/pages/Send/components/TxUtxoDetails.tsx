@@ -84,13 +84,15 @@ const TransactionUtxoDetails = ({ currentAccount, psbt, adjustInputs, closeModal
           <div>
             <div className='flex justify-between pb-2'>
               <h2 className='text-lg font-medium text-gray-900 dark:text-slate-100'>Inputs</h2>
-              <button
-                onClick={() => setShowSelectInputsForm(true)}
-                className='flex items-center text-sm font-medium text-green-700 dark:text-green-600 hover:text-green-600 dark:hover:text-green-500 outline-none focus:ring-2 focus:ring-green-500 px-2 rounded-full'
-              >
-                <AdjustmentsIcon className='w-4 h-4 mr-1' />
-                Adjust input(s)
-              </button>
+              {!!adjustInputs ? (
+                <button
+                  onClick={() => setShowSelectInputsForm(true)}
+                  className='flex items-center text-sm font-medium text-green-700 dark:text-green-600 hover:text-green-600 dark:hover:text-green-500 outline-none focus:ring-2 focus:ring-green-500 px-2 rounded-full'
+                >
+                  <AdjustmentsIcon className='w-4 h-4 mr-1' />
+                  Adjust input(s)
+                </button>
+              ) : null}
             </div>
             <ul className='max-h-[50vh] overflow-auto space-y-4 py-1'>
               {psbt.txInputs.map((input) => {
