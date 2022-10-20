@@ -694,7 +694,7 @@ ipcMain.handle('/add-address-label', async (event, args) => {
     const response = await addAddressLabel(db, address, label);
     return Promise.resolve(response);
   } catch (e) {
-    console.log(`error /isConfirmedTransaction ${e}`);
+    console.log(`error /add-address-label ${e}`);
     return Promise.reject({ success: false, error: e });
   }
 });
@@ -707,7 +707,7 @@ ipcMain.handle('/delete-address-label', async (event, args) => {
     await deleteAddressLabel(db, id);
     return Promise.resolve();
   } catch (e) {
-    console.log(`error /isConfirmedTransaction ${e}`);
+    console.log(`error /delete-address-label ${e}`);
     return Promise.reject({ success: false, error: e });
   }
 });
@@ -720,21 +720,21 @@ ipcMain.handle('/get-address-labels', async (event, args) => {
     const labels = await getAllLabelsForAddress(db, address);
     return Promise.resolve(labels);
   } catch (e) {
-    console.log(`error /isConfirmedTransaction ${e}`);
+    console.log(`error /get-address-labels ${e}`);
     return Promise.reject({ success: false, error: e });
   }
 });
 
 ipcMain.handle('/add-transaction-description', async (event, args) => {
   const { txid, description } = args;
-  console.log('txid, description: ', txid, description);
+  console.log(`Adding description ${description} to tx ${txid}`);
   try {
     const userDataPath = app.getPath('userData');
     const db = await dbConnect(userDataPath);
     const response = await addTransactionDescription(db, txid, description);
     return Promise.resolve(response);
   } catch (e) {
-    console.log(`error /isConfirmedTransaction ${e}`);
+    console.log(`error /add-transaction-description ${e}`);
     return Promise.reject({ success: false, error: e });
   }
 });
@@ -746,7 +746,7 @@ ipcMain.handle('/get-transaction-description', async (event, args) => {
     const description = await getTransactionDescription(db, txid);
     return Promise.resolve(description);
   } catch (e) {
-    console.log(`error /isConfirmedTransaction ${e}`);
+    console.log(`error /get-transaction-description ${e}`);
     return Promise.reject({ success: false, error: e });
   }
 });
