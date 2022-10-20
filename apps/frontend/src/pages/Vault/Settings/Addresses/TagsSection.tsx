@@ -44,7 +44,9 @@ export const TagsSection = ({ address }: Props) => {
 
   return (
     <div className='relative'>
-      <dt className='text-sm font-medium text-gray-500 sm:w-40 sm:flex-shrink-0'>Tags</dt>
+      <dt className='text-sm font-medium text-gray-500 dark:text-slate-400 sm:w-40 sm:flex-shrink-0'>
+        Tags
+      </dt>
       <ul role='list' className='mt-2 inline-flex leading-8 space-x-1 items-center flex-wrap'>
         {labels.map((label) => (
           <li className='inline' key={label.id}>
