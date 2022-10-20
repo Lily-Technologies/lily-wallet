@@ -1,14 +1,11 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { XIcon } from '@heroicons/react/outline';
 
 import { Unit, Price } from 'src/components';
 
 import { TransactionDescription } from './TransactionDescription';
 
-import { AccountMapContext } from 'src/context';
-
-import { createMap } from 'src/utils/accountMap';
-import { LilyOnchainAccount, Transaction } from '@lily/types';
+import { Transaction } from '@lily/types';
 
 interface Props {
   transaction: Transaction;
@@ -18,11 +15,6 @@ interface Props {
 }
 
 const TxDetailsSlideover = ({ transaction, setOpen, description, setDescription }: Props) => {
-  const { currentAccount } = useContext(AccountMapContext);
-  const { addresses } = currentAccount as LilyOnchainAccount;
-
-  const addressMap = createMap(addresses, 'address');
-
   return (
     <>
       <div className='flex justify-between bg-white px-5 py-4 sm:px-6  dark:bg-slate-800 border-b border-gray-700/20 dark:border-slate-500/20'>
