@@ -92,7 +92,7 @@ export const OnchainReceive = ({ currentAccount }: Props) => {
             </div>
           </div>
           <div className='col-span-4'>
-            <TagsSection address={unusedAddresses[unusedAddressIndex]} />
+            <TagsSection address={unusedAddresses[unusedAddressIndex].address} />
           </div>
         </div>
       </div>

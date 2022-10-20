@@ -346,4 +346,12 @@ export class WebPlatform extends BasePlatform {
   async getAddressLabels(address: string) {
     return Promise.resolve([]);
   }
+
+  async addTransactionDescription(txid: string, description: string) {
+    return Promise.resolve(false);
+  }
+
+  async getTransactionDescription(txid: string) {
+    return Promise.resolve({ txid: '', description: '' });
+  }
 }

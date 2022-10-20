@@ -2,7 +2,8 @@ import React, { useContext } from 'react';
 import { XIcon } from '@heroicons/react/outline';
 
 import { Unit, Price } from 'src/components';
-import { TagsSection } from 'src/pages/Vault/Settings/Addresses/TagsSection';
+
+import { TransactionDescription } from './TransactionDescription';
 
 import { AccountMapContext } from 'src/context';
 
@@ -12,9 +13,11 @@ import { LilyOnchainAccount, Transaction } from '@lily/types';
 interface Props {
   transaction: Transaction;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  description: string;
+  setDescription: React.Dispatch<React.SetStateAction<string>>;
 }
 
-const TxDetailsSlideover = ({ transaction, setOpen }: Props) => {
+const TxDetailsSlideover = ({ transaction, setOpen, description, setDescription }: Props) => {
   const { currentAccount } = useContext(AccountMapContext);
   const { addresses } = currentAccount as LilyOnchainAccount;
 
@@ -61,6 +64,12 @@ const TxDetailsSlideover = ({ transaction, setOpen }: Props) => {
             </p>
           </div>
 
+          <TransactionDescription
+            txid={transaction.txid}
+            description={description}
+            setDescription={setDescription}
+          />
+
           <div className=''>
             <div className='flex items-center pb-2'>
               <h2 className='text-md font-medium text-gray-500 dark:text-slate-400 flex items-center'>
@@ -74,11 +83,11 @@ const TxDetailsSlideover = ({ transaction, setOpen }: Props) => {
               {transaction.vin.map((input) => {
                 return (
                   <li className='border-gray-800/15 bg-white dark:bg-slate-800 dark:border-slate-800 shadow flex items-center justify-between w-full p-4 border dark:highlight-white/10 rounded-2xl group'>
-                    <span className='text-sm dark:text-slate-400'>
-                      {input.prevout.scriptpubkey_address}:{input.vout}
+                    <span className='text-sm dark:text-slate-400 truncate'>
+                      {input.txid}:{input.vout}
                     </span>
                     <span className='font-medium dark:text-slate-200'>
-                      <Unit value={input.prevout.value} />
+                      <Unit className='whitespace-nowrap' value={input.prevout.value} />
                     </span>
                   </li>
                 );
@@ -97,7 +106,9 @@ const TxDetailsSlideover = ({ transaction, setOpen }: Props) => {
             <ul className='space-y-4 py-1 max-h-36 overflow-y-scroll'>
               {transaction.vout.map((output) => (
                 <li className='border-gray-800/15 bg-white dark:bg-slate-800 dark:border-slate-800 shadow flex items-center justify-between w-full p-4 border dark:highlight-white/10 rounded-2xl group'>
-                  <span className='text-sm dark:text-slate-400'>{output.scriptpubkey_address}</span>{' '}
+                  <span className='text-sm dark:text-slate-400 truncate'>
+                    {output.scriptpubkey_address}
+                  </span>{' '}
                   <span className='text-right font-medium ml-8 grow-0 whitespace-nowrap dark:text-slate-200'>
                     <Unit value={output.value} />
                   </span>
@@ -113,7 +124,6 @@ const TxDetailsSlideover = ({ transaction, setOpen }: Props) => {
               <Unit value={transaction.fee} /> (<Price value={transaction.fee} />)
             </span>
           </div>
-          <TagsSection address={addressMap[transaction.vout[0].scriptpubkey_address]} />
         </div>
       </div>
     </>

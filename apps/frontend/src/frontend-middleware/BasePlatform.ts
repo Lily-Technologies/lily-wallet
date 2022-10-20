@@ -40,7 +40,8 @@ import {
   DecoratedOpenStatusUpdate,
   GenerateLightningInvoiceRequest,
   LilyCloseChannelRequest,
-  AddressLabel
+  AddressLabel,
+  TransactionDescription
 } from '@lily/types';
 
 export type Platform = 'Electron' | 'Web';
@@ -116,6 +117,13 @@ export interface PlatformInterface {
   addAddressLabel(address: string, label: string): Promise<number>;
   deleteAddressLabel(id: number): Promise<boolean>;
   getAddressLabels(address: string): Promise<any[]>;
+
+  addAddressLabel(address: string, label: string): Promise<number>;
+  deleteAddressLabel(id: number): Promise<boolean>;
+  getAddressLabels(address: string): Promise<any[]>;
+
+  addTransactionDescription(txid: string, description: string): Promise<boolean>;
+  getTransactionDescription(txid: string): Promise<TransactionDescription>;
 }
 
 export abstract class BasePlatform implements PlatformInterface {
@@ -231,4 +239,7 @@ export abstract class BasePlatform implements PlatformInterface {
   abstract addAddressLabel(address: string, label: string): Promise<number>;
   abstract deleteAddressLabel(id: number): Promise<boolean>;
   abstract getAddressLabels(address: string): Promise<AddressLabel[]>;
+
+  abstract addTransactionDescription(txid: string, description: string): Promise<boolean>;
+  abstract getTransactionDescription(txid: string): Promise<TransactionDescription>;
 }

@@ -5,7 +5,6 @@ import { Button, SlideOver, TransactionRowsLoading } from 'src/components';
 
 import DeadFlowerImage from 'src/assets/dead-flower.svg';
 
-import TxDetailsSlideover from './TxDetailsSlideover';
 import TransactionRow from './TransactionRow';
 
 import { gray800, white, green700 } from 'src/utils/colors';
@@ -41,14 +40,6 @@ const RecentTransactions = ({
   openRescanModal,
   maxItems = Infinity
 }: Props) => {
-  const [modalIsOpen, setModalIsOpen] = useState(false);
-  const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
-
-  const openInModal = (component: JSX.Element) => {
-    setModalIsOpen(true);
-    setModalContent(component);
-  };
-
   return (
     <RecentTransactionsWrapper>
       {(loading || transactions.length > 0) && (
@@ -63,7 +54,7 @@ const RecentTransactions = ({
             // eslint-disable-line
             if (index < maxItems) {
               return (
-                <div key={index} className='rounded-2xl'>
+                <div key={transaction.txid} className='rounded-2xl'>
                   {shouldDisplayDate(transactions, index) && (
                     <DateWrapper className='text-gray-800 dark:text-gray-200'>
                       {transaction.status.confirmed
@@ -71,15 +62,7 @@ const RecentTransactions = ({
                         : 'Waiting for confirmation...'}
                     </DateWrapper>
                   )}
-                  <TransactionRow
-                    onClick={() =>
-                      openInModal(
-                        <TxDetailsSlideover transaction={transaction} setOpen={setModalIsOpen} />
-                      )
-                    }
-                    transaction={transaction}
-                    flat={flat}
-                  />
+                  <TransactionRow transaction={transaction} flat={flat} />
                 </div>
               );
             }
@@ -103,7 +86,6 @@ const RecentTransactions = ({
           </div>
         )}
       </TransactionsWrapper>
-      <SlideOver open={modalIsOpen} setOpen={setModalIsOpen} content={modalContent} />
     </RecentTransactionsWrapper>
   );
 };
