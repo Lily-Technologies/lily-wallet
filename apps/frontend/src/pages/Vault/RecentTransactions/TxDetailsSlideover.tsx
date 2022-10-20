@@ -59,7 +59,7 @@ const TxDetailsSlideover = ({ transaction, setOpen, description, setDescription 
 
             <p className='text-gray-900 dark:text-slate-200 font-medium'>
               {transaction.status.confirmed
-                ? `Confirmed ${transaction.status.block_height} blocks ago`
+                ? `Confirmed ${transaction.status.block_height.toLocaleString()} blocks ago`
                 : 'Unconfirmed'}
             </p>
           </div>
@@ -75,7 +75,7 @@ const TxDetailsSlideover = ({ transaction, setOpen, description, setDescription 
               <h2 className='text-md font-medium text-gray-500 dark:text-slate-400 flex items-center'>
                 Inputs
               </h2>
-              <span className='bg-gray-100 dark:bg-slate-800 text-gray-800 dark:text-slate-400 hidden ml-2 py-0.5 px-2.5 rounded-full text-xs font-medium md:inline-block'>
+              <span className='bg-gray-100 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-800 dark:text-slate-400 hidden ml-2 py-0.5 px-2.5 rounded-full text-xs font-medium md:inline-block'>
                 {transaction.vin.length}
               </span>
             </div>
@@ -86,8 +86,8 @@ const TxDetailsSlideover = ({ transaction, setOpen, description, setDescription 
                     <span className='text-sm dark:text-slate-400 truncate'>
                       {input.txid}:{input.vout}
                     </span>
-                    <span className='font-medium dark:text-slate-200'>
-                      <Unit className='whitespace-nowrap' value={input.prevout.value} />
+                    <span className='text-right font-medium ml-8 grow-0 whitespace-nowrap dark:text-slate-200'>
+                      <Unit value={input.prevout.value} />
                     </span>
                   </li>
                 );
@@ -99,7 +99,7 @@ const TxDetailsSlideover = ({ transaction, setOpen, description, setDescription 
               <h2 className='text-md font-medium text-gray-500 dark:text-slate-400 flex items-center'>
                 Outputs
               </h2>
-              <span className='bg-gray-100 dark:bg-slate-800 text-gray-800 dark:text-slate-400 hidden ml-2 py-0.5 px-2.5 rounded-full text-xs font-medium md:inline-block'>
+              <span className='bg-gray-100 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-800 dark:text-slate-400 hidden ml-2 py-0.5 px-2.5 rounded-full text-xs font-medium md:inline-block'>
                 {transaction.vout.length}
               </span>
             </div>
@@ -123,6 +123,16 @@ const TxDetailsSlideover = ({ transaction, setOpen, description, setDescription 
             <span className='text-gray-900 dark:text-slate-200 font-medium'>
               <Unit value={transaction.fee} /> (<Price value={transaction.fee} />)
             </span>
+          </div>
+
+          <div className='text-right'>
+            <a
+              href={`https://blockstream.info/tx/${transaction.txid}`}
+              target='_blank'
+              className='text-green-600 dark:text-green-500 hover:border-b hover:text-green-500 dark:hover:text-green-400 border-green-500 dark:border-green-400 text-sm font-medium'
+            >
+              View on Blockstream
+            </a>
           </div>
         </div>
       </div>
