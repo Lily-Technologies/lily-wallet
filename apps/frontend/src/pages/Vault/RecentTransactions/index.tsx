@@ -5,7 +5,7 @@ import { Button, SlideOver, TransactionRowsLoading } from 'src/components';
 
 import DeadFlowerImage from 'src/assets/dead-flower.svg';
 
-import TxDetailsModal from './TxDetailsModal';
+import TxDetailsSlideover from './TxDetailsSlideover';
 import TransactionRow from './TransactionRow';
 
 import { gray800, white, green700 } from 'src/utils/colors';
@@ -74,7 +74,7 @@ const RecentTransactions = ({
                   <TransactionRow
                     onClick={() =>
                       openInModal(
-                        <TxDetailsModal transaction={transaction} setOpen={setModalIsOpen} />
+                        <TxDetailsSlideover transaction={transaction} setOpen={setModalIsOpen} />
                       )
                     }
                     transaction={transaction}
