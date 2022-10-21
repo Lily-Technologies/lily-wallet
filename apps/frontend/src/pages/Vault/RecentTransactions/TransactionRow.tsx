@@ -50,20 +50,20 @@ const TransactionRow = ({ transaction, flat }: Props) => {
   };
 
   return (
-    <li
-      className='list-none last:border-none border-b border-gray-100 dark:border-gray-700 shadow'
-      onClick={() => {
-        openInModal(
-          <TxDetailsSlideover
-            transaction={transaction}
-            setOpen={setModalIsOpen}
-            setDescription={setDescription}
-            description={description}
-          />
-        );
-      }}
-    >
-      <button className='block bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 w-full dark:highlight-white/10'>
+    <li className='list-none last:border-none border-b border-gray-100 dark:border-gray-700 shadow'>
+      <button
+        className='block bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 w-full dark:highlight-white/10'
+        onClick={() => {
+          openInModal(
+            <TxDetailsSlideover
+              transaction={transaction}
+              setOpen={setModalIsOpen}
+              setDescription={setDescription}
+              description={description}
+            />
+          );
+        }}
+      >
         <div className='flex items-center px-4 py-4 sm:px-6'>
           <div className='min-w-0 flex-1 flex items-center'>
             <div className='flex items-center'>

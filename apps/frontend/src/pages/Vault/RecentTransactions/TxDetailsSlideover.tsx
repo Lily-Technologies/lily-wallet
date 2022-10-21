@@ -1,5 +1,5 @@
-import React from 'react';
-import { XIcon } from '@heroicons/react/outline';
+import React, { useContext } from 'react';
+import { XIcon, ExternalLinkIcon } from '@heroicons/react/outline';
 
 import { Unit, Price } from 'src/components';
 
@@ -28,7 +28,7 @@ const TxDetailsSlideover = ({ transaction, setOpen, description, setDescription 
         </div>
         <div className='ml-3 flex h-7 items-center'>
           <button
-            className='rounded-md text-gray-400 hover:text-gray-500 dark:text-white dark:hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500'
+            className='z-10 rounded-md text-gray-400 hover:text-gray-500 dark:text-white dark:hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500'
             onClick={() => setOpen(false)}
           >
             <span className='sr-only'>Close panel</span>
@@ -40,14 +40,14 @@ const TxDetailsSlideover = ({ transaction, setOpen, description, setDescription 
       <div className='pb-4'>
         <div className='px-5 py-4 sm:px-6 space-y-8'>
           <div>
-            <h2 className='text-md font-medium text-gray-500 dark:text-slate-400'>
+            <h2 className='text-sm font-medium text-gray-500 dark:text-slate-400'>
               Transaction ID
             </h2>
             <p className='text-gray-800 dark:text-slate-200 font-medium'>{transaction.txid}</p>
           </div>
 
           <div className=''>
-            <h2 className='text-md font-medium text-gray-500 dark:text-slate-400'>Status:</h2>
+            <h2 className='text-sm font-medium text-gray-500 dark:text-slate-400'>Status:</h2>
 
             <p className='text-gray-900 dark:text-slate-200 font-medium'>
               {transaction.status.confirmed
@@ -64,7 +64,7 @@ const TxDetailsSlideover = ({ transaction, setOpen, description, setDescription 
 
           <div className=''>
             <div className='flex items-center pb-2'>
-              <h2 className='text-md font-medium text-gray-500 dark:text-slate-400 flex items-center'>
+              <h2 className='text-sm font-medium text-gray-500 dark:text-slate-400 flex items-center'>
                 Inputs
               </h2>
               <span className='bg-gray-100 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-800 dark:text-slate-400 hidden ml-2 py-0.5 px-2.5 rounded-full text-xs font-medium md:inline-block'>
@@ -88,7 +88,7 @@ const TxDetailsSlideover = ({ transaction, setOpen, description, setDescription 
           </div>
           <div>
             <div className='flex items-center pb-2'>
-              <h2 className='text-md font-medium text-gray-500 dark:text-slate-400 flex items-center'>
+              <h2 className='text-sm font-medium text-gray-500 dark:text-slate-400 flex items-center'>
                 Outputs
               </h2>
               <span className='bg-gray-100 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-800 dark:text-slate-400 hidden ml-2 py-0.5 px-2.5 rounded-full text-xs font-medium md:inline-block'>
@@ -110,7 +110,7 @@ const TxDetailsSlideover = ({ transaction, setOpen, description, setDescription 
           </div>
 
           <div className='flex justify-between'>
-            <h2 className='text-md font-medium text-gray-500 dark:text-slate-400'>Fees:</h2>
+            <h2 className='text-sm font-medium text-gray-500 dark:text-slate-400'>Fees:</h2>
 
             <span className='text-gray-900 dark:text-slate-200 font-medium'>
               <Unit value={transaction.fee} /> (<Price value={transaction.fee} />)
@@ -118,13 +118,16 @@ const TxDetailsSlideover = ({ transaction, setOpen, description, setDescription 
           </div>
 
           <div className='text-right'>
-            <a
-              href={`https://blockstream.info/tx/${transaction.txid}`}
-              target='_blank'
-              className='text-green-600 dark:text-green-500 hover:border-b hover:text-green-500 dark:hover:text-green-400 border-green-500 dark:border-green-400 text-sm font-medium'
-            >
-              View on Blockstream
-            </a>
+            <div className='flex items-center justify-end'>
+              <a
+                href={`https://mempool.space/tx/${transaction.txid}`}
+                target='_blank'
+                className='flex items-center text-green-600 dark:text-green-500 hover:border-b hover:text-green-500 dark:hover:text-green-400 border-green-500 dark:border-green-400 text-sm font-medium'
+              >
+                View on mempool.space
+                <ExternalLinkIcon className='w-4 h-4 ml-2' />
+              </a>
+            </div>
           </div>
         </div>
       </div>

@@ -21,7 +21,7 @@ export const TransactionDescription = ({ txid, description, setDescription }: Pr
 
   return (
     <div className=''>
-      <h3 className='text-md font-medium text-gray-500 dark:text-slate-400'>Description</h3>
+      <h3 className='text-sm font-medium text-gray-500 dark:text-slate-400'>Description</h3>
       <div className='flex items-center justify-between'>
         {isEditing ? (
           <div className='relative mt-1 rounded-2xl shadow-sm w-full'>
