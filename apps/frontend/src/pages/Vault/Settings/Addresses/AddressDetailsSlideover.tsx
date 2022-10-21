@@ -9,9 +9,10 @@ import { Address } from '@lily/types';
 interface Props {
   address: Address;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  used: boolean;
 }
 
-const AddressDetailsSlideover = ({ address, setOpen }: Props) => {
+const AddressDetailsSlideover = ({ address, setOpen, used }: Props) => {
   return (
     <>
       <div className='px-4 py-6 sm:px-6 bg-green-600'>
@@ -63,7 +64,9 @@ const AddressDetailsSlideover = ({ address, setOpen }: Props) => {
             <dt className='text-sm font-medium text-gray-500 dark:text-slate-400 sm:w-40 sm:flex-shrink-0'>
               Status
             </dt>
-            <dd className='mt-1 text-sm text-gray-900 dark:text-slate-200 sm:col-span-2'>Used</dd>
+            <dd className='mt-1 text-sm text-gray-900 dark:text-slate-200 sm:col-span-2'>
+              {used ? 'Used' : 'Unused'}
+            </dd>
           </div>
 
           <TagsSection addresses={[address.address]} />

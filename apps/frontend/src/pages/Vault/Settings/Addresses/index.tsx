@@ -31,9 +31,7 @@ const AddressesView = ({ currentAccount }: Props) => {
         </SettingsTable.HeaderSubtitle>
       </SettingsTable.HeaderSection>
 
-      <SearchToolbar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
-
-      <div className='border-b border-gray-200'>
+      <div className='border-b border-gray-200 dark:border-slate-700'>
         <nav className='-mb-px flex space-x-8' aria-label='Tabs'>
           {tabs.map((tab) => (
             <a
@@ -53,51 +51,101 @@ const AddressesView = ({ currentAccount }: Props) => {
         </nav>
       </div>
 
+      <div className=''>
+        <SearchToolbar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+      </div>
+
       <div className='my-2 overflow-x-auto sm:-mx-6 lg:-mx-8'>
         <div className='py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8'>
           <div className='overflow-hidden sm:rounded-lg'>
             <table className='border-collapse w-full'>
               <tbody className='divide-y dark:divide-slate-400/10'>
-                {activeTab === 'Receive'
-                  ? unusedAddresses.map((address) => (
+                {activeTab === 'Receive' ? (
+                  <>
+                    <tr className='border-t border-gray-200 dark:border-slate-700'>
+                      <th
+                        colSpan={5}
+                        scope='colgroup'
+                        className='bg-gray-50 dark:bg-slate-700 dark:text-slate-300 px-4 py-2 text-left text-sm font-semibold text-gray-900 sm:px-6'
+                      >
+                        Unused
+                      </th>
+                    </tr>
+                    {unusedAddresses.map((address) => (
                       <AddressRow
                         key={address.address}
                         address={address}
-                        status='unused'
                         searchQuery={searchQuery}
+                        used={false}
                       />
-                    ))
-                  : null}
-                {activeTab === 'Receive'
-                  ? addresses.map((address) => (
+                    ))}
+                  </>
+                ) : null}
+
+                {activeTab === 'Receive' ? (
+                  <>
+                    <tr className='border-t border-gray-200 dark:border-slate-700'>
+                      <th
+                        colSpan={5}
+                        scope='colgroup'
+                        className='bg-gray-50 dark:bg-slate-700 dark:text-slate-300 px-4 py-2 text-left text-sm font-semibold text-gray-900 sm:px-6'
+                      >
+                        Used
+                      </th>
+                    </tr>
+                    {addresses.map((address) => (
                       <AddressRow
                         key={address.address}
                         address={address}
-                        status='used'
                         searchQuery={searchQuery}
+                        used={true}
                       />
-                    ))
-                  : null}
-                {activeTab === 'Change'
-                  ? changeAddresses.map((address) => (
+                    ))}
+                  </>
+                ) : null}
+                {activeTab === 'Change' ? (
+                  <>
+                    <tr className='border-t border-gray-200 dark:border-slate-700'>
+                      <th
+                        colSpan={5}
+                        scope='colgroup'
+                        className='bg-gray-50 dark:bg-slate-700 dark:text-slate-300 px-4 py-2 text-left text-sm font-semibold text-gray-900 sm:px-6'
+                      >
+                        Unused
+                      </th>
+                    </tr>
+                    {unusedChangeAddresses.map((address) => (
                       <AddressRow
                         key={address.address}
                         address={address}
-                        status='used'
                         searchQuery={searchQuery}
+                        used={false}
                       />
-                    ))
-                  : null}
-                {activeTab === 'Change'
-                  ? unusedChangeAddresses.map((address) => (
+                    ))}
+                  </>
+                ) : null}
+
+                {activeTab === 'Change' ? (
+                  <>
+                    <tr className='border-t border-gray-200 dark:border-slate-700'>
+                      <th
+                        colSpan={5}
+                        scope='colgroup'
+                        className='bg-gray-50 dark:bg-slate-700 dark:text-slate-300 px-4 py-2 text-left text-sm font-semibold text-gray-900 sm:px-6'
+                      >
+                        Used
+                      </th>
+                    </tr>
+                    {changeAddresses.map((address) => (
                       <AddressRow
                         key={address.address}
                         address={address}
-                        status='unused'
                         searchQuery={searchQuery}
+                        used={true}
                       />
-                    ))
-                  : null}
+                    ))}
+                  </>
+                ) : null}
               </tbody>
             </table>
           </div>
