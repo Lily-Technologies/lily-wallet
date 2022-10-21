@@ -43,9 +43,6 @@ const AddressRow = ({ address, status, searchQuery = '' }: Props) => {
     const labelMatch = labels.some((label) => label.label.toLowerCase().includes(searchQuery));
     const addressMatch = address.address.includes(searchQuery);
 
-    console.log('labelMatch: ', labelMatch);
-    console.log('addressMatch: ', addressMatch);
-
     const visible = labelMatch || addressMatch;
 
     setHidden(!visible);
