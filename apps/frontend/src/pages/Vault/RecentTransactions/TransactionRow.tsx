@@ -50,9 +50,9 @@ const TransactionRow = ({ transaction, flat }: Props) => {
   };
 
   return (
-    <li className='list-none last:border-none border-b border-gray-100 dark:border-gray-700 shadow'>
+    <li className='list-none last:border-none border-b border-gray-100 dark:border-gray-700 shadow rounded-2xl'>
       <button
-        className='block bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 w-full dark:highlight-white/10'
+        className='block bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 w-full dark:highlight-white/10 rounded-2xl outline-none focus:ring-2 focus:ring-green-500'
         onClick={() => {
           openInModal(
             <TxDetailsSlideover
@@ -84,10 +84,10 @@ const TransactionRow = ({ transaction, flat }: Props) => {
                 {description ? description : transaction.address}
               </p>
               <p className='hidden sm:flex items-center text-sm text-gray-900 dark:text-gray-300'>
-                <Unit value={transaction.value} />
+                <Unit value={transaction.value} />{' '}
               </p>
               <p className='flex sm:hidden items-center text-sm text-gray-900 dark:text-gray-300'>
-                {capitalize(transaction.type)} <Unit value={transaction.value} />
+                {capitalize(transaction.type)} <Unit className='mx-1' value={transaction.value} />{' '}
                 {transaction.status.confirmed
                   ? `at ${moment.unix(transaction.status.block_time).format('h:mm A')}`
                   : ''}

@@ -48,7 +48,7 @@ const RecentTransactions = ({
         </h2>
       )}
       {loading && <TransactionRowsLoading />}
-      <TransactionsWrapper>
+      <div className='flex flex-col flex-1 space-y-2'>
         {!loading &&
           transactions.map((transaction, index) => {
             // eslint-disable-line
@@ -85,7 +85,7 @@ const RecentTransactions = ({
             )}
           </div>
         )}
-      </TransactionsWrapper>
+      </div>
     </RecentTransactionsWrapper>
   );
 };
