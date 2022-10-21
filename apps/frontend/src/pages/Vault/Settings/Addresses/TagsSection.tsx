@@ -27,7 +27,7 @@ export const TagsSection = ({ addresses }: Props) => {
       });
     };
     retrieveLabels();
-  }, [addresses]);
+  }, []);
 
   const addLabel = async (address: string, label: string) => {
     try {
