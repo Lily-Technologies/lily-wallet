@@ -3,6 +3,8 @@ import { XIcon, ExternalLinkIcon } from '@heroicons/react/outline';
 
 import { Unit, Price } from 'src/components';
 
+import { TagsSection } from 'src/pages/Vault/Settings/Addresses/TagsSection';
+
 import { TransactionDescription } from './TransactionDescription';
 
 import { Transaction } from '@lily/types';
@@ -60,6 +62,13 @@ const TxDetailsSlideover = ({ transaction, setOpen, description, setDescription 
             txid={transaction.txid}
             description={description}
             setDescription={setDescription}
+          />
+
+          <TagsSection
+            addresses={[
+              ...transaction.vin.map((input) => input.prevout.scriptpubkey_address),
+              ...transaction.vout.map((output) => output.scriptpubkey_address)
+            ]}
           />
 
           <div className=''>

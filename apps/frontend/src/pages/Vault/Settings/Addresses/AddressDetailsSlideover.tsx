@@ -66,7 +66,7 @@ const AddressDetailsSlideover = ({ address, setOpen }: Props) => {
             <dd className='mt-1 text-sm text-gray-900 dark:text-slate-200 sm:col-span-2'>Used</dd>
           </div>
 
-          <TagsSection address={address.address} />
+          <TagsSection addresses={[address.address]} />
         </dl>
       </div>
     </>
