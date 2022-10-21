@@ -743,3 +743,8 @@ export interface AddressLabel {
   address: string;
   label: string;
 }
+
+export interface TransactionDescription {
+  txid: string;
+  description: string;
+}

@@ -334,4 +334,19 @@ export class ElectronPlatform extends BasePlatform {
     });
     return Promise.resolve(response);
   }
+
+  async addTransactionDescription(txid: string, description: string) {
+    const response = await window.ipcRenderer.invoke('/add-transaction-description', {
+      txid,
+      description
+    });
+    return Promise.resolve(response);
+  }
+
+  async getTransactionDescription(txid: string) {
+    const response = await window.ipcRenderer.invoke('/get-transaction-description', {
+      txid
+    });
+    return Promise.resolve(response);
+  }
 }

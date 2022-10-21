@@ -21,6 +21,9 @@ import {
   addAddressLabel,
   deleteAddressLabel,
   getAllLabelsForAddress,
+  createTransactionTable,
+  addTransactionDescription,
+  getTransactionDescription,
   dbConnect
 } from '@lily/shared-server';
 
@@ -51,13 +54,13 @@ import {
 import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
 
 try {
-  require('electron-reloader')(module)
+  require('electron-reloader')(module);
 } catch (_) {}
 
 app.whenReady().then(() => {
-    installExtension(REACT_DEVELOPER_TOOLS)
-        .then((name) => console.log(`Added Extension:  ${name}`))
-        .catch((err) => console.log('An error occurred: ', err));
+  installExtension(REACT_DEVELOPER_TOOLS)
+    .then((name) => console.log(`Added Extension:  ${name}`))
+    .catch((err) => console.log('An error occurred: ', err));
 });
 
 const PROTOCOL_PREFIX = 'lily';
@@ -257,6 +260,12 @@ app.on('ready', async () => {
   const userDataPath = app.getPath('userData');
   const db = await dbConnect(userDataPath);
   createAddressTable(db);
+});
+
+app.on('ready', async () => {
+  const userDataPath = app.getPath('userData');
+  const db = await dbConnect(userDataPath);
+  createTransactionTable(db);
 });
 
 // Quit when all windows are closed.
@@ -685,7 +694,7 @@ ipcMain.handle('/add-address-label', async (event, args) => {
     const response = await addAddressLabel(db, address, label);
     return Promise.resolve(response);
   } catch (e) {
-    console.log(`error /isConfirmedTransaction ${e}`);
+    console.log(`error /add-address-label ${e}`);
     return Promise.reject({ success: false, error: e });
   }
 });
@@ -698,7 +707,7 @@ ipcMain.handle('/delete-address-label', async (event, args) => {
     await deleteAddressLabel(db, id);
     return Promise.resolve();
   } catch (e) {
-    console.log(`error /isConfirmedTransaction ${e}`);
+    console.log(`error /delete-address-label ${e}`);
     return Promise.reject({ success: false, error: e });
   }
 });
@@ -711,7 +720,33 @@ ipcMain.handle('/get-address-labels', async (event, args) => {
     const labels = await getAllLabelsForAddress(db, address);
     return Promise.resolve(labels);
   } catch (e) {
-    console.log(`error /isConfirmedTransaction ${e}`);
+    console.log(`error /get-address-labels ${e}`);
+    return Promise.reject({ success: false, error: e });
+  }
+});
+
+ipcMain.handle('/add-transaction-description', async (event, args) => {
+  const { txid, description } = args;
+  console.log(`Adding description ${description} to tx ${txid}`);
+  try {
+    const userDataPath = app.getPath('userData');
+    const db = await dbConnect(userDataPath);
+    const response = await addTransactionDescription(db, txid, description);
+    return Promise.resolve(response);
+  } catch (e) {
+    console.log(`error /add-transaction-description ${e}`);
+    return Promise.reject({ success: false, error: e });
+  }
+});
+ipcMain.handle('/get-transaction-description', async (event, args) => {
+  const { txid } = args;
+  try {
+    const userDataPath = app.getPath('userData');
+    const db = await dbConnect(userDataPath);
+    const description = await getTransactionDescription(db, txid);
+    return Promise.resolve(description);
+  } catch (e) {
+    console.log(`error /get-transaction-description ${e}`);
     return Promise.reject({ success: false, error: e });
   }
 });

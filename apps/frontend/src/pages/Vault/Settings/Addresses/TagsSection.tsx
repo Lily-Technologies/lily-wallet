@@ -8,7 +8,7 @@ import { PlatformContext } from 'src/context';
 import { Address, AddressLabel } from '@lily/types';
 
 interface Props {
-  address: Address;
+  address: string;
 }
 
 export const TagsSection = ({ address }: Props) => {
@@ -17,7 +17,7 @@ export const TagsSection = ({ address }: Props) => {
 
   useEffect(() => {
     const retrieveLabels = async () => {
-      const currentLabels = await platform.getAddressLabels(address.address);
+      const currentLabels = await platform.getAddressLabels(address);
       setLabels(currentLabels);
     };
     retrieveLabels();

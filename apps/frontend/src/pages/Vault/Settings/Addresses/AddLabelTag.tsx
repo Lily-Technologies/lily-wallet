@@ -1,10 +1,8 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { CheckIcon } from '@heroicons/react/outline';
 
-import { Address } from '@lily/types';
-
 interface Props {
-  address: Address;
+  address: string;
   onSave: (address: string, labelText: string) => void;
 }
 
@@ -14,7 +12,7 @@ export const AddLabelTag = ({ address, onSave }: Props) => {
 
   const saveLabel = async () => {
     if (labelText) {
-      onSave(address.address, labelText);
+      onSave(address, labelText);
       setIsEditing(false);
       setLabelText('');
     }

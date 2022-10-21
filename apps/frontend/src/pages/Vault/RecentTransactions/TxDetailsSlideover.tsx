@@ -1,25 +1,20 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { XIcon } from '@heroicons/react/outline';
 
 import { Unit, Price } from 'src/components';
-import { TagsSection } from 'src/pages/Vault/Settings/Addresses/TagsSection';
 
-import { AccountMapContext } from 'src/context';
+import { TransactionDescription } from './TransactionDescription';
 
-import { createMap } from 'src/utils/accountMap';
-import { LilyOnchainAccount, Transaction } from '@lily/types';
+import { Transaction } from '@lily/types';
 
 interface Props {
   transaction: Transaction;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  description: string;
+  setDescription: React.Dispatch<React.SetStateAction<string>>;
 }
 
-const TxDetailsSlideover = ({ transaction, setOpen }: Props) => {
-  const { currentAccount } = useContext(AccountMapContext);
-  const { addresses } = currentAccount as LilyOnchainAccount;
-
-  const addressMap = createMap(addresses, 'address');
-
+const TxDetailsSlideover = ({ transaction, setOpen, description, setDescription }: Props) => {
   return (
     <>
       <div className='flex justify-between bg-white px-5 py-4 sm:px-6  dark:bg-slate-800 border-b border-gray-700/20 dark:border-slate-500/20'>
@@ -56,17 +51,23 @@ const TxDetailsSlideover = ({ transaction, setOpen }: Props) => {
 
             <p className='text-gray-900 dark:text-slate-200 font-medium'>
               {transaction.status.confirmed
-                ? `Confirmed ${transaction.status.block_height} blocks ago`
+                ? `Confirmed ${transaction.status.block_height.toLocaleString()} blocks ago`
                 : 'Unconfirmed'}
             </p>
           </div>
+
+          <TransactionDescription
+            txid={transaction.txid}
+            description={description}
+            setDescription={setDescription}
+          />
 
           <div className=''>
             <div className='flex items-center pb-2'>
               <h2 className='text-md font-medium text-gray-500 dark:text-slate-400 flex items-center'>
                 Inputs
               </h2>
-              <span className='bg-gray-100 dark:bg-slate-800 text-gray-800 dark:text-slate-400 hidden ml-2 py-0.5 px-2.5 rounded-full text-xs font-medium md:inline-block'>
+              <span className='bg-gray-100 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-800 dark:text-slate-400 hidden ml-2 py-0.5 px-2.5 rounded-full text-xs font-medium md:inline-block'>
                 {transaction.vin.length}
               </span>
             </div>
@@ -74,10 +75,10 @@ const TxDetailsSlideover = ({ transaction, setOpen }: Props) => {
               {transaction.vin.map((input) => {
                 return (
                   <li className='border-gray-800/15 bg-white dark:bg-slate-800 dark:border-slate-800 shadow flex items-center justify-between w-full p-4 border dark:highlight-white/10 rounded-2xl group'>
-                    <span className='text-sm dark:text-slate-400'>
-                      {input.prevout.scriptpubkey_address}:{input.vout}
+                    <span className='text-sm dark:text-slate-400 truncate'>
+                      {input.txid}:{input.vout}
                     </span>
-                    <span className='font-medium dark:text-slate-200'>
+                    <span className='text-right font-medium ml-8 grow-0 whitespace-nowrap dark:text-slate-200'>
                       <Unit value={input.prevout.value} />
                     </span>
                   </li>
@@ -90,14 +91,16 @@ const TxDetailsSlideover = ({ transaction, setOpen }: Props) => {
               <h2 className='text-md font-medium text-gray-500 dark:text-slate-400 flex items-center'>
                 Outputs
               </h2>
-              <span className='bg-gray-100 dark:bg-slate-800 text-gray-800 dark:text-slate-400 hidden ml-2 py-0.5 px-2.5 rounded-full text-xs font-medium md:inline-block'>
+              <span className='bg-gray-100 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-800 dark:text-slate-400 hidden ml-2 py-0.5 px-2.5 rounded-full text-xs font-medium md:inline-block'>
                 {transaction.vout.length}
               </span>
             </div>
             <ul className='space-y-4 py-1 max-h-36 overflow-y-scroll'>
               {transaction.vout.map((output) => (
                 <li className='border-gray-800/15 bg-white dark:bg-slate-800 dark:border-slate-800 shadow flex items-center justify-between w-full p-4 border dark:highlight-white/10 rounded-2xl group'>
-                  <span className='text-sm dark:text-slate-400'>{output.scriptpubkey_address}</span>{' '}
+                  <span className='text-sm dark:text-slate-400 truncate'>
+                    {output.scriptpubkey_address}
+                  </span>{' '}
                   <span className='text-right font-medium ml-8 grow-0 whitespace-nowrap dark:text-slate-200'>
                     <Unit value={output.value} />
                   </span>
@@ -113,7 +116,16 @@ const TxDetailsSlideover = ({ transaction, setOpen }: Props) => {
               <Unit value={transaction.fee} /> (<Price value={transaction.fee} />)
             </span>
           </div>
-          <TagsSection address={addressMap[transaction.vout[0].scriptpubkey_address]} />
+
+          <div className='text-right'>
+            <a
+              href={`https://blockstream.info/tx/${transaction.txid}`}
+              target='_blank'
+              className='text-green-600 dark:text-green-500 hover:border-b hover:text-green-500 dark:hover:text-green-400 border-green-500 dark:border-green-400 text-sm font-medium'
+            >
+              View on Blockstream
+            </a>
+          </div>
         </div>
       </div>
     </>
