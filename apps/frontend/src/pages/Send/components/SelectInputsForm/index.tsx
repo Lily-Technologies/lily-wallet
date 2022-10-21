@@ -97,14 +97,17 @@ export const SelectInputsForm = ({ currentAccount, onSave, cancel, requiredSendA
         </p>
       </div>
 
-      <SearchToolbar
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        showTags={showTags}
-        setShowTags={setShowTags}
-        toggleSort={toggleSort}
-        sort={sort}
-      />
+      <div className='dark:bg-slate-800'>
+        <SearchToolbar
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          showTags={showTags}
+          setShowTags={setShowTags}
+          toggleSort={toggleSort}
+          sort={sort}
+        />
+      </div>
+
       <div className='bg-gray-200 dark:bg-slate-900 overflow-y-auto flex-grow'>
         <ul className='overflow-auto space-y-4 py-4 px-5'>
           {[...filteredUtxos].map((utxo) => {

@@ -4,10 +4,10 @@ import AddressRow from './AddressRow';
 
 import { requireOnchain } from 'src/hocs';
 
-import { SettingsTable, SlideOver } from 'src/components';
+import { SettingsTable } from 'src/components';
 import { LilyOnchainAccount } from '@lily/types';
 
-import AddressDetailsSlideover from './AddressDetailsSlideover';
+import { SearchToolbar } from 'src/pages/Send/components/SelectInputsForm/SearchToolbar';
 
 import { classNames } from 'src/utils/other';
 
@@ -20,14 +20,7 @@ const tabs = ['Receive', 'Change'];
 const AddressesView = ({ currentAccount }: Props) => {
   const { addresses, unusedAddresses, changeAddresses, unusedChangeAddresses } = currentAccount;
   const [activeTab, setActiveTab] = useState(tabs[0]);
-
-  const [slideoverIsOpen, setSlideoverOpen] = useState(false);
-  const [slideoverContent, setSlideoverContent] = useState<JSX.Element | null>(null);
-
-  const openInSlideover = (component: JSX.Element) => {
-    setSlideoverOpen(true);
-    setSlideoverContent(component);
-  };
+  const [searchQuery, setSearchQuery] = useState('');
 
   return (
     <>
@@ -37,6 +30,8 @@ const AddressesView = ({ currentAccount }: Props) => {
           These are the addresses associated with this account.
         </SettingsTable.HeaderSubtitle>
       </SettingsTable.HeaderSection>
+
+      <SearchToolbar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
 
       <div className='border-b border-gray-200'>
         <nav className='-mb-px flex space-x-8' aria-label='Tabs'>
@@ -64,30 +59,22 @@ const AddressesView = ({ currentAccount }: Props) => {
             <table className='border-collapse w-full'>
               <tbody className='divide-y dark:divide-slate-400/10'>
                 {activeTab === 'Receive'
-                  ? addresses.map((address) => (
-                      <AddressRow
-                        key={address.address}
-                        address={address}
-                        status='used'
-                        onClick={() =>
-                          openInSlideover(
-                            <AddressDetailsSlideover address={address} setOpen={setSlideoverOpen} />
-                          )
-                        }
-                      />
-                    ))
-                  : null}
-                {activeTab === 'Receive'
                   ? unusedAddresses.map((address) => (
                       <AddressRow
                         key={address.address}
                         address={address}
                         status='unused'
-                        onClick={() =>
-                          openInSlideover(
-                            <AddressDetailsSlideover address={address} setOpen={setSlideoverOpen} />
-                          )
-                        }
+                        searchQuery={searchQuery}
+                      />
+                    ))
+                  : null}
+                {activeTab === 'Receive'
+                  ? addresses.map((address) => (
+                      <AddressRow
+                        key={address.address}
+                        address={address}
+                        status='used'
+                        searchQuery={searchQuery}
                       />
                     ))
                   : null}
@@ -97,11 +84,7 @@ const AddressesView = ({ currentAccount }: Props) => {
                         key={address.address}
                         address={address}
                         status='used'
-                        onClick={() =>
-                          openInSlideover(
-                            <AddressDetailsSlideover address={address} setOpen={setSlideoverOpen} />
-                          )
-                        }
+                        searchQuery={searchQuery}
                       />
                     ))
                   : null}
@@ -111,11 +94,7 @@ const AddressesView = ({ currentAccount }: Props) => {
                         key={address.address}
                         address={address}
                         status='unused'
-                        onClick={() =>
-                          openInSlideover(
-                            <AddressDetailsSlideover address={address} setOpen={setSlideoverOpen} />
-                          )
-                        }
+                        searchQuery={searchQuery}
                       />
                     ))
                   : null}
@@ -124,7 +103,6 @@ const AddressesView = ({ currentAccount }: Props) => {
           </div>
         </div>
       </div>
-      <SlideOver open={slideoverIsOpen} setOpen={setSlideoverOpen} content={slideoverContent} />
     </>
   );
 };
