@@ -8,20 +8,26 @@ import { PlatformContext } from 'src/context';
 import { Address, AddressLabel } from '@lily/types';
 
 interface Props {
-  address: string;
+  addresses: string[];
 }
 
-export const TagsSection = ({ address }: Props) => {
+export const TagsSection = ({ addresses }: Props) => {
   const { platform } = useContext(PlatformContext);
   const [labels, setLabels] = useState<AddressLabel[]>([]);
 
+  const setResponseLabel = (newLabel: AddressLabel[]) => {
+    setLabels([...labels, ...newLabel]);
+  };
+
   useEffect(() => {
     const retrieveLabels = async () => {
-      const currentLabels = await platform.getAddressLabels(address);
-      setLabels(currentLabels);
+      addresses.forEach(async (address) => {
+        const currentLabels = await platform.getAddressLabels(address);
+        setResponseLabel(currentLabels);
+      });
     };
     retrieveLabels();
-  }, [address]);
+  }, [addresses]);
 
   const addLabel = async (address: string, label: string) => {
     try {
@@ -30,6 +36,12 @@ export const TagsSection = ({ address }: Props) => {
     } catch (e) {
       console.error(e);
     }
+  };
+
+  const addLabels = (addresses: string[], label: string) => {
+    addresses.forEach((address) => {
+      addLabel(address, label);
+    });
   };
 
   const deleteLabel = async (id: number) => {
@@ -54,7 +66,7 @@ export const TagsSection = ({ address }: Props) => {
           </li>
         ))}
 
-        <AddLabelTag address={address} onSave={addLabel} />
+        <AddLabelTag addresses={addresses} onSave={addLabels} />
       </ul>
     </div>
   );

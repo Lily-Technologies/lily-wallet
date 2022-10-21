@@ -2,17 +2,17 @@ import React, { useState } from 'react';
 import { CheckIcon } from '@heroicons/react/outline';
 
 interface Props {
-  address: string;
-  onSave: (address: string, labelText: string) => void;
+  addresses: string[];
+  onSave: (address: string[], labelText: string) => void;
 }
 
-export const AddLabelTag = ({ address, onSave }: Props) => {
+export const AddLabelTag = ({ addresses, onSave }: Props) => {
   const [isEditing, setIsEditing] = useState(false);
   const [labelText, setLabelText] = useState('');
 
   const saveLabel = async () => {
     if (labelText) {
-      onSave(address, labelText);
+      onSave(addresses, labelText);
       setIsEditing(false);
       setLabelText('');
     }
