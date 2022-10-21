@@ -200,9 +200,13 @@ export class ElectrumProvider extends OnchainBaseProvider {
         // derive a batch of receive/change addresses
         for (let i = pos; i < pos + BATCH_SIZE; i++) {
           const receiveAddress = getAddressFromAccount(account, `m/0/${i}`, this.network);
+          receiveAddress.isChange = false;
+          receiveAddress.isMine = true;
           currentReceiveAddressBatch.push(receiveAddress);
 
           const changeAddress = getAddressFromAccount(account, `m/1/${i}`, this.network);
+          changeAddress.isChange = true;
+          changeAddress.isMine = true;
           currentChangeAddressBatch.push(changeAddress);
         }
 
