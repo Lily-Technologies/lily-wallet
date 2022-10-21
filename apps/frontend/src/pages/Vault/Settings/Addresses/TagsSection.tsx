@@ -60,8 +60,8 @@ export const TagsSection = ({ addresses }: Props) => {
         Tags
       </dt>
       <ul role='list' className='mt-2 inline-flex leading-8 space-x-1 items-center flex-wrap'>
-        {labels.map((label) => (
-          <li className='inline' key={label.id}>
+        {labels.map((label, index) => (
+          <li className='inline' key={`${label.id}:${index}`}>
             <LabelTag label={label} deleteLabel={deleteLabel} />
           </li>
         ))}
