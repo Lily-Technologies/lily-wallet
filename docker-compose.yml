@@ -19,6 +19,7 @@ services:
       - APP_DATA_DIR=${APP_DATA_DIR}/data/lily-wallet:/data
       - LND_IP=$LND_IP
       - LND_GRPC_PORT=$LND_GRPC_PORT
+      - LND_WALLET_NAME='LND_WALLET_NAME'
     ports:
       - '42069:8080'
     device_cgroup_rules:

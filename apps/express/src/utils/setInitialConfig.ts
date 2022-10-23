@@ -33,7 +33,7 @@ export const setInitialConfig = async () => {
         id: uuidv4(),
         type: 'lightning',
         created_at: Date.now(),
-        name: 'Umbrel', // TODO: make dynamic for other platforms
+        name: process.env.LND_WALLET_NAME,
         network: 'mainnet',
         connectionDetails: {
           lndConnectUri: encode({
