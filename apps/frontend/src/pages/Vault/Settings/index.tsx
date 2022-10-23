@@ -8,7 +8,7 @@ import { Tabs } from 'src/components';
 import GeneralView from './GeneralView';
 import DevicesView from './Devices';
 import Addresses from './Addresses';
-import UtxosView from './UtxosView';
+import UTXOs from './UTXOs';
 import LicenseSettings from './LicenseSettings';
 import ExportView from './ExportView';
 
@@ -57,7 +57,7 @@ const VaultSettings = ({ nodeConfig, currentBitcoinNetwork }: Props) => {
         {currentTab === 'general' && <GeneralView password={password} />}
         {currentTab === 'devices' && <DevicesView />}
         {currentTab === 'addresses' && <Addresses />}
-        {currentTab === 'utxos' && <UtxosView />}
+        {currentTab === 'utxos' && <UTXOs />}
         {currentTab === 'license' && (
           <LicenseSettings
             nodeConfig={nodeConfig}

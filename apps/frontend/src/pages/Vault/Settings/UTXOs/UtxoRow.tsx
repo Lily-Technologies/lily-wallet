@@ -1,44 +1,14 @@
-import React, { useContext, useEffect, useState } from 'react';
-
 import { Unit } from 'src/components';
 
 import { LabelTag } from 'src/pages/Vault/Settings/Addresses/LabelTag';
 
-import { PlatformContext } from 'src/context';
-
-import { UTXO, AddressLabel } from '@lily/types';
+import { UTXO } from '@lily/types';
 interface Props {
   utxo: UTXO;
-  searchQuery: string;
   showTags: boolean;
 }
 
-const UtxoRow = ({ utxo, searchQuery, showTags }: Props) => {
-  const { platform } = useContext(PlatformContext);
-  const [labels, setLabels] = useState<AddressLabel[]>([]);
-  const [hidden, setHidden] = useState(false);
-
-  useEffect(() => {
-    const retrieveLabels = async () => {
-      const currentLabels = await platform.getAddressLabels(utxo.address.address);
-      setLabels(currentLabels);
-    };
-    retrieveLabels();
-  }, []);
-
-  useEffect(() => {
-    const labelMatch = labels.some((label) => label.label.toLowerCase().includes(searchQuery));
-    const addressMatch = utxo.address.address.includes(searchQuery);
-
-    const visible = labelMatch || addressMatch;
-
-    setHidden(!visible);
-  }, [searchQuery, labels]);
-
-  if (hidden) {
-    return null;
-  }
-
+const UtxoRow = ({ utxo, showTags }: Props) => {
   return (
     <li className='border-gray-800/15 active:bg-gray-50 hover:border-gray-900/20 bg-white dark:bg-slate-800 dark:border-slate-800 dark:hover:bg-slate-700 select-none shadow flex items-center justify-between w-full p-4 border dark:highlight-white/10 rounded-2xl group'>
       <div>
@@ -55,8 +25,8 @@ const UtxoRow = ({ utxo, searchQuery, showTags }: Props) => {
             role='list'
             className='mt-2 inline-flex leading-8 space-x-1 items-center justify-end flex-wrap'
           >
-            {labels.length ? (
-              labels.map((label) => (
+            {utxo.address.tags.length ? (
+              utxo.address.tags.map((label) => (
                 <li className='inline' key={label.id}>
                   <LabelTag label={label} />
                 </li>

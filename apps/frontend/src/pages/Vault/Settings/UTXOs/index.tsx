@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { requireOnchain } from 'src/hocs';
 
@@ -18,6 +18,22 @@ const UtxosView = ({ currentAccount }: Props) => {
   const [showTags, setShowTags] = useState(false);
   const { availableUtxos } = currentAccount;
 
+  const [filteredUtxos, setFilteredUtxos] = useState(availableUtxos);
+
+  useEffect(() => {
+    const currentFilteredUtxos = availableUtxos.filter((utxo) => {
+      const labelMatch = utxo.address.tags.some((tag) =>
+        tag.label.toLowerCase().includes(searchQuery)
+      );
+      const addressMatch = utxo.address.address.includes(searchQuery);
+      const transactionMatch = utxo.txid.includes(searchQuery);
+
+      return labelMatch || addressMatch || transactionMatch;
+    });
+
+    setFilteredUtxos(currentFilteredUtxos);
+  }, [searchQuery]);
+
   return (
     <>
       <SettingsTable.HeaderSection>
@@ -36,13 +52,8 @@ const UtxosView = ({ currentAccount }: Props) => {
         <div className='py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8 bg-gray-50 dark:bg-slate-900 border border-slate-600/20 mb-8'>
           <div className='overflow-hidden sm:rounded-lg'>
             <ul className='space-y-4 py-4'>
-              {availableUtxos.map((utxo) => (
-                <UtxoRow
-                  key={utxo.txid}
-                  utxo={utxo}
-                  searchQuery={searchQuery}
-                  showTags={showTags}
-                />
+              {filteredUtxos.map((utxo) => (
+                <UtxoRow key={utxo.txid} utxo={utxo} showTags={showTags} />
               ))}
             </ul>
           </div>
