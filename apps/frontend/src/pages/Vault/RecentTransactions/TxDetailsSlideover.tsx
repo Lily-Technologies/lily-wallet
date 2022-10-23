@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useState } from 'react';
 import { XIcon, ExternalLinkIcon } from '@heroicons/react/outline';
 
 import { Unit, Price } from 'src/components';
@@ -12,11 +12,9 @@ import { Transaction } from '@lily/types';
 interface Props {
   transaction: Transaction;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  description: string;
-  setDescription: React.Dispatch<React.SetStateAction<string>>;
 }
 
-const TxDetailsSlideover = ({ transaction, setOpen, description, setDescription }: Props) => {
+const TxDetailsSlideover = ({ transaction, setOpen }: Props) => {
   return (
     <>
       <div className='flex justify-between bg-white px-5 py-4 sm:px-6  dark:bg-slate-800 border-b border-gray-700/20 dark:border-slate-500/20'>
@@ -58,11 +56,7 @@ const TxDetailsSlideover = ({ transaction, setOpen, description, setDescription 
             </p>
           </div>
 
-          <TransactionDescription
-            txid={transaction.txid}
-            description={description}
-            setDescription={setDescription}
-          />
+          <TransactionDescription transaction={transaction} />
 
           <TagsSection
             addresses={[

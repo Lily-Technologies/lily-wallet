@@ -1,11 +1,9 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import moment from 'moment';
 import { ChevronRightIcon } from '@heroicons/react/solid';
 
 import { Unit, SlideOver } from 'src/components';
 import { capitalize } from 'src/utils/other';
-
-import { PlatformContext } from 'src/context';
 
 import TransactionTypeIcon from './TransactionTypeIcon';
 import TxDetailsSlideover from './TxDetailsSlideover';
@@ -18,31 +16,8 @@ interface Props {
 }
 
 const TransactionRow = ({ transaction, flat }: Props) => {
-  const [description, setDescription] = useState('');
-  const { platform } = useContext(PlatformContext);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
-
-  useEffect(() => {
-    const retrieveDescription = async () => {
-      const retrievedDescription = await platform.getTransactionDescription(transaction.txid);
-      if (retrievedDescription) {
-        setDescription(retrievedDescription.description);
-      }
-    };
-    retrieveDescription();
-  }, [modalIsOpen]);
-
-  useEffect(() => {
-    setModalContent(
-      <TxDetailsSlideover
-        transaction={transaction}
-        setOpen={setModalIsOpen}
-        setDescription={setDescription}
-        description={description}
-      />
-    );
-  }, [description]);
 
   const openInModal = (component: JSX.Element) => {
     setModalIsOpen(true);
@@ -54,14 +29,7 @@ const TransactionRow = ({ transaction, flat }: Props) => {
       <button
         className='block bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 w-full dark:highlight-white/10 rounded-2xl outline-none focus:ring-2 focus:ring-green-500'
         onClick={() => {
-          openInModal(
-            <TxDetailsSlideover
-              transaction={transaction}
-              setOpen={setModalIsOpen}
-              setDescription={setDescription}
-              description={description}
-            />
-          );
+          openInModal(<TxDetailsSlideover transaction={transaction} setOpen={setModalIsOpen} />);
         }}
       >
         <div className='flex items-center px-4 py-4 sm:px-6'>
@@ -81,7 +49,7 @@ const TransactionRow = ({ transaction, flat }: Props) => {
             </div>
             <div className='sm:flex sm:justify-between flex-wrap w-full items-center px-4 truncate'>
               <p className='text-left text-sm font-medium text-yellow-600 truncate'>
-                {description ? description : transaction.address}
+                {transaction.description ? transaction.description : transaction.address}
               </p>
               <p className='hidden sm:flex items-center text-sm text-gray-900 dark:text-gray-300'>
                 <Unit value={transaction.value} />{' '}

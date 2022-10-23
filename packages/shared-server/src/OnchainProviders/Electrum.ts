@@ -6,6 +6,10 @@ import ElectrumClient, {
 } from '@lily-technologies/electrum-client';
 import { address as bitcoinjsAddress, crypto as bitcoinjsCrypto } from 'bitcoinjs-lib';
 import { bitcoinsToSatoshis } from 'unchained-bitcoin';
+import { Database } from 'sqlite';
+import sqlite3 from 'sqlite3';
+
+import { getAllLabelsForAddress } from '../sqlite';
 
 import { OnchainBaseProvider } from '.';
 
@@ -98,7 +102,10 @@ export class ElectrumProvider extends OnchainBaseProvider {
     }
   }
 
-  async getAccountData(account: OnChainConfig): Promise<LilyOnchainAccount> {
+  async getAccountData(
+    account: OnChainConfig,
+    db: Database<sqlite3.Database, sqlite3.Statement>
+  ): Promise<LilyOnchainAccount> {
     const {
       receiveAddresses,
       changeAddresses,
@@ -106,15 +113,16 @@ export class ElectrumProvider extends OnchainBaseProvider {
       unusedChangeAddresses,
       transactions,
       utxos
-    } = await this.scanForAddressesAndTransactions(account, 10);
+    } = await this.scanForAddressesAndTransactions(account, 10, db);
 
     const currentBalance = utxos.reduce((acum, cur) => acum + cur.value, 0);
 
     console.log(`(${account.id}): Serializing transactions...`);
-    const organizedTransactions = serializeTransactions(
+    const organizedTransactions = await serializeTransactions(
       transactions,
       receiveAddresses,
-      changeAddresses
+      changeAddresses,
+      db
     );
 
     return {
@@ -176,7 +184,11 @@ export class ElectrumProvider extends OnchainBaseProvider {
     return response;
   }
 
-  async scanForAddressesAndTransactions(account: OnChainConfig, limitGap: number) {
+  async scanForAddressesAndTransactions(
+    account: OnChainConfig,
+    limitGap: number,
+    db: Database<sqlite3.Database, sqlite3.Statement>
+  ) {
     console.log(`(${account.id}): Deriving addresses and checking for transactions...`);
     const receiveAddresses: Address[] = [];
     const changeAddresses: Address[] = [];
@@ -200,11 +212,13 @@ export class ElectrumProvider extends OnchainBaseProvider {
         // derive a batch of receive/change addresses
         for (let i = pos; i < pos + BATCH_SIZE; i++) {
           const receiveAddress = getAddressFromAccount(account, `m/0/${i}`, this.network);
+          receiveAddress.tags = await getAllLabelsForAddress(db, receiveAddress.address);
           receiveAddress.isChange = false;
           receiveAddress.isMine = true;
           currentReceiveAddressBatch.push(receiveAddress);
 
           const changeAddress = getAddressFromAccount(account, `m/1/${i}`, this.network);
+          changeAddress.tags = await getAllLabelsForAddress(db, changeAddress.address);
           changeAddress.isChange = true;
           changeAddress.isMine = true;
           currentChangeAddressBatch.push(changeAddress);

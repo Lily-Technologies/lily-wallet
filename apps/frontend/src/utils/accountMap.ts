@@ -228,7 +228,8 @@ const getAddressFromPubKey = (
       redeem,
       input,
       witness,
-      bip32derivation: [childPubKey.bip32derivation]
+      bip32derivation: [childPubKey.bip32derivation],
+      tags: []
     };
   } else {
     // p2wpkh
@@ -252,7 +253,8 @@ const getAddressFromPubKey = (
       redeem,
       input,
       witness,
-      bip32derivation: [childPubKey.bip32derivation]
+      bip32derivation: [childPubKey.bip32derivation],
+      tags: []
     };
   }
 };

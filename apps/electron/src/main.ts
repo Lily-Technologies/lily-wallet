@@ -290,7 +290,9 @@ ipcMain.on('/account-data', async (event, config: OnChainConfig) => {
   // event.reply("/account-data", accountData);
 
   try {
-    const accountData = await OnchainDataProvider.getAccountData(config);
+    const userDataPath = app.getPath('userData');
+    const db = await dbConnect(userDataPath);
+    const accountData = await OnchainDataProvider.getAccountData(config, db);
     event.reply('/account-data', accountData);
   } catch (e) {
     console.log(`(${config.id}) /account-data error: `, e);

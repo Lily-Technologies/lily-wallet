@@ -1,21 +1,25 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useState } from 'react';
 import { PencilIcon, CheckIcon } from '@heroicons/react/outline';
 
-import { PlatformContext } from 'src/context';
+import { AccountMapContext } from 'src/context';
+import { LilyOnchainAccount, Transaction } from '@lily/types';
 
 interface Props {
-  txid: string;
-  description: string;
-  setDescription: React.Dispatch<React.SetStateAction<string>>;
+  transaction: Transaction;
 }
 
-export const TransactionDescription = ({ txid, description, setDescription }: Props) => {
+export const TransactionDescription = ({ transaction }: Props) => {
+  const [description, setDescription] = useState(transaction.description);
   const [isEditing, setIsEditing] = useState(false);
 
-  const { platform } = useContext(PlatformContext);
+  const { updateTransactionDescription, currentAccount } = useContext(AccountMapContext);
 
   const onSave = async () => {
-    await platform.addTransactionDescription(txid, description);
+    updateTransactionDescription(
+      currentAccount as LilyOnchainAccount,
+      transaction.txid,
+      description
+    );
     setIsEditing(false);
   };
 

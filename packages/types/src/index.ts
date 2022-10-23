@@ -161,6 +161,7 @@ export interface Transaction extends EsploraTransactionResponse {
   totalValue: number;
   address: string;
   value: number;
+  description: string;
 }
 
 export interface DecoratedLightningChannel extends Channel {
@@ -216,6 +217,7 @@ export interface TxStatus {
 export interface Address {
   network: Network;
   address: string;
+  tags: AddressLabel[];
   hash?: Buffer;
   output: any;
   redeem?: any;

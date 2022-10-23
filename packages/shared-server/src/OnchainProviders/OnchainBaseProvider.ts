@@ -7,10 +7,16 @@ import {
 } from '@lily/types';
 import { Network, networks } from 'bitcoinjs-lib';
 
+import { Database } from 'sqlite';
+import sqlite3 from 'sqlite3';
+
 type Providers = 'Esplora' | 'Electrum' | 'Bitcoin Core';
 
 export interface OnchainProviderInterface {
-  getAccountData: (account: OnChainConfig) => Promise<LilyOnchainAccount>;
+  getAccountData: (
+    account: OnChainConfig,
+    db: Database<sqlite3.Database, sqlite3.Statement>
+  ) => Promise<LilyOnchainAccount>;
   broadcastTransaction: (txHex: string) => Promise<string>;
   estimateFee: () => Promise<FeeRates>;
 }
@@ -79,7 +85,10 @@ export abstract class OnchainBaseProvider implements OnchainProviderInterface {
 
   abstract initialize(): void;
 
-  abstract getAccountData(account: OnChainConfig): Promise<LilyOnchainAccount>;
+  abstract getAccountData(
+    account: OnChainConfig,
+    db: Database<sqlite3.Database, sqlite3.Statement>
+  ): Promise<LilyOnchainAccount>;
 
   // returns txId
   abstract broadcastTransaction(txHex: string): Promise<string>;
