@@ -1,6 +1,10 @@
 import { payments, networks, Network } from 'bitcoinjs-lib';
 import { deriveChildPublicKey, generateMultisigFromPublicKeys } from 'unchained-bitcoin';
 import { Buffer } from 'buffer';
+import { Database } from 'sqlite';
+import sqlite3 from 'sqlite3';
+
+import { getTransactionDescription } from '../sqlite';
 
 import {
   OnChainConfig,
@@ -87,11 +91,12 @@ const decorateTx = (
   return tx;
 };
 
-export const serializeTransactions = (
+export const serializeTransactions = async (
   transactions: EsploraTransactionResponse[],
   addresses: Address[],
-  changeAddresses: Address[]
-): Transaction[] => {
+  changeAddresses: Address[],
+  db: Database<sqlite3.Database, sqlite3.Statement>
+): Promise<Transaction[]> => {
   transactions.sort((a, b) => a.status.block_time - b.status.block_time);
 
   const addressesMap = createMap(addresses, 'address');
@@ -103,52 +108,57 @@ export const serializeTransactions = (
   );
 
   let balance = 0;
-  const serializedTxs = decoratedTxs.map((tx) => {
-    let amountIn: number, amountOut: number, amountOutChange: number;
-    amountIn = sum(tx.vin, true);
-    amountOut = sum(tx.vout, true);
-    amountOutChange = sum(tx.vout, true, true);
+  const serializedTxs = await Promise.all(
+    decoratedTxs.map(async (tx) => {
+      let amountIn: number, amountOut: number, amountOutChange: number;
+      amountIn = sum(tx.vin, true);
+      amountOut = sum(tx.vout, true);
+      amountOutChange = sum(tx.vout, true, true);
 
-    let type: TransactionType;
-    let address: string;
-    let totalValue: number;
-    let value: number;
-    // TODO: this is broken when Electrum is Provider
-    if (amountIn === amountOut + (amountIn > 0 ? tx.fee : 0)) {
-      type = 'moved';
-      address = '';
-      balance -= tx.fee;
-      totalValue = balance;
-      address = tx.vout.filter((vout) => vout.isChange)[0].scriptpubkey_address;
-      value = tx.vout.reduce((accum, item) => accum + item.value, 0);
-    } else {
-      const feeContribution = amountIn > 0 ? tx.fee : 0;
-      const netAmount = amountIn - amountOut - feeContribution;
-      type = netAmount > 0 ? 'sent' : 'received';
-      if (type === 'sent') {
-        balance -= amountIn - amountOutChange + feeContribution;
+      const description = await (await getTransactionDescription(db, tx.txid))?.description;
+
+      let type: TransactionType;
+      let address: string;
+      let totalValue: number;
+      let value: number;
+      // TODO: this is broken when Electrum is Provider
+      if (amountIn === amountOut + (amountIn > 0 ? tx.fee : 0)) {
+        type = 'moved';
+        address = '';
+        balance -= tx.fee;
         totalValue = balance;
-        address = tx.vout.filter((vout) => !vout.isMine)[0].scriptpubkey_address;
-        value = tx.vout
-          .filter((vout) => !vout.isMine)
-          .reduce((accum, item) => accum + item.value, 0);
+        address = tx.vout.filter((vout) => vout.isChange)[0].scriptpubkey_address;
+        value = tx.vout.reduce((accum, item) => accum + item.value, 0);
       } else {
-        balance += amountOut;
-        totalValue = balance;
-        address = tx.vout.filter((vout) => vout.isMine)[0].scriptpubkey_address;
-        value = tx.vout
-          .filter((vout) => vout.isMine)
-          .reduce((accum, item) => accum + item.value, 0);
+        const feeContribution = amountIn > 0 ? tx.fee : 0;
+        const netAmount = amountIn - amountOut - feeContribution;
+        type = netAmount > 0 ? 'sent' : 'received';
+        if (type === 'sent') {
+          balance -= amountIn - amountOutChange + feeContribution;
+          totalValue = balance;
+          address = tx.vout.filter((vout) => !vout.isMine)[0].scriptpubkey_address;
+          value = tx.vout
+            .filter((vout) => !vout.isMine)
+            .reduce((accum, item) => accum + item.value, 0);
+        } else {
+          balance += amountOut;
+          totalValue = balance;
+          address = tx.vout.filter((vout) => vout.isMine)[0].scriptpubkey_address;
+          value = tx.vout
+            .filter((vout) => vout.isMine)
+            .reduce((accum, item) => accum + item.value, 0);
+        }
       }
-    }
-    return {
-      ...tx,
-      type,
-      address,
-      totalValue,
-      value
-    } as Transaction;
-  });
+      return {
+        ...tx,
+        type,
+        address,
+        totalValue,
+        description,
+        value
+      };
+    })
+  );
 
   return serializedTxs.sort((a, b) => b.status.block_time - a.status.block_time);
 };
@@ -230,7 +240,8 @@ const getAddressFromPubKey = (
       redeem,
       input,
       witness,
-      bip32derivation: [childPubKey.bip32derivation]
+      bip32derivation: [childPubKey.bip32derivation],
+      tags: []
     };
   } else {
     // p2wpkh
@@ -254,7 +265,8 @@ const getAddressFromPubKey = (
       redeem,
       input,
       witness,
-      bip32derivation: [childPubKey.bip32derivation]
+      bip32derivation: [childPubKey.bip32derivation],
+      tags: []
     };
   }
 };

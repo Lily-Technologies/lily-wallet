@@ -75,4 +75,8 @@ export type SetStatePsbt = React.Dispatch<React.SetStateAction<Psbt>>;
 
 export type AccountMapAction =
   | { type: 'ACCOUNTMAP_UPDATE'; payload: { account: LilyAccount } }
-  | { type: 'ACCOUNTMAP_SET'; payload: AccountMap };
+  | { type: 'ACCOUNTMAP_SET'; payload: AccountMap }
+  | {
+      type: 'ACCOUNT_TRANSACTION_UPDATE_DESCRIPTION';
+      payload: { accountId: string; txid: string; description: string };
+    };
