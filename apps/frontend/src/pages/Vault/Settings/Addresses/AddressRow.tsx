@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import { SlideOver } from 'src/components';
@@ -6,20 +6,14 @@ import { SlideOver } from 'src/components';
 import { LabelTag } from './LabelTag';
 import AddressDetailsSlideover from './AddressDetailsSlideover';
 
-import { Address, AddressLabel } from '@lily/types';
-import { PlatformContext } from 'src/context';
+import { Address } from '@lily/types';
 
 interface Props {
   address: Address;
-  searchQuery?: string;
   used: boolean;
 }
 
-const AddressRow = ({ address, searchQuery = '', used }: Props) => {
-  const { platform } = useContext(PlatformContext);
-  const [labels, setLabels] = useState<AddressLabel[]>([]);
-  const [hidden, setHidden] = useState(false);
-
+const AddressRow = ({ address, used }: Props) => {
   const [slideoverIsOpen, setSlideoverOpen] = useState(false);
   const [slideoverContent, setSlideoverContent] = useState<JSX.Element | null>(null);
 
@@ -29,25 +23,12 @@ const AddressRow = ({ address, searchQuery = '', used }: Props) => {
   };
 
   useEffect(() => {
-    const retrieveLabels = async () => {
-      const currentLabels = await platform.getAddressLabels(address.address);
-      setLabels(currentLabels);
-    };
-    retrieveLabels();
-  }, [slideoverIsOpen]);
-
-  useEffect(() => {
-    const labelMatch = labels.some((label) => label.label.toLowerCase().includes(searchQuery));
-    const addressMatch = address.address.includes(searchQuery);
-
-    const visible = labelMatch || addressMatch;
-
-    setHidden(!visible);
-  }, [searchQuery, labels]);
-
-  if (hidden) {
-    return null;
-  }
+    if (slideoverIsOpen) {
+      setSlideoverContent(
+        <AddressDetailsSlideover address={address} setOpen={setSlideoverOpen} used={used} />
+      );
+    }
+  }, [address]);
 
   return (
     <>
@@ -65,7 +46,7 @@ const AddressRow = ({ address, searchQuery = '', used }: Props) => {
         </td>
         <td className='flex justify-end items-center space-x-1'>
           <ul className='space-x-1 flex overflow-x-auto max-w-xs'>
-            {labels.map((label) => (
+            {address.tags.map((label) => (
               <li className='inline' key={label.id}>
                 <LabelTag label={label} />
               </li>

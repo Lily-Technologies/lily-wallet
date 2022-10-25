@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Unit } from 'src/components';
 import { useSelected, useShiftSelected } from 'src/hocs';
@@ -6,8 +6,8 @@ import { useSelected, useShiftSelected } from 'src/hocs';
 import { UtxoInputSelectRow } from './UtxoInputSelectRow';
 import { SearchToolbar } from './SearchToolbar';
 
-import { PlatformContext } from 'src/context';
 import { LilyOnchainAccount, UTXO } from '@lily/types';
+import { createMap } from 'src/utils/accountMap';
 
 export type SortOptions = 'asc' | 'desc' | null;
 
@@ -18,15 +18,8 @@ interface Props {
   requiredSendAmount: number;
 }
 
-async function filter(arr, callback) {
-  const fail = Symbol();
-  return (
-    await Promise.all(arr.map(async (item) => ((await callback(item)) ? item : fail)))
-  ).filter((i) => i !== fail);
-}
-
 export const SelectInputsForm = ({ currentAccount, onSave, cancel, requiredSendAmount }: Props) => {
-  const { availableUtxos } = currentAccount;
+  const { availableUtxos, addresses, changeAddresses } = currentAccount;
 
   const { selected, change } = useSelected<UTXO>([]);
   const { onChange, resetShiftSelectSelections } = useShiftSelected(availableUtxos, change);
@@ -35,28 +28,25 @@ export const SelectInputsForm = ({ currentAccount, onSave, cancel, requiredSendA
   const [sort, setSort] = useState<SortOptions>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredUtxos, setFilteredUtxos] = useState(availableUtxos);
-  const { platform } = useContext(PlatformContext);
 
   useEffect(() => {
-    const filterUtxos = async () => {
-      const currentFilteredUtxos = await filter([...availableUtxos], async (utxo) => {
-        const retrievedLabels = await platform.getAddressLabels(utxo.address.address);
+    const currentFilteredUtxos = availableUtxos.filter((utxo) => {
+      const normalizedSearchQuery = searchQuery.toLowerCase();
+      const addressMatch = utxo.address.address.includes(normalizedSearchQuery);
+      const txIdMatch = utxo.txid.includes(normalizedSearchQuery);
 
-        const normalizedSearchQuery = searchQuery.toLowerCase();
+      const addressMap = createMap([...addresses, ...changeAddresses], 'address')
+      const utxoAddress = addressMap[utxo.address.address]
 
-        const labelMatch = retrievedLabels.some((label) =>
-          label.label.toLowerCase().includes(normalizedSearchQuery)
-        );
-        const addressMatch = utxo.address.address.includes(normalizedSearchQuery);
-        const txIdMatch = utxo.txid.includes(normalizedSearchQuery);
+      const labelMatch = utxoAddress.tags.some((tag) =>
+        tag.label.toLowerCase().includes(searchQuery)
+      );
 
-        return labelMatch || addressMatch || txIdMatch;
-      });
+      return labelMatch || addressMatch || txIdMatch;
+    });
 
-      setFilteredUtxos(currentFilteredUtxos);
-      resetShiftSelectSelections(currentFilteredUtxos);
-    };
-    filterUtxos();
+    setFilteredUtxos(currentFilteredUtxos);
+    resetShiftSelectSelections(currentFilteredUtxos);
   }, [searchQuery]);
 
   useEffect(() => {

@@ -37,7 +37,8 @@ import {
   OpenChannelRequestArgs,
   GenerateLightningInvoiceRequest,
   LilyAccount,
-  ICallback
+  ICallback,
+  AddressTag
 } from '@lily/types';
 
 export class ElectronPlatform extends BasePlatform {
@@ -313,7 +314,7 @@ export class ElectronPlatform extends BasePlatform {
     return Promise.resolve(response);
   }
 
-  async addAddressLabel(address: string, label: string) {
+  async addAddressTag(address: string, label: string) {
     const response = await window.ipcRenderer.invoke('/add-address-label', {
       address,
       label
@@ -321,15 +322,15 @@ export class ElectronPlatform extends BasePlatform {
     return Promise.resolve(response);
   }
 
-  async deleteAddressLabel(id: number) {
+  async deleteAddressTag(id: number) {
     const response = await window.ipcRenderer.invoke('/delete-address-label', {
       id
     });
     return Promise.resolve(response);
   }
 
-  async getAddressLabels(address: string) {
-    const response = await window.ipcRenderer.invoke('/get-address-labels', {
+  async getAddressTags(address: string) {
+    const response: AddressTag[] = await window.ipcRenderer.invoke('/get-address-labels', {
       address
     });
     return Promise.resolve(response);

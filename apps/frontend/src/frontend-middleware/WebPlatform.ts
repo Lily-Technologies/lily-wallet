@@ -335,15 +335,15 @@ export class WebPlatform extends BasePlatform {
   }
 
   // TODO: Implement these methods
-  async addAddressLabel(address: string, label: string) {
+  async addAddressTag(address: string, label: string) {
     return Promise.resolve(1);
   }
 
-  async deleteAddressLabel(id: number) {
+  async deleteAddressTag(id: number) {
     return Promise.resolve(false);
   }
 
-  async getAddressLabels(address: string) {
+  async getAddressTags(address: string) {
     return Promise.resolve([]);
   }
 

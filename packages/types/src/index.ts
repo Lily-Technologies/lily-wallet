@@ -217,7 +217,7 @@ export interface TxStatus {
 export interface Address {
   network: Network;
   address: string;
-  tags: AddressLabel[];
+  tags: AddressTag[];
   hash?: Buffer;
   output: any;
   redeem?: any;
@@ -740,7 +740,7 @@ export interface CoindeskCurrentPriceResponse {
   };
 }
 
-export interface AddressLabel {
+export interface AddressTag {
   id: number;
   address: string;
   label: string;

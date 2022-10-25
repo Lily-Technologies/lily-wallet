@@ -18,8 +18,8 @@ import {
   promptpin,
   sendpin,
   createAddressTable,
-  addAddressLabel,
-  deleteAddressLabel,
+  addAddressTag,
+  deleteAddressTag,
   getAllLabelsForAddress,
   createTransactionTable,
   addTransactionDescription,
@@ -693,7 +693,7 @@ ipcMain.handle('/add-address-label', async (event, args) => {
   try {
     const userDataPath = app.getPath('userData');
     const db = await dbConnect(userDataPath);
-    const response = await addAddressLabel(db, address, label);
+    const response = await addAddressTag(db, address, label);
     return Promise.resolve(response);
   } catch (e) {
     console.log(`error /add-address-label ${e}`);
@@ -706,7 +706,7 @@ ipcMain.handle('/delete-address-label', async (event, args) => {
   try {
     const userDataPath = app.getPath('userData');
     const db = await dbConnect(userDataPath);
-    await deleteAddressLabel(db, id);
+    await deleteAddressTag(db, id);
     return Promise.resolve();
   } catch (e) {
     console.log(`error /delete-address-label ${e}`);

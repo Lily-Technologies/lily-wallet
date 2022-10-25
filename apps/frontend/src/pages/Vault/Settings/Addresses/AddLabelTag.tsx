@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { CheckIcon } from '@heroicons/react/outline';
+import { Address } from '@lily/types';
 
 interface Props {
-  addresses: string[];
-  onSave: (address: string[], labelText: string) => void;
+  addresses: Address[];
+  onSave: (address: Address[], labelText: string) => void;
 }
 
 export const AddLabelTag = ({ addresses, onSave }: Props) => {
