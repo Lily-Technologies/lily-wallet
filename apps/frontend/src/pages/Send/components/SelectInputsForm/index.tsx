@@ -8,6 +8,7 @@ import { SearchToolbar } from './SearchToolbar';
 
 import { LilyOnchainAccount, UTXO } from '@lily/types';
 import { createMap } from 'src/utils/accountMap';
+import { normalizedIncludes } from 'src/utils/other';
 
 export type SortOptions = 'asc' | 'desc' | null;
 
@@ -31,12 +32,11 @@ export const SelectInputsForm = ({ currentAccount, onSave, cancel, requiredSendA
 
   useEffect(() => {
     const currentFilteredUtxos = availableUtxos.filter((utxo) => {
-      const normalizedSearchQuery = searchQuery.toLowerCase();
-      const addressMatch = utxo.address.address.includes(normalizedSearchQuery);
-      const txIdMatch = utxo.txid.includes(normalizedSearchQuery);
+      const addressMatch = normalizedIncludes(utxo.address.address, searchQuery);
+      const txIdMatch = normalizedIncludes(utxo.txid, searchQuery);
 
-      const addressMap = createMap([...addresses, ...changeAddresses], 'address')
-      const utxoAddress = addressMap[utxo.address.address]
+      const addressMap = createMap([...addresses, ...changeAddresses], 'address');
+      const utxoAddress = addressMap[utxo.address.address];
 
       const labelMatch = utxoAddress.tags.some((tag) =>
         tag.label.toLowerCase().includes(searchQuery)

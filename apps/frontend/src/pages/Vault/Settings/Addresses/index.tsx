@@ -10,7 +10,7 @@ import { LilyOnchainAccount } from '@lily/types';
 
 import { SearchToolbar } from 'src/pages/Send/components/SelectInputsForm/SearchToolbar';
 
-import { classNames } from 'src/utils/other';
+import { classNames, normalizedIncludes } from 'src/utils/other';
 
 interface Props {
   currentAccount: LilyOnchainAccount;
@@ -31,15 +31,15 @@ const AddressesView = ({ currentAccount }: Props) => {
     const unusedAddrs = activeTab === 'Receive' ? unusedAddresses : unusedChangeAddresses;
 
     const currentFilteredAddresses = usedAddrs.filter((address) => {
-      const labelMatch = address.tags.some((tag) => tag.label.toLowerCase().includes(searchQuery));
-      const addressMatch = address.address.includes(searchQuery);
+      const labelMatch = address.tags.some((tag) => normalizedIncludes(tag.label, searchQuery));
+      const addressMatch = normalizedIncludes(address.address, searchQuery);
 
       return addressMatch || labelMatch;
     });
 
     const currentFilteredUnusedAddresses = unusedAddrs.filter((address) => {
-      const labelMatch = address.tags.some((tag) => tag.label.toLowerCase().includes(searchQuery));
-      const addressMatch = address.address.includes(searchQuery);
+      const labelMatch = address.tags.some((tag) => normalizedIncludes(tag.label, searchQuery));
+      const addressMatch = normalizedIncludes(address.address, searchQuery);
 
       return addressMatch || labelMatch;
     });

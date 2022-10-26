@@ -29,6 +29,19 @@ export function bufferToHex(buffer) {
   return [...new Uint8Array(buffer)].map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
+export const normalizedIncludes = (string: string, substring: string) => {
+  if (!string) {
+    return false;
+  }
+  if (!substring) {
+    return true;
+  }
+  const normalizedSubstring = substring.toLowerCase();
+  const normalizedString = string.toLowerCase();
+
+  return normalizedString.includes(normalizedSubstring);
+};
+
 export function formatMoney(amount, decimalCount = 2, decimal = '.', thousands = ',') {
   try {
     decimalCount = Math.abs(decimalCount);

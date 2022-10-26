@@ -10,6 +10,7 @@ import { LilyOnchainAccount } from '@lily/types';
 
 import UtxoRow from './UtxoRow';
 import { createMap } from 'src/utils/accountMap';
+import { normalizedIncludes } from 'src/utils/other';
 
 interface Props {
   currentAccount: LilyOnchainAccount;
@@ -24,15 +25,13 @@ const UtxosView = ({ currentAccount }: Props) => {
 
   useEffect(() => {
     const currentFilteredUtxos = availableUtxos.filter((utxo) => {
-      const addressMatch = utxo.address.address.includes(searchQuery);
-      const transactionMatch = utxo.txid.includes(searchQuery);
+      const addressMatch = normalizedIncludes(utxo.address.address, searchQuery);
+      const transactionMatch = normalizedIncludes(utxo.txid, searchQuery);
 
       const addressMap = createMap([...addresses, ...changeAddresses], 'address');
       const utxoAddress = addressMap[utxo.address.address];
 
-      const labelMatch = utxoAddress.tags.some((tag) =>
-        tag.label.toLowerCase().includes(searchQuery)
-      );
+      const labelMatch = utxoAddress.tags.some((tag) => normalizedIncludes(tag.label, searchQuery));
 
       return labelMatch || addressMatch || transactionMatch;
     });

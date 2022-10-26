@@ -7,7 +7,7 @@ import { TransactionDescription } from './TransactionDescription';
 import { TagsSection } from 'src/pages/Vault/Settings/Addresses/TagsSection';
 
 import { LilyOnchainAccount, Transaction, Address } from '@lily/types';
-import { createMap } from 'src/utils/accountMap';
+import { getMyAddressesFromTx } from 'src/utils/accountMap';
 import { AccountMapContext } from 'src/context';
 
 interface Props {
@@ -22,19 +22,8 @@ const TxDetailsSlideover = ({ transaction, setOpen }: Props) => {
     ...(currentAccount as LilyOnchainAccount).addresses,
     ...(currentAccount as LilyOnchainAccount).changeAddresses
   ];
-  const addressMap = createMap(allAddresses, 'address');
-  const txAddresses = [
-    ...transaction.vin.map((input) => input.prevout.scriptpubkey_address),
-    ...transaction.vout.map((output) => output.scriptpubkey_address)
-  ];
 
-  const myAddresses = txAddresses.reduce<Address[]>((accum: Address[], address: string) => {
-    const myAddress = addressMap[address];
-    if (myAddress) {
-      return [...accum, myAddress];
-    }
-    return accum;
-  }, []);
+  const myAddresses = getMyAddressesFromTx(transaction, allAddresses);
 
   return (
     <>
