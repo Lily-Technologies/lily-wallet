@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { XIcon, ExternalLinkIcon } from '@heroicons/react/outline';
 
 import { Unit, Price } from 'src/components';
 
+import { TransactionDescription } from './TransactionDescription';
 import { TagsSection } from 'src/pages/Vault/Settings/Addresses/TagsSection';
 
-import { TransactionDescription } from './TransactionDescription';
-
-import { Transaction } from '@lily/types';
+import { LilyOnchainAccount, Transaction, Address } from '@lily/types';
+import { getMyAddressesFromTx } from 'src/utils/accountMap';
+import { AccountMapContext } from 'src/context';
 
 interface Props {
   transaction: Transaction;
@@ -15,6 +16,15 @@ interface Props {
 }
 
 const TxDetailsSlideover = ({ transaction, setOpen }: Props) => {
+  const { currentAccount } = useContext(AccountMapContext);
+  // don't include unused since they by definition can't a transaction that's happened
+  const allAddresses = [
+    ...(currentAccount as LilyOnchainAccount).addresses,
+    ...(currentAccount as LilyOnchainAccount).changeAddresses
+  ];
+
+  const myAddresses = getMyAddressesFromTx(transaction, allAddresses);
+
   return (
     <>
       <div className='flex justify-between bg-white px-5 py-4 sm:px-6  dark:bg-slate-800 border-b border-gray-700/20 dark:border-slate-500/20'>
@@ -58,12 +68,7 @@ const TxDetailsSlideover = ({ transaction, setOpen }: Props) => {
 
           <TransactionDescription transaction={transaction} />
 
-          <TagsSection
-            addresses={[
-              ...transaction.vin.map((input) => input.prevout.scriptpubkey_address),
-              ...transaction.vout.map((output) => output.scriptpubkey_address)
-            ]}
-          />
+          <TagsSection addresses={myAddresses} />
 
           <div className=''>
             <div className='flex items-center pb-2'>

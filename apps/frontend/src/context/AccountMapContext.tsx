@@ -5,10 +5,12 @@ import {
   accountMapReducer,
   ACCOUNTMAP_UPDATE,
   ACCOUNTMAP_SET,
-  ACCOUNT_TRANSACTION_UPDATE_DESCRIPTION
+  ACCOUNT_TRANSACTION_UPDATE_DESCRIPTION,
+  ACCOUNT_ADDRESS_ADD_TAG,
+  ACCOUNT_ADDRESS_DELETE_TAG
 } from 'src/reducers/accountMap';
 
-import { AccountMap, LilyAccount, LilyOnchainAccount } from '@lily/types';
+import { AccountMap, AddressTag, LilyAccount, LilyOnchainAccount } from '@lily/types';
 
 export const AccountMapContext = createContext({
   setAccountMap: (accountMap: AccountMap) => {},
@@ -20,7 +22,9 @@ export const AccountMapContext = createContext({
     account: LilyOnchainAccount,
     txid: string,
     description: string
-  ) => {}
+  ) => {},
+  addAddressTag: (accountId: string, address: string, tag: string) => {},
+  deleteAddressTag: (accountId: string, tag: AddressTag) => {}
 });
 
 export const AccountMapProvider = ({ children }: { children: React.ReactChild }) => {
@@ -75,13 +79,51 @@ export const AccountMapProvider = ({ children }: { children: React.ReactChild })
     [dispatch]
   );
 
+  const addAddressTag = useCallback(
+    async (accountId: string, address: string, tag: string) => {
+      const tagId = await platform.addAddressTag(address, tag);
+
+      const tagWithId: AddressTag = {
+        id: tagId,
+        address,
+        label: tag
+      };
+
+      dispatch({
+        type: ACCOUNT_ADDRESS_ADD_TAG,
+        payload: {
+          accountId,
+          tag: tagWithId
+        }
+      });
+    },
+    [dispatch]
+  );
+
+  const deleteAddressTag = useCallback(
+    async (accountId: string, tag: AddressTag) => {
+      await platform.deleteAddressTag(tag.id);
+
+      dispatch({
+        type: ACCOUNT_ADDRESS_DELETE_TAG,
+        payload: {
+          accountId,
+          tag
+        }
+      });
+    },
+    [dispatch]
+  );
+
   const value = {
     accountMap,
     updateAccountMap,
     setAccountMap,
     currentAccount,
     setCurrentAccountId,
-    updateTransactionDescription
+    updateTransactionDescription,
+    addAddressTag,
+    deleteAddressTag
   };
 
   return <AccountMapContext.Provider value={value}>{children}</AccountMapContext.Provider>;

@@ -1,57 +1,40 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect } from 'react';
 
 import { LabelTag } from './LabelTag';
 import { AddLabelTag } from './AddLabelTag';
 
-import { PlatformContext } from 'src/context';
+import { AccountMapContext } from 'src/context';
 
-import { Address, AddressLabel } from '@lily/types';
+import { Address, AddressTag } from '@lily/types';
 
 interface Props {
-  addresses: string[];
+  addresses: Address[];
 }
 
 export const TagsSection = ({ addresses }: Props) => {
-  const { platform } = useContext(PlatformContext);
-  const [labels, setLabels] = useState<AddressLabel[]>([]);
+  const { addAddressTag, deleteAddressTag, currentAccount } = useContext(AccountMapContext);
 
-  const setResponseLabel = (newLabel: AddressLabel[]) => {
-    setLabels([...labels, ...newLabel]);
-  };
+  // TODO: sometimes addresses will have overlapping labels
+  // TODO: need to consolodate them and send multiple deleteLabel calls
 
-  useEffect(() => {
-    const retrieveLabels = async () => {
-      addresses.forEach(async (address) => {
-        const currentLabels = await platform.getAddressLabels(address);
-        setResponseLabel(currentLabels);
-      });
-    };
-    retrieveLabels();
-  }, []);
-
-  const addLabel = async (address: string, label: string) => {
-    try {
-      const id = await platform.addAddressLabel(address, label);
-      setLabels([...labels, { id, address, label }]);
-    } catch (e) {
-      console.error(e);
+  const labelMap = addresses.reduce<{ [key: string]: AddressTag[] }>((accum, address) => {
+    for (const tag of address.tags) {
+      const updatedList = [...(accum[tag.label] || []), tag];
+      accum[tag.label] = updatedList;
     }
-  };
+    return accum;
+  }, {});
 
-  const addLabels = (addresses: string[], label: string) => {
+  const addLabels = (addresses: Address[], label: string) => {
     addresses.forEach((address) => {
-      addLabel(address, label);
+      addAddressTag(currentAccount.config.id, address.address, label);
     });
   };
 
-  const deleteLabel = async (id: number) => {
-    try {
-      await platform.deleteAddressLabel(id);
-      const updatedLabels = labels.filter((label) => label.id !== id);
-      setLabels(updatedLabels);
-    } catch (e) {
-      console.error(e);
-    }
+  const deleteLabel = async (tag: AddressTag) => {
+    labelMap[tag.label].map((currentTag) => {
+      deleteAddressTag(currentAccount.config.id, currentTag);
+    })
   };
 
   return (
@@ -60,9 +43,9 @@ export const TagsSection = ({ addresses }: Props) => {
         Tags
       </dt>
       <ul role='list' className='mt-2 inline-flex leading-8 space-x-1 items-center flex-wrap'>
-        {labels.map((label, index) => (
-          <li className='inline' key={`${label.id}:${index}`}>
-            <LabelTag label={label} deleteLabel={deleteLabel} />
+        {Object.keys(labelMap).map((label) => (
+          <li className='inline' key={`${label}`}>
+            <LabelTag label={labelMap[label][0]} deleteLabel={deleteLabel} />
           </li>
         ))}
 

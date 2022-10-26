@@ -69,7 +69,7 @@ const AddressDetailsSlideover = ({ address, setOpen, used }: Props) => {
             </dd>
           </div>
 
-          <TagsSection addresses={[address.address]} />
+          <TagsSection addresses={[address]} />
         </dl>
       </div>
     </>
