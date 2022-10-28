@@ -3,11 +3,10 @@ import styled from 'styled-components';
 import { SearchIcon } from '@heroicons/react/outline';
 import moment from 'moment';
 
-import { Button, TransactionRowsLoading } from 'src/components';
+import { TransactionRowsLoading } from 'src/components';
 
 import TransactionRow from './TransactionRow';
 
-import { gray800 } from 'src/utils/colors';
 import { getMyAddressesFromTx } from 'src/utils/accountMap';
 
 import { LilyOnchainAccount, Transaction } from '@lily/types';
@@ -43,7 +42,6 @@ const RecentTransactions = ({
   transactions,
   loading,
   flat = false,
-  openRescanModal,
   maxItems = Infinity
 }: Props) => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -70,7 +68,7 @@ const RecentTransactions = ({
     });
 
     setFilteredTransactions(currentFilteredTxs);
-  }, [searchQuery]);
+  }, [searchQuery, addresses, changeAddresses, transactions]);
 
   return (
     <div className='flex flex-col flex-1'>
@@ -99,7 +97,7 @@ const RecentTransactions = ({
               <input
                 id='search'
                 name='search'
-                className='w-full block transform duration-200 rounded-2xl border hover:bg-gray-50 dark:bg-slate-800 dark:hover:bg-slate-700 hover:cursor-pointer border-gray-300 dark:border-slate-100/10 bg-white py-2 pl-10 pr-3 text-sm placeholder-gray-500 focus:border-green-500 focus:text-gray-900 dark:focus:text-slate-100 focus:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-green-500 sm:text-sm'
+                className='w-full block transform duration-200 rounded-2xl border dark:text-slate-100 hover:bg-gray-50 dark:bg-slate-800 dark:hover:bg-slate-700 hover:cursor-pointer border-gray-300 dark:border-slate-100/10 bg-white py-2 pl-10 pr-3 text-sm placeholder-gray-500 focus:border-green-500 focus:text-gray-900 dark:focus:text-slate-100 focus:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-green-500 sm:text-sm'
                 placeholder='Search'
                 type='search'
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -141,16 +139,6 @@ const RecentTransactions = ({
 
 const DateWrapper = styled.div`
   margin: 1.5em 0 1em;
-`;
-
-const DeadFlower = styled.img`
-  width: 6.25em;
-  color: ${gray800};
-`;
-
-const RescanButton = styled.button`
-  ${Button}
-  margin-top: 0.75em;
 `;
 
 export default RecentTransactions;
