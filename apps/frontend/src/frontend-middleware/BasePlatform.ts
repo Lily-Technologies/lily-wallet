@@ -40,7 +40,7 @@ import {
   DecoratedOpenStatusUpdate,
   GenerateLightningInvoiceRequest,
   LilyCloseChannelRequest,
-  AddressLabel,
+  AddressTag,
   TransactionDescription
 } from '@lily/types';
 
@@ -114,13 +114,9 @@ export interface PlatformInterface {
 
   getWalletInfo(currentAccount: LilyAccount): Promise<WalletInfo>;
 
-  addAddressLabel(address: string, label: string): Promise<number>;
-  deleteAddressLabel(id: number): Promise<boolean>;
-  getAddressLabels(address: string): Promise<any[]>;
-
-  addAddressLabel(address: string, label: string): Promise<number>;
-  deleteAddressLabel(id: number): Promise<boolean>;
-  getAddressLabels(address: string): Promise<any[]>;
+  addAddressTag(address: string, label: string): Promise<number>;
+  deleteAddressTag(id: number): Promise<boolean>;
+  getAddressTags(address: string): Promise<AddressTag[]>;
 
   addTransactionDescription(txid: string, description: string): Promise<boolean>;
   getTransactionDescription(txid: string): Promise<TransactionDescription>;
@@ -236,9 +232,9 @@ export abstract class BasePlatform implements PlatformInterface {
 
   abstract getWalletInfo(currentAccount: LilyAccount): Promise<WalletInfo>;
 
-  abstract addAddressLabel(address: string, label: string): Promise<number>;
-  abstract deleteAddressLabel(id: number): Promise<boolean>;
-  abstract getAddressLabels(address: string): Promise<AddressLabel[]>;
+  abstract addAddressTag(address: string, label: string): Promise<number>;
+  abstract deleteAddressTag(id: number): Promise<boolean>;
+  abstract getAddressTags(address: string): Promise<AddressTag[]>;
 
   abstract addTransactionDescription(txid: string, description: string): Promise<boolean>;
   abstract getTransactionDescription(txid: string): Promise<TransactionDescription>;

@@ -1,4 +1,4 @@
-import { AccountMap, LilyAccount } from '@lily/types';
+import { AccountMap, LilyAccount, Transaction, AddressTag } from '@lily/types';
 import { IpcRenderer } from 'electron';
 
 declare global {
@@ -75,4 +75,16 @@ export type SetStatePsbt = React.Dispatch<React.SetStateAction<Psbt>>;
 
 export type AccountMapAction =
   | { type: 'ACCOUNTMAP_UPDATE'; payload: { account: LilyAccount } }
-  | { type: 'ACCOUNTMAP_SET'; payload: AccountMap };
+  | { type: 'ACCOUNTMAP_SET'; payload: AccountMap }
+  | {
+      type: 'ACCOUNT_ADDRESS_ADD_TAG';
+      payload: { accountId: string; tag: AddressTag };
+    }
+  | {
+      type: 'ACCOUNT_ADDRESS_DELETE_TAG';
+      payload: { accountId: string; tag: AddressTag };
+    }
+  | {
+      type: 'ACCOUNT_TRANSACTION_UPDATE_DESCRIPTION';
+      payload: { accountId: string; txid: string; description: string };
+    };

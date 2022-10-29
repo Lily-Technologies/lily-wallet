@@ -1,10 +1,8 @@
-import { useContext } from 'react';
-import { PlatformContext } from 'src/context';
-import { AddressLabel } from '@lily/types';
+import { AddressTag } from '@lily/types';
 
 interface Props {
-  label: AddressLabel;
-  deleteLabel?: (id: number) => void;
+  label: AddressTag;
+  deleteLabel?: (tag: AddressTag) => void;
 }
 
 export const LabelTag = ({ label, deleteLabel }: Props) => {
@@ -16,7 +14,7 @@ export const LabelTag = ({ label, deleteLabel }: Props) => {
           type='button'
           className='cursor-pointer ml-0.5 inline-flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full text-slate-400 hover:bg-slate-200 hover:text-slate-500 focus:bg-slate-500 focus:text-white focus:outline-none'
           onClick={() => {
-            deleteLabel(label.id);
+            deleteLabel(label);
           }}
         >
           <span className='sr-only'>Remove {label.label} label</span>

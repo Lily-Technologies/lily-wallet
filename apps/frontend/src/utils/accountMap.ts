@@ -37,6 +37,23 @@ export const createMap = <T extends { [key: string]: any }>(items: T[], key: str
   }, {});
 };
 
+export const getMyAddressesFromTx = (tx: Transaction, addresses: Address[]) => {
+  const addressMap = createMap(addresses, 'address');
+  const txAddresses = [
+    ...tx.vin.map((input) => input.prevout.scriptpubkey_address),
+    ...tx.vout.map((output) => output.scriptpubkey_address)
+  ];
+
+  const myAddresses = txAddresses.reduce<Address[]>((accum: Address[], address: string) => {
+    const myAddress = addressMap[address];
+    if (myAddress) {
+      return [...accum, myAddress];
+    }
+    return accum;
+  }, []);
+  return myAddresses;
+};
+
 /**
  * Function used to aggregate values of inputs/outputs with optional
  * filtering options.
@@ -228,7 +245,8 @@ const getAddressFromPubKey = (
       redeem,
       input,
       witness,
-      bip32derivation: [childPubKey.bip32derivation]
+      bip32derivation: [childPubKey.bip32derivation],
+      tags: []
     };
   } else {
     // p2wpkh
@@ -252,7 +270,8 @@ const getAddressFromPubKey = (
       redeem,
       input,
       witness,
-      bip32derivation: [childPubKey.bip32derivation]
+      bip32derivation: [childPubKey.bip32derivation],
+      tags: []
     };
   }
 };

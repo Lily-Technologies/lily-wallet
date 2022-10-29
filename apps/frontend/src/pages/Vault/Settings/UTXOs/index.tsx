@@ -1,13 +1,16 @@
-import React, { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { requireOnchain } from 'src/hocs';
 
 import { SettingsTable } from 'src/components';
 import { SearchToolbar } from 'src/pages/Send/components/SelectInputsForm/SearchToolbar';
+import NoUtxosEmptyState from './NoUtxosEmptyState';
 
 import { LilyOnchainAccount } from '@lily/types';
 
 import UtxoRow from './UtxoRow';
+import { createMap } from 'src/utils/accountMap';
+import { normalizedIncludes } from 'src/utils/other';
 
 interface Props {
   currentAccount: LilyOnchainAccount;
@@ -16,7 +19,27 @@ interface Props {
 const UtxosView = ({ currentAccount }: Props) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showTags, setShowTags] = useState(false);
-  const { availableUtxos } = currentAccount;
+  const { availableUtxos, addresses, changeAddresses } = currentAccount;
+
+  const [filteredUtxos, setFilteredUtxos] = useState(availableUtxos);
+
+  useEffect(() => {
+    const currentFilteredUtxos = availableUtxos.filter((utxo) => {
+      const addressMatch = normalizedIncludes(utxo.address.address, searchQuery);
+      const transactionMatch = normalizedIncludes(utxo.txid, searchQuery);
+
+      const addressMap = createMap([...addresses, ...changeAddresses], 'address');
+      const utxoAddress = addressMap[utxo.address.address];
+
+      const labelMatch = utxoAddress.tags.some((tag) => normalizedIncludes(tag.label, searchQuery));
+
+      return labelMatch || addressMatch || transactionMatch;
+    });
+
+    setFilteredUtxos(currentFilteredUtxos);
+  }, [searchQuery]);
+
+  const hasResults = !!filteredUtxos.length;
 
   return (
     <>
@@ -35,16 +58,15 @@ const UtxosView = ({ currentAccount }: Props) => {
         />
         <div className='py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8 bg-gray-50 dark:bg-slate-900 border border-slate-600/20 mb-8'>
           <div className='overflow-hidden sm:rounded-lg'>
-            <ul className='space-y-4 py-4'>
-              {availableUtxos.map((utxo) => (
-                <UtxoRow
-                  key={utxo.txid}
-                  utxo={utxo}
-                  searchQuery={searchQuery}
-                  showTags={showTags}
-                />
-              ))}
-            </ul>
+            {hasResults ? (
+              <ul className='space-y-4 py-4'>
+                {filteredUtxos.map((utxo) => (
+                  <UtxoRow key={utxo.txid} utxo={utxo} showTags={showTags} />
+                ))}
+              </ul>
+            ) : (
+              <NoUtxosEmptyState />
+            )}
           </div>
         </div>
       </div>

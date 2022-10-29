@@ -2,6 +2,8 @@ import axios from 'axios';
 import { Network } from 'bitcoinjs-lib';
 import { blockExplorerAPIURL, MAINNET, TESTNET } from 'unchained-bitcoin';
 import BigNumber from 'bignumber.js';
+import { Database } from 'sqlite';
+import sqlite3 from 'sqlite3';
 
 import { OnchainBaseProvider } from '.';
 
@@ -38,7 +40,10 @@ export class EsploraProvider extends OnchainBaseProvider {
     }
   }
 
-  async getAccountData(account: OnChainConfig): Promise<LilyOnchainAccount> {
+  async getAccountData(
+    account: OnChainConfig,
+    db: Database<sqlite3.Database, sqlite3.Statement>
+  ): Promise<LilyOnchainAccount> {
     const {
       receiveAddresses,
       changeAddresses,
@@ -48,10 +53,11 @@ export class EsploraProvider extends OnchainBaseProvider {
     } = await this.scanForAddressesAndTransactions(account, 10);
 
     console.log(`(${account.id}): Serializing transactions...`);
-    const organizedTransactions = serializeTransactions(
+    const organizedTransactions = await serializeTransactions(
       transactions as Transaction[],
       receiveAddresses,
-      changeAddresses
+      changeAddresses,
+      db
     );
 
     console.log(`(${account.id}): Getting UTXO data...`);

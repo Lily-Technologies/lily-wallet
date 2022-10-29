@@ -1,13 +1,14 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext } from 'react';
 
 import { Unit } from 'src/components';
 import { LabelTag } from 'src/pages/Vault/Settings/Addresses/LabelTag';
 
-import { PlatformContext } from 'src/context';
+import { AccountMapContext } from 'src/context';
 
 import { classNames } from 'src/utils/other';
+import { createMap } from 'src/utils/accountMap';
 
-import { UTXO, AddressLabel } from '@lily/types';
+import { UTXO, LilyOnchainAccount } from '@lily/types';
 
 interface Props {
   id: string;
@@ -18,16 +19,10 @@ interface Props {
 }
 
 export const UtxoInputSelectRow = ({ id, isSelected, utxo, handleChange, showTags }: Props) => {
-  const [labels, setLabels] = useState<AddressLabel[]>([]);
-  const { platform } = useContext(PlatformContext);
-
-  useEffect(() => {
-    const retrieveLabels = async () => {
-      const retrievedLabels = await platform.getAddressLabels(utxo.address.address);
-      setLabels(retrievedLabels);
-    };
-    retrieveLabels();
-  }, []);
+  const {currentAccount } = useContext(AccountMapContext)
+  const { addresses, changeAddresses } = currentAccount as LilyOnchainAccount;
+  const addressMap = createMap([...addresses, ...changeAddresses], 'address')
+  const utxoAddress = addressMap[utxo.address.address]
 
   return (
     <label
@@ -69,8 +64,8 @@ export const UtxoInputSelectRow = ({ id, isSelected, utxo, handleChange, showTag
             role='list'
             className='mt-2 inline-flex leading-8 space-x-1 items-center justify-end flex-wrap'
           >
-            {labels.length ? (
-              labels.map((label) => (
+            {utxoAddress.tags.length ? (
+              utxoAddress.tags.map((label) => (
                 <li className='inline' key={label.id}>
                   <LabelTag label={label} />
                 </li>

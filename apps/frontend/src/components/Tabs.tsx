@@ -17,7 +17,7 @@ interface Props {
 
 export const Tabs = ({ currentTab, setCurrentTab, items }: Props) => {
   return (
-    <div className='border-b border-gray-200 dark:border-gray-600'>
+    <div className='border-b border-gray-200 dark:border-gray-600 overflow-x-auto'>
       <nav className='-mb-px flex space-x-8' data-cy='settings-tabs'>
         {items.map(({ tabId, name }) => (
           <button

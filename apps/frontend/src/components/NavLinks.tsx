@@ -2,7 +2,6 @@ import { useContext } from 'react';
 import styled, { css } from 'styled-components';
 import { Link, useLocation } from 'react-router-dom';
 import { VerticalAlignBottom, AddCircleOutline, Settings } from '@styled-icons/material';
-import { Home } from '@styled-icons/fa-solid';
 import { SendPlane } from '@styled-icons/remix-fill';
 import { networks, Network } from 'bitcoinjs-lib';
 import FlowerLogo from 'src/assets/flower.svg';
@@ -44,7 +43,15 @@ export const NavLinks = ({ currentBitcoinNetwork }: Props) => {
         onClick={() => setSidebarOpen(false)}
         to='/'
       >
-        <StyledIcon as={Home} size={24} style={{ marginRight: '.65rem', color: gray700 }} />
+        <svg
+          xmlns='http://www.w3.org/2000/svg'
+          viewBox='0 0 24 24'
+          fill='currentColor'
+          className='w-6 h-6 mr-2 text-gray-600'
+        >
+          <path d='M11.47 3.84a.75.75 0 011.06 0l8.69 8.69a.75.75 0 101.06-1.06l-8.689-8.69a2.25 2.25 0 00-3.182 0l-8.69 8.69a.75.75 0 001.061 1.06l8.69-8.69z' />
+          <path d='M12 5.432l8.159 8.159c.03.03.06.058.091.086v6.198c0 1.035-.84 1.875-1.875 1.875H15a.75.75 0 01-.75-.75v-4.5a.75.75 0 00-.75-.75h-3a.75.75 0 00-.75.75V21a.75.75 0 01-.75.75H5.625a1.875 1.875 0 01-1.875-1.875v-6.198a2.29 2.29 0 00.091-.086L12 5.43z' />
+        </svg>
         Home
       </Link>
       <Link
@@ -81,12 +88,25 @@ export const NavLinks = ({ currentBitcoinNetwork }: Props) => {
         onClick={() => setSidebarOpen(false)}
         to='/settings'
       >
-        <StyledIcon as={Settings} size={24} style={{ marginRight: '.65rem', color: gray700 }} />
+        <svg
+          xmlns='http://www.w3.org/2000/svg'
+          fill='none'
+          viewBox='0 0 24 24'
+          stroke-width='1.5'
+          stroke='currentColor'
+          className='w-6 h-6 mr-2 text-gray-600'
+        >
+          <path
+            stroke-linecap='round'
+            stroke-linejoin='round'
+            d='M4.5 12a7.5 7.5 0 0015 0m-15 0a7.5 7.5 0 1115 0m-15 0H3m16.5 0H21m-1.5 0H12m-8.457 3.077l1.41-.513m14.095-5.13l1.41-.513M5.106 17.785l1.15-.964m11.49-9.642l1.149-.964M7.501 19.795l.75-1.3m7.5-12.99l.75-1.3m-6.063 16.658l.26-1.477m2.605-14.772l.26-1.477m0 17.726l-.26-1.477M10.698 4.614l-.26-1.477M16.5 19.794l-.75-1.299M7.5 4.205L12 12m6.894 5.785l-1.149-.964M6.256 7.178l-1.15-.964m15.352 8.864l-1.41-.513M4.954 9.435l-1.41-.514M12.002 12l-3.75 6.495'
+          />
+        </svg>
         Settings
       </Link>
 
       <h3 className='font-semibold text-lg mx-4 mt-7 mb-2 dark:text-gray-300'>Accounts</h3>
-      <AccountsContainer>
+      <ul>
         {config.lightning.map((wallet) => (
           <Link
             className={classNames(
@@ -177,7 +197,7 @@ export const NavLinks = ({ currentBitcoinNetwork }: Props) => {
             {vault.name}
           </Link>
         ))}
-      </AccountsContainer>
+      </ul>
 
       <Link
         className={classNames(pathname === '/setup' ? 'sidebar-item__active' : '', 'sidebar-item')}

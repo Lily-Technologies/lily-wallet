@@ -4,6 +4,7 @@ export const ChartEmptyState = () => {
       width='100%'
       height='245'
       style={{ position: 'absolute', bottom: 0 }}
+      className='animate-pulse'
       viewBox='0 0 800 245'
       fill='none'
       preserveAspectRatio='none'
