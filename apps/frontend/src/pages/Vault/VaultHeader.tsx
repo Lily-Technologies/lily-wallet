@@ -1,10 +1,10 @@
 import React, { Fragment, useContext } from 'react';
 import styled from 'styled-components';
 import { Link, useRouteMatch, useHistory } from 'react-router-dom';
-import { VerticalAlignBottom, ArrowUpward, Settings, Refresh } from '@styled-icons/material';
+import { VerticalAlignBottom, ArrowUpward } from '@styled-icons/material';
 import FlowerLoading from 'src/assets/flower-loading.svg';
 
-import { StyledIcon, PageTitle, Header, HeaderLeft, Dropdown } from 'src/components';
+import { StyledIcon, Header, Dropdown } from 'src/components';
 
 import { gray300 } from 'src/utils/colors';
 import { LilyOnchainAccount } from '@lily/types';
@@ -67,7 +67,7 @@ const VaultHeader = ({ toggleRefresh }: Props) => {
     <Header className='space-y-4'>
       <div className='flex flex-col space-y-1'>
         <Link
-          className='text-4xl font-semibold hover:text-gray-100 active:text-gray-200 cursor-pointer'
+          className='text-4xl font-semibold hover:text-gray-100 active:text-gray-200 cursor-pointer border-b border-transparent hover:border-white active:border-gray-200 outline-none focus-visible:ring-2 focus-visible:ring-green-500'
           to={url}
         >
           {currentAccount.name}
@@ -79,7 +79,7 @@ const VaultHeader = ({ toggleRefresh }: Props) => {
       <div className='flex items-center space-x-4'>
         <Link
           to='/send'
-          className='inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-base font-medium rounded-md text-white bg-green-600 hover:bg-green-800 focus:outline-none focus:ring-2  focus:ring-green-500'
+          className='inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-base font-medium rounded-md text-white bg-green-600 hover:bg-green-800 focus-visible:outline-none focus-visible:ring-2  focus-visible:ring-green-500'
         >
           <StyledIcon
             as={ArrowUpward}
@@ -90,7 +90,7 @@ const VaultHeader = ({ toggleRefresh }: Props) => {
         </Link>
         <Link
           to='/receive'
-          className='inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-base font-medium rounded-md text-white bg-green-600 hover:bg-green-800 focus:outline-none focus:ring-2  focus:ring-green-500'
+          className='inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-base font-medium rounded-md text-white bg-green-600 hover:bg-green-800 focus-visible:outline-none focus-visible:ring-2  focus-visible:ring-green-500'
         >
           <StyledIcon
             as={VerticalAlignBottom}
@@ -102,7 +102,7 @@ const VaultHeader = ({ toggleRefresh }: Props) => {
         {!currentAccount.loading && (
           <button
             onClick={() => toggleRefresh()}
-            className='hidden md:flex items-center overflow-hidden justify-center w-10 h-10 outline-none hover:text-gray-200 active:text-gray-300 focus:ring-2 focus:ring-green-500 rounded-full'
+            className='hidden md:flex items-center overflow-hidden justify-center w-10 h-10 outline-none hover:text-gray-200 active:text-gray-300 focus-visible:ring-2 focus-visible:ring-green-500 rounded-full'
           >
             <svg
               xmlns='http://www.w3.org/2000/svg'
@@ -123,7 +123,7 @@ const VaultHeader = ({ toggleRefresh }: Props) => {
         {currentAccount.loading && <LoadingImage className='hidden md:block' src={FlowerLoading} />}
         <Link
           to={`${url}/settings`}
-          className='hidden md:block outline-none hover:text-gray-200 active:text-gray-300 focus:ring-2 focus:ring-green-500 rounded-full'
+          className='hidden md:block outline-none hover:text-gray-200 active:text-gray-300 focus-visible:ring-2 focus-visible:ring-green-500 rounded-full'
           data-cy='settings'
         >
           <svg
@@ -166,15 +166,6 @@ const LoadingImage = styled.img`
   filter: brightness(0) invert(1);
   max-width: 2em;
   margin: 0 0.5em 0 0.75em;
-`;
-
-const VaultExplainerText = styled.div`
-  color: ${gray300};
-  display: flex;
-  align-items: center;
-  margin-top: 0.5em;
-  font-weight: 500;
-  font-size: 0.85em;
 `;
 
 export default VaultHeader;

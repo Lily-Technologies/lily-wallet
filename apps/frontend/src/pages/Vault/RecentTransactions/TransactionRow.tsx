@@ -27,7 +27,7 @@ const TransactionRow = ({ transaction, flat }: Props) => {
   return (
     <li className='list-none last:border-none border-b border-gray-100 dark:border-gray-700 shadow rounded-2xl'>
       <button
-        className='block bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 w-full dark:highlight-white/10 rounded-2xl outline-none focus:ring-2 focus:ring-green-500'
+        className='block bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 w-full dark:highlight-white/10 rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-green-500'
         onClick={() => {
           openInModal(<TxDetailsSlideover transaction={transaction} setOpen={setModalIsOpen} />);
         }}
