@@ -51,17 +51,20 @@ import {
   OnchainProviderConnectionDetails
 } from '@lily/types';
 
-import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
+if ('DEVURL' in process.env) {
+  const installExtension = require('electron-devtools-installer');
+  const { REACT_DEVELOPER_TOOLS } = require('electron-devtools-installer');
 
-try {
-  require('electron-reloader')(module);
-} catch (_) {}
+  try {
+    require('electron-reloader')(module);
+  } catch (_) {}
 
-app.whenReady().then(() => {
-  installExtension(REACT_DEVELOPER_TOOLS)
-    .then((name) => console.log(`Added Extension:  ${name}`))
-    .catch((err) => console.log('An error occurred: ', err));
-});
+  app.whenReady().then(() => {
+    installExtension(REACT_DEVELOPER_TOOLS)
+      .then((name: string) => console.log(`Added Extension:  ${name}`))
+      .catch((err: any) => console.log('An error occurred: ', err));
+  });
+}
 
 const PROTOCOL_PREFIX = 'lily';
 
