@@ -155,7 +155,7 @@ input[type='number']::-webkit-outer-spin-button {
 }
 
 .sidebar-item {
-  @apply text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:hover:bg-gray-800 dark:hover:text-gray-100 flex items-center px-5 py-4 text-sm font-medium dark:text-gray-300;
+  @apply text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:hover:bg-gray-800 dark:hover:text-gray-100 flex items-center px-5 py-4 text-sm font-medium dark:text-gray-300 outline-none focus-visible:ring-2 focus-visible:ring-green-500;
 }
 
 .sidebar-item__active {

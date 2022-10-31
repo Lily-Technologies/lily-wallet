@@ -26,7 +26,7 @@ const LightningDetailsSlideover = ({ event, setOpen }: Props) => {
           <div className='h-7 flex items-center'>
             <button
               type='button'
-              className='text-white hover:text-gray-200'
+              className='text-white hover:text-gray-200 outline-none focus:ring-2 focus:ring-green-500 rounded-full'
               onClick={() => setOpen(false)}
             >
               <span className='sr-only'>Close panel</span>
