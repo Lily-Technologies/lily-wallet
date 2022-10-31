@@ -1,5 +1,4 @@
-/* This example requires Tailwind CSS v2.0+ */
-import { useContext, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Switch } from '@headlessui/react';
 
 import { UnitContext } from 'src/context';

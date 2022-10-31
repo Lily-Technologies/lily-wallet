@@ -1,3 +1,4 @@
+import React from 'react';
 import { Transition } from '@headlessui/react';
 
 import AddOwnerDetailsForm from 'src/pages/Setup/Review/AddOwnerDetailsForm';

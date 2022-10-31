@@ -1,3 +1,4 @@
+import React from 'react';
 import DeadFlowerImage from 'src/assets/dead-flower.svg';
 
 const NoUtxosEmptyState = () => (

@@ -1,4 +1,4 @@
-import { Fragment } from 'react';
+import React, { Fragment } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 
 export const SlideOver = ({ open, setOpen, content, className = 'max-w-2xl' }) => {

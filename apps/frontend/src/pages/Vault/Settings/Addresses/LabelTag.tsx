@@ -1,3 +1,4 @@
+import React from 'react';
 import { AddressTag } from '@lily/types';
 
 interface Props {

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { MailIcon, UserIcon } from '@heroicons/react/outline';
 
 import { DeviceImage, SlideOver } from 'src/components';

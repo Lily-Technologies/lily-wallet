@@ -1,4 +1,4 @@
-import { useContext} from 'react'
+import React, { useContext } from 'react';
 import { Unit } from 'src/components';
 
 import { LabelTag } from 'src/pages/Vault/Settings/Addresses/LabelTag';
@@ -12,9 +12,15 @@ interface Props {
 }
 
 const UtxoRow = ({ utxo, showTags }: Props) => {
-  const {currentAccount } = useContext(AccountMapContext)
-  const addressMap = createMap([...(currentAccount as LilyOnchainAccount).addresses, ...(currentAccount as LilyOnchainAccount).changeAddresses], 'address')
-  const utxoAddress = addressMap[utxo.address.address]
+  const { currentAccount } = useContext(AccountMapContext);
+  const addressMap = createMap(
+    [
+      ...(currentAccount as LilyOnchainAccount).addresses,
+      ...(currentAccount as LilyOnchainAccount).changeAddresses
+    ],
+    'address'
+  );
+  const utxoAddress = addressMap[utxo.address.address];
 
   return (
     <li className='border-gray-800/15 active:bg-gray-50 hover:border-gray-900/20 bg-white dark:bg-slate-800 dark:border-slate-800 dark:hover:bg-slate-700 select-none shadow flex items-center justify-between w-full p-4 border dark:highlight-white/10 rounded-2xl group'>

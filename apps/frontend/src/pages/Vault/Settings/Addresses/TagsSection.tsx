@@ -1,4 +1,4 @@
-import { useContext, useEffect } from 'react';
+import React, { useContext } from 'react';
 
 import { LabelTag } from './LabelTag';
 import { AddLabelTag } from './AddLabelTag';
@@ -34,7 +34,7 @@ export const TagsSection = ({ addresses }: Props) => {
   const deleteLabel = async (tag: AddressTag) => {
     labelMap[tag.label].map((currentTag) => {
       deleteAddressTag(currentAccount.config.id, currentTag);
-    })
+    });
   };
 
   return (
