@@ -2,15 +2,18 @@ import { Router } from 'express';
 
 import { OnChainConfig } from '@lily/types';
 
-import { ElectrumProvider } from '@lily/shared-server';
+import { ElectrumProvider, dbConnect } from '@lily/shared-server';
 
 import { sendError } from '../utils';
+
+const APP_DATA_DIRECTORY = process.env.APP_DATA_DIR;
 
 const router = Router();
 const isTestnet = !!('TESTNET' in process.env);
 const OnchainDataProvider = new ElectrumProvider(
   process.env.ELECTRUM_IP,
   Number(process.env.ELECTRUM_PORT),
+  'tcp',
   isTestnet
 );
 
@@ -22,7 +25,8 @@ router.post('/account-data', async (req, res) => {
   const config: OnChainConfig = req.body;
 
   try {
-    const accountData = await OnchainDataProvider.getAccountData(config);
+    const db = await dbConnect(APP_DATA_DIRECTORY);
+    const accountData = await OnchainDataProvider.getAccountData(config, db);
     res.send(accountData);
   } catch (e) {
     console.log(`(${config.id}) /account-data error: `, e);

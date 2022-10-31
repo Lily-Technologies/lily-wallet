@@ -42,7 +42,9 @@ import {
   LilyAccount,
   ICallback,
   HwiXpubResponse,
-  HwiSignTransactionResponse
+  HwiSignTransactionResponse,
+  AddressTag,
+  TransactionDescription
 } from '@lily/types';
 
 const HOST = `${process.env.REACT_APP_BACKEND_HOST}:${process.env.REACT_APP_BACKEND_PORT}`;
@@ -334,24 +336,40 @@ export class WebPlatform extends BasePlatform {
     return Promise.resolve(data);
   }
 
-  // TODO: Implement these methods
-  async addAddressTag(address: string, label: string) {
-    return Promise.resolve(1);
+  async addAddressTag(address: string, tag: string) {
+    const { data } = await axios.post<number>('/add-address-label', {
+      address,
+      tag
+    });
+    return Promise.resolve(data);
   }
 
   async deleteAddressTag(id: number) {
-    return Promise.resolve(false);
+    const { data } = await axios.post<boolean>('/delete-address-label', {
+      id
+    });
+    return Promise.resolve(data);
   }
 
   async getAddressTags(address: string) {
-    return Promise.resolve([]);
+    const { data } = await axios.post<AddressTag[]>('/get-address-labels', {
+      address
+    });
+    return Promise.resolve(data);
   }
 
   async addTransactionDescription(txid: string, description: string) {
-    return Promise.resolve(false);
+    const { data } = await axios.post<number>('/add-transaction-description', {
+      txid,
+      description
+    });
+    return Promise.resolve(data);
   }
 
   async getTransactionDescription(txid: string) {
-    return Promise.resolve({ txid: '', description: '' });
+    const { data } = await axios.post<TransactionDescription>('/get-transaction-description', {
+      txid
+    });
+    return Promise.resolve(data);
   }
 }

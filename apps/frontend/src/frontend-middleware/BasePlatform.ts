@@ -118,7 +118,7 @@ export interface PlatformInterface {
   deleteAddressTag(id: number): Promise<boolean>;
   getAddressTags(address: string): Promise<AddressTag[]>;
 
-  addTransactionDescription(txid: string, description: string): Promise<boolean>;
+  addTransactionDescription(txid: string, description: string): Promise<number>;
   getTransactionDescription(txid: string): Promise<TransactionDescription>;
 }
 
@@ -236,6 +236,6 @@ export abstract class BasePlatform implements PlatformInterface {
   abstract deleteAddressTag(id: number): Promise<boolean>;
   abstract getAddressTags(address: string): Promise<AddressTag[]>;
 
-  abstract addTransactionDescription(txid: string, description: string): Promise<boolean>;
+  abstract addTransactionDescription(txid: string, description: string): Promise<number>;
   abstract getTransactionDescription(txid: string): Promise<TransactionDescription>;
 }
