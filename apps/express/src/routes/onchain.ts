@@ -2,7 +2,7 @@ import { Router } from 'express';
 
 import { OnChainConfig } from '@lily/types';
 
-import { ElectrumProvider, dbConnect } from '@lily/shared-server';
+import { ElectrumProvider, createAddressTable, dbConnect } from '@lily/shared-server';
 
 import { sendError } from '../utils';
 
@@ -26,6 +26,7 @@ router.post('/account-data', async (req, res) => {
 
   try {
     const db = await dbConnect(APP_DATA_DIRECTORY);
+    createAddressTable(db);
     const accountData = await OnchainDataProvider.getAccountData(config, db);
     res.send(accountData);
   } catch (e) {

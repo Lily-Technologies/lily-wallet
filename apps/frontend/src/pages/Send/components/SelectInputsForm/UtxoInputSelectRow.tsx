@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import React, { useContext } from 'react';
 
 import { Unit } from 'src/components';
 import { LabelTag } from 'src/pages/Vault/Settings/Addresses/LabelTag';
@@ -19,10 +19,10 @@ interface Props {
 }
 
 export const UtxoInputSelectRow = ({ id, isSelected, utxo, handleChange, showTags }: Props) => {
-  const {currentAccount } = useContext(AccountMapContext)
+  const { currentAccount } = useContext(AccountMapContext);
   const { addresses, changeAddresses } = currentAccount as LilyOnchainAccount;
-  const addressMap = createMap([...addresses, ...changeAddresses], 'address')
-  const utxoAddress = addressMap[utxo.address.address]
+  const addressMap = createMap([...addresses, ...changeAddresses], 'address');
+  const utxoAddress = addressMap[utxo.address.address];
 
   return (
     <label

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useContext } from 'react';
 import { LilyLightningAccount } from '@lily/types';
 import { AccountMapContext } from 'src/context/AccountMapContext';

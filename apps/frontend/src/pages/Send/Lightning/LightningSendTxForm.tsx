@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { QrcodeIcon, ArrowRightIcon } from '@heroicons/react/outline';
 import { decode } from 'bolt11';
 

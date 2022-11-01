@@ -1,3 +1,4 @@
+import React from 'react';
 import { CheckIcon } from '@heroicons/react/solid';
 
 interface Props {

@@ -1,4 +1,4 @@
-import { useEffect, useContext } from 'react';
+import React, { useEffect, useContext } from 'react';
 import { Network } from 'bitcoinjs-lib';
 
 import { PageWrapper, PageTitle, Header, HeaderRight, HeaderLeft } from 'src/components';

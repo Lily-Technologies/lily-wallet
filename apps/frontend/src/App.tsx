@@ -36,6 +36,7 @@ const App = () => {
   const { setAccountMap, updateAccountMap } = useContext(AccountMapContext);
   const {
     config,
+    setConfigFile,
     setCurrentBitcoinPrice,
     currentBitcoinPrice,
     currentBitcoinNetwork,
@@ -121,7 +122,14 @@ const App = () => {
         setFetchingEncryptedConfig(true);
         try {
           const { file, modifiedTime } = await platform.getConfig();
-          setEncryptedConfigFile({ file: file.toString(), modifiedTime });
+          try {
+            // check if cleartext (non-encrypted). If we can JSON.parse, then it's clear text.
+            const retrievedConfig = JSON.parse(file);
+            setConfigFile(retrievedConfig);
+          } catch (e) {
+            // is encrypted
+            setEncryptedConfigFile({ file: file.toString(), modifiedTime });
+          }
         } catch (e) {}
         setFetchingEncryptedConfig(false);
       }

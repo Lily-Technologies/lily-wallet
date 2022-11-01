@@ -1,7 +1,7 @@
-import { useContext } from 'react';
-import styled, { css } from 'styled-components';
+import React, { useContext } from 'react';
+import styled from 'styled-components';
 import { Link, useLocation } from 'react-router-dom';
-import { VerticalAlignBottom, AddCircleOutline, Settings } from '@styled-icons/material';
+import { VerticalAlignBottom, AddCircleOutline } from '@styled-icons/material';
 import { SendPlane } from '@styled-icons/remix-fill';
 import { networks, Network } from 'bitcoinjs-lib';
 import FlowerLogo from 'src/assets/flower.svg';

@@ -50,7 +50,7 @@
     "axios": "^0.21.1",
     "babel-register": "^6.26.0",
     "bignumber.js": "^9.0.0",
-    "bip32": "^3.0.0",
+    "bip32": "3.0.0",
     "bip39": "^3.0.2",
     "bitcoin-simple-rpc": "^0.0.3",
     "bitcoinjs-lib": "^6.0.1",
@@ -85,7 +85,7 @@
     "stream-browserify": "^3.0.0",
     "styled-components": "^5.1.0",
     "styled-icons": "^10.45.0",
-    "tiny-secp256k1": "^1.1.6",
+    "tiny-secp256k1": "1.1.6",
     "unchained-bitcoin": "^0.1.8",
     "uuid": "^8.0.0"
   },
