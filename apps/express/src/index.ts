@@ -9,6 +9,7 @@ import configRoutes from './routes/config';
 import hwiRoutes from './routes/hwi';
 import lightningRoutes from './routes/lightning';
 import onchainRoutes from './routes/onchain';
+import dbRoutes from './routes/db';
 
 import { setInitialConfig } from './utils';
 
@@ -45,6 +46,7 @@ app.use(configRoutes);
 app.use(hwiRoutes);
 app.use(lightningRoutes);
 app.use(onchainRoutes);
+app.use(dbRoutes);
 
 // start the Express server
 app.listen(port, () => {

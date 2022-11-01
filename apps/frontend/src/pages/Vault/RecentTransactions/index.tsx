@@ -43,7 +43,6 @@ const RecentTransactions = ({
   transactions,
   loading,
   flat = false,
-  openRescanModal,
   maxItems = Infinity
 }: Props) => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -141,16 +140,6 @@ const RecentTransactions = ({
 
 const DateWrapper = styled.div`
   margin: 1.5em 0 1em;
-`;
-
-const DeadFlower = styled.img`
-  width: 6.25em;
-  color: ${gray800};
-`;
-
-const RescanButton = styled.button`
-  ${Button}
-  margin-top: 0.75em;
 `;
 
 export default RecentTransactions;
