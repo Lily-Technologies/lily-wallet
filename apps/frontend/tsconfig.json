@@ -4,11 +4,15 @@
     "sourceMap": true,
     "strictNullChecks": true,
     "module": "esnext",
-    "jsx": "react-jsx",
+    "jsx": "react",
     "target": "esnext",
     "allowJs": true,
     "baseUrl": ".",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
@@ -20,9 +24,21 @@
     "noEmit": true,
     "noImplicitAny": false,
     "noFallthroughCasesInSwitch": true,
-    "typeRoots": ["node_modules/@types", "../../packages/types/dist/**"]
+    "typeRoots": [
+      "node_modules/@types",
+      "../../packages/types/dist/**"
+    ]
   },
-  "references": [{ "path": "../../packages/types" }],
-  "include": ["src/**/*"],
-  "exclude": ["src/__tests__/*", "dist"]
+  "references": [
+    {
+      "path": "../../packages/types"
+    }
+  ],
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "src/__tests__/*",
+    "dist"
+  ]
 }

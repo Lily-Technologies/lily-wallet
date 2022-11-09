@@ -10,13 +10,11 @@
   "proxy": "http://localhost:8080",
   "scripts": {
     "babel": "babel ./src/**/* -d dist",
-    "start:dev": "PORT=3001 craco -r @cypress/instrument-cra start",
-    "start:dev:electron": "TAILWIND_MODE=watch env-cmd -f .env.electron craco -r @cypress/instrument-cra start",
-    "start:dev:umbrel": "TAILWIND_MODE=watch env-cmd -f .env.umbrel craco -r @cypress/instrument-cra start",
+    "start:dev": "PORT=3001 craco start",
+    "start:dev:electron": "TAILWIND_MODE=watch env-cmd -f .env.electron craco start",
+    "start:dev:umbrel": "TAILWIND_MODE=watch env-cmd -f .env.umbrel craco start",
     "build:electron": "env-cmd -f .env.electron craco build",
     "build:umbrel": "env-cmd -f .env.umbrel craco build",
-    "test": "craco test --testPathIgnorePatterns src/__tests__/fixtures src/__tests__/mock",
-    "cypress:run": "cypress run",
     "ci:cypress-run": "CI=true start-server-and-test start http://localhost:3001 cypress:run"
   },
   "dependencies": {
@@ -46,7 +44,7 @@
     "@styled-icons/open-iconic": "^10.18.0",
     "@styled-icons/remix-fill": "^10.18.0",
     "@styled-icons/remix-line": "^10.18.0",
-    "@tailwindcss/forms": "^0.4.0",
+    "@tailwindcss/forms": "^0.3.0",
     "axios": "^0.21.1",
     "babel-register": "^6.26.0",
     "bignumber.js": "^9.0.0",
@@ -104,10 +102,6 @@
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.16.7",
     "@babel/preset-env": "^7.16.7",
-    "@cypress/code-coverage": "^3.9.5",
-    "@cypress/instrument-cra": "^1.4.0",
-    "@cypress/react": "^5.4.2",
-    "@cypress/webpack-dev-server": "^1.1.6",
     "@types/crypto-js": "^4.0.2",
     "@types/history": "^4.7.9",
     "@types/jest": "^26.0.15",
