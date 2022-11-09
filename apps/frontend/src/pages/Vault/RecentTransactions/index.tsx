@@ -69,7 +69,7 @@ const RecentTransactions = ({
     });
 
     setFilteredTransactions(currentFilteredTxs);
-  }, [searchQuery]);
+  }, [searchQuery, transactions]);
 
   return (
     <div className='flex flex-col flex-1'>
