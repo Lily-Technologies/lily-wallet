@@ -54,7 +54,9 @@ const ChannelView = ({ currentAccount, setViewOpenChannelForm }: Props) => {
         <tbody className='divide-y dark:divide-slate-400/10'>
           {currentAccount.pendingChannels.map((channel) => (
             <ChannelRow
-              key={123}
+              localBalance={channel.localBalance}
+              remoteBalance={channel.remoteBalance}
+              key={channel.channelPoint}
               alias={channel.alias}
               capacity={Number(channel.capacity)}
               status={'pending'}
@@ -63,7 +65,9 @@ const ChannelView = ({ currentAccount, setViewOpenChannelForm }: Props) => {
           ))}
           {currentAccount.channels.map((channel) => (
             <ChannelRow
-              key={123}
+              localBalance={channel.localBalance}
+              remoteBalance={channel.remoteBalance}
+              key={channel.channelPoint}
               alias={channel.alias}
               capacity={Number(channel.capacity)}
               status={channel.active ? 'active' : 'inactive'}
