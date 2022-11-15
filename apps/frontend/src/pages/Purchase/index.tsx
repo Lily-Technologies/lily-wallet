@@ -6,6 +6,7 @@ import BigNumber from 'bignumber.js';
 import { ShieldCheckIcon } from '@heroicons/react/solid';
 
 import {
+  PricingChart,
   PricingTable,
   PurchaseLicenseSuccess,
   ErrorModal,
@@ -208,7 +209,7 @@ const PurchasePage = ({
   return (
     <PageWrapper>
       <>
-        <Header>
+        {/* <Header>
           <HeaderLeft>
             <PageTitle>Purchase a license</PageTitle>
           </HeaderLeft>
@@ -222,12 +223,20 @@ const PurchasePage = ({
               Questions? Click here for support.
             </RenewButton>
           </Buttons>
-        </Header>
-        {step === 0 && (
-          <PricingTable clickRenewLicense={clickRenewLicense} currentAccount={currentAccount} />
-        )}
+        </Header> */}
+        {
+          step === 0 && (
+            <PricingChart clickRenewLicense={clickRenewLicense} currentAccount={currentAccount} />
+          )
+          // <PricingTable clickRenewLicense={clickRenewLicense} currentAccount={currentAccount} />
+        }
         {step === 1 && licenseResponse && (
           <>
+            <Header>
+              <HeaderLeft>
+                <PageTitle>Checkout</PageTitle>
+              </HeaderLeft>
+            </Header>
             {finalPsbt && (
               <ConfirmTxPage
                 currentAccount={currentAccount}
@@ -245,7 +254,7 @@ const PurchasePage = ({
                         <ShieldCheckIcon className='w-12 h-12 text-green-500 dark:text-green-400' />
                       </div>
                     ),
-                    header: `License for Lily Wallet (${capitalize(licenseTier(licenseResponse))})`,
+                    header: `License for Lily Wallet`,
                     subtext: getValue(finalPsbt.txOutputs[0].value),
                     extraInfo: [
                       {

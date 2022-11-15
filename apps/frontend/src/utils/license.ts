@@ -90,7 +90,7 @@ export const getLicenseBannerMessage = (
   if (isFreeTrialLicense(vault.license)) {
     if (isExpiredLicense(vault.license, nodeConfig)) {
       return {
-        message: `The Lily free trial for ${vault.name} has expired. Please buy a license to continue using ${vault.name}.`,
+        message: `Your 30 day free trial for ${vault.name} has expired. Please purchase a license to help support Lily Wallet.`,
         promptBuy: true
       };
     } else {
@@ -98,7 +98,7 @@ export const getLicenseBannerMessage = (
         message: `${vault.name} is using a free trial version of Lily. The trial will expire in ${
           licenseExpires(vault.license) - nodeConfig.blocks
         } blocks (approx. ${licenseExpireAsDate(vault.license, nodeConfig).fromNow()})`,
-        promptBuy: true
+        promptBuy: false
       };
     }
   } else if (!isValidLicenseSignature(vault.license)) {
@@ -107,13 +107,16 @@ export const getLicenseBannerMessage = (
       promptBuy: true
     };
   } else if (isExpiredLicense(vault.license, nodeConfig)) {
-    return { message: `${vault.name}'s license has expired!`, promptBuy: true };
+    return {
+      message: `${vault.name}'s license has expired! Please renew your license.`,
+      promptBuy: true
+    };
   } else if (isAlmostExpiredLicense(vault.license, nodeConfig)) {
     return {
       message: `${vault.name}'s license will expire in ${
         licenseExpires(vault.license) - nodeConfig.blocks
       } blocks (approx. ${licenseExpireAsDate(vault.license, nodeConfig).fromNow()})`,
-      promptBuy: true
+      promptBuy: false
     };
   } else if (!txConfirmed && licenseTier(vault.license) !== 'free') {
     return {

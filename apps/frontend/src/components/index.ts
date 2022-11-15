@@ -24,6 +24,7 @@ export * from './MnemonicWordsDisplayer';
 export * from './NavLinks';
 export * from './NoAccountsEmptyState';
 export * from './OutsideClick';
+export * from './PricingChart';
 export * from './PricingTable';
 export * from './PromptPinModal';
 export * from './Price';

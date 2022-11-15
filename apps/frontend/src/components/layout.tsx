@@ -42,7 +42,7 @@ export const PageWrapper = ({ children }: Props) => {
           </div>
         </div>
       )}
-      <main className='flex-1 z-10 dark:bg-gray-900 bg-gray-100 relative'>
+      <main className='flex-1 z-10 dark:bg-gray-900 relative'>
         <ColorOverlap className='bg-green-700 dark:bg-green-900' style={{ zIndex: '-1' }} />
         <div className='max-w-7xl mx-auto px-4 sm:px-6 md:px-16 py-8'>{children}</div>
       </main>
