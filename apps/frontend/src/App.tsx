@@ -8,7 +8,7 @@ import BigNumber from 'bignumber.js';
 import { green700 } from 'src/utils/colors';
 import { mobile } from 'src/utils/media';
 
-import { AlertBar, Sidebar, TitleBar, ScrollToTop } from 'src/components';
+import { Sidebar, TitleBar, ScrollToTop } from 'src/components';
 
 // Pages
 import Login from 'src/pages/Login';
@@ -267,7 +267,6 @@ const App = () => {
       <ConfigRequired />
       <RedirectHandler />
       <Overlay />
-      <AlertBar />
       <Sidebar currentBitcoinNetwork={currentBitcoinNetwork} />
       <Switch>
         <Route

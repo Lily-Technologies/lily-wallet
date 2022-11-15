@@ -1,85 +1,90 @@
-import React, { useContext, useRef, useEffect } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { blockExplorerTransactionURL } from 'unchained-bitcoin';
-import { useHistory, useLocation } from 'react-router-dom';
-import { BellIcon } from '@heroicons/react/outline';
+import { useHistory } from 'react-router-dom';
+import { ExclamationIcon } from '@heroicons/react/outline';
 
 import { AccountMapContext, ConfigContext, PlatformContext } from 'src/context';
 
 import { getLicenseBannerMessage, licenseTxId } from 'src/utils/license';
 import { getUnchainedNetworkFromBjslibNetwork } from 'src/utils/files';
 
-import { VaultConfig } from '@lily/types';
+import { OnChainConfig, VaultConfig } from '@lily/types';
 
-export const AlertBar = React.memo(() => {
+interface Props {
+  accountConfig: OnChainConfig;
+}
+
+export const AlertBar = ({ accountConfig }: Props) => {
   const { config, nodeConfig, currentBitcoinNetwork } = useContext(ConfigContext);
   const { platform } = useContext(PlatformContext);
   const { setCurrentAccountId } = useContext(AccountMapContext);
   const history = useHistory();
-  const { pathname } = useLocation();
 
-  let licenseBannerMessage = useRef({ message: '', promptBuy: false });
-  let licenseBannerAccount = useRef({} as VaultConfig);
+  const [showBuyButton, setShowBuyButton] = useState(false);
+  const [buyMessage, setBuyMessage] = useState('');
 
   useEffect(() => {
     async function checkLicenseTxConfirmed() {
-      let licenseTxConfirmed = false;
-      if (nodeConfig) {
-        config.vaults.forEach(async (vault) => {
+      if ((accountConfig as VaultConfig).license) {
+        let licenseTxConfirmed = false;
+        if (nodeConfig) {
           try {
-            const txId = licenseTxId(vault.license);
+            const txId = licenseTxId((accountConfig as VaultConfig).license);
             if (txId) {
               licenseTxConfirmed = await platform.isConfirmedTransaction(txId);
             }
           } catch (e) {
             licenseTxConfirmed = false;
-            console.log('AlertBar: Error retriving license transaction');
+            console.log('AlertBar: Error retrieving license transaction');
           }
-          licenseBannerMessage.current = getLicenseBannerMessage(
-            vault,
+          const { message, promptBuy } = getLicenseBannerMessage(
+            accountConfig as VaultConfig,
             licenseTxConfirmed,
             nodeConfig
           );
-          licenseBannerAccount.current = vault;
-        });
+
+          setShowBuyButton(promptBuy);
+          setBuyMessage(message);
+        }
       }
     }
     checkLicenseTxConfirmed();
   }, [config, nodeConfig, platform]);
 
-  if (licenseBannerMessage.current.message && pathname !== '/setup') {
+  if (buyMessage && !!(accountConfig as VaultConfig).license) {
     return (
-      <div className='bg-green-600 z-10 md:ml-64'>
+      <div className='bg-yellow-100 z-10 rounded-2xl py-6 my-6 shadow border border-yellow-600/20'>
         <div className='max-w-7xl mx-auto py-3 px-3 sm:px-6 lg:px-8'>
           <div className='flex items-center justify-between flex-wrap'>
             <div className='w-full sm:w-0 flex-1 flex items-center'>
-              <span className='flex p-2 rounded-lg bg-green-800'>
-                <BellIcon className='h-6 w-6 text-white' aria-hidden='true' />
+              <span className='flex p-2 rounded-lg bg-yellow-300'>
+                <ExclamationIcon className='h-6 w-6 text-yellow-800' aria-hidden='true' />
               </span>
-              <p className='ml-3 font-medium text-white truncate'>
+              <p className='ml-3 font-medium text-yellow-800 truncate'>
                 {/* TODO: change later */}
                 <span className='md:hidden'>Upgrade your account!</span>
-                <span className='hidden md:inline'>{licenseBannerMessage.current.message}</span>
+                <span className='hidden md:inline'>{buyMessage}</span>
               </p>
             </div>
             <div className='mt-2 flex-shrink-0 w-full sm:mt-0 sm:w-auto'>
-              {licenseBannerMessage.current.promptBuy ? (
+              {showBuyButton ? (
                 <a
                   onClick={() => {
-                    setCurrentAccountId(licenseBannerAccount.current.id);
-                    history.push(`/vault/${licenseBannerAccount.current.id}/purchase`);
+                    setCurrentAccountId(accountConfig.id);
+                    history.push(`/vault/${accountConfig.id}/purchase`);
                   }}
-                  className='cursor-pointer flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-green-600 bg-white hover:bg-green-50'
+                  className='cursor-pointer flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-yellow-600 bg-white hover:bg-yellow-50'
                 >
                   Upgrade
                 </a>
               ) : (
                 <a
                   href={blockExplorerTransactionURL(
-                    licenseTxId(licenseBannerAccount.current.license) as string,
+                    licenseTxId((accountConfig as VaultConfig).license)!,
                     getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork)
                   )}
                   target='_blank'
-                  className='flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-green-600 bg-white hover:bg-green-50'
+                  className='flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-yellow-600 bg-white hover:bg-yellow-50'
                 >
                   View Transaction
                 </a>
@@ -91,4 +96,4 @@ export const AlertBar = React.memo(() => {
     );
   }
   return null;
-});
+};
