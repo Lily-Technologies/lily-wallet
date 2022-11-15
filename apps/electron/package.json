@@ -13,7 +13,7 @@
     "start-testnet": "TESTNET=true electron .",
     "build": "tsc -b && cp -R ../frontend/build/ ./build/frontend",
     "pack": "electron-builder --dir",
-    "dist": "electron-builder -mwl --x64"
+    "dist": "electron-builder -m"
   },
   "build": {
     "productName": "Lily Wallet",
