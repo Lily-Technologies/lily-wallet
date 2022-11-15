@@ -12,7 +12,7 @@ import {
   TooltipPayload
 } from 'recharts';
 
-import { ChartEmptyState, Modal, Unit, AlertBar } from 'src/components';
+import { ChartEmptyState, Modal, Unit } from 'src/components';
 
 import RecentTransactions from './RecentTransactions';
 import { RescanModal } from './RescanModal';
@@ -70,7 +70,7 @@ interface Props {
 }
 
 const VaultView = ({ currentAccount, nodeConfig, toggleRefresh }: Props) => {
-  const { currentBalance, transactions, config } = currentAccount;
+  const { currentBalance, transactions } = currentAccount;
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalContent, setModalContent] = useState<JSX.Element | null>(null);
   const transactionsCopyForChart = [...transactions];
@@ -188,7 +188,6 @@ const VaultView = ({ currentAccount, nodeConfig, toggleRefresh }: Props) => {
           </ChartContainer>
         </div>
       ) : null}
-      <AlertBar accountConfig={config} />
       <RecentTransactions
         transactions={transactionsCopyForRecentTransactions.sort((a, b) => {
           if (!b.status.confirmed && !a.status.confirmed) {
@@ -214,11 +213,6 @@ const VaultView = ({ currentAccount, nodeConfig, toggleRefresh }: Props) => {
 };
 
 const ChartContainer = styled.div``;
-
-const CurrentBalanceContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
 
 const TooltipContainer = styled.div`
   background: rgba(31, 31, 31, 0.75);
