@@ -8,7 +8,8 @@ import type {
   LookupInvoiceMsg,
   Invoice,
   QueryRoutesRequest,
-  QueryRoutesResponse
+  QueryRoutesResponse,
+  SendPaymentRequest
 } from '@lily-technologies/lnrpc';
 
 import { WalletInfo } from 'bitcoin-simple-rpc';
@@ -194,13 +195,13 @@ export class ElectronPlatform extends BasePlatform {
   // Lightning
 
   async sendLightningPayment(
-    paymentRequest: string,
+    options: SendPaymentRequest,
     config: LightningConfig,
     callback: (payment: Payment) => void
   ) {
     window.ipcRenderer.send('/lightning-send-payment', {
-      paymentRequest: paymentRequest,
-      config: config
+      options,
+      config
     });
 
     window.ipcRenderer.on('/lightning-send-payment', async (_event: any, ...args: any) => {

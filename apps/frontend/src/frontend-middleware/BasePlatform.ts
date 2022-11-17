@@ -9,7 +9,8 @@ import type {
   QueryRoutesRequest,
   QueryRoutesResponse,
   GetInfoResponse,
-  ChannelBalanceResponse
+  ChannelBalanceResponse,
+  SendPaymentRequest
 } from '@lily-technologies/lnrpc';
 
 import { WalletInfo } from 'bitcoin-simple-rpc';
@@ -82,7 +83,7 @@ export interface PlatformInterface {
   broadcastTransaction(txHex: string): Promise<string>;
 
   sendLightningPayment(
-    paymentRequest: string,
+    options: SendPaymentRequest,
     config: LightningConfig,
     callback: (payment: Payment) => void
   ): void;
@@ -192,7 +193,7 @@ export abstract class BasePlatform implements PlatformInterface {
   abstract broadcastTransaction(txHex: string): Promise<string>;
 
   abstract sendLightningPayment(
-    paymentRequest: string,
+    options: SendPaymentRequest,
     config: LightningConfig,
     callback: (payment: Payment) => void
   ): void;

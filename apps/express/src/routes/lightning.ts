@@ -90,11 +90,11 @@ router.post('/close-channel', async (req, res) => {
 });
 
 router.post('/lightning-send-payment', async (req, res) => {
-  const { config, paymentRequest } = req.body;
+  const { config, options } = req.body;
 
   console.log(`(${config.id}): Sending payment...`);
   try {
-    LightningDataProvider.sendPayment(paymentRequest, (data) => {
+    LightningDataProvider.sendPayment(options, (data) => {
       if (data.status === 2 || data.status === 3) {
         res.send(data);
       }

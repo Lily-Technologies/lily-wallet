@@ -3,17 +3,19 @@ import styled from 'styled-components';
 import { decode } from 'bolt11';
 import type { Payment, ChannelBalanceResponse } from '@lily-technologies/lnrpc';
 
-import { Button, Countdown, Modal, Unit } from 'src/components';
+import { Button, Countdown, Modal, Unit, SlideOver } from 'src/components';
 
 import { white, green600, gray600, red500, gray300, yellow600 } from 'src/utils/colors';
 
 import PaymentSuccess from './PaymentSuccess';
+import { ChannelSlideover } from './ChannelSlideover';
 
 import { LilyLightningAccount } from '@lily/types';
 import { SetStateNumber } from 'src/types';
 import { classNames } from 'src/utils/other';
 
 import { PlatformContext, UnitContext } from 'src/context';
+import { createMap } from 'src/utils/accountMap';
 
 interface Props {
   paymentRequest: string;
@@ -31,6 +33,15 @@ const LightningPaymentConfirm = ({ paymentRequest, setStep, currentAccount }: Pr
   const { platform } = useContext(PlatformContext);
   const { getValue } = useContext(UnitContext);
   const [estimatedFee, setEstimatedFee] = useState(0);
+  const [outgoingChanId, setOutgoingChanId] = useState('');
+
+  const [slideoverIsOpen, setSlideoverOpen] = useState(false);
+  const [slideoverContent, setSlideoverContent] = useState<JSX.Element | null>(null);
+
+  const openInSlideover = (component: JSX.Element) => {
+    setSlideoverOpen(true);
+    setSlideoverContent(component);
+  };
 
   const decoded = decode(paymentRequest);
   const description = decoded.tags.filter((item) => item.tagName === 'description')[0].data;
@@ -61,35 +72,39 @@ const LightningPaymentConfirm = ({ paymentRequest, setStep, currentAccount }: Pr
   const sendPayment = () => {
     setSendPaymentIsLoading(true);
     setPaymentError('');
-    platform.sendLightningPayment(paymentRequest, currentAccount.config, (response: Payment) => {
-      try {
-        if (response.status === 2) {
-          // PaymentStatus.SUCCEEDED
-          openInModal(<PaymentSuccess payment={response} />);
-          setSendPaymentIsLoading(false);
-        }
-
-        if (response.status === 3) {
-          // PaymentStatus.FAILED
-          if (response.failureReason === 2) {
-            // PaymentFailureReason.FAILURE_REASON_NO_ROUTE
-            setPaymentError('No route to user');
-            setSendPaymentIsLoading(false);
-          } else if (
-            response.failureReason === 5 // PaymentFailureReason.FAILURE_REASON_INSUFFICIENT_BALANCE
-          ) {
-            setPaymentError('Not enough balance');
-            setSendPaymentIsLoading(false);
-          } else {
-            setPaymentError('Unknown error making payment. Contact support.');
+    platform.sendLightningPayment(
+      { paymentRequest, outgoingChanId },
+      currentAccount.config,
+      (response: Payment) => {
+        try {
+          if (response.status === 2) {
+            // PaymentStatus.SUCCEEDED
+            openInModal(<PaymentSuccess payment={response} />);
             setSendPaymentIsLoading(false);
           }
+
+          if (response.status === 3) {
+            // PaymentStatus.FAILED
+            if (response.failureReason === 2) {
+              // PaymentFailureReason.FAILURE_REASON_NO_ROUTE
+              setPaymentError('No route to user');
+              setSendPaymentIsLoading(false);
+            } else if (
+              response.failureReason === 5 // PaymentFailureReason.FAILURE_REASON_INSUFFICIENT_BALANCE
+            ) {
+              setPaymentError('Not enough balance');
+              setSendPaymentIsLoading(false);
+            } else {
+              setPaymentError('Unknown error making payment. Contact support.');
+              setSendPaymentIsLoading(false);
+            }
+          }
+        } catch (e) {
+          console.log('/lightning-send-payment e: ', e);
+          setSendPaymentIsLoading(false);
         }
-      } catch (e) {
-        console.log('/lightning-send-payment e: ', e);
-        setSendPaymentIsLoading(false);
       }
-    });
+    );
   };
 
   return (
@@ -98,12 +113,33 @@ const LightningPaymentConfirm = ({ paymentRequest, setStep, currentAccount }: Pr
         <div className='divide-y divide-slate-800/10 dark:divide-slate-200/10'>
           <div className='flex flex-wrap justify-between py-4'>
             <div className='text-gray-900 dark:text-gray-200'>Send from</div>
-            <div className='text-gray-900 dark:text-gray-200 font-medium'>
-              {currentAccount.name} (
-              <Unit
-                value={(currentAccount.currentBalance as ChannelBalanceResponse).localBalance!.sat}
-              />{' '}
-              )
+            <div className='text-right'>
+              <div className='text-gray-900 dark:text-gray-200 font-medium'>
+                {currentAccount.name} (
+                <Unit
+                  value={
+                    (currentAccount.currentBalance as ChannelBalanceResponse).localBalance!.sat
+                  }
+                />{' '}
+                )
+              </div>
+              <button
+                className='text-xs text-green-500 hover:text-green-400'
+                onClick={() =>
+                  openInSlideover(
+                    <ChannelSlideover
+                      onSave={(savedChanId: string) => {
+                        setOutgoingChanId(savedChanId);
+                        setSlideoverOpen(false);
+                      }}
+                    />
+                  )
+                }
+              >
+                {outgoingChanId
+                  ? createMap(currentAccount.channels, 'chanId')[outgoingChanId].alias
+                  : 'Choose outgoing channel'}
+              </button>
             </div>
           </div>
 
@@ -194,6 +230,8 @@ const LightningPaymentConfirm = ({ paymentRequest, setStep, currentAccount }: Pr
       <Modal isOpen={modalIsOpen} closeModal={() => setModalIsOpen(false)}>
         {modalContent}
       </Modal>
+
+      <SlideOver open={slideoverIsOpen} setOpen={setSlideoverOpen} content={slideoverContent} />
     </div>
   );
 };

@@ -8,16 +8,30 @@ import { classNames } from 'src/utils/other';
 
 interface Props {
   alias: string;
-  capacity: number;
+  capacity: string;
   status: 'active' | 'inactive' | 'pending';
   onClick: () => void;
   localBalance: string;
   remoteBalance: string;
+  selected?: boolean;
 }
 
-const ChannelRow = ({ alias, capacity, status, onClick, localBalance, remoteBalance }: Props) => (
+const ChannelRow = ({
+  alias,
+  capacity,
+  status,
+  onClick,
+  localBalance,
+  remoteBalance,
+  selected
+}: Props) => (
   <tr
-    className='group cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 flex flex-col md:flex-row justify-between items-center py-6 md:py-2 rounded-lg'
+    className={classNames(
+      'group cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 flex flex-col md:flex-row justify-between items-center py-6 md:py-2 rounded-lg',
+      selected
+        ? 'border-green-900/20 bg-green-100/40 hover:bg-green-50 dark:hover:bg-green-700 active:bg-green-500/25 dark:bg-green-800'
+        : ''
+    )}
     onClick={() => onClick()}
   >
     <td className='py-2 px-4 rounded-l-2xl'>
@@ -35,7 +49,7 @@ const ChannelRow = ({ alias, capacity, status, onClick, localBalance, remoteBala
             )}
           ></span>
         </span>
-        <Unit value={capacity} />
+        <Unit value={Number(capacity)} />
       </ChannelSubheader>
     </td>
 
@@ -44,7 +58,7 @@ const ChannelRow = ({ alias, capacity, status, onClick, localBalance, remoteBala
         <span className='flex-1 flex justify-end'>
           <span
             className='bg-blue-500 rounded-l-lg text-blue-50 dark:text-white text-xs font-bold text-right whitespace-nowrap px-2 py-2'
-            style={{ width: `${(Number(localBalance) / capacity) * 100}%` }}
+            style={{ width: `${(Number(localBalance) / Number(capacity)) * 100}%` }}
           >
             <Unit value={Number(localBalance)} />
           </span>
@@ -52,7 +66,7 @@ const ChannelRow = ({ alias, capacity, status, onClick, localBalance, remoteBala
         <span className='flex-1 flex justify-start'>
           <span
             className='bg-green-500 rounded-r-lg text-green-50 dark:text-white text-xs font-bold whitespace-nowrap px-2 py-2'
-            style={{ width: `${(Number(remoteBalance) / capacity) * 100}%` }}
+            style={{ width: `${(Number(remoteBalance) / Number(capacity)) * 100}%` }}
           >
             <Unit value={Number(remoteBalance)} />
           </span>

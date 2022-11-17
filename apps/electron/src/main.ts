@@ -8,7 +8,8 @@ import {
   FundingPsbtVerify,
   CloseChannelRequest,
   Invoice,
-  QueryRoutesRequest
+  QueryRoutesRequest,
+  SendPaymentRequest
 } from '@lily-technologies/lnrpc';
 
 import {
@@ -385,12 +386,12 @@ ipcMain.on('/close-channel', async (event, args: CloseChannelRequest) => {
 
 ipcMain.on(
   '/lightning-send-payment',
-  async (event, args: { config: LightningConfig; paymentRequest: string }) => {
-    const { config, paymentRequest } = args;
+  async (event, args: { config: LightningConfig; options: SendPaymentRequest }) => {
+    const { config, options } = args;
 
     console.log(`(${config.id}): Sending payment...`);
     try {
-      LightningDataProvider.sendPayment(paymentRequest, (data) => {
+      LightningDataProvider.sendPayment(options, (data) => {
         event.reply('/lightning-send-payment', data);
       });
     } catch (e) {

@@ -11,7 +11,8 @@ import type {
   LookupInvoiceMsg,
   QueryRoutesRequest,
   QueryRoutesResponse,
-  ChannelBalanceResponse
+  ChannelBalanceResponse,
+  SendPaymentRequest
 } from '@lily-technologies/lnrpc';
 import {
   ICallback,
@@ -63,7 +64,7 @@ export abstract class LightningBaseProvider implements LightningProviderInterfac
 
   abstract getRoutes({ pubKey, amt }: QueryRoutesRequest): Promise<QueryRoutesResponse>;
 
-  abstract sendPayment(paymentRequest: string, callback: (data: Payment) => void): void;
+  abstract sendPayment(options: SendPaymentRequest, callback: (data: Payment) => void): void;
 
   abstract openChannelInitialize(
     { lightningAddress, channelAmount }: OpenChannelRequestArgs,
