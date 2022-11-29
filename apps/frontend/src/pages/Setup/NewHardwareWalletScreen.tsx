@@ -34,7 +34,7 @@ import { PlatformContext, ConfigContext } from 'src/context';
 
 import {
   HwiEnumerateResponse,
-  ColdcardElectrumExport,
+  ColdcardGenericJsonExport,
   File,
   AddressType,
   OnChainConfigWithoutId,
@@ -240,28 +240,26 @@ const NewHardwareWalletScreen = ({ setStep, newAccount, setNewAccount }: Props) 
     }
   };
 
-  const importDeviceFromFile = (parsedFile: ColdcardElectrumExport) => {
+  const importDeviceFromFile = (parsedFile: ColdcardGenericJsonExport) => {
     try {
-      if (parsedFile.keystore.derivation !== "m/49'/0'/0'") {
+      // Assuming / Forcing P2WPKH
+      // TODO: provide more concise validation
+      if (parsedFile.bip84.name !== 'p2wpkh') {
         throw new Error('Invalid file');
       }
 
-      const xpub = zpubToXpub(decode(parsedFile.keystore.xpub));
-
       const newDevice: HwiEnumerateWithXpubResponse = {
-        type: parsedFile.keystore.hw_type as HwiEnumerateWithXpubResponse['type'],
-        fingerprint: parsedFile.keystore.label.substring(
-          'Coldcard Import '.length,
-          parsedFile.keystore.label.length
-        ),
-        xpub: xpub,
+        type: 'coldcard',
+        fingerprint: parsedFile.xfp,
+        xpub: parsedFile.bip84.xpub,
         model: 'unknown',
         path: 'unknown'
       };
 
       const updatedImportedDevices = [...importedDevices, newDevice];
       setImportedDevices(updatedImportedDevices);
-      setStep(3);
+      setPath(getP2wpkhDeriationPathForNetwork(currentBitcoinNetwork));
+      setAddressType(AddressType.P2WPKH);
     } catch (e) {
       if (e instanceof Error) {
         openInModal(<ErrorModal message={e.message} closeModal={closeModal} />);

@@ -528,6 +528,57 @@ export interface ColdcardElectrumExport {
   seed_version: number; // 17
 }
 
+export interface ColdcardGenericJsonExport {
+  xpub: string;
+  xfp: string;
+  account: 0;
+  bip49: {
+    name: 'p2sh-p2wpkh';
+    deriv: "m/49'/0'/0'";
+    xpub: string;
+    xfp: string;
+    first: string;
+    _pub: string;
+  };
+  bip44: {
+    name: 'p2pkh';
+    deriv: "m/44'/0'/0'";
+    xpub: string;
+    xfp: string;
+    first: string;
+  };
+  bip84: {
+    name: 'p2wpkh';
+    deriv: "m/84'/0'/0'";
+    xpub: string;
+    xfp: string;
+    first: string;
+    _pub: string;
+  };
+  bip48_2: {
+    name: 'p2wsh';
+    deriv: "m/48'/0'/0'/2'";
+    xpub: string;
+    xfp: string;
+    _pub: string;
+  };
+  bip45: {
+    name: 'p2sh';
+    deriv: "m/45'";
+    xpub: string;
+    xfp: string;
+    _pub: string;
+  };
+  chain: 'BTC';
+  bip48_1: {
+    name: 'p2sh-p2wsh';
+    deriv: "m/48'/0'/0'/1'";
+    xpub: string;
+    xfp: string;
+    _pub: string;
+  };
+}
+
 export interface ColdcardDeviceMultisigExportFile {
   p2sh_deriv: string; // m/45'
   p2sh: string; // xpub68ULYdfaSbytWGGNnutbcDLVyk3hyi3Tv5A8eftKDumTwTbRcT8u4QvZAWHRtqKMPb8serYEokayLLbicvwrar6TF1afmn3637v1Q6T2ZD
