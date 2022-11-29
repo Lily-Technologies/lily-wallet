@@ -132,7 +132,9 @@ const RecentTransactions = ({
             return null;
           })}
         {!loading && transactions.length === 0 && <NoTransactionsEmptyState />}
-        {!loading && filteredTransactions.length === 0 && <NoFilteredTransactionsEmptyState />}
+        {!loading && filteredTransactions.length === 0 && transactions.length > 0 && (
+          <NoFilteredTransactionsEmptyState />
+        )}
       </div>
     </div>
   );
