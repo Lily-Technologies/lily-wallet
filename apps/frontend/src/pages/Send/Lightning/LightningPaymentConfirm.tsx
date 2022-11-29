@@ -123,11 +123,20 @@ const LightningPaymentConfirm = ({ paymentRequest, setStep, currentAccount }: Pr
                 />{' '}
                 )
               </div>
+              <span className='text-xs text-gray-900 dark:text-gray-200'>
+                {outgoingChanId ? 'Sending through ' : ''}
+              </span>
               <button
                 className='text-xs text-green-500 hover:text-green-400'
                 onClick={() =>
                   openInSlideover(
                     <ChannelSlideover
+                      outgoingChanId={outgoingChanId}
+                      onCancel={() => setSlideoverOpen(false)}
+                      onClear={() => {
+                        setOutgoingChanId('');
+                        setSlideoverOpen(false);
+                      }}
                       onSave={(savedChanId: string) => {
                         setOutgoingChanId(savedChanId);
                         setSlideoverOpen(false);

@@ -27,14 +27,14 @@ const ChannelRow = ({
 }: Props) => (
   <tr
     className={classNames(
-      'group cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 flex flex-col md:flex-row justify-between items-center py-6 md:py-2 rounded-lg',
+      'group cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 flex flex-col md:flex-row justify-between items-center py-6 md:py-2 rounded-lg px-2',
       selected
         ? 'border-green-900/20 bg-green-100/40 hover:bg-green-50 dark:hover:bg-green-700 active:bg-green-500/25 dark:bg-green-800'
         : ''
     )}
     onClick={() => onClick()}
   >
-    <td className='py-2 px-4 rounded-l-2xl'>
+    <td className='py-2 px-2 rounded-l-2xl'>
       <ChannelHeader className='text-gray-900 dark:text-gray-300'>{alias}</ChannelHeader>
       <ChannelSubheader className='flex items-center'>
         <span className='relative flex'>
