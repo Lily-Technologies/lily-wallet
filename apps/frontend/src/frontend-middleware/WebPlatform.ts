@@ -11,7 +11,8 @@ import type {
   LookupInvoiceMsg,
   Invoice,
   QueryRoutesRequest,
-  QueryRoutesResponse
+  QueryRoutesResponse,
+  SendPaymentRequest
 } from '@lily-technologies/lnrpc';
 
 import { WalletInfo } from 'bitcoin-simple-rpc';
@@ -214,13 +215,13 @@ export class WebPlatform extends BasePlatform {
   // Lightning
 
   async sendLightningPayment(
-    paymentRequest: string,
+    options: SendPaymentRequest,
     config: LightningConfig,
     callback: (payment: Payment) => void
   ) {
     const { data } = await axios.post<Payment>(`/lightning-send-payment`, {
-      paymentRequest: paymentRequest,
-      config: config
+      options,
+      config
     });
 
     callback(data);

@@ -58,7 +58,7 @@ const ChannelView = ({ currentAccount, setViewOpenChannelForm }: Props) => {
               remoteBalance={channel.remoteBalance}
               key={channel.channelPoint}
               alias={channel.alias}
-              capacity={Number(channel.capacity)}
+              capacity={channel.capacity}
               status={'pending'}
               onClick={() => openInModal(<ChannelModal channel={channel} />)}
             />
@@ -69,7 +69,7 @@ const ChannelView = ({ currentAccount, setViewOpenChannelForm }: Props) => {
               remoteBalance={channel.remoteBalance}
               key={channel.channelPoint}
               alias={channel.alias}
-              capacity={Number(channel.capacity)}
+              capacity={channel.capacity}
               status={channel.active ? 'active' : 'inactive'}
               onClick={() => openInModal(<ChannelModal channel={channel} />)}
             />

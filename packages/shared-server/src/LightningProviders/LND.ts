@@ -15,7 +15,8 @@ import createLnRpc, {
   OpenChannelRequest,
   createInvoicesRpc,
   QueryRoutesRequest,
-  QueryRoutesResponse
+  QueryRoutesResponse,
+  SendPaymentRequest
 } from '@lily-technologies/lnrpc';
 import { blockExplorerAPIURL } from 'unchained-bitcoin';
 import BigNumber from 'bignumber.js';
@@ -392,13 +393,13 @@ export class LND extends LightningBaseProvider {
     return invoice;
   }
 
-  async sendPayment(paymentRequest: string, callback: (data: Payment) => void) {
+  async sendPayment(options: SendPaymentRequest, callback: (data: Payment) => void) {
     const lnRpcClient = await createRouterRpc(parseLndConnectUri(this.lndConnectUri));
 
     const sendPaymentStream = lnRpcClient.sendPaymentV2({
-      paymentRequest: paymentRequest,
       timeoutSeconds: 15, // TODO: change?
-      feeLimitSat: 250
+      feeLimitSat: 250,
+      ...options
     });
 
     sendPaymentStream.on('data', (chunk: Payment) => {
