@@ -3,7 +3,6 @@
     "apps/electron": {},
     "apps/express": {},
     "apps/frontend": {},
-    "packages/HWIs": {},
     "packages/shared-server": {},
     "packages/types": {}
   },
