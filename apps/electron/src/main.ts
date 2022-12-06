@@ -189,17 +189,21 @@ const setupInitialNodeConfig = async () => {
       }
     } catch (e) {
       console.log('Failed to connect to local Bitcoin Core instance.');
-      const defaultElectrumEndpoint = 'electrum.emzy.de';
+      const defaultElectrumEndpoint = 'electrum1.bluewallet.io';
       try {
         console.log(`Connecting to ${defaultElectrumEndpoint}...`);
         OnchainDataProvider = new ElectrumProvider(
           defaultElectrumEndpoint,
-          50002,
+          50001,
           'tcp',
           isTestnet
         );
         await OnchainDataProvider.initialize();
-        console.log(`Connected to ${defaultElectrumEndpoint}`);
+        if (OnchainDataProvider.connected) {
+          console.log(`Connected to ${defaultElectrumEndpoint}`);
+        } else {
+          throw new Error(); // throw error to go to catch segment
+        }
       } catch (e) {
         console.log(`Failed to connect to ${defaultElectrumEndpoint}`);
         const defaultEsploraEndpoint = 'https://blockstream.info';
