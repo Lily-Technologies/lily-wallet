@@ -1,14 +1,1 @@
-{
-  "packages": {
-    "apps/electron": {},
-    "apps/express": {},
-    "apps/frontend": {},
-    "packages/HWIs": {},
-    "packages/shared-server": {},
-    "packages/types": {}
-  },
-  "bootstrap-sha": "c7d2141ab4887fdf9f3849afab59db2b4f9a0535",
-  "last-release-sha": "c7d2141ab4887fdf9f3849afab59db2b4f9a0535",
-  "plugins": ["node-workspace"],
-  "release-type": "node"
-}
+{}
