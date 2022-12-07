@@ -1,18 +1,13 @@
 {
-  "release-as": "1.3.0",
   "group-pull-request-title-pattern": "chore: release v${version}",
   "packages": {
     ".": {},
-    "apps/electron": {
-      "release-as": "1.3.0"
-    },
-    "apps/express": { "release-as": "1.3.0" },
-    "apps/frontend": { "release-as": "1.3.0" },
-    "packages/shared-server": { "release-as": "1.3.0" },
-    "packages/types": { "release-as": "1.3.0" }
+    "apps/electron": { "skip-github-release": true },
+    "apps/express": { "skip-github-release": true },
+    "apps/frontend": { "skip-github-release": true },
+    "packages/shared-server": { "skip-github-release": true },
+    "packages/types": { "skip-github-release": true }
   },
-  "bootstrap-sha": "c7d2141ab4887fdf9f3849afab59db2b4f9a0535",
-  "last-release-sha": "c7d2141ab4887fdf9f3849afab59db2b4f9a0535",
   "plugins": [{ "type": "node-workspace", "merge": false }],
   "release-type": "node"
 }
