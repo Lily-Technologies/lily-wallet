@@ -2,6 +2,7 @@
   "release-as": "1.3.0",
   "group-pull-request-title-pattern": "chore: release ${version}",
   "packages": {
+    ".": {},
     "apps/electron": {
       "release-as": "1.3.0"
     },
