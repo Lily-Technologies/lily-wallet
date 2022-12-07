@@ -150,7 +150,7 @@
   },
   "devDependencies": {
     "@electron/rebuild": "^3.2.10",
-    "electron": "^16.0.6",
+    "electron": "^18.3.7",
     "electron-builder": "^23.3.3",
     "electron-devtools-installer": "^3.2.0",
     "electron-installer-dmg": "^3.0.0",
