@@ -3,10 +3,12 @@ import moment from 'moment';
 
 import { Modal, SettingsTable } from 'src/components';
 
-import DeleteAccountModal from './DeleteAccountModal';
-import EditAccountNameModal from './EditAccountNameModal';
+import DeleteAccountModal from '../DeleteAccountModal';
+import EditAccountNameModal from '../EditAccountNameModal';
 
-import { AccountMapContext, ConfigContext } from 'src/context';
+import DeezyToggle from './DeezyToggle';
+
+import { AccountMapContext, ConfigContext, PlatformContext } from 'src/context';
 
 import { red500 } from 'src/utils/colors';
 
@@ -29,10 +31,12 @@ const GeneralView = () => {
   return (
     <SettingsTable.Wrapper>
       <SettingsTable.HeaderSection>
-        <SettingsTable.HeaderTitle>Account Information</SettingsTable.HeaderTitle>
-        <SettingsTable.HeaderSubtitle>
+        <h3 className='text-lg font-medium leading-6 text-gray-900 dark:text-gray-200'>
+          Account Information
+        </h3>
+        <p className='max-w-2xl text-sm text-gray-500 dark:text-gray-400'>
           This information is private and only seen by you.
-        </SettingsTable.HeaderSubtitle>
+        </p>
       </SettingsTable.HeaderSection>
 
       <SettingsTable.Row>
@@ -66,10 +70,12 @@ const GeneralView = () => {
       </SettingsTable.Row>
 
       <SettingsTable.HeaderSection>
-        <SettingsTable.HeaderTitle>Connection Information</SettingsTable.HeaderTitle>
-        <SettingsTable.HeaderSubtitle>
+        <h3 className='text-lg font-medium leading-6 text-gray-900 dark:text-gray-200'>
+          Connection Information
+        </h3>
+        <p className='max-w-2xl text-sm text-gray-500 dark:text-gray-400'>
           Information about the lightning node
-        </SettingsTable.HeaderSubtitle>
+        </p>
       </SettingsTable.HeaderSection>
       <SettingsTable.Row>
         <SettingsTable.KeyColumn>Status</SettingsTable.KeyColumn>
@@ -85,11 +91,27 @@ const GeneralView = () => {
         </SettingsTable.ValueColumn>
       </SettingsTable.Row>
 
+      <div className='mt-10 divide-y divide-gray-200 dark:divide-gray-700'>
+        <div className='space-y-1'>
+          <h3 className='text-lg font-medium leading-6 text-gray-900 dark:text-gray-200'>
+            Integrations
+          </h3>
+          <p className='max-w-2xl text-sm text-gray-500 dark:text-gray-400'>
+            Manage 3rd party integrations and features for your lightning node.
+          </p>
+        </div>
+        <div className='mt-6'>
+          <DeezyToggle />
+        </div>
+      </div>
+
       <SettingsTable.HeaderSection>
-        <SettingsTable.HeaderTitle>Danger Zone</SettingsTable.HeaderTitle>
-        <SettingsTable.HeaderSubtitle>
+        <h3 className='text-lg font-medium leading-6 text-gray-900 dark:text-gray-200'>
+          Danger Zone
+        </h3>
+        <p className='max-w-2xl text-sm text-gray-500 dark:text-gray-400'>
           Remove this account from Lily Wallet.
-        </SettingsTable.HeaderSubtitle>
+        </p>
       </SettingsTable.HeaderSection>
       <SettingsTable.Row>
         <SettingsTable.KeyColumn>Delete Account</SettingsTable.KeyColumn>

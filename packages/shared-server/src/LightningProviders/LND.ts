@@ -16,12 +16,17 @@ import createLnRpc, {
   createInvoicesRpc,
   QueryRoutesRequest,
   QueryRoutesResponse,
-  SendPaymentRequest
+  SendPaymentRequest,
+  MacaroonPermission,
+  BakeMacaroonRequest,
+  DeleteMacaroonIDRequest,
+  DeleteMacaroonIDResponse
 } from '@lily-technologies/lnrpc';
 import { blockExplorerAPIURL } from 'unchained-bitcoin';
 import BigNumber from 'bignumber.js';
 
 import { LightningBaseProvider } from '.';
+import { generateMacaroonPermissions } from './util';
 
 import { parseLndConnectUri } from '../utils/lightning';
 
@@ -69,6 +74,8 @@ export class LND extends LightningBaseProvider {
     const lnRpcClient = await createLnRpc(
       parseLndConnectUri(config.connectionDetails.lndConnectUri)
     );
+
+    // TODO: determine if using deezy.io service
 
     let { channels } = await lnRpcClient.listChannels();
     if (!channels) {
@@ -533,5 +540,22 @@ export class LND extends LightningBaseProvider {
     closeChannelResponse.on('end', () => {
       console.log('/close-channel end');
     });
+  }
+
+  async bakeMacaroon({ permissions, rootKeyId, allowExternalPermissions }: BakeMacaroonRequest) {
+    const client = await this.getClient();
+    const macaroon = await client.bakeMacaroon({
+      permissions,
+      rootKeyId,
+      allowExternalPermissions
+    });
+
+    return macaroon;
+  }
+
+  async revokeMacaroon({ rootKeyId }: DeleteMacaroonIDRequest): Promise<DeleteMacaroonIDResponse> {
+    const client = await this.getClient();
+    const { deleted } = await client.deleteMacaroonId({ rootKeyId });
+    return { deleted };
   }
 }
