@@ -25,7 +25,8 @@ import {
   createTransactionTable,
   addTransactionDescription,
   getTransactionDescription,
-  dbConnect
+  dbConnect,
+  generateMacaroonPermissions
 } from '@lily/shared-server';
 
 import {
@@ -759,6 +760,28 @@ ipcMain.handle('/get-transaction-description', async (event, args) => {
     console.log(`error /get-transaction-description ${e}`);
     return Promise.reject({ success: false, error: e });
   }
+});
+
+ipcMain.handle('/bake-macaroon', async (event, args) => {
+  const macaroon = LightningDataProvider.bakeMacaroon({
+    permissions: generateMacaroonPermissions(),
+    rootKeyId: 4552625,
+    allowExternalPermissions: false
+  });
+  const url = ''; // TODO: replace with deezy.io endpoint
+  const response = await axios.post(url, {
+    macaroon
+  });
+
+  return Promise.resolve(response.data);
+});
+
+ipcMain.handle('/revoke-macaroon', async (event, args) => {
+  const { rootKeyId } = args;
+  const { deleted } = await LightningDataProvider.revokeMacaroon(rootKeyId);
+  // TODO: does this need to make a network request to deezy.io?
+  const url = ''; // TODO: replace with endpoint
+  return Promise.resolve(deleted);
 });
 
 // Log both at dev console and at running node console instance

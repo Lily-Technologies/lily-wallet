@@ -12,7 +12,10 @@ import type {
   Invoice,
   QueryRoutesRequest,
   QueryRoutesResponse,
-  SendPaymentRequest
+  SendPaymentRequest,
+  BakeMacaroonResponse,
+  DeleteMacaroonIDRequest,
+  DeleteMacaroonIDResponse
 } from '@lily-technologies/lnrpc';
 
 import { WalletInfo } from 'bitcoin-simple-rpc';
@@ -370,6 +373,18 @@ export class WebPlatform extends BasePlatform {
   async getTransactionDescription(txid: string) {
     const { data } = await axios.post<TransactionDescription>('/get-transaction-description', {
       txid
+    });
+    return Promise.resolve(data);
+  }
+
+  async bakeMacaroon(): Promise<BakeMacaroonResponse> {
+    // TODO: implement later
+    return { macaroon: 'abc' };
+  }
+
+  async revokeMacaroon(): Promise<DeleteMacaroonIDResponse> {
+    const { data } = await axios.post<DeleteMacaroonIDResponse>('/revoke-macaroon', {
+      rootKeyId: 4552625
     });
     return Promise.resolve(data);
   }

@@ -9,7 +9,10 @@ import type {
   Invoice,
   QueryRoutesRequest,
   QueryRoutesResponse,
-  SendPaymentRequest
+  SendPaymentRequest,
+  BakeMacaroonResponse,
+  DeleteMacaroonIDRequest,
+  DeleteMacaroonIDResponse
 } from '@lily-technologies/lnrpc';
 
 import { WalletInfo } from 'bitcoin-simple-rpc';
@@ -350,5 +353,15 @@ export class ElectronPlatform extends BasePlatform {
       txid
     });
     return Promise.resolve(response);
+  }
+
+  async bakeMacaroon(): Promise<BakeMacaroonResponse> {
+    const response = await window.ipcRenderer.invoke('/bake-macaroon');
+    return Promise.resolve(response);
+  }
+
+  async revokeMacaroon(): Promise<DeleteMacaroonIDResponse> {
+    const { deleted } = await window.ipcRenderer.invoke('/revoke-macaroon', { rootKeyId: 4552625 });
+    return Promise.resolve({ deleted });
   }
 }

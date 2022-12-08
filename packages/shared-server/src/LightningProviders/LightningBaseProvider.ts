@@ -12,7 +12,11 @@ import type {
   QueryRoutesRequest,
   QueryRoutesResponse,
   ChannelBalanceResponse,
-  SendPaymentRequest
+  SendPaymentRequest,
+  BakeMacaroonResponse,
+  DeleteMacaroonIDResponse,
+  BakeMacaroonRequest,
+  DeleteMacaroonIDRequest
 } from '@lily-technologies/lnrpc';
 import {
   ICallback,
@@ -79,4 +83,14 @@ export abstract class LightningBaseProvider implements LightningProviderInterfac
     { channelPoint, deliveryAddress }: CloseChannelRequest,
     callback: (data: CloseStatusUpdate) => void
   ): Promise<void>;
+
+  abstract bakeMacaroon({
+    permissions,
+    rootKeyId,
+    allowExternalPermissions
+  }: BakeMacaroonRequest): Promise<BakeMacaroonResponse>;
+
+  abstract revokeMacaroon({
+    rootKeyId
+  }: DeleteMacaroonIDRequest): Promise<DeleteMacaroonIDResponse>;
 }

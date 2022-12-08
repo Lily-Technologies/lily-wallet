@@ -277,6 +277,7 @@ export interface LightningAmount {
 }
 
 export interface LilyLightningAccount {
+  // TODO: add deezy.io data (?) at least enabled/disabled
   name: string;
   config: LightningConfig;
   channels: DecoratedLightningChannel[];

@@ -10,7 +10,10 @@ import type {
   QueryRoutesResponse,
   GetInfoResponse,
   ChannelBalanceResponse,
-  SendPaymentRequest
+  SendPaymentRequest,
+  BakeMacaroonResponse,
+  DeleteMacaroonIDRequest,
+  DeleteMacaroonIDResponse
 } from '@lily-technologies/lnrpc';
 
 import { WalletInfo } from 'bitcoin-simple-rpc';
@@ -239,4 +242,7 @@ export abstract class BasePlatform implements PlatformInterface {
 
   abstract addTransactionDescription(txid: string, description: string): Promise<number>;
   abstract getTransactionDescription(txid: string): Promise<TransactionDescription>;
+
+  abstract bakeMacaroon(): Promise<BakeMacaroonResponse>;
+  abstract revokeMacaroon(): Promise<DeleteMacaroonIDResponse>;
 }
