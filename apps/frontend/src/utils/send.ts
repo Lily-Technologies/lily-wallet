@@ -5,6 +5,7 @@ import BigNumber from 'bignumber.js';
 import coinSelect from 'coinselect';
 import coinSelectAll from 'coinselect/split';
 import { Buffer } from 'buffer';
+import { decode } from 'bs58check';
 
 import { cloneBuffer, bufferToHex } from './other';
 
@@ -17,7 +18,8 @@ import {
   FeeRates,
   ExtendedPublicKey,
   LilyOnchainAccount,
-  Device
+  Device,
+  PsbtInput
 } from '@lily/types';
 
 import { BasePlatform } from 'src/frontend-middleware';
@@ -207,8 +209,19 @@ export const createTransaction = async (
   psbt.setVersion(2); // These are defaults. This line is not needed.
   psbt.setLocktime(0); // These are defaults. This line is not needed.
 
+  // add global xpubs for security. see https://github.com/bitcoin-core/HWI/issues/671
+  psbt.updateGlobal({
+    globalXpub: currentAccount.config.extendedPublicKeys.map((key) => {
+      return {
+        extendedPubkey: decode(key.xpub), // have to decode to use 78 bytes pubkey, see https://github.com/bitcoinjs/bitcoinjs-lib/issues/1504
+        masterFingerprint: Buffer.from(key.parentFingerprint, 'hex'),
+        path: key.bip32Path
+      };
+    })
+  });
+
   inputs.forEach((input) => {
-    const currentInput = {
+    const currentInput: PsbtInput = {
       hash: input.txid,
       index: input.vout,
       sequence: 0xfffffffd, // always enable RBF
@@ -235,8 +248,18 @@ export const createTransaction = async (
     } else if (config.addressType === 'p2sh') {
       // @ts-ignore-line
       currentInput.redeemScript = getBuffer(input.address.redeem.output);
+    } else if (config.addressType === 'P2SH-P2WSH') {
+      currentInput.redeemScript = getBuffer(input.address.redeem.output);
+      currentInput.witnessScript = getBuffer(input.address.redeem.redeem.output);
+      // @ts-ignore-line
+      currentInput.witnessUtxo = {
+        value: input.value,
+        // @ts-ignore-line
+        script: getBuffer(input.address.output)
+      };
     }
 
+    // @ts-ignore
     psbt.addInput(currentInput);
   });
 

@@ -195,7 +195,11 @@ const getMultisigAddressFromPubKeys = (
   currentBitcoinNetwork: Network
 ): Address => {
   const rawPubkeys = pubkeys.map((publicKey) => publicKey.childPubKey);
-  rawPubkeys.sort();
+  if (config.bitgo) {
+    // if bitgo, skip sorting
+  } else {
+    rawPubkeys.sort();
+  }
 
   const address = generateMultisigFromPublicKeys(
     getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork),
@@ -203,6 +207,7 @@ const getMultisigAddressFromPubKeys = (
     config.quorum.requiredSigners,
     ...rawPubkeys
   );
+
   const decoratedAddress = {
     ...address,
     bip32derivation: pubkeys.map((publicKey) => publicKey.bip32derivation)

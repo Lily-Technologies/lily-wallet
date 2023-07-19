@@ -132,12 +132,19 @@ export class ElectronPlatform extends BasePlatform {
   }
 
   async signTransaction({ deviceType, devicePath, psbt }: HwiSignTransactionRequest) {
-    const response = await window.ipcRenderer.invoke('/sign', {
-      deviceType,
-      devicePath,
-      psbt
-    });
-    return Promise.resolve(response);
+    try {
+      const response = await window.ipcRenderer.invoke('/sign', {
+        deviceType,
+        devicePath,
+        psbt
+      });
+      return Promise.resolve(response);
+    } catch (e) {
+      console.log('e: ', e);
+      // @ts-ignore
+      console.log('e.message: ', e.message);
+      return Promise.reject(e);
+    }
   }
 
   async enumerate(): Promise<HwiEnumerateResponse[]> {
@@ -146,20 +153,34 @@ export class ElectronPlatform extends BasePlatform {
   }
 
   async promptPin({ deviceType, devicePath }: HwiPromptPinRequest): Promise<HwiPromptPinResponse> {
-    const response: HwiPromptPinResponse = await window.ipcRenderer.invoke('/promptpin', {
-      deviceType,
-      devicePath
-    });
-    return Promise.resolve(response);
+    try {
+      const response: HwiPromptPinResponse = await window.ipcRenderer.invoke('/promptpin', {
+        deviceType,
+        devicePath
+      });
+      return Promise.resolve(response);
+    } catch (e) {
+      console.log('e: ', e);
+      // @ts-ignore
+      console.log('e.message: ', e.message);
+      return Promise.reject(e);
+    }
   }
 
   async sendPin({ deviceType, devicePath, pin }: HwiSendPinRequest): Promise<HwiSendPinResponse> {
-    const response: HwiSendPinResponse = await window.ipcRenderer.invoke('/sendpin', {
-      deviceType,
-      devicePath,
-      pin
-    });
-    return Promise.resolve(response);
+    try {
+      const response: HwiSendPinResponse = await window.ipcRenderer.invoke('/sendpin', {
+        deviceType,
+        devicePath,
+        pin
+      });
+      return Promise.resolve(response);
+    } catch (e) {
+      console.log('e: ', e);
+      // @ts-ignore
+      console.log('e.message: ', e.message);
+      return Promise.reject(e);
+    }
   }
 
   async estimateFee(): Promise<FeeRates> {

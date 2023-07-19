@@ -383,17 +383,22 @@ export interface LilyZeroDotOneConfig {
   exchanges: any[]; // TODO: change
 }
 
+type DeviceType =
+  | 'coldcard'
+  | 'trezor'
+  | 'ledger'
+  | 'phone'
+  | 'lily'
+  | 'cobo'
+  | 'bitbox02'
+  | 'unchained'
+  | 'bitgo'
+  | 'onramp'
+  | 'kingdom-trust'
+  | 'unknown';
+
 export interface Device {
-  type:
-    | 'coldcard'
-    | 'trezor'
-    | 'ledger'
-    | 'phone'
-    | 'lily'
-    | 'cobo'
-    | 'bitbox02'
-    | 'unchained'
-    | 'unknown';
+  type: DeviceType;
   fingerprint: string;
   model: string; // KBC-TODO: get more specific with this
   owner?: {
@@ -468,12 +473,14 @@ export enum AddressType {
   P2WSH = 'P2WSH',
   P2WPKH = 'P2WPKH',
   p2sh = 'p2sh',
-  multisig = 'multisig'
+  multisig = 'multisig',
+  'P2SH-P2WSH' = 'P2SH-P2WSH'
 }
 
 export interface OnChainConfig {
   id: AccountId;
   type: 'onchain';
+  bitgo?: boolean;
   created_at: number;
   name: string;
   network: 'mainnet' | 'testnet';

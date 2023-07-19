@@ -29,7 +29,6 @@ export const setInitialConfig = async () => {
       const lndHost = `${process.env.LND_IP}:${process.env.LND_GRPC_PORT}`;
 
       const emptyConfig = EMPTY_CONFIG;
-      emptyConfig.isEmpty = true;
       emptyConfig.lightning[0] = {
         id: uuidv4(),
         type: 'lightning',
@@ -46,6 +45,7 @@ export const setInitialConfig = async () => {
       };
 
       if (!configExists && process.env.APP_PASSWORD) {
+        emptyConfig.isEmpty = false;
         const encryptedConfigObject = AES.encrypt(
           JSON.stringify(emptyConfig),
           process.env.APP_PASSWORD

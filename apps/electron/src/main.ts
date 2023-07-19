@@ -557,7 +557,7 @@ ipcMain.handle('/xpub', async (event, args: HwiXpubRequest) => {
 ipcMain.handle('/sign', async (event, args) => {
   const { deviceType, devicePath, psbt } = args;
   const resp = JSON.parse(await signtx(deviceType, devicePath, psbt, isTestnet));
-  if (resp.error) {
+  if (!resp.signed) {
     return Promise.reject(new Error('Error signing transaction'));
   }
   return Promise.resolve(resp);

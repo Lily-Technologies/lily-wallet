@@ -10,6 +10,9 @@ import Cobo from 'src/assets/cobo.png';
 import Bitbox from 'src/assets/bitbox02.png';
 import LilyLogo from 'src/assets/flower.svg';
 import Unchained from 'src/assets/unchained.png';
+import Bitgo from 'src/assets/bitgo.png';
+import Onramp from 'src/assets/onramp.png';
+import KingdomTrust from 'src/assets/kingdom-trust.png';
 
 import { Device } from '@lily/types';
 
@@ -48,6 +51,12 @@ export const DeviceImage = ({ device, className }: Props) => {
           ? Bitbox
           : device.type === 'unchained'
           ? Unchained
+          : device.type === 'onramp'
+          ? Onramp
+          : device.type === 'kingdom-trust'
+          ? KingdomTrust
+          : device.type === 'bitgo'
+          ? Bitgo
           : LilyLogo
       }
     />

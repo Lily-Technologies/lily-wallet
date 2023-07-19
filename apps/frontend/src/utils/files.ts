@@ -36,7 +36,7 @@ export function clone<T>(a: T): T {
 export const createAccountId = (config: Omit<OnChainConfig, 'id'>): AccountId => {
   const preHashId = `${config.addressType}:${config.quorum.requiredSigners}:${
     config.quorum.totalSigners
-  }:${config.extendedPublicKeys
+  }:${[...config.extendedPublicKeys]
     // sort xpubs alphabetically to catch case where imported in different order
     .sort((a, b) => (a.xpub > b.xpub ? -1 : a.xpub < b.xpub ? 1 : 0))
     .map((xpub) => xpub.xpub)
@@ -392,7 +392,7 @@ export const createMultisigConfigFile = (
         created_at: Date.now(),
         parentFingerprint: device.fingerprint,
         network: getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork),
-        bip32Path: getMultisigDeriationPathForNetwork(currentBitcoinNetwork),
+        bip32Path: extendedPublicKey.bip32Path,
         xpub: xpub,
         device: {
           type: device.type,
@@ -405,19 +405,20 @@ export const createMultisigConfigFile = (
   );
 
   const newAccountWithoutId: Omit<VaultConfig, 'id'> = {
+    ...newAccountInputs,
     type: 'onchain',
     created_at: Date.now(),
-    name: newAccountInputs.name,
+    // name: newAccountInputs.name,
     license: {
       license: `trial:${currentBlockHeight + 4320}`, // one month free trial (6 * 24 * 30)
       signature: ''
     },
     network: getUnchainedNetworkFromBjslibNetwork(currentBitcoinNetwork),
-    addressType: newAccountInputs.addressType,
-    quorum: {
-      requiredSigners: newAccountInputs.quorum.requiredSigners,
-      totalSigners: newAccountInputs.extendedPublicKeys.length
-    },
+    // addressType: newAccountInputs.addressType,
+    // quorum: {
+    //   requiredSigners: newAccountInputs.quorum.requiredSigners,
+    //   totalSigners: newAccountInputs.extendedPublicKeys.length
+    // },
     extendedPublicKeys: newKeys
   };
 

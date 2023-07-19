@@ -76,21 +76,21 @@ const App = () => {
   //   return null;
   // };
 
-  const RedirectHandler = () => {
-    const history = useHistory();
-    const { search } = useLocation();
-    const { redirect, ...rest } = queryString.parse(search);
-    useEffect(() => {
-      if (!config.isEmpty && !!redirect && typeof redirect === 'string') {
-        history.push({
-          pathname: redirect,
-          search: queryString.stringify(rest)
-        });
-      }
-    }, [redirect]);
+  // const RedirectHandler = () => {
+  //   const history = useHistory();
+  //   const { search } = useLocation();
+  //   const { redirect, ...rest } = queryString.parse(search);
+  //   useEffect(() => {
+  //     if (!config.isEmpty && !!redirect && typeof redirect === 'string') {
+  //       history.push({
+  //         pathname: redirect,
+  //         search: queryString.stringify(rest)
+  //       });
+  //     }
+  //   }, [redirect]);
 
-    return null;
-  };
+  //   return null;
+  // };
 
   const Overlay = () => {
     const { pathname } = useLocation();
@@ -265,7 +265,7 @@ const App = () => {
         <TitleBar nodeConfig={nodeConfig} config={config} />
       ) : null}
       <ConfigRequired />
-      <RedirectHandler />
+      {/* <RedirectHandler /> */}
       <Overlay />
       <Sidebar currentBitcoinNetwork={currentBitcoinNetwork} />
       <Switch>
