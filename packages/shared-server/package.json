@@ -1,6 +1,6 @@
 {
   "name": "@lily/shared-server",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "author": "Lily Technologies, Inc. <help@lily-wallet.com> (https://lily-wallet.com)",
   "description": "Lily is the best way to secure your Bitcoin",
   "license": "Custom",
@@ -13,7 +13,7 @@
   "dependencies": {
     "@lily-technologies/electrum-client": "^1.1.8",
     "@lily-technologies/lnrpc": "^0.14.1-beta.14",
-    "@lily/types": "1.3.0",
+    "@lily/types": "1.4.0",
     "agent-base": "^6.0.2",
     "app-root-dir": "^1.0.2",
     "axios": "^0.24.0",
