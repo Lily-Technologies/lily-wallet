@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.4.0](https://github.com/Lily-Technologies/lily-wallet/compare/express-v1.3.0...express-v1.4.0) (2023-07-19)
+
+
+### Features
+
+* **Bitgo:** support bitgo vaults ([baece25](https://github.com/Lily-Technologies/lily-wallet/commit/baece25843eb7a294ea3405c517b667121459248))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @lily/shared-server bumped from 1.3.0 to 1.4.0
+    * @lily/types bumped from 1.3.0 to 1.4.0
+
 ## 1.3.0 (2022-12-07)
 
 

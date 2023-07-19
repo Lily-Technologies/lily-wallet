@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/Lily-Technologies/lily-wallet/compare/lily-wallet-v1.3.0...lily-wallet-v1.4.0) (2023-07-19)
+
+
+### Features
+
+* **Bitgo:** support bitgo vaults ([baece25](https://github.com/Lily-Technologies/lily-wallet/commit/baece25843eb7a294ea3405c517b667121459248))
+
 ## 1.3.0 (2022-12-07)
 
 
