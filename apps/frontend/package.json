@@ -8,13 +8,16 @@
   "main": "./dist/main.js",
   "homepage": "./",
   "proxy": "http://localhost:8080",
+  "engines": {
+    "node": "16.x"
+  },
   "scripts": {
     "babel": "babel ./src/**/* -d dist",
     "start:dev": "PORT=3001 craco start",
     "start:dev:electron": "TAILWIND_MODE=watch env-cmd -f .env.electron craco start",
     "start:dev:umbrel": "TAILWIND_MODE=watch env-cmd -f .env.umbrel craco start",
     "build:electron": "env-cmd -f .env.electron craco build",
-    "build:umbrel": "env-cmd -f .env.umbrel craco build",
+    "build:umbrel": "env-cmd -f .env.umbrel --openssl-legacy-provider  craco build",
     "ci:cypress-run": "CI=true start-server-and-test start http://localhost:3001 cypress:run"
   },
   "dependencies": {
