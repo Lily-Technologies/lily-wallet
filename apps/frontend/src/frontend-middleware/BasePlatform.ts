@@ -169,7 +169,8 @@ export abstract class BasePlatform implements PlatformInterface {
   abstract signTransaction({
     deviceType,
     devicePath,
-    psbt
+    psbt,
+    bitgo
   }: HwiSignTransactionRequest): Promise<HwiSignTransactionResponse>;
 
   abstract enumerate(): Promise<HwiEnumerateResponse[]>;

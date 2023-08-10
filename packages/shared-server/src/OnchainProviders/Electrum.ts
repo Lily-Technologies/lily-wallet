@@ -212,7 +212,7 @@ export class ElectrumProvider extends OnchainBaseProvider {
         // derive a batch of receive/change addresses
         for (let i = pos; i < pos + BATCH_SIZE; i++) {
           // we have different postfixes for the derivation path depending if standard or bitgo (https://bitcoin.stackexchange.com/a/105468/102518)
-          const recieveDerivationPostPath = account.bitgo ? `m/0/0/10/${i}` : `m/0/${i}`;
+          const recieveDerivationPostPath = account.bitgo ? `m/10/${i}` : `m/0/${i}`;
           const receiveAddress = getAddressFromAccount(
             account,
             recieveDerivationPostPath,
@@ -224,7 +224,7 @@ export class ElectrumProvider extends OnchainBaseProvider {
           currentReceiveAddressBatch.push(receiveAddress);
 
           // we have different postfixes for the derivation path depending if standard or bitgo (https://bitcoin.stackexchange.com/a/105468/102518)
-          const changeDerivationPostPath = account.bitgo ? `m/0/0/11/${i}` : `m/1/${i}`;
+          const changeDerivationPostPath = account.bitgo ? `m/11/${i}` : `m/1/${i}`;
           const changeAddress = getAddressFromAccount(
             account,
             changeDerivationPostPath,

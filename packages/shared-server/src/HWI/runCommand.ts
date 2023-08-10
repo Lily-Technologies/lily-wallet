@@ -4,11 +4,13 @@ import { join, resolve as pathResolve, dirname } from 'path';
 import { platform } from 'os';
 import isPi from 'detect-rpi';
 
-export const runCommand = async (command: string[]): Promise<string> => {
+export const runCommand = async (command: string[], bitgo?: boolean): Promise<string> => {
   return new Promise((resolve, reject) => {
     let hwiFile = 'hwi.exe';
-    if (platform() === 'linux') hwiFile = 'HWI_LINUX';
+    if (bitgo) hwiFile = 'HWI_BITGO.exe';
+    if (platform() === 'linux') hwiFile = 'HWI_LINUX'; // BITGO not supported
     if (platform() === 'darwin') hwiFile = 'HWI_MAC';
+    if (platform() === 'darwin' && bitgo) hwiFile = 'HWI_MAC_BITGO';
     if (isPi()) hwiFile = 'HWI_PI';
     const appRootDir = getAppRootDir();
 

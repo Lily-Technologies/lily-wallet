@@ -151,11 +151,12 @@ export class WebPlatform extends BasePlatform {
     return Promise.resolve(data);
   }
 
-  async signTransaction({ deviceType, devicePath, psbt }: HwiSignTransactionRequest) {
+  async signTransaction({ deviceType, devicePath, psbt, bitgo }: HwiSignTransactionRequest) {
     const { data } = await axios.post<HwiSignTransactionResponse>(`/sign`, {
       deviceType,
       devicePath,
-      psbt
+      psbt,
+      bitgo
     });
     return Promise.resolve(data);
   }

@@ -4,9 +4,9 @@ import { Psbt } from 'bitcoinjs-lib';
 
 import { DeviceSelect, Dropdown } from 'src/components';
 
-import { Device, HwiEnumerateResponse } from '@lily/types';
+import { Device, HwiEnumerateResponse, OnChainConfig } from '@lily/types';
 
-import { PlatformContext } from 'src/context';
+import { AccountMapContext, PlatformContext } from 'src/context';
 
 interface Props {
   finalPsbt: Psbt;
@@ -28,6 +28,7 @@ const SignWithDevice = ({
   const [unsignedDevices, setUnsignedDevices] = useState<HwiEnumerateResponse[]>([]);
   const [errorDevices, setErrorDevices] = useState<string[]>([]); // stores fingerprint of error devices
   const { platform } = useContext(PlatformContext);
+  const { currentAccount } = useContext(AccountMapContext);
 
   // KBC-TODO: add a test
   const signWithDevice = async (device: HwiEnumerateResponse, index: number) => {
@@ -35,7 +36,8 @@ const SignWithDevice = ({
       const response = await platform.signTransaction({
         deviceType: device.type,
         devicePath: device.path,
-        psbt: finalPsbt.toBase64()
+        psbt: finalPsbt.toBase64(),
+        bitgo: !!(currentAccount.config as OnChainConfig).bitgo
       });
 
       setFinalPsbt(Psbt.fromBase64(response.psbt));

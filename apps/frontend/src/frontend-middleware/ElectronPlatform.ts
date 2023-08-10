@@ -131,12 +131,13 @@ export class ElectronPlatform extends BasePlatform {
     return Promise.resolve(xpub);
   }
 
-  async signTransaction({ deviceType, devicePath, psbt }: HwiSignTransactionRequest) {
+  async signTransaction({ deviceType, devicePath, psbt, bitgo }: HwiSignTransactionRequest) {
     try {
       const response = await window.ipcRenderer.invoke('/sign', {
         deviceType,
         devicePath,
-        psbt
+        psbt,
+        bitgo
       });
       return Promise.resolve(response);
     } catch (e) {

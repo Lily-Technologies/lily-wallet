@@ -434,6 +434,7 @@ export interface HwiSignTransactionRequest {
   deviceType: HwiEnumerateResponse['type'];
   devicePath: HwiEnumerateResponse['path'];
   psbt: string;
+  bitgo: boolean;
 }
 
 export interface HwiSignTransactionResponse {

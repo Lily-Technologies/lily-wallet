@@ -26,11 +26,15 @@ export const signtx = async (
   deviceType: string,
   devicePath: string,
   psbt: string,
-  testnet: boolean
+  testnet: boolean,
+  bitgo: boolean
 ) => {
   if (testnet)
-    return await runCommand(['-t', deviceType, '-d', devicePath, '--testnet', 'signtx', psbt]);
-  else return await runCommand(['-t', deviceType, '-d', devicePath, 'signtx', psbt]);
+    return await runCommand(
+      ['-t', deviceType, '-d', devicePath, '--testnet', 'signtx', psbt],
+      bitgo
+    );
+  else return await runCommand(['-t', deviceType, '-d', devicePath, 'signtx', psbt], bitgo);
 };
 
 export const displayaddress = async (
