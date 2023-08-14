@@ -13,7 +13,6 @@
   "dependencies": {
     "@lily-technologies/electrum-client": "^1.1.8",
     "@lily-technologies/lnrpc": "^0.14.1-beta.14",
-    "@lily/types": "1.4.0",
     "agent-base": "^6.0.2",
     "app-root-dir": "^1.0.2",
     "axios": "^0.24.0",

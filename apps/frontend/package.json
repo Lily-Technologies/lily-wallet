@@ -27,7 +27,6 @@
     "@heroicons/react": "^1.0.3",
     "@lily-technologies/ecpair": "^2.0.0",
     "@lily-technologies/lnrpc": "^0.14.1-beta.14",
-    "@lily/types": "1.4.0",
     "@styled-icons/bootstrap": "^10.34.0",
     "@styled-icons/boxicons-logos": "^10.38.0",
     "@styled-icons/boxicons-regular": "^10.38.0",

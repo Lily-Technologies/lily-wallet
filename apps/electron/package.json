@@ -131,7 +131,6 @@
   "dependencies": {
     "@lily-technologies/lnrpc": "^0.14.1-beta.14",
     "@lily/shared-server": "1.4.0",
-    "@lily/types": "1.4.0",
     "axios": "^0.24.0",
     "electron-notarize": "^1.1.1",
     "moment": "^2.29.1"
