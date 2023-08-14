@@ -1,6 +1,6 @@
 {
   "name": "@lily/express",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@lily-technologies/lnrpc": "^0.14.1-beta.14",
-    "@lily/shared-server": "1.4.0",
+    "@lily/shared-server": "1.5.0",
     "axios": "^0.24.0",
     "body-parser": "^1.19.1",
     "cors": "^2.8.5",
