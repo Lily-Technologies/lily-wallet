@@ -3,7 +3,7 @@
   "author": "Lily Technologies, Inc. <help@lily-wallet.com> (https://lily-wallet.com)",
   "description": "Lily is the best way to secure your Bitcoin",
   "license": "Custom",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "private": true,
   "main": "./build/main.js",
   "homepage": "./",
@@ -130,7 +130,7 @@
   },
   "dependencies": {
     "@lily-technologies/lnrpc": "^0.14.1-beta.14",
-    "@lily/shared-server": "1.4.0",
+    "@lily/shared-server": "1.5.0",
     "axios": "^0.24.0",
     "electron-notarize": "^1.1.1",
     "moment": "^2.29.1"

@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.4.1](https://github.com/Lily-Technologies/lily-wallet/compare/lily-wallet-v1.4.0...lily-wallet-v1.4.1) (2023-08-14)
+
+
+### Bug Fixes
+
+* **Bitgo:** allow Ledger signing on Bitgo vaults ([5fa6818](https://github.com/Lily-Technologies/lily-wallet/commit/5fa681815478e05f5226298d5e695315e1d6f6fe))
+* **build:** add node version to frontned package.json ([55232e6](https://github.com/Lily-Technologies/lily-wallet/commit/55232e6df103154ea9295bd4e662f35e41d4182e))
+* **Settings:** derivation path in Coldcard multisig export file ([d9a6590](https://github.com/Lily-Technologies/lily-wallet/commit/d9a65909973699b7744f80e124ead6633d3e95d5))
+
 ## [1.4.0](https://github.com/Lily-Technologies/lily-wallet/compare/lily-wallet-v1.3.0...lily-wallet-v1.4.0) (2023-07-19)
 
 
