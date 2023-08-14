@@ -463,7 +463,7 @@ export const createColdCardBlob = (
   addressType: AddressType,
   currentBitcoinNetwork: Network
 ) => {
-  let derivationPath = getMultisigDeriationPathForNetwork(currentBitcoinNetwork);
+  let derivationPath = importedDevices[0].bip32Path;
   return `# Coldcard Multisig setup file (created by Lily Wallet on ${moment(Date.now()).format(
     'MM/DD/YYYY'
   )})
